@@ -10,7 +10,9 @@
     "schema": "http://schema.org/",
     "sio": "http://semanticscience.org/resource/",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
+
     "_id": "@id",
+
     "label": {
       "@id": "rdfs:label",
       "@type": "xsd:string",
@@ -28,7 +30,7 @@
       "@id": "dct:title",
       "@type": "xsd:string",
       "label": "name",
-      "description": "The name of the object",
+      "description": "The name of the API",
       "@language": "en",
       "min": "1",
       "max": "1"
@@ -37,7 +39,7 @@
       "@id": "dct:description",
       "@type": "xsd:string",
       "label": "description",
-      "description": "A human readable description of the object",
+      "description": "A human readable description of the API",
       "@language": "en",
       "min": "0",
       "max": "1"
@@ -46,7 +48,7 @@
       "@id": "pav:version",
       "@type": "xsd:string",
       "label": "version",
-      "description": "A version number, preferably as major.minor.patch",
+      "description": "An API version number, preferably as major.minor.patch",
       "min": "0",
       "max": "1"
     },
@@ -54,7 +56,7 @@
       "@id": "schema:logo",
       "@type": "@id",
       "label": "logo",
-      "description": "A picture depicting the object",
+      "description": "A picture depicting the API",
       "min": "0"
     },
     "publisher": {
@@ -68,28 +70,28 @@
       "@id": "foaf:page",
       "@type": "@id",
       "label": "logo",
-      "description": "A picture depicting the object",
+      "description": "A picture depicting the API",
       "min": "1"
     },
     "documentionPage": {
       "@id": "documentation",
       "@type": "@id",
       "label": "documentation",
-      "description": "Documentation for the object",
+      "description": "Documentation for the API",
       "min": "0"
     },
     "termsOfUsePage": {
       "@id": "termsOfUsePage",
       "@type": "@id",
       "label": "Terms of use page",
-      "description": "Document describing the terms of the service",
+      "description": "Document describing the API terms of the service",
       "min": "1"
     },
     "sourceCodeURL": {
       "@id": "sourceCodeURL",
       "@type": "@id",
       "label": "source code URL",
-      "description": "The location for the source code",
+      "description": "The location for the API source code",
       "min": "0"
     },
     "publication": {
@@ -100,50 +102,12 @@
       "@id": "dcat:keyword",
       "@type": "xsd:string",
       "label": "keyword",
-      "description": "Terms that describe the API or service",
+      "description": "Terms that describe the API",
       "min": "1"
     },
     "services": {
       "@id": "sio:contains",
       "@type": "@id"
-    },
-    "http-method": {
-      "@id": "http-method",
-      "@type": "xsd:string",
-      "label": "HTTP method",
-      "description": "The HTTP method to interact with the service",
-      "min": "1",
-      "max": "1"
-    },
-	    "dataType": {
-     "@id": "dataType",
-     "@type": "@id",
-     "label": "data type",
-     "description": "The data type, selected from a controlled vocabulary.",
-     "min": "1",
-     "max": "1"
-    },
-    "defaultValue": {
-     "@id": "defaultValue",
-     "@type": "@id",
-     "label": "default value",
-     "description": "A default value used for this parameter.",
-     "min": "0",
-     "max": "1"
-  },
-    "inputFormat": {
-     "@id": "inputFormat",
-      "@type": "xsd:string",
-     "label": "input format",
-     "description": "The acceptable input format, specified as a MIME type.",
-     "min": "1"
-  },
-    "outputFormat": {
-     "@id": "outputFormat",
-     "@type": "xsd:string",
-     "label": "output format",
-     "description": "The possible output formats, specified as a MIME type.",
-     "min": "1"
-  }
+    }
   }
 }
