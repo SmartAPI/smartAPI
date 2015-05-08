@@ -1,5 +1,5 @@
 { 
-    "@context": "",
+    "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.jsonld",
     "@id": "http://mygene.info/",
     "name": "MyGene.info",
     "description": "The MyGene.info API provides access to a wide collection of aggregated gene resources.",
