@@ -114,6 +114,36 @@
       "description": "The HTTP method to interact with the service",
       "min": "1",
       "max": "1"
-    }
+    },
+	    "dataType": {
+     "@id": "dataType",
+     "@type": "@id",
+     "label": "data type",
+     "description": "The data type, selected from a controlled vocabulary.",
+     "min": "1",
+     "max": "1"
+    },
+    "defaultValue": {
+     "@id": "defaultValue",
+     "@type": "@id",
+     "label": "default value",
+     "description": "A default value used for this parameter.",
+     "min": "0",
+     "max": "1"
+  },
+    "inputFormat": {
+     "@id": "inputFormat",
+      "@type": "xsd:string",
+     "label": "input format",
+     "description": "The acceptable input format, specified as a MIME type.",
+     "min": "1"
+  },
+    "outputFormat": {
+     "@id": "outputFormat",
+     "@type": "xsd:string",
+     "label": "output format",
+     "description": "The possible output formats, specified as a MIME type.",
+     "min": "1"
+  }
   }
 }
