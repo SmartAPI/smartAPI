@@ -1,11 +1,13 @@
 { 
     "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.jsonld",
-    "@id": "http://mygene.info/",
+       "@id": "http://mygene.info/",
     "name": "MyGene.info",
     "description": "The MyGene.info API provides access to a wide collection of aggregated gene resources.",
     "publisher": {"@id":"http://heartbd2k.org/about#heartbd2k", "@type":"http://xmlns.com/foaf/0.1/Agent", "name":"HeartBD2K"},
-    "documentationPage": {"@id":"http://docs.mygene.info/en/latest/"},
-
+    "documentationPage":   {"@id":"http://docs.mygene.info/en/latest/"},
+    "termsOfUsePage": {"@id": "http://mygene.info/terms/"},
+    "sourceCodeURL": {"@id": "https://bitbucket.org/sulab/mygene.info"},
+  
     "service": [
      {
       "@type": "http://semanticscience.org/resource/web-service",

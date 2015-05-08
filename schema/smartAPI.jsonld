@@ -1,57 +1,87 @@
 {
-      "@vocab": "http://example.org/",
-       "_id": "@id",
-       "label": {"@id": "http://www.w3.org/2000/01/rdf-schema#", "@type": "http://www.w3.org/2001/XMLSchema#string"},
-       "min": {"@id":"minimum-cardinality","@type":"http://www.w3.org/2001/XMLSchema#integer"},
-       "max": {"@id":"maximum-cardinality","@type":"http://www.w3.org/2001/XMLSchema#integer"},
-     
-       "name": {
-         	"@id": "http://purl.org/dc/terms/title",  
-         	"@type": "http://www.w3.org/2001/XMLSchema#string",
-            "label": "name", 
-            "description": "The name of the object",
-         	"min":"1", "max": "1"
-       },
-       "description": {
-         	"@id": "http://purl.org/dc/terms/description",  
-         	"@type": "http://www.w3.org/2001/XMLSchema#string",
-         	"label": "description", 
-            "description": "A human readable description of the object",
-            "min":"0", "max": "1"
-       },
-       "version": {
-         	"@id": "http://purl.org/pav/version",  
-         	"@type": "http://www.w3.org/2001/XMLSchema#string",
-         	"label": "version", 
-            "description": "A version number, preferably as major.minor.patch",
-            "min":"0", "max": "1"
-       },
-       "logo": {
-          	"@id": "http://schema.org/logo",  
-         	"@type": "@id",
-         	"label": "logo", 
-            "description": "A picture depicting the object",
-            "min":"0"
-     	},
-        "publisher": {
-          	"@id": "http://purl.org/dc/terms/publisher",  
-         	"@type": "@id",
-         	"label": "publisher", 
-            "description": "The URI for the publisher.",
-            "min":"1"
-     	},
-         "homepage": {
-          	"@id": "http://xmlns.com/foaf/0.1/page",  
-         	"@type": "@id",
-         	"label": "logo", 
-            "description": "A picture depicting the object",
-            "min":"1"
-     	},     
-       "documentionPage": {
-          	"@id": "documentation",  
-         	"@type": "@id",
-         	"label": "documentation", 
-            "description": "Documentation for the object",
-            "min":"0"
-     	}
+  "@context": {
+    "@vocab": "http://example.org/",
+    "_id": "@id",
+    "label": {
+      "@id": "http://www.w3.org/2000/01/rdf-schema#",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "min": {
+      "@id": "minimum-cardinality",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "max": {
+      "@id": "maximum-cardinality",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "name": {
+      "@id": "http://purl.org/dc/terms/title",
+      "@type": "http://www.w3.org/2001/XMLSchema#string",
+      "label": "name",
+      "description": "The name of the object",
+      "min": "1",
+      "max": "1"
+    },
+    "description": {
+      "@id": "http://purl.org/dc/terms/description",
+      "@type": "http://www.w3.org/2001/XMLSchema#string",
+      "label": "description",
+      "description": "A human readable description of the object",
+      "min": "0",
+      "max": "1"
+    },
+    "version": {
+      "@id": "http://purl.org/pav/version",
+      "@type": "http://www.w3.org/2001/XMLSchema#string",
+      "label": "version",
+      "description": "A version number, preferably as major.minor.patch",
+      "min": "0",
+      "max": "1"
+    },
+    "logo": {
+      "@id": "http://schema.org/logo",
+      "@type": "@id",
+      "label": "logo",
+      "description": "A picture depicting the object",
+      "min": "0"
+    },
+    "publisher": {
+      "@id": "http://purl.org/dc/terms/publisher",
+      "@type": "@id",
+      "label": "publisher",
+      "description": "The URI for the publisher.",
+      "min": "1"
+    },
+    "homepage": {
+      "@id": "http://xmlns.com/foaf/0.1/page",
+      "@type": "@id",
+      "label": "logo",
+      "description": "A picture depicting the object",
+      "min": "1"
+    },
+    "documentionPage": {
+      "@id": "documentation",
+      "@type": "@id",
+      "label": "documentation",
+      "description": "Documentation for the object",
+      "min": "0"
+    },
+    "termsOfUsePage": {
+      "@id": "termsOfUsePage",
+      "@type": "@id",
+      "label": "Terms of use page",
+      "description": "Document describing the terms of the service",
+      "min": "1"
+    },
+    "sourceCodeURL": {
+      "@id": "documentation",
+      "@type": "@id",
+      "label": "documentation",
+      "description": "Documentation for the object",
+      "min": "0"
+    },
+    "service": {
+      "@id": "http://semanticscience.org/resource/contains"
+    }
+  }
 }
