@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta charset="utf-8">
+	<title>Templates</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-sanitize.js"></script>
+    <script src="triplestore.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+	<div class="col-lg-11 col-lg-offset-1" ng-controller="templateController">
+
+		<h1>W3C HLCS Dataset Description - Template</h1>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6">
+
+            <ul class="nav nav-tabs">
+              <li role="presentation" id="sum" class="active" ng-click="reloadForm('sum')"><a href="#">Summary</a></li>
+              <li role="presentation" id="ver" ng-click="reloadForm('ver')"><a href="#">Version</a></li>
+              <li role="presentation" id="dis" ng-click="reloadForm('dis')"><a href="#">Distribution</a></li>
+            </ul>
+
+            <form ng-submit="addTriples()">
+            <table width="100%">
+                <tr>
+                    <td><h3><strong>Subject</strong></h3></td>
+                    <td>
+                        <div class="input-group input-group-lg">
+                            <label for="subject" /></label><input type="text" class="form-control" id="subject" name="subject" ng-model="subject" placeholder="IRI" /></td>
+                        </div>
+                </tr>
+                <tr ng-repeat="element in elements">
+                    <td width="20%"><label for="{{element.name}}"><h3>{{element.label}}</h3></label></td>
+                    <td width="50%" height="60px">
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-addon" id="basic-addon2">{{element.predicate}}</span>
+                            <input type="text" class="form-control" aria-describedby="basic-addon2" id="{{element.name}}" name="{{element.name}}" ng-model="element.value" placeholder="{{element.type}}" />
+                            <span class="input-group-addon">{{element.qualifier}}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <button class="btn btn-primary btn-lg" type="submit">Submit</button>
+                        <button class="btn btn-warning btn-lg" type="reset">Reset</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+		</form>
+
+        <div class="col-lg-6">
+
+            <h2>RDF Triples</h2>
+
+            <button class="btn btn-primary btn-lg" type="button" ng-click="displayTriples()">Display all triples</button>
+            <button class="btn btn-danger btn-lg" type="button" ng-click="removeTriples()">Remove all triples</button>
+
+            <br /><br />
+    
+            <div><strong>Number of triples: {{tripleOutput.length}}</strong></div>
+            <div ng-repeat="triple in tripleOutput">
+                {{triple}}
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+
+	<script>
+
+	//ANGULAR-JS
+        angular.module('myApp', [])
+        .controller('templateController', ['$scope', function($scope) {
+           
+            $scope.subject = "http://example.org";
+
+            $scope.sum = [
+                {
+                    name : "type_declaration",
+                    label : "Type declaration",
+                    predicate : "rdf:type",
+                    type : "dctypes:Dataset",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "title",
+                    label : "Title",
+                    predicate : "dct:title",
+                    type : "rdf:langString",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "alt_title",
+                    label : "Alternative title",
+                    predicate : "rdf:alternative",
+                    type : "rdf:langString",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "description",
+                    label : "Description",
+                    predicate : "dct:description",
+                    type : "rdf:langString",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "publisher",
+                    label : "Publisher",
+                    predicate : "dct:publisher",
+                    type : "IRI",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "html_page",
+                    label : "HTML page",
+                    predicate : "foaf:page",
+                    type : "IRI",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "logo",
+                    label : "Logo",
+                    predicate : "schemaorg:logo",
+                    type : "IRI",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "keywords",
+                    label : "Keywords",
+                    predicate : "dcat:keyword",
+                    type : "xsd:string",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "license",
+                    label : "License",
+                    predicate : "dct:license",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "rights",
+                    label : "Rights",
+                    predicate : "dct:rights",
+                    type : "rdf:langString",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "references",
+                    label : "References",
+                    predicate : "dct:references",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "concept_descriptors",
+                    label : "Concept descriptors",
+                    predicate : "dcat:theme",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "citations",
+                    label : "Citations",
+                    predicate : "cito:citesAsAuthority",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "related_material",
+                    label : "Related Material",
+                    predicate : "rdfs:seeAlso",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "partitions",
+                    label : "Partitions",
+                    predicate : "dct:hasPart",
+                    type : "IRI",
+                    qualifier : "MAY"
+                }
+            ];
+
+            $scope.ver = [
+                {
+                    name : "type_declaration",
+                    label : "Type declaration",
+                    predicate : "rdf:type",
+                    type : "dctypes:Dataset",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "title",
+                    label : "Title",
+                    predicate : "dct:title",
+                    type : "rdf:langString",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "alt_title",
+                    label : "Alternative title",
+                    predicate : "rdf:alternative",
+                    type : "rdf:langString",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "description",
+                    label : "Description",
+                    predicate : "dct:description",
+                    type : "rdf:langString",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "date_created",
+                    label : "Date Created",
+                    predicate : "dct:created",
+                    type : "rdfs:Literal",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "other_dates",
+                    label : "Other Dates",
+                    predicate : "pav:createdOn",
+                    type : "xsd:dateTime, xsd:date, xsd:gYearMonth, xsd:gYear",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "creators",
+                    label : "Creators",
+                    predicate : "dct:creator",
+                    type : "IRI",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "contributors",
+                    label : "Contributors",
+                    predicate : "dct:contributor",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "publisher",
+                    label : "Publisher",
+                    predicate : "dct:publisher",
+                    type : "IRI",
+                    qualifier : "MUST"
+                },
+                {
+                    name : "date_of_issue",
+                    label : "Date of Issue",
+                    predicate : "dct:issued",
+                    type : "rdfs:Literal",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "date_of_issue",
+                    label : "Date of Issue",
+                    predicate : "dct:issued",
+                    type : "rdfs:Literal",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "html_page",
+                    label : "HTML page",
+                    predicate : "foaf:page",
+                    type : "IRI",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "logo",
+                    label : "Logo",
+                    predicate : "schemaorg:logo",
+                    type : "IRI",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "keywords",
+                    label : "Keywords",
+                    predicate : "dcat:keyword",
+                    type : "xsd:string",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "license",
+                    label : "License",
+                    predicate : "dct:license",
+                    type : "IRI",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "rights",
+                    label : "Rights",
+                    predicate : "dct:rights",
+                    type : "rdf:langString",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "language",
+                    label : "Language",
+                    predicate : "dct:language",
+                    type : "http://lexvo.org/id/iso639-3/{tag}",
+                    qualifier : "SHOULD"
+                },
+                {
+                    name : "references",
+                    label : "References",
+                    predicate : "dct:references",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "concept_descriptors",
+                    label : "Concept descriptors",
+                    predicate : "dcat:theme",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "standards_used",
+                    label : "Standards Used",
+                    predicate : "dct:conformsTo",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "citations",
+                    label : "Citations",
+                    predicate : "cito:citesAsAuthority",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "related_material",
+                    label : "Related Material",
+                    predicate : "rdfs:seeAlso",
+                    type : "IRI",
+                    qualifier : "MAY"
+                },
+                {
+                    name : "partitions",
+                    label : "Partitions",
+                    predicate : "dct:hasPart",
+                    type : "IRI",
+                    qualifier : "MAY"
+                }
+            ];
+
+            $scope.reloadForm = function(level) {
+                switch (level) {
+                    case "sum":
+                        $scope.elements = $scope.sum;
+                        document.getElementById("sum").className = "active";
+                        document.getElementById("ver").className = "";
+                        document.getElementById("dis").className = "";
+                        break;
+                    case "ver":
+                        $scope.elements = $scope.ver;
+                        document.getElementById("sum").className = "";
+                        document.getElementById("ver").className = "active";
+                        document.getElementById("dis").className = "";
+                        break;
+                    case "dis":
+                        $scope.elements = $scope.dis;
+                        document.getElementById("sum").className = "";
+                        document.getElementById("ver").className = "";
+                        document.getElementById("dis").className = "active";
+                        break;
+                }      
+            }
+            
+            //TRIPLESTORE.JS Mappings
+            var st = new Triplestore();
+                st.setMapping("cito", "http://purl.org/spar/cito/");
+                st.setMapping("dcat", "http://www.w3.org/ns/dcat#");
+                st.setMapping("dctypes", "http://purl.org/dc/dcmitype/");
+                st.setMapping("dct", "http://purl.org/dc/terms/");
+                st.setMapping("foaf", "http://xmlns.com/foaf/0.1/");
+                st.setMapping("freq", "http://purl.org/cld/freq/");
+                st.setMapping("idot", "http://identifiers.org/idot/");
+                st.setMapping("lexvo", "http://lexvo.org/ontology#");
+                st.setMapping("pav", "http://purl.org/pav/");
+                st.setMapping("prov", "http://www.w3.org/ns/prov#");
+                st.setMapping("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+                st.setMapping("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+                st.setMapping("schemaorg", "http://schema.org/");
+                st.setMapping("sd", "http://www.w3.org/ns/sparql-service-description#");
+                st.setMapping("sio", "http://semanticscience.org/resource/");
+                st.setMapping("void", "http://rdfs.org/ns/void#");
+                st.setMapping("void-ext", "http://ldf.fi/void-ext#");
+                st.setMapping("xsd", "http://www.w3.org/2001/XMLSchema#");
+            
+            //Add triples on form submit
+            
+            $scope.addTriples = function() {
+                for(i=0,count = $scope.elements.length; i<count; i++) {
+                    if ($scope.elements[i].value) {
+                        st.add($scope.subject, $scope.elements[i].predicate, $scope.elements[i].value);
+                        $scope.elements[i].value = null;
+                    }
+                };
+                $scope.displayTriples();
+            };
+            
+            
+            //Remove all triples
+            $scope.removeTriples = function() {
+                st.remove();
+                $scope.displayTriples();
+            };
+
+            
+            //Display all triples from WebStorage
+            $scope.displayTriples = function() {
+                $scope.tripleOutput = [];
+                var count = 0;
+                var subjects = st.getSubjects();
+                for(var i = 0; i < subjects.length; i++) {
+                    var subject = subjects[i];
+                    var proj = st.getProjection(subject);
+                    var properties = proj.getProperties(); 
+                    for(var j = 0; j < properties.length; j++) {
+                        var property = properties[j];
+                        var value = proj.getAll(property);
+                        if (value.toString().indexOf("http") != -1) {
+                            $scope.tripleOutput[count] = "<" + subject + "> <" + property + "> <" + value + "> .\n";
+                        }
+                        else {
+                            $scope.tripleOutput[count] = "<" + subject + "> <" + property + "> \"" + value + "\" .\n";
+                        }
+                        count++;
+                    };
+                };
+            };
+            
+			
+        }]);
+
+	</script>
+
+</body>
+</html>
