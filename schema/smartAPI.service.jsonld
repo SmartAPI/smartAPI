@@ -59,10 +59,23 @@
     },
     "publisher": {
       "@id": "dct:publisher",
-      "@type": "@id",
+      "@type": "Publisher",
       "label": "publisher",
       "description": "The URI for the publisher.",
       "min": "1"
+    },
+    "Publisher": {
+      "@id": "foaf:Agent",
+      "@type": "@id",
+      "label": "Publisher",
+      "description": "Publisher of the API",
+      "name": {
+        "@id": "dct:title",
+        "@type": "xsd:string",
+        "label": "The name of the publisher",
+        "min":"0",
+        "max":"1"
+      }
     },
     "documentionPage": {
       "@id": "documentation",
