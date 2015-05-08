@@ -126,11 +126,18 @@
     },
     "defaultValue": {
      "@id": "defaultValue",
-     "@type": "@id",
+     "@type": "xsd:string",
      "label": "default value",
      "description": "A default value used for this parameter.",
      "min": "0",
      "max": "1"
+  },
+    "exampleValue": {
+     "@id": "exampleValue",
+     "@type": "xsd:string",
+     "label": "Example value",
+     "description": "An example value that can used for this parameter.",
+     "min": "0"
   },
     "inputFormat": {
      "@id": "inputFormat",
