@@ -1,5 +1,5 @@
 { 
-    "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.jsonld",
+    "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.api.jsonld",
 
     "@id": "http://mygene.info/",
     "name": "MyGene.info",
@@ -13,6 +13,7 @@
     
     "services": [
      {
+      "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.service.jsonld",
        "@type": "sio:web-service",
        "name": "MyGene.info gene query service",
        "description": "Make gene query and return matching gene list.",
