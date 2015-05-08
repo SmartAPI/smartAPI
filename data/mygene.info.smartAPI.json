@@ -1,29 +1,37 @@
 { 
     "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.jsonld",
-       "@id": "http://mygene.info/",
+
+    "@id": "http://mygene.info/",
     "name": "MyGene.info",
     "description": "The MyGene.info API provides access to a wide collection of aggregated gene resources.",
     "publisher": {"@id":"http://heartbd2k.org/about#heartbd2k", "@type":"http://xmlns.com/foaf/0.1/Agent", "name":"HeartBD2K"},
     "documentationPage":   {"@id":"http://docs.mygene.info/en/latest/"},
     "termsOfUsePage": {"@id": "http://mygene.info/terms/"},
     "sourceCodeURL": {"@id": "https://bitbucket.org/sulab/mygene.info"},
-  
-    "service": [
+    "publication": {"@id": "23175613"},
+    "keywords": ["gene","life sciences","BD2K"],
+    
+    "services": [
      {
-      "@type": "http://semanticscience.org/resource/web-service",
-      "name": "MyGene.info gene query service",
-      "description": "Make gene query and return matching gene list.",
-      "version": "v2",
-      "publisher": {"@id":"http://heartbd2k.org/about#heartbd2k"},
-      "http-method": "GET",
-      "URI": {"@id": "http://mygene.info/v2/query"},
-      "input-parameter": [
+       "@type": "sio:web-service",
+       "name": "MyGene.info gene query service",
+       "description": "Make gene query and return matching gene list.",
+       "version": "v2",
+       "publisher": {"@id":"http://heartbd2k.org/about#heartbd2k"},
+       "http-method": "GET",
+       "URI": {"@id": "http://mygene.info/v2/query"},
+       "outputFormat": "application/json",
+      
+       "input-parameter": [
       {
+        "@type": "InputParameter",
         "name": "q",
         "valueType": "xsd:string",
-        "minimum-cardinality": "1",
-        "maximum-cardinality": "1",
-        "description": "query string. The detailed query syntax can be found at http://docs.mygene.info/en/latest/doc/query_service.html",
+        "dataType": ["ids:hgnc.name","ids:refseq.id","ids:affymetrix.id"],
+        "min": "1",
+        "max": "1",
+        "description": "The query string consisting of HGNC gene names, RefSeq identifiers, or Affymetrix probe identifiers",
+        "documentationURL": "http://docs.mygene.info/en/latest/doc/query_service.html",
         "example-input": ["CDK2","NM-052827","204639_at"]
       }]
     }]
