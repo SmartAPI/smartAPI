@@ -437,10 +437,10 @@
                         var property = properties[j];
                         var value = proj.getAll(property);
                         if (value.toString().indexOf("http") != -1) {
-                            $scope.tripleOutput[count] = "<" + subject + "> <" + property + "> <" + value + ">\n";
+                            $scope.tripleOutput[count] = "<" + subject + "> <" + property + "> <" + value + "> .\n";
                         }
                         else {
-                            $scope.tripleOutput[count] = "<" + subject + "> <" + property + "> '" + value + "'\n";
+                            $scope.tripleOutput[count] = "<" + subject + "> <" + property + "> \"" + value + "\" .\n";
                         }
                         count++;
                     };
