@@ -10,7 +10,6 @@
     "schema": "http://schema.org/",
     "sio": "http://semanticscience.org/resource/",
     "xsd": "http://www.w3.org/2001/XMLSchema#",
-    
     "_id": "@id",
     "label": {
       "@id": "rdfs:label",
@@ -104,8 +103,17 @@
       "description": "Terms that describe the API or service",
       "min": "1"
     },
-    
     "services": {
-      "@id": "sio:contains"
+      "@id": "sio:contains",
+      "@type": "@id"
+    },
+    "http-method": {
+      "@id": "http-method",
+      "@type": "xsd:string",
+      "label": "HTTP method",
+      "description": "The HTTP method to interact with the service",
+      "min": "1",
+      "max": "1"
     }
-}}
+  }
+}
