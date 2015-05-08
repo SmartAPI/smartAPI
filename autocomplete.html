@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+
+<head>
+    <meta charset="utf-8">
+	<title>Autocomplete</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+    <link rel="stylesheet" href="autocomplete.css">
+</head>
+
+<body>
+
+	<div ng-controller="MyCtrl">
+
+		<h1>Autocomplete</h1>
+
+        <form id="form1" >
+
+            <autocomplete ng-model="yourchoice" data="movies" on-type="updateMovies" />
+
+            {{$scope.yourchoice}}
+            
+
+		</form>
+
+
+	</div>
+
+    <script type="text/javascript" src="autocomplete.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+
+</body>
+</html>

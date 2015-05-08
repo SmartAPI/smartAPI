@@ -1,0 +1,163 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files\\nodejs\\\\node.exe',
+1 verbose cli   'C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'n' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose node symlink C:\Program Files\nodejs\\node.exe
+5 verbose cache add [ 'n', null ]
+6 verbose cache add name=undefined spec="n" args=["n",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: 'n',
+7 verbose parsed url   path: 'n',
+7 verbose parsed url   href: 'n' }
+8 silly lockFile d1854cae-n n
+9 verbose lock n C:\Users\Grant\AppData\Roaming\npm-cache\d1854cae-n.lock
+10 silly lockFile d1854cae-n n
+11 silly lockFile d1854cae-n n
+12 verbose addNamed [ 'n', '' ]
+13 verbose addNamed [ null, '*' ]
+14 silly lockFile 6b58d7dc-n n@
+15 verbose lock n@ C:\Users\Grant\AppData\Roaming\npm-cache\6b58d7dc-n.lock
+16 silly addNameRange { name: 'n', range: '*', hasData: false }
+17 verbose request where is /n
+18 verbose request registry https://registry.npmjs.org/
+19 verbose request id bc3c68f77953a477
+20 verbose url raw /n
+21 verbose url resolving [ 'https://registry.npmjs.org/', './n' ]
+22 verbose url resolved https://registry.npmjs.org/n
+23 verbose request where is https://registry.npmjs.org/n
+24 info trying registry request attempt 1 at 15:52:52
+25 verbose etag "2HTIEM5XYTL67AG7OAGDCESOI"
+26 http GET https://registry.npmjs.org/n
+27 http 304 https://registry.npmjs.org/n
+28 silly registry.get cb [ 304,
+28 silly registry.get   { date: 'Tue, 06 Jan 2015 23:52:54 GMT',
+28 silly registry.get     server: 'Apache',
+28 silly registry.get     via: '1.1 varnish',
+28 silly registry.get     'last-modified': 'Tue, 06 Jan 2015 23:52:54 GMT',
+28 silly registry.get     'cache-control': 'max-age=60',
+28 silly registry.get     etag: '"2HTIEM5XYTL67AG7OAGDCESOI"',
+28 silly registry.get     age: '0',
+28 silly registry.get     'x-served-by': 'cache-lax1433-LAX',
+28 silly registry.get     'x-cache': 'HIT',
+28 silly registry.get     'x-cache-hits': '1',
+28 silly registry.get     'x-timer': 'S1420588374.083405,VS0,VE39',
+28 silly registry.get     vary: 'Accept',
+28 silly registry.get     'content-length': '0',
+28 silly registry.get     'keep-alive': 'timeout=10, max=50',
+28 silly registry.get     connection: 'Keep-Alive' } ]
+29 verbose etag https://registry.npmjs.org/n from cache
+30 silly addNameRange number 2 { name: 'n', range: '*', hasData: true }
+31 silly addNameRange versions [ 'n',
+31 silly addNameRange   [ '0.0.1',
+31 silly addNameRange     '0.0.2',
+31 silly addNameRange     '0.0.3',
+31 silly addNameRange     '0.0.4',
+31 silly addNameRange     '0.1.0',
+31 silly addNameRange     '0.1.1',
+31 silly addNameRange     '0.1.2',
+31 silly addNameRange     '0.2.0',
+31 silly addNameRange     '0.2.1',
+31 silly addNameRange     '0.2.2',
+31 silly addNameRange     '0.3.0',
+31 silly addNameRange     '0.4.0',
+31 silly addNameRange     '0.4.1',
+31 silly addNameRange     '0.4.2',
+31 silly addNameRange     '0.5.0',
+31 silly addNameRange     '0.5.1',
+31 silly addNameRange     '0.5.2',
+31 silly addNameRange     '0.5.3',
+31 silly addNameRange     '0.5.4',
+31 silly addNameRange     '0.6.0',
+31 silly addNameRange     '0.6.1',
+31 silly addNameRange     '0.7.0',
+31 silly addNameRange     '0.7.1',
+31 silly addNameRange     '0.7.2',
+31 silly addNameRange     '0.7.3',
+31 silly addNameRange     '0.8.0',
+31 silly addNameRange     '0.8.1',
+31 silly addNameRange     '0.8.2',
+31 silly addNameRange     '0.9.0',
+31 silly addNameRange     '0.9.1',
+31 silly addNameRange     '0.9.2',
+31 silly addNameRange     '0.9.3',
+31 silly addNameRange     '1.0.0',
+31 silly addNameRange     '1.1.0',
+31 silly addNameRange     '1.2.1',
+31 silly addNameRange     '1.2.2',
+31 silly addNameRange     '1.2.3',
+31 silly addNameRange     '1.2.4',
+31 silly addNameRange     '1.2.5',
+31 silly addNameRange     '1.2.6',
+31 silly addNameRange     '1.2.7',
+31 silly addNameRange     '1.2.8',
+31 silly addNameRange     '1.2.9',
+31 silly addNameRange     '1.2.11',
+31 silly addNameRange     '1.2.13' ] ]
+32 verbose addNamed [ 'n', '1.2.13' ]
+33 verbose addNamed [ '1.2.13', '1.2.13' ]
+34 silly lockFile c0e64dfd-n-1-2-13 n@1.2.13
+35 verbose lock n@1.2.13 C:\Users\Grant\AppData\Roaming\npm-cache\c0e64dfd-n-1-2-13.lock
+36 silly lockFile c0e64dfd-n-1-2-13 n@1.2.13
+37 silly lockFile c0e64dfd-n-1-2-13 n@1.2.13
+38 silly lockFile 6b58d7dc-n n@
+39 silly lockFile 6b58d7dc-n n@
+40 silly resolved [ { name: 'n',
+40 silly resolved     description: 'node version manager',
+40 silly resolved     version: '1.2.13',
+40 silly resolved     author: { name: 'TJ Holowaychuk', email: 'tj@vision-media.ca' },
+40 silly resolved     homepage: 'https://github.com/tj/n',
+40 silly resolved     bugs: { url: 'https://github.com/tj/n/issues' },
+40 silly resolved     contributors: [ [Object] ],
+40 silly resolved     keywords:
+40 silly resolved      [ 'nvm',
+40 silly resolved        'node',
+40 silly resolved        'version',
+40 silly resolved        'manager',
+40 silly resolved        'switcher',
+40 silly resolved        'node',
+40 silly resolved        'binary',
+40 silly resolved        'env' ],
+40 silly resolved     bin: { n: './bin/n' },
+40 silly resolved     repository: { type: 'git', url: 'git://github.com/tj/n.git' },
+40 silly resolved     preferGlobal: true,
+40 silly resolved     os: [ '!win32' ],
+40 silly resolved     engines: { node: '*' },
+40 silly resolved     license: 'MIT',
+40 silly resolved     _id: 'n@1.2.13',
+40 silly resolved     dist:
+40 silly resolved      { shasum: '90922391ba49e2386ae316370915085042074190',
+40 silly resolved        tarball: 'http://registry.npmjs.org/n/-/n-1.2.13.tgz' },
+40 silly resolved     _from: 'n@',
+40 silly resolved     _npmVersion: '1.2.30',
+40 silly resolved     _npmUser: { name: 'tjwebb', email: 'me@traviswebb.com' },
+40 silly resolved     maintainers: [ [Object], [Object], [Object] ],
+40 silly resolved     directories: {},
+40 silly resolved     _shasum: '90922391ba49e2386ae316370915085042074190',
+40 silly resolved     _resolved: 'https://registry.npmjs.org/n/-/n-1.2.13.tgz',
+40 silly resolved     readme: 'ERROR: No README data found!' } ]
+41 info install n@1.2.13 into C:\Users\Grant\Documents\GitHub
+42 info installOne n@1.2.13
+43 error notsup Unsupported
+43 error notsup Not compatible with your operating system or architecture: n@1.2.13
+43 error notsup Valid OS:    !win32
+43 error notsup Valid Arch:  any
+43 error notsup Actual OS:   win32
+43 error notsup Actual Arch: x64
+44 error System Windows_NT 6.1.7601
+45 error command "C:\\Program Files\\nodejs\\\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "n"
+46 error cwd C:\Users\Grant\Documents\GitHub
+47 error node -v v0.10.32
+48 error npm -v 1.4.28
+49 error code EBADPLATFORM
+50 verbose exit [ 1, true ]
