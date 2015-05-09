@@ -1,0 +1,813 @@
+{
+  "http://purl.org/dc/terms/publisher": [
+    {
+      "@type": [
+        "http://xmlns.com/foaf/0.1/Agent"
+      ],
+      "http://purl.org/dc/terms/title": [
+        {
+          "@value": "HeartBD2K",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ],
+      "@id": "http://heartbd2k.org/about#heartbd2k"
+    }
+  ],
+  "http://smart-api.info/vocab/sourceCodeURL": [
+    {
+      "@id": "https://bitbucket.org/sulab/mygene.info"
+    }
+  ],
+  "http://smart-api.info/vocab/documentation": [
+    {
+      "@id": "http://docs.mygene.info/en/latest/"
+    }
+  ],
+  "http://purl.org/dc/terms/title": [
+    {
+      "@value": "MyGene.info",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    }
+  ],
+  "http://www.w3.org/ns/dcat#keyword": [
+    {
+      "@value": "gene",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    {
+      "@value": "life sciences",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    {
+      "@value": "BD2K",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    }
+  ],
+  "http://purl.org/dc/terms/description": [
+    {
+      "@value": "The MyGene.info API provides access to a wide collection of aggregated gene resources.",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    }
+  ],
+  "http://smart-api.info/vocab/termsOfUsePage": [
+    {
+      "@id": "http://mygene.info/terms/"
+    }
+  ],
+  "@id": "http://mygene.info/",
+  "http://identifiers.org/pubmed/": [
+    {
+      "@id": "http://identifiers.org/pubmed/23175613"
+    }
+  ],
+  "http://smart-api.info/vocab/services": [
+    {
+      "http://purl.org/dc/terms/publisher": [
+        {
+          "@id": "http://heartbd2k.org/about#heartbd2k"
+        }
+      ],
+      "http://smart-api.info/vocab/outputField": [
+        {
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "entrezgene",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "ids:ncbigene.id"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#integer"
+          ]
+        },
+        {
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "name",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "GeneName"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "symbol",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "ids:hgnc.symbol"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "taxid",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "ids:taxonomy.id"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#integer"
+          ]
+        },
+        {
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "score",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "Score"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#float"
+          ]
+        }
+      ],
+      "http://smart-api.info/vocab/inputParameter": [
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterDataType": [
+            {
+              "@value": "ids:hgnc.symbol"
+            },
+            {
+              "@value": "ids:refseq.id"
+            },
+            {
+              "@value": "ids:affymetrix.id"
+            }
+          ],
+          "http://smart-api.info/vocab/documentationURL": [
+            {
+              "@value": "http://docs.mygene.info/en/latest/doc/query_service.html"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "q",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "IdentifierQuery"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "The query string consisting of HGNC gene names, RefSeq identifiers, or Affymetrix probe identifiers",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "CDK2",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            {
+              "@value": "NM-052827",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            {
+              "@value": "204639_at",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "fields",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "fieldsReturned"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "a comma-separated fields to limit the fields returned from the matching gene hits. The supported field names can be found from any gene object (e.g. http://mygene.info/v2/gene/1017). Note that it supports dot notation as well, e.g., you can pass \"refseq.rna\". If \"fields=all\", all available fields will be returned.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "symbol,name,taxid,entrezgene,ensemblgene",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "all",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "callback",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "CallBack"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "pass a callback parameter to make a JSONP call.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "species",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "http://identifiers.org/taxonomy"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "Can be used to limit the gene hits from given species. You can use common names for nine common species (human, mouse, rat, fruitfly, nematode, zebrafish, thale-cress, frog and pig). All other species, you can provide their taxonomy ids. Multiple species can be passed using comma as a separator. Passing \"all\" will query against all available species.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "all",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "human,mouse,rat",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "size",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "NumberOfResultsReturned"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "The maximum number of matching gene hits to return (with a cap of 1000 at the moment)",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "10",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "10",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#integer"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "from",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "OffsetParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "The number of matching gene hits to skip, starting from 0. Combining with size parameter can be useful for paging.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "10",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#integer"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "sort",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            },
+            {
+              "@id": "SortParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "A comma-separated list of fields to sort on. Prefix with \"-\" for descending order, otherwise in ascending order. Default: sort by matching scores in descending order.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "facets",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "A set of comma-separated fields to return facets.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "taxid",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            {
+              "@value": "taxid,type_of_gene",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "ids:taxonomy.id"
+            }
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "species_facet_filter",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "Used when faceting on species (i.e., facets=taxid are passed). It\u2019s used to pass species filter without changing the scope of faceting, so that the returned facet counts won\u2019t change. Either species name or taxonomy id can be used, just like species parameter.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "9606",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "ids:taxonomy.id"
+            },
+            {
+              "@value": "ids:taxonomy.name"
+            }
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "entrez_only",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "Returns only the hits with valid NCBI Gene identifiers.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "true",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "false",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "ensemblonly",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "Returns only the hits with valid Ensembl gene ids.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "true",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            },
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "false",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "dotfield",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "./"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "control the format of the returned fields when passed \"fields\" parameter contains dot notation, e.g. \"fields=refseq.rna\". If \"true\" or \"1\", the returned data object contains a single \"refseq.rna\" field, otherwise (\"false\" or \"0\"), a single \"refseq\" field with a sub-field of \"rna\". Default: true.",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/exampleValue": [
+            {
+              "@value": "true",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/defaultValue": [
+            {
+              "@value": "true",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ]
+        },
+        {
+          "http://smart-api.info/vocab/maximum-cardinality": [
+            {
+              "@value": "1",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://smart-api.info/vocab/minimum-cardinality": [
+            {
+              "@value": "0",
+              "@type": "http://www.w3.org/2001/XMLSchema#integer"
+            }
+          ],
+          "http://purl.org/dc/terms/title": [
+            {
+              "@value": "email",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "http://smart-api.info/vocab/parameterType": [
+            {
+              "@id": "InputParameter"
+            }
+          ],
+          "http://purl.org/dc/terms/description": [
+            {
+              "@value": "If you are regular users of our services, we encourage you to provide us an email, so that we can better track the usage or follow up with you",
+              "@type": "http://www.w3.org/2001/XMLSchema#string"
+            }
+          ],
+          "@type": [
+            "http://www.w3.org/2001/XMLSchema#string"
+          ],
+          "http://smart-api.info/vocab/parameterValueType": [
+            {
+              "@value": "EmailAddress"
+            }
+          ]
+        }
+      ],
+      "http://smart-api.info/vocab/httpMethod": [
+        {
+          "@value": "GET",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ],
+      "http://purl.org/dc/terms/description": [
+        {
+          "@value": "Make gene query and return matching gene list.",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ],
+      "http://smart-api.info/vocab/URI": [
+        {
+          "@id": "http://mygene.info/v2/query"
+        }
+      ],
+      "http://purl.org/dc/terms/title": [
+        {
+          "@value": "MyGene.info gene query service",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ],
+      "@type": [
+        "http://semanticscience.org/resource/web-service"
+      ],
+      "http://smart-api.info/vocab/outputFormat": [
+        {
+          "@value": "application/json",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ],
+      "http://purl.org/pav/versionversion": [
+        {
+          "@value": "2.0.0",
+          "@type": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      ]
+    }
+  ]
+}
