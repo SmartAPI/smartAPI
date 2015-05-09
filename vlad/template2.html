@@ -21,9 +21,8 @@
 
 <body>
 
-	<div class="col-lg-11 col-lg-offset-1" ng-controller="templateController">
 
-		<h1>W3C HLCS Dataset Description - Template</h1>
+<h1>W3C HLCS Dataset Description - Template</h1>
 
 
 <div class="container-fluid">
@@ -37,80 +36,180 @@
             </ul>
 
 
-            <table width="100%">
-                <tr>
-                    <td><h3><strong>Subject</strong></h3></td>
-                    <td>
-                        <div class="input-group input-group-lg">
-                            <label for="subject" /></label><input type="text" class="form-control" id="subject" name="subject" ng-model="subject" placeholder="IRI" /></td>
-                        </div>
-                </tr>
-                <tr>
-                    <td width="20%"><label for="title"><h3>Title</h3></label></td>
-                    <td width="50%" height="60px">
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-addon" id="basic-addon2">rdf:type</span>
-                            <input type="text" class="form-control" aria-describedby="basic-addon2" id="title" name="title" placeholder="rdf:langString"/>
-                            <span class="input-group-addon">MUST</span>
-                   	        <a id="add_element" href="javascript:void(0)" class="add_element" style="display: none;"><i class="icon-plus icon-white"></i>Add element</a>
-                   	        <a id="delete_element" href="javascript:void(0)" class="delete_element" style="display: none;"><i class="icon-remove icon-black"></i>Remove element</a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td width="20%"><label for="alt_title"><h3>Alternative title</h3></label></td>
-                    <td width="50%" height="60px">
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-addon" id="basic-addon2">rdf:alternative</span>
-                            <input type="text" class="form-control" aria-describedby="basic-addon2" id="alt_title" name="alt_title" placeholder="rdf:langString" />
-                            <span class="input-group-addon">MAY</span>
-                   	        <a id="add_element" href="javascript:void(0)" class="add_element" style="display: none;"><i class="ui-icon-plus ui-icon-green"></i>Add element</a>
-                   	        <a id="delete_element" href="javascript:void(0)" class="delete_element" style="display: none;"><i class="ui-icon-minus ui-icon-red"></i>Remove element</a>
-                        </div>
-                    </td>
-                </tr>
-               	<tr>
-                    <td width="20%"><label for="keywords"><h3>Keywords</h3></label></td>
-                    <td width="50%" height="60px">
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-addon" id="basic-addon2">dcat:keyword</span>
-                            <input type="text" class="form-control" aria-describedby="basic-addon2" id="keywords" name="keywords" placeholder="xsd:string" />
-                            <span class="input-group-addon">MAY</span>
-                   	        <a id="add_element" href="javascript:void(0)" class="add_element" style="display: none;"><i class="ui-icon ui-icon-plus"></i>Add element</a>
-                   	        <a id="delete_element" href="javascript:void(0)" class="delete_element" style="display: none;"><i class="ui-icon ui-icon-minus"></i>Remove element</a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td></td>
-                    <td>
-                        <button class="btn btn-primary btn-lg" type="submit">Submit</button>
-                        <button class="btn btn-warning btn-lg" type="reset">Reset</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-
-        <div class="col-lg-6">
-
-            <h2>RDF Triples</h2>
-
-            <button class="btn btn-primary btn-lg" type="button" ng-click="displayTriples()">Display all triples</button>
-            <button class="btn btn-danger btn-lg" type="button" ng-click="removeTriples()">Remove all triples</button>
-
-            <br /><br />
-    
-            <div><strong>Number of triples: {{tripleOutput.length}}</strong></div>
-            <div ng-repeat="triple in tripleOutput">
-                {{triple}}
+    <table id="all-table" width="100%">
+    <tr>
+        <td><h3><strong>Subject</strong></h3></td>
+        <td>
+            <div class="input-group input-group-lg">
+                <label for="subject" /></label><input type="text" class="form-control" id="subject" name="subject" ng-model="subject" placeholder="IRI" /></td>
             </div>
+    </tr>
+    
+    <tr>
+        <td width="20%"><label for="name"><h3>Name</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">dct:title</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="name" name="name" placeholder="xsd:string"/>
+                <input type="hidden" min="1" max="1" class="cardinality" />
+                <span class="input-group-addon">REQUIRED</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
 
+    <tr>
+        <td width="20%"><label for="description"><h3>Description</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">dct:description</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="description" name="description" placeholder="xsd:string"/>
+                <input type="hidden" min="0" max="1" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    
+    <tr>
+        <td width="20%"><label for="version"><h3>Version</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">pav:version</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="version" name="version" placeholder="xsd:string"/>
+                <input type="hidden" min="0" max="1" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+        
+    <tr>
+        <td width="20%"><label for="logo"><h3>Logo</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">schema:logo</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="logo" name="logo" placeholder="IRI"/>
+                <input type="hidden" min="0" max="" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    
+    <tr>
+        <td width="20%"><label for="publisher"><h3>Publisher</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">dct:publisher</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="publisher_iri" name="publisher_iri" placeholder="IRI"/>
+                <input type="hidden" min="1" max="" class="cardinality" />
+                <span class="input-group-addon">REQUIRED</span>
+                
+                <span class="input-group-addon" id="basic-addon2">dct:title</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="publisher_iri" name="publisher_iri" placeholder="xsd:string"/>
+                <input type="hidden" min="0" max="1" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    
+    <tr>
+        <td width="20%"><label for="homepage"><h3>Homepage</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">foaf:page</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="homepage" name="homepage" placeholder="IRI"/>
+                <input type="hidden" min="1" max="" class="cardinality" />
+                <span class="input-group-addon">REQUIRED</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>  
+    <tr>
+        <td width="20%"><label for="documentationPage"><h3>DocumentationPage</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">dcat:keyword</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="documentationPage" name="documentationPage" placeholder="IRI"/>
+                <input type="hidden" min="0" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td width="20%"><label for="termsOfUsePage"><h3>TermsOfUsePage</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">dcat:keyword</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="termsOfUsePage" name="termsOfUsePage" placeholder="IRI"/>
+                <input type="hidden" min="0" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td width="20%"><label for="sourceCodeURL"><h3>SourceCodeURL</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">sourceCodeURL</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="sourceCodeURL" name="sourceCodeURL" placeholder="IRI"/>
+                <input type="hidden" min="0" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td width="20%"><label for="publication"><h3>Publication</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">ids:pubmed/</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="publication" name="publication" placeholder="IRI"/>
+                <input type="hidden" min="0" class="cardinality" />
+                <span class="input-group-addon">OPTIONAL</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td width="20%"><label for="keywords"><h3>Keywords</h3></label></td>
+        <td width="50%" height="60px">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="basic-addon2">dcat:keyword</span>
+                <input type="text" class="form-control" aria-describedby="basic-addon2" id="keywords" name="keywords" placeholder="IRI"/>
+                <input type="hidden" min="1" class="cardinality" />
+                <span class="input-group-addon">REQUIRED</span>
+                <button type="button"  href="javascript:void(0)" class="add_element" style="display: inline;">+</button>
+                <button type="button" href="javascript:void(0)" class="delete_element" style="display: inline;">-</button>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <button class="btn btn-primary btn-lg" type="submit">Submit</button>
+            <button class="btn btn-warning btn-lg" type="reset">Reset</button>
+        </td>
+    </tr>
+	</table>
         </div>
 
     </div>
-</div>
 
 
 	<script>
@@ -131,11 +230,14 @@
 		grandparent = parent.parentNode;
 
 		if ($("#grandparent > div").length >= 50) {
-			alert("Too many keywords listed - please contact site administrator for assistance");
+			alert("The maximum allowed number of entities of this type has been reached");
 			return false;
 		}
 
 		var element = $(parent).clone(true).get(0);
+
+
+
         $(element).hide().insertAfter(btn.parentNode, element).slideDown(500);
 	}
 
@@ -144,7 +246,7 @@
 		grandparent = parent.parentNode;
 
 		if ($("#grandparent > div").length == 1) {
-			alert("Have to have at least one element");
+			alert("The minimum allowed number of entities of this type has been reached");
 			return false;
 		}
 
@@ -158,12 +260,24 @@
 	    return deleteElement(this);
     })
 
-    element = document.getElementById("keywords");
-    if (element) {
-    	parent = element.parentNode;
-		$(parent).find('.add_element')[0].style.display = "inline";
-		$(parent).find('.delete_element')[0].style.display = "inline";
-	}
+    function submitData() {
+    	test = '{ "" : [' +
+    		'{"varname": "varvalue"},' +
+    		'{"varname": "varvalue"}]}';
+		output = '{}'
+    	data_table = document.getElementById('#all-table')
+
+    	for (x in data_table.children()) {
+
+    	}
+    }
+
+ //    element = document.getElementById("keywords");
+ //    if (element) {
+ //    	parent = element.parentNode;
+	// 	$(parent).find('.add_element')[0].style.display = "inline";
+	// 	$(parent).find('.delete_element')[0].style.display = "inline";
+	// }
 	</script>
 
 </body>
