@@ -1,6 +1,6 @@
 {
   "@context": {
-    "@vocab": "http://example.org/",
+    "@vocab": "http://smart-api.info/vocab/",
     "dcat": "http://www.w3.org/ns/dcat#",
     "dct": "http://purl.org/dc/terms/",
     "foaf": "http://xmlns.com/foaf/0.1/",
@@ -120,7 +120,7 @@
       "min": "1"
     },
     "services": {
-      "@id": "sio:contains",
+      "@id": "services",
       "@type": "@id",
 	  "label": "API services",
 	  "description": "Services that the API provides",
