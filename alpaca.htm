@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<head>
+        <!-- dependencies (jquery, handlebars and bootstrap) -->
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js"></script>
+        <link type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+        <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+
+        <!-- alpaca -->
+        <link type="text/css" href="http://code.cloudcms.com/alpaca/1.5.8/bootstrap/alpaca.min.css" rel="stylesheet"/>
+        <script type="text/javascript" src="http://code.cloudcms.com/alpaca/1.5.8/bootstrap/alpaca.min.js"></script>
+</head>
+<body>
+<div id="form1" class="col-lg-6"></div>
+<div id="preview" class="col-lg-6"></div>
+
+<script>
+var listOfStrings = ["@context", "@id", "name", "description", "publisher", "version", "keywords", "services"];
+
+function convertOutput(value) {
+    for (x in value) {
+        if (listOfStrings.indexOf(x) < 0) {
+            value[x] = {"@id": value[x]};
+        } else if (x === "services") {
+            for (num in value[x]) {
+                for (y in value[x][num]) {
+                    if (y === "URI" || y === "logo" || y === "documentationPage" || y === "termsOfUsePage" || y === "sourceCodeURL") {
+                        value[x][num][y] = {"@id": value[x][num][y]};
+                    }
+                }
+            }
+        }
+    }
+
+    return value;
+}
+</script>   
+    
+    
+    
+<script type="text/javascript">
+$("#form1").alpaca({
+    "type": "create",
+    "schema": {
+        "id": "#leaf",
+        "title": "Describe your API",
+        "type": "object",
+        "properties": {
+            "@context": {
+                "type": "string",
+                "title": "Context",
+                "required": true,
+                "readonly": true,
+                "default": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.api.jsonld"
+            },
+            "@id": {
+                "type": "string",
+                "title": "ID (IRI)",
+                "required": true
+            },
+            "name": {
+                "type": "string",
+                "title": "Name - dct:title (xsd:string)",
+                "required": true
+            },
+            "description": {
+                "type": "string",
+                "title": "Description - dct:description (xsd:string)",
+                "required": false
+            },
+            "version": {
+                "type": "string",
+                "title": "Version - pav:version (xsd:string)",
+                "required": false
+            },
+            "logo": {
+                "type": "string",
+                "title": "Logo - schema:logo (IRI)",
+                "required": false
+            },
+            "publisher": {
+                "id": "#trunk",
+                "type": "object",
+                "title": "Publisher",
+                "properties": {
+                    "@id": {
+                        "type": "string",
+                        "title": "Publisher IRI",
+                        "required": true
+                    },
+                    "@type": {
+                        "type": "string",
+                        "title": "Publisher Type",
+                        "required": true,
+                        "readonly": true,
+                        "default": "http://xmlns.com/foaf/0.1/Agent"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Publisher Name"
+                    }
+                }                
+            },
+            "homepage": {
+                "type": "string",
+                "title": "Homepage - foaf:page (IRI)",
+                "required" : true
+            },
+            "documentationPage": {
+                "type": "string",
+                "title": "Documentation - documentation (IRI)",
+                "required": false
+            },
+            "termsOfUsePage": {
+                "type": "string",
+                "title": "Terms Of Use - termsOfUsePage (IRI)",
+                "required": true
+            },
+            "sourceCodeURL": {
+                "type": "string",
+                "title": "Source Code URL - sourceCodeURL (IRI)",
+                "required": false
+            },
+            "publication": {
+                "type": "string",
+                "title": "Publication - ids:pubmed (IRI)",
+                "required": false
+            },
+            "keywords": {
+                "type": "array",
+                "title": "Keywords - dcat:keyword (xsd:string)",
+                "items": {
+                    "$ref": "#leaf"
+                }
+            },
+            "services": {
+                "id": "#plant",
+                "type": "array",
+                "title": "Services",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "@context": {
+                            "type": "string",
+                            "title": "Context",
+                            "required": true,
+                            "readonly": true,
+                            "default": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.service.jsonld"
+                        },
+                        "URI": {
+                            "type": "string",
+                            "title": "URI",
+                            "required": true
+                        },
+                        "@type": {
+                            "type": "string",
+                            "title": "Type",
+                            "required": true,
+                            "readonly": true,
+                            "default": "sio:web-service"
+                        },
+                        "name": {
+                            "type": "string",
+                            "title": "Name",
+                            "required": true
+                        },
+                        "description": {
+                            "type": "string",
+                            "title": "Description",
+                            "required": true
+                        },
+                        "version": {
+                            "type": "string",
+                            "title": "Version - pav:version (xsd:string)",
+                            "required": false
+                        },
+                        "logo": {
+                            "type": "string",
+                            "title": "Logo - schema:logo (IRI)",
+                            "required": false
+                        },
+                        "publisher": {
+                            "id": "#trunk",
+                            "type": "object",
+                            "title": "Publisher",
+                            "properties": {
+                                "@id": {
+                                    "type": "string",
+                                    "title": "Publisher IRI",
+                                    "required": true
+                                },
+                                "@type": {
+                                    "type": "string",
+                                    "title": "Publisher Type",
+                                    "required": true,
+                                    "readonly": true,
+                                    "default": "http://xmlns.com/foaf/0.1/Agent"
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "title": "Publisher Name"
+                                }
+                            }                
+                        },
+                        "documentationPage": {
+                            "type": "string",
+                            "title": "Documentation - documentation (IRI)",
+                            "required": false
+                        },
+                        "termsOfUsePage": {
+                            "type": "string",
+                            "title": "Terms Of Use - termsOfUsePage (IRI)",
+                            "required": true
+                        },
+                        "sourceCodeURL": {
+                            "type": "string",
+                            "title": "Source Code URL - sourceCodeURL (IRI)",
+                            "required": false
+                        },
+                        "httpMethod": {
+                            "type": "string",
+                            "title": "HTTP Method - httpMethod (xsd:string)",
+                            "required": true
+                        },
+                        "outputFormat": {
+                            "type": "string",
+                            "title": "Output Format - outputFormat (xsd:string)",
+                            "required": true
+                        },
+                        "keywords": {
+                            "type": "array",
+                            "title": "Keywords - dcat:keyword (xsd:string)",
+                            "items": {
+                                "$ref": "#plant"
+                            },
+                        },
+                        "inputParameter": {
+                            "id": "#branch",
+                            "type": "array",
+                            "title": "Input Parameters",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Name",
+                                        "required": true
+                                    },
+                                    "@type": {
+                                        "type": "string",
+                                        "title": "Datatype",
+                                        "required": true
+                                    },
+                                    "parameterType": {
+                                        "type": "array",
+                                        "title": "Parameter Types",
+                                        "items": {
+                                            "$ref": "#branch"
+                                        }
+                                    },
+                                    "parameterDataType": {
+                                        "type": "array",
+                                        "title": "Parameter DataTypes",
+                                        "items": {
+                                            "$ref": "#branch"
+                                        }
+                                    },
+                                    "min": {
+                                        "type": "number",
+                                        "title": "MinCardinality",
+                                        "required": true,
+                                        "minimum": 0,
+                                        "maximum": 0
+                                    },
+                                    "max": {
+                                        "type": "number",
+                                        "title": "MaxCardinality",
+                                        "required": true
+                                    },
+                                    "exampleValue": {
+                                        "type": "array",
+                                        "title": "Example Values",
+                                        "items": {
+                                            "$ref": "#branch"
+                                        },
+                                    },
+                                    "defaultValue": {
+                                        "type": "string",
+                                        "title": "Default Value",
+                                        "required": true
+                                    }
+                                }
+                            }
+                        },
+                        "outputField": {
+                            "id": "#roots",
+                            "type": "array",
+                            "title": "Output Fields",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "title": "Name",
+                                        "required": true
+                                    },
+                                    "@type": {
+                                        "type": "string",
+                                        "title": "Datatype",
+                                        "required": true
+                                    },
+                                    "parameterValueType": {
+                                        "type": "string",
+                                        "title": "Parameter Value Type",
+                                        "required": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "options": {
+        "form": {
+            "buttons": {
+                "submit": {
+                    "title": "Preview",
+                    "click": function() {
+                        var value = this.getValue();
+                        //alert(JSON.stringify(value, null, "  "));
+                        //console.log(value);
+                        //console.log(JSON.stringify(convertOutput(value), null, "  "));
+                        $("#preview").html("<h3>Preview</h3><pre>"+JSON.stringify(convertOutput(value), null, "  ")+"</pre>");
+                    }
+                }
+            }
+        },
+        "fields": {
+            "min": {
+                "type": "number"
+            },
+            "max": {
+                "type": "number"
+            }
+        }
+    }
+});
+</script>
+
+
+</body>
+</html>
