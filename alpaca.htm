@@ -11,11 +11,43 @@
         <script type="text/javascript" src="http://code.cloudcms.com/alpaca/1.5.8/bootstrap/alpaca.min.js"></script>
 </head>
 <body>
-<div id="form1"></div>
+<div id="form1" style="width: 50%;"></div>
+
+
+<script>
+var listOfStrings = ["name", "description", "version", "keywords"];
+
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i] === obj) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function convertOutput(value) {
+    for (x in value) {
+        console.log(x);
+        if (listOfStrings.indexOf(x) < 0) {
+            value[x] = {"@id": value[x]};
+        }
+    }
+
+    return value;
+}
+</script>
+    
+    
+    
     
 <script type="text/javascript">
 $("#form1").alpaca({
+    "type": "create",
     "schema": {
+        "id": "#leaf",
         "title": "Describe your API",
         "type": "object",
         "properties": {
@@ -70,9 +102,31 @@ $("#form1").alpaca({
                 "required": false
             },
             "keywords": {
-                "type": "string",
+                "type": "array",
                 "title": "Keywords - dcat:keyword (xsd:string)",
-                "required": true
+                "items": {
+                    "$ref": "#leaf"
+                }
+            },
+            "services": {
+                "id": "#plant",
+                "type": "array",
+                "title": "Services",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "title": "Name",
+                            "required": true
+                        },
+                        "description": {
+                            "type": "string",
+                            "title": "Description",
+                            "required": true
+                        }
+                    }
+                }
             }
         }
     },
@@ -83,7 +137,9 @@ $("#form1").alpaca({
                     "title": "Serialize",
                     "click": function() {
                         var value = this.getValue();
-                        alert(JSON.stringify(value, null, "  "));
+                        //alert(JSON.stringify(value, null, "  "));
+                        console.log(value);
+                        console.log(JSON.stringify(convertOutput(value), null, "  "));
                     }
                 }
             }
