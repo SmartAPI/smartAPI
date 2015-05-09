@@ -1,0 +1,134 @@
+{ 
+    "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.api.jsonld",
+
+    "@id": "http://myvariant.info/",
+    "name": "MyVariant.info",
+    "description": "The MyVariant.info API provides access to a wide collection of gene variants data.",
+    "publisher": {"@id":"http://heartbd2k.org/about#heartbd2k", "@type":"http://xmlns.com/foaf/0.1/Agent", "name":"HeartBD2K"},
+    "documentationPage":   {"@id":"http://docs.myvariant.info/en/latest/"},
+    "termsOfUsePage": {"@id": "http://myvariant.info/terms/"},
+    "sourceCodeURL": {"@id": "https://bitbucket.org/sulab/myvariant.info"},
+
+    "keywords": ["variant","snp","life sciences","BD2K"],
+    
+    "services": [
+     {
+       "@context": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.service.jsonld",
+       "@type": "sio:web-service",
+ 
+       "name": "MyVariant.info variant query service",
+       "description": "Make variant query and return matching variant list.",
+       "version": "1.0.0",
+       "publisher": {"@id":"http://heartbd2k.org/about#heartbd2k"},
+       "httpMethod": "GET",
+       "URI": {"@id": "http://myvariant.info/v1/query"},
+       "outputFormat": "application/json",
+      
+       "inputParameter": [
+      {
+        "name": "q",
+        "@type": "xsd:string",
+		"parameterType": ["InputParameter", "IdentifierQuery"],
+        "parameterDataType": ["ids:dnsnp","chromosomeAndInterval","VariantType"],
+        "min": "1",
+        "max": "1",
+        "description": "The query string containing dbSNP identifiers, chromosome and interval, or variant type",
+        "documentationURL": "http://docs.myvariant.info/en/latest/doc/query_service.html",
+        "exampleValue": ["rs58991260", "chr1:69000-70000", "dbsnp.vartype:snp"]
+      },
+	    { 
+        "name": "fields",
+        "@type": "xsd:string",
+        "parameterType": ["InputParameter", "fieldsReturned"],
+        "min": "0",
+        "max": "1",
+        "description": "a comma-separated fields to limit the fields returned from the matching gene hits. The supported field names can be found from any variant object (e.g. http://myvariant.info/v1/variant/chr16:g.28883241A>G). Note that it supports dot notation, and wildcards as well, e.g., you can pass dbnsfp, dbnsfp.genename, or dbnsfp.aa.*",
+        "exampleValue": ["dbnsfp","dbnsfp.genename","dbnsfp.aa.*"],
+		"defaultValue": "all"
+	},
+	{ 
+        "name": "callback",
+        "description": "pass a callback parameter to make a JSONP call.",
+        "@type": "xsd:string",
+        "parameterType": ["InputParameter", "CallBack"],
+        "min": "0",
+        "max": "1"
+	},
+	{ 
+        "name": "size",
+        "description": "The maximum number of matching variant hits to return (with a cap of 1000 at the moment)",
+        "@type": "xsd:integer",
+        "parameterType": ["InputParameter","NumberOfResultsReturned"],
+        "min": "0",
+        "max": "1",
+        "exampleValue": "10" ,
+		"defaultValue": "10"
+	},	
+	  { 
+        "name": "from",
+        "description": "The number of matching variant hits to skip, starting from 0. Combining with size parameter can be useful for paging.",
+        "@type": "xsd:integer",
+        "parameterType": ["InputParameter","OffsetParameter"],
+        "min": "0",
+        "max": "1",
+        "exampleValue": "10" ,
+	    "defaultValue": "0"
+	},
+   { 
+        "name": "sort",
+        "description": "A comma-separated list of fields to sort on. Prefix with \"-\" for descending order, otherwise in ascending order. Default: sort by matching scores in descending order.",
+        "@type": "xsd:string",
+        "parameterType": ["InputParameter","SortParameter"],
+        "min": "0",
+        "max": "1"
+  	},	
+	  { 
+        "name": "facets",
+        "description": "A set of comma-separated fields to return facets.",
+        "@type": "xsd:string",
+        "parameterType": ["InputParameter"],
+        "min": "0",
+        "max": "1",
+        "exampleValue": ["taxid","taxid,type_of_gene"]
+	},	
+
+	{ 
+        "@type": "xsd:string",
+        "name": "email",
+        "description": "If you are regular users of our services, we encourage you to provide us an email, so that we can better track the usage or follow up with you",
+        "parameterType": ["InputParameter"],
+		    "parameterValueType": "EmailAddress",
+        "min": "0",
+        "max": "1"
+	}
+  ],
+  
+  "outputField": [
+    {
+      "name": "chrom",
+	    "@type": "xsd:string",
+	    "parameterValueType": "ChromosomeIdentifier"
+    },
+    {
+      "name": "dbsnp_build",
+	    "@type": "xsd:integer",
+	    "parameterValueType": "dbSNP.build.identifier"
+    },   
+       {
+      "name": "allele",
+	    "@type": "xsd:string",
+	    "parameterValueType": "Allele.letter"
+    },
+    {
+      "name": "freq",
+	    "@type": "xsd:float",
+	    "parameterValueType": "Allele.frequency"
+    },
+        {
+      "name": "rsid",
+	    "@type": "xsd:string",
+	    "parameterValueType": "ids:dbsnp"
+    }
+  ] 
+  }]
+}
