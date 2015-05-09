@@ -74,10 +74,11 @@ class JsonHandler(BaseHandler):
 class QueryHanlder(BaseHandler):
     def get(self):
         q = self.get_argument('q', None)
+        fields = self.get_argument('fields', None)
         input = self.get_argument('input', '1').lower() in ['1', 'true']
 
         esq = ESQuery(es_host='su07:9200')
-        res = esq.query_api(q=q, input=input)
+        res = esq.query_api(q=q, fields=fields, input=input)
         self.return_json(res)
 
 
@@ -88,12 +89,27 @@ class APIHandler(BaseHandler):
         print(json.dumps(data, indent=2))
         self.return_json({'success': True})
 
+class PathHanlder(BaseHandler):
+    def get(self):
+        _from = self.get_argument('from', None)
+        _to = self.get_argument('to', None)
+        if _from and _to:
+            #self.write("<b>{}</b>&#x2192;<b>MyVariant.info</b>&#x2192;<b>hgnc.symbol</b>&#x2192;<b>MyGene.info</b>&#x2192;<b>{}</b>".format(_from, _to))
+            if _from == 'variant_id' and _to == 'pfam':
+                self.render(os.path.join(src_path, '../graph.htm'))
+            else:
+                self.write('No proper API path found!')
+        else:
+            self.write("Missing parameters!")
+
+
 
 APP_LIST = [
     (r"/", MainHandler),
     (r'/json/(.+)/?', JsonHandler),
     (r'/query/?', QueryHanlder),
     (r'/api/?', APIHandler),
+    (r'/path/?', PathHanlder),
 ]
 
 settings = {}
