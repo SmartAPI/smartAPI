@@ -17,29 +17,24 @@
 <script>
 var listOfStrings = ["@context", "@id", "name", "description", "publisher", "version", "keywords", "services"];
 
-function containsObject(obj, list) {
-    var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i] === obj) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 function convertOutput(value) {
     for (x in value) {
-        console.log(x);
         if (listOfStrings.indexOf(x) < 0) {
             value[x] = {"@id": value[x]};
+        } else if (x === "services") {
+            for (num in value[x]) {
+                for (y in value[x][num]) {
+                    if (y === "URI" || y === "logo" || y === "documentationPage" || y === "termsOfUsePage" || y === "sourceCodeURL") {
+                        value[x][num][y] = {"@id": value[x][num][y]};
+                    }
+                }
+            }
         }
     }
 
     return value;
 }
-</script>
-    
+</script>   
     
     
     
@@ -145,6 +140,11 @@ $("#form1").alpaca({
                 "items": {
                     "type": "object",
                     "properties": {
+                        "URI": {
+                            "type": "string",
+                            "title": "URI",
+                            "required": true
+                        },
                         "@context": {
                             "type": "string",
                             "title": "Context",
