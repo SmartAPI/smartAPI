@@ -88,6 +88,7 @@
         "description": "A set of comma-separated fields to return facets.",
         "@type": "xsd:string",
         "parameterType": ["InputParameter"],
+		"parameterValueType": "ids:taxonomy.id",
         "min": "0",
         "max": "1",
         "exampleValue": ["taxid","taxid,type_of_gene"]
@@ -108,12 +109,12 @@
     {
       "name": "chrom",
 	    "@type": "xsd:string",
-	    "parameterValueType": "ChromosomeIdentifier"
+	    "parameterValueType": "chromosome.id"
     },
     {
       "name": "dbsnp_build",
 	    "@type": "xsd:integer",
-	    "parameterValueType": "dbSNP.build.identifier"
+	    "parameterValueType": "dbSNP.build.id"
     },   
        {
       "name": "allele",
@@ -123,12 +124,12 @@
     {
       "name": "freq",
 	    "@type": "xsd:float",
-	    "parameterValueType": "Allele.frequency"
+	    "parameterValueType": "Allele.freq"
     },
         {
       "name": "rsid",
 	    "@type": "xsd:string",
-	    "parameterValueType": "ids:dbsnp"
+	    "parameterValueType": "ids:dbsnp.id"
     }
   ]  
   },
@@ -180,7 +181,7 @@
         "name": "email",
         "description": "If you are regular users of our services, we encourage you to provide us an email, so that we can better track the usage or follow up with you",
         "parameterType": ["InputParameter"],
-		    "parameterValueType": "EmailAddress",
+		"parameterValueType": "EmailAddress",
         "min": "0",
         "max": "1"
 	}
@@ -195,12 +196,12 @@
     {
       "name": "gene.gene_id",
 	    "@type": "xsd:string",
-	    "parameterValueType": "ids:ensembl"
+	    "parameterValueType": "ids:ensembl.id"
     },   
        {
       "name": "ensembl.geneid",
 	    "@type": "xsd:string",
-	    "parameterValueType": "ids:ensembl"
+	    "parameterValueType": "ids:ensembl.id"
     }
   ]
   }]
