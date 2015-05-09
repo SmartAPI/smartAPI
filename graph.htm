@@ -17,8 +17,8 @@
 }
 
 .link.output {
-  stroke: red;
-  stroke-dasharray: 0,2 1;
+  stroke: orange;
+  /*stroke-dasharray: 0,2 1;*/
 }
 
 circle {
@@ -26,13 +26,17 @@ circle {
   stroke: #333;
   stroke-width: 1.5px;
 }
-
+    
 text {
   font: 10px sans-serif;
   pointer-events: none;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
 
+.circ.input {
+  fill: #CC6600;   
+}
+    
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -40,10 +44,10 @@ text {
 
 // http://blog.thomsonreuters.com/index.php/mobile-patent-suits-graphic-of-the-day/
 var links = [
-  {source: "variant_id", target: "MyVariant", type: "input"},
-  {source: "MyVariant", target: "HGNC_Symbol", type: "output"},
-  {source: "HGNC_Symbol", target: "MyGene", type: "input"},
-  {source: "MyGene", target: "PFAM", type: "output"}
+  {source: "{variant_id}", target: "MyVariant.info", type: "input"},
+  {source: "MyVariant.info", target: "{HGNC_Symbol}", type: "output"},
+  {source: "{HGNC_Symbol}", target: "MyGene.info", type: "input"},
+  {source: "MyGene.info", target: "{PFAM}", type: "output"}
 ];
 
 var nodes = {};
