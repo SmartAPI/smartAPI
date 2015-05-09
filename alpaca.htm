@@ -349,22 +349,31 @@ $("#form1").alpaca({
     "options": {
         "form": {
             "buttons": {
-                "submit": {
+                "Preview": {
                     "title": "Preview",
                     "click": function() {
                         var value = this.getValue();
-                        $("#preview").html("<h3>Preview</h3><pre>"+JSON.stringify(convertOutput(value), null, "  ")+"</pre>");
-                        $.post(URL, convertOutput(value), function() {
-                            alert("The data has been sent to " + URL + " successfully!")
-                        });
+                        $("#preview").html("<h3>Preview</h3><pre>" + JSON.stringify(convertOutput(value), null, "  ") + "</pre>");
+                    }
+                },
+                "Submit": {
+                    "title": "Submit",
+                    "click": function() {
+                        var value = this.getValue();
+                        $.post(URL, JSON.stringify(convertOutput(value)), function() {
+                            alert("The data has been sent to " + URL + " successfully!");
+                        }, 'json');
                     }
                 },
                 "spam": {
                     "title": "Fill in all the fields with gibberish",
                     "click": function() {
                         var inputs = document.getElementsByTagName('input');
+                        // skip_inputs = ["@type", "@context"];
                         for (var i = 0; i < inputs.length; i += 1) {
-                            inputs[i].value = randString(5);
+                            if (inputs[i].name.indexOf("@type") < 0 && inputs[i].name.indexOf("@context") < 0 ) {
+                                inputs[i].value = randString(5);
+                            }   
                         }
                     }
                 }
