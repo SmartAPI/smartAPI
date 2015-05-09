@@ -349,6 +349,17 @@ $("#form1").alpaca({
     "options": {
         "form": {
             "buttons": {
+                "Spam": {
+                    "title": "Fill with dummy data",
+                    "click": function() {
+                        var inputs = document.getElementsByTagName('input');
+                        for (var i = 0; i < inputs.length; i += 1) {
+                            if (inputs[i].name.indexOf("@type") < 0 && inputs[i].name.indexOf("@context") < 0 ) {
+                                inputs[i].value = randString(5);
+                            }   
+                        }
+                    }
+                },
                 "Preview": {
                     "title": "Preview",
                     "click": function() {
@@ -364,18 +375,6 @@ $("#form1").alpaca({
                             alert("The data has been sent to " + URL + " successfully!");
                         }, 'json');
                     }
-                },
-                "spam": {
-                    "title": "Fill in all the fields with gibberish",
-                    "click": function() {
-                        var inputs = document.getElementsByTagName('input');
-                        // skip_inputs = ["@type", "@context"];
-                        for (var i = 0; i < inputs.length; i += 1) {
-                            if (inputs[i].name.indexOf("@type") < 0 && inputs[i].name.indexOf("@context") < 0 ) {
-                                inputs[i].value = randString(5);
-                            }   
-                        }
-                    }
                 }
             }
         },
@@ -390,7 +389,5 @@ $("#form1").alpaca({
     }
 });
 </script>
-
-<!-- <button class="spam">Fill in all the fields with gibberish</button> -->
 </body>
 </html>
