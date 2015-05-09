@@ -83,8 +83,8 @@
     "homepage": {
       "@id": "foaf:page",
       "@type": "@id",
-      "label": "logo",
-      "description": "A picture depicting the API",
+      "label": "homepage",
+      "description": "The homepage for the API",
       "min": "1"
     },
     "documentationPage": {
