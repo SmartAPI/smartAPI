@@ -21,16 +21,72 @@ $("#form1").alpaca({
         "properties": {
             "name": {
                 "type": "string",
-                "title": "Name",
-                "predicate": "dct:title",
-                "datatype": "xsd:string"
+                "title": "Name - dct:title (xsd:string)",
+                "required": true
             },
             "description": {
                 "type": "string",
-                "title": "Description",
-                "predicate": "dct:description",
-                "datatype": "xsd:string"
+                "title": "Description - dct:description (xsd:string)",
+                "required": false
             },
+            "version": {
+                "type": "string",
+                "title": "Version - pav:version (xsd:string)",
+                "required": false
+            },
+            "logo": {
+                "type": "string",
+                "title": "Logo - schema:logo (IRI)",
+                "required": false
+            },
+            "publisher": {
+                "type": "string",
+                "title": "Publisher - dct:publisher (IRI)",
+                "required": true
+            },
+            "homepage": {
+                "type": "string",
+                "title": "Homepage - foaf:page (IRI)",
+                "required" : true
+            },
+            "documentationPage": {
+                "type": "string",
+                "title": "Documentation - documentation (IRI)",
+                "required": false
+            },
+            "termsOfUsePage": {
+                "type": "string",
+                "title": "Terms Of Use - termsOfUsePage (IRI)",
+                "required": true
+            },
+            "sourceCodeURL": {
+                "type": "string",
+                "title": "Source Code URL - sourceCodeURL (IRI)",
+                "required": false
+            },
+            "publication": {
+                "type": "string",
+                "title": "Publication - ids:pubmed (IRI)",
+                "required": false
+            },
+            "keywords": {
+                "type": "string",
+                "title": "Keywords - dcat:keyword (xsd:string)",
+                "required": true
+            }
+        }
+    },
+    "options": {
+        "form": {
+            "buttons": {
+                "submit": {
+                    "title": "Serialize",
+                    "click": function() {
+                        var value = this.getValue();
+                        alert(JSON.stringify(value, null, "  "));
+                    }
+                }
+            }
         }
     }
 });
