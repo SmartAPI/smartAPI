@@ -77,7 +77,7 @@
         "max":"1"
       }
     },
-    "documentionPage": {
+    "documentationPage": {
       "@id": "documentation",
       "@type": "@id",
       "label": "documentation",

@@ -87,7 +87,7 @@
       "description": "A picture depicting the API",
       "min": "1"
     },
-    "documentionPage": {
+    "documentationPage": {
       "@id": "documentation",
       "@type": "@id",
       "label": "documentation",
