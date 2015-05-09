@@ -9,11 +9,14 @@ import tornado.options
 import tornado.web
 import tornado.escape
 from tornado.options import define, options
+from pyld import jsonld
+
+from es import ESQuery
 
 src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 if src_path not in sys.path:
     sys.path.append(src_path)
-
+print(src_path)
 
 STATIC_PATH = os.path.join(src_path, 'src/static')
 
@@ -28,14 +31,69 @@ if options.debug:
     options.address = '0.0.0.0'
 
 
+def get_json(filename):
+    with open(filename) as f:
+        return json.load(f)
+
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write('hello world!')
-        #self.render(os.path.join(STATIC_PATH, 'index.html'))
+        #self.write('hello world!')
+        self.render(os.path.join(src_path, '../alpaca.htm'))
+
+
+class BaseHandler(tornado.web.RequestHandler):
+    def return_json(self, data):
+        _json_data = json.dumps(data, indent=2)
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
+        self.write(_json_data)
+
+
+class JsonHandler(BaseHandler):
+    def get(self, ctx_name):
+        if ctx_name == 'mygene':
+            obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
+            #del obj['services'][0]['@context']
+            obj = jsonld.expand(obj)[0]
+            self.return_json(obj)
+        elif ctx_name == '2':
+            obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
+            obj = jsonld.expand(obj['services'][0])
+            self.return_json(obj)
+        elif ctx_name == '3':
+            obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
+            obj = jsonld.expand(obj['services'][0])
+            self.return_json(obj)
+        if ctx_name == 'myvariant':
+            obj = get_json(os.path.join(src_path, '../data/myvariant.info.smartAPI.json'))
+            #del obj['services'][0]['@context']
+            obj = jsonld.expand(obj)[0]
+            self.return_json(obj)
+
+
+class QueryHanlder(BaseHandler):
+    def get(self):
+        q = self.get_argument('q', None)
+        input = self.get_argument('input', '1').lower() in ['1', 'true']
+
+        esq = ESQuery(es_host='su07:9200')
+        res = esq.query_api(q=q, input=input)
+        self.return_json(res)
+
+
+class APIHandler(BaseHandler):
+    def post(self):
+        #data = self.request.arguments
+        data = tornado.escape.json_decode(self.request.body)
+        print(json.dumps(data, indent=2))
+        self.return_json({'success': True})
 
 
 APP_LIST = [
     (r"/", MainHandler),
+    (r'/json/(.+)/?', JsonHandler),
+    (r'/query/?', QueryHanlder),
+    (r'/api/?', APIHandler),
 ]
 
 settings = {}
