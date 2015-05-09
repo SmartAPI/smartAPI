@@ -52,19 +52,17 @@
         "@type": "xsd:string",
         "parameterType": ["InputParameter", "CallBack"],
         "min": "0",
-        "max": "1",
-        "exampleValue": "",
-		"defaultValue": ""
+        "max": "1"
 	},
 	{ 
         "name": "species",
-        "description": "Can be used to limit the gene hits from given species. You can use common names for nine common species (human, mouse, rat, fruitfly, nematode, zebrafish, thale-cress, frog and pig). All other species, you can provide their taxonomy ids. Multiple species can be passed using comma as a separator. Passing \"all\" will query against all available species. Default: human,mouse,rat.",
+        "description": "Can be used to limit the gene hits from given species. You can use common names for nine common species (human, mouse, rat, fruitfly, nematode, zebrafish, thale-cress, frog and pig). All other species, you can provide their taxonomy ids. Multiple species can be passed using comma as a separator. Passing \"all\" will query against all available species.",
         "@type": "xsd:string",
         "parameterType": ["InputParameter","ids:taxonomy"],
         "min": "0",
         "max": "1",
-        "exampleValue": "" ,
-		"defaultValue": ""
+        "exampleValue": "all" ,
+		"defaultValue": "human,mouse,rat"
 	},	
 	{ 
         "name": "size",
@@ -84,7 +82,7 @@
         "min": "0",
         "max": "1",
         "exampleValue": "10" ,
-	    	"defaultValue": "0"
+	    "defaultValue": "0"
 	},
    { 
         "name": "sort",
