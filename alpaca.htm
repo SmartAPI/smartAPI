@@ -39,6 +39,8 @@ function convertOutput(value) {
     
     
 <script type="text/javascript">
+URL = "/api/"
+
 $("#form1").alpaca({
     "type": "create",
     "schema": {
@@ -329,10 +331,10 @@ $("#form1").alpaca({
                     "title": "Preview",
                     "click": function() {
                         var value = this.getValue();
-                        //alert(JSON.stringify(value, null, "  "));
-                        //console.log(value);
-                        //console.log(JSON.stringify(convertOutput(value), null, "  "));
                         $("#preview").html("<h3>Preview</h3><pre>"+JSON.stringify(convertOutput(value), null, "  ")+"</pre>");
+                        $.post(URL, convertOutput(value), function() {
+                            alert("The data has been sent to " + URL + " successfully!")
+                        });
                     }
                 }
             }
