@@ -128,13 +128,33 @@
 	  { 
         "name": "ensemblonly",
         "description": "Returns only the hits with valid Ensembl gene ids.",
-        "@ype": "xsd:string",
+        "@type": "xsd:string",
         "parameterType": "InputParameter",
         "min": "0",
         "max": "1",
         "exampleValue": ["true","1"]  ,
     		"defaultValue": "false"
+	},
+		  { 
+        "name": "dotfield",
+        "description": "control the format of the returned fields when passed \"fields\" parameter contains dot notation, e.g. \"fields=refseq.rna\". If \"true\" or \"1\", the returned data object contains a single \"refseq.rna\" field, otherwise (\"false\" or \"0\"), a single \"refseq\" field with a sub-field of \"rna\". Default: true.",
+        "@type": "xsd:string",
+        "parameterType": "",
+        "min": "0",
+        "max": "1",
+        "exampleValue": "true" ,
+	    	"defaultValue": "true"
+	},	
+	{ 
+        "@type": "xsd:string",
+        "name": "email",
+        "description": "If you are regular users of our services, we encourage you to provide us an email, so that we can better track the usage or follow up with you",
+        "parameterType": ["InputParameter"],
+		    "parameterValueType": "EmailAddress",
+        "min": "0",
+        "max": "1"
 	}
+
   ]
   }]
 }
