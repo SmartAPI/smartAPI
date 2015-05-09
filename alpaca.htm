@@ -11,8 +11,8 @@
         <script type="text/javascript" src="http://code.cloudcms.com/alpaca/1.5.8/bootstrap/alpaca.min.js"></script>
 </head>
 <body>
-<div id="form1" style="width: 50%;"></div>
-
+<div id="form1" class="col-lg-6"></div>
+<div id="preview" class="col-lg-6"></div>
 
 <script>
 var listOfStrings = ["@context", "@id", "name", "description", "publisher", "version", "keywords", "services"];
@@ -140,17 +140,17 @@ $("#form1").alpaca({
                 "items": {
                     "type": "object",
                     "properties": {
-                        "URI": {
-                            "type": "string",
-                            "title": "URI",
-                            "required": true
-                        },
                         "@context": {
                             "type": "string",
                             "title": "Context",
                             "required": true,
                             "readonly": true,
                             "default": "https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/schema/smartAPI.service.jsonld"
+                        },
+                        "URI": {
+                            "type": "string",
+                            "title": "URI",
+                            "required": true
                         },
                         "@type": {
                             "type": "string",
@@ -326,12 +326,13 @@ $("#form1").alpaca({
         "form": {
             "buttons": {
                 "submit": {
-                    "title": "Serialize",
+                    "title": "Preview",
                     "click": function() {
                         var value = this.getValue();
                         //alert(JSON.stringify(value, null, "  "));
-                        console.log(value);
-                        console.log(JSON.stringify(convertOutput(value), null, "  "));
+                        //console.log(value);
+                        //console.log(JSON.stringify(convertOutput(value), null, "  "));
+                        $("#preview").html("<h3>Preview</h3><pre>"+JSON.stringify(convertOutput(value), null, "  ")+"</pre>");
                     }
                 }
             }
