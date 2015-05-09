@@ -74,10 +74,11 @@ class JsonHandler(BaseHandler):
 class QueryHanlder(BaseHandler):
     def get(self):
         q = self.get_argument('q', None)
+        fields = self.get_argument('fields', None)
         input = self.get_argument('input', '1').lower() in ['1', 'true']
 
         esq = ESQuery(es_host='su07:9200')
-        res = esq.query_api(q=q, input=input)
+        res = esq.query_api(q=q, fields=fields, input=input)
         self.return_json(res)
 
 

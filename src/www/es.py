@@ -33,10 +33,12 @@ class ESQuery():
                 }
             }
         }
-        if fields:
+        if fields == 'all':
+            pass
+        elif fields:
             query['fields'] = fields
         else:
-            fields = ['@id', attr_input, attr_output]
+            query['fields'] = ['@id', attr_input, attr_output]
         print(query)
         res = self._es.search(self._index, self._doc_type, query)
         return res
