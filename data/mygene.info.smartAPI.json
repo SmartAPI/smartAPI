@@ -24,11 +24,11 @@
        "URI": {"@id": "http://mygene.info/v2/query"},
        "outputFormat": "application/json",
       
-       "input-parameter": [
+       "inputParameter": [
       {
         "name": "q",
         "@type": "xsd:string",
-		    "parameterType": ["InputParameter", "IdentifierQuery"],
+		"parameterType": ["InputParameter", "IdentifierQuery"],
         "parameterDataType": ["ids:hgnc.name","ids:refseq.id","ids:affymetrix.id"],
         "min": "1",
         "max": "1",
@@ -101,8 +101,7 @@
         "parameterType": ["InputParameter"],
         "min": "0",
         "max": "1",
-        "exampleValue": ["taxid","taxid,type_of_gene"] ,
-		"defaultValue": ""
+        "exampleValue": ["taxid","taxid,type_of_gene"]
 	},	
 	  { 
         "name": "species_facet_filter",
@@ -122,7 +121,7 @@
         "min": "0",
         "max": "1",
         "exampleValue": ["true","1"] ,
-		    "defaultValue": "false"
+		"defaultValue": "false"
 	},	
 
 	  { 
@@ -143,7 +142,7 @@
         "min": "0",
         "max": "1",
         "exampleValue": "true" ,
-	    	"defaultValue": "true"
+	    "defaultValue": "true"
 	},	
 	{ 
         "@type": "xsd:string",
@@ -154,7 +153,34 @@
         "min": "0",
         "max": "1"
 	}
-
-  ]
+  ],
+  
+  "outputField": [
+    {
+      "name": "entrezgene",
+	    "@type": "xsd:integer",
+	    "parameterValueType": "ids:ncbigene"
+    },
+    {
+      "name": "name",
+	    "@type": "xsd:string",
+	    "parameterValueType": "GeneName"
+    },   
+       {
+      "name": "symbol",
+	    "@type": "xsd:string",
+	    "parameterValueType": "ids:hgnc.symbol"
+    },
+    {
+      "name": "taxid",
+	    "@type": "xsd:integer",
+	    "parameterValueType": "ids:taxonomy"
+    },
+        {
+      "name": "score",
+	    "@type": "xsd:float",
+	    "parameterValueType": "Score"
+    }
+  ] 
   }]
 }
