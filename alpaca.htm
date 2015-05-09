@@ -34,6 +34,28 @@ function convertOutput(value) {
 
     return value;
 }
+
+function randString(n) {
+    if(!n)
+    {
+        n = 5;
+    }
+
+    var text = '';
+    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    for(var i=0; i < n; i++)
+    {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return text;
+}
+
+    // $('.spam').click(function() {
+    //     return spam();
+    // });
+// }
 </script>   
     
     
@@ -336,6 +358,15 @@ $("#form1").alpaca({
                             alert("The data has been sent to " + URL + " successfully!")
                         });
                     }
+                },
+                "spam": {
+                    "title": "Fill in all the fields with gibberish",
+                    "click": function() {
+                        var inputs = document.getElementsByTagName('input');
+                        for (var i = 0; i < inputs.length; i += 1) {
+                            inputs[i].value = randString(5);
+                        }
+                    }
                 }
             }
         },
@@ -351,6 +382,6 @@ $("#form1").alpaca({
 });
 </script>
 
-
+<!-- <button class="spam">Fill in all the fields with gibberish</button> -->
 </body>
 </html>
