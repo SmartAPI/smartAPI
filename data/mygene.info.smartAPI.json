@@ -8,7 +8,7 @@
     "documentationPage":   {"@id":"http://docs.mygene.info/en/latest/"},
     "termsOfUsePage": {"@id": "http://mygene.info/terms/"},
     "sourceCodeURL": {"@id": "https://bitbucket.org/sulab/mygene.info"},
-    "publication": {"@id": "23175613"},
+    "publication": {"@id": "pubmed:23175613"},
     "keywords": ["gene","life sciences","BD2K"],
     
     "services": [
