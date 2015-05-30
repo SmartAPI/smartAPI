@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en"> 
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>smartAPI</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.theme.simplex.css" rel="stylesheet" />
+    
+    <!-- Custom -->
+    <link href="css/smartapi.css" rel="stylesheet" />
+    <link rel="alternate" type="application/rss+xml" title="" href="/feeds/news.xml" />
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">    
+    
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div>&nbsp;</div>
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"><img src="images/smart-api-logo.png" style="height: 22px;" /></a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav" role="menu">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-book"></span> Specifications <b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu">
+            <li role="presentation"><a role="menuitem" href="specification/">Main Specification</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-cog"></span> Web services <b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu">
+            <li role="presentation"><a href="api/">Introduction</a></li>          
+            <li role="presentation" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Search</li>          
+            <li role="presentation"><a role="menuitem" href="api/search/">Text search</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Lookup</li>          
+            <li role="presentation"><a role="menuitem" href="api/get.api/">Get API</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Graph Analysis</li>          
+            <li role="presentation"><a role="menuitem" href="api/shortest-path/">Shortest Path</a></li>
+          </ul>
+        </li>
+        <li role="presentation">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> Tools <b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu">
+            <li role="presentation" class="dropdown-header">Annotation</li>          
+            <li role="presentation"><a role="menuitem" href="tools/">Editor</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Graph Analysis</li>          
+            <li role="presentation"><a role="menuitem" href="tools/shortest-path/">Shortest Path</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-home"></span> Resources <b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu">
+            <li role="presentation" class="dropdown-header">Community</li>          
+            <li role="presentation"><a role="menuitem" href="https://groups.google.com/forum/?hl=en#!forum/smart-api">Discussion Forum</a></li>
+            <li role="presentation"><a role="menuitem" href="community/examples/">Examples</a></li>
+            <li role="presentation"><a role="menuitem" href="community/projects/">Projects</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation" class="dropdown-header">Other</li>          
+            <li role="presentation"><a role="menuitem" href="news/">News</a></li>
+            <li role="presentation"><a role="menuitem" href="wiki/">Wiki</a></li>
+            <li role="presentation"><a role="menuitem" href="about/">About</a></li>
+          </ul>
+        </li>
+        <li role="presentation"><a role="menuitem" href="https://github.com/smartAPI/smartAPI"><span class="glyphicon glyphicon-cloud-download"></span> Download</a></li>
+        <li role="presentation"><a role="menuitem" href="/version/"><span class="badge">v0.1</span></a></li>
+      </ul>
+      
+            
+      <form class="navbar-form navbar-right" role="search" method="get" action="/search">
+        <div class="form-group">
+          <input name="query" type="text" class="form-control" placeholder="API search" id="nav-search">
+        </div>
+        <button type="submit" class="btn btn-default" id="search-nav-btn">Search</button>
+      </form>
+
+      
+            
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+      
+      <!-- Jumbotron -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="jumbotron">
+            <img src="images/smart-api-logo.png">
+            <h1>smartAPI</h1>
+            <p class="lead">A more intelligent network of web services</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-3">
+          <p><a class="btn btn-primary btn-lg" href="/specification">Specification</a></p>
+		  
+          <p style="height: 60px;">Use the smartAPI metadata specification to code up your own smartAPI.</p>
+        </div>
+        <div class="col-lg-3">
+          <p><a class="btn btn-primary btn-lg" href="/registry">Registry</a></p>
+          <p style="height: 60px;">Search the registry of smartAPIs.</p>
+        </div>
+        <div class="col-lg-3">
+          <p><a class="btn btn-primary btn-lg" href="/editor">Editor</a></p>
+          <p style="height: 60px;">Author your own smartAPI.</p>
+        </div>
+		<div class="col-lg-3">
+          <p><a class="btn btn-primary btn-lg" href="/api">API</a></p>
+
+          <p style="height: 60px;">Learn about and access the smartAPI services.</p>
+        </div>
+      </div>   
+      
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      <hr class="featurette-divider">
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Why do we need smartAPIs?</h2>
+          <p class="lead">Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as Programmable Web, BioCatalogue and cloud platforms such as Galaxy. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.		  
+		  </p>
+        </div>
+        <div class="col-md-5">
+          <img src="images/smart-api-need.png" width="400"></a>
+        </div>
+      </div>        
+
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      <hr class="featurette-divider">
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>      
+      
+      <div class="row featurette">
+        <div class="col-md-5">
+          <img src="images/authoring.png" width="400">
+        </div>
+        <div class="col-md-7">
+			<h2 class="featurette-heading">Enhanced API metadata</h2>
+			<p class="lead">Using our <a href="tools/editor/">metadata editor</a> you can easily create rich API metatada that not only helps others find your smartAPI, but also helps you create Linked Data.</p>
+        </div>
+      </div>              
+
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      <hr class="featurette-divider">
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      
+      <div class="row featurette">
+        <div class="col-md-7">
+          <h2 class="featurette-heading">Powerful Semantic Search</h2>
+          <p class="lead">Richly annotated APIs are easier to search. Not only do they </p>
+        </div>
+        <div class="col-md-5">
+          <img src="images/search.png" width="400">
+        </div>
+      </div>        
+
+
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      <hr class="featurette-divider">
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>      
+      
+      <div class="row featurette">
+        <div class="col-md-5">
+          <img src="images/interoperability.png" width="400">
+        </div>
+        <div class="col-md-7">
+					<h2 class="featurette-heading">API Interoperability</h2>
+          <p class="lead">something here</p>
+        </div>
+      </div>  
+
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+			
+        
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/jquery-ui.min.js"></script>
+  
+  <!--script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script-->
+  
+  
+  
+  <div>&nbsp;</div>
+  
+  <p class="text-center" style="padding-top: 60px;">
+    <small>
+      Copyright &copy; 2015. 
+      <a href="http://smart-api.info">smartAPI consortium</a>. 
+      All content available via <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a>
+      &nbsp;&nbsp;<a role="menuitem" href="/feeds/news.xml"><img src="images/feed.png" /></a>
+    </small>
+  </p>
+  
+  <script>
+    $(function() {
+      $("#nav-search").autocomplete({
+        source: "http://smart-api.info/api/autocomplete.php",
+        minLength: 2,
+        select: function( event, ui ) {
+          if(ui.item.id.indexOf('#') == -1)
+          {
+            window.location.href = 'http://smart-api.info/api/lookup?uri=' + getConceptEnding(ui.item.id);
+          }
+          else
+          {
+            window.location.href = 'http://smart-api.info/api/lookup?uri=' + getConceptEnding(ui.item.id);
+          }
+        }
+      });
+    });
+  </script>  
+  
+  <!-- Start of StatCounter Code for Default Guide -->
+
+  <!-- End of StatCounter Code for Default Guide -->      
+    </div>
+  </body>
+</html>
