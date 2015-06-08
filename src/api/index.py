@@ -39,7 +39,8 @@ def get_json(filename):
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         #self.write('hello world!')
-        self.render(os.path.join(src_path, '../alpaca.htm'))
+        #self.render(os.path.join(src_path, '../alpaca.htm'))
+        self.redirect('/website/')
 
 
 class BaseHandler(tornado.web.RequestHandler):
