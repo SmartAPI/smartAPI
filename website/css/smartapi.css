@@ -1,0 +1,79 @@
+.jumbotron {
+  text-align: center;
+  background-color: transparent;
+}
+.jumbotron .btn {
+  padding: 14px 24px;
+  font-size: 21px;
+}
+
+.affix-top,.affix{
+  position: static;
+}
+
+.badge {
+  background-color: #FFCC66;
+  color: #000;
+}
+
+@media (min-width: 992px) {
+
+  .affix-top {
+    position: static;
+  }
+
+  .affix {
+    position: fixed;
+    top: 100px;
+  }
+}
+
+.label a {
+  color: #FFF
+}
+
+/* overrides of main theme */
+.jumbotron h1, .jumbotron .h1 {
+    font-size: 2.8em;
+		padding: 12px 0;
+}
+
+code {
+    background-color: #ECF9FE;
+    border-radius: 4px;
+    color: #0289BA;
+    font-size: 90%;
+    padding: 2px 4px;
+    white-space: nowrap;
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    background-color: #029acf;
+    color: #ffffff;
+}
+
+.nav-pills > li > a {
+    color: #029acf;
+}
+
+.label-primary {
+  background-color: #469408;
+}
+
+.panel-primary {
+  border-color: #469408;
+}
+
+.panel-primary > .panel-heading {
+  color: #fff;
+  background-color: #469408;
+  border-color: #469408;
+}
+
+.panel-primary > .panel-heading + .panel-collapse .panel-body {
+  border-top-color: #469408;
+}
+
+.panel-primary > .panel-footer + .panel-collapse .panel-body {
+  border-bottom-color: #469408;
+}
