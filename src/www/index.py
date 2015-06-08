@@ -46,7 +46,19 @@ class BaseHandler(tornado.web.RequestHandler):
     def return_json(self, data):
         _json_data = json.dumps(data, indent=2)
         self.set_header("Content-Type", "application/json; charset=UTF-8")
+        self.support_cors()
         self.write(_json_data)
+
+    def support_cors(self, *args, **kwargs):
+        '''Provide server side support for CORS request.'''
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.set_header("Access-Control-Allow-Headers", "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
+        self.set_header("Access-Control-Allow-Credentials", "false")
+        self.set_header("Access-Control-Max-Age", "60")
+
+    def options(self, *args, **kwargs):
+        self.support_cors()
 
 
 class JsonHandler(BaseHandler):
