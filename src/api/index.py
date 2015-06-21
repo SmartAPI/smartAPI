@@ -90,7 +90,7 @@ class QueryHanlder(BaseHandler):
         fields = self.get_argument('fields', None)
         input = self.get_argument('input', '1').lower() in ['1', 'true']
 
-        esq = ESQuery(es_host='su07:9200')
+        esq = ESQuery()
         res = esq.query_api(q=q, fields=fields, input=input)
         self.return_json(res)
 
@@ -101,6 +101,7 @@ class APIHandler(BaseHandler):
         data = tornado.escape.json_decode(self.request.body)
         print(json.dumps(data, indent=2))
         self.return_json({'success': True})
+
 
 class PathHanlder(BaseHandler):
     def get(self):
@@ -116,6 +117,32 @@ class PathHanlder(BaseHandler):
             self.write("Missing parameters!")
 
 
+class APIMetaDataHandler(BaseHandler):
+    esq = ESQuery()
+
+    def get(self, api_name):
+        '''return API metadata for a matched api_name,
+           if api_name is "all", return a list of all APIs
+        '''
+        fields = self.get_argument('fields', None)
+        if fields:
+            fields = fields.split(',')
+        res = self.esq.get_api(api_name, fields=fields)
+        self.return_json(res)
+
+
+class ValueSuggestionHandler(BaseHandler):
+    esq = ESQuery()
+
+    def get(self):
+        field = self.get_argument('field', None)
+        if field:
+            res = self.esq.value_suggestion(field)
+        else:
+            res = {'error': 'missing required "field" parameter'}
+        self.return_json(res)
+
+
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -123,6 +150,9 @@ APP_LIST = [
     (r'/query/?', QueryHanlder),
     (r'/api/?', APIHandler),
     (r'/path/?', PathHanlder),
+    (r'/api/metadata/(.+)/?', APIMetaDataHandler),
+    (r'/api/suggestion/?', ValueSuggestionHandler),
+ 
 ]
 
 settings = {}

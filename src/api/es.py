@@ -17,8 +17,26 @@ class ESQuery():
         self._index = index or ES_INDEX_NAME
         self._doc_type = doc_type or ES_DOC_TYPE
 
-    def get_api(self, api_name):
-        pass
+    def get_api(self, api_name, fields=None):
+        if api_name == 'all':
+            query = {'query': {"match_all": {}}}
+        else:
+            query = {
+                "query":{
+                    "match" : {
+                        "@id": {
+                            "query": api_name
+                        }
+                    }
+                }
+            }
+        if fields:
+            query["fields"] = fields
+        res = self._es.search(self._index, self._doc_type, query)
+        res = [d.get('fields', d.get('_source', {})) for d in res['hits']['hits']]
+        if len(res) == 1:
+            res = res[0]
+        return res
 
     def query_api(self, q, fields=None, input=True):
         attr_output = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/outputField.http://smart-api.info/vocab/parameterValueType.@value"
@@ -41,4 +59,17 @@ class ESQuery():
             query['fields'] = ['@id', attr_input, attr_output]
         print(query)
         res = self._es.search(self._index, self._doc_type, query)
+        return res
+
+    def value_suggestion(self, field):
+        """return a list of existing values for the given field."""
+        query = {
+           "aggs": {
+                "field_values": {
+                    "terms": {"field" : field}
+                }
+            }
+        }
+        res = self._es.search(self._index, self._doc_type, query, search_type='count')
+        res = res["aggregations"]
         return res
