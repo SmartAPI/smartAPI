@@ -1,0 +1,84 @@
+{
+    "basePath": "http://smart-api.info",
+    "name": "SmartAPI v1 API",
+    "protocol": "rest",
+    "publicPath": "/api",
+    "version": "1.0",
+    "resources": {
+        "API GET Method": {
+            "methods": {
+                "api_get": {
+                    "description": "Retreive metadata about an API based on its id",
+                    "httpMethod": "GET",
+                    "name": "API GET",
+                    "parameters": {
+                        "api_id": {
+                            "default": "",
+                            "description": "A unique API id",
+                            "location": "path",
+                            "required": true,
+                            "type": "string"
+                        }
+                    },
+                    "path": "/metadata/{api_id}"
+                }
+            }
+        },
+        "API Query Method": {
+            "methods": {
+                "api_query": {
+                    "description": "Query for existing APIs matching query terms",
+                    "httpMethod": "GET",
+                    "name": "API Query",
+                    "parameters": {
+                        "q": {
+                            "default": "",
+                            "description": "Any query term",
+                            "required": true,
+                            "type": "string"
+                        }
+                    },
+                    "path": "/query/"
+                }
+            }
+        },
+        "API Save Method": {
+            "methods": {
+                "api_post": {
+                    "description": "Saving a new API with annotated metadata",
+                    "httpMethod": "POST",
+                    "name": "API Save",
+                    "parameters": {
+                        "data": {
+                            "default": "",
+                            "description": "A JSON formated metadata object",
+                            "required": true,
+                            "type": "string"
+                        }
+                    },
+                    "path": "/query/"
+                }
+            }
+        },
+        "API Field Suggestion Method": {
+            "methods": {
+                "api_field_suggestion": {
+                    "description": "For a given field, return the possible field values in existing API database",
+                    "httpMethod": "GET",
+                    "name": "API Field Suggestion",
+                    "parameters": {
+                        "field": {
+                            "default": "",
+                            "description": "A valid field name",
+                            "required": true,
+                            "type": "string"
+                        }
+                    },
+                    "path": "/suggestion/"
+                }
+            }
+        }
+
+
+    }
+}
