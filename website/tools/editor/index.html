@@ -35,20 +35,6 @@ function convertOutput(value) {
     return value;
 }
 
-function randString(n) {
-    if(!n) {
-        n = 5;
-    }
-
-    var text = '';
-    var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    for(var i=0; i < n; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-}
-
 </script>   
     
     
@@ -342,17 +328,6 @@ $("#form1").alpaca({
     "options": {
         "form": {
             "buttons": {
-                "Spam": {
-                    "title": "Fill with dummy data",
-                    "click": function() {
-                        var inputs = document.getElementsByTagName('input');
-                        for (var i = 0; i < inputs.length; i += 1) {
-                            if (inputs[i].name.indexOf("@type") < 0 && inputs[i].name.indexOf("@context") < 0 ) {
-                                inputs[i].value = randString(5);
-                            }   
-                        }
-                    }
-                },
                 "Preview": {
                     "title": "Preview",
                     "click": function() {
