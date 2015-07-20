@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch
 
 
 ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi'
+ES_INDEX_NAME = 'smartapi_3'
 ES_DOC_TYPE = 'api'
 
 
@@ -10,6 +10,34 @@ def get_es(es_host=None):
     es_host = es_host or ES_HOST
     es = Elasticsearch(es_host, timeout=120)
     return es
+
+
+def create_index(index_name):
+    body = {}
+    mapping = {
+        "api" : {
+            "dynamic_templates" : [
+                {
+                    "template_1" : {
+                        "match" : "*",
+                        "match_mapping_type" : "string",
+                        "mapping" : {
+                            "type" : "string",
+                            "index" : "analyzed",
+                            "fields" : {
+                                "raw" : {"type": "string", "index" : "not_analyzed"}
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+    mapping = {"mappings": mapping}
+    body.update(mapping)
+    es = get_es()
+    print(es.indices.create(index=index_name, body=body))
+
 
 class ESQuery():
     def __init__(self, index=None, doc_type=None, es_host=None):
@@ -30,8 +58,8 @@ class ESQuery():
                     }
                 }
             }
-        if fields:
-            query["fields"] = fields
+        if fields and fields not in ["all", ["all"]]:
+            query["_source"] = fields
         res = self._es.search(self._index, self._doc_type, query)
         res = [d.get('fields', d.get('_source', {})) for d in res['hits']['hits']]
         if len(res) == 1:
@@ -54,22 +82,24 @@ class ESQuery():
         if fields == 'all':
             pass
         elif fields:
-            query['fields'] = fields
+            query['_source'] = fields
         else:
-            query['fields'] = ['@id', attr_input, attr_output]
+            query['_source'] = ['@id', attr_input, attr_output]
         print(query)
         res = self._es.search(self._index, self._doc_type, query)
         return res
 
-    def value_suggestion(self, field):
+    def value_suggestion(self, field, use_raw=True):
         """return a list of existing values for the given field."""
+        _field = field + ".raw" if use_raw else field
         query = {
            "aggs": {
                 "field_values": {
-                    "terms": {"field" : field}
+                    "terms": {"field" : _field}
                 }
             }
         }
+
         res = self._es.search(self._index, self._doc_type, query, search_type='count')
         res = res["aggregations"]
         return res
