@@ -2,7 +2,7 @@
     "basePath": "http://smart-api.info",
     "name": "SmartAPI v1 API",
     "protocol": "rest",
-    "publicPath": "/api",
+    "publicPath": "",
     "version": "1.0",
     "resources": {
         "API GET Method": {
@@ -14,13 +14,18 @@
                     "parameters": {
                         "api_id": {
                             "default": "",
-                            "description": "A unique API id",
+                            "description": "A unique API id, e.g. \"mygene.info\", \"myvariant.info\". If \"all\" is passed, a dump of all API metadata is returned.",
                             "location": "path",
                             "required": true,
                             "type": "string"
+                        },
+                        "fields": {
+                            "default": "",
+                            "description": "a comma-separated fields to limit the fields returned from the matching API hits. The supported field names can be found from any API object (e.g. http://smart-api.info/api/metadata/mygene.info). Note that it supports dot notation, and wildcards as well, e.g., you can pass \"@id\", \"services.inputParameter.parameterDataType\", \"publisher.@id\", or \"publisher.@*\". If \"fields=all\", all available fields will be returned. Default: \"all\".",
+                            "type": "string"
                         }
                     },
-                    "path": "/metadata/{api_id}"
+                    "path": "/api/metadata/{api_id}"
                 }
             }
         },
@@ -38,7 +43,7 @@
                             "type": "string"
                         }
                     },
-                    "path": "/query/"
+                    "path": "/api/query/"
                 }
             }
         },
@@ -56,7 +61,7 @@
                             "type": "string"
                         }
                     },
-                    "path": "/query/"
+                    "path": "/api/query/"
                 }
             }
         },
@@ -69,12 +74,12 @@
                     "parameters": {
                         "field": {
                             "default": "",
-                            "description": "A valid field name",
+                            "description": "A valid field name, e.g. \"services.inputParameter.parameterDataType\", \"publisher.@id\", \"services.outputFormat\" ",
                             "required": true,
                             "type": "string"
                         }
                     },
-                    "path": "/suggestion/"
+                    "path": "/api/suggestion/"
                 }
             }
         }
