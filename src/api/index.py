@@ -88,10 +88,10 @@ class QueryHanlder(BaseHandler):
     def get(self):
         q = self.get_argument('q', None)
         fields = self.get_argument('fields', None)
-        input = self.get_argument('input', '1').lower() in ['1', 'true']
+        return_raw = self.get_argument('raw', '').lower() in ['1', 'true']
 
         esq = ESQuery()
-        res = esq.query_api(q=q, fields=fields, input=input)
+        res = esq.query_api(q=q, fields=fields, return_raw=return_raw)
         self.return_json(res)
 
 
@@ -150,6 +150,7 @@ APP_LIST = [
     (r'/query/?', QueryHanlder),
     (r'/api/?', APIHandler),
     (r'/path/?', PathHanlder),
+    (r'/api/query/?', QueryHanlder),
     (r'/api/metadata/(.+)/?', APIMetaDataHandler),
     (r'/api/suggestion/?', ValueSuggestionHandler),
  

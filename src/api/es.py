@@ -66,27 +66,49 @@ class ESQuery():
             res = res[0]
         return res
 
-    def query_api(self, q, fields=None, input=True):
-        attr_output = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/outputField.http://smart-api.info/vocab/parameterValueType.@value"
-        attr_input = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/inputParameter.http://smart-api.info/vocab/parameterDataType.@value"
-        attr = attr_input if input else attr_output
+    def query_api(self, q, fields=None, return_raw=True):
+        #attr_output = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/outputField.http://smart-api.info/vocab/parameterValueType.@value"
+        #attr_input = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/inputParameter.http://smart-api.info/vocab/parameterDataType.@value"
+        #attr_input = "services.inputParameter.parameterDataType"
+        #attr = attr_input if input else attr_output
+        #query = {
+        #    "query":{
+        #        "match" : {
+        #            attr: {
+        #                "query": q
+        #            }
+        #        }
+        #    }
+        #}
         query = {
             "query":{
-                "match" : {
-                    attr: {
-                        "query": q
-                    }
+                "query_string" : {
+                    "query": q
                 }
             }
         }
-        if fields == 'all':
+        if not fields or fields == 'all':
             pass
-        elif fields:
-            query['_source'] = fields
         else:
-            query['_source'] = ['@id', attr_input, attr_output]
-        print(query)
+            query['_source'] = fields
+        #else:
+        #    query['_source'] = ['@id', attr_input, attr_output]
+        #print(query)
         res = self._es.search(self._index, self._doc_type, query)
+        if not return_raw:
+            _res = res['hits']
+            _res['took'] = res['took']
+            if "facets" in res:
+                _res['facets'] = res['facets']
+            for v in _res['hits']:
+                del v['_type']
+                del v['_index']
+                for attr in ['fields', '_source']:
+                    if attr in v:
+                        v.update(v[attr])
+                        del v[attr]
+                        break
+            res = _res
         return res
 
     def value_suggestion(self, field, use_raw=True):
