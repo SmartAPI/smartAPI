@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch
 
 
 ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi'
+ES_INDEX_NAME = 'smartapi_swagger'
 ES_DOC_TYPE = 'api'
 
 
