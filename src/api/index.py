@@ -110,7 +110,7 @@ class PathHanlder(BaseHandler):
         if _from and _to:
             #self.write("<b>{}</b>&#x2192;<b>MyVariant.info</b>&#x2192;<b>hgnc.symbol</b>&#x2192;<b>MyGene.info</b>&#x2192;<b>{}</b>".format(_from, _to))
             if _from == 'variant_id' and _to == 'pfam':
-                self.render(os.path.join(src_path, '../graph.htm'))
+                self.render(os.path.join(src_path, '../website/tools/graph/index.html'))
             else:
                 self.write('No proper API path found!')
         else:
@@ -136,8 +136,12 @@ class ValueSuggestionHandler(BaseHandler):
 
     def get(self):
         field = self.get_argument('field', None)
+        try:
+            size = int(self.get_argument('size', 100))
+        except:
+            size = 100
         if field:
-            res = self.esq.value_suggestion(field)
+            res = self.esq.value_suggestion(field, size=size)
         else:
             res = {'error': 'missing required "field" parameter'}
         self.return_json(res)
