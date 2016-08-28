@@ -10,3 +10,29 @@ Presentation: http://bit.ly/smartAPIslides
 Repo: https://github.com/Network-of-BioThings/smartAPI
 
 Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43D9DSpG_o/edit?usp=sharing
+
+
+# How to run a dev API server locally
+ 1. Install Elasticsearch at localhost:9200 (follow [this instruction](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html))
+ 2. Clone this repo
+ 3. Install python dependencies
+ ```
+ pip install -r src/requirements.txt
+ ```
+
+ 4. ```cd src/api/```
+ 5. Create index and index some example API metadata in Python shell:
+ ```
+ import es
+ es.create_index()
+ es.index_swagger(swagger_doc)
+ ```
+ 
+   *swagger_doc* is the input example API metadata object in JSON format
+   
+ 6. run dev server
+ ```
+ python index.py --debug
+ ```
+ 
+  You should now able to access API dev server at http://localhost:8000
