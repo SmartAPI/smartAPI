@@ -1,0 +1,4 @@
+elasticsearch==2.4.0
+PyLD==0.7.1
+requests==2.11.1
+tornado==4.4.1
