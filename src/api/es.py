@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch
 
 
 ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi_3'
+ES_INDEX_NAME = 'smartapi'
 ES_DOC_TYPE = 'api'
 
 
@@ -39,6 +39,14 @@ def create_index(index_name):
     print(es.indices.create(index=index_name, body=body))
 
 
+def index_swagger(swagger_doc, es=None, index=None, doc_type=None):
+    es = es or get_es()
+    index = index or ES_INDEX_NAME
+    doc_type = doc_type or ES_DOC_TYPE
+    _id = swagger_doc['host']
+    return es.index(index=index, doc_type=doc_type, body=swagger_doc, id=_id)
+
+
 class ESQuery():
     def __init__(self, index=None, doc_type=None, es_host=None):
         self._es = get_es(es_host)
@@ -52,7 +60,7 @@ class ESQuery():
             query = {
                 "query":{
                     "match" : {
-                        "@id": {
+                        "_id": {
                             "query": api_name
                         }
                     }
@@ -94,7 +102,7 @@ class ESQuery():
         #else:
         #    query['_source'] = ['@id', attr_input, attr_output]
         #print(query)
-        res = self._es.search(self._index, self._doc_type, query)
+        res = self._es.search(self._index, self._doc_type, body=query)
         if not return_raw:
             _res = res['hits']
             _res['took'] = res['took']
@@ -111,17 +119,28 @@ class ESQuery():
             res = _res
         return res
 
-    def value_suggestion(self, field, use_raw=True):
-        """return a list of existing values for the given field."""
-        _field = field + ".raw" if use_raw else field
+    def _do_aggregations(self, _field, agg_name, size):
         query = {
            "aggs": {
-                "field_values": {
-                    "terms": {"field" : _field}
+                agg_name: {
+                    "terms": {
+                        "field" : _field,
+                        "size": size
+                    }
                 }
             }
         }
-
-        res = self._es.search(self._index, self._doc_type, query, search_type='count')
+        res = self._es.search(self._index, self._doc_type, query, size=0)
         res = res["aggregations"]
+        return res
+
+    def value_suggestion(self, field, size=100, use_raw=True):
+        """return a list of existing values for the given field."""
+        _field = field + ".raw" if use_raw else field
+        agg_name = 'field_values'
+        res = self._do_aggregations(_field, agg_name, size)
+        if use_raw and not res[agg_name]['buckets']:
+            # if *.raw does not return any buckets, try without it.
+            res = self._do_aggregations(field, agg_name, size)
+
         return res
