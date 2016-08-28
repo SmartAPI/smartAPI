@@ -12,7 +12,8 @@ def get_es(es_host=None):
     return es
 
 
-def create_index(index_name):
+def create_index(index_name=None):
+    index_name = index_name or ES_INDEX_NAME
     body = {}
     mapping = {
         "api" : {
