@@ -7,7 +7,7 @@
     },
     "host": "myvariant.info",
     "schemes": [
-        "http"
+        "http",
         "https"
     ],
     "basePath": "/v1",
