@@ -7,7 +7,7 @@
     },
     "host": "mygene.info",
     "schemes": [
-        "http"
+        "http",
         "https"
     ],
     "basePath": "/v2",
