@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<style type="text/css">@charset "UTF-8"</style>
+    <title>smartAPI</title>
+	<link rel="shortcut icon" href="./img/smartapi.bmp" type="image/x-icon"> 
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <script src="./js/analytics.js"></script>
+	<script src="./js/angular.js"></script>
+    <script src="./js/elasticsearch.angular.js"></script>
+    <script src="./js/elastic.js"></script>
+    <script src="./js/elasticui.min.js"></script>
+	
+	<style>
+        .sidebar {
+            position: fixed;
+            top: 0px;
+            bottom: 0px;
+			left: 20px;
+            z-index: 1000;
+            display: block;
+            padding: 20px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* background-color: #f5f5f5; */
+            border-right: 0px solid #eee;
+        }
+		.bannerinput {
+			width: 300px;
+		}
+		.details {
+			max-height: 100px;
+			transition: .8s;
+			overflow: hidden;
+		}
+    </style>
+	<script>
+ <!-- analytics -->
+	</script>
+
+    <script>
+        angular
+            .module('smartapi', ['elasticui'])
+            .constant('euiHost', 'http://localhost:9200')
+			.controller('view', ['$scope', function ($scope) {
+			
+			 }])
+			.controller('search', ['$scope', function($scope) {
+				// toggle between prefix and all searching
+				$scope.searchfield = '_all';
+				$scope.searchfieldValue = false;				
+				$scope.setSearchField = function() {
+					
+					$scope.searchfield = "_all";
+					
+				};				
+			}]);
+  </script>
+	
+</head>
+<body ng-app="smartapi" eui-index="'smartapi'">
+
+    <div class="container-fluid" ng-controller="search">
+        <div class="row">
+            <div class="col-xs-3 sidebar">
+			 <div style="height: 100px; text-align: center;  padding-top: 0px;"></div>
+                <h3>Tags</h3>
+                <eui-singleselect field="'tags.name'" size="8"></eui-singleselect>
+                <h3>Formats</h3>
+                <eui-singleselect field="'produces'" size="8"></eui-singleselect>                
+                <h3>Schemes</h3>
+                <eui-singleselect field="'schemes'" size="10"></eui-singleselect>
+            </div>
+            <div class="col-xs-8 col-xs-offset-3">
+                <div style="left: 10px; height: 200px; text-align: center;  padding-top: 30px;">
+					<h1><img height="40" src="img/smartapi.png"/>smartAPI</h1>
+					<br>
+					<span style="">
+						<input class="ng-scope ng-pristine ng-valid bannerinput" eui-query="ejs.MatchQuery(searchfield, querystring).operator('AND')" ng-model="querystring" eui-enabled="querystring.length" type="text">
+					
+						<input label="Search" type="submit" value="search"/><br>
+
+					</span>
+				</div>
+				<div> 
+					<span><strong>{{indexVM.results.hits.total}}</strong> {{indexVM.results.hits.total == 1 ? 'result':'results'}}</span>
+					<table>
+					  <tr style="border-spacing:5em" ng-repeat="(i,doc) in indexVM.results.hits.hits">
+						<td style="{{$odd ? 'background-color:#f1f1f1; vertical-align: text-top;' : 'vertical-align: text-top;'}}">
+							{{i+1}}.
+						</td>
+						<td style="{{$odd ? 'background-color:#f1f1f1; vertical-align: text-top;' : 'vertical-align: text-top;'}}">
+						 <div style="font-weight: bold;">{{doc._source.info.title}}</div>
+						    <div>{{doc._source.info.description}}</div>
+						   
+						   	<div><a href='#{{i}}' ng-click='showDetails =! showDetails'>details</a></div>
+							<div ng-show="showDetails">
+									<br>
+								<span ng-if="doc._source.schemes != '' && doc._source.schemes.length > 0">
+									<strong>schemes:</strong>
+									<span ng-repeat="scheme in doc._source.schemes">
+										{{scheme}}{{$last ? '' : ', '}}
+									</span>
+									<br>
+								</span>
+
+								<span ng-if="doc._source.host != ''  && doc._source.host.length > 0">
+									<strong>host:</strong> {{doc._source.host}}
+									<br>
+								</span>
+								<span ng-if="doc._source.basePath != ''  && doc._source.basePath > 0">
+									<strong>basePath:</strong> {{doc._source.basePath}}
+									<br>
+								</span>
+								<span ng-if="doc._source.info.version != ''  && doc._source.info.version.length > 0">
+									<strong>version:</strong> {{doc._source.info.version}}
+									<br>
+								</span>
+								<span ng-if="doc._source.info.homepage != '' && doc._source.info.homepage.length > 0">
+									[<a href="{{doc._source.info.homepage}}">website</a>]
+									<br>
+								</span>
+
+								<span ng-if="doc._source.tags != '' && doc._source.tags.length > 0">
+									<strong>tags:</strong>
+									<span ng-repeat="tags in doc._source.tags">
+										{{tags.name}}{{$last ? '' : ', '}}
+									</span>
+									<br>
+								</span>
+								<span ng-if="doc._source.operations != '' && doc._source.operations.length > 0">
+									<strong>operations:</strong>
+									<ul>
+									<span ng-repeat="operation in doc._source.operations">
+										<li>
+										
+										{{operation.operationId}}&nbsp; 
+										
+										<br>{{operation.httpOperation}} {{operation.path}}
+										<br><strong>parameters:</strong> 
+										<span ng-if="operation.parameters != '' && operation.parameters.length > 0">
+											<span ng-repeat="parameter in operation.parameters">
+											  {{parameter.name}}{{$last ? '' : ', '}}
+										</span>
+										<br/>
+									</span>
+									</ul>
+								</span>
+
+								
+
+								<span ng-if="doc._source.info.title != '' && doc._source.info.title.length > 0 ">	
+									Open in <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/data/mygene.info_swagger.json">Swagger Editor</a>
+									<br/>
+								</span>	
+								<br/>
+							</div>
+						</td>
+					  </tr>
+					</table>
+					<eui-simple-paging></eui-simple-paging>
+					<div style="margin: auto;">results per page 
+						<select ng-model="indexVM.pageSize">
+							<option ng-repeat="item in [10, 20, 50, 100]">{{item}}</option>
+						</select>
+					</div>
+				</div>
+            </div>
+			<div class="col-xs-1"></div>
+			
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,2 @@
+{"index":{"_index":"smartapi","_type":"api","_id":"tools_1"}}
+{"tags":[{"name":"Protein binding sites","uri":"http:\/\/edamontology.org\/topic_3534"}],"info":{"title":"BepiPred","version":"1.0","description":"Prediction of the location of linear B-cell epitopes","termsOfService":"GNU General Public License v3","homepage":"http:\/\/cbs.dtu.dk\/services\/BepiPred\/"}}
