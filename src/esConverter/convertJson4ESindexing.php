@@ -42,6 +42,7 @@ if(isset($json['paths'])) {
 			if(isset($operation['responses'])) {
 				foreach($operation['responses'] AS $http_operation => $response) {
 					$response['httpCode'] = $http_operation;
+					if(isset($response['schema'])) unset($response['schema']); // optional for now.
 					$responses[] = $response;
 				}
 				unset($operation['responses']);
@@ -58,7 +59,9 @@ if(isset($operations)) {
 	$json['operations'] = $operations; 
 }
 
-$buf = json_encode($json);
+
+
+$buf = json_encode($json, JSON_PRETTY_PRINT);
 echo $buf;
 
 
