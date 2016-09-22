@@ -1,3 +1,5 @@
+import json
+
 from elasticsearch import Elasticsearch
 
 
@@ -89,13 +91,21 @@ class ESQuery():
         #        }
         #    }
         #}
-        query = {
-            "query":{
-                "query_string" : {
-                    "query": q
+        try:
+            query = json.loads(q)
+            assert isinstance(query, dict)
+            is_raw_query = True
+        except (ValueError, AssertionError):
+            is_raw_query = False
+
+        if not is_raw_query:
+            query = {
+                "query":{
+                    "query_string" : {
+                        "query": q
+                    }
                 }
             }
-        }
         if not fields or fields == 'all':
             pass
         else:
