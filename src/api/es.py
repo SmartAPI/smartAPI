@@ -18,17 +18,20 @@ def create_index(index_name=None):
     index_name = index_name or ES_INDEX_NAME
     body = {}
     mapping = {
-        "api" : {
-            "dynamic_templates" : [
+        "api": {
+            "dynamic_templates": [
                 {
-                    "template_1" : {
-                        "match" : "*",
-                        "match_mapping_type" : "string",
-                        "mapping" : {
-                            "type" : "string",
-                            "index" : "analyzed",
-                            "fields" : {
-                                "raw" : {"type": "string", "index" : "not_analyzed"}
+                    "template_1": {
+                        "match": "*",
+                        "match_mapping_type": "string",
+                        "mapping": {
+                            "type": "string",
+                            "index": "analyzed",
+                            "fields": {
+                                "raw": {
+                                    "type": "string",
+                                    "index": "not_analyzed"
+                                }
                             }
                         }
                     }
@@ -61,8 +64,8 @@ class ESQuery():
             query = {'query': {"match_all": {}}}
         else:
             query = {
-                "query":{
-                    "match" : {
+                "query": {
+                    "match": {
                         "_id": {
                             "query": api_name
                         }
@@ -78,19 +81,15 @@ class ESQuery():
         return res
 
     def query_api(self, q, fields=None, return_raw=True):
-        #attr_output = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/outputField.http://smart-api.info/vocab/parameterValueType.@value"
-        #attr_input = "http://smart-api.info/vocab/services.http://smart-api.info/vocab/inputParameter.http://smart-api.info/vocab/parameterDataType.@value"
-        #attr_input = "services.inputParameter.parameterDataType"
-        #attr = attr_input if input else attr_output
-        #query = {
-        #    "query":{
-        #        "match" : {
-        #            attr: {
-        #                "query": q
-        #            }
-        #        }
-        #    }
-        #}
+        # query = {
+        #     "query":{
+        #         "match" : {
+        #             attr: {
+        #                 "query": q
+        #             }
+        #         }
+        #     }
+        # }
         try:
             query = json.loads(q)
             assert isinstance(query, dict)
@@ -100,8 +99,8 @@ class ESQuery():
 
         if not is_raw_query:
             query = {
-                "query":{
-                    "query_string" : {
+                "query": {
+                    "query_string": {
                         "query": q
                     }
                 }
@@ -110,9 +109,9 @@ class ESQuery():
             pass
         else:
             query['_source'] = fields
-        #else:
-        #    query['_source'] = ['@id', attr_input, attr_output]
-        #print(query)
+        # else:
+        #     query['_source'] = ['@id', attr_input, attr_output]
+        # print(query)
         res = self._es.search(self._index, self._doc_type, body=query)
         if not return_raw:
             _res = res['hits']
@@ -135,7 +134,7 @@ class ESQuery():
            "aggs": {
                 agg_name: {
                     "terms": {
-                        "field" : _field,
+                        "field": _field,
                         "size": size
                     }
                 }
