@@ -21,7 +21,7 @@
                         },
                         "fields": {
                             "default": "",
-                            "description": "a comma-separated fields to limit the fields returned from the matching API hits. The supported field names can be found from any API object (e.g. http://smart-api.info/api/metadata/mygene.info). Note that it supports dot notation, and wildcards as well, e.g., you can pass \"@id\", \"services.inputParameter.parameterDataType\", \"publisher.@id\", or \"publisher.@*\". If \"fields=all\", all available fields will be returned. Default: \"all\".",
+                            "description": "a comma-separated fields to limit the fields returned from the matching API hits. The supported field names can be found from any API object (e.g. http://smart-api.info/api/metadata/mygene.info). Note that it supports dot notation, and wildcards as well, e.g., you can pass \"host\", \"operations.parameters\", \"info.title\", or \"info.*\". If \"fields=all\", all available fields will be returned. Default: \"all\".",
                             "type": "string"
                         }
                     },
@@ -68,15 +68,21 @@
         "API Field Suggestion Method": {
             "methods": {
                 "api_field_suggestion": {
-                    "description": "For a given field, return the possible field values in existing API database",
+                    "description": "For a given field, return the possible field values in existing API database, sorted by the occurences in descending order",
                     "httpMethod": "GET",
                     "name": "API Field Suggestion",
                     "parameters": {
                         "field": {
                             "default": "",
-                            "description": "A valid field name, e.g. \"services.inputParameter.parameterDataType\", \"publisher.@id\", \"services.outputFormat\" ",
+                            "description": "A valid field name from the API metadata object, e.g. \"operations.parameters.type\", \"operations.responses.httpCode\", \"schemes\" ",
                             "required": true,
                             "type": "string"
+                        },
+                        "size": {
+                            "default": 100,
+                            "description": "The number of possible values should be returned. The default is top 100",
+                            "required": false,
+                            "type": "integer"
                         }
                     },
                     "path": "/api/suggestion/"
