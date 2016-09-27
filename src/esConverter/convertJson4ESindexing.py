@@ -54,14 +54,11 @@ def getFileContents(filename):
 
 # Convert Swagger JSON file
 def convert_file(the_file_contents):
-	#print(json.dumps(the_file_contents, sort_keys=True, indent=4, separators=(',', ': ') ))
 	converted_data = {}
 	operations_list = []
 	
 	# Get each first level path key 
 	for key in the_file_contents.keys():
-		# print("Key:" + key)
-		# print the_file_contents.get(key)
 
 		# Modify value for schemes
 		if(key == "schemes"):
@@ -71,7 +68,6 @@ def convert_file(the_file_contents):
 
 		# Modify object in paths
 		if(key == "paths"):
-			# print("Skipping paths for key: ", key, the_file_contents.get(key))
 			for pathname_key in the_file_contents[key]:
 				print("\n")
 				print("** Pathname: ", pathname_key)
@@ -88,24 +84,17 @@ def convert_file(the_file_contents):
 					for stuff in the_file_contents[key][pathname_key][method_key]:
 						response_list = []
 						if(stuff == "responses"):
-							# print("Do something with responses")
 							response_obj = {}
 							for response in the_file_contents[key][pathname_key][method_key][stuff]:
 								response_obj["httpCode"] = response
-								# print(response_obj)
 								for response_item in the_file_contents[key][pathname_key][method_key][stuff][response]:
-									# print(response_item)
 									response_obj[response_item] = the_file_contents[key][pathname_key][method_key][stuff][response].get(response_item)
-							# print(response_obj)
 							response_list.append(response_obj)
-							# print(response_list)
 							path_obj["responses"] = response_list
 						else:
 							path_obj[stuff] = the_file_contents[key][pathname_key][method_key].get(stuff)
 
-					# print("** PathObj: ", path_obj)
 				operations_list.append(path_obj)
-				# print("Operations: ", operations_list)
 			converted_data["operations"] = operations_list
 		else:
 			cd = converted_data[key] = the_file_contents.get(key)
@@ -116,12 +105,9 @@ def convert_file(the_file_contents):
 
 ## Main Program ##
 if __name__ == '__main__':
-	print('DEBUG: Started program ...')
 	filename = confirmArguments()
-	print('DEBUG: Filename: ' + filename)
 
 	the_file_contents = getFileContents(filename)
-	# print('** File contents(json): ', the_file_contents)
 
 	convert_file(the_file_contents)
 
