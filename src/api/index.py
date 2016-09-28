@@ -10,7 +10,7 @@ import tornado.escape
 from tornado.options import define, options
 from pyld import jsonld
 
-from .es import ESQuery
+from api.es import ESQuery
 import config
 
 src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
@@ -99,6 +99,8 @@ class APIHandler(BaseHandler):
     def post(self):
         # save an API metadata
         api_key = self.get_argument('api_key', None)
+        overwrite = self.get_argument('overwrite', '').lower()
+        overwrite = overwrite in ['1', 'true']
         if api_key != config.API_KEY:
             self.set_status(405)
             res = {'success': False, 'error': 'Invalid API key.'}
@@ -107,7 +109,7 @@ class APIHandler(BaseHandler):
             data = tornado.escape.json_decode(self.request.body)
             print(json.dumps(data, indent=2))
             esq = ESQuery()
-            res = esq.save_api(data)
+            res = esq.save_api(data, overwrite=overwrite)
             self.return_json(res)
 
 
