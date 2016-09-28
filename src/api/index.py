@@ -106,11 +106,16 @@ class APIHandler(BaseHandler):
             res = {'success': False, 'error': 'Invalid API key.'}
             self.return_json(res)
         else:
-            data = tornado.escape.json_decode(self.request.body)
-            print(json.dumps(data, indent=2))
-            esq = ESQuery()
-            res = esq.save_api(data, overwrite=overwrite)
-            self.return_json(res)
+            try:
+                data = tornado.escape.json_decode(self.request.body)
+            except ValueError:
+                data = None
+            if data and isinstance(data, dict):
+                esq = ESQuery()
+                res = esq.save_api(data, overwrite=overwrite)
+                self.return_json(res)
+            else:
+                self.return_json({'success': False, 'error': 'Invalid input data.'})
 
 
 class PathHanlder(BaseHandler):
