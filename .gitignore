@@ -3,3 +3,5 @@
 
 # Python directories
 __pycache__
+
+src/config.py
