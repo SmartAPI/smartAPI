@@ -54,14 +54,24 @@
                     "httpMethod": "POST",
                     "name": "API Save",
                     "parameters": {
+                        "api_key": {
+                            "default": "",
+                            "description": "Provide an API key for this operation",
+                            "required": true,
+                            "type": "string"
+                        },
+                        "overwrite": {
+                            "description": "pass \"true\" or \"1\" to overwrite existing API metadata object",
+                            "type": "boolean"
+                        },
                         "data": {
                             "default": "",
-                            "description": "A JSON formated metadata object",
+                            "description": "A JSON formated metadata object passed as POST body",
                             "required": true,
                             "type": "string"
                         }
                     },
-                    "path": "/api/query/"
+                    "path": "/api"
                 }
             }
         },
