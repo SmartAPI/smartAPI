@@ -3,6 +3,8 @@ import base64
 
 from elasticsearch import Elasticsearch, RequestError
 
+from esConverter.convertJson4ESindexing import convert_file
+
 
 ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_swagger'
@@ -64,7 +66,7 @@ def _extract_key_fields(api_doc):
 
 def _encode_api_object_id(api_title, api_version, api_contact):
     s = "{}|{}|{}".format(api_title, api_version, api_contact)
-    _id = base64.urlsafe_b64encode(s.encode('utf-8'))
+    _id = base64.urlsafe_b64encode(s.encode('utf-8')).decode('utf-8')
     return _id
 
 
@@ -78,7 +80,7 @@ class ESQuery():
         '''return True/False if the input api_doc has existing metadata object in the index.'''
         _id = _encode_api_object_id(*_extract_key_fields(api_doc))
         if _id:
-            return self._es.exists(self._index, self._doc_type, _id)
+            return self._es.exists(index=self._index, doc_type=self._doc_type, id=_id)
         else:
             raise ValueError("Missing required info to identify an API")
 
@@ -88,12 +90,12 @@ class ESQuery():
             return {"success": False, "error": "API exists. Not saved."}
 
         _id = _encode_api_object_id(*_extract_key_fields(api_doc))
-        _doc = api_doc
+        _doc = convert_file(api_doc)
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=_id)
         except RequestError as e:
             return {"success": False, "error": str(e)}
-        return {"success": True}
+        return {"success": True, '_id': _id}
 
     def get_api(self, api_name, fields=None):
         if api_name == 'all':
