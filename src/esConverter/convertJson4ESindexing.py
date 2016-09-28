@@ -104,7 +104,7 @@ def convert_file(the_file_contents):
 	# print(json.dumps(converted_data, sort_keys=True, indent=4, separators=(',', ': ') ))
 
 	# adding a meta field
-	meta = {'timestamp', time.ctime()}
+	meta = {'timestamp': time.ctime()}
 	converted_data['meta'] = meta
 
 	return converted_data
