@@ -100,7 +100,8 @@ def convert_file(the_file_contents):
 			cd = converted_data[key] = the_file_contents.get(key)
 
 	# Print converted data		
-	print(json.dumps(converted_data, sort_keys=True, indent=4, separators=(',', ': ') ))
+	# print(json.dumps(converted_data, sort_keys=True, indent=4, separators=(',', ': ') ))
+	return converted_data
 
 
 ## Main Program ##
@@ -109,7 +110,7 @@ if __name__ == '__main__':
 
 	the_file_contents = getFileContents(filename)
 
-	convert_file(the_file_contents)
+	converted_data = convert_file(the_file_contents)
 
 
 	
