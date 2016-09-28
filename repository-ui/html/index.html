@@ -42,7 +42,7 @@
     <script>
         angular
             .module('smartapi', ['elasticui'])
-            .constant('euiHost', 'http://localhost:9200')
+            .constant('euiHost', 'http://smart-api.info/_es/')
 			.controller('view', ['$scope', function ($scope) {
 			
 			 }])
@@ -59,18 +59,18 @@
   </script>
 	
 </head>
-<body ng-app="smartapi" eui-index="'smartapi'">
+<body ng-app="smartapi" eui-index="'smartapi_swagger'" >
 
     <div class="container-fluid" ng-controller="search">
         <div class="row">
             <div class="col-xs-3 sidebar">
 			 <div style="height: 100px; text-align: center;  padding-top: 0px;"></div>
                 <h3>Tags</h3>
-                <eui-singleselect field="'tags.name'" size="8"></eui-singleselect>
+                <eui-singleselect field="'tags.name.raw'" size="8"></eui-singleselect>
                 <h3>Formats</h3>
-                <eui-singleselect field="'produces'" size="8"></eui-singleselect>                
+                <eui-singleselect field="'produces.raw'" size="8"></eui-singleselect>
                 <h3>Schemes</h3>
-                <eui-singleselect field="'schemes'" size="10"></eui-singleselect>
+                <eui-singleselect field="'schemes.raw'" size="10"></eui-singleselect>
             </div>
             <div class="col-xs-8 col-xs-offset-3">
                 <div style="left: 10px; height: 200px; text-align: center;  padding-top: 30px;">
@@ -151,7 +151,7 @@
 								
 
 								<span ng-if="doc._source.info.title != '' && doc._source.info.title.length > 0 ">	
-									Open in <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/Network-of-BioThings/smartAPI/master/data/mygene.info_swagger.json">Swagger Editor</a>
+									Open in <a href="http://smart-api.info/editor/#/?import=http://smart-api.info/api/metadata/{{doc._id}}">Swagger Editor</a>
 									<br/>
 								</span>	
 								<br/>
