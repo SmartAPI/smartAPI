@@ -1,6 +1,5 @@
 import sys
 import os.path
-import subprocess
 import json
 
 import tornado.httpserver
@@ -11,7 +10,8 @@ import tornado.escape
 from tornado.options import define, options
 from pyld import jsonld
 
-from es import ESQuery
+from .es import ESQuery
+import config
 
 src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 if src_path not in sys.path:
@@ -38,8 +38,8 @@ def get_json(filename):
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        #self.write('hello world!')
-        #self.render(os.path.join(src_path, '../alpaca.htm'))
+        # self.write('hello world!')
+        # self.render(os.path.join(src_path, '../alpaca.htm'))
         self.redirect('/website/')
 
 
@@ -66,7 +66,7 @@ class JsonHandler(BaseHandler):
     def get(self, ctx_name):
         if ctx_name == 'mygene':
             obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
-            #del obj['services'][0]['@context']
+            # del obj['services'][0]['@context']
             obj = jsonld.expand(obj)[0]
             self.return_json(obj)
         elif ctx_name == '2':
@@ -79,7 +79,7 @@ class JsonHandler(BaseHandler):
             self.return_json(obj)
         if ctx_name == 'myvariant':
             obj = get_json(os.path.join(src_path, '../data/myvariant.info.smartAPI.json'))
-            #del obj['services'][0]['@context']
+            # del obj['services'][0]['@context']
             obj = jsonld.expand(obj)[0]
             self.return_json(obj)
 
@@ -97,10 +97,18 @@ class QueryHanlder(BaseHandler):
 
 class APIHandler(BaseHandler):
     def post(self):
-        #data = self.request.arguments
-        data = tornado.escape.json_decode(self.request.body)
-        print(json.dumps(data, indent=2))
-        self.return_json({'success': True})
+        # save an API metadata
+        api_key = self.get_argument('api_key', None)
+        if api_key != config.API_KEY:
+            self.set_status(405)
+            res = {'success': False, 'error': 'Invalid API key.'}
+            self.return_json(res)
+        else:
+            data = tornado.escape.json_decode(self.request.body)
+            print(json.dumps(data, indent=2))
+            esq = ESQuery()
+            res = esq.save_api(data)
+            self.return_json(res)
 
 
 class PathHanlder(BaseHandler):
@@ -108,7 +116,7 @@ class PathHanlder(BaseHandler):
         _from = self.get_argument('from', None)
         _to = self.get_argument('to', None)
         if _from and _to:
-            #self.write("<b>{}</b>&#x2192;<b>MyVariant.info</b>&#x2192;<b>hgnc.symbol</b>&#x2192;<b>MyGene.info</b>&#x2192;<b>{}</b>".format(_from, _to))
+            # self.write("<b>{}</b>&#x2192;<b>MyVariant.info</b>&#x2192;<b>hgnc.symbol</b>&#x2192;<b>MyGene.info</b>&#x2192;<b>{}</b>".format(_from, _to))
             if _from == 'variant_id' and _to == 'pfam':
                 self.render(os.path.join(src_path, '../website/tools/graph/index.html'))
             else:
@@ -147,7 +155,6 @@ class ValueSuggestionHandler(BaseHandler):
         self.return_json(res)
 
 
-
 APP_LIST = [
     (r"/", MainHandler),
     (r'/json/(.+)/?', JsonHandler),
@@ -157,7 +164,7 @@ APP_LIST = [
     (r'/api/query/?', QueryHanlder),
     (r'/api/metadata/(.+)/?', APIMetaDataHandler),
     (r'/api/suggestion/?', ValueSuggestionHandler),
- 
+
 ]
 
 settings = {}
