@@ -3,6 +3,7 @@ import requests
 import os.path
 import json
 import time
+from future.utils import iteritems
 
 
 # Confirm program arguments
@@ -60,13 +61,6 @@ def convert_file(the_file_contents):
 	
 	# Get each first level path key 
 	for key in the_file_contents.keys():
-
-		# Modify value for schemes
-		if(key == "schemes"):
-			values = the_file_contents.get(key)
-			# values.append('https')
-			converted_data[key] = values
-
 		# Modify object in paths
 		if(key == "paths"):
 			for pathname_key in the_file_contents[key]:
