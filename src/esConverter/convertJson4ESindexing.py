@@ -112,52 +112,55 @@ def convert_to_swagger(the_file_contents):
 	for key in the_file_contents.keys():
 		# Modify object in operations
 		if(key == "operations"):
-			# Iterate through object and re-format
+			# Iterate through objects and re-format
 			path_obj = {}	
 			for operations_dict in the_file_contents[key]:
 				http_obj = {}
 				operations_obj = {}
 				# print("\n** New operations object **")
 				path_key = operations_dict['path']  # E.g. /gene
-				# print(path_key)
-				http_operation_key = operations_dict['httpOperation'] # E.g. post
-				# print(http_operation_key)
-				# print(operations_dict)
+				http_operation_key = operations_dict['httpOperation'] # E.g. post or get
 				
 				for key,value in iteritems(operations_dict):
-					print(key)
-					if(key != "path" or key != "httpOperation" or 
-						key != "responses" or key !="parameters"):
+					# print(key)
+					if(key == "path" or key == "httpOperation" or 
+						key == "parameters"):
+						continue
+					elif(key == "responses"):	
+						# Process responses
+						http_response_obj = {}
+						for response in value:
+							http_code = response['httpCode']
+							response_obj = {}
+							# print("** Response: ", http_code)
+							# print("Response-Value: ", response)
+							for k,v in iteritems(response):
+								# print("K-V:", k,v)
+								if(k != 'httpCode'):
+									response_obj[k] = v
+							# print("RespObj: " + json.dumps(response_obj, sort_keys=True, indent=4, separators=(',', ': ')))
+							
+						http_response_obj[http_code] = response_obj
+						operations_obj[key] = http_response_obj
+						# print("Http Code: " + json.dumps(operations_obj, sort_keys=True, indent=4, separators=(',', ': ')))
+					else:
 						operations_obj[key] = value
-					# else:
-						# operations_obj[key] = value
-						# print("Add to path object "+key)
-				# print("** Operaions Obj: " + json.dumps(operations_obj, sort_keys=True, indent=4, separators=(',', ': ')))
 
+				# Add to object
 				http_obj[http_operation_key] = operations_obj
-				# Individual Path Object
-				# print("** PathObj: " + json.dumps(http_obj, sort_keys=True, indent=4, separators=(',', ': ')))
-
+				
 				# Check if path_key in path_obj
 				if(path_key) in path_obj:
-					print("*** Path Key exists: " + path_key)
-					# Merge dictionaries
-					# print("** PathObj: " + json.dumps(http_obj, sort_keys=True, indent=4, separators=(',', ': ')))
-					# print("** PathObj-Existing: " + json.dumps(path_obj, sort_keys=True, indent=4, separators=(',', ': ')))
-					
 					path_obj[path_key].update(http_obj)
-					print("New Dict: " + json.dumps(path_obj, sort_keys=True, indent=4, separators=(',', ': ')))
-					# print("** New Path-Obj: " + json.dumps(path_obj, sort_keys=True, indent=4, separators=(',', ': ')))
+					# print(json.dumps(path_obj, sort_keys=True, indent=4, separators=(',', ': ')))
 				else:
-					# print("*** New path key: " + path_key)
 					path_obj[path_key] = http_obj
-			# print("** Path Obj:" + json.dumps(path_obj, sort_keys=True,indent=4, separators=(',', ': ')))
-			# Add key, value as swagger formatted data
+
+			# Add path object to data file
 			swagger_formatted_data["paths"] = path_obj
 		else:
-			# print("- First level key: " + key)
 			swagger_formatted_data[key] = the_file_contents.get(key)
-	# print(json.dumps(swagger_formatted_data, sort_keys=True, indent=4, separators=(',', ': ')))
+	print(json.dumps(swagger_formatted_data, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
 
