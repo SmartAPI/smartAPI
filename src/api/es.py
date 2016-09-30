@@ -65,6 +65,8 @@ def _extract_key_fields(api_doc):
 
 
 def _encode_api_object_id(api_title, api_version, api_contact):
+    if not (api_title and api_version and api_contact):
+        raise ValueError("Missing required info fields.")
     s = "{}|{}|{}".format(api_title, api_version, api_contact)
     _id = base64.urlsafe_b64encode(s.encode('utf-8')).decode('utf-8')
     return _id
@@ -78,7 +80,10 @@ class ESQuery():
 
     def exists(self, api_doc):
         '''return True/False if the input api_doc has existing metadata object in the index.'''
-        _id = _encode_api_object_id(*_extract_key_fields(api_doc))
+        try:
+            _id = _encode_api_object_id(*_extract_key_fields(api_doc))
+        except ValueError:
+            return False
         if _id:
             return self._es.exists(index=self._index, doc_type=self._doc_type, id=_id)
         else:
@@ -88,8 +93,10 @@ class ESQuery():
         doc_exists = self.exists(api_doc)
         if doc_exists and not overwrite:
             return {"success": False, "error": "API exists. Not saved."}
-
-        _id = _encode_api_object_id(*_extract_key_fields(api_doc))
+        try:
+            _id = _encode_api_object_id(*_extract_key_fields(api_doc))
+        except ValueError as e:
+            return {"success": False, "error": str(e)}
         _doc = convert_file(api_doc)
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=_id)
