@@ -56,7 +56,7 @@ def getFileContents(filename):
 
 # Convert Swagger JSON file
 def convert_file(the_file_contents):
-	converted_data = {}
+	es_formatted_data = {}
 	operations_list = []
 	
 	# Get each first level path key 
@@ -64,12 +64,12 @@ def convert_file(the_file_contents):
 		# Modify object in paths
 		if(key == "paths"):
 			for pathname_key in the_file_contents[key]:
-				print("\n")
-				print("** Pathname: ", pathname_key)
+				# print("\n")
+				# print("** Pathname: ", pathname_key)
 				path_obj = {}
 				for method_key in the_file_contents[key][pathname_key]:
-					print("\n")
-					print("** Method name: ", method_key)
+					# print("\n")
+					# print("** Method name: ", method_key)
 
 					# Convert path object
 					path_obj["httpOperation"] = method_key
@@ -90,18 +90,15 @@ def convert_file(the_file_contents):
 							path_obj[stuff] = the_file_contents[key][pathname_key][method_key].get(stuff)
 
 				operations_list.append(path_obj)
-			converted_data["operations"] = operations_list
+			es_formatted_data["operations"] = operations_list
 		else:
-			cd = converted_data[key] = the_file_contents.get(key)
-
-	# Print converted data		
-	# print(json.dumps(converted_data, sort_keys=True, indent=4, separators=(',', ': ') ))
+			cd = es_formatted_data[key] = the_file_contents.get(key)
 
 	# adding a meta field
 	meta = {'timestamp': time.ctime()}
-	converted_data['meta'] = meta
+	es_formatted_data['meta'] = meta
 
-	return converted_data
+	return es_formatted_data
 
 
 # Convert ES indexed file format to Swagger format
@@ -122,9 +119,7 @@ def convert_to_swagger(the_file_contents):
 				http_operation_key = operations_dict['httpOperation'] # E.g. post or get
 				
 				for key,value in iteritems(operations_dict):
-					# print(key)
-					if(key == "path" or key == "httpOperation" or 
-						key == "parameters"):
+					if(key == "path" or key == "httpOperation"):
 						continue
 					elif(key == "responses"):	
 						# Process responses
@@ -132,17 +127,12 @@ def convert_to_swagger(the_file_contents):
 						for response in value:
 							http_code = response['httpCode']
 							response_obj = {}
-							# print("** Response: ", http_code)
-							# print("Response-Value: ", response)
 							for k,v in iteritems(response):
-								# print("K-V:", k,v)
 								if(k != 'httpCode'):
 									response_obj[k] = v
-							# print("RespObj: " + json.dumps(response_obj, sort_keys=True, indent=4, separators=(',', ': ')))
 							
 						http_response_obj[http_code] = response_obj
 						operations_obj[key] = http_response_obj
-						# print("Http Code: " + json.dumps(operations_obj, sort_keys=True, indent=4, separators=(',', ': ')))
 					else:
 						operations_obj[key] = value
 
@@ -152,16 +142,18 @@ def convert_to_swagger(the_file_contents):
 				# Check if path_key in path_obj
 				if(path_key) in path_obj:
 					path_obj[path_key].update(http_obj)
-					# print(json.dumps(path_obj, sort_keys=True, indent=4, separators=(',', ': ')))
 				else:
 					path_obj[path_key] = http_obj
 
 			# Add path object to data file
 			swagger_formatted_data["paths"] = path_obj
+		# Do not add timestamp into converted file
+		elif(key == "meta"):
+			continue
 		else:
 			swagger_formatted_data[key] = the_file_contents.get(key)
-	print(json.dumps(swagger_formatted_data, sort_keys=True, indent=4, separators=(',', ': ')))
-
+	
+	return swagger_formatted_data
 
 
 ## Main Program ##
@@ -170,8 +162,7 @@ if __name__ == '__main__':
 
 	the_file_contents = getFileContents(filename)
 
-	converted_data = convert_file(the_file_contents)
-
+	es_formatted_data = convert_file(the_file_contents)	
+	
 	swagger_formatted_data = convert_to_swagger(the_file_contents)
-
 	
