@@ -3,7 +3,7 @@ import base64
 
 from elasticsearch import Elasticsearch, RequestError
 
-from esConverter.convertJson4ESindexing import convert_file
+from esConverter.convertJson4ESindexing import convert_file, convert_to_swagger
 
 
 ES_HOST = 'localhost:9200'
@@ -72,6 +72,13 @@ def _encode_api_object_id(api_title, api_version, api_contact):
     return _id
 
 
+def _get_hit_object(hit):
+    obj = hit.get('fields', hit.get('_source', {}))
+    if '_id' in hit:
+        obj['_id'] = hit['_id']
+    return obj
+
+
 class ESQuery():
     def __init__(self, index=None, doc_type=None, es_host=None):
         self._es = get_es(es_host)
@@ -104,7 +111,7 @@ class ESQuery():
             return {"success": False, "error": str(e)}
         return {"success": True, '_id': _id}
 
-    def get_api(self, api_name, fields=None):
+    def get_api(self, api_name, fields=None, return_raw=False):
         if api_name == 'all':
             query = {'query': {"match_all": {}}}
         else:
@@ -120,7 +127,14 @@ class ESQuery():
         if fields and fields not in ["all", ["all"]]:
             query["_source"] = fields
         res = self._es.search(self._index, self._doc_type, query)
-        res = [d.get('fields', d.get('_source', {})) for d in res['hits']['hits']]
+        if return_raw == '2':
+            return res
+        res = [_get_hit_object(d) for d in res['hits']['hits']]
+        if not return_raw:
+            try:
+                res = [convert_to_swagger(x) for x in res]
+            except ValueError as e:
+                res = {'success': False, 'error': str(e)}
         if len(res) == 1:
             res = res[0]
         return res

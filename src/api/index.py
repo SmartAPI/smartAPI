@@ -140,9 +140,10 @@ class APIMetaDataHandler(BaseHandler):
            if api_name is "all", return a list of all APIs
         '''
         fields = self.get_argument('fields', None)
+        return_raw = self.get_argument('raw', False)
         if fields:
             fields = fields.split(',')
-        res = self.esq.get_api(api_name, fields=fields)
+        res = self.esq.get_api(api_name, fields=fields, return_raw=return_raw)
         self.return_json(res)
 
 
