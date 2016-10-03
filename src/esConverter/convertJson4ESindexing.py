@@ -147,8 +147,8 @@ def convert_to_swagger(the_file_contents):
 
 			# Add path object to data file
 			swagger_formatted_data["paths"] = path_obj
-		# Do not add timestamp into converted file
-		elif(key == "meta"):
+		# Do not add _id and meta fields into converted file
+		elif (key in ["_id", "meta"]):
 			continue
 		else:
 			swagger_formatted_data[key] = the_file_contents.get(key)
