@@ -65,13 +65,8 @@ def convert_file(the_file_contents):
         # Modify object in paths
         if(key == "paths"):
             for pathname_key in the_file_contents[key]:
-                # print("\n")
-                # print("** Pathname: ", pathname_key)
                 path_obj = {}
                 for method_key in the_file_contents[key][pathname_key]:
-                    # print("\n")
-                    # print("** Method name: ", method_key)
-
                     # Convert path object
                     path_obj["httpOperation"] = method_key
                     path_obj["path"] = pathname_key
@@ -99,7 +94,7 @@ def convert_file(the_file_contents):
     meta = {'timestamp': time.ctime()}
     es_formatted_data['meta'] = meta
 
-    # return es_formatted_data
+    # Store data in specific key order
     key_ordered_data = order_data(es_formatted_data)
     return key_ordered_data
 
@@ -116,7 +111,7 @@ def convert_to_swagger(the_file_contents):
             for operations_dict in the_file_contents[key]:
                 http_obj = {}
                 operations_obj = {}
-                # print("\n** New operations object **")
+
                 path_key = operations_dict['path']  # E.g. /gene
                 http_operation_key = operations_dict['httpOperation']  # E.g. post or get
 
@@ -155,7 +150,7 @@ def convert_to_swagger(the_file_contents):
         else:
             swagger_formatted_data[key] = the_file_contents.get(key)
 
-    # return swagger_formatted_data
+    # Store data in specific key order
     key_ordered_data = order_data(swagger_formatted_data)
     return key_ordered_data
 
@@ -177,7 +172,6 @@ if __name__ == '__main__':
 
     the_file_contents = getFileContents(filename)
 
-    # es_formatted_data = convert_file(the_file_contents)
+    es_formatted_data = convert_file(the_file_contents)
 
     swagger_formatted_data = convert_to_swagger(the_file_contents)
-    print(swagger_formatted_data)
