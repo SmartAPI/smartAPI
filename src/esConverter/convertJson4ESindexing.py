@@ -4,6 +4,7 @@ import os.path
 import json
 import time
 from future.utils import iteritems
+from collections import OrderedDict
 
 
 # Confirm program arguments
@@ -98,8 +99,9 @@ def convert_file(the_file_contents):
     meta = {'timestamp': time.ctime()}
     es_formatted_data['meta'] = meta
 
-    return es_formatted_data
-
+    # return es_formatted_data
+    key_ordered_data = order_data(es_formatted_data)
+    return key_ordered_data
 
 # Convert ES indexed file format to Swagger format
 def convert_to_swagger(the_file_contents):
@@ -153,7 +155,20 @@ def convert_to_swagger(the_file_contents):
         else:
             swagger_formatted_data[key] = the_file_contents.get(key)
 
-    return swagger_formatted_data
+    # return swagger_formatted_data
+    key_ordered_data = order_data(swagger_formatted_data)
+    return key_ordered_data
+
+
+# Sort data to maintain key order
+def order_data(data):
+    key_sort_list = ['info', 'host', 'basePath', 'schemes', 'produces', 'consumes', 'tags', 'operations', 'paths']
+    key_ordered_data = OrderedDict()
+
+    for item in key_sort_list:
+        if item in data:
+            key_ordered_data[item] = data[item]
+    return key_ordered_data
 
 
 # Main Program #
@@ -162,6 +177,7 @@ if __name__ == '__main__':
 
     the_file_contents = getFileContents(filename)
 
-    es_formatted_data = convert_file(the_file_contents)
+    # es_formatted_data = convert_file(the_file_contents)
 
     swagger_formatted_data = convert_to_swagger(the_file_contents)
+    print(swagger_formatted_data)
