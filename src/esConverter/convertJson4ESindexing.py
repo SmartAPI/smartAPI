@@ -157,7 +157,9 @@ def convert_to_swagger(the_file_contents):
 
 # Sort data to maintain key order
 def order_data(data):
-    key_sort_list = ['info', 'host', 'basePath', 'schemes', 'produces', 'consumes', 'tags', 'operations', 'paths']
+    key_sort_list = ['swagger', 'info', 'host', 'basePath', 'schemes',
+    'produces', 'consumes', 'tags', 'operations', 'paths', 'definitions',
+    'parameters', 'responses', 'securityDefinitions', 'security', 'externalDocs']
     key_ordered_data = OrderedDict()
 
     for item in key_sort_list:
