@@ -98,6 +98,7 @@ def convert_file(the_file_contents):
     key_ordered_data = order_data(es_formatted_data)
     return key_ordered_data
 
+
 # Convert ES indexed file format to Swagger format
 def convert_to_swagger(the_file_contents):
     swagger_formatted_data = {}
@@ -158,8 +159,9 @@ def convert_to_swagger(the_file_contents):
 # Sort data to maintain key order
 def order_data(data):
     key_sort_list = ['swagger', 'info', 'host', 'basePath', 'schemes',
-    'produces', 'consumes', 'tags', 'operations', 'paths', 'definitions',
-    'parameters', 'responses', 'securityDefinitions', 'security', 'externalDocs']
+                     'produces', 'consumes', 'tags', 'operations',
+                     'paths', 'definitions', 'parameters', 'responses',
+                     'securityDefinitions', 'security', 'externalDocs']
     key_ordered_data = OrderedDict()
 
     for item in key_sort_list:
