@@ -47,13 +47,10 @@
 			
 			 }])
 			.controller('search', ['$scope', function($scope) {
-				// toggle between prefix and all searching
 				$scope.searchfield = '_all';
 				$scope.searchfieldValue = false;				
-				$scope.setSearchField = function() {
-					
+				$scope.setSearchField = function() {	
 					$scope.searchfield = "_all";
-					
 				};				
 			}]);
   </script>
@@ -77,8 +74,9 @@
 					<h1><img height="40" src="img/smartapi.png"/>smartAPI</h1>
 					<br>
 					<span style="">
-						<input class="ng-scope ng-pristine ng-valid bannerinput" eui-query="ejs.MatchQuery(searchfield, querystring).operator('AND')" ng-model="querystring" eui-enabled="querystring.length" type="text">
-					
+						<input class="ng-scope ng-pristine ng-valid bannerinput" 
+							eui-query="ejs.MatchQuery(searchfield, querystring).operator('AND')" 
+							ng-model="querystring" eui-enabled="querystring.length" type="text">					
 						<input label="Search" type="submit" value="search"/><br>
 
 					</span>
@@ -151,7 +149,7 @@
 								
 
 								<span ng-if="doc._source.info.title != '' && doc._source.info.title.length > 0 ">	
-									Open in <a href="http://smart-api.info/editor/#/?import=http://smart-api.info/api/metadata/{{doc._id}}">Swagger Editor</a>
+									Open in <a target="_blank" href="http://smart-api.info/editor/#/?import=http://smart-api.info/api/metadata/{{doc._id}}">Swagger Editor</a>
 									<br/>
 								</span>	
 								<br/>
