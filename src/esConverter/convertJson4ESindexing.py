@@ -117,6 +117,7 @@ def convert_to_swagger(the_file_contents):
                 http_operation_key = operations_dict['httpOperation']  # E.g. post or get
 
                 for key, value in iteritems(operations_dict):
+                    parameters_list = []
                     if(key == "path" or key == "httpOperation"):
                         continue
                     elif(key == "responses"):
@@ -132,13 +133,17 @@ def convert_to_swagger(the_file_contents):
                         http_response_obj[http_code] = response_obj
                         operations_obj[key] = http_response_obj
                     elif(key == "parameters"):
-                        parameters_list = []
-                        parameters_ordered_dict = OrderedDict()
+                        # parameters_list = []
+                        # parameters_ordered_dict = OrderedDict()
                         parameters_key_order = ['name', 'in', 'description', 'required', 'type']
                         for parameters in value:
+                            print("\n")
+                            parameters_ordered_dict = OrderedDict()
+                            print("** Params: ", parameters) # One Param obj
                             for key in parameters_key_order:
                                 if key in parameters:
                                     parameters_ordered_dict[key] = parameters[key]
+                                    print("Key: ", key, "Val: ", parameters[key])
                             parameters_list.append(parameters_ordered_dict)
                         operations_obj["parameters"] = parameters_list
                     else:
@@ -186,6 +191,8 @@ if __name__ == '__main__':
 
     the_file_contents = getFileContents(filename)
 
-    es_formatted_data = convert_file(the_file_contents)
+    # es_formatted_data = convert_file(the_file_contents)
 
     swagger_formatted_data = convert_to_swagger(the_file_contents)
+    print(json.dumps(swagger_formatted_data, indent=4, sort_keys=True))
+
