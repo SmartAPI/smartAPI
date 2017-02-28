@@ -7,7 +7,7 @@ smartAPI allows API publishers to annotate their services and input/output param
 
 Presentation: http://bit.ly/smartAPIslides 
 
-Repo: https://github.com/Network-of-BioThings/smartAPI
+Repo: https://github.com/WebsmartAPI/smartAPI
 
 Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43D9DSpG_o/edit?usp=sharing
 
