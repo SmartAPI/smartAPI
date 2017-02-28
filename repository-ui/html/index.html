@@ -56,7 +56,7 @@
   </script>
 	
 </head>
-<body ng-app="smartapi" eui-index="'smartapi_swagger'" >
+<body ng-app="smartapi" eui-index="'smartapi_swagger'" eui-sort="ejs.Sort('doc._source.info.title').order('desc')" >
 
     <div class="container-fluid" ng-controller="search">
         <div class="row">
@@ -95,55 +95,85 @@
 						   	<div><a href='#{{i}}' ng-click='showDetails =! showDetails'>details</a></div>
 							<div ng-show="showDetails">
 									<br>
-								<span ng-if="doc._source.schemes != '' && doc._source.schemes.length > 0">
+<!--								<span ng-if="doc._source.schemes != '' && doc._source.schemes.length > 0">
 									<strong>schemes:</strong>
 									<span ng-repeat="scheme in doc._source.schemes">
 										{{scheme}}{{$last ? '' : ', '}}
 									</span>
 									<br>
-								</span>
+-->								</span>
 
-								<span ng-if="doc._source.host != ''  && doc._source.host.length > 0">
+<!--								<span ng-if="doc._source.host != ''  && doc._source.host.length > 0">
 									<strong>host:</strong> {{doc._source.host}}
 									<br>
 								</span>
+-->
 								<span ng-if="doc._source.basePath != ''  && doc._source.basePath > 0">
-									<strong>basePath:</strong> {{doc._source.basePath}}
+									<strong>access point:</strong> {{doc._source.basePath}}
 									<br>
 								</span>
 								<span ng-if="doc._source.info.version != ''  && doc._source.info.version.length > 0">
 									<strong>version:</strong> {{doc._source.info.version}}
 									<br>
 								</span>
+								<span ng-if="doc._source.info.contact.name != ''  && doc._source.info.contact.name.length > 0">
+									<strong>Contact:</strong> {{doc._source.info.contact.name}}
+									<br>
+								</span>
+								<span ng-if="doc._source.info.contact.developer != '' && doc._source.info.contact.developer.length > 0">
+									<strong>Developer:</strong> {{doc._source.info.contact.developer}}
+									<br>
+								</span>
+
+
 								<span ng-if="doc._source.info.homepage != '' && doc._source.info.homepage.length > 0">
 									[<a href="{{doc._source.info.homepage}}">website</a>]
 									<br>
 								</span>
+								<span ng-if="doc._source.externalDocs != '' && doc._source.info.externalDocs.length > 0">
+									[<a href="{{doc._source.externalDocs}}">documentation</a>]
+									<br>
+								</span>
+								<span ng-if="doc._source.info.termsOfService != '' && doc._source.info.termsOfService.length > 0">
+									<strong>terms of service:</strong> {{doc._source.info.termsOfService}}
+									<br>
+								</span>
+								<span ng-if="doc._source.license.url != '' && doc._source.license.url.length > 0">
+									<strong>license:</strong> <a href="{{doc._source.license.url}}">{{doc._source.license.name}}</a>
+									<br>
+								</span>
 
+								<span ng-if="doc._source.operations != '' && doc._source.operations.length > 0">
+									<strong>operations:</strong>
+									<ul>
+									<span ng-repeat="operation in doc._source.operations">
+<!--										<span ng-if="operation.operationId != '' && operation.operationId.length > 0">
+											<li>
+											<em>{{operation.operationId}}</em><span ng-if="operation.description != ''">. {{operation.description}}</span> 
+										</span>
+										<span ng-else>
+-->
+										<span>
+											<li>
+											<em>{{operation.httpOperation}} {{operation.path}}</em><span ng-if="operation.description != ''">. {{operation.description}}</span> 
+
+<!--											<br><strong>parameters:</strong> 
+											<span ng-if="operation.parameters != '' && operation.parameters.length > 0">
+												<span ng-repeat="parameter in operation.parameters">
+												  {{parameter.name}}{{$last ? '' : ', '}}
+											</span>
+											<br/>
+-->
+										</span>
+									</span>
+									</ul>
+								</span>
 								<span ng-if="doc._source.tags != '' && doc._source.tags.length > 0">
 									<strong>tags:</strong>
 									<span ng-repeat="tags in doc._source.tags">
 										{{tags.name}}{{$last ? '' : ', '}}
 									</span>
 									<br>
-								</span>
-								<span ng-if="doc._source.operations != '' && doc._source.operations.length > 0">
-									<strong>operations:</strong>
-									<ul>
-									<span ng-repeat="operation in doc._source.operations">
-										<li>
-										
-										{{operation.operationId}}&nbsp; 
-										
-										<br>{{operation.httpOperation}} {{operation.path}}
-										<br><strong>parameters:</strong> 
-										<span ng-if="operation.parameters != '' && operation.parameters.length > 0">
-											<span ng-repeat="parameter in operation.parameters">
-											  {{parameter.name}}{{$last ? '' : ', '}}
-										</span>
-										<br/>
-									</span>
-									</ul>
 								</span>
 
 								
@@ -164,9 +194,9 @@
 						</select>
 					</div>
 				</div>
-            </div>
-			<div class="col-xs-1"></div>
-			
+            
+			</div>
+		<div class="col-xs-1"></div>		
         </div>
     </div>
 </body>
