@@ -160,17 +160,24 @@
 											<li>
 											<em>{{operation.httpOperation}} {{operation.path}}</em><span ng-if="operation.description != ''">. {{operation.description}}</span> 
 
-<!--											<br><strong>parameters:</strong> 
+<!--											<br><strong>parameters:</strong> --> 
 											<span ng-if="operation.parameters != '' && operation.parameters.length > 0">
 												<span ng-repeat="parameter in operation.parameters">
-												  {{parameter.name}}{{$last ? '' : ', '}}
+													<span ng-if="parameter.parameterValueType">
+													 <!-- {{parameter.name}}{{$last ? '' : ', '}} -->
+													<br><strong>input types:</strong> 
+													 <span ng-repeat="pvt in parameter.parameterValueType">
+													 {{pvt}}{{$last ? '':', '}}
+													 </span>
+												</span>
 											</span>
 											<br/>
--->
 										</span>
 									</span>
 									</ul>
 								</span>
+
+
 								<span ng-if="doc._source.tags != '' && doc._source.tags.length > 0">
 									<strong>tags:</strong>
 									<span ng-repeat="tags in doc._source.tags">
