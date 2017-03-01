@@ -61,7 +61,7 @@
     <div class="container-fluid" ng-controller="search">
         <div class="row">
             <div class="col-xs-2 sidebar">
-			 <div style="height: 100px; text-align: center;  padding-top: 0px;"></div>
+		<div style="height: 100px; text-align: center;  padding-top: 0px;"></div>
                 <h3>Tags</h3>
                 <eui-singleselect field="'tags.name.raw'" size="8"></eui-singleselect>
                 <h3>Formats</h3>
@@ -167,10 +167,12 @@
 												<span ng-repeat="parameter in operation.parameters">
 													<span ng-if="parameter.parameterValueType">
 													 <!-- {{parameter.name}}{{$last ? '' : ', '}} -->
-													<br><strong>input types:</strong> 
+													<br><strong>input types:</strong>
+													<ul>
 													 <span ng-repeat="pvt in parameter.parameterValueType">
-													 {{pvt}}{{$last ? '':', '}}
+													  <li><a target="_id.org" href="{{pvt}}{{$last ? '':''}}">{{pvt}}{{$last ? '':''}}</a>
 													 </span>
+													</ul>
 												</span>
 											</span>
 											<br/>
