@@ -70,8 +70,10 @@
                 <eui-singleselect field="'schemes.raw'" size="10"></eui-singleselect>
                 <h3>Input types</h3>
                 <eui-singleselect field="'operations.parameters.parameterValueType.raw'" size="10"></eui-singleselect>
+<!--                
                 <h3>Output types</h3>
                 <eui-singleselect field="'operations.responses.responseDataType.raw'" size="10"></eui-singleselect>
+-->
             </div>
             <div class="col-xs-9 col-xs-offset-3">
                 <div style="left: 10px; height: 200px; text-align: center;  padding-top: 30px;">
@@ -92,7 +94,7 @@
 							{{i+1}}.
 						</td>
 						<td style="{{$odd ? 'background-color:#f1f1f1; vertical-align: text-top;' : 'vertical-align: text-top;'}}">
-						 <div style="font-weight: bold;">{{doc._source.info.title}}</div>
+						 <div style="font-weight: bold;">{{doc._source.info.title}} v{{doc._source.info.version}}</div>
 						    <div>{{doc._source.info.description}}</div>
 						   
 						   	<div><a href='#{{i}}' ng-click='showDetails =! showDetails'>details</a></div>
