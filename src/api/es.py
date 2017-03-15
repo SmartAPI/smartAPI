@@ -1,14 +1,21 @@
 import json
 import base64
+from datetime import date
 
-from elasticsearch import Elasticsearch, RequestError
+from elasticsearch import Elasticsearch, RequestError, helpers
 
 from esConverter.convertJson4ESindexing import convert_file, convert_to_swagger
 
 
 ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi_swagger'
+# ES_INDEX_NAME = 'smartapi_swagger'
+ES_INDEX_NAME = 'smartapi_oai'
 ES_DOC_TYPE = 'api'
+
+
+def get_datestamp():
+    d = date.today()
+    return d.strftime('%Y%m%d')
 
 
 def get_es(es_host=None):
@@ -17,7 +24,7 @@ def get_es(es_host=None):
     return es
 
 
-def create_index(index_name=None):
+def create_index(index_name=None, es=None):
     index_name = index_name or ES_INDEX_NAME
     body = {}
     mapping = {
@@ -44,8 +51,8 @@ def create_index(index_name=None):
     }
     mapping = {"mappings": mapping}
     body.update(mapping)
-    es = get_es()
-    print(es.indices.create(index=index_name, body=body))
+    _es = es or get_es()
+    print(_es.indices.create(index=index_name, body=body))
 
 
 def index_swagger(swagger_doc, es=None, index=None, doc_type=None):
@@ -86,7 +93,9 @@ class ESQuery():
         self._doc_type = doc_type or ES_DOC_TYPE
 
     def exists(self, api_doc):
-        '''return True/False if the input api_doc has existing metadata object in the index.'''
+        '''return True/False if the input api_doc has existing metadata
+           object in the index.
+        '''
         try:
             _id = _encode_api_object_id(*_extract_key_fields(api_doc))
         except ValueError:
@@ -215,3 +224,52 @@ class ESQuery():
             res = self._do_aggregations(field, agg_name, size)
 
         return res
+
+    def fetch_all(self, as_list=False):
+        """return a generator of all docs from the ES index.
+            return a list instead if as_list is True.
+        """
+        query = {"query": {"match_all": {}}}
+        scan_res = helpers.scan(client=self._es, query=query,
+                                index=self._index, doc_type=self._doc_type)
+
+        def _fn(x):
+            x['_source'].setdefault('_id', x['_id'])
+            return x['_source']
+        doc_iter = (_fn(x) for x in scan_res)    # return docs only
+        if as_list:
+            return list(doc_iter)
+        else:
+            return doc_iter
+
+    def backup_all(self, outfile=None):
+        """back up all docs into a output file."""
+        outfile = outfile or "{}_backup_{}.json".format(self._index, get_datestamp())
+        out_f = open(outfile, 'w')
+        doc_li = self.fetch_all(as_list=True)
+        json.dump(doc_li, out_f, indent=2)
+        out_f.close()
+        print("Backed up {} docs in \"{}\".".format(len(doc_li), outfile))
+
+    def restore_all(self, backupfile, index_name):
+        """restore all docs from the backup file to a new index.
+           must restore to a new index, cannot overwrite an existing one.
+        """
+        if self._es.indices.exists(index_name):
+            print("Error: index \"{}\" exists. Try a different index_name.".format(index_name))
+            return
+
+        print("Loading docs from \"{}\"...".format(backupfile), end="")
+        in_f = open(backupfile)
+        doc_li = json.load(in_f)
+        print("Done. [{}]".format(len(doc_li)))
+
+        print("Creating index...", end="")
+        create_index(index_name, es=self._es)
+        print("Done.")
+
+        print("Indexing...", end="")
+        for _doc in doc_li:
+            _id = _doc.pop('_id')
+            self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
+        print("Done.")
