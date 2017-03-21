@@ -56,11 +56,11 @@
   </script>
 	
 </head>
-<body ng-app="smartapi" eui-index="'smartapi_swagger'" eui-sort="ejs.Sort('info.title.raw').order('asc')" eui-enabled="true" >
+<body ng-app="smartapi" eui-index="'smartapi_oai'" eui-sort="ejs.Sort('info.title.raw').order('asc')" eui-enabled="true" >
 
     <div class="container-fluid" ng-controller="search">
         <div class="row">
-            <div class="col-xs-2 sidebar">
+            <div class="col-xs-3 sidebar">
 		<div style="height: 100px; text-align: center;  padding-top: 0px;"></div>
                 <h3>Tags</h3>
                 <eui-singleselect field="'tags.name.raw'" size="8"></eui-singleselect>
@@ -70,12 +70,10 @@
                 <eui-singleselect field="'schemes.raw'" size="10"></eui-singleselect>
                 <h3>Input types</h3>
                 <eui-singleselect field="'operations.parameters.parameterValueType.raw'" size="10"></eui-singleselect>
-<!--                
                 <h3>Output types</h3>
-                <eui-singleselect field="'operations.responses.responseDataType.raw'" size="10"></eui-singleselect>
--->
+                <eui-singleselect field="'operations.responses.responseDataType.datatype.raw'" size="10"></eui-singleselect>
             </div>
-            <div class="col-xs-9 col-xs-offset-3">
+            <div class="col-xs-8 col-xs-offset-4">
                 <div style="left: 10px; height: 200px; text-align: center;  padding-top: 30px;">
 					<h1><img height="40" src="img/smartapi.png"/>smartAPI</h1>
 					<br>
@@ -171,6 +169,18 @@
 													<ul>
 													 <span ng-repeat="pvt in parameter.parameterValueType">
 													  <li><a target="_id.org" href="{{pvt}}{{$last ? '':''}}">{{pvt}}{{$last ? '':''}}</a>
+													 </span>
+													</ul>
+												</span>
+											</span>
+											<span ng-if="operation.responses != '' && operation.responses.length > 0">
+												<span ng-repeat="response in operation.responses">
+													<span ng-if="response.responseDataType">
+													 <!-- {{response.name}}{{$last ? '' : ', '}} -->
+													<br><strong>response types:</strong>
+													<ul>
+													 <span ng-repeat="pvt in response.responseDataType">
+													  <li><a target="_id.org" href="{{pvt.datatype}}{{$last ? '':''}}">{{pvt.datatype}}{{$last ? '':''}}</a>
 													 </span>
 													</ul>
 												</span>
