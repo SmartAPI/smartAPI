@@ -120,7 +120,7 @@ class ESQuery():
             return {"success": False, "error": str(e)}
         return {"success": True, '_id': _id}
 
-    def get_api(self, api_name, fields=None, return_raw=False, size=None):
+    def get_api(self, api_name, fields=None, return_raw=False, size=None, from_=0):
         if api_name == 'all':
             query = {'query': {"match_all": {}}}
         else:
@@ -137,6 +137,8 @@ class ESQuery():
             query["_source"] = fields
         if size and isinstance(size, int):
             query['size'] = min(size, 100)    # set max size to 100 for now.
+        if from_ and isinstance(from_, int) and from_ > 0:
+            query['from'] = from_
         res = self._es.search(self._index, self._doc_type, query)
         if return_raw == '2':
             return res

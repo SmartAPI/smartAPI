@@ -142,13 +142,18 @@ class APIMetaDataHandler(BaseHandler):
         fields = self.get_argument('fields', None)
         return_raw = self.get_argument('raw', False)
         size = self.get_argument('size', None)
+        from_ = self.get_argument('from', 0)
         try:
             size = int(size)   # size capped to 100 for now by get_api method below.
-        except TypeError:
+        except (TypeError, ValueError):
             size = None
+        try:
+            from_ = int(from_)
+        except (TypeError, ValueError):
+            from_ = 0
         if fields:
             fields = fields.split(',')
-        res = self.esq.get_api(api_name, fields=fields, return_raw=return_raw, size=size)
+        res = self.esq.get_api(api_name, fields=fields, return_raw=return_raw, size=size, from_=from_)
         self.return_json(res)
 
 
