@@ -133,7 +133,7 @@ def convert_to_swagger(the_file_contents):
                         http_response_obj[http_code] = response_obj
                         operations_obj[key] = http_response_obj
                     elif(key == "parameters"):
-                        parameters_key_order = ['name', 'in', 'description', 'required', 'type']
+                        parameters_key_order = ['name', 'in', 'description', 'required', 'type', 'parameterType', 'parameterValueType']
                         for parameters in value:
                             parameters_ordered_dict = OrderedDict()
                             for key in parameters_key_order:
