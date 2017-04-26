@@ -29,38 +29,65 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="jumbotron">
-            <img src="images/smart-api-logo.png">
-            <h1>smartAPI</h1>
-            <p class="lead">A more intelligent network of web services</p>
+            <h1><img src="images/smartapilogo.gif">smartAPI project</h1>
+            <p class="lead">Building a connected network of FAIR web services</p>
           </div>
         </div>
       </div>
       
       <div class="row">
-        <div class="col-lg-3">
-          <p><a href="https://websmartapi.github.io/smartapi_specification/"><img src="images/spec.png" width="100">Specification</a></p>
-          <p style="height: 60px;">Use the smartAPI metadata specification to code up your own smartAPI.</p>
-        </div>
-         <div class="col-lg-3">
-          <p><a href="/editor/"><img src="images/edit.png" width="100">Editor</a></p>
-          <p style="height: 60px;">Author your own smartAPI.</p>
-        </div>       <div class="col-lg-3">
+		<div class="col-lg-4">
           <p><a href="/registry/"><img src="images/search.png" width="100">Registry</a></p>
           <p style="height: 60px;">Search the registry of smartAPIs.</p>
         </div>
-
-		<div class="col-lg-3">
+         <div class="col-lg-4">
+          <p><a href="/editor/"><img src="images/edit.png" width="100">Editor</a></p>
+          <p style="height: 60px;">Author your own smartAPI description</p>
+        </div>
+		<div class="col-lg-4">
           <p><a href="/apidocs/smartapi"><img src="images/api.png" width="100">API</a></p>
           <p style="height: 60px;">Learn about and access the smartAPI services.</p>
         </div>
-      </div>   
+      </div>
+
+	  <div class="row">
+	  	 <div class="col-lg-4">
+          <p><a href="https://websmartapi.github.io/smartapi_specification/"><img src="images/spec.png" width="100">Specification</a></p>
+          <p style="height: 60px;">Use the smartAPI metadata specification to code up your own smartAPI.</p>
+        </div>
+        <div class="col-lg-4">
+          <p><a href="https://github.com/WebsmartAPI/swagger-editor/blob/master/README.md"><img src="images/documentation.png" width="100">Documentation</a></p>
+          <p style="height: 60px;">See the developer documentation.</p>
+        </div>
+        <div class="col-lg-4">
+          <p><a href="https://goo.gl/D4e0xL"><img src="images/working_group.png" width="100">Working group</a></p>
+          <p style="height: 60px;">Join the API Interoperability working group.</p>
+        </div>		
+	   </div>
+		
       
       <div>&nbsp;</div>
       <div>&nbsp;</div>
       <hr class="featurette-divider">
       <div>&nbsp;</div>
       <div>&nbsp;</div>
-      
+
+	  <div class="row featurette">
+        <div class="col-md-5">
+          <img src="images/metadata.jpg" width="400">
+        </div>
+        <div class="col-md-7">
+			<h2 class="featurette-heading">What is a smartAPI?</h2>
+			<p class="lead">The smartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a <a href="http://openapis.org"></a>openAPI-based <a href="https://websmartapi.github.io/smartapi_specification/"> specification</a> for defining the key API metadata elements and value sets. smartAPIs leverage the <a href="http://www.hydra-cg.com/">Hydra Web API specification and <a href="http://json-ld.org">JSON-LD</a> for providing semantically annotated JSON content that can be treated as <a href="http://linkeddata.org/">Linked Data</a>.</p>
+        </div>
+      </div>      
+	       
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+      <hr class="featurette-divider">
+      <div>&nbsp;</div>
+      <div>&nbsp;</div>
+	  
       <div class="row featurette">
         <div class="col-md-7">
           <h2 class="featurette-heading">Why do we need smartAPIs?</h2>
@@ -68,26 +95,11 @@
 		  </p>
         </div>
         <div class="col-md-5">
-          <img src="images/gears.png" width="400">
+          <img src="images/gears2.gif" width="400">
         </div>
       </div>        
 
-      <div>&nbsp;</div>
-      <div>&nbsp;</div>
-      <hr class="featurette-divider">
-      <div>&nbsp;</div>
-      <div>&nbsp;</div>      
-      
-      <div class="row featurette">
-        <div class="col-md-5">
-          <img src="images/metadata.jpg" width="400">
-        </div>
-        <div class="col-md-7">
-			<h2 class="featurette-heading">Enhanced API metadata</h2>
-			<p class="lead">Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We are working on a new <a href="json-ld.org">JSON-LD</a> based <a href="docs/specification/">smartAPI specification</a> for defining the key API metadata elements and value sets. Our work will leverage the recently published <a href="http://www.w3.org/TR/hcls-dataset/">W3C HLCS Dataset Description Guideline</a>, <a href="http://www.hydra-cg.com/">Hydra Web API specification, and <a href="http://json-schema.org/">JSON Schema</a>. We are developing smart annotation tools that will facilitate the facilte creation of rich API metatada that will also help you provide <a href="http://linkeddata.org/">Linked Data</a>.</p>
-        </div>
-      </div>              
-
+	  
       <div>&nbsp;</div>
       <div>&nbsp;</div>
       <hr class="featurette-divider">
@@ -96,13 +108,14 @@
       
       <div class="row featurette">
         <div class="col-md-7">
-          <h2 class="featurette-heading">Powerful Semantic Navigation</h2>
+          <h2 class="featurette-heading">What does the smartAPI offer?</h2>
           <p class="lead">Richly annotated APIs will provide the assets by which users will be able to search, browse, query, and reuse APIs. Users and intelligent agents being able to traverse a highly connected network of smartAPIs. Users will be able to automatically find APIs whose outputs are the inputs for other services. Ultimately, we envision the automatic generation of workflows that take users to where they want to go with what they have today.</p>
         </div>
         <div class="col-md-5">
-          <img src="images/map.png" width="400">
+          <img src="images/map.gif" width="400">
         </div>
       </div>        
+
 
       <div>&nbsp;</div>
       <div>&nbsp;</div>
