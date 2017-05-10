@@ -5,3 +5,4 @@
 __pycache__
 
 src/config.py
+*.pyc

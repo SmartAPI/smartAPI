@@ -136,8 +136,13 @@ def convert_to_swagger(the_file_contents):
                         parameters_key_order = ['name', 'in', 'description', 'required', 'type', 'parameterType', 'parameterValueType']
                         for parameters in value:
                             parameters_ordered_dict = OrderedDict()
+                            # fill in these keys in order first
                             for key in parameters_key_order:
                                 if key in parameters:
+                                    parameters_ordered_dict[key] = parameters[key]
+                            # now handle the rest of keys
+                            for key in parameters:
+                                if key not in parameters_ordered_dict:
                                     parameters_ordered_dict[key] = parameters[key]
                             parameters_list.append(parameters_ordered_dict)
                         operations_obj["parameters"] = parameters_list
