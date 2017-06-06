@@ -11,7 +11,7 @@
     <script src="./js/elasticsearch.angular.js"></script>
     <script src="./js/elastic.js"></script>
     <script src="./js/elasticui.min.js"></script>
-	
+    <script src="./js/node_modules/angular-filter/dist/angular-filter.min.js"></script>
 	<style>
         .sidebar {
             position: fixed;
@@ -41,7 +41,7 @@
 
     <script>
         angular
-            .module('smartapi', ['elasticui'])
+            .module('smartapi', ['elasticui','angular.filter'])
             .constant('euiHost', 'http://smart-api.info/_es/')
 			.controller('view', ['$scope', function ($scope) {
 			
@@ -54,7 +54,6 @@
 				};				
 			}]);
   </script>
-	
 </head>
 <body ng-app="smartapi" eui-index="'smartapi_oai'" eui-sort="ejs.Sort('info.title.raw').order('asc')" eui-enabled="true" >
 
@@ -64,10 +63,10 @@
 		<div style="height: 100px; text-align: center;  padding-top: 0px;"></div>
                 <h3>Tags</h3>
                 <eui-singleselect field="'tags.name.raw'" size="8"></eui-singleselect>
-                <h3>Formats</h3>
-                <eui-singleselect field="'produces.raw'" size="8"></eui-singleselect>
                 <h3>Schemes</h3>
                 <eui-singleselect field="'schemes.raw'" size="10"></eui-singleselect>
+                <h3>Response Formats</h3>
+                <eui-singleselect field="'produces.raw'" size="8"></eui-singleselect>
                 <h3>Input types</h3>
                 <eui-singleselect field="'operations.parameters.parameterValueType.raw'" size="10"></eui-singleselect>
                 <h3>Output types</h3>
@@ -119,12 +118,16 @@
 									<strong>version:</strong> {{doc._source.info.version}}
 									<br>
 								</span>
-								<span ng-if="doc._source.info.contact.name != ''  && doc._source.info.contact.name.length > 0">
-									<strong>Contact:</strong> {{doc._source.info.contact.name}}
+								<span ng-if="doc._source.info.responsibleOrganization != ''  && doc._source.info.responsibleOrganization.length > 0">
+									<strong>organization:</strong> {{doc._source.info.responsibleOrganization}}
 									<br>
 								</span>
-								<span ng-if="doc._source.info.contact.developer != '' && doc._source.info.contact.developer.length > 0">
-									<strong>Developer:</strong> {{doc._source.info.contact.developer}}
+								<span ng-if="doc._source.info.contact.responsibleOrganization != ''  && doc._source.info.contact.responsibleOrganization.length > 0">
+									<strong>organization:</strong> {{doc._source.info.contact.responsibleOrganization}}
+									<br>
+								</span>
+								<span ng-if="doc._source.info.contact.responsibleDeveloper != '' && doc._source.info.contact.responsibleDeveloper.length > 0">
+									<strong>developer:</strong> {{doc._source.info.contact.responsibleDeveloper}}
 									<br>
 								</span>
 
@@ -163,7 +166,7 @@
 <!--											<br><strong>parameters:</strong> --> 
 											<span ng-if="operation.parameters != '' && operation.parameters.length > 0">
 												<span ng-repeat="parameter in operation.parameters">
-													<span ng-if="parameter.parameterValueType">
+													<span ng-if="parameter.parameterValueType != '' && parameter.parameterValueType != 'string'  && parameter.parameterValueType.length > 0">
 													 <!-- {{parameter.name}}{{$last ? '' : ', '}} -->
 													<br><strong>input types:</strong>
 													<ul>
@@ -179,7 +182,7 @@
 													 <!-- {{response.name}}{{$last ? '' : ', '}} -->
 													<br><strong>response types:</strong>
 													<ul>
-													 <span ng-repeat="pvt in response.responseDataType">
+													 <span ng-repeat="pvt in response.responseDataType | unique: 'datatype'">
 													  <li><a target="_id.org" href="{{pvt.datatype}}{{$last ? '':''}}">{{pvt.datatype}}{{$last ? '':''}}</a>
 													 </span>
 													</ul>
