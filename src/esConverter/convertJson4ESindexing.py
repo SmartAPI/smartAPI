@@ -3,8 +3,17 @@ import requests
 import os.path
 import json
 import time
-from future.utils import iteritems
 from collections import OrderedDict
+
+
+def iteritems(obj, **kwargs):
+    """Use this only if compatibility with Python versions before 2.7 is
+    required. Otherwise, prefer viewitems().
+    """
+    func = getattr(obj, "iteritems", None)
+    if not func:
+        func = obj.items
+    return func(**kwargs)
 
 
 # Confirm program arguments
