@@ -3,8 +3,17 @@ import requests
 import os.path
 import json
 import time
-from future.utils import iteritems
 from collections import OrderedDict
+
+
+def iteritems(obj, **kwargs):
+    """Use this only if compatibility with Python versions before 2.7 is
+    required. Otherwise, prefer viewitems().
+    """
+    func = getattr(obj, "iteritems", None)
+    if not func:
+        func = obj.items
+    return func(**kwargs)
 
 
 # Confirm program arguments
@@ -26,11 +35,8 @@ def confirmArguments():
 def getFileContents(filename):
     # Check if URL provided
     if(filename.startswith("http")):
-        print('DEBUG: Get file from URL')
         r = requests.get(filename)
         if r.status_code == 200:
-            print('DEBUG: Got the file')
-            # file_contents = r.text
             json_file_contents = r.json()
             return json_file_contents
         else:
@@ -39,7 +45,6 @@ def getFileContents(filename):
     else:
         # Check if local file exists with file name provided
         if(os.path.isfile(filename)):
-            print('DEBUG: Local file exists!')
             # Read in file contents
             f = open(filename, 'r')
             file_contents = f.read()
@@ -66,10 +71,20 @@ def convert_file(the_file_contents):
         if(key == "paths"):
             for pathname_key in the_file_contents[key]:
                 path_obj = {}
+                outside_parameter_list = []
+
                 for method_key in the_file_contents[key][pathname_key]:
                     # Convert path object
                     path_obj["httpOperation"] = method_key
                     path_obj["path"] = pathname_key
+
+                    # Convert outside parameters
+                    if(method_key == 'parameters'):
+                        for outside_parameter in the_file_contents[key][pathname_key][method_key]:
+                            outside_parameter_obj = {}
+                            for outside_parameter_item in outside_parameter:
+                                outside_parameter_obj[outside_parameter_item] = outside_parameter[outside_parameter_item]
+                            outside_parameter_list.append(outside_parameter_obj)
 
                     # Convert response object
                     for stuff in the_file_contents[key][pathname_key][method_key]:
@@ -82,8 +97,15 @@ def convert_file(the_file_contents):
                                     response_obj[response_item] = the_file_contents[key][pathname_key][method_key][stuff][response].get(response_item)
                             response_list.append(response_obj)
                             path_obj["responses"] = response_list
-                        else:
-                            path_obj[stuff] = the_file_contents[key][pathname_key][method_key].get(stuff)
+
+                        inner_parameter_list = []
+                        if(stuff == "parameters"):
+                            inner_parameter_obj = {}
+                            inner_parameter_list = the_file_contents[key][pathname_key][method_key][stuff]
+                            # Append outer parameter list to inner parameter list
+                            inner_parameter_list.extend(outside_parameter_list)
+                            path_obj["parameters"] = inner_parameter_list
+
 
                 operations_list.append(path_obj)
             es_formatted_data["operations"] = operations_list
