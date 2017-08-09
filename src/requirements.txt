@@ -1,4 +1,5 @@
-elasticsearch==2.4.0
+elasticsearch==2.4.1
 PyLD==0.7.1
-requests==2.11.1
-tornado==4.4.1
+requests==2.18.3
+tornado==4.5.1
+jsonschema==2.6.0
