@@ -5,11 +5,14 @@ import copy
 import json
 import base64
 import gzip
+from collections import OrderedDict
 
 import requests
 import jsonschema
 
+
 SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/WebsmartAPI/smartAPI-editor/master/node_modules_changes/opanapi.json'
+METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
 
 
 def encode_raw(metadata):
@@ -19,9 +22,23 @@ def encode_raw(metadata):
     return _raw
 
 
-def decode_raw(raw):
+def decode_raw(raw, sorted=True):
+    '''if sorted is True, the keys in the decoded dictionary will follow
+       a defined order.
+    '''
     _raw = gzip.decompress(base64.urlsafe_b64decode(raw)).decode('utf-8')
-    return json.loads(_raw)
+    d = json.loads(_raw)
+    if sorted:
+        d2 = OrderedDict()
+        for key in METADATA_KEY_ORDER:
+            if key in d:
+                d2[key] = d[key]
+        for key in d:
+            if key not in d2:
+                d2[key] = d[key]
+        return d2
+    else:
+        return d
 
 
 class APIMetadata:
