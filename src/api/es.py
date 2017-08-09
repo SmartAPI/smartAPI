@@ -1,15 +1,20 @@
+import sys
 import json
-import base64
+
+import hashlib
 from datetime import date
+if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
+    from hashlib import blake2b
+else:
+    from pyblake2 import blake2b
 
 from elasticsearch import Elasticsearch, RequestError, helpers
 
-from esConverter.convertJson4ESindexing import convert_file, convert_to_swagger
+from .transform import APIMetadata, decode_raw
 
 
 ES_HOST = 'localhost:9200'
-# ES_INDEX_NAME = 'smartapi_swagger'
-ES_INDEX_NAME = 'smartapi_oai'
+ES_INDEX_NAME = 'smartapi_oai_v3'
 ES_DOC_TYPE = 'api'
 
 
@@ -46,7 +51,12 @@ def create_index(index_name=None, es=None):
                         }
                     }
                 }
-            ]
+            ],
+            "properties": {
+                "~raw": {
+                    "type": "binary"
+                }
+            }
         }
     }
     mapping = {"mappings": mapping}
@@ -55,28 +65,15 @@ def create_index(index_name=None, es=None):
     print(_es.indices.create(index=index_name, body=body))
 
 
-def index_swagger(swagger_doc, es=None, index=None, doc_type=None):
-    es = es or get_es()
-    index = index or ES_INDEX_NAME
-    doc_type = doc_type or ES_DOC_TYPE
-    _id = swagger_doc['host']
-    return es.index(index=index, doc_type=doc_type, body=swagger_doc, id=_id)
-
-
-def _extract_key_fields(api_doc):
+def _encode_api_object_id(api_doc):
     info_d = api_doc.get('info', {})
     api_title, api_version = info_d.get('title', ''), info_d.get('version', '')
     api_contact = info_d.get('contact', {})
-    api_contact = api_contact.get('responsibleDeveloper', '')
-    return (api_title, api_version, api_contact)
-
-
-def _encode_api_object_id(api_title, api_version, api_contact):
+    api_contact = api_contact.get('name', '')
     if not (api_title and api_version and api_contact):
         raise ValueError("Missing required info fields.")
-    s = "{}|{}|{}".format(api_title, api_version, api_contact)
-    _id = base64.urlsafe_b64encode(s.encode('utf-8')).decode('utf-8')
-    return _id
+    x = (api_title, api_version, api_contact)
+    return blake2b(json.dumps(x).encode('utf8'), digest_size=16).hexdigest()
 
 
 def _get_hit_object(hit):
@@ -97,7 +94,7 @@ class ESQuery():
            object in the index.
         '''
         try:
-            _id = _encode_api_object_id(*_extract_key_fields(api_doc))
+            _id = _encode_api_object_id(api_doc)
         except ValueError:
             return False
         if _id:
@@ -106,14 +103,20 @@ class ESQuery():
             raise ValueError("Missing required info to identify an API")
 
     def save_api(self, api_doc, overwrite=False):
+        metadata = APIMetadata(api_doc)
+        valid = metadata.validate()
+        if not valid['valid']:
+            valid['success'] = False
+            return valid
+
         doc_exists = self.exists(api_doc)
         if doc_exists and not overwrite:
             return {"success": False, "error": "API exists. Not saved."}
         try:
-            _id = _encode_api_object_id(*_extract_key_fields(api_doc))
+            _id = _encode_api_object_id(api_doc)
         except ValueError as e:
             return {"success": False, "error": str(e)}
-        _doc = convert_file(api_doc)
+        _doc = metadata.convert_es()
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=_id)
         except RequestError as e:
@@ -145,7 +148,7 @@ class ESQuery():
         res = [_get_hit_object(d) for d in res['hits']['hits']]
         if not return_raw:
             try:
-                res = [convert_to_swagger(x) for x in res]
+                res = [decode_raw(x.get('~raw', '')) for x in res]
             except ValueError as e:
                 res = {'success': False, 'error': str(e)}
         if len(res) == 1:
@@ -203,7 +206,7 @@ class ESQuery():
 
     def _do_aggregations(self, _field, agg_name, size):
         query = {
-           "aggs": {
+            "aggs": {
                 agg_name: {
                     "terms": {
                         "field": _field,
