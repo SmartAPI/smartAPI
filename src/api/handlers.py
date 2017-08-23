@@ -1,5 +1,3 @@
-import sys
-import os.path
 import json
 
 import tornado.httpserver
@@ -7,40 +5,9 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.escape
-from tornado.options import define, options
-from pyld import jsonld
 
 from api.es import ESQuery
 import config
-
-src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
-if src_path not in sys.path:
-    sys.path.append(src_path)
-print(src_path)
-
-STATIC_PATH = os.path.join(src_path, 'src/static')
-
-define("port", default=8000, help="run on the given port", type=int)
-define("address", default="127.0.0.1", help="run on localhost")
-define("debug", default=False, type=bool, help="run in debug mode")
-tornado.options.parse_command_line()
-if options.debug:
-    import tornado.autoreload
-    import logging
-    logging.getLogger().setLevel(logging.DEBUG)
-    options.address = '0.0.0.0'
-
-
-def get_json(filename):
-    with open(filename) as f:
-        return json.load(f)
-
-
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        # self.write('hello world!')
-        # self.render(os.path.join(src_path, '../alpaca.htm'))
-        self.redirect('/website/')
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -60,28 +27,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def options(self, *args, **kwargs):
         self.support_cors()
-
-
-class JsonHandler(BaseHandler):
-    def get(self, ctx_name):
-        if ctx_name == 'mygene':
-            obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
-            # del obj['services'][0]['@context']
-            obj = jsonld.expand(obj)[0]
-            self.return_json(obj)
-        elif ctx_name == '2':
-            obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
-            obj = jsonld.expand(obj['services'][0])
-            self.return_json(obj)
-        elif ctx_name == '3':
-            obj = get_json(os.path.join(src_path, '../data/mygene.info.smartAPI.json'))
-            obj = jsonld.expand(obj['services'][0])
-            self.return_json(obj)
-        if ctx_name == 'myvariant':
-            obj = get_json(os.path.join(src_path, '../data/myvariant.info.smartAPI.json'))
-            # del obj['services'][0]['@context']
-            obj = jsonld.expand(obj)[0]
-            self.return_json(obj)
 
 
 class QueryHanlder(BaseHandler):
@@ -116,20 +61,6 @@ class APIHandler(BaseHandler):
                 self.return_json(res)
             else:
                 self.return_json({'success': False, 'error': 'Invalid input data.'})
-
-
-class PathHanlder(BaseHandler):
-    def get(self):
-        _from = self.get_argument('from', None)
-        _to = self.get_argument('to', None)
-        if _from and _to:
-            # self.write("<b>{}</b>&#x2192;<b>MyVariant.info</b>&#x2192;<b>hgnc.symbol</b>&#x2192;<b>MyGene.info</b>&#x2192;<b>{}</b>".format(_from, _to))
-            if _from == 'variant_id' and _to == 'pfam':
-                self.render(os.path.join(src_path, '../website/tools/graph/index.html'))
-            else:
-                self.write('No proper API path found!')
-        else:
-            self.write("Missing parameters!")
 
 
 class APIMetaDataHandler(BaseHandler):
@@ -174,34 +105,8 @@ class ValueSuggestionHandler(BaseHandler):
 
 
 APP_LIST = [
-    (r"/", MainHandler),
-    (r'/json/(.+)/?', JsonHandler),
+    (r'/?', APIHandler),
     (r'/query/?', QueryHanlder),
-    (r'/api/?', APIHandler),
-    (r'/path/?', PathHanlder),
-    (r'/api/query/?', QueryHanlder),
-    (r'/api/metadata/(.+)/?', APIMetaDataHandler),
-    (r'/api/suggestion/?', ValueSuggestionHandler),
-
+    (r'/metadata/(.+)/?', APIMetaDataHandler),
+    (r'/suggestion/?', ValueSuggestionHandler),
 ]
-
-settings = {}
-if options.debug:
-    settings.update({
-        "static_path": STATIC_PATH,
-    })
-
-
-def main():
-    application = tornado.web.Application(APP_LIST, **settings)
-    http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(options.port, address=options.address)
-    loop = tornado.ioloop.IOLoop.instance()
-    if options.debug:
-        tornado.autoreload.start(loop)
-        logging.info('Server is running on "%s:%s"...' % (options.address, options.port))
-    loop.start()
-
-
-if __name__ == "__main__":
-    main()
