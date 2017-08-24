@@ -38,8 +38,6 @@ def get_json(filename):
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        # self.write('hello world!')
-        # self.render(os.path.join(src_path, '../alpaca.htm'))
         self.redirect('/website/')
 
 
@@ -57,9 +55,9 @@ def add_apps(prefix='', app_list=[]):
     else:
         return app_list
 
-# APP_LIST = [
-#     (r"/", MainHandler),
-# ]
+APP_LIST = [
+    (r"/", MainHandler),
+]
 
 APP_LIST = add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)

@@ -1,23 +1,19 @@
 import sys
 import os
+
 import tornado.httpserver
 import tornado.httpclient
 import tornado.ioloop
 import tornado.web
 import tornado.gen
-
-from jinja2 import Environment, FileSystemLoader
-
-import logging
-
 from tornado.httputil import url_concat
-#from tornado.concurrent import return_future
-
+from jinja2 import Environment, FileSystemLoader
 import torngithub
 from torngithub import json_encode, json_decode
 
 import config
 
+import logging
 log = logging.getLogger("smartapi")
 
 
@@ -26,7 +22,6 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 TEMPLATE_PATH = os.path.join(src_path, 'templates/')
-
 
 
 # Docs: http://docs.python-guide.org/en/latest/scenarios/web/
@@ -56,7 +51,7 @@ class LoginHandler(BaseHandler):
         self.write(login_output)
 
 
-class MainHandler(BaseHandler, torngithub.GithubMixin, tornado.web.RequestHandler):
+class AddAPIHandler(BaseHandler, torngithub.GithubMixin, tornado.web.RequestHandler):
     # def get(self):
         # self.write("Hello, world")
         # self.write(html_output)
@@ -73,22 +68,16 @@ class MainHandler(BaseHandler, torngithub.GithubMixin, tornado.web.RequestHandle
             self.write(reg_output)
         else:
             path = '/login'
-            _next = self.get_argument("next", "/")
+            _next = self.get_argument("next", self.request.path)
             if _next != "/":
                 path += "?next={}".format(_next)
             self.redirect(path)
-            #
-            # xsrf = self.xsrf_token
-            # login_file = "login.html"
-            # login_template = templateEnv.get_template(login_file)
-            # login_output = login_template.render(path=config.GITHUB_CALLBACK_PATH, xsrf=xsrf)
-            # self.write(login_output)
+
 
 class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))
-
 
 
 class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
@@ -125,78 +114,9 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
         )
 
 
-# Registration Form
-REG_FILE = "reg_form.html"
-reg_template = templateEnv.get_template(REG_FILE)
-reg_output = reg_template.render()
-
-
-class RegistrationHandler(tornado.web.RequestHandler):
-    """
-    API Metadata URL registration form.
-    """
-    def get(self):
-        self.write(reg_output)
-
-# class RegistrationHandler(tornado.web.RequestHandler):
-#     def get(self):
-#         self.write(index_output)
-
-
-#Login
-# LOGIN_FILE = "login.html"
-# login_template = templateEnv.get_template(LOGIN_FILE)
-# login_output = login_template.render()
-
-# class LoginHandler(tornado.web.RequestHandler):
-#     def get(self):
-#         self.write(login_output)
-
-
-# https://stackoverflow.com/questions/12031007/disable-static-file-caching-in-tornado
-# class MyStaticFileHandler(tornado.web.StaticFileHandler):
-#     def set_extra_headers(self, path):
-#         # Disable cache
-#         self.set_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-
-
 APP_LIST = [
-    (r"/", MainHandler),
-    (r"/registration", RegistrationHandler),
+    (r"/add_api", AddAPIHandler),
     (r"/login", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout", LogoutHandler)
 ]
-
-'''
-settings = {
-    "static_path": STATIC_PATH,
-    "template_path": TEMPLATE_PATH,
-    "compiled_template_cache": False,
-    "cookie_secret": "asdf",
-    "login_url": options.github_callback_path,
-    "xsrf_cookies": True,
-    "github_client_id": options.github_client_id,
-    "github_client_secret": options.github_client_secret,
-    "github_callback_path": options.github_callback_path,
-    "github_scope": options.github_scope,
-    "autoescape": None
-}
-
-
-def main():
-    tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
-
-    application = tornado.web.Application(APP_LIST, **settings)
-    http_server = tornado.httpserver.HTTPServer(application)
-    http_server.listen(options.port, address=options.address)
-    loop = tornado.ioloop.IOLoop.instance()
-    if options.debug:
-        tornado.autoreload.start(loop)
-        logging.info('Server is running on "%s:%s"...' % (options.address, options.port))
-    loop.start()
-
-
-if __name__ == "__main__":
-    main()
-'''
