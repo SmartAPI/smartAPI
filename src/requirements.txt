@@ -1,5 +1,8 @@
 elasticsearch==2.4.1
-PyLD==0.7.1
-requests==2.18.3
-tornado==4.5.1
-jsonschema==2.6.0
+PyLD>=0.7.1
+requests>=2.18.3
+tornado>=4.5.1
+jsonschema>=2.6.0
+torngithub==0.2.0
+Jinja2>=2.9.6
+pycurl>=7.43
