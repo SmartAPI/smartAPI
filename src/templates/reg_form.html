@@ -1,0 +1,91 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<style>
+  /* label color */
+   .input-field label {
+     color: #727272;
+   }
+   /* label focus color */
+   .input-field input[type=text]:focus + label {
+     color: #1976D2;
+   }
+   /* label underline focus color */
+   .input-field input[type=text]:focus {
+     border-bottom: 1px solid #1976D2;
+     box-shadow: 0 1px 0 0 #1976D2;
+   }
+   /* valid color */
+   .input-field input[type=text].valid {
+     border-bottom: 1px solid #B6B6B6;
+     box-shadow: 0 1px 0 0 #B6B6B6;
+   }
+   /* invalid color */
+   .input-field input[type=text].invalid {
+     border-bottom: 1px solid #000;
+     box-shadow: 0 1px 0 0 #000;
+   }
+   /* icon prefix focus color */
+   .input-field .prefix.active {
+     color: #1976D2;
+   }
+</style>
+
+
+<script type="text/javascript">
+function checkInput() {
+  var input = document.forms["formInput"]["url_input"].value;
+  // Check that form has input value before submitting
+  // http://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
+  if (input == null || input == "") {
+      alert("Add a URL");
+      return false;
+  }
+
+  // Check that input is a valid formatted URL
+  var pattern = new RegExp(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/g);
+  if(!input.match(pattern)) {
+    alert("Enter a valid URL");
+    return false;
+  } else {
+    return true;
+  }
+}
+</script>
+
+
+<div class="section no-pad-bot" id="index-banner">
+  <div class="container">
+    <br><br>
+    <h3 class="header center blue-text">API Metadata Registration Form</h3>
+    <div class="row center">
+      <br><br>
+
+      <form action="/testtemplate" method="post?xsrf={{ xsrf }} " name="formInput">
+
+        <div class="row">
+            <div class="input-field col s6 offset-s3">
+                <input placeholder="API Metadata URL" name="url_input" type="text" class="validate">
+                <label for="url_input">API Metadata URL</label>
+            </div>
+        </div>
+
+        <div>
+          <div class="row">
+            <div class="col s3 offset-s3">
+
+              <a href="/logout" button class="btn waves-effect waves-light red accent-2" type="submit">Cancel
+              </a>
+
+            </div>
+            <div class="col s3">
+              <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit" name="action" onclick="return checkInput()">Submit</button>
+             </div>
+           </div>
+         </div>
+        </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

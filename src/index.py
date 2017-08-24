@@ -10,7 +10,8 @@ import tornado.escape
 from tornado.options import define, options
 
 from api.handlers import APP_LIST as api_app_list
-
+from web.handlers import APP_LIST as web_app_list
+import config
 
 src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 if src_path not in sys.path:
@@ -56,14 +57,17 @@ def add_apps(prefix='', app_list=[]):
     else:
         return app_list
 
-APP_LIST = [
-    (r"/", MainHandler),
-]
+# APP_LIST = [
+#     (r"/", MainHandler),
+# ]
 
+APP_LIST = add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
 
 
-settings = {}
+settings = {
+    "cookie_secret": config.COOKIE_SECRET
+}
 if options.debug:
     settings.update({
         "static_path": STATIC_PATH,
@@ -71,6 +75,10 @@ if options.debug:
 
 
 def main():
+    # required for proper github oauth authentication
+    # ref: https://github.com/jkeylu/torngithub
+    tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+
     application = tornado.web.Application(APP_LIST, **settings)
     http_server = tornado.httpserver.HTTPServer(application)
     http_server.listen(options.port, address=options.address)
