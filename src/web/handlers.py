@@ -9,7 +9,6 @@ import tornado.gen
 from jinja2 import Environment, FileSystemLoader
 
 import logging
-import re
 
 from tornado.httputil import url_concat
 #from tornado.concurrent import return_future
@@ -26,7 +25,7 @@ src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-TEMPLATE_PATH  = os.path.join(src_path, 'templates/')
+TEMPLATE_PATH = os.path.join(src_path, 'templates/')
 
 
 
@@ -44,9 +43,18 @@ class BaseHandler(tornado.web.RequestHandler):
         return json_decode(user_json)
 
 
-# LOGIN_FILE = "login.html"
-# login_template = templateEnv.get_template(LOGIN_FILE)
-# login_output = login_template.render(path="TESTING")
+class LoginHandler(BaseHandler):
+    def get(self):
+        xsrf = self.xsrf_token
+        login_file = "login.html"
+        login_template = templateEnv.get_template(login_file)
+        path = config.GITHUB_CALLBACK_PATH
+        _next = self.get_argument("next", "/")
+        if _next != "/":
+            path += "?next={}".format(_next)
+        login_output = login_template.render(path=path, xsrf=xsrf)
+        self.write(login_output)
+
 
 class MainHandler(BaseHandler, torngithub.GithubMixin, tornado.web.RequestHandler):
     # def get(self):
@@ -64,12 +72,17 @@ class MainHandler(BaseHandler, torngithub.GithubMixin, tornado.web.RequestHandle
             reg_output = reg_template.render()
             self.write(reg_output)
         else:
-            xsrf = self.xsrf_token
-
-            login_file = "login.html"
-            login_template = templateEnv.get_template(login_file)
-            login_output = login_template.render(path=config.GITHUB_CALLBACK_PATH, xsrf=xsrf)
-            self.write(login_output)
+            path = '/login'
+            _next = self.get_argument("next", "/")
+            if _next != "/":
+                path += "?next={}".format(_next)
+            self.redirect(path)
+            #
+            # xsrf = self.xsrf_token
+            # login_file = "login.html"
+            # login_template = templateEnv.get_template(login_file)
+            # login_output = login_template.render(path=config.GITHUB_CALLBACK_PATH, xsrf=xsrf)
+            # self.write(login_output)
 
 class LogoutHandler(BaseHandler):
     def get(self):
@@ -112,12 +125,6 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
         )
 
 
-class LogoutHandler(BaseHandler):
-    def get(self):
-        self.clear_cookie("user")
-        self.redirect(self.get_argument("next", "/"))
-
-
 # Registration Form
 REG_FILE = "reg_form.html"
 reg_template = templateEnv.get_template(REG_FILE)
@@ -156,7 +163,7 @@ class RegistrationHandler(tornado.web.RequestHandler):
 APP_LIST = [
     (r"/", MainHandler),
     (r"/registration", RegistrationHandler),
-    # (r"/login", LoginHandler),
+    (r"/login", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout", LogoutHandler)
 ]
