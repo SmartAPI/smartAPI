@@ -37,6 +37,20 @@ class BaseHandler(tornado.web.RequestHandler):
             return None
         return json_decode(user_json)
 
+    def return_json(self, data):
+        _json_data = json_encode(data)
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
+        self.write(_json_data)
+
+
+class UserInfoHandler(BaseHandler):
+    def get(self):
+        current_user = self.get_current_user() or {}
+        for key in ['access_token', 'id']:
+            if key in current_user:
+                del current_user[key]
+        self.return_json(current_user)
+
 
 class LoginHandler(BaseHandler):
     def get(self):
@@ -115,6 +129,7 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
 
 
 APP_LIST = [
+    (r"/user", UserInfoHandler),
     (r"/add_api", AddAPIHandler),
     (r"/login", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
