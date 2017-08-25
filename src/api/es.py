@@ -8,6 +8,7 @@ if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
 else:
     from pyblake2 import blake2b
 
+import requests
 from elasticsearch import Elasticsearch, RequestError, helpers
 
 from .transform import APIMetadata, decode_raw
@@ -63,6 +64,19 @@ def create_index(index_name=None, es=None):
     body.update(mapping)
     _es = es or get_es()
     print(_es.indices.create(index=index_name, body=body))
+
+
+def get_api_metadata_by_url(url, as_string=True):
+    try:
+        res = requests.get(url)
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "URL request is timeout."}
+    except requests.exceptions.ConnectionError:
+        return {"success": False, "error": "URL request had a connection error."}
+    if res.status_code != 200:
+        return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
+    else:
+        return res.text() if as_string else res.json()
 
 
 def _encode_api_object_id(api_doc):

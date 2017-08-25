@@ -1,4 +1,5 @@
 import json
+import datetime
 
 import tornado.httpserver
 import tornado.ioloop
@@ -6,8 +7,7 @@ import tornado.options
 import tornado.web
 import tornado.escape
 
-from api.es import ESQuery
-import config
+from api.es import ESQuery, get_api_metadata_by_url
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -28,6 +28,12 @@ class BaseHandler(tornado.web.RequestHandler):
     def options(self, *args, **kwargs):
         self.support_cors()
 
+    def get_current_user(self):
+        user_json = self.get_secure_cookie("user")
+        if not user_json:
+            return None
+        return json.loads(user_json)
+
 
 class QueryHanlder(BaseHandler):
     def get(self):
@@ -42,25 +48,47 @@ class QueryHanlder(BaseHandler):
 
 class APIHandler(BaseHandler):
     def post(self):
-        # save an API metadata
-        api_key = self.get_argument('api_key', None)
-        overwrite = self.get_argument('overwrite', '').lower()
-        overwrite = overwrite in ['1', 'true']
-        if api_key != config.API_KEY:
-            self.set_status(405)
-            res = {'success': False, 'error': 'Invalid API key.'}
+        # check if a logged in user
+        user = self.get_current_user()
+        if not user:
+            res = {'success': False, 'error': 'Authenicate first with your github account.'}
+            self.set_status(401)
             self.return_json(res)
         else:
-            try:
-                data = tornado.escape.json_decode(self.request.body)
-            except ValueError:
-                data = None
-            if data and isinstance(data, dict):
-                esq = ESQuery()
-                res = esq.save_api(data, overwrite=overwrite)
-                self.return_json(res)
+            # save an API metadata
+            # api_key = self.get_argument('api_key', None)
+            overwrite = self.get_argument('overwrite', '').lower()
+            overwrite = overwrite in ['1', 'true']
+            # if api_key != config.API_KEY:
+            #     self.set_status(405)
+            #     res = {'success': False, 'error': 'Invalid API key.'}
+            #     self.return_json(res)
+            # else:
+            url = self.get_argument('url', None)
+            if url:
+                data = get_api_metadata_by_url(url)
+                try:
+                    data = tornado.escape.json_decode(data)
+                except ValueError:
+                    data = None
+                if data and isinstance(data, dict):
+                    if data.get('success', None) is False:
+                        self.return_json(data)
+                    else:
+                        _meta = {
+                            "github_username": user['login'],
+                            'url': url,
+                            'timestamp': datetime.datetime.now().isoformat()
+                        }
+                        data['_meta'] = _meta
+                        esq = ESQuery()
+                        res = esq.save_api(data, overwrite=overwrite)
+                        self.return_json(res)
+                else:
+                    self.return_json({'success': False, 'error': 'Invalid input data.'})
+
             else:
-                self.return_json({'success': False, 'error': 'Invalid input data.'})
+                self.return_json({'success': False, 'error': 'missing required parameter.'})
 
 
 class APIMetaDataHandler(BaseHandler):

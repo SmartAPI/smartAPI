@@ -45,6 +45,7 @@ class APIMetadata:
     def __init__(self, metadata):
         self.schema = self.get_schema()
         self.metadata = metadata
+        self._meta = self.metadata.pop('_meta', {})
 
     def get_schema(self):
         return json.loads(requests.get(SMARTAPI_SCHEMA_URL).text)
@@ -66,6 +67,7 @@ class APIMetadata:
     def convert_es(self):
         '''convert API metadata for ES indexing.'''
         _d = copy.copy(self.metadata)
+        _d['_meta'] = self._meta
 
         # convert paths to a list of each path item
         _paths = []
