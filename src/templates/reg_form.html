@@ -71,7 +71,8 @@ function submit_form() {
                       Materialize.toast('API metadata saved!', 4000);
                   }
                   else{
-                    $("#url-error").html("Error: " + response.error);
+                    var err_msg = "Error: " + response.error;
+                    Materialize.toast(err_msg, 8000);
                   }
               }
           });
