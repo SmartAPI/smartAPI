@@ -8,6 +8,7 @@ import gzip
 from collections import OrderedDict
 
 import requests
+import yaml
 import jsonschema
 
 
@@ -39,6 +40,31 @@ def decode_raw(raw, sorted=True):
         return d2
     else:
         return d
+
+
+def get_api_metadata_by_url(url, as_string=False):
+    try:
+        res = requests.get(url)
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "URL request is timeout."}
+    except requests.exceptions.ConnectionError:
+        return {"success": False, "error": "URL request had a connection error."}
+    if res.status_code != 200:
+        return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
+    else:
+        if as_string:
+            return res.text
+        else:
+            try:
+                metadata = res.json()
+            except json.JSONDecodeError:
+                try:
+                    metadata =yaml.load(res.text)
+                except (yaml.scanner.ScannerError,
+                        yaml.parser.ParserError):
+                    return {"success": False,
+                            "error": "Not a valid JSON or YAML format."}
+            return metadata
 
 
 class APIMetadata:

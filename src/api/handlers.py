@@ -7,7 +7,8 @@ import tornado.options
 import tornado.web
 import tornado.escape
 
-from api.es import ESQuery, get_api_metadata_by_url
+from api.es import ESQuery
+from api.transform import get_api_metadata_by_url
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -29,7 +30,7 @@ class BaseHandler(tornado.web.RequestHandler):
         self.support_cors()
 
     def get_current_user(self):
-        user_json = self.get_secure_cookie("user")
+        user_json = self.get_secure_cookie("user").decode('utf-8')
         if not user_json:
             return None
         return json.loads(user_json)
@@ -67,10 +68,10 @@ class APIHandler(BaseHandler):
             url = self.get_argument('url', None)
             if url:
                 data = get_api_metadata_by_url(url)
-                try:
-                    data = tornado.escape.json_decode(data)
-                except ValueError:
-                    data = None
+                # try:
+                #     data = tornado.escape.json_decode(data)
+                # except ValueError:
+                #     data = None
                 if data and isinstance(data, dict):
                     if data.get('success', None) is False:
                         self.return_json(data)
