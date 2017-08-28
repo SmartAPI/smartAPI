@@ -57,7 +57,8 @@ def get_api_metadata_by_url(url, as_string=False):
         else:
             try:
                 metadata = res.json()
-            except json.JSONDecodeError:
+            # except json.JSONDecodeError:   # for py>=3.5
+            except ValueError:               # for py<3.5
                 try:
                     metadata =yaml.load(res.text)
                 except (yaml.scanner.ScannerError,
