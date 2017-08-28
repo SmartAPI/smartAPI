@@ -5,4 +5,5 @@ tornado>=4.5.1
 jsonschema>=2.6.0
 torngithub==0.2.0
 Jinja2>=2.9.6
-pycurl>=7.43
+pycurl>=7.19
+PyYAML>=3.12
