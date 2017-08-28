@@ -51,7 +51,38 @@ function checkInput() {
   } else {
     return true;
   }
-}
+};
+
+function submit_form() {
+  $('#apireg_form').validate({
+    rules: {
+      url: {
+        required: true
+      }
+    },
+      submitHandler: function(form) {
+          $.ajax({
+              url: "/api",
+              type: "post",
+              data: $(form).serialize(),
+              success: function(response) {
+                  console.log(response);
+                  if (response.success){
+                      Materialize.toast('API metadata saved!', 4000);
+                  }
+                  else{
+                    $("#url-error").html("Error: " + response.error);
+                  }
+              }
+          });
+      }
+  });
+};
+
+$(function(){
+    submit_form();
+});
+
 </script>
 
 
@@ -62,12 +93,12 @@ function checkInput() {
     <div class="row center">
       <br><br>
 
-      <form action="/testtemplate" method="post?xsrf={{ xsrf }} " name="formInput">
+      <form id="apireg_form">
 
         <div class="row">
             <div class="input-field col s6 offset-s3">
-                <input placeholder="API Metadata URL" name="url_input" type="text" class="validate">
-                <label for="url_input">API Metadata URL</label>
+                <input placeholder="API Metadata URL" name="url" type="url" class="validate">
+                <!--<label for="url_input">API Metadata URL</label>-->
             </div>
         </div>
 
@@ -80,7 +111,7 @@ function checkInput() {
 
             </div>
             <div class="col s3">
-              <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit" name="action" onclick="return checkInput()">Submit</button>
+              <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
              </div>
            </div>
          </div>
