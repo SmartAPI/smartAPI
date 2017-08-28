@@ -129,9 +129,9 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
 
 
 APP_LIST = [
-    (r"/user", UserInfoHandler),
-    (r"/add_api", AddAPIHandler),
-    (r"/login", LoginHandler),
+    (r"/user/?", UserInfoHandler),
+    (r"/add_api/?", AddAPIHandler),
+    (r"/login/?", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
-    (r"/logout", LogoutHandler)
+    (r"/logout/?", LogoutHandler)
 ]

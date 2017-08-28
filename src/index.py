@@ -59,7 +59,7 @@ APP_LIST = [
     (r"/", MainHandler),
 ]
 
-APP_LIST = add_apps('', web_app_list)
+APP_LIST += add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
 
 
