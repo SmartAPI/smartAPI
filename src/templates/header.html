@@ -1,28 +1,66 @@
 <title>smartAPI</title>
 
 <script>
-$(document).ready(function() {
-// Initialize collapse button
-  $('.button-collapse').sideNav({
-      menuWidth: 240, // Default is 240
-      edge: 'left', // Choose the horizontal origin
-      closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
+
+function check_user(){
+  $.ajax({url: "/user", success: function(result){
+    var html = "";
+    if (result.login){
+      if (result.avatar_url){
+          html += '<img class="avatar tooltipped" src="' + result.avatar_url +
+                  '" alt="avatar" data-tooltip="' + result.name + '" />';
+      }
+      html += '<a href="/logout">Logout</a>';
+    }else{
+      html += '<a href="/login">Login</a>';
     }
-  );
-});
+    $("#user_link").html(html).promise().done(function(){
+        $('.tooltipped').tooltip();
+    });
+  }});
+};
+
+$(document).ready(function() {
+  // Initialize collapse button
+  $('.button-collapse').sideNav({
+        menuWidth: 240, // Default is 240
+        edge: 'left', // Choose the horizontal origin
+        closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
+      }
+    );
+  });
+
+  // Initialize dropdown button
+  $(".dropdown-button").dropdown();
+
+  check_user();
 </script>
 
 
 <nav class="blue" role="navigation">
-  <div class="nav-wrapper container">
-  <a id="logo-container" href="/" class="brand-logo">smartAPI Annotation</a>
-    <!-- <ul class="right hide-on-med-and-down">
-      <li><a href="http://identifiers.org/" target="_blank">Identifiers.org</a></li>
-    </ul> -->
-
-    <ul id="nav-mobile" class="side-nav">
-      <li><a href="http://identifiers.org/" target="_blank">Identifiers.org</a></li>
+  <div class="nav-wrapper">
+    <a href="/" class="brand-logo">smartAPI Project</a>
+    <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+    <ul class="right hide-on-med-and-down">
+      <li><a href="/">Home</a></li>
+      <li><a href="/add_api">Add an API</a></li>
+      <li><a href="/registry">Registry</a></li>
+      <li id="user_link"><!--<a class="dropdown-button" href="#!" data-activates="user_dropdown">
+        <img class="avatar" src="https://avatars2.githubusercontent.com/u/130158?v=4" alt="avatar" />
+        <i class="material-icons right">arrow_drop_down</i></a>
+        -->
+      </li>
     </ul>
-    <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+    <ul class="side-nav" id="mobile-demo">
+      <li><a href="/">Home</a></li>
+      <li><a href="/add_api">Add an API</a></li>
+      <li><a href="/registry">Registry</a></li>
+    </ul>
+
+    <ul id="user_dropdown" class="dropdown-content">
+      <li><a href="#!">Chunlei Wu</a></li>
+      <li><a href="/logout">Logout</a></li>
+    </ul>
+
   </div>
 </nav>
