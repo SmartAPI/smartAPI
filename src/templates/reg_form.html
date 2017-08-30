@@ -68,11 +68,20 @@ function submit_form() {
               success: function(response) {
                   console.log(response);
                   if (response.success){
-                      Materialize.toast('API metadata saved!', 4000);
+                      //Materialize.toast('API metadata saved!', 4000);
+                      swal(
+                        'Good job!',
+                        'API metadata saved!',
+                        'success'
+                      );
                   }
                   else{
-                    var err_msg = "Error: " + response.error;
-                    Materialize.toast(err_msg, 8000);
+                    //Materialize.toast(err_msg, 8000);
+                    swal({
+                      response.valid==false?'ValidationError':'Error',
+                      response.error,
+                      'error'
+                    });
                   }
               }
           });
