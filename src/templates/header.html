@@ -10,7 +10,7 @@ function check_user(){
           html += '<img class="avatar tooltipped" src="' + result.avatar_url +
                   '" alt="avatar" data-tooltip="' + result.name + '" />';
       }
-      html += '<a href="/logout">Logout</a>';
+      html += '<a href="/logout?next=' + window.location.pathname + '">Logout</a>';
     }else{
       html += '<a href="/login">Login</a>';
     }

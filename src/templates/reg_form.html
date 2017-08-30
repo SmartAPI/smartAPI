@@ -77,11 +77,11 @@ function submit_form() {
                   }
                   else{
                     //Materialize.toast(err_msg, 8000);
-                    swal({
+                    swal(
                       response.valid==false?'ValidationError':'Error',
                       response.error,
                       'error'
-                    });
+                    );
                   }
               }
           });
@@ -99,7 +99,7 @@ $(function(){
 <div class="section no-pad-bot" id="index-banner">
   <div class="container">
     <br><br>
-    <h3 class="header center blue-text">API Metadata Registration Form</h3>
+    <h3 class="header center blue-text">Register your API metadata</h3>
     <div class="row center">
       <br><br>
 
@@ -107,7 +107,7 @@ $(function(){
 
         <div class="row">
             <div class="input-field col s6 offset-s3">
-                <input placeholder="API Metadata URL" name="url" type="url" class="validate">
+                <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
                 <!--<label for="url_input">API Metadata URL</label>-->
             </div>
         </div>
@@ -115,10 +115,7 @@ $(function(){
         <div>
           <div class="row">
             <div class="col s3 offset-s3">
-
-              <a href="/logout" button class="btn waves-effect waves-light red accent-2" type="submit">Cancel
-              </a>
-
+              <button class="btn waves-effect waves-light red accent-2" onclick="javascript:this.form.reset()">Cancel</button>
             </div>
             <div class="col s3">
               <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
