@@ -11,6 +11,12 @@ import requests
 import yaml
 import jsonschema
 
+import sys
+if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
+    from hashlib import blake2b
+else:
+    from pyblake2 import blake2b
+
 
 SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/WebsmartAPI/smartAPI-editor/master/node_modules_changes/opanapi.json'
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
@@ -60,7 +66,7 @@ def get_api_metadata_by_url(url, as_string=False):
             # except json.JSONDecodeError:   # for py>=3.5
             except ValueError:               # for py<3.5
                 try:
-                    metadata =yaml.load(res.text)
+                    metadata = yaml.load(res.text)
                 except (yaml.scanner.ScannerError,
                         yaml.parser.ParserError):
                     return {"success": False,
@@ -76,6 +82,12 @@ class APIMetadata:
 
     def get_schema(self):
         return json.loads(requests.get(SMARTAPI_SCHEMA_URL).text)
+
+    def encode_api_id(self):
+        x = self._meta.get('url', None)
+        if not x:
+            raise ValueError("Missing required _meta.url field.")
+        return blake2b(x.encode('utf8'), digest_size=16).hexdigest()
 
     def validate(self):
         '''Validate API metadata against JSON Schema.'''

@@ -1,14 +1,6 @@
-import sys
 import json
-
-import hashlib
 from datetime import date
-if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
-    from hashlib import blake2b
-else:
-    from pyblake2 import blake2b
 
-import requests
 from elasticsearch import Elasticsearch, RequestError, helpers
 
 from .transform import APIMetadata, decode_raw
@@ -66,15 +58,15 @@ def create_index(index_name=None, es=None):
     print(_es.indices.create(index=index_name, body=body))
 
 
-def _encode_api_object_id(api_doc):
-    info_d = api_doc.get('info', {})
-    api_title, api_version = info_d.get('title', ''), info_d.get('version', '')
-    api_contact = info_d.get('contact', {})
-    api_contact = api_contact.get('name', '')
-    if not (api_title and api_version and api_contact):
-        raise ValueError("Missing required info fields.")
-    x = (api_title, api_version, api_contact)
-    return blake2b(json.dumps(x).encode('utf8'), digest_size=16).hexdigest()
+# def _encode_api_object_id(api_doc):
+    # info_d = api_doc.get('info', {})
+    # api_title, api_version = info_d.get('title', ''), info_d.get('version', '')
+    # api_contact = info_d.get('contact', {})
+    # api_contact = api_contact.get('name', '')
+    # if not (api_title and api_version and api_contact):
+    #     raise ValueError("Missing required info fields.")
+    # x = json.dumps((api_title, api_version, api_contact))
+    # return blake2b(x.encode('utf8'), digest_size=16).hexdigest()
 
 
 def _get_hit_object(hit):
@@ -90,18 +82,11 @@ class ESQuery():
         self._index = index or ES_INDEX_NAME
         self._doc_type = doc_type or ES_DOC_TYPE
 
-    def exists(self, api_doc):
+    def exists(self, api_id):
         '''return True/False if the input api_doc has existing metadata
            object in the index.
         '''
-        try:
-            _id = _encode_api_object_id(api_doc)
-        except ValueError:
-            return False
-        if _id:
-            return self._es.exists(index=self._index, doc_type=self._doc_type, id=_id)
-        else:
-            raise ValueError("Missing required info to identify an API")
+        return self._es.exists(index=self._index, doc_type=self._doc_type, id=api_id)
 
     def save_api(self, api_doc, overwrite=False):
         metadata = APIMetadata(api_doc)
@@ -110,19 +95,16 @@ class ESQuery():
             valid['success'] = False
             return valid
 
-        doc_exists = self.exists(api_doc)
+        api_id = metadata.encode_api_id()
+        doc_exists = self.exists(api_id)
         if doc_exists and not overwrite:
             return {"success": False, "error": "API exists. Not saved."}
-        try:
-            _id = _encode_api_object_id(api_doc)
-        except ValueError as e:
-            return {"success": False, "error": str(e)}
         _doc = metadata.convert_es()
         try:
-            self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=_id)
+            self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id)
         except RequestError as e:
             return {"success": False, "error": str(e)}
-        return {"success": True, '_id': _id}
+        return {"success": True, '_id': api_id}
 
     def get_api(self, api_name, fields=None, return_raw=False, size=None, from_=0):
         if api_name == 'all':
