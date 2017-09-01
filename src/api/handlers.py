@@ -7,8 +7,8 @@ import tornado.options
 import tornado.web
 import tornado.escape
 
-from api.es import ESQuery
-from api.transform import get_api_metadata_by_url
+from .es import ESQuery
+from .transform import get_api_metadata_by_url, APIMetadata
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -45,6 +45,20 @@ class QueryHanlder(BaseHandler):
         esq = ESQuery()
         res = esq.query_api(q=q, fields=fields, return_raw=return_raw)
         self.return_json(res)
+
+class ValidateHanlder(BaseHandler):
+    def get(self):
+        url = self.get_argument('url', None)
+        if url:
+            data = get_api_metadata_by_url(url)
+            if data and isinstance(data, dict):
+                metadata = APIMetadata(data)
+                valid = metadata.validate()
+                return valid
+            else:
+                return {"valid": False, "error": "The input url does not contain valid API metadata."}
+        else:
+            return {"valid": False, "error": "Need to provide an input url first."}
 
 
 class APIHandler(BaseHandler):
@@ -136,6 +150,7 @@ class ValueSuggestionHandler(BaseHandler):
 APP_LIST = [
     (r'/?', APIHandler),
     (r'/query/?', QueryHanlder),
+    (r'/validate/?', ValidateHanlder),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),
 ]
