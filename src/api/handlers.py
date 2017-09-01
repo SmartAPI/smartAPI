@@ -54,11 +54,11 @@ class ValidateHanlder(BaseHandler):
             if data and isinstance(data, dict):
                 metadata = APIMetadata(data)
                 valid = metadata.validate()
-                return valid
+                return self.return_json(valid)
             else:
-                return {"valid": False, "error": "The input url does not contain valid API metadata."}
+                return self.return_json({"valid": False, "error": "The input url does not contain valid API metadata."})
         else:
-            return {"valid": False, "error": "Need to provide an input url first."}
+            return self.return_json({"valid": False, "error": "Need to provide an input url first."})
 
 
 class APIHandler(BaseHandler):
