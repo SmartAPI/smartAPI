@@ -174,8 +174,8 @@ class ESQuery():
         if not return_raw:
             _res = res['hits']
             _res['took'] = res['took']
-            if "facets" in res:
-                _res['facets'] = res['facets']
+            if "aggregations" in res:
+                _res['aggregations'] = res['aggregations']
             for v in _res['hits']:
                 del v['_type']
                 del v['_index']
