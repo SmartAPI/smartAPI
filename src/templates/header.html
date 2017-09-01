@@ -28,12 +28,14 @@ $(document).ready(function() {
         closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
       }
     );
-  });
 
   // Initialize dropdown button
   $(".dropdown-button").dropdown();
-
+  // Initialize modal
+  $('.modal').modal();
+  // Check user status
   check_user();
+  });
 </script>
 
 
