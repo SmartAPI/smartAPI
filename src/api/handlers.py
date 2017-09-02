@@ -74,6 +74,8 @@ class APIHandler(BaseHandler):
             # api_key = self.get_argument('api_key', None)
             overwrite = self.get_argument('overwrite', '').lower()
             overwrite = overwrite in ['1', 'true']
+            dryrun = self.get_argument('dryrun', '').lower()
+            dryrun = dryrun in ['on', '1', 'true']
             # if api_key != config.API_KEY:
             #     self.set_status(405)
             #     res = {'success': False, 'error': 'Invalid API key.'}
@@ -97,7 +99,7 @@ class APIHandler(BaseHandler):
                         }
                         data['_meta'] = _meta
                         esq = ESQuery()
-                        res = esq.save_api(data, overwrite=overwrite)
+                        res = esq.save_api(data, overwrite=overwrite, dryrun=dryrun)
                         self.return_json(res)
                 else:
                     self.return_json({'success': False, 'error': 'Invalid input data.'})

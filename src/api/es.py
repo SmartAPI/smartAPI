@@ -88,7 +88,7 @@ class ESQuery():
         '''
         return self._es.exists(index=self._index, doc_type=self._doc_type, id=api_id)
 
-    def save_api(self, api_doc, overwrite=False):
+    def save_api(self, api_doc, overwrite=False, dryrun=False):
         metadata = APIMetadata(api_doc)
         valid = metadata.validate()
         if not valid['valid']:
@@ -100,6 +100,8 @@ class ESQuery():
         if doc_exists and not overwrite:
             return {"success": False, "error": "API exists. Not saved."}
         _doc = metadata.convert_es()
+        if dryrun:
+            return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id)
         except RequestError as e:

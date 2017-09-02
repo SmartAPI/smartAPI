@@ -54,11 +54,10 @@ function checkInput() {
 };
 
 function save_api(form, overwrite){
-  console.log(overwrite);
   $("#submit_mask").modal("open");
   var data = $(form).serialize();
   if (overwrite){
-    data +="&overwrite=true";
+    data += "&overwrite=true";
   }
   $.ajax({
       url: "/api",
@@ -68,9 +67,14 @@ function save_api(form, overwrite){
           $("#submit_mask").modal("close");
           console.log(response);
           if (response.success){
+              var msg = 'API metadata saved!';
+              if (response.dryrun){
+                msg += ' <p class="blue-text text-darken-2">Well, not really, because this is a dryrun.';
+                msg += ' If you do want to register your API, uncheck "dry run" and try again. </p>';
+              }
               swal(
                 'Good job!',
-                'API metadata saved!',
+                msg,
                 'success'
               );
           }
@@ -128,14 +132,22 @@ $(function(){
       <br><br>
 
       <form id="apireg_form">
-
         <div class="row">
             <div class="input-field col s6 offset-s3">
+                <i class="material-icons prefix">link</i>
                 <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
                 <!--<label for="url_input">API Metadata URL</label>-->
+
             </div>
         </div>
-
+        <div>
+          <div class="row">
+            <div class="center-align">
+              <input type="checkbox" id="dry_run" name="dryrun"/>
+              <label for="dry_run">Dry run only. API won't actually saved.</label></p>
+            </div>
+          </div>
+        </div>
         <div>
           <div class="row">
             <div class="col s3 offset-s3">
