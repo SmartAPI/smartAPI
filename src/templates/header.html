@@ -10,11 +10,11 @@ function check_user(){
           html += '<img class="avatar tooltipped" src="' + result.avatar_url +
                   '" alt="avatar" data-tooltip="' + result.name + '" />';
       }
-      html += '<a href="/logout?next=' + window.location.pathname + '">Logout</a>';
+      html += '<a style="display: inline-block;" href="/logout?next=' + window.location.pathname + '">Logout</a>';
     }else{
       html += '<a href="/login">Login</a>';
     }
-    $("#user_link").html(html).promise().done(function(){
+    $(".user_link").html(html).promise().done(function(){
         $('.tooltipped').tooltip();
     });
   }});
@@ -47,12 +47,15 @@ $(document).ready(function() {
       <li><a href="/">Home</a></li>
       <li><a href="/add_api">Add an API</a></li>
       <li><a href="/registry">Registry</a></li>
-      <li id="user_link"></li>
+      <li><a href="/registry">Registry</a></li>
+      <li class="user_link"></li>
     </ul>
     <ul class="side-nav" id="mobile-demo">
       <li><a href="/">Home</a></li>
       <li><a href="/add_api">Add an API</a></li>
       <li><a href="/registry">Registry</a></li>
+      <li><a href="/editor/">Editor</a></li>
+      <li class="user_link"></li>
     </ul>
 
   </div>
