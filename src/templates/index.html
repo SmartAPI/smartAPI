@@ -2,82 +2,116 @@
 {% block content %}
 {% include "header.html" %}
 
-<style>
-  /* label color */
-   .input-field label {
-     color: #727272;
-   }
-   /* label focus color */
-   .input-field input[type=text]:focus + label {
-     color: #1976D2;
-   }
-   /* label underline focus color */
-   .input-field input[type=text]:focus {
-     border-bottom: 1px solid #1976D2;
-     box-shadow: 0 1px 0 0 #1976D2;
-   }
-   /* valid color */
-   .input-field input[type=text].valid {
-     border-bottom: 1px solid #B6B6B6;
-     box-shadow: 0 1px 0 0 #B6B6B6;
-   }
-   /* invalid color */
-   .input-field input[type=text].invalid {
-     border-bottom: 1px solid #000;
-     box-shadow: 0 1px 0 0 #000;
-   }
-   /* icon prefix focus color */
-   .input-field .prefix.active {
-     color: #1976D2;
-   }
-</style>
-
-
-<script type="text/javascript">
-function checkInput() {
-  var input = document.forms["formInput"]["ws_input"].value;
-  // Check that form has input value before submitting
-  // http://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
-  if (input == null || input == "") {
-      alert("Add web service signature to profile");
-      return false;
-  }
-
-  // Check that input is a valid formatted URL
-  var pattern = new RegExp(/((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/g);
-
-  if(!input.match(pattern)) {
-    alert("Please enter a valid URL.");
-    return false;
-  } else {
-    return true;
-  }
-}
-</script>
-
-
 <div class="section no-pad-bot" id="index-banner">
-  <div class="container">
-    <br><br>
-    <h1 class="header center blue-text">Annotate Web Service</h1>
-    <div class="row center">
-      <h5 class="header col s12 light">Add your web service signature to automatically annotate</h5>
+    <div class="container">
+        <h1 class="text_h center header cd-headline letters type">
+            <span>SmartAPI Project</span>
+        </h1>
+        <h3 class="text_h3 center">
+          Building a connected network of FAIR APIs
+        </h3>
     </div>
-    <div class="row center">
-      <br><br>
-      <form action="#" method="post" name="formInput">
-        <div class="row">
-            <div class="input-field col s6 offset-s3">
-                <input placeholder="http://mygene.info/v3/gene/1017" name="ws_input" type="text" class="validate">
-                <label for="ws_input">Web service signature</label>
-            </div>
-        </div>
-         <button class="btn-large waves-effect waves-light red accent-2" id="submit" type="submit" name="action" onclick="return checkInput()">Submit</button>
-
-        </form>
-    </div>
-  </div>
 </div>
 
+<div id="intro1" class="section scrollspy">
+    <div class="container">
+        <div class="row">
+            <div class="col s4">
+                <img class="responsive-img" src="/static/img/metadata.jpg">
+            </div>
+            <div class="col s8">
+                <h2 class="center header text_h2">What is a smartAPI?</h2>
+                <p class="intro-text">The smartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a <a href="http://openapis.org"></a>openAPI-based <a href="https://websmartapi.github.io/smartapi_specification/"> specification</a> for defining the key API metadata elements and value sets. smartAPIs leverage the <a href="http://www.hydra-cg.com/">Hydra Web API specification and <a href="http://json-ld.org">JSON-LD</a> for providing semantically annotated JSON content that can be treated as <a href="http://linkeddata.org/">Linked Data</a>.</p>
+            </div>
+        </div>
 
+        <div class="row">
+            <div  class="col s4">
+                <div class="center promo promo-example">
+                    <i class="mdi-image-flash-on"></i>
+                    <img class="responsive-img section_logo" src="/static/img/search.png">
+                    <h5 class="promo-caption">Registry</h5>
+                    <p class="light center">Search the registry of smartAPIs.</p>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="center promo promo-example">
+                    <i class="mdi-social-group"></i>
+                    <img class="responsive-img section_logo" src="/static/img/edit.png">
+                    <h5 class="promo-caption">Editor</h5>
+                    <p class="light center">Author your own smartAPI metadata.</p>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="center promo promo-example">
+                    <i class="mdi-hardware-desktop-windows"></i>
+                    <img class="responsive-img section_logo" src="/static/img/api.png">
+                    <h5 class="promo-caption">API</h5>
+                    <p class="light center">Learn about and access the smartAPI services.</p>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="center promo promo-example">
+                    <i class="mdi-hardware-desktop-windows"></i>
+                    <img class="responsive-img section_logo" src="/static/img/spec.png">
+                    <h5 class="promo-caption">Specification</h5>
+                    <p class="light center">Use the smartAPI metadata specification to code up your own smartAPI.</p>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="center promo promo-example">
+                    <i class="mdi-hardware-desktop-windows"></i>
+                    <img class="responsive-img section_logo" src="/static/img/documentation.png">
+                    <h5 class="promo-caption">Documentation </h5>
+                    <p class="light center">See the developer documentation.</p>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="center promo promo-example">
+                    <i class="mdi-hardware-desktop-windows"></i>
+                    <img class="responsive-img section_logo" src="/static/img/working_group.png">
+                    <h5 class="promo-caption">Working group</h5>
+                    <p class="light center">Join the API Interoperability working group.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section scrollspy" id="intro2">
+    <div class="container">
+        <div class="row">
+          <div class="col s8">
+            <h2 class="center header text_h2">Why do we need smartAPIs? </h2>
+            <p class="intro-text">Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as <a href="http://www.programmableweb.com/">Programmable Web</a>, <a href="https://www.biocatalogue.org/">BioCatalogue</a> and cloud platforms such as <a href="https://galaxyproject.org/">Galaxy</a>. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.
+            </p>
+          </div>
+          <div class="col s4">
+            <img class="responsive-img" src="/static/img/gear.png">
+          </div>
+        </div>
+    </div>
+</div>
+{#
+<!--Parallax-->
+<div class="parallax-container">
+    <div class="parallax"><img src="img/parallax1.png"></div>
+</div>
+#}
+
+<div class="section scrollspy" id="intro3">
+    <div class="container">
+      <div class="row">
+        <div class="col s4">
+            <img class="responsive-img" src="/static/img/map.png">
+        </div>
+        <div class="col s8">
+          <h2 class="center header text_h2"> What does the smartAPI offer? </h2>
+          <p class="intro-text">Richly annotated APIs will provide the assets by which users will be able to search, browse, query, and reuse APIs. Users and intelligent agents being able to traverse a highly connected network of smartAPIs. Users will be able to automatically find APIs whose outputs are the inputs for other services. Ultimately, we envision the automatic generation of workflows that take users to where they want to go with what they have today.</p>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% include "footer.html" %}
 {% endblock %}
