@@ -56,7 +56,7 @@ def add_apps(prefix='', app_list=[]):
         return app_list
 
 APP_LIST = [
-    (r"/", MainHandler),
+    # (r"/", MainHandler),
 ]
 
 APP_LIST += add_apps('', web_app_list)

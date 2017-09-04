@@ -43,6 +43,14 @@ class BaseHandler(tornado.web.RequestHandler):
         self.write(_json_data)
 
 
+class MainHandler(BaseHandler):
+    def get(self):
+        index_file = "index.html"
+        index_template = templateEnv.get_template(index_file)
+        index_output = index_template.render()
+        self.write(index_output)
+
+
 class UserInfoHandler(BaseHandler):
     def get(self):
         current_user = self.get_current_user() or {}
@@ -129,6 +137,7 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
 
 
 APP_LIST = [
+    (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
     (r"/add_api/?", AddAPIHandler),
     (r"/login/?", LoginHandler),
