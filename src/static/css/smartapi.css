@@ -28,6 +28,23 @@
     -webkit-box-shadow:none !important;
 }
 
+/* Rounded avatars */
+.avatar {
+    width: 36px;
+    float: left;
+    margin-top: 1em;
+    /*margin-right: 1em;*/
+    position: relative;
+
+    -webkit-border-radius: 50%;
+    -moz-border-radius: 50%;
+    border-radius: 50%;
+
+    -webkit-box-shadow: 0 0 0 3px #fff, 0 0 0 4px #999, 0 2px 5px 4px rgba(0,0,0,.2);
+    -moz-box-shadow: 0 0 0 3px #fff, 0 0 0 4px #999, 0 2px 5px 4px rgba(0,0,0,.2);
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px #999, 0 2px 5px 4px rgba(0,0,0,.2);
+}
+
 .text_h {
     padding: 15% 0 0 0;
     font-size: 6.0em;
@@ -134,3 +151,39 @@ nav a.button-collapse {
 footer.page-footer {
     margin-top: 0px !important;
 }
+
+
+
+/* for reg_form.html */
+
+/* label color */
+ .input-field label {
+   color: #727272;
+ }
+ /* label focus color */
+ .input-field input[type=text]:focus + label {
+   color: #1976D2;
+ }
+ /* label underline focus color */
+ .input-field input[type=text]:focus {
+   border-bottom: 1px solid #1976D2;
+   box-shadow: 0 1px 0 0 #1976D2;
+ }
+ /* valid color */
+ .input-field input[type=text].valid {
+   border-bottom: 1px solid #B6B6B6;
+   box-shadow: 0 1px 0 0 #B6B6B6;
+ }
+ /* invalid color */
+ .input-field input[type=text].invalid {
+   border-bottom: 1px solid #000;
+   box-shadow: 0 1px 0 0 #000;
+ }
+ /* icon prefix focus color */
+ .input-field .prefix.active {
+   color: #1976D2;
+ }
+
+ .single_section {
+   margin-bottom: 20% !important;
+ }

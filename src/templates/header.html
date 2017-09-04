@@ -1,48 +1,5 @@
 <title>smartAPI</title>
 
-<script>
-
-function check_user(){
-  $.ajax({url: "/user", success: function(result){
-    var html = "";
-    var side_html = "";
-    if (result.login){
-      side_html = '<a href="/logout?next=' + window.location.pathname + '">Logout</a>';
-      if (result.avatar_url){
-          html += '<img class="avatar tooltipped" src="' + result.avatar_url +
-                  '" alt="avatar" data-tooltip="' + result.name + '" />';
-      }
-      html += '<a style="display: inline-block;" href="/logout?next=' + window.location.pathname + '">Logout</a>';
-    }else{
-      html += '<a href="/login">Login</a>';
-      side_html = html;
-    }
-    $("#user_link").html(html).promise().done(function(){
-        $('.tooltipped').tooltip();
-    });
-    $("#side_user_link").html(side_html);
-  }});
-};
-
-$(document).ready(function() {
-  // Initialize collapse button
-  $('.button-collapse').sideNav({
-        menuWidth: 240, // Default is 240
-        edge: 'left', // Choose the horizontal origin
-        closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
-      }
-    );
-
-  // Initialize dropdown button
-  $(".dropdown-button").dropdown();
-  // Initialize modal
-  $('.modal').modal({dismissible: false});
-  // Check user status
-  check_user();
-  });
-</script>
-
-
 <div class="navbar-fixed">
   <nav id="nav_f" class="blue" role="navigation">
     <div class="nav-wrapper">
