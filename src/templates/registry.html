@@ -1,73 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "main.html" %}
+{% block extra_head %}
+<style>
+html,
+body {
+    height: 100%;
+}
+</style>
+{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>smartAPI</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
-    <link rel="shortcut icon" href="http://dev.smart-api.info/registry/img/smartapi.png">
-    <style>
-        html,
-        body {
-            height: 100%;
-        }
+{% block content %}
+{% include "header.html" %}
 
-        .full-height {
-            height: 100%;
-            height: calc(100% - 64px);
-            margin-bottom: 0;
-        }
-
-        .sidebar {
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .selected-tags {
-            margin-bottom: 10px;
-        }
-
-        .pagination li i {
-            vertical-align: -30%;
-        }
-
-        .perPage {
-            display: inline-block;
-            width: auto;
-        }
-    </style>
-</head>
-
-<body>
+  {% raw %}
     <div id="app" style="height: 100%">
-        <div class="navbar-fixed">
-            <nav id="nav_f" class="blue" role="navigation">
-                <div class="nav-wrapper row">
-                    <div class="col s12">
-                        <a href="/" class="brand-logo">smartAPI</a>
-                        <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
-                        <ul class="right hide-on-med-and-down">
-                            <li><a href="/">Home</a></li>
-                            <li><a href="/add_api">Add an API</a></li>
-                            <li class="active"><a href="/registry">Registry</a></li>
-                            <li><a href="/editor/">Editor</a></li>
-                            <li id="user_link"><a style="display: inline-block;" href="/logout?next=/add_api">Logout</a></li>
-                        </ul>
-                        <a href="#" data-activates="filters" class="button-collapse right"><i class="material-icons">filter_list</i></a>
-                    </div>
-                </div>
-            </nav>
-        </div>
-        <ul class="side-nav" id="mobile-demo">
-            <li><a href="/">Home</a></li>
-            <li><a href="/add_api">Add an API</a></li>
-            <li class="active"><a href="/registry">Registry</a></li>
-            <li><a href="/editor/">Editor</a></li>
-            <li id="side_user_link"><a href="/logout?next=/add_api">Logout</a></li>
-        </ul>
         <div class="side-nav" id="filters">
             <div class="row">
                 <div class="col s12">
@@ -172,10 +117,12 @@
             </div>
         </div>
     </div>
+    {% endraw %}
+{% include "footer.html" %}
+{% endblock %}
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+{% block extra_scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
 
@@ -274,6 +221,4 @@
             }
         });
     </script>
-</body>
-
-</html>
+{% endblock %}

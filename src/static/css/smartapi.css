@@ -187,3 +187,30 @@ footer.page-footer {
  .single_section {
    margin-bottom: 20% !important;
  }
+
+
+
+/* for registry.html */
+.full-height {
+   height: 100%;
+   height: calc(100% - 64px);
+   margin-bottom: 0;
+}
+
+.sidebar {
+   height: 100%;
+   overflow-y: auto;
+}
+
+.selected-tags {
+   margin-bottom: 10px;
+}
+
+.pagination li i {
+   vertical-align: -30%;
+}
+
+.perPage {
+   display: inline-block;
+   width: auto;
+}
