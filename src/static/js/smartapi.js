@@ -81,6 +81,14 @@ function initialize_form() {
             save_api(form);
         }
     });
+
+    $('#api_search_form').validate({
+        rules:{
+            query: {
+                required: true
+            }
+        }
+    });
 };
 
 

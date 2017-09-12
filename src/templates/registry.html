@@ -44,11 +44,11 @@ body {
             </div>
             <div class="col l10 s12">
                 <div class="row">
-                    <form class="col s12 center-align" @submit.prevent="search(query)">
+                    <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                         <div class="input-field col s12 l6 offset-l3">
                             <i class="material-icons prefix">search</i>
-                            <input id="search_query" type="text" v-model="query">
-                            <label for="search_query">Search</label>
+                            <input id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
+                            <label for="search_query"></label>
                         </div>
                         <div class="col s12 selected-tags">
                             <div class="chip" v-for="tag in tags" v-if="tag.active">
@@ -124,7 +124,6 @@ body {
 
 {% block extra_scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
 
     <script>
         $(function () {
@@ -169,19 +168,19 @@ body {
             methods: {
                 refreshApis: function () {
                     var self = this;
-                    axios.get('http://dev.smart-api.info/api/metadata/all').then(function (response) {
+                    axios.get('/api/metadata/all').then(function (response) {
                         self.apis = response.data;
                         self.calculatePages();
                     });
                 },
                 search: function (query) {
                     var self = this;
-                    axios.get('http://dev.smart-api.info/api/query', {
+                    axios.get('/api/query', {
                         params: {
-                            query: query
+                            q: query
                         }
                     }).then(function (response) {
-                        self.apis = response.data;
+                        self.apis = response.data.hits;
                         self.calculatePages();
                     });
                 },
