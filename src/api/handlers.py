@@ -39,6 +39,9 @@ class BaseHandler(tornado.web.RequestHandler):
 class QueryHanlder(BaseHandler):
     def get(self):
         q = self.get_argument('q', None)
+        if not q:
+            self.return_json({'success': False, 'error': 'missing required parameter.'})
+
         fields = self.get_argument('fields', None)
         return_raw = self.get_argument('raw', '').lower() in ['1', 'true']
 
