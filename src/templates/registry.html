@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>smartAPI</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <link rel="shortcut icon" href="http://dev.smart-api.info/registry/img/smartapi.png">
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        .full-height {
+            height: 100%;
+            height: calc(100% - 64px);
+            margin-bottom: 0;
+        }
+
+        .sidebar {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .selected-tags {
+            margin-bottom: 10px;
+        }
+
+        .pagination li i {
+            vertical-align: -30%;
+        }
+
+        .perPage {
+            display: inline-block;
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" style="height: 100%">
+        <div class="navbar-fixed">
+            <nav id="nav_f" class="blue" role="navigation">
+                <div class="nav-wrapper row">
+                    <div class="col s12">
+                        <a href="/" class="brand-logo">smartAPI</a>
+                        <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+                        <ul class="right hide-on-med-and-down">
+                            <li><a href="/">Home</a></li>
+                            <li><a href="/add_api">Add an API</a></li>
+                            <li class="active"><a href="/registry">Registry</a></li>
+                            <li><a href="/editor/">Editor</a></li>
+                            <li id="user_link"><a style="display: inline-block;" href="/logout?next=/add_api">Logout</a></li>
+                        </ul>
+                        <a href="#" data-activates="filters" class="button-collapse right"><i class="material-icons">filter_list</i></a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <ul class="side-nav" id="mobile-demo">
+            <li><a href="/">Home</a></li>
+            <li><a href="/add_api">Add an API</a></li>
+            <li class="active"><a href="/registry">Registry</a></li>
+            <li><a href="/editor/">Editor</a></li>
+            <li id="side_user_link"><a href="/logout?next=/add_api">Logout</a></li>
+        </ul>
+        <div class="side-nav" id="filters">
+            <div class="row">
+                <div class="col s12">
+                    <h5>Tags</h5>
+                    <div class="collection">
+                        <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active">
+                         {{tag.id}}
+                        </a>
+                    </div>
+                    <h5>Schemes</h5>
+                    <div class="collection">
+                        <a v-for="scheme in schemes" href="#!" class="collection-item" :class="{ active: scheme.active }" @click.prevent="scheme.active = !scheme.active">
+                         {{scheme.id}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row full-height">
+            <div class="col l2 hide-on-med-and-down sidebar">
+                <h5>Tags</h5>
+                <div class="collection">
+                    <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active">{{tag.id}}</a>
+                </div>
+                <h5>Schemes</h5>
+                <div class="collection">
+                    <a v-for="scheme in schemes" href="#!" class="collection-item" :class="{ active: scheme.active }" @click.prevent="scheme.active = !scheme.active">{{scheme.id}}</a>
+                </div>
+            </div>
+            <div class="col l10 s12">
+                <div class="row">
+                    <form class="col s12 center-align" @submit.prevent="search(query)">
+                        <div class="input-field col s12 l6 offset-l3">
+                            <i class="material-icons prefix">search</i>
+                            <input id="search_query" type="text" v-model="query">
+                            <label for="search_query">Search</label>
+                        </div>
+                        <div class="col s12 selected-tags">
+                            <div class="chip" v-for="tag in tags" v-if="tag.active">
+                                {{tag.id}}
+                                <i class="close material-icons" @click="tag.active = false">close</i>
+                            </div>
+                            <div class="chip" v-for="scheme in schemes" v-if="scheme.active">
+                                {{scheme.id}}
+                                <i class="close material-icons" @click="scheme.active = false">close</i>
+                            </div>
+                        </div>
+                        <div class="col s12">
+                            <button type="submit" class="waves-effect waves-light blue btn">search</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="row search-results">
+                    <div class="col s12">
+                        <div class="card " v-for="api in paginatedApis">
+                            <div class="card-content ">
+                                <span class="card-title">{{api.info.title}}</span>
+                                <p>{{api.info.description}}</p>
+                            </div>
+                            <div class="card-action">
+                                <a href="#" @click.prevent="toggleDetails(api)">Details</a>
+                            </div>
+                            <div class="card-content" v-if="api.showDetails == true">
+                                <strong>version:</strong> {{api.info.version}}<br>
+                                <strong>developer:</strong> {{api.info.contact.name}}<br>
+                                <strong>operations:</strong>
+                                <ul class="browser-default">
+                                    <li v-for="(summary, operation) in getOperations(api)">
+                                        <strong>{{operation}}</strong> - {{summary}}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col s6">
+                                <ul class="pagination">
+                                    <li class="waves-effect" :class="{ disabled: page <= 1 }">
+                                        <a href="#" @click.prevent="prevPage()"><i class="material-icons">chevron_left</i> Previous</a>
+                                    </li>
+
+                                    <li class="waves-effect" :class="{ active: page == n }" v-for="n in pages">
+                                        <a href="#" @click.prevent="page = n">{{n}}</a>
+                                    </li>
+
+                                    <li class="waves-effect" :class="{ disabled: page >= pages }">
+                                        <a href="#" @click.prevent="nextPage()">Next <i class="material-icons">chevron_right</i></a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col s6 right-align">
+                                Per page:
+                                <select class="perPage" v-model="perPage" @change="calculatePages" id="perPage">
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
+
+    <script>
+        $(function () {
+            $(".button-collapse").sideNav();
+        });
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                apis: [],
+                tags: [{
+                    id: 'tag1',
+                    active: false
+                }, {
+                    id: 'tag2',
+                    active: false
+                }, {
+                    id: 'tag3',
+                    active: false
+                }, {
+                    id: 'tag4',
+                    active: false
+                }],
+                schemes: [{
+                    id: 'scheme1',
+                    active: false
+                }, {
+                    id: 'scheme2',
+                    active: false
+                }, {
+                    id: 'scheme3',
+                    active: false
+                }, {
+                    id: 'scheme4',
+                    active: false
+                }],
+                query: '',
+                page: 1,
+                pages: 1,
+                perPage: 20
+            },
+            methods: {
+                refreshApis: function () {
+                    var self = this;
+                    axios.get('http://dev.smart-api.info/api/metadata/all').then(function (response) {
+                        self.apis = response.data;
+                        self.calculatePages();
+                    });
+                },
+                search: function (query) {
+                    var self = this;
+                    axios.get('http://dev.smart-api.info/api/query', {
+                        params: {
+                            query: query
+                        }
+                    }).then(function (response) {
+                        self.apis = response.data;
+                        self.calculatePages();
+                    });
+                },
+                calculatePages: function () {
+                    this.pages = Math.ceil(this.apis && this.apis.length / this.perPage);
+                },
+                prevPage: function () {
+                    if (this.page > 1)
+                        this.page -= 1
+                },
+                nextPage: function () {
+                    if (this.page < this.pages)
+                        this.page += 1
+                },
+                toggleDetails: function (api) {
+                    this.$set(api, 'showDetails', !api.showDetails);
+                },
+                getOperations: function (api) {
+                    var operations = {};
+                    for(var path in api.paths) {
+                        for(var method in api.paths[path]) {
+                            operations[[method, path].join(' ')] = api.paths[path][method].summary;
+                        }
+                    }
+                    return operations;
+                }
+            },
+            created: function () {
+                this.refreshApis();
+            },
+            computed: {
+                paginatedApis: function () {
+                    var start = (this.page - 1) * this.perPage,
+                        end = start + this.perPage;
+                    return this.apis && this.apis.slice(start, end);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
