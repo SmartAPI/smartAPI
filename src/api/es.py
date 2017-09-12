@@ -11,6 +11,16 @@ ES_INDEX_NAME = 'smartapi_oai_v3'
 ES_DOC_TYPE = 'api'
 
 
+def ask(prompt, options='YN'):
+    '''Prompt Yes or No,return the upper case 'Y' or 'N'.'''
+    options = options.upper()
+    while 1:
+        s = input(prompt+'[%s]' % '|'.join(list(options))).strip().upper()
+        if s in options:
+            break
+    return s
+
+
 def get_datestamp():
     d = date.today()
     return d.strftime('%Y%m%d')
@@ -231,6 +241,11 @@ class ESQuery():
             return list(doc_iter)
         else:
             return doc_iter
+
+    def delete_api(self, id):
+        """delete a saved API metadata, be careful with the deletion."""
+        if ask("Are you sure to delete this API metadata?") == 'Y':
+            print(self._es.indices.delete(self._index, self._doc_type, id=id))
 
     def backup_all(self, outfile=None):
         """back up all docs into a output file."""
