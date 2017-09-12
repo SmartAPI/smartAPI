@@ -73,7 +73,7 @@ class LoginHandler(BaseHandler):
         self.write(login_output)
 
 
-class AddAPIHandler(BaseHandler, torngithub.GithubMixin, tornado.web.RequestHandler):
+class AddAPIHandler(BaseHandler, torngithub.GithubMixin):
     # def get(self):
         # self.write("Hello, world")
         # self.write(html_output)
@@ -136,11 +136,20 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
         )
 
 
+class RegisryHandler(BaseHandler):
+    def get(self):
+        template_file = "registry.html"
+        reg_template = templateEnv.get_template(template_file)
+        reg_output = reg_template.render()
+        self.write(reg_output)
+
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
     (r"/add_api/?", AddAPIHandler),
     (r"/login/?", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
-    (r"/logout/?", LogoutHandler)
+    (r"/logout/?", LogoutHandler),
+    (r"/registry/?", RegisryHandler)
 ]
