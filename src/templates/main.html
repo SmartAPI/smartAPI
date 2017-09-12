@@ -20,6 +20,9 @@
 
         <link href="/static/css/smartapi.css" rel="stylesheet">
 
+        {% block extra_head %}
+        {% endblock %}
+
     </head>
 
     <body id="top" class="scrollspy">
@@ -42,5 +45,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.9/sweetalert2.min.js"></script>
 
         <script src="/static/js/smartapi.js"></script>
+        {% block extra_scripts %}
+        {% endblock %}
     </body>
 </html>
