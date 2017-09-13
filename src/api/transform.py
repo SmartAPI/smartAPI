@@ -18,7 +18,7 @@ else:
     from pyblake2 import blake2b
 
 
-SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/WebsmartAPI/smartAPI-editor/master/node_modules_changes/opanapi.json'
+SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
 
 
