@@ -49,6 +49,7 @@ class QueryHanlder(BaseHandler):
         res = esq.query_api(q=q, fields=fields, return_raw=return_raw)
         self.return_json(res)
 
+
 class ValidateHanlder(BaseHandler):
     def get(self):
         url = self.get_argument('url', None)
@@ -120,6 +121,7 @@ class APIMetaDataHandler(BaseHandler):
         '''
         fields = self.get_argument('fields', None)
         return_raw = self.get_argument('raw', False)
+        with_meta = self.get_argument('meta', False)
         size = self.get_argument('size', None)
         from_ = self.get_argument('from', 0)
         try:
@@ -132,7 +134,7 @@ class APIMetaDataHandler(BaseHandler):
             from_ = 0
         if fields:
             fields = fields.split(',')
-        res = self.esq.get_api(api_name, fields=fields, return_raw=return_raw, size=size, from_=from_)
+        res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
         self.return_json(res)
 
 

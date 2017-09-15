@@ -1,4 +1,5 @@
 import json
+import copy
 from datetime import date
 
 from elasticsearch import Elasticsearch, RequestError, helpers
@@ -118,7 +119,15 @@ class ESQuery():
             return {"success": False, "error": str(e)}
         return {"success": True, '_id': api_id}
 
-    def get_api(self, api_name, fields=None, return_raw=False, size=None, from_=0):
+    def _get_api_doc(self, api_doc, with_meta=True):
+        doc = decode_raw(api_doc.get('~raw', ''))
+        if with_meta:
+            _meta = copy.copy(api_doc.get('_meta', {}))
+            _meta["_id"] = api_doc["_id"]
+            doc["_meta"] = _meta
+        return doc
+
+    def get_api(self, api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
         if api_name == 'all':
             query = {'query': {"match_all": {}}}
         else:
@@ -143,7 +152,7 @@ class ESQuery():
         res = [_get_hit_object(d) for d in res['hits']['hits']]
         if not return_raw:
             try:
-                res = [decode_raw(x.get('~raw', '')) for x in res]
+                res = [self._get_api_doc(x, with_meta=with_meta) for x in res]
             except ValueError as e:
                 res = {'success': False, 'error': str(e)}
         if len(res) == 1:
