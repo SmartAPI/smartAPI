@@ -175,13 +175,20 @@ class ESQuery():
             is_raw_query = False
 
         if not is_raw_query:
-            query = {
-                "query": {
-                    "query_string": {
-                        "query": q
+            if q == '__all__':
+                query = {
+                    "query": {
+                        "match_all": {}
                     }
                 }
-            }
+            else:
+                query = {
+                    "query": {
+                        "query_string": {
+                            "query": q
+                        }
+                    }
+                }
         if not fields or fields == 'all':
             pass
         else:
