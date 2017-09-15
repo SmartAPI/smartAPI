@@ -76,7 +76,7 @@ body {
                                 <a href="#" @click.prevent="toggleDetails(api)">Details</a>
                             </div>
                             <div class="card-content" v-if="api.showDetails == true">
-                                <strong>SmartAPI ID:</strong>{{api._meta._id}}<br>
+                                <strong>SmartAPI ID:</strong>{{api._id}}<br>
                                 <strong>version:</strong> {{api.info.version}}<br>
                                 <strong>developer:</strong> {{api.info.contact.name}}<br>
                                 <strong>operations:</strong>
@@ -86,11 +86,11 @@ body {
                                     </li>
                                 </ul>
                                 <a class="waves-effect waves-light btn blue"
-                                   v-bind:href='"/ui/?url=/api/metadata/"+api._meta._id' target="_blank">
+                                   v-bind:href='"/ui/?url=/api/metadata/"+api._id' target="_blank">
                                    View API Doc<i class="material-icons right">send</i>
                                 </a>
                                 <a class="waves-effect waves-light btn blue"
-                                   v-bind:href='"/editor-oa3/?url=/api/metadata/"+api._meta._id' target="_blank">
+                                   v-bind:href='"/editor-oa3/?url=/api/metadata/"+api._id' target="_blank">
                                    Edit<i class="material-icons right">edit</i>
                                 </a>
                             </div>

@@ -1,5 +1,4 @@
 import json
-import copy
 from datetime import date
 
 from elasticsearch import Elasticsearch, RequestError, helpers
@@ -122,9 +121,8 @@ class ESQuery():
     def _get_api_doc(self, api_doc, with_meta=True):
         doc = decode_raw(api_doc.get('~raw', ''))
         if with_meta:
-            _meta = copy.copy(api_doc.get('_meta', {}))
-            _meta["_id"] = api_doc["_id"]
-            doc["_meta"] = _meta
+            doc["_meta"] = api_doc.get('_meta', {})
+            doc["_id"] = api_doc["_id"]
         return doc
 
     def get_api(self, api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
