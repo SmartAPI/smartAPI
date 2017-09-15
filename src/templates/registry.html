@@ -76,7 +76,7 @@ body {
                                 <a href="#" @click.prevent="toggleDetails(api)">Details</a>
                             </div>
                             <div class="card-content" v-if="api.showDetails == true">
-                                <strong>SmartAPI ID:</strong>{{api._id}}<br>
+                                <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>version:</strong> {{api.info.version}}<br>
                                 <strong>developer:</strong> {{api.info.contact.name}}<br>
                                 <strong>operations:</strong>
