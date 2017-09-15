@@ -50,7 +50,7 @@ class QueryHanlder(BaseHandler):
         self.return_json(res)
 
 
-class ValidateHanlder(BaseHandler):
+class ValidateHandler(BaseHandler):
     def get(self):
         url = self.get_argument('url', None)
         if url:
@@ -157,7 +157,7 @@ class ValueSuggestionHandler(BaseHandler):
 APP_LIST = [
     (r'/?', APIHandler),
     (r'/query/?', QueryHanlder),
-    (r'/validate/?', ValidateHanlder),
+    (r'/validate/?', ValidateHandler),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),
 ]
