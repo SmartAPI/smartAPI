@@ -61,12 +61,14 @@ body {
                             </div>
                         </div>
                         <div class="col s12">
+                            <button type="submit" class="waves-effect waves-light blue btn" v-on:click="clear_form()">clear</button>&nbsp;&nbsp;&nbsp;
                             <button type="submit" class="waves-effect waves-light blue btn">search</button>
                         </div>
                     </form>
                 </div>
                 <div class="row search-results">
                     <div class="col s12">
+                        <div>Total APIs: {{total}}</div>
                         <div class="card " v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">{{api.info.title}}</span>
@@ -142,6 +144,7 @@ body {
         var app = new Vue({
             el: '#app',
             data: {
+                total: 0,
                 apis: [],
                 tags: [{
                     id: 'tag1',
@@ -177,21 +180,31 @@ body {
             methods: {
                 refreshApis: function () {
                     var self = this;
-                    axios.get('/api/metadata/all?meta=1').then(function (response) {
-                        self.apis = response.data;
+                    // axios.get('/api/metadata/all?meta=1').then(function (response) {
+                    //     self.apis = response.data;
+                    axios.get('/api/query?q=__all__').then(function (response) {
+                        self.apis = response.data.hits;
+                        self.total = response.data.total;
                         self.calculatePages();
                     });
                 },
+                clear_form: function(){
+                    this.query = '';
+                    this.refreshApis();
+                },
                 search: function (query) {
-                    var self = this;
-                    axios.get('/api/query', {
-                        params: {
-                            q: query
-                        }
-                    }).then(function (response) {
-                        self.apis = response.data.hits;
-                        self.calculatePages();
-                    });
+                    if (query) {
+                        var self = this;
+                        axios.get('/api/query', {
+                            params: {
+                                q: query
+                            }
+                        }).then(function (response) {
+                            self.apis = response.data.hits;
+                            self.total = response.data.total;
+                            self.calculatePages();
+                        });
+                    }
                 },
                 calculatePages: function () {
                     this.pages = Math.ceil(this.apis && this.apis.length / this.perPage);
