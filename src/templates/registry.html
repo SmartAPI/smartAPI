@@ -220,12 +220,20 @@ body {
                 toggleDetails: function (api) {
                     this.$set(api, 'showDetails', !api.showDetails);
                 },
-                getOperations: function (api) {
+                getOperations: function (api, raw=false) {
                     var operations = {};
-                    for(var path in api.paths) {
-                        for(var method in api.paths[path]) {
-                            operations[[method, path].join(' ')] = api.paths[path][method].summary;
+                    if (raw) {
+                        for(var path in api.paths) {
+                            for(var method in api.paths[path]) {
+                                operations[[method, path].join(' ')] = api.paths[path][method].summary;
+                            }
                         }
+                    }else{
+                        api.paths.forEach(function(path){
+                            for(var method in path['pathitem']) {
+                                operations[[method, path.path].join(' ')] = path['pathitem'][method].summary;
+                            }
+                        })
                     }
                     return operations;
                 }
