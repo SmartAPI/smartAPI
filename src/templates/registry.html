@@ -72,7 +72,7 @@ body {
                         <div class="card " v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">{{api.info.title}}</span>
-                                <p>{{api.info.description}}</p>
+                                <p v-html="compiledMarkdown(api.info.description)"></p>
                             </div>
                             <div class="card-action">
                                 <a href="#" @click.prevent="toggleDetails(api)">Details</a>
@@ -135,6 +135,7 @@ body {
 
 {% block extra_scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 
     <script>
         $(function () {
@@ -216,6 +217,9 @@ body {
                 nextPage: function () {
                     if (this.page < this.pages)
                         this.page += 1
+                },
+                compiledMarkdown: function (mdtext) {
+                    return marked(mdtext, { sanitize: true })
                 },
                 toggleDetails: function (api) {
                     this.$set(api, 'showDetails', !api.showDetails);
