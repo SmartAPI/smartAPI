@@ -1,9 +1,9 @@
 import json
-from datetime import date
+from datetime import date, datetime
 
 from elasticsearch import Elasticsearch, RequestError, helpers
 
-from .transform import APIMetadata, decode_raw
+from .transform import APIMetadata, decode_raw, get_api_metadata_by_url
 
 
 ES_HOST = 'localhost:9200'
@@ -239,11 +239,20 @@ class ESQuery():
 
         return res
 
-    def fetch_all(self, as_list=False):
+    def delete_api(self, id):
+        """delete a saved API metadata, be careful with the deletion."""
+        if ask("Are you sure to delete this API metadata?") == 'Y':
+            print(self._es.indices.delete(self._index, self._doc_type, id=id))
+
+    def fetch_all(self, as_list=False, id_list=[]):
         """return a generator of all docs from the ES index.
             return a list instead if as_list is True.
+            if id_list is passed, it returns only docs from the given ids.
         """
-        query = {"query": {"match_all": {}}}
+        if id_list:
+            query = {"query": {"ids": {"type": ES_DOC_TYPE, "values": id_list}}}
+        else:
+            query = {"query": {"match_all": {}}}
         scan_res = helpers.scan(client=self._es, query=query,
                                 index=self._index, doc_type=self._doc_type)
 
@@ -255,11 +264,6 @@ class ESQuery():
             return list(doc_iter)
         else:
             return doc_iter
-
-    def delete_api(self, id):
-        """delete a saved API metadata, be careful with the deletion."""
-        if ask("Are you sure to delete this API metadata?") == 'Y':
-            print(self._es.indices.delete(self._index, self._doc_type, id=id))
 
     def backup_all(self, outfile=None):
         """back up all docs into a output file."""
@@ -292,3 +296,38 @@ class ESQuery():
             _id = _doc.pop('_id')
             self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
         print("Done.")
+
+    def refresh_all(self, id_list=[], dryrun=True, return_status=False):
+        '''refresh API metadata based on the saved metadata urls.'''
+        success_cnt = 0
+        total_cnt = 0
+        if return_status:
+            status_li = []
+        print("Refreshing API metadata:")
+        for api_doc in self.fetch_all(id_list=id_list):
+            _id = api_doc['_id']
+            _meta = api_doc['_meta']
+            print("\t{}...".format(_id), end='')
+            new_api_doc = get_api_metadata_by_url(_meta['url'])
+            if new_api_doc and isinstance(new_api_doc, dict):
+                if new_api_doc.get('success', None) is False:
+                    status = new_api_doc
+                else:
+                    _meta['timestamp'] = datetime.now().isoformat()
+                    new_api_doc['_meta'] = _meta
+                    status = self.save_api(new_api_doc, overwrite=True, dryrun=dryrun)
+            else:
+                status = {'success': False, 'error': 'Invalid input data.'}
+
+            if status.get('success', False):
+                print("Success.")
+                success_cnt += 1
+            else:
+                print("Failed.")
+            total_cnt += 1
+            if return_status:
+                status_li.append((_id, status))
+        print("="*25)
+        print("Successfully refreshed {}/{} API meteadata.".format(success_cnt, total_cnt))
+        if return_status:
+            return status_li
