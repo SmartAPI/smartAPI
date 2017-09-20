@@ -79,6 +79,7 @@ body {
                             </div>
                             <div class="card-content" v-if="api.showDetails == true">
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
+                                <strong>Metadata URL: <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>version:</strong> {{api.info.version}}<br>
                                 <strong>developer:</strong> {{api.info.contact.name}}<br>
                                 <strong>operations:</strong>
@@ -136,6 +137,7 @@ body {
 {% block extra_scripts %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 
     <script>
         $(function () {
