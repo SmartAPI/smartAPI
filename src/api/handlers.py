@@ -42,11 +42,17 @@ class QueryHanlder(BaseHandler):
         if not q:
             self.return_json({'success': False, 'error': 'missing required parameter.'})
 
+        filters = self.get_argument('filters', None)
+        if filters:
+            try:
+                filters = json.loads(filters)
+            except:
+                filters = None
         fields = self.get_argument('fields', None)
         return_raw = self.get_argument('raw', '').lower() in ['1', 'true']
 
         esq = ESQuery()
-        res = esq.query_api(q=q, fields=fields, return_raw=return_raw)
+        res = esq.query_api(q=q, filters=filters, fields=fields, return_raw=return_raw)
         self.return_json(res)
 
 

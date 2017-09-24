@@ -157,7 +157,7 @@ class ESQuery():
             res = res[0]
         return res
 
-    def query_api(self, q, fields=None, return_raw=True):
+    def query_api(self, q, filters=None, fields=None, return_raw=True):
         # query = {
         #     "query":{
         #         "match" : {
@@ -189,10 +189,24 @@ class ESQuery():
                         }
                     }
                 }
+
+        if filters:
+            query = {
+                "query": {
+                    "bool": {
+                        "must": query["query"],
+                        "filter": {
+                            "terms": filters
+                        }
+                    }
+                }
+            }
+
         if not fields or fields == 'all':
             pass
         else:
             query['_source'] = fields
+
         # else:
         #     query['_source'] = ['@id', attr_input, attr_output]
         # print(query)
