@@ -35,7 +35,7 @@ body {
             <div class="col l2 hide-on-med-and-down sidebar">
                 <h5 style="padding-top:100px">Tags</h5>
                 <div class="collection">
-                    <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active;search(query)">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
                 <!-- <h5>Schemes</h5>
                 <div class="collection">
@@ -53,7 +53,7 @@ body {
                         <div class="col s12 selected-tags">
                             <div class="chip" v-for="tag in tags" v-if="tag.active">
                                 {{tag.name}}
-                                <i class="close material-icons" @click="tag.active = false">close</i>
+                                <i class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
                             <!-- <div class="chip" v-for="scheme in schemes" v-if="scheme.active">
                                 {{scheme.id}}
@@ -61,8 +61,8 @@ body {
                             </div> -->
                         </div>
                         <div class="col s12">
-                            <button type="submit" class="waves-effect waves-light blue btn" v-on:click="clear_form()">clear</button>&nbsp;&nbsp;&nbsp;
-                            <button type="submit" class="waves-effect waves-light blue btn">search</button>
+                            <button type="submit" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
+                            <button class="waves-effect waves-light blue btn" v-on:click="clear_form()">clear</button>
                         </div>
                     </form>
                 </div>
@@ -178,11 +178,19 @@ body {
                 perPage: 20
             },
             methods: {
-                refreshApis: function () {
+                refreshApis: function(){
                     var self = this;
                     // axios.get('/api/metadata/all?meta=1').then(function (response) {
                     //     self.apis = response.data;
-                    axios.get('/api/query?q=__all__').then(function (response) {
+                    var params = {
+                        "params": {
+                            "q": "__all__",
+                        }
+                    }
+                    var filters = this.getQueryFilters();
+                    if (filters)
+                        params["params"]["filters"] = filters;
+                    axios.get("/api/query", params).then(function(response){
                         self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
@@ -196,18 +204,35 @@ body {
                         });
                     });
                 },
+                getQueryFilters: function(){
+                    var filters = [];
+                    this.tags.forEach(function(item){
+                        if (item.active)
+                            filters.push(item.name);
+                    });
+                    if (filters.length > 0)
+                        filters = {'tags.name.raw': filters};
+                        return filters;
+                },
                 clear_form: function(){
                     this.query = '';
                     this.refreshApis();
                 },
                 search: function (query) {
+                    if (!query)
+                        query = $('#search_query').val();
+                    query = query || "__all__";
                     if (query) {
                         var self = this;
-                        axios.get('/api/query', {
-                            params: {
-                                q: query
+                        var params = {
+                            "params": {
+                                "q": query,
                             }
-                        }).then(function (response) {
+                        };
+                        var filters = this.getQueryFilters();
+                        if (filters)
+                            params["params"]["filters"] = filters;
+                        axios.get('/api/query', params).then(function (response) {
                             self.apis = response.data.hits;
                             self.total = response.data.total;
                             self.calculatePages();
