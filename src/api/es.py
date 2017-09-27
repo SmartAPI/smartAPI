@@ -184,11 +184,42 @@ class ESQuery():
             else:
                 query = {
                     "query": {
-                        "query_string": {
-                            "query": q
+                        "dis_max" : {
+                            "queries" : [
+                                {
+                                    "term" : {
+                                        "info.title": q,
+                                        "boost": 2
+                                    }
+                                },
+                                {
+                                    "term" : {
+                                        "server.url": q,
+                                        "boost": 1.1
+                                    }
+                                },
+                                {
+                                    "query_string": {
+                                        "query": q
+                                    }
+                                },
+                                {
+                                    "query_string": {
+                                        "query": q + "*",
+                                        "boost": 0.8
+                                    }
+                                },
+                            ]
                         }
                     }
                 }
+                # query = {
+                #     "query": {
+                #         "query_string": {
+                #             "query": q
+                #         }
+                #     }
+                # }
 
         if filters:
             query = {
