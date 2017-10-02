@@ -374,5 +374,8 @@ class ESQuery():
                 status_li.append((_id, status))
         print("="*25)
         print("Successfully refreshed {}/{} API meteadata.".format(success_cnt, total_cnt))
+        if dryrun:
+            print("This is a dryrun! No actual changes have been made.")
+            print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
         if return_status:
             return status_li
