@@ -12,6 +12,50 @@ body {
 {% include "header.html" %}
 
   {% raw %}
+    <div id="loading-overlay">
+          <div class="preloader-wrapper big active loading-container">
+            <div class="spinner-layer spinner-blue">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+
+            <div class="spinner-layer spinner-red">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+
+            <div class="spinner-layer spinner-yellow">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+
+            <div class="spinner-layer spinner-green">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+          </div>
+    </div>
+
     <div id="app" style="height: 100%">
         <div class="side-nav" id="filters">
             <div class="row">
@@ -178,6 +222,12 @@ body {
                 perPage: 20
             },
             methods: {
+                loading_start: function(){
+                    $('#loading-overlay').show();
+                },
+                loading_end: function(){
+                    $('#loading-overlay').hide();
+                },
                 refreshApis: function(){
                     var self = this;
                     // axios.get('/api/metadata/all?meta=1').then(function (response) {
@@ -190,7 +240,9 @@ body {
                     var filters = this.getQueryFilters();
                     if (filters)
                         params["params"]["filters"] = filters;
+                    this.loading_start();
                     axios.get("/api/query", params).then(function(response){
+                        self.loading_end();
                         self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
@@ -232,7 +284,9 @@ body {
                         var filters = this.getQueryFilters();
                         if (filters)
                             params["params"]["filters"] = filters;
+                        this.loading_start();
                         axios.get('/api/query', params).then(function (response) {
+                            self.loading_end();
                             self.apis = response.data.hits;
                             self.total = response.data.total;
                             self.calculatePages();
