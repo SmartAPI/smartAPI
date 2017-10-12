@@ -157,7 +157,7 @@ class ESQuery():
             res = res[0]
         return res
 
-    def query_api(self, q, filters=None, fields=None, return_raw=True):
+    def query_api(self, q, filters=None, fields=None, return_raw=True, size=None, from_=0):
         # query = {
         #     "query":{
         #         "match" : {
@@ -184,16 +184,16 @@ class ESQuery():
             else:
                 query = {
                     "query": {
-                        "dis_max" : {
-                            "queries" : [
+                        "dis_max": {
+                            "queries": [
                                 {
-                                    "term" : {
+                                    "term": {
                                         "info.title": q,
                                         "boost": 2
                                     }
                                 },
                                 {
-                                    "term" : {
+                                    "term": {
                                         "server.url": q,
                                         "boost": 1.1
                                     }
@@ -237,7 +237,10 @@ class ESQuery():
             pass
         else:
             query['_source'] = fields
-
+        if size and isinstance(size, int):
+            query['size'] = min(size, 100)    # set max size to 100 for now.
+        if from_ and isinstance(from_, int) and from_ > 0:
+            query['from'] = from_
         # else:
         #     query['_source'] = ['@id', attr_input, attr_output]
         # print(query)

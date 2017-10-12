@@ -241,7 +241,7 @@ body {
                     if (filters)
                         params["params"]["filters"] = filters;
                     this.loading_start();
-                    axios.get("/api/query", params).then(function(response){
+                    axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
                         self.apis = response.data.hits;
                         self.total = response.data.total;
@@ -285,7 +285,7 @@ body {
                         if (filters)
                             params["params"]["filters"] = filters;
                         this.loading_start();
-                        axios.get('/api/query', params).then(function (response) {
+                        axios.get('/api/query?size=100', params).then(function (response) {
                             self.loading_end();
                             self.apis = response.data.hits;
                             self.total = response.data.total;

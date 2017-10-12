@@ -22,7 +22,8 @@ class BaseHandler(tornado.web.RequestHandler):
         '''Provide server side support for CORS request.'''
         self.set_header("Access-Control-Allow-Origin", "*")
         self.set_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-        self.set_header("Access-Control-Allow-Headers", "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
+        self.set_header("Access-Control-Allow-Headers",
+                        "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
         self.set_header("Access-Control-Allow-Credentials", "false")
         self.set_header("Access-Control-Max-Age", "60")
 
@@ -50,9 +51,18 @@ class QueryHanlder(BaseHandler):
                 filters = None
         fields = self.get_argument('fields', None)
         return_raw = self.get_argument('raw', '').lower() in ['1', 'true']
-
+        size = self.get_argument('size', None)
+        from_ = self.get_argument('from', 0)
+        try:
+            size = int(size)   # size capped to 100 for now by query_api method below.
+        except (TypeError, ValueError):
+            size = None
+        try:
+            from_ = int(from_)
+        except (TypeError, ValueError):
+            from_ = 0
         esq = ESQuery()
-        res = esq.query_api(q=q, filters=filters, fields=fields, return_raw=return_raw)
+        res = esq.query_api(q=q, filters=filters, fields=fields, return_raw=return_raw, size=size, from_=from_)
         self.return_json(res)
 
 
