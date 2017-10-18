@@ -18,7 +18,10 @@ else:
     from pyblake2 import blake2b
 
 
-SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
+# SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
+# Official oas3 json schema for validation is still in-development.
+# For now we us this updated oas3-schema from swagger-editor
+SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.1.11/src/plugins/validation/structural-validation/oas3-schema.js'
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
 
 
@@ -81,7 +84,10 @@ class APIMetadata:
         self._meta = self.metadata.pop('_meta', {})
 
     def get_schema(self):
-        return json.loads(requests.get(SMARTAPI_SCHEMA_URL).text)
+        schema = requests.get(SMARTAPI_SCHEMA_URL).text
+        if schema.startswith("export default "):
+            schema = schema[len("export default "):]
+        return json.loads(schema)
 
     def encode_api_id(self):
         x = self._meta.get('url', None)
