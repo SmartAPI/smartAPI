@@ -116,7 +116,7 @@ body {
                         <div class="card " v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">{{api.info.title}}</span>
-                                <p v-html="compiledMarkdown(api.info.description)"></p>
+                                <p v-html="compiledMarkdown(api.info.description || '')"></p>
                             </div>
                             <div class="card-action">
                                 <a href="#" @click.prevent="toggleDetails(api)">Details</a>
