@@ -6,6 +6,7 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import tornado.escape
+import yaml
 
 from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
@@ -67,18 +68,38 @@ class QueryHanlder(BaseHandler):
 
 
 class ValidateHandler(BaseHandler):
+    def _validate(self, data):
+        if data and isinstance(data, dict):
+            metadata = APIMetadata(data)
+            valid = metadata.validate()
+            return self.return_json(valid)
+        else:
+            return self.return_json({"valid": False, "error": "The input url does not contain valid API metadata."})
+
     def get(self):
         url = self.get_argument('url', None)
         if url:
             data = get_api_metadata_by_url(url)
-            if data and isinstance(data, dict):
-                metadata = APIMetadata(data)
-                valid = metadata.validate()
-                return self.return_json(valid)
+            if data.get('success', None) is False:
+                self.return_json(data)
             else:
-                return self.return_json({"valid": False, "error": "The input url does not contain valid API metadata."})
+                self._validate(data)
         else:
-            return self.return_json({"valid": False, "error": "Need to provide an input url first."})
+            self.return_json({"valid": False, "error": "Need to provide an input url first."})
+
+    def post(self):
+        if self.request.body:
+            try:
+                data = tornado.escape.json_decode(self.request.body)
+            except ValueError:
+                try:
+                    data = yaml.load(self.request.body)
+                except (yaml.scanner.ScannerError,
+                        yaml.parser.ParserError):
+                    return self.return_json({"valid": False, "error": "The input request body does not contain valid API metadata."})
+            self._validate(data)
+        else:
+            self.return_json({"valid": False, "error": "Need to provide data in the request body first."})
 
 
 class APIHandler(BaseHandler):
