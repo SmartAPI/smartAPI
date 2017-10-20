@@ -58,6 +58,8 @@ def get_api_metadata_by_url(url, as_string=False):
         return {"success": False, "error": "URL request is timeout."}
     except requests.exceptions.ConnectionError:
         return {"success": False, "error": "URL request had a connection error."}
+    except requests.exceptions.RequestException:
+        return {"success": False, "error": "Failed to make the request to this URL."}
     if res.status_code != 200:
         return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
     else:
