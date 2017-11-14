@@ -18,10 +18,11 @@ else:
     from pyblake2 import blake2b
 
 
-# SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
 # Official oas3 json schema for validation is still in-development.
 # For now we us this updated oas3-schema from swagger-editor
-SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.1.11/src/plugins/validation/structural-validation/oas3-schema.js'
+OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.1.11/src/plugins/validation/structural-validation/oas3-schema.js'
+# This is a separate schema for SmartAPI extensions only
+SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
 
 
@@ -81,15 +82,16 @@ def get_api_metadata_by_url(url, as_string=False):
 
 class APIMetadata:
     def __init__(self, metadata):
-        self.schema = self.get_schema()
+        self.get_schema()
         self.metadata = metadata
         self._meta = self.metadata.pop('_meta', {})
 
     def get_schema(self):
-        schema = requests.get(SMARTAPI_SCHEMA_URL).text
+        schema = requests.get(OAS3_SCHEMA_URL).text
         if schema.startswith("export default "):
             schema = schema[len("export default "):]
-        return json.loads(schema)
+        self.oas3_schema = json.loads(schema)
+        self.smartapi_schema = requests.get(SMARTAPI_SCHEMA_URL).json()
 
     def encode_api_id(self):
         x = self._meta.get('url', None)
@@ -100,9 +102,15 @@ class APIMetadata:
     def validate(self):
         '''Validate API metadata against JSON Schema.'''
         try:
-            jsonschema.validate(self.metadata, self.schema)
+            jsonschema.validate(self.metadata, self.oas3_schema)
         except jsonschema.ValidationError as e:
-            return {"valid": False, "error": e.message}
+            err_msg = "'{}': {}".format('.'.join(e.path), e.message)
+            return {"valid": False, "error": "[OAS3] " + err_msg}
+        try:
+            jsonschema.validate(self.metadata, self.smartapi_schema)
+        except jsonschema.ValidationError as e:
+            err_msg = "'{}': {}".format('.'.join(e.path), e.message)
+            return {"valid": False, "error": "[SmartAPI] " + err_msg}
         return {"valid": True}
 
     def _encode_raw(self):
