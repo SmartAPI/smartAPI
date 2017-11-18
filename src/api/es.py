@@ -220,6 +220,11 @@ class ESQuery():
                                     }
                                 },
                                 {
+                                    "term": {
+                                        "_id": q,
+                                    }
+                                },
+                                {
                                     "query_string": {
                                         "query": q
                                     }
