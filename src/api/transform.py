@@ -104,12 +104,12 @@ class APIMetadata:
         try:
             jsonschema.validate(self.metadata, self.oas3_schema)
         except jsonschema.ValidationError as e:
-            err_msg = "'{}': {}".format('.'.join(e.path), e.message)
+            err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
             return {"valid": False, "error": "[OAS3] " + err_msg}
         try:
             jsonschema.validate(self.metadata, self.smartapi_schema)
         except jsonschema.ValidationError as e:
-            err_msg = "'{}': {}".format('.'.join(e.path), e.message)
+            err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
             return {"valid": False, "error": "[SmartAPI] " + err_msg}
         return {"valid": True}
 
