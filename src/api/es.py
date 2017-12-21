@@ -360,16 +360,16 @@ class ESQuery():
             print("Error: index \"{}\" exists. Try a different index_name.".format(index_name))
             return
 
-        print("Loading docs from \"{}\"...".format(backupfile), end="")
+        print("Loading docs from \"{}\"...".format(backupfile))
         in_f = open(backupfile)
         doc_li = json.load(in_f)
         print("Done. [{}]".format(len(doc_li)))
 
-        print("Creating index...", end="")
+        print("Creating index...")
         create_index(index_name, es=self._es)
         print("Done.")
 
-        print("Indexing...", end="")
+        print("Indexing...")
         for _doc in doc_li:
             _id = _doc.pop('_id')
             self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
@@ -385,7 +385,7 @@ class ESQuery():
         for api_doc in self.fetch_all(id_list=id_list):
             _id = api_doc['_id']
             _meta = api_doc['_meta']
-            print("\t{}...".format(_id), end='')
+            print("\t{}...".format(_id))
             new_api_doc = get_api_metadata_by_url(_meta['url'])
             if new_api_doc and isinstance(new_api_doc, dict):
                 if new_api_doc.get('success', None) is False:
