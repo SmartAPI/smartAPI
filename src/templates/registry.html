@@ -66,6 +66,10 @@ body {
                          >{{tag.name}}&nbsp;({{tag.count}})
                         </a>
                     </div>
+                    <h5>Owners</h5>
+                    <div class="collection">
+                        <a v-for="owner in owners" href="#!" class="collection-item" :class="{ active: owner.active }" @click.prevent="owner.active = !owner.active;filterByOwner(owner.name)">{{owner.name}}<span v-if="owner.name ===userInfo.username"> (me)</span></a>
+                    </div>
                     <!-- <h5>Schemes</h5>
                     <div class="collection">
                         <a v-for="scheme in schemes" href="#!" class="collection-item" :class="{ active: scheme.active }" @click.prevent="scheme.active = !scheme.active">
@@ -80,6 +84,17 @@ body {
                 <h5 style="padding-top:100px">Tags</h5>
                 <div class="collection">
                     <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active;search(query)">{{tag.name}}&nbsp;({{tag.count}})</a>
+                </div>
+                <h5>Owners</h5>
+                <div class="collection">
+                    <span v-for="owner in owners">
+                        <li style="list-style: none; cursor: default;"  class="collection-item" :class="{ active: owner.active }" >
+                            <div @click.prevent="owner.active = !owner.active;filterByOwner(owner.name)">{{owner.name}} ({{owner.docs}}) <span v-if="owner.name === userInfo.username" style="font-weight: bolder; color: indianred"> (me)&nbsp;</span>
+                            </div>
+                            <a style="cursor: pointer;" class="center-align" target="_blank" :href="'https://github.com/'+owner.name"><i class="tiny material-icons">person</i></a>
+                        </li>
+                        
+                    </span>
                 </div>
                 <!-- <h5>Schemes</h5>
                 <div class="collection">
@@ -98,6 +113,10 @@ body {
                             <div class="chip" v-for="tag in tags" v-if="tag.active">
                                 {{tag.name}}
                                 <i class="close material-icons" @click="tag.active = false;search(query)">close</i>
+                            </div>
+                            <div class="chip" v-for="owner in owners" v-if="owner.active">
+                                {{owner.name}}
+                                <i class="close material-icons" @click="owner.active= false;search()">close</i>
                             </div>
                             <!-- <div class="chip" v-for="scheme in schemes" v-if="scheme.active">
                                 {{scheme.id}}
@@ -139,6 +158,11 @@ body {
                                 <a class="waves-effect waves-light btn blue"
                                    v-bind:href='"/editor-oa3/?url=/api/metadata/"+api._id' target="_blank">
                                    Edit<i class="material-icons right">edit</i>
+                                </a>
+                                <!-- delete button if api developer is current user -->
+                                <a v-if="api.info.contact.name === userInfo.name" class="waves-effect waves-light btn red"
+                                   v-bind:href='"http://smart-api.info/api/metadata/"+api._id' target="_blank">
+                                   Delete<i class="material-icons right">delete</i>
                                 </a>
                             </div>
                         </div>
@@ -194,6 +218,11 @@ body {
                 total: 0,
                 apis: [],
                 tags:[],
+                //user object from github, hardcoded for testing 
+                //TO-DO: Save user info here from Github login response
+                userInfo: {'username':'newgene','name':'Chunlei Wu'},
+                owners: [],
+                ownertags: [],
                 // tags: [{
                 //     id: 'tag1',
                 //     count: 1,
@@ -222,11 +251,56 @@ body {
                 perPage: 20
             },
             methods: {
+                deactivateOtherOwners: function(OP){
+                    for (var i = 0; i < this.owners.length; i++) {
+                        if (this.owners[i].name !== OP && this.owners[i].active) {
+                            this.owners[i].active = false;
+                        }
+                    }
+                },
+                filterByOwner: function (OP){
+                    //console.log(OP);
+                    var self=this;
+
+                    if( !OP){
+                        self.search();
+                    }
+                    else{
+                        self.loading_start();
+                        //search only one owner at a time
+                        this.deactivateOtherOwners(OP);
+                        //request user's posts by username
+                        axios.get('http://smart-api.info/api/query?q=_meta.github_username:'+OP).then(response=>{
+                            //console.log('OWNERS RES '+JSON.stringify(response.data));
+                            self.loading_end();
+                            self.apis = response.data.hits;
+                            self.total = response.data.total;
+                            self.calculatePages();
+                        }).catch(err=>{
+                            throw err;
+                        })
+                    }
+                },
+                getOwners: function(){
+                var self = this;
+                    //request owners data from api
+                    axios.get('http://smart-api.info/api/suggestion?field=_meta.github_username&size=100').then(response=>{
+                        //console.log("res test "+JSON.stringify(response.data.field_values.buckets));
+                        let results = response.data.field_values.buckets;
+                        results.map( (item, index) =>{
+                           self.owners.push({'name': item.key, 'id': index, 'active': false, 'docs': item.doc_count})
+                        })
+                        console.log(self.owners);
+
+                    }).catch(err=>{
+                        throw err;
+                    });
+                },
                 loading_start: function(){
-                    $('#loading-overlay').show();
+                    //$('#loading-overlay').show();
                 },
                 loading_end: function(){
-                    $('#loading-overlay').hide();
+                    //$('#loading-overlay').hide();
                 },
                 refreshApis: function(){
                     var self = this;
@@ -328,9 +402,13 @@ body {
                     return operations;
                 }
             },
+            mounted: function (){
+                this.getOwners();
+            },
             created: function () {
                 this.refreshApis();
                 this.refreshTags();
+                this.filterByOwner();   
             },
             computed: {
                 paginatedApis: function () {
