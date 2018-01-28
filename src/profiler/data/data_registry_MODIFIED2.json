@@ -1,0 +1,1271 @@
+[{
+	"pattern": "^CHEBI:\\d+$",
+	"synonyms": [],
+	"name": "ChEBI",
+	"id": "MIR:00000002"
+}, {
+	"pattern": "^((ENS[A-Z]*[FPTG]\\d{11}(\\.\\d+)?)|(FB\\w{2}\\d{7})|(Y[A-Z]{2}\\d{3}[a-zA-Z](\\-[A-Z])?))",
+	"synonyms": [],
+	"name": "Ensembl",
+	"id": "MIR:00000003"
+}, {
+	"pattern": "^\\d+\\.-\\.-\\.-|\\d+\\.\\d+\\.-\\.-|\\d+\\.\\d+\\.\\d+\\.-|\\d+\\.\\d+\\.\\d+\\.(n)?\\d+$",
+	"synonyms": ["Enzyme Classification", "EC code", "EC"],
+	"name": "Enzyme Nomenclature",
+	"id": "MIR:00000004"
+}, {
+	"pattern": "^([A-N,R-Z][0-9]([A-Z][A-Z, 0-9][A-Z, 0-9][0-9]){1,2})|([O,P,Q][0-9][A-Z, 0-9][A-Z, 0-9][A-Z, 0-9][0-9])(\\.\\d+)?$",
+	"synonyms": ["UniProtKB", "UniProt", "Protein Knowledgebase", "UniProt-TrEMBL", "UniProt/TrEMBL", "UniProtKB/Swiss-Prot"],
+	"name": "UniProt Knowledgebase",
+	"id": "MIR:00000005"
+}, {
+	"pattern": "^((BIOMD|MODEL)\\d{10})|(BMID\\d{12})$",
+	"synonyms": ["BioModels"],
+	"name": "BioModels Database",
+	"id": "MIR:00000007"
+}, {
+	"pattern": "^MIR:000\\d{5}$",
+	"synonyms": ["MIRIAM Resources", "MIRIAM"],
+	"name": "MIRIAM Registry collection",
+	"id": "MIR:00000008"
+}, {
+	"pattern": "^EBI\\-[0-9]+$",
+	"synonyms": [],
+	"name": "IntAct",
+	"id": "MIR:00000010"
+}, {
+	"pattern": "^IPR\\d{6}$",
+	"synonyms": [],
+	"name": "InterPro",
+	"id": "MIR:00000011"
+}, {
+	"pattern": "^\\w{2,4}\\d{5}$",
+	"synonyms": [],
+	"name": "KEGG Pathway",
+	"id": "MIR:00000012"
+}, {
+	"pattern": "^C\\d+$",
+	"synonyms": [],
+	"name": "KEGG Compound",
+	"id": "MIR:00000013"
+}, {
+	"pattern": "^R\\d+$",
+	"synonyms": [],
+	"name": "KEGG Reaction",
+	"id": "MIR:00000014"
+}, {
+	"pattern": "^[*#+%^]?\\d{6}$",
+	"synonyms": ["Online Mendelian Inheritance in Man", "Mendelian Inheritance in Man", "MIM"],
+	"name": "OMIM",
+	"id": "MIR:00000016"
+}, {
+	"pattern": "^PIRSF\\d{6}$",
+	"synonyms": ["Protein Information Resource"],
+	"name": "PIRSF",
+	"id": "MIR:00000017"
+}, {
+	"pattern": "(^(REACTOME:)?R-[A-Z]{3}-[0-9]+(-[0-9]+)?$)|(^REACT_\\d+$)",
+	"synonyms": ["Reactome Stable ID"],
+	"name": "Reactome",
+	"id": "MIR:00000018"
+}, {
+	"pattern": "^(doi\\:)?\\d{2}\\.\\d{4}.*$",
+	"synonyms": ["Digital Object Identifier"],
+	"name": "DOI",
+	"id": "MIR:00000019"
+}, {
+	"pattern": "^GO:\\d{7}$",
+	"synonyms": ["GO"],
+	"name": "Gene Ontology",
+	"id": "MIR:00000022"
+}, {
+	"pattern": "^((S\\d+$)|(Y[A-Z]{2}\\d{3}[a-zA-Z](\\-[A-Z])?))$",
+	"synonyms": ["Saccharomyces Genome Database"],
+	"name": "SGD",
+	"id": "MIR:00000023"
+}, {
+	"pattern": "^SBO:\\d{7}$",
+	"synonyms": ["SBO"],
+	"name": "Systems Biology Ontology",
+	"id": "MIR:00000024"
+}, {
+	"pattern": "^D\\d+$",
+	"synonyms": [],
+	"name": "KEGG Drug",
+	"id": "MIR:00000025"
+}, {
+	"pattern": "^G\\d+$",
+	"synonyms": [],
+	"name": "KEGG Glycan",
+	"id": "MIR:00000026"
+}, {
+	"pattern": "^(WBGene\\d{8})",
+	"synonyms": [],
+	"name": "WormBase",
+	"id": "MIR:00000027"
+}, {
+	"pattern": "^PF\\d{5}$",
+	"synonyms": ["Protein Family Database"],
+	"name": "Pfam",
+	"id": "MIR:00000028"
+}, {
+	"pattern": "^FB\\w{2}\\d{7}$",
+	"synonyms": [],
+	"name": "FlyBase",
+	"id": "MIR:00000030"
+}, {
+	"pattern": "^CE\\d{5}$",
+	"synonyms": [],
+	"name": "Wormpep",
+	"id": "MIR:00000031"
+}, {
+	"pattern": "^PS\\d{5}$",
+	"synonyms": [],
+	"name": "PROSITE",
+	"id": "MIR:00000032"
+}, {
+	"pattern": "^[AEP]-\\w{4}-\\d+$",
+	"synonyms": [],
+	"name": "ArrayExpress",
+	"id": "MIR:00000036"
+}, {
+	"pattern": "^MGI:\\d+$",
+	"synonyms": ["MGD", "MGI", "Mouse Genome Informatics"],
+	"name": "Mouse Genome Database",
+	"id": "MIR:00000037"
+}, {
+	"pattern": "^((AC|AP|NC|NG|NM|NP|NR|NT|NW|XM|XP|XR|YP|ZP)_\\d+|(NZ\\_[A-Z]{4}\\d+))(\\.\\d+)?$",
+	"synonyms": [],
+	"name": "RefSeq",
+	"id": "MIR:00000039"
+}, {
+	"pattern": "^UPI[A-F0-9]{10}$",
+	"synonyms": [],
+	"name": "UniParc",
+	"id": "MIR:00000041"
+}, {
+	"pattern": "^MINT\\-\\d{1,7}$",
+	"synonyms": [],
+	"name": "MINT",
+	"id": "MIR:00000042"
+}, {
+	"pattern": "^IPI\\d{8}$",
+	"synonyms": ["International Protein Index"],
+	"name": "IPI",
+	"id": "MIR:00000043"
+}, {
+	"pattern": "^DIP(\\:)?\\-\\d{1,}[ENXS]$",
+	"synonyms": ["DIP"],
+	"name": "Database of Interacting Proteins",
+	"id": "MIR:00000044"
+}, {
+	"pattern": "A\\d{6}$",
+	"synonyms": ["SGMP", "Signaling Gateway Molecule Pages", "AfCS", "UCSD Signaling Gateway Molecule Pages", "UCSD - Molecule Pages"],
+	"name": "Signaling Gateway",
+	"id": "MIR:00000045"
+}, {
+	"pattern": "^AA\\d{4}$",
+	"synonyms": [],
+	"name": "RESID",
+	"id": "MIR:00000046"
+}, {
+	"pattern": "^AASequence:\\d{10}$",
+	"synonyms": [],
+	"name": "TAIR Protein",
+	"id": "MIR:00000048"
+}, {
+	"pattern": "^Gene:\\d{7}$",
+	"synonyms": [],
+	"name": "TAIR Gene",
+	"id": "MIR:00000049"
+}, {
+	"pattern": "^AT[1-5]G\\d{5}$",
+	"synonyms": [],
+	"name": "TAIR Locus",
+	"id": "MIR:00000050"
+}, {
+	"pattern": "^HMDB\\d{5}$",
+	"synonyms": ["Human Metabolome Database"],
+	"name": "HMDB",
+	"id": "MIR:00000051"
+}, {
+	"pattern": "^LM(FA|GL|GP|SP|ST|PR|SL|PK)[0-9]{4}([0-9a-zA-Z]{4,6})?$",
+	"synonyms": ["LMSD"],
+	"name": "LIPID MAPS",
+	"id": "MIR:00000052"
+}, {
+	"pattern": "^PAp[0-9]{8}$",
+	"synonyms": [],
+	"name": "PeptideAtlas",
+	"id": "MIR:00000053"
+}, {
+	"pattern": "^GDS\\d+$",
+	"synonyms": ["Gene Expression Omnibus"],
+	"name": "GEO",
+	"id": "MIR:00000054"
+}, {
+	"pattern": "ECO:\\d{7}$",
+	"synonyms": ["ECO"],
+	"name": "Evidence Code Ontology",
+	"id": "MIR:00000055"
+}, {
+	"pattern": "^MOD:\\d{5}",
+	"synonyms": ["PSI-MOD", "MOD"],
+	"name": "Protein Modification Ontology",
+	"id": "MIR:00000056"
+}, {
+	"pattern": "^PWY\\w{2}\\-\\d{3}$",
+	"synonyms": [],
+	"name": "Saccharomyces genome database pathways",
+	"id": "MIR:00000057"
+}, {
+	"pattern": "^[SCTAGMNU]\\d{2}\\.([AB]\\d{2}|\\d{3})$",
+	"synonyms": [],
+	"name": "MEROPS",
+	"id": "MIR:00000059"
+}, {
+	"pattern": "^PTHR\\d{5}(\\:SF\\d{1,3})?$",
+	"synonyms": [],
+	"name": "PANTHER Family",
+	"id": "MIR:00000060"
+}, {
+	"pattern": "^PR\\d{5}$",
+	"synonyms": ["SPRINT"],
+	"name": "PRINTS",
+	"id": "MIR:00000061"
+}, {
+	"pattern": "^mge:\\d+$",
+	"synonyms": [],
+	"name": "Aclame",
+	"id": "MIR:00000063"
+}, {
+	"pattern": "^(ISBN)?(-13|-10)?[:]?[ ]?(\\d{2,3}[ -]?)?\\d{1,5}[ -]?\\d{1,7}[ -]?\\d{1,6}[ -]?(\\d|X)$",
+	"synonyms": [],
+	"name": "ISBN",
+	"id": "MIR:00000064"
+}, {
+	"pattern": "^B\\d{5}$",
+	"synonyms": [],
+	"name": "3DMET",
+	"id": "MIR:00000066"
+}, {
+	"pattern": "^FMA:\\d+$",
+	"synonyms": ["Foundational Model of Anatomy Ontology"],
+	"name": "FMA",
+	"id": "MIR:00000067"
+}, {
+	"pattern": "^HBG\\d+$",
+	"synonyms": [],
+	"name": "HOVERGEN",
+	"id": "MIR:00000074"
+}, {
+	"pattern": "WP\\d{1,5}(\\_r\\d+)?$",
+	"synonyms": [],
+	"name": "WikiPathways",
+	"id": "MIR:00000076"
+}, {
+	"pattern": "^M\\d{4}$",
+	"synonyms": [],
+	"name": "MACiE",
+	"id": "MIR:00000077"
+}, {
+	"pattern": "MI\\d{7}",
+	"synonyms": [],
+	"name": "miRBase Sequence",
+	"id": "MIR:00000078"
+}, {
+	"pattern": "ZDB\\-GENE\\-\\d+\\-\\d+",
+	"synonyms": [],
+	"name": "ZFIN Gene",
+	"id": "MIR:00000079"
+}, {
+	"pattern": "^((HGNC|hgnc):)?\\d{1,5}$",
+	"synonyms": ["HUGO Gene Nomenclature Committee"],
+	"name": "HGNC",
+	"id": "MIR:00000080"
+}, {
+	"pattern": "^SO:\\d{7}$",
+	"synonyms": ["SO", "Sequence Types and Features"],
+	"name": "Sequence Ontology",
+	"id": "MIR:00000081"
+}, {
+	"pattern": "^UPA\\d{5}$",
+	"synonyms": [],
+	"name": "Unipathway",
+	"id": "MIR:00000083"
+}, {
+	"pattern": "^CHEMBL\\d+$",
+	"synonyms": [],
+	"name": "ChEMBL compound",
+	"id": "MIR:00000084"
+}, {
+	"pattern": "^CHEMBL\\d+$",
+	"synonyms": [],
+	"name": "ChEMBL target",
+	"id": "MIR:00000085"
+}, {
+	"pattern": "^PA\\d+$",
+	"synonyms": [],
+	"name": "PharmGKB Pathways",
+	"id": "MIR:00000089"
+}, {
+	"pattern": "^PA\\d+$",
+	"synonyms": [],
+	"name": "PharmGKB Disease",
+	"id": "MIR:00000090"
+}, {
+	"pattern": "^PA\\d+$",
+	"synonyms": [],
+	"name": "PharmGKB Drug",
+	"id": "MIR:00000091"
+}, {
+	"pattern": "^DAP\\d+$",
+	"synonyms": ["Therapeutic Target Database"],
+	"name": "TTD Drug",
+	"id": "MIR:00000092"
+}, {
+	"pattern": "^TTDS\\d+$",
+	"synonyms": [],
+	"name": "TTD Target",
+	"id": "MIR:00000093"
+}, {
+	"pattern": "^D\\d+$",
+	"synonyms": [],
+	"name": "CTD Chemical",
+	"id": "MIR:00000098"
+}, {
+	"pattern": "^D\\d+$",
+	"synonyms": [],
+	"name": "CTD Disease",
+	"id": "MIR:00000099"
+}, {
+	"pattern": "^DB\\d{5}$",
+	"synonyms": [],
+	"name": "DrugBank",
+	"id": "MIR:00000102"
+}, {
+	"pattern": "^T3D\\d+$",
+	"synonyms": ["Toxin and Toxin Target Database"],
+	"name": "T3DB",
+	"id": "MIR:00000103"
+}, {
+	"pattern": "^SMP\\d{5}$",
+	"synonyms": ["SMPDB"],
+	"name": "Small Molecule Pathway Database",
+	"id": "MIR:00000104"
+}, {
+	"pattern": "^TEDDY_\\d{7}$",
+	"synonyms": [],
+	"name": "TEDDY",
+	"id": "MIR:00000107"
+}, {
+	"pattern": "^KISAO_\\d+$",
+	"synonyms": ["Kinetic Simulation Algorithm Ontology"],
+	"name": "KiSAO",
+	"id": "MIR:00000108"
+}, {
+	"pattern": "^MI:\\d{4}$",
+	"synonyms": ["MI"],
+	"name": "Molecular Interactions Ontology",
+	"id": "MIR:00000109"
+}, {
+	"pattern": "^CL:\\d{7}$",
+	"synonyms": ["Cell Ontology", "CL"],
+	"name": "Cell Type Ontology",
+	"id": "MIR:00000110"
+}, {
+	"pattern": "^BTO:\\d{7}$",
+	"synonyms": ["BTO"],
+	"name": "Brenda Tissue Ontology",
+	"id": "MIR:00000111"
+}, {
+	"pattern": "^PATO:\\d{7}$",
+	"synonyms": [],
+	"name": "PATO",
+	"id": "MIR:00000112"
+}, {
+	"pattern": "^K\\d+$",
+	"synonyms": [],
+	"name": "KEGG Orthology",
+	"id": "MIR:00000116"
+}, {
+	"pattern": "^PD\\d+$",
+	"synonyms": [],
+	"name": "ProDom",
+	"id": "MIR:00000117"
+}, {
+	"pattern": "^SM\\d{5}$",
+	"synonyms": [],
+	"name": "SMART",
+	"id": "MIR:00000118"
+}, {
+	"pattern": "^(cd)?\\d{5}$",
+	"synonyms": ["CDD"],
+	"name": "Conserved Domain Database",
+	"id": "MIR:00000119"
+}, {
+	"pattern": "^OBO_REL:\\w+$",
+	"synonyms": [],
+	"name": "Relation Ontology",
+	"id": "MIR:00000120"
+}, {
+	"pattern": "^IM-\\d+(-?)(\\d+?)$",
+	"synonyms": [],
+	"name": "IMEx",
+	"id": "MIR:00000122"
+}, {
+	"pattern": "^([Bb]irnlex_|Sao|nlx_|GO_|CogPO|HDO|nifext_)\\d+$",
+	"synonyms": ["BIRNLex", "NIFSTD"],
+	"name": "NeuroLex",
+	"id": "MIR:00000126"
+}, {
+	"pattern": "^OBI_\\d{7}$",
+	"synonyms": ["OBI"],
+	"name": "Ontology for Biomedical Investigations",
+	"id": "MIR:00000127"
+}, {
+	"pattern": "^OPB_\\d+$",
+	"synonyms": ["OPB"],
+	"name": "Ontology of Physics for Biology",
+	"id": "MIR:00000129"
+}, {
+	"pattern": "^BSU\\d{5}$",
+	"synonyms": [],
+	"name": "SubtiWiki",
+	"id": "MIR:00000132"
+}, {
+	"pattern": "^UO:\\d{7}?",
+	"synonyms": ["UO"],
+	"name": "Unit Ontology",
+	"id": "MIR:00000136"
+}, {
+	"pattern": "^NCT\\d{8}$",
+	"synonyms": ["NCT"],
+	"name": "ClinicalTrials.gov",
+	"id": "MIR:00000137"
+}, {
+	"pattern": "^C\\d+$",
+	"synonyms": ["NCI thesaurus", "National Cancer Institute Thesaurus"],
+	"name": "NCIt",
+	"id": "MIR:00000139"
+}, {
+	"pattern": "^PR\\:\\d+$",
+	"synonyms": [],
+	"name": "Protein Ontology",
+	"id": "MIR:00000141"
+}, {
+	"pattern": "^CAL\\d{7}$",
+	"synonyms": ["CGD"],
+	"name": "Candida Genome Database",
+	"id": "MIR:00000145"
+}, {
+	"pattern": "^casent\\d+(\\-D\\d+)?$",
+	"synonyms": [],
+	"name": "AntWeb",
+	"id": "MIR:00000146"
+}, {
+	"pattern": "PMC\\d+",
+	"synonyms": ["PubMed Central", "PMCI"],
+	"name": "PMC International",
+	"id": "MIR:00000147"
+}, {
+	"pattern": "^EDI_\\d+$",
+	"synonyms": [],
+	"name": "AmoebaDB",
+	"id": "MIR:00000148"
+}, {
+	"pattern": "^TC\\d+$",
+	"synonyms": [],
+	"name": "BeetleBase",
+	"id": "MIR:00000157"
+}, {
+	"pattern": "^rs\\d+$",
+	"synonyms": [],
+	"name": "dbSNP",
+	"id": "MIR:00000161"
+}, {
+	"pattern": "^EG\\d+$",
+	"synonyms": [],
+	"name": "EcoGene",
+	"id": "MIR:00000163"
+}, {
+	"pattern": "^HIX\\d{7}(\\.\\d+)?$",
+	"synonyms": [],
+	"name": "H-InvDb Locus",
+	"id": "MIR:00000167"
+}, {
+	"pattern": "^HIT\\d{9}(\\.\\d+)?$",
+	"synonyms": [],
+	"name": "H-InvDb Transcript",
+	"id": "MIR:00000168"
+}, {
+	"pattern": "^HIP\\d{9}(\\.\\d+)?$",
+	"synonyms": [],
+	"name": "H-InvDb Protein",
+	"id": "MIR:00000169"
+}, {
+	"pattern": "^SEQF\\d+$",
+	"synonyms": ["Human Oral Microbiome Database"],
+	"name": "HOMD Sequence Metainformation",
+	"id": "MIR:00000170"
+}, {
+	"pattern": "^IS\\w+(\\-\\d)?$",
+	"synonyms": ["Insertion Sequence Finder"],
+	"name": "ISFinder",
+	"id": "MIR:00000173"
+}, {
+	"pattern": "^P\\w+$",
+	"synonyms": ["PGD", "Pseudocap"],
+	"name": "Pseudomonas Genome Database",
+	"id": "MIR:00000180"
+}, {
+	"pattern": "^GR\\:\\d+$",
+	"synonyms": [],
+	"name": "Gramene genes",
+	"id": "MIR:00000182"
+}, {
+	"pattern": "^GR\\_tax\\:\\d+$",
+	"synonyms": [],
+	"name": "Gramene Taxonomy",
+	"id": "MIR:00000183"
+}, {
+	"pattern": "^(XB-GENE-)?\\d+$",
+	"synonyms": [],
+	"name": "Xenbase",
+	"id": "MIR:00000186"
+}, {
+	"pattern": "^MIR:001\\d{5}$",
+	"synonyms": [],
+	"name": "MIRIAM Registry resource",
+	"id": "MIR:00000188"
+}, {
+	"pattern": "^(data|topic|operation|format)\\_\\d{4}$",
+	"synonyms": ["EMBRACE Data and Methods Ontology"],
+	"name": "EDAM Ontology",
+	"id": "MIR:00000189"
+}, {
+	"pattern": "^PM\\d{7}",
+	"synonyms": ["PMDB"],
+	"name": "Protein Model Database",
+	"id": "MIR:00000190"
+}, {
+	"pattern": "^AGR\\w+$",
+	"synonyms": ["Ashbya Genome Database"],
+	"name": "AGD",
+	"id": "MIR:00000192"
+}, {
+	"pattern": "^AS\\d{6}$",
+	"synonyms": [],
+	"name": "ArachnoServer",
+	"id": "MIR:00000193"
+}, {
+	"pattern": "^(GT|GH|PL|CE|CBM)\\d+(\\_\\d+)?$",
+	"synonyms": ["Carbohydrate-Active enzYmes"],
+	"name": "CAZy",
+	"id": "MIR:00000195"
+}, {
+	"pattern": "^DP\\d{5}$",
+	"synonyms": [],
+	"name": "DisProt",
+	"id": "MIR:00000199"
+}, {
+	"pattern": "^EB\\d+$",
+	"synonyms": [],
+	"name": "EchoBASE",
+	"id": "MIR:00000200"
+}, {
+	"pattern": "^((EB\\w+)|([A-Z0-9]+\\_[A-Z0-9]+))$",
+	"synonyms": ["Ensembl Genomes Bacteria"],
+	"name": "Ensembl Bacteria",
+	"id": "MIR:00000202"
+}, {
+	"pattern": "^M\\d{5}$",
+	"synonyms": ["euHCVDB"],
+	"name": "HCVDB",
+	"id": "MIR:00000207"
+}, {
+	"pattern": "^ENSGT\\d+$",
+	"synonyms": ["Ensembl GeneTree"],
+	"name": "GeneTree",
+	"id": "MIR:00000214"
+}, {
+	"pattern": "^Rv\\d{4}(A|B|c)?$",
+	"synonyms": ["TubercuList"],
+	"name": "MycoBrowser tuberculosis",
+	"id": "MIR:00000216"
+}, {
+	"pattern": "^ML\\w+$",
+	"synonyms": ["Leproma"],
+	"name": "MycoBrowser leprae",
+	"id": "MIR:00000217"
+}, {
+	"pattern": "^MMAR\\_\\d+$",
+	"synonyms": ["marinolist"],
+	"name": "MycoBrowser marinum",
+	"id": "MIR:00000218"
+}, {
+	"pattern": "^MSMEG\\w+$",
+	"synonyms": ["smegmalist"],
+	"name": "MycoBrowser smegmatis",
+	"id": "MIR:00000219"
+}, {
+	"pattern": "^\\D{4}\\d{6}(\\-\\D{2})?$",
+	"synonyms": [],
+	"name": "VectorBase",
+	"id": "MIR:00000232"
+}, {
+	"pattern": "^DOID\\:\\d+$",
+	"synonyms": ["DO"],
+	"name": "Human Disease Ontology",
+	"id": "MIR:00000233"
+}, {
+	"pattern": "^CCO\\:\\w+$",
+	"synonyms": [],
+	"name": "Cell Cycle Ontology",
+	"id": "MIR:00000234"
+}, {
+	"pattern": "MIMAT\\d{7}",
+	"synonyms": [],
+	"name": "miRBase mature sequence",
+	"id": "MIR:00000235"
+}, {
+	"pattern": "^NX_\\w+",
+	"synonyms": [],
+	"name": "nextProt",
+	"id": "MIR:00000236"
+}, {
+	"pattern": "^(T0\\d+|\\w{3,5})$",
+	"synonyms": ["KEGG Organism"],
+	"name": "KEGG Genome",
+	"id": "MIR:00000238"
+}, {
+	"pattern": "^T3\\d+$",
+	"synonyms": [],
+	"name": "KEGG Metagenome",
+	"id": "MIR:00000239"
+}, {
+	"pattern": "^oai\\:cwi\\.nl\\:\\d+$",
+	"synonyms": ["National Academic Research and Collaborations Information System"],
+	"name": "NARCIS",
+	"id": "MIR:00000240"
+}, {
+	"pattern": "^J\\d{1,3}(\\.\\d{3})?(\\.\\d{1,3})?[A-Za-z]$",
+	"synonyms": [],
+	"name": "Japan Chemical Substance Dictionary",
+	"id": "MIR:00000241"
+}, {
+	"pattern": "^PW:\\d{7}$",
+	"synonyms": [],
+	"name": "Pathway Ontology",
+	"id": "MIR:00000242"
+}, {
+	"pattern": "^[SED]R[APRSXZ]\\d{6}",
+	"synonyms": [],
+	"name": "Sequence Read Archive",
+	"id": "MIR:00000243"
+}, {
+	"pattern": "^PA\\w+$",
+	"synonyms": [],
+	"name": "PharmGKB Gene",
+	"id": "MIR:00000245"
+}, {
+	"pattern": "^MNEST\\d+$",
+	"synonyms": [],
+	"name": "miRNEST",
+	"id": "MIR:00000246"
+}, {
+	"pattern": "^virsi\\d+$",
+	"synonyms": ["Virus siRNA database", "VIRsiRNAdb"],
+	"name": "VIRsiRNA",
+	"id": "MIR:00000249"
+}, {
+	"pattern": "^ZDB\\-GEN0\\-\\d+\\-\\d+$",
+	"synonyms": [],
+	"name": "ZFIN Phenotype",
+	"id": "MIR:00000259"
+}, {
+	"pattern": "^ZDB\\-GEN0\\-\\d+\\-\\d+$",
+	"synonyms": [],
+	"name": "ZFIN Expression",
+	"id": "MIR:00000260"
+}, {
+	"pattern": "^KIAA\\d{4}$",
+	"synonyms": [],
+	"name": "HUGE",
+	"id": "MIR:00000263"
+}, {
+	"pattern": "^Q[A-Z0-9]+$",
+	"synonyms": [],
+	"name": "Anatomical Therapeutic Chemical Vetinary",
+	"id": "MIR:00000267"
+}, {
+	"pattern": "^C\\d{8}",
+	"synonyms": [],
+	"name": "KnapSack",
+	"id": "MIR:00000271"
+}, {
+	"pattern": "^([0-9a-fA-F]){8}(-([0-9a-fA-F]){4}){3}-([0-9a-fA-F]){12}$",
+	"synonyms": ["GMD"],
+	"name": "Golm Metabolome Database",
+	"id": "MIR:00000274"
+}, {
+	"pattern": "^DDB_G\\d+$",
+	"synonyms": [],
+	"name": "Dictybase Gene",
+	"id": "MIR:00000286"
+}, {
+	"pattern": "^M\\d+$",
+	"synonyms": ["IMGT/LIGM-DB"],
+	"name": "IMGT LIGM",
+	"id": "MIR:00000287"
+}, {
+	"pattern": "^MF_\\d+$",
+	"synonyms": ["High-quality Automated and Manual Annotation of microbial Proteomes"],
+	"name": "HAMAP",
+	"id": "MIR:00000292"
+}, {
+	"pattern": "^m\\w+$",
+	"synonyms": ["Rodent Unidentified Gene-Encoded Large Proteins"],
+	"name": "Rouge",
+	"id": "MIR:00000293"
+}, {
+	"pattern": "^[AEP]-\\w{4}-\\d+$",
+	"synonyms": [],
+	"name": "ArrayExpress Platform",
+	"id": "MIR:00000294"
+}, {
+	"pattern": "^COG\\d+$",
+	"synonyms": ["Clusters of Orthologous Groups"],
+	"name": "COGs",
+	"id": "MIR:00000296"
+}, {
+	"pattern": "^[SCTAGMNU]\\d+$",
+	"synonyms": [],
+	"name": "MEROPS Family",
+	"id": "MIR:00000302"
+}, {
+	"pattern": "^TF\\w+$",
+	"synonyms": ["Pazar Database"],
+	"name": "Pazar Transcription Factor",
+	"id": "MIR:00000306"
+}, {
+	"pattern": "^PO:\\d+$",
+	"synonyms": ["PO"],
+	"name": "Plant Ontology",
+	"id": "MIR:00000307"
+}, {
+	"pattern": "^CMC_\\d+$",
+	"synonyms": [],
+	"name": "Science Signaling Pathway-Independent Component",
+	"id": "MIR:00000309"
+}, {
+	"pattern": "^CMN_\\d+$",
+	"synonyms": [],
+	"name": "Science Signaling Pathway-Dependent Component",
+	"id": "MIR:00000310"
+}, {
+	"pattern": "^CMP_\\d+$",
+	"synonyms": [],
+	"name": "Science Signaling Pathway",
+	"id": "MIR:00000311"
+}, {
+	"pattern": "^TB[1,2]?:[A-Z][a-z]?\\d+$",
+	"synonyms": [],
+	"name": "TreeBASE",
+	"id": "MIR:00000312"
+}, {
+	"pattern": "^TTHERM\\_\\d+$",
+	"synonyms": ["TGD"],
+	"name": "Tetrahymena Genome Database",
+	"id": "MIR:00000313"
+}, {
+	"pattern": "^TIGR\\d+$",
+	"synonyms": [],
+	"name": "TIGRFAMS",
+	"id": "MIR:00000315"
+}, {
+	"pattern": "^spike\\d{5}$",
+	"synonyms": ["Signaling Pathways Integrated Knowledge Engine"],
+	"name": "SPIKE Map",
+	"id": "MIR:00000321"
+}, {
+	"pattern": "^r\\d+$",
+	"synonyms": ["University of Minnesota Biocatalysis/Biodegradation Database (Reaction)"],
+	"name": "UM-BBD Reaction",
+	"id": "MIR:00000325"
+}, {
+	"pattern": "^e\\d+$",
+	"synonyms": ["University of Minnesota Biocatalysis/Biodegradation Database (Enzyme)"],
+	"name": "UM-BBD Enzyme",
+	"id": "MIR:00000326"
+}, {
+	"pattern": "^bt\\d+$",
+	"synonyms": [],
+	"name": "UM-BBD Biotransformation Rule",
+	"id": "MIR:00000328"
+}, {
+	"pattern": "^DDB\\d+$",
+	"synonyms": [],
+	"name": "Dictybase EST",
+	"id": "MIR:00000330"
+}, {
+	"pattern": "^S\\w+(\\.)?\\w+(\\.)?$",
+	"synonyms": [],
+	"name": "PomBase",
+	"id": "MIR:00000335"
+}, {
+	"pattern": "^ENSG\\d{11}$",
+	"synonyms": ["Human Protein Atlas"],
+	"name": "HPA",
+	"id": "MIR:00000336"
+}, {
+	"pattern": "^CH_\\d+$",
+	"synonyms": [],
+	"name": "CharProt",
+	"id": "MIR:00000341"
+}, {
+	"pattern": "^PRJ[DEN][A-Z]\\d+$",
+	"synonyms": [],
+	"name": "BioProject",
+	"id": "MIR:00000349"
+}, {
+	"pattern": "^SAM[NED](\\w)?\\d+$",
+	"synonyms": ["BioSDe", "BioSdn"],
+	"name": "BioSample",
+	"id": "MIR:00000350"
+}, {
+	"pattern": "^TA\\d+$",
+	"synonyms": [],
+	"name": "PiroplasmaDB",
+	"id": "MIR:00000351"
+}, {
+	"pattern": "^UDB\\d{6}$",
+	"synonyms": [],
+	"name": "Unite",
+	"id": "MIR:00000352"
+}, {
+	"pattern": "^C\\d+$",
+	"synonyms": ["National Cancer Institute Metathesaurus", "NCI metathesaurus"],
+	"name": "NCIm",
+	"id": "MIR:00000353"
+}, {
+	"pattern": "^LOC\\_Os\\d{1,2}g\\d{5}$",
+	"synonyms": [],
+	"name": "Rice Genome Annotation Project",
+	"id": "MIR:00000358"
+}, {
+	"pattern": "^TS-\\d{4}$",
+	"synonyms": [],
+	"name": "Tissue List",
+	"id": "MIR:00000360"
+}, {
+	"pattern": "^P\\d{5}$",
+	"synonyms": [],
+	"name": "PANTHER Pathway",
+	"id": "MIR:00000363"
+}, {
+	"pattern": "^bsg-\\d{6}$",
+	"synonyms": [],
+	"name": "BioSharing",
+	"id": "MIR:00000364"
+}, {
+	"pattern": "^DRSC\\d+$",
+	"synonyms": ["FlyRNAi", "Drosophila RNAi Screening Cente"],
+	"name": "DRSC",
+	"id": "MIR:00000367"
+}, {
+	"pattern": "^PTN\\d{9}$",
+	"synonyms": [],
+	"name": "PANTHER Node",
+	"id": "MIR:00000374"
+}, {
+	"pattern": "^CCDS\\d+\\.\\d+$",
+	"synonyms": ["CCDS"],
+	"name": "Consensus CDS",
+	"id": "MIR:00000375"
+}, {
+	"pattern": "^LRG_\\d+$",
+	"synonyms": ["LRG"],
+	"name": "Locus Reference Genomic",
+	"id": "MIR:00000376"
+}, {
+	"pattern": "^[AEP]-\\w{4}-\\d+$",
+	"synonyms": ["Gene Expression Atlas Experiment"],
+	"name": "GXA Expt",
+	"id": "MIR:00000379"
+}, {
+	"pattern": "^MTBLS\\d+$",
+	"synonyms": [],
+	"name": "MetaboLights",
+	"id": "MIR:00000380"
+}, {
+	"pattern": "^urn\\:nbn\\:[A-Za-z_0-9]+\\:([A-Za-z_0-9]+\\:)?[A-Za-z_0-9]+$",
+	"synonyms": ["NBN"],
+	"name": "National Bibliography Number",
+	"id": "MIR:00000381"
+}, {
+	"pattern": "^InChI\\=1S\\/[A-Za-z0-9]+(\\/[cnpqbtmsih][A-Za-z0-9\\-\\+\\(\\)\\,]+)+$",
+	"synonyms": ["IUPAC International Chemical Identifier"],
+	"name": "InChI",
+	"id": "MIR:00000383"
+}, {
+	"pattern": "^ev\\:E\\d+$",
+	"synonyms": [],
+	"name": "KEGG Environ",
+	"id": "MIR:00000389"
+}, {
+	"pattern": "^(cl|tum)\\d+$",
+	"synonyms": ["Cell Line Data Base"],
+	"name": "CLDB",
+	"id": "MIR:00000390"
+}, {
+	"pattern": "^ACYPI\\d{6}(-RA)?$",
+	"synonyms": [],
+	"name": "AphidBase Transcript",
+	"id": "MIR:00000393"
+}, {
+	"pattern": "^IID\\d+$",
+	"synonyms": ["Intrinsically Disordered proteins with Extensive Annotations and Literature"],
+	"name": "IDEAL",
+	"id": "MIR:00000398"
+}, {
+	"pattern": "^[Gi|Gc]\\d+$",
+	"synonyms": [],
+	"name": "GOLD genome",
+	"id": "MIR:00000401"
+}, {
+	"pattern": "^Gm\\d+$",
+	"synonyms": [],
+	"name": "GOLD metadata",
+	"id": "MIR:00000402"
+}, {
+	"pattern": "^VariO:\\d+$",
+	"synonyms": ["Variation Ontology"],
+	"name": "VariO",
+	"id": "MIR:00000406"
+}, {
+	"pattern": "^RF\\d{5}$",
+	"synonyms": ["RNA Family Database"],
+	"name": "RFAM",
+	"id": "MIR:00000409"
+}, {
+	"pattern": "^(ENSFM|ENSGTV:)\\d+$",
+	"synonyms": [],
+	"name": "Bgee family",
+	"id": "MIR:00000417"
+}, {
+	"pattern": "^(ENS|FBgn)\\w+$",
+	"synonyms": [],
+	"name": "Bgee gene",
+	"id": "MIR:00000418"
+}, {
+	"pattern": "^(FBvd|XtroDO|HsapDO|MmusDO)\\:\\d+$",
+	"synonyms": [],
+	"name": "Bgee stage",
+	"id": "MIR:00000419"
+}, {
+	"pattern": "^(XAO|ZFA|EHDAA|EMAPA|EV|MA)\\:\\d+$",
+	"synonyms": [],
+	"name": "Bgee organ",
+	"id": "MIR:00000420"
+}, {
+	"pattern": "^([hm]\\_)?\\w+Pathway$",
+	"synonyms": [],
+	"name": "BioCarta Pathway",
+	"id": "MIR:00000421"
+}, {
+	"pattern": "^G|P|U|C|S\\d{5}$",
+	"synonyms": [],
+	"name": "PANTHER Pathway Component",
+	"id": "MIR:00000422"
+}, {
+	"pattern": "^EBI\\-[0-9]+$",
+	"synonyms": [],
+	"name": "IntAct Molecule",
+	"id": "MIR:00000427"
+}, {
+	"pattern": "^BG\\d+$",
+	"synonyms": [],
+	"name": "SubtiList",
+	"id": "MIR:00000433"
+}, {
+	"pattern": "^C\\d+$",
+	"synonyms": [],
+	"name": "SIDER Side Effect",
+	"id": "MIR:00000436"
+}, {
+	"pattern": "^S\\d+$",
+	"synonyms": ["Magnaporthe comparative genomics database"],
+	"name": "Broad Fungal Genome Initiative",
+	"id": "MIR:00000438"
+}, {
+	"pattern": "^GenProp\\d+$",
+	"synonyms": [],
+	"name": "Genome Properties",
+	"id": "MIR:00000443"
+}, {
+	"pattern": "^MA:\\d+$",
+	"synonyms": [],
+	"name": "Mouse Adult Gross Anatomy",
+	"id": "MIR:00000445"
+}, {
+	"pattern": "^UBERON\\:\\d+$",
+	"synonyms": ["Uber Anatomy Ontology"],
+	"name": "UBERON",
+	"id": "MIR:00000446"
+}, {
+	"pattern": "^GO_REF:\\d{7}$",
+	"synonyms": ["GO reference collection"],
+	"name": "Gene Ontology Reference",
+	"id": "MIR:00000450"
+}, {
+	"pattern": "^[AMCST][0-9x][0-9]$",
+	"synonyms": [],
+	"name": "Degradome Database",
+	"id": "MIR:00000454"
+}, {
+	"pattern": "^AT[1-5]G\\d{5}(\\.\\d+)?$",
+	"synonyms": ["Database of Arabidopsis transcription factors"],
+	"name": "DATF",
+	"id": "MIR:00000456"
+}, {
+	"pattern": "^Y[A-Z]{2}\\d+[CW]$",
+	"synonyms": ["Yeast Deletion Project and Proteomics of Mitochondria Database"],
+	"name": "YDPM",
+	"id": "MIR:00000465"
+}, {
+	"pattern": "^WBRNAi\\d{8}$",
+	"synonyms": [],
+	"name": "WormBase RNAi",
+	"id": "MIR:00000466"
+}, {
+	"pattern": "^H\\d+$",
+	"synonyms": [],
+	"name": "KEGG Disease",
+	"id": "MIR:00000475"
+}, {
+	"pattern": "^D\\d{5}",
+	"synonyms": [],
+	"name": "LigandBox",
+	"id": "MIR:00000477"
+}, {
+	"pattern": "^EP\\d{4}$",
+	"synonyms": [],
+	"name": "GlycoEpitope",
+	"id": "MIR:00000478"
+}, {
+	"pattern": "^JCGG-STR\\d{6}$",
+	"synonyms": ["Japan Consortium for Glycobiology and Glycotechnology DataBase"],
+	"name": "JCGGDB",
+	"id": "MIR:00000479"
+}, {
+	"pattern": "^NONHSAG\\d{5}$",
+	"synonyms": [],
+	"name": "NONCODE v4 Gene",
+	"id": "MIR:00000480"
+}, {
+	"pattern": "^NONHSAT\\d{6}$",
+	"synonyms": [],
+	"name": "NONCODE v4 Transcript",
+	"id": "MIR:00000481"
+}, {
+	"pattern": "^A[A-Z]+\\d+$",
+	"synonyms": ["OTL"],
+	"name": "Oryza Tag Line",
+	"id": "MIR:00000486"
+}, {
+	"pattern": "^I\\d{2}\\.\\d{3}$",
+	"synonyms": [],
+	"name": "MEROPS Inhibitor",
+	"id": "MIR:00000491"
+}, {
+	"pattern": "^L\\d+$",
+	"synonyms": ["GPCR-LIgand DAtabase Ligand"],
+	"name": "GLIDA Ligand",
+	"id": "MIR:00000494"
+}, {
+	"pattern": "^rs\\d+$",
+	"synonyms": ["Functional Single Nucleotide Polymorphism"],
+	"name": "F-SNP",
+	"id": "MIR:00000496"
+}, {
+	"pattern": "^NOR\\d+$",
+	"synonyms": [],
+	"name": "NORINE",
+	"id": "MIR:00000498"
+}, {
+	"pattern": "^GRO\\:\\d+$",
+	"synonyms": [],
+	"name": "Gramene Growth Stage Ontology",
+	"id": "MIR:00000508"
+}, {
+	"pattern": "^(GI|gi)\\:\\d+$",
+	"synonyms": [],
+	"name": "NCBI GI",
+	"id": "MIR:00000509"
+}, {
+	"pattern": "^EGAS\\d{11}$",
+	"synonyms": ["EGA Study"],
+	"name": "European Genome-phenome Archive Study",
+	"id": "MIR:00000511"
+}, {
+	"pattern": "^EGAD\\d{11}$",
+	"synonyms": ["EGA Dataset"],
+	"name": "European Genome-phenome Archive Dataset",
+	"id": "MIR:00000512"
+}, {
+	"pattern": "^(R)?PXD\\d{6}$",
+	"synonyms": [],
+	"name": "ProteomeXchange",
+	"id": "MIR:00000513"
+}, {
+	"pattern": "^P(X|R)D\\d{6}$",
+	"synonyms": [],
+	"name": "PRIDE Project",
+	"id": "MIR:00000515"
+}, {
+	"pattern": "^MAMO_\\d{7}$",
+	"synonyms": ["MAMO"],
+	"name": "Mathematical Modelling Ontology",
+	"id": "MIR:00000517"
+}, {
+	"pattern": "^[EP]O\\:\\d{7}$",
+	"synonyms": ["Plant Environment Conditions"],
+	"name": "Plant Environment Ontology",
+	"id": "MIR:00000518"
+}, {
+	"pattern": "^BE\\d{7}$",
+	"synonyms": [],
+	"name": "DrugBank Target v4",
+	"id": "MIR:00000528"
+}, {
+	"pattern": "^(ZINC)?\\d+$",
+	"synonyms": [],
+	"name": "ZINC",
+	"id": "MIR:00000529"
+}, {
+	"pattern": "^FDB\\d+$",
+	"synonyms": [],
+	"name": "FooDB Compound",
+	"id": "MIR:00000530"
+}, {
+	"pattern": "^Orphanet(_|:)C?\\d+$",
+	"synonyms": ["ORDO"],
+	"name": "Orphanet Rare Disease Ontology",
+	"id": "MIR:00000532"
+}, {
+	"pattern": "^PAR:\\d+$",
+	"synonyms": ["PSI-PAR"],
+	"name": "Protein Affinity Reagents",
+	"id": "MIR:00000533"
+}, {
+	"pattern": "^RCV\\d+(\\.\\d+)?$",
+	"synonyms": [],
+	"name": "ClinVar Record",
+	"id": "MIR:00000534"
+}, {
+	"pattern": "^(D|PP|R|T|H|X|AI)?\\d+$",
+	"synonyms": ["United States Patent and Trademark Office"],
+	"name": "USPTO",
+	"id": "MIR:00000538"
+}, {
+	"pattern": "^HGVST\\d+$",
+	"synonyms": [],
+	"name": "GWAS Central Study",
+	"id": "MIR:00000540"
+}, {
+	"pattern": "^HGVM\\d+$",
+	"synonyms": [],
+	"name": "GWAS Central Marker",
+	"id": "MIR:00000542"
+}, {
+	"pattern": "^HGVP\\d+$",
+	"synonyms": [],
+	"name": "GWAS Central Phenotype",
+	"id": "MIR:00000543"
+}, {
+	"pattern": "^ENST\\d{11}$",
+	"synonyms": [],
+	"name": "ExAC Transcript",
+	"id": "MIR:00000547"
+}, {
+	"pattern": "^ENSG\\d{11}$",
+	"synonyms": [],
+	"name": "ExAC Gene",
+	"id": "MIR:00000548"
+}, {
+	"pattern": "^Q\\d+$",
+	"synonyms": [],
+	"name": "Wikidata",
+	"id": "MIR:00000549"
+}, {
+	"pattern": "^SLM:\\d+$",
+	"synonyms": [],
+	"name": "SwissLipids",
+	"id": "MIR:00000550"
+}, {
+	"pattern": "^UPC\\d{5}$",
+	"synonyms": [],
+	"name": "UniPathway Compound",
+	"id": "MIR:00000551"
+}, {
+	"pattern": "^cpd\\d+$",
+	"synonyms": [],
+	"name": "SEED Compound",
+	"id": "MIR:00000553"
+}, {
+	"pattern": "^RRID:\\w+$",
+	"synonyms": ["Research Resource IDentifier"],
+	"name": "RRID",
+	"id": "MIR:00000558"
+}, {
+	"pattern": "^CO\\d+$",
+	"synonyms": ["Unified Medical Language System"],
+	"name": "UMLS",
+	"id": "MIR:00000559"
+}, {
+	"pattern": "^(C|D)0\\d{5}$",
+	"synonyms": ["Medical Subject Headings"],
+	"name": "MeSH",
+	"id": "MIR:00000560"
+}, {
+	"pattern": "^EMD-\\d{4}$",
+	"synonyms": ["EMDB"],
+	"name": "Electron Microscopy Data Bank",
+	"id": "MIR:00000561"
+}, {
+	"pattern": "^MIRT\\d{6}$",
+	"synonyms": [],
+	"name": "miRTarBase",
+	"id": "MIR:00000562"
+}, {
+	"pattern": "^(hsa-(let|mir)-\\w+(-\\w+)?)|(piR-\\d+)|(chr\\w+.tRNA\\d+-\\w+)|(chr\\w+.tRNA\\d+-\\w+-tRF\\d)|((SNORD|SNORA|ACA|HBII|HBI|U)(-)?\\w+)|(HY\\d\\+(-L\\d+)?)|((LSU|SSU|5S)(-rRNA_Hsa)?(-L\\d+)?)$",
+	"synonyms": ["Database of small human noncoding RNAs"],
+	"name": "DASHR",
+	"id": "MIR:00000564"
+}, {
+	"pattern": "^(hsa-(let|mir)-\\w+(-\\w+)?)|(piR-\\d+)|(chr\\w+.tRNA\\d+-\\w+)|(chr\\w+.tRNA\\d+-\\w+-tRF\\d)|((SNORD|SNORA|ACA|HBII|HBI|U)(-)?\\w+)|(HY\\d\\+(-L\\d+)?)|((LSU|SSU|5S)(-rRNA_Hsa)?(-L\\d+)?)$",
+	"synonyms": [],
+	"name": "DASHR expression",
+	"id": "MIR:00000565"
+}, {
+	"pattern": "^splash\\d[A-Z-a-z0-9]-[A-Za-z0-9]+-[A-Za-z0-9]+$",
+	"synonyms": [],
+	"name": "SPLASH",
+	"id": "MIR:00000566"
+}, {
+	"pattern": "^MNXM\\d+$",
+	"synonyms": [],
+	"name": "MetaNetX chemical",
+	"id": "MIR:00000567"
+}, {
+	"pattern": "^MNXR\\d+$",
+	"synonyms": [],
+	"name": "MetaNetX reaction",
+	"id": "MIR:00000568"
+}, {
+	"pattern": "^MNXC\\d+$",
+	"synonyms": [],
+	"name": "MetaNetX compartment",
+	"id": "MIR:00000569"
+}]

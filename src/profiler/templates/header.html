@@ -1,0 +1,28 @@
+<title>smartAPI</title>
+
+<script>
+$(document).ready(function() {
+// Initialize collapse button
+  $('.button-collapse').sideNav({
+      menuWidth: 240, // Default is 240
+      edge: 'left', // Choose the horizontal origin
+      closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
+    }
+  );
+});
+</script>
+
+
+<nav class="blue" role="navigation">
+  <div class="nav-wrapper container">
+  <a id="logo-container" href="/" class="brand-logo">smartAPI Annotation</a>
+    <ul class="right hide-on-med-and-down">
+      <li><a href="http://identifiers.org/" target="_blank">Identifiers.org</a></li>
+    </ul>
+
+    <ul id="nav-mobile" class="side-nav">
+      <li><a href="http://identifiers.org/" target="_blank">Identifiers.org</a></li>
+    </ul>
+    <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+  </div>
+</nav>

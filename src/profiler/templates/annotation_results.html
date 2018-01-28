@@ -1,0 +1,330 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<style>
+table {
+    width:100%;
+    table-layout: fixed !important;
+}
+th, td {
+    padding: 5px;
+    word-wrap: break-word;
+    text-align: left;
+    vertical-align:bottom;
+}
+td.opt1 {
+    text-align: left;
+}
+table#t01 th  {
+    background-color: white;
+    color: black;
+}
+.checkbox-red[type="checkbox"].filled-in:checked + label:after{
+     border: 2px solid #FF5252;
+     background-color: #FF5252;
+}
+.material-icons {
+    color: #1976D2;
+}
+
+
+/* Select2 */
+.select2-container {
+    vertical-align: bottom;
+}
+.select2-container--default .select2-selection--multiple{
+    height: 20px;
+    background-color: white;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    cursor: text;
+    border: none;
+    padding-top: 0px;
+}
+.select2-container .select2-search--inline .select2-search__field {
+    margin-top: -5px;
+}
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+    border: none;
+    outline: 0;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: #e4e4e4;
+    border: none;
+    border-radius: 10px;
+    cursor: default;
+    float: left;
+    margin-right: 5px;
+    margin-top: 5px;
+    padding: 0 5px;
+}
+.select2-dropdown {
+  background-color: white;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  left: -100000px;
+  width: 100%;
+  z-index: 1051;
+  box-shadow: 5px 5px 5px #d9d9d9;
+}
+
+/* No More Tables */
+@media only screen and (max-width: 800px) {
+
+    /* Force table to not be like tables anymore */
+    #no-more-tables table,
+    #no-more-tables thead,
+    #no-more-tables tbody,
+    #no-more-tables th,
+    #no-more-tables td,
+    #no-more-tables tr {
+        display: block;
+    }
+
+    /* Hide table headers (but not display: none;, for accessibility) */
+    #no-more-tables thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    #no-more-tables tr { border: 1px solid #ccc; }
+
+    #no-more-tables td {
+        /* Behave  like a "row" */
+        border: none;
+        border-bottom: 1px solid #eee;
+        position: relative;
+        padding-left: 50%;
+        white-space: normal;
+        text-align:left;
+    }
+
+    #no-more-tables td:before {
+        /* Now like a table header */
+        position: absolute;
+        /* Top/left values mimic padding */
+        top: 6px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        text-align:left;
+        font-weight: bold;
+    }
+
+    /* Label the data */
+    #no-more-tables td:before { content: attr(data-title); }
+}
+</style>
+
+
+<script>
+$(document).ready(function () {
+
+    // Remove tables rows when checkbox is checked
+    $("#remove").on("click", function () {
+        $('table tr').has('input[name="data-row"]:checked').remove()
+    });
+
+    // Initialize Select2
+    $(".js-example-tokenizer-ajax-data").select2({
+        placeholder: "Select a resource...",
+        maximumSelectionLength: 1,
+        tags: true
+    })
+
+    // Get Miriam ID of selected resource annotation option based on Info element
+    $("i.view-resource-description").on("click", function() {
+        var siblingSelectElement = $(this).siblings( "select")
+        var mySelectedElementId = siblingSelectElement.find(":selected").val();
+        var mySelectedElementValue = siblingSelectElement.find(":selected").text();
+
+        var miriamPrefix = "MIR";
+
+        // Check if siblingSelectElement not null or None
+        if (mySelectedElementId && mySelectedElementId.startsWith(miriamPrefix)) {
+            window.open("http://www.ebi.ac.uk/miriam/main/collections/"+mySelectedElementId, "_blank")
+        }
+        else if (mySelectedElementId && mySelectedElementValue != "None") {
+            alert("Can only view resource information for entries in Identifiers.org.")
+        }
+        else {
+            alert("Please select a resource first.")
+        }
+    });
+
+    // Format table data for use in Swagger editor
+    var table = $('#t01')
+    $('#format').on("click", function() {
+
+        var registry_url_data = {{ json_encode(data_registry_id_url_dict) }}
+        var contxt_abbr = [];
+        var annotated_data = [];
+        var annotated_data_jsonString
+
+        table.find('tr').each(function (i, el) {
+            var $tds = $(this).find('td'),
+                keypath = $tds.eq(1).text(),
+                value = $.trim($tds.eq(2).text());
+
+                // Account for cells that have a select menu
+                if($tds.eq(3).find("select").length > 0) {
+                    datatype = $.trim($(this).find("select").val()); // E.g. returns MIR:00000015
+                    resource_name = $.trim($(this).find("option:selected").text()); // E.g. returns NCBI Gene
+                    resource_name = resource_name.toLowerCase().replace(/ /g,"_");  // E.g. ncbi_gene
+                    resource_namespace_url = registry_url_data[datatype];
+                }
+                else {
+                    datatype = $.trim($(this).find("a").data("custom-value"));
+                }
+
+                // Skip table header row for JSON output
+                if (i > 0 ) {
+                    if (resource_name != "") {
+                        // Alternative object create
+                        var data_obj = new Object();
+                        data_obj.elementPath = keypath;
+                        data_obj.datatype = resource_namespace_url;
+                        annotated_data.push(data_obj)
+
+                        annotated_data_jsonString = JSON.stringify(annotated_data);
+                    }
+                }
+            });
+        // console.log(annotated_data)
+
+        // Send data to parent frame
+        parent.postMessage(annotated_data, '*');
+
+
+        // var test_data = []
+        // var test_data_obj = new Object();
+
+        // test_data_obj.elementPath = "ec";
+        // test_data_obj.datatype = "[http://identifiers.org/ec-code/]";
+        // test_data.push(test_data_obj)
+
+        // var test_data_jsonString = JSON.stringify(test_data)
+
+        // // console.log(test_data_jsonString)
+        // parent.postMessage(test_data_jsonString, '*');
+
+        // Close iFrame
+        parent.closeIFrame();
+
+    });
+});
+</script>
+
+
+<main>
+    <section>
+        <div class="container">
+            <div class="section">
+                <h5>Annotation results for:
+                    <a href="{{ ws_input }}" target="_blank">{{ ws_input }}</a>
+                </h5>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <br><br>
+    </section>
+
+    <section>
+        <div class="container">
+            <div class="row">
+                <div id="no-more-tables">
+                    <table id="t01" class="col-md-12 bordered table-condensed cf">
+                        <thead class="cf">
+                            <tr>
+                                <th> Remove </th>
+                                <th> Keypath </th>
+                                <th> Value </th>
+                                <th> Mapped Resource </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for (key, value) in iteritems(demo_output) %}
+                            <tr>
+                                <!-- Remove row checkbox -->
+                                 <td data-title="Remove" class="opt1">
+                                    <input type="checkbox" class="filled-in checkbox-red" name="data-row" id="{{ key }}"/>
+                                    <label for="{{ key }}"></label>
+                                </td>
+
+                                <!-- Keypath -->
+                                <td data-title="Keypath" class="ws_keypath">{{ key }}</td>
+
+                                <!-- Value for Keypath -->
+                                <td data-title="Value"><a class="tooltipped" data-position="top" data-delay="50" data-tooltip="{% if value is string %}{% if re.match(re.compile(all_pattern_dict[value]|string), master_id_dictionary[key][0] ) %}Value matched Regex Pattern:{{ all_pattern_dict[value] }}
+                                {% else %}Pattern not verfied{% endif %}
+                                {% else %}No resource identified{% endif %}">{{ master_id_dictionary[key][0] }}
+                                <a/></td>
+
+                                <!-- Mapped Resource -->
+                                <td id="mapped-resource" data-title="Resource">
+                                    {% if value is string %}
+                                    <i class="small material-icons view-resource-description" id="{{ key }}" title="Click to view Resource" style="float: right">info</i>
+
+                                   <!-- Select menu when no pattern matches -->
+                                    <select id="{{ key }}" class="js-example-tokenizer-ajax-data search" style="width: 100%" multiple="multiple" name="search">
+                                        <optgroup label="All Resources">
+                                            {% for (res_id, res_name) in iteritems(miriam_name_dict) %}
+                                            {% if res_id|string() == value|string() %}
+                                            <option value="{{ res_id }}" selected="">{{ res_name }}</option>
+                                            {% else %}
+                                            <option value='{{res_id}}'>{{ res_name }}</option>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+
+                                    {% else %}
+
+                                    <i class="small material-icons view-resource-description" id="{{ key }}" title="Click to view Resource" style="float: right">info</i>
+
+                                    <!-- Select menu for pattern matches and all resources -->
+                                    <select id="{{ key }}" class="js-example-tokenizer-ajax-data search" style="width: 100%" multiple="multiple" name="search">
+                                        <optgroup label="Pattern Matches">
+                                        {% for (pattern_res_id, pattern_res_name) in value.items() %}
+                                            <option value="{{ pattern_res_id }}">{{ pattern_res_name }}</option>
+                                        {% endfor %}
+                                        </optgroup>
+                                        <optgroup label="All Resources">
+                                            {% for (res_id, res_name) in miriam_name_dict.items() %}
+                                            <option value='{{res_id}}'>{{ res_name }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <br><br><br><br>
+
+            <!-- Display FAB - Extra buttons on Hover -->
+            <div class="fixed-action-btn" style="bottom: 45px; right: 10px;">
+                <a class="btn-floating btn-large green lighten-1">
+                  <i class="large material-icons">mode_edit</i>
+                </a>
+                <ul>
+                  <li><button class="btn-floating red accent-2" id="remove" type="button"><i class="material-icons">delete</i></button></li>
+                  <li><button class="btn-floating green lighten-1" id="format"><i class="material-icons">send</i></button></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

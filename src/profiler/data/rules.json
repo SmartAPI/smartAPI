@@ -1,0 +1,63 @@
+[{
+	"id": "1",
+	"name": "Taxonomy",
+	"miriam_identifier": "MIR:00000006",
+	"synonyms": ["taxid"]
+}, {
+	"id": "2",
+	"name": "Wikipedia (En)",
+	"miriam_identifier": "MIR:00000384",
+	"synonyms": ["Wikipedia"]
+}, {
+	"id": "3",
+	"name": "KEGG Pathway",
+	"miriam_identifier": "MIR:00000012",
+	"synonyms": ["kegg"]
+}, {
+	"id": "4",
+	"name": "BioCarta Pathway",
+	"miriam_identifier": "MIR:00000421",
+	"synonyms": ["biocarta"]
+
+}, {
+	"id": "5",
+	"name": "PharmGKB Pathways",
+	"miriam_identifier": "MIR:00000089",
+	"synonyms": ["pharmgkb"]
+}, {
+	"id": "6",
+	"name": "PharmGKB Disease",
+	"miriam_identifier": "MIR:00000090",
+	"synonyms": ["pharmgkb"]
+}, {
+	"id": "7",
+	"name": "NCBI Gene",
+	"miriam_identifier": "MIR:00000069",
+	"synonyms": ["entrez_id", "entrezgene"]
+}, {
+	"id": "8",
+	"name": "PubMed",
+	"miriam_identifier": "MIR:00000015",
+	"synonyms": ["pubmed_id"]
+}, {
+	"id": "9",
+	"name": "Gene Ontology",
+	"miriam_identifier": "MIR:00000022",
+	"synonyms": ["go"]
+}, {
+	"id": "10",
+	"synonyms": ["doid"],
+	"name": "Human Disease Ontology",
+	"miriam_identifier": "MIR:00000233"
+}, {
+	"id": "11",
+	"synonyms": ["pubchem_id"],
+	"name": "PubChem",
+	"miriam_identifier": "MIR:00000034"
+}, {
+	"id": "12",
+	"synonyms": ["evidence"],
+	"name": "Evidence Code Ontology",
+	"miriam_identifier": "MIR:00000055"
+}]
+
