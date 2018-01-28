@@ -7,7 +7,7 @@ from .transform import APIMetadata, decode_raw, get_api_metadata_by_url
 
 
 ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi_oai_v3'
+ES_INDEX_NAME = 'smartapi_oas3'
 ES_DOC_TYPE = 'api'
 
 
@@ -39,6 +39,24 @@ def create_index(index_name=None, es=None):
         "api": {
             "dynamic_templates": [
                 {
+                    "ignore_example_field": {
+                        "match": "example",
+                        "mapping": {
+                            "index": "no"
+                        }
+                    }
+                },
+                {
+                    "ignore_ref_field": {
+                        "match": "$ref",
+                        "mapping": {
+                            "index": "no"
+                        }
+                    }
+                },
+
+                # this must be the last template
+                {
                     "template_1": {
                         "match": "*",
                         "match_mapping_type": "string",
@@ -56,6 +74,9 @@ def create_index(index_name=None, es=None):
                 }
             ],
             "properties": {
+                "components": {
+                    "enabled": False
+                },
                 "~raw": {
                     "type": "binary"
                 }
@@ -199,6 +220,11 @@ class ESQuery():
                                     }
                                 },
                                 {
+                                    "term": {
+                                        "_id": q,
+                                    }
+                                },
+                                {
                                     "query_string": {
                                         "query": q
                                     }
@@ -290,7 +316,7 @@ class ESQuery():
     def delete_api(self, id):
         """delete a saved API metadata, be careful with the deletion."""
         if ask("Are you sure to delete this API metadata?") == 'Y':
-            print(self._es.indices.delete(self._index, self._doc_type, id=id))
+            print(self._es.delete(index=self._index, doc_type=self._doc_type, id=id))
 
     def fetch_all(self, as_list=False, id_list=[]):
         """return a generator of all docs from the ES index.
@@ -315,7 +341,11 @@ class ESQuery():
 
     def backup_all(self, outfile=None):
         """back up all docs into a output file."""
-        outfile = outfile or "{}_backup_{}.json".format(self._index, get_datestamp())
+        # get the real index name in case self._index is an alias
+        alias_d = self._es.indices.get_alias(self._index)
+        assert len(alias_d) == 1
+        index_name = list(alias_d.keys())[0]
+        outfile = outfile or "{}_backup_{}.json".format(index_name, get_datestamp())
         out_f = open(outfile, 'w')
         doc_li = self.fetch_all(as_list=True)
         json.dump(doc_li, out_f, indent=2)
