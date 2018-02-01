@@ -136,12 +136,19 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
         )
 
 
-class RegisryHandler(BaseHandler):
+class RegistryHandler(BaseHandler):
     def get(self):
         template_file = "registry.html"
         reg_template = templateEnv.get_template(template_file)
         reg_output = reg_template.render()
         self.write(reg_output)
+
+class DocumentationHandler(BaseHandler):
+    def get(self):
+        doc_file = "documentation.html"
+        documentation_template = templateEnv.get_template(doc_file)
+        documentation_output = documentation_template.render()
+        self.write(documentation_output)
 
 
 APP_LIST = [
@@ -151,5 +158,6 @@ APP_LIST = [
     (r"/login/?", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
-    (r"/registry/?", RegisryHandler)
+    (r"/registry/?", RegistryHandler),
+    (r"/documentation/?", DocumentationHandler)
 ]

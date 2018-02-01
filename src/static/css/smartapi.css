@@ -231,3 +231,24 @@ footer.page-footer {
    display: inline-block;
    width: auto;
 }
+
+.textBlue{
+  font-weight: 100;
+  margin-bottom: 4%;
+  line-height: 4.5rem;
+  font-size: 1.8em;
+  color: #329AEF;
+}
+
+.backBlue{
+  background-color: #329AEF;
+}
+
+.padding20{
+  padding: 20px;
+}
+
+.fontWeight{
+  font-weight: 100;
+  font-size: 1.8em;
+}

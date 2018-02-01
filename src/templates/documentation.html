@@ -1,0 +1,106 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+{% raw %}
+<div id="docapp" style="height: 100%">
+    <div class="container" style="margin-top: 0px;">
+        <h2 class="text_h2 center blue-text" style="margin-top: 0px; color: white">
+          {{ title }}
+        </h2>
+        <hr class="white" style="border: 1px lightblue solid" />
+    </div>
+    <!-- START or if no selection is made -->
+    <div v-if="!selection" class="center-align container padding20">
+        <h3 class="text_h3 blue-text">Do You Have OpenAPI Metadata?</h3>
+        <a class="waves-effect waves-light btn blue" @click="select('yes')">YES</a>
+        <a class="waves-effect waves-light btn red" @click="select('no')">NO</a>
+    </div>
+    <!-- if YES ask for version -->
+    <div v-if="selection === 'yes' " class="center-align container padding20">
+        <h3 class="text_h3 blue-text">Which version Do You Have?</h3>
+        <a class="waves-effect waves-light btn blue" @click="select('2')">Version 2</a>
+        <a class="waves-effect waves-light btn blue" @click="select('3')">Version 3</a>
+        <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+    </div>
+    <!-- if NO start from scratch -->
+    <div v-if="selection === 'no' " class="center-align container padding20">
+        <div class="card-panel white">
+            <h3 class="text_h3 blue-text">Start From Scratch</h3>
+            <p>Use this editor to write/edit your API metadata. You can start with an existing metadata example below. The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.</p>
+            <p class="blue-text"><b>Metadata Examples</b></p>
+            <ul>
+                <li class="chip hoverable">
+                    <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a>
+                </li>
+                <li class="chip hoverable">
+                    <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a>
+                </li>
+            </ul>
+            <hr/>
+            <a target="_blank" href="http://smart-api.info/editor-oa3/" class="waves-effect waves-light btn-large green pulse hoverable" >API Editor</a>
+        </div>
+        <div class="card-panel white">
+        <p class="blue-text"><b>Additional Information:</b></p>
+        <p>This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a> interface can also be useful for creating your API metadata from the scratch. But be aware of that this interface does not support any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a> (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can of course add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.</p>
+        <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+        </div>
+        <!-- <div class="card-panel white">
+            <p class="blue-text"><b>Sumbit As Is</b></p>
+            <p><b class="red-text">Warning: </b>You may submit your metadata as is but you will experience limited features.</p>
+            <hr/>
+            <a target="_blank" href="http://smart-api.info/editor-oa3/" class="waves-effect waves-light btn red hoverable" >Sumbit As IS</a>
+        </div> -->
+    </div>
+    <!-- if VERSION 2 -->
+    <div v-if="selection === '2' " class="center-align container padding20">
+        <div class="card-panel white">
+            <h3 class="text_h3 blue-text">Version 2</h3>
+            <p>If you already have an API metadata document in older Swagger/OpenAPI v2 specification you will need to follow these steps to convert it to the latest OpenAPI v3 format, and then edit it in the editor.</p>
+            <hr class="white" style="border: 1px lightblue solid" />
+            <p class="blue-text"><b>Step 1</b></p>
+            <p>Convert your metadata using one of these two options:</p>
+            <a class="waves-effect waves-light btn blue" target="_blank" href="">Converter 1</a>
+            <a class="waves-effect waves-light btn blue" target="_blank" href="">Converter 2</a>
+            <p class="grey-text"><b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned above, and commit your changes even when they are not fully complete or valid. As along as the metadata entry has not been added to the <a href="#yml"><b>API_LIST.yml</b></a> file (see below), you will be fine :-). <br>When you are happy with your metadata, you can now move to the next step to add it to the API_LIST.yml file. <br>A <a target="_blank" href="https://github.com/PriceLab/translator-bigquery-api/blob/6d652ec28d0ae7b893395b3e3c360c9d5b144fe3/app/api/bigquery/endpoints/metadata.py#L115">code snippet</a> to convert <a target="_blank" href="http://flask-restful.readthedocs.io/">flask-restful</a> auto-generated swagger v2 specification to SmartAPI metedata, kindly provided by @JohnCEarls.</p>
+            <hr class="white" style="border: 1px lightblue solid" />
+            <p class="blue-text"><b>Step 2</b></p>
+            <p>Edit your converted metadata using this editor:</p>
+            <a class="waves-effect waves-light btn green" target="_blank" href="">Editor</a>
+            <hr class="white" style="border: 1px lightblue solid" />
+            <p class="blue-text"><b>Step 3</b></p>
+            <p>Submit your V3 metadata:</p>
+            <a class="waves-effect waves-light btn blue" target="_blank" href="">Add an API</a>
+            <hr class="white" style="border: 1px lightblue solid" />
+        </div>
+        <div class="card-panel white" id="yml">
+            <h3 class="text_h3 blue-text">API_LIST.yml File</h3>
+            <p>This is a YAML file at the root of this repo to keep track of all APIs available in this repo. Our SmartAPI application will import all the API metadata based on this file and render an API registry web frontend.</p>
+            <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+        </div>
+    </div>
+</div>
+{% endraw %}
+{% include "footer.html" %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+    <script>
+
+        var app = new Vue({
+            el: '#docapp',
+            data: {
+                title: 'Documentation',
+                selection:''
+            },
+            methods:{
+                select: function(input){
+                    this.selection= input;
+                }
+            }
+        });
+    </script>
+{% endblock %}
