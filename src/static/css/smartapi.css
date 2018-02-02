@@ -232,23 +232,36 @@ footer.page-footer {
    width: auto;
 }
 
-.textBlue{
-  font-weight: 100;
-  margin-bottom: 4%;
-  line-height: 4.5rem;
+.transparentButton{
+  background: rgba(255,255,255,0);
+  color: white;
+  border: 1px solid white;
+  padding: 15px;
   font-size: 1.8em;
-  color: #329AEF;
+  border-radius: 30px;
 }
 
-.backBlue{
-  background-color: #329AEF;
-}
-
-.padding20{
-  padding: 20px;
-}
-
-.fontWeight{
-  font-weight: 100;
+.transparentButton:hover{
+  background: rgba(255,255,255,.2);
+  color: white;
+  border: 1px solid white;
+  padding: 15px;
   font-size: 1.8em;
+  border-radius: 30px;
+}
+
+.transparentButton:active{
+  background: rgba(255,255,255,.3);
+  color: white;
+  border: 1px solid white;
+  padding: 15px;
+  font-size: 1.8em;
+  border-radius: 30px;
+}
+
+.title {
+  font-size: 72px;
+  background: -webkit-linear-gradient(#eee, #40c4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
