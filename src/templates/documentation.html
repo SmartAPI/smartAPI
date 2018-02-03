@@ -11,22 +11,55 @@
     </div>
     <!-- START or if no selection is made -->
     <div v-if="!selection" class="center-align container padding20">
-        <h3 class="text_h3 blue-text">Do You Have OpenAPI Metadata?</h3>
+        <h3 class="text_h3 blue-text tracking-in-expand"><i class="material-icons blue-text">chat_bubble</i> Do You Have <b>OpenAPI</b> Metadata?</h3>
         <a class="waves-effect waves-light btn blue" @click="select('yes')">YES</a>
         <a class="waves-effect waves-light btn red" @click="select('no')">NO</a>
+        <div class="card-panel white">
+            <h4 class="text_h3 blue-text">
+                Resources
+            </h4>
+            <a class="chip blue white-text hoverable" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry">Github Repository</a>
+        </div>
     </div>
     <!-- if YES ask for version -->
     <div v-if="selection === 'yes' " class="center-align container padding20">
-        <h3 class="text_h3 blue-text">Which Version Do You Have?</h3>
-        <a class="waves-effect waves-light btn blue" @click="select('2')">Version 2</a>
-        <a class="waves-effect waves-light btn blue" @click="select('3')">Version 3</a>
-        <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+        <h3 class="text_h3 blue-text tracking-in-expand"><i class="material-icons blue-text">chat_bubble</i> Which Version Do You Have?</h3>
+        <a class="waves-effect waves-light btn purple" @click="select('2')">Version 2</a>
+        <a class="waves-effect waves-light btn green" @click="select('3')">Version 3</a>
+        <div class="card-panel white">
+            <h3 class="text_h3 blue-text">What Version Do I Have?</h3>
+            <div class="row">
+                <div class="card-panel purple white-text col s12 l6" style="padding: 20px">
+                    <h5>Version 2</h5>
+                    <img class="responsive-img section_logo" src="/static/img/spec.png">
+                    <p>Visit the links below for examples and version specification.</p>
+                    <a class="chip hoverable" target="_blank" href="http://v2.smart-api.info/registry/">V2 Examples</a>
+                    <br>
+                    <a class="chip hoverable" target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md">V2 Specification</a>
+                </div>
+                <div class="card-panel green white-text col s12 l6" style="padding: 20px">
+                    <h5>Version 3</h5>
+                    <img class="responsive-img section_logo" src="/static/img/spec.png">
+                    <p>Visit the links below for examples and version specification.</p>
+                    <a class="chip hoverable" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml">V3 Example</a>
+                    <br>
+                    <a class="chip hoverable" target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">V3 Specification</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-panel white">
+            <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
+            <hr style="border: 1px lightblue solid" />
+            <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+        </div>
     </div>
     <!-- if NO start from scratch -->
     <div v-if="selection === 'no' " class="center-align container padding20">
         <div class="card-panel white">
+            <img class="roundPhoto" src="/static/img/guide3.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text">Start From Scratch</h3>
-            <p>Use this editor to write/edit your API metadata. You can start with an existing metadata example below. The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.</p>
+            <p>Use this editor to write/edit your API metadata. You can start with an existing metadata example below. 
+            <br>The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.</p>
             <p class="blue-text"><b>Metadata Examples</b></p>
             <ul>
                 <li class="chip hoverable">
@@ -36,8 +69,14 @@
                     <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a>
                 </li>
             </ul>
-            <hr/>
-            <a target="_blank" href="http://smart-api.info/editor-oa3/" class="waves-effect waves-light btn-large green pulse hoverable" >API Editor</a>
+        </div>
+        <div class="card-panel orange white-text" style="padding: 40px">
+            <a target="_blank" href="http://smart-api.info/editor-oa3/" class="transparentButton pulse"><i class="material-icons white-text">edit</i> API EDITOR</a>
+        </div>
+        <div class="card-panel white blue-text" style="padding: 40px">
+            <h2 class="text_h2">Done writing/editing your metadata?</h2 class="text_h2">
+            <p>Submit your V3 API metadata:</p>
+            <a class="waves-effect waves-light btn blue pulse" target="_blank" href="/add_api">Add Your API</a>
         </div>
         <div class="card-panel white">
         <p class="blue-text"><b>Additional Information:</b></p>
@@ -51,9 +90,10 @@
     <!-- if VERSION 2 -->
     <div v-if="selection === '2' " class="center-align container padding20">
         <div class="card-panel white">
+            <img class="roundPhoto" src="/static/img/guide1.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text">Version 2</h3>
             <p>
-                If you already have an API metadata document in older Swagger/OpenAPI v2 specification you will need to follow these steps to convert it to the latest OpenAPI v3 format, and then edit it in the editor.
+                If you already have an API metadata document in older Swagger/OpenAPI v2 specification you will need to follow these steps. <br>Convert your metadata to the latest OpenAPI v3 format, and then edit it in the editor below.
             </p>
             <hr style="border: 1px lightblue solid" />
             <p class="blue-text">
@@ -78,8 +118,11 @@
             <p class="blue-text">
                 <b>Step 3</b>
             </p>
+            <img class="responsive-img section_logo roundPhoto" src="/static/img/spec.png">
+            <br>
             <p>Submit your V3 API metadata:</p>
-            <a class="waves-effect waves-light btn blue" target="_blank" href="/add_api">Add Your API</a>
+            
+            <a class="waves-effect waves-light btn blue pulse" target="_blank" href="/add_api">Add Your API</a>
             <hr style="border: 1px lightblue solid" />
         </div>
         <div class="card-panel white">
@@ -100,10 +143,10 @@
             <div class="left-align blue-grey lighten-5">
             <pre>
                 <code>
-                    - metadata: mygene.info/openapi_minimum.yml
-                        translator:
-                          - returnjson: true
-                            notes: ""
+    - metadata: mygene.info/openapi_minimum.yml
+        translator:
+          - returnjson: true
+            notes: ""
                 </code>
             </pre>
             </div>
@@ -130,28 +173,48 @@
     <!-- if VERSION 3 -->
     <div v-if="selection === '3' " class="center-align container padding20">
         <div class="card-panel white hoverable">
+            <img class="roundPhoto" src="/static/img/guide2.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text">Version 3</h3>
             <hr style="border: 1px lightblue solid" />
             <h2 class="text_h2 blue-text">How To Add Your API</h2>
+            <h3 class="text_h3 blue-text"><b>Submition Checklist <i class="material-icons blue-text">check</i></b></h3>
+            <p class="chip red white-text">Check all boxes to proceed</p>
             <ul class="left-align">
                 <li>
-                    <i class="material-icons red-text">check</i>
+                    <form action="#">                
+                          <input type="checkbox" id="test1" @click="checkTodo(1)"/>
+                          <label for="test1">DONE</label>
+                      </form>
+                    
                     First, each API should create a separate folder to host its metadata. The folder "_example_api" provides basic template for adding API metadata, so you can start with copying "_example_api" folder and renaming it to your API name.
                 </li>
+                <hr>
                 <li>
-                    <i class="material-icons red-text">check</i>
+                    <form action="#">                
+                          <input type="checkbox" id="test2" @click="checkTodo(2)"/>
+                          <label for="test2">DONE</label>
+                      </form>
+                    
                     Second, fill in the metadata about your API according to the instruction. Also please refer to the existing examples like <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a> and <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a> APIs. See more details in the next section.
                 </li>
+                <hr>
                 <li>
-                    <i class="material-icons red-text">check</i>
+                    <form action="#">                
+                          <input type="checkbox" id="test3" @click="checkTodo(3)"/>
+                          <label for="test3">DONE</label>
+                      </form>
+                    
                     Add an entry to <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/API_LIST.yml">API_LIST.yml</a> file following the existing example. This is the master list of the APIs available in this repo. Our SmartAPI application will import all the API metadata based on this file.
                 </li>
+                <hr>
             </ul>
             <p>
                 If you have the permission, commit your changes to this repo. Otherwise, feel free to submit a pull-request. Please check the "build status" badge above, and make sure it's green after your changes. We run some validation tests in this <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/tests.py">tests.py</a> for each commit. (Tip: you can run python tests.py locally from the root of this repo to make sure all tests pass before you commit your code.)
             </p>
         </div>
-        <div class="card-panel  light-blue lighten-4 hoverable">
+        <div v-if="todo1 && todo2 && todo3" class="card-panel  light-blue lighten-4 hoverable">
+            <img width="50px" class="responsive-img rotate" src="/static/img/molecule.png">
+            <br>
             <h3 class="text_h3 blue-text">Ready To Submit Your V3 API Metadata?</h3>
             <a class="waves-effect waves-light btn-large blue pulse" href="/add_api">Add Your API</a>
         </div>
@@ -199,16 +262,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 
     <script>
-
+                
         var app = new Vue({
             el: '#docapp',
             data: {
                 title: 'Start Guide',
-                selection:''
+                selection:'',
+                todo1: false,
+                todo2: false,
+                todo3: false
             },
             methods:{
                 select: function(input){
                     this.selection= input;
+                },
+                checkTodo: function(todo){
+                    switch(todo) {
+                        case 1:
+                            this.todo1= true;
+                            break;
+                        case 2:
+                            this.todo2= true;
+                            break;
+                        case 3:
+                            this.todo3= true;
+                            break;
+                        default:
+                            return false
+                    }
                 }
             }
         });
