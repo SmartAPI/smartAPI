@@ -232,7 +232,10 @@ footer.page-footer {
    width: auto;
 }
 
+/*MARCO CANO Additions*/
+
 .transparentButton{
+  cursor: pointer;
   background: rgba(255,255,255,0);
   color: white;
   border: 1px solid white;
@@ -242,6 +245,7 @@ footer.page-footer {
 }
 
 .transparentButton:hover{
+  cursor: pointer;
   background: rgba(255,255,255,.2);
   color: white;
   border: 1px solid white;
@@ -251,6 +255,7 @@ footer.page-footer {
 }
 
 .transparentButton:active{
+  cursor: pointer;
   background: rgba(255,255,255,.3);
   color: white;
   border: 1px solid white;
@@ -274,8 +279,87 @@ footer.page-footer {
   border: none;
 }
 
+.roundPhotoLink{
+  width: 25%;
+  border-radius: 100%;
+  padding: 15px;
+  box-shadow: 1px 1px 2px grey;
+  border: none;
+  background-color: white;
+}
+
+.roundPhotoLink:hover{
+  width: 25%;
+  border-radius: 100%;
+  padding: 15px;
+  box-shadow: 1px 1px 2px grey;
+  border: none;
+  background-color: #329AEF;
+}
+
+
 .padding20{
   padding: 20px;
+}
+
+hr{
+  border: 1px lightblue solid;
+}
+
+.smartBackground{
+  background-image: url('../img/banner.png');
+  background-repeat: no-repeat;
+  background-position: bottom; left: 
+  background-color: transparent;
+  background-size: contain;
+}
+
+.smartButton{
+  cursor: pointer;
+  color: white;
+  text-decoration: none;
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #40c4ff;
+  margin:15px 15px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#6db3f2+0,54a3ee+50,3690f0+51,1e69de+100;Blue+Gloss+%233 */
+  background: #6db3f2; /* Old browsers */
+  background: -moz-linear-gradient(top, #6db3f2 0%, #54a3ee 50%, #3690f0 51%, #1e69de 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #6db3f2 0%,#54a3ee 50%,#3690f0 51%,#1e69de 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#6db3f2', endColorstr='#1e69de',GradientType=0 ); /* IE6-9 */
+}
+
+.smartButton:hover{
+  cursor: pointer;
+  color: #1976D2;
+  text-decoration: none;
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #40c4ff;
+  margin:15px 15px;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#e4f5fc+0,bfe8f9+50,9fd8ef+51,2ab0ed+100;Blue+Gloss+%235 */
+  background: #e4f5fc; /* Old browsers */
+  background: -moz-linear-gradient(top, #e4f5fc 0%, #bfe8f9 50%, #9fd8ef 51%, #2ab0ed 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #e4f5fc 0%,#bfe8f9 50%,#9fd8ef 51%,#2ab0ed 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #e4f5fc 0%,#bfe8f9 50%,#9fd8ef 51%,#2ab0ed 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e4f5fc', endColorstr='#2ab0ed',GradientType=0 ); /* IE6-9 */
+}
+
+.smartButton:active{
+  cursor: pointer;
+  color: #1976D2;
+  text-decoration: none;
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #40c4ff;
+  margin:15px 15px;
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,f3f3f3+50,ededed+51,ffffff+100;White+Gloss+%232 */
+  background: #ffffff; /* Old browsers */
+  background: -moz-linear-gradient(top, #ffffff 0%, #f3f3f3 50%, #ededed 51%, #ffffff 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, #ffffff 0%,#f3f3f3 50%,#ededed 51%,#ffffff 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
 }
 
 /**
@@ -321,3 +405,5 @@ footer.page-footer {
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+/*MARCO CANO end*/

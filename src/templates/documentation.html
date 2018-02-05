@@ -2,55 +2,140 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<div id="docapp" style="height: 100%">
-    <div class="container" style="margin-top: 0px;">
-        <h2 class="text_h2 center blue-text">
+<div id="docapp" class="blue"  style="height: 100%;">
+    <div class="container">
+        <h2 class="text_h2 center white-text" style="margin-top: 0px;">
           {{ title }}
         </h2>
-        <hr style="border: 1px lightblue solid" />
     </div>
-    <!-- START or if no selection is made -->
+    
+    <!-- start of INTRO -->
     <div v-if="!selection" class="center-align container padding20">
-        <h3 class="text_h3 blue-text tracking-in-expand"><i class="material-icons blue-text">chat_bubble</i> Do You Have <b>OpenAPI</b> Metadata?</h3>
-        <a class="waves-effect waves-light btn blue" @click="select('yes')">YES</a>
-        <a class="waves-effect waves-light btn red" @click="select('no')">NO</a>
         <div class="card-panel white">
-            <h4 class="text_h3 blue-text">
-                Resources
-            </h4>
-            <a class="chip blue white-text hoverable" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry">Github Repository</a>
+            <a target="_blank" href="https://www.openapis.org/">
+                <img class="responsive-img roundPhotoLink hoverable" src="/static/img/openapi-logo.png" alt="openAPI v3">
+            </a>
+            <h3 class="text_h3 blue-text tracking-in-expand">
+                <b>smartAPI</b> and <b>openAPI</b>
+            </h3>
+            <!-- Info carousel -->
+            <div class="carousel carousel-slider center" data-indicators="true">        
+                <div class="carousel-item blue white-text" href="#one!">
+                    <h2 class="chip white blue-text">What is openAPI?</h2>
+                    <p class="white-text">
+                        The OpenAPI Initiative (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. SmartBear Software is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
+                    </p> 
+                    <p class="white-text">
+                        APIs form the connecting glue between modern applications. Nearly every application uses APIs to connect with corporate data sources, third party data services or other applications. Creating an open description format for API services that is vendor neutral, portable and open is critical to accelerating the vision of a truly connected world.
+                    </p>
+                </div>
+                <div class="carousel-item blue white-text" href="#two!">
+                  <h2 class="chip white blue-text">
+                    What is smartAPI?
+                </h2>
+                  <p class="white-text">
+                      The smartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a openAPI-based specification for defining the key API metadata elements and value sets. smartAPIs leverage the Open API specification v3 and JSON-LD for providing semantically annotated JSON content that can be treated as Linked Data.
+                  </p>
+                </div>
+                <div class="carousel-item blue white-text" href="#three!">
+                    <h2 class="chip white blue-text">
+                        What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?
+                    </h2>
+                    <p>
+                        SmartBear donated the Swagger Specification in 2015 as part of the formation of the Open API Initiative. Following the announcement of the OAI, the Swagger specification was renamed the OpenAPI Specification and is semantically identical to the specification formerly known as the Swagger 2.0 specification. OAS – and the Swagger Specification before it – is widely recognized as the most popular open source framework for defining and creating RESTful APIs, and today tens of thousands of developers are building thousands of open source repos of tools leveraging the OpenAPI Specification.
+                    </p>
+                    <a class="btn-large green" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Extensions</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-panel green">
+            <a class="transparentButton" @click="select('start')">
+                CONTINUE <i class="material-icons white-text">navigate_next</i>
+            </a>
+        </div>
+        <div class="card-panel light-blue lighten-5">
+            <h3 class="text_h3 blue-text tracking-in-expand">
+                SmartAPI Extensions
+            </h3>
+
+            <div class="card-panel white">
+                <p>
+                    SmartAPI specific elements automatically generated from <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">parent document</a>.
+                </p>
+                <br>
+                <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">smartAPI Extensions</a>
+            </div>          
+        </div>
+        <div class="card-panel light-blue lighten-5">
+            <h3 class="text_h3 blue-text tracking-in-expand">
+                OpenAPI Metadata Registration
+            </h3>
+            <div class="card-panel white">
+                <p>
+                   The link below provides an optional place for those who need to have a place to host their own API metadata.
+                </p>
+                <br>
+                <a class="btn blue" target="_blank" href="https://github.com/SmartAPI/smartapi_registry">Registry</a>
+            </div>
+        </div>
+        
+    </div>
+    <!-- Start of Guide -->
+    <div v-if="selection === 'start' " class="center-align container padding20 row">
+        <div class="card-panel white">
+            <h3 class="text_h3 blue-text tracking-in-expand">
+                <i class="material-icons blue-text">chat_bubble</i> Do You Have <b>OpenAPI</b> Metadata?
+            </h3>
+            <a class="waves-effect waves-light btn-large blue" @click="select('yes')">YES</a>
+            <a class="waves-effect waves-light btn-large red" @click="select('no')">NO</a>
+        </div>
+        
+        <div class="card-panel light-blue lighten-5">
+            <h3 class="text_h3 blue-text">
+               Back to Introduction
+            </h3>
+            <hr>
+            <a class="waves-effect waves-light btn red" href="/documentation">Go Back</a>
         </div>
     </div>
     <!-- if YES ask for version -->
     <div v-if="selection === 'yes' " class="center-align container padding20">
-        <h3 class="text_h3 blue-text tracking-in-expand"><i class="material-icons blue-text">chat_bubble</i> Which Version Do You Have?</h3>
-        <a class="waves-effect waves-light btn purple" @click="select('2')">Version 2</a>
-        <a class="waves-effect waves-light btn green" @click="select('3')">Version 3</a>
         <div class="card-panel white">
-            <h3 class="text_h3 blue-text">What Version Do I Have?</h3>
+            <h3 class="text_h3 blue-text tracking-in-expand">
+                <i class="material-icons blue-text">chat_bubble</i> Which Version Do You Have?
+            </h3>
+            <a class="waves-effect waves-light btn-large blue" @click="select('2')">Version 2</a>
+            <a class="waves-effect waves-light btn-large green" @click="select('3')">Version 3</a>
+        </div>
+        <div class="card-panel light-blue lighten-5">
+            <h3 class="text_h3 blue-text">Don't Know Which Version You Have?</h3>
             <div class="row">
-                <div class="card-panel purple white-text col s12 l6" style="padding: 20px">
+                <div class="card-panel white blue-text col s12 l6 padding20">
                     <h5>Version 2</h5>
-                    <img class="responsive-img section_logo" src="/static/img/spec.png">
+                    <a target="_blank" href="https://swagger.io/">
+                        <img class="responsive-img roundPhotoLink hoverable" src="/static/img/swagger-logo.jpeg" alt="swagger v2">
+                    </a>
                     <p>Visit the links below for examples and version specification.</p>
-                    <a class="chip hoverable" target="_blank" href="http://v2.smart-api.info/registry/">V2 Examples</a>
+                    <a class="chip hoverable blue white-text" target="_blank" href="http://v2.smart-api.info/registry/">V2 Examples</a>
                     <br>
-                    <a class="chip hoverable" target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md">V2 Specification</a>
+                    <a class="chip hoverable blue white-text" target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md">V2 Specification</a>
                 </div>
-                <div class="card-panel green white-text col s12 l6" style="padding: 20px">
+                <div class="card-panel white blue-text col s12 l6 padding20">
                     <h5>Version 3</h5>
-                    <img class="responsive-img section_logo" src="/static/img/spec.png">
+                    <a target="_blank" href="https://www.openapis.org/">
+                        <img class="responsive-img roundPhotoLink hoverable" src="/static/img/openapi-logo.png" alt="openAPI v3">
+                    </a>
                     <p>Visit the links below for examples and version specification.</p>
-                    <a class="chip hoverable" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml">V3 Example</a>
+                    <a class="chip hoverable blue white-text" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml">V3 Example</a>
                     <br>
-                    <a class="chip hoverable" target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">V3 Specification</a>
+                    <a class="chip hoverable blue white-text" target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md">V3 Specification</a>
                 </div>
             </div>
         </div>
-        <div class="card-panel white">
+        <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
-            <hr style="border: 1px lightblue solid" />
-            <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+            <hr/>
+            <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
         </div>
     </div>
     <!-- if NO start from scratch -->
@@ -58,9 +143,13 @@
         <div class="card-panel white">
             <img class="roundPhoto" src="/static/img/guide3.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text">Start From Scratch</h3>
-            <p>Use this editor to write/edit your API metadata. You can start with an existing metadata example below. 
-            <br>The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.</p>
-            <p class="blue-text"><b>Metadata Examples</b></p>
+            <p>
+                Use this editor to write/edit your API metadata. You can start with an existing metadata example below. 
+                <br>The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
+            </p>
+            <p class="blue-text">
+                <b>Metadata Examples</b>
+            </p>
             <ul>
                 <li class="chip hoverable">
                     <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a>
@@ -75,15 +164,21 @@
         </div>
         <div class="card-panel white blue-text" style="padding: 40px">
             <h2 class="text_h2">Done writing/editing your metadata?</h2 class="text_h2">
-            <p>Submit your V3 API metadata:</p>
-            <a class="waves-effect waves-light btn blue pulse" target="_blank" href="/add_api">Add Your API</a>
+            <p>
+                Submit your V3 API metadata:
+            </p>
+            <a class="waves-effect waves-light btn-large blue pulse" target="_blank" href="/add_api">Add Your API</a>
         </div>
-        <div class="card-panel white">
-        <p class="blue-text"><b>Additional Information:</b></p>
-        <p>This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a> interface can also be useful for creating your API metadata from the scratch. But be aware of that this interface does not support any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a> (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can of course add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.</p>
-        <hr style="border: 1px lightblue solid" />
+        <div class="card-panel light-blue lighten-5">
+        <p class="blue-text">
+            <b>Additional Information:</b>
+        </p>
+        <p>
+            This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a> interface can also be useful for creating your API metadata from the scratch. But be aware of that this interface does not support any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a> (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can of course add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.
+        </p>
+        <hr/>
         <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
-        <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+        <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
         </div>
         
     </div>
@@ -95,79 +190,54 @@
             <p>
                 If you already have an API metadata document in older Swagger/OpenAPI v2 specification you will need to follow these steps. <br>Convert your metadata to the latest OpenAPI v3 format, and then edit it in the editor below.
             </p>
-            <hr style="border: 1px lightblue solid" />
+            <hr/>
             <p class="blue-text">
                 <b>Step 1</b>
             </p>
-            <p>Convert your metadata using one of these two options:</p>
-            <a class="waves-effect waves-light btn amber" target="_blank" href="">Converter 1</a>
-            <a class="waves-effect waves-light btn amber" target="_blank" href="">Converter 2</a>
+            <p>
+                Convert your metadata using one of these two options:
+            </p>
+            <a class="waves-effect waves-light btn-large blue" 
+                target="_blank" 
+                href="http://openapiconverter.azurewebsites.net/">
+                Converter 1
+            </a>
+            <a class="waves-effect waves-light btn-large blue" 
+                target="_blank" 
+                href="https://mermade.org.uk/openapi-converter">
+                Converter 2
+            </a>
             <p class="grey-text">
                 <b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned above, and commit your changes even when they are not fully complete or valid. 
-                <br><span class="blue-text">As along as the metadata entry has not been added to the <a class="red-text" href="#yml"><b>API_LIST.yml</b></a> file (see below), you will be fine :-).</span> 
-                <br>When you are happy with your metadata, you can now move to the next step to add it to the API_LIST.yml file. 
-                <br>A <a target="_blank" href="https://github.com/PriceLab/translator-bigquery-api/blob/6d652ec28d0ae7b893395b3e3c360c9d5b144fe3/app/api/bigquery/endpoints/metadata.py#L115">code snippet</a> to convert <a target="_blank" href="http://flask-restful.readthedocs.io/">flask-restful</a> auto-generated swagger v2 specification to SmartAPI metedata, kindly provided by @JohnCEarls.
             </p>
-            <hr style="border: 1px lightblue solid" />
+            <hr/>
             <p class="blue-text">
                 <b>Step 2</b>
             </p>
             <p>Edit your converted metadata using this editor:</p>
-            <a class="waves-effect waves-light btn green" target="_blank" href="http://smart-api.info/editor-oa3/">Editor</a>
-            <hr style="border: 1px lightblue solid" />
+            <a class="waves-effect waves-light btn-large blue" target="_blank" href="http://smart-api.info/editor-oa3/">
+                Editor
+            </a>
+            <hr/>
             <p class="blue-text">
                 <b>Step 3</b>
             </p>
-            <img class="responsive-img section_logo roundPhoto" src="/static/img/spec.png">
-            <br>
             <p>Submit your V3 API metadata:</p>
             
-            <a class="waves-effect waves-light btn blue pulse" target="_blank" href="/add_api">Add Your API</a>
-            <hr style="border: 1px lightblue solid" />
+            <a class="waves-effect waves-light btn-large green pulse" target="_blank" href="/add_api">Add Your API</a>
+            <hr/>
         </div>
-        <div class="card-panel white">
+        <div class="card-panel light-blue lighten-5">
             <p class="blue-text"><b>Submit V2 metadata</b></p>
             <p>
                 <i class="material-icons amber-text">hourglass_empty</i> <b class="amber-text">COMING SOON</b>
             </p>
             <a target="_blank" href="http://smart-api.info/editor-oa3/" class="waves-effect waves-light btn red disabled" >Sumbit As IS</a>
         </div>
-        <div class="card-panel white" id="yml">
-            <h3 class="text_h3 blue-text">API_LIST.yml File</h3>
-            <p>
-                This is a YAML file at the root of this repo to keep track of all APIs available in this repo. Our SmartAPI application will import all the API metadata based on this file and render an API registry web frontend.
-            </p>
-            <p>
-                For each API, you just need to add a text block like this:
-            </p>
-            <div class="left-align blue-grey lighten-5">
-            <pre>
-                <code>
-    - metadata: mygene.info/openapi_minimum.yml
-        translator:
-          - returnjson: true
-            notes: ""
-                </code>
-            </pre>
-            </div>
-            <p><b class="blue-text">Metadata</b> Field</p>
-            <p>
-                The value of this field should be either the URL or the relative path pointing to the API metadata. The API metadata should follow <a target="_blank" href="https://www.openapis.org/">OpenAPI specifications</a>, in either JSON or YAML format. Specifically, we support OpenAPI v3 specification documented <a target="_blank" href="https://github.com/OAI/OpenAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">here</a>, plus the SmartAPI extensions documented <a target="_blank" href="https://github.com/SmartAPI/OpenAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">here</a>.
-            </p>
-            <p><b class="blue-text">Translator</b> Field</p>
-            <p>
-                This serves as the placeholder for any translator project specific API properties, e.g. adding some API-specific notes.<br>
-                How to propose a new translator.* field?<br>
-                As we expand our list of APIs, we will need to expand our metadata fields as we needed. To do so, you can:<br>
-                <ul>
-                    <li>Discuss it with us at our slack channel (<b>#arch-working-group</b>)</li>
-                    <li>Open an issue in this repo</li>
-                    <li>Submit a pull-request for your modified API_LIST.yml file</li>
-                </ul>
-            </p>
-            <hr style="border: 1px lightblue solid" />
+        <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
-            <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+            <hr>
+            <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
         </div>
     </div>
     <!-- if VERSION 3 -->
@@ -175,11 +245,13 @@
         <div class="card-panel white hoverable">
             <img class="roundPhoto" src="/static/img/guide2.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text">Version 3</h3>
-            <hr style="border: 1px lightblue solid" />
+            <hr/>
             <h2 class="text_h2 blue-text">How To Add Your API</h2>
-            <h3 class="text_h3 blue-text"><b>Submition Checklist <i class="material-icons blue-text">check</i></b></h3>
-            <p class="chip red white-text">Check all boxes to proceed</p>
-            <ul class="left-align">
+            <h3 class="text_h3 blue-text">
+                <b>Submition Checklist <i class="material-icons blue-text">check</i></b>
+            </h3>
+            <a href="#!" class="chip red white-text" onclick="Materialize.showStaggeredList('#staggered-test')">Check all boxes to proceed</a>
+            <ul class="left-align" id="staggered-test">
                 <li>
                     <form action="#">                
                           <input type="checkbox" id="test1" @click="checkTodo(1)"/>
@@ -215,16 +287,18 @@
         <div v-if="todo1 && todo2 && todo3" class="card-panel  light-blue lighten-4 hoverable">
             <img width="50px" class="responsive-img rotate" src="/static/img/molecule.png">
             <br>
-            <h3 class="text_h3 blue-text">Ready To Submit Your V3 API Metadata?</h3>
+            <h3 class="text_h3 blue-text">You're Ready To Submit Your Metadata!</h3>
             <a class="waves-effect waves-light btn-large blue pulse" href="/add_api">Add Your API</a>
         </div>
-        <div class="card-panel white hoverable">
+        <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text">
                 <b>CORS</b> Support
             </h3>
-            <p>If you want users are able to request your API from the browser, e.g. in a web application, your API should support <a target="_blank" href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a>. We recommend every translator API to support CORS. Depending on your web server (e.g. Apache or Nginx) and/or the web framework (e.g. Django, Flask, Tornado) you use, you can find the relevant instruction to enable CORS for your API <a target="_blank" href="https://enable-cors.org/">here</a>, or via Google.</p>
+            <p>
+                If you want users are able to request your API from the browser, e.g. in a web application, your API should support <a target="_blank" href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a>. We recommend every translator API to support CORS. Depending on your web server (e.g. Apache or Nginx) and/or the web framework (e.g. Django, Flask, Tornado) you use, you can find the relevant instruction to enable CORS for your API <a target="_blank" href="https://enable-cors.org/">here</a>, or via Google.
+            </p>
         </div>
-        <div class="card-panel white hoverable">
+        <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text flow-text">URIs for annotating input parameters or the response object</h3>
             <p>
                 Typically for a JSON-based REST API, we use URIs to annotate both the acceptable parameter value types and the fields from the response data object, both in <a target="_blank" href="https://www.openapis.org/">OpenAPI</a> metdata files and JSON-LD context files.
@@ -244,13 +318,13 @@
                 </li>
             </ol>
         </div>
-        <div class="card-panel white hoverable">
+        <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
-            <hr style="border: 1px lightblue solid" />
-            <a class="waves-effect waves-light btn red" @click="select('')">Start Over</a>
+            <hr/>
+            <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
         </div>
     </div>
-    <img src="/static/img/banner.png" width="100%" alt="tsri banner">
+    
 </div>
 {% endraw %}
 {% include "footer.html" %}
@@ -291,6 +365,9 @@
                             return false
                     }
                 }
+            },
+            mounted: function(){
+                $('.carousel.carousel-slider').carousel({fullWidth: true});
             }
         });
     </script>
