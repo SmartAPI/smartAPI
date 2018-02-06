@@ -2,7 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<div id="docapp" class="blue"  style="height: 100%;">
+<div id="docapp" class="gradientBackground"  style="height: 100%;">
     <div class="container">
         <h2 class="text_h2 center white-text" style="margin-top: 0px;">
           {{ title }}
@@ -22,10 +22,10 @@
             <div class="carousel carousel-slider center" data-indicators="true">        
                 <div class="carousel-item blue white-text" href="#one!">
                     <h2 class="chip white blue-text">What is openAPI?</h2>
-                    <p class="white-text">
+                    <p class="white-text flow-text">
                         The OpenAPI Initiative (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. SmartBear Software is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
                     </p> 
-                    <p class="white-text">
+                    <p class="white-text flow-text">
                         APIs form the connecting glue between modern applications. Nearly every application uses APIs to connect with corporate data sources, third party data services or other applications. Creating an open description format for API services that is vendor neutral, portable and open is critical to accelerating the vision of a truly connected world.
                     </p>
                 </div>
@@ -254,7 +254,7 @@
             <ul class="left-align" id="staggered-test">
                 <li>
                     <form action="#">                
-                          <input type="checkbox" id="test1" @click="checkTodo(1)"/>
+                          <input type="checkbox" id="test1" @click="completeToDo(1)"/>
                           <label for="test1">DONE</label>
                       </form>
                     
@@ -263,7 +263,7 @@
                 <hr>
                 <li>
                     <form action="#">                
-                          <input type="checkbox" id="test2" @click="checkTodo(2)"/>
+                          <input type="checkbox" id="test2" @click="completeToDo(2)"/>
                           <label for="test2">DONE</label>
                       </form>
                     
@@ -272,7 +272,7 @@
                 <hr>
                 <li>
                     <form action="#">                
-                          <input type="checkbox" id="test3" @click="checkTodo(3)"/>
+                          <input type="checkbox" id="test3" @click="completeToDo(3)"/>
                           <label for="test3">DONE</label>
                       </form>
                     
@@ -284,11 +284,11 @@
                 If you have the permission, commit your changes to this repo. Otherwise, feel free to submit a pull-request. Please check the "build status" badge above, and make sure it's green after your changes. We run some validation tests in this <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/tests.py">tests.py</a> for each commit. (Tip: you can run python tests.py locally from the root of this repo to make sure all tests pass before you commit your code.)
             </p>
         </div>
-        <div v-if="todo1 && todo2 && todo3" class="card-panel  light-blue lighten-4 hoverable">
+        <div v-if="todo1 && todo2 && todo3" class="card-panel  yellow lighten-5 hoverable">
             <img width="50px" class="responsive-img rotate" src="/static/img/molecule.png">
             <br>
             <h3 class="text_h3 blue-text">You're Ready To Submit Your Metadata!</h3>
-            <a class="waves-effect waves-light btn-large blue pulse" href="/add_api">Add Your API</a>
+            <a class="waves-effect waves-light btn-large green pulse" href="/add_api">Add Your API</a>
         </div>
         <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text">
@@ -350,7 +350,7 @@
                 select: function(input){
                     this.selection= input;
                 },
-                checkTodo: function(todo){
+                completeToDo: function(todo){
                     switch(todo) {
                         case 1:
                             this.todo1= true;
