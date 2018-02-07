@@ -434,17 +434,17 @@ hr{
       
       10% {
         
-        color: #8e44ad;
+        color: green;
       }
       
       20% {
         
-        color: #1abc9c;
+        color: blue;
       }
       
       30% {
         
-        color: #d35400;
+        color: green;
       }
       
       40% {
@@ -454,7 +454,7 @@ hr{
       
       50% {
         
-        color: #34495e;
+        color: green;
       }
       
       60% {
@@ -464,21 +464,21 @@ hr{
       
       70% {
         
-        color: #2980b9;
+        color: green;
       }
       80% {
      
-        color: #f1c40f;
+        color: blue;
       }
       
       90% {
      
-        color: #2980b9;
+        color: green;
       }
       
       100% {
         
-        color: pink;
+        color: blue;
       }
     }
 
