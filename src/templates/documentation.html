@@ -22,18 +22,18 @@
         <div class="carousel carousel-slider center" data-indicators="true">
             <div class="carousel-fixed-item center middle-indicator">
              <div class="left">
-              <a href="Previo" class="movePrevCarousel middle-indicator-text waves-effect waves-light content-indicator">
-                <i class="material-icons left  middle-indicator-text">chevron_left</i>
-            </a>
+                <a href="Previo" class="movePrevCarousel middle-indicator-text waves-effect waves-light content-indicator">
+                    <i class="material-icons left  middle-indicator-text">chevron_left</i>
+                </a>
              </div>
              
              <div class="right">
-             <a href="Siguiente" class=" moveNextCarousel middle-indicator-text waves-effect waves-light content-indicator">
-                <i class="material-icons right middle-indicator-text">chevron_right</i>
-            </a>
+                <a href="Siguiente" class=" moveNextCarousel middle-indicator-text waves-effect waves-light content-indicator">
+                    <i class="material-icons right middle-indicator-text">chevron_right</i>
+                </a>
              </div>
             </div>       
-            <div class="carousel-item blue white-text" href="#one!" >
+            <div class="carousel-item blue white-text padding20" href="#one!" >
                 <h2 class="chip white blue-text">What is OpenAPI?</h2>
                 <p class="white-text flow-text">
                     The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. SmartBear Software is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
@@ -77,6 +77,9 @@
     <div class="card-panel white">
         <p>
             SmartAPI specific elements automatically generated from <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">parent document</a>.
+        </p>
+        <p>
+            SmartAPI has several optional extensions you can add but a few are <b>required</b>. Before submitting your API metadata make sure to include such extensions to your metadata.
         </p>
         <!-- Collapsible Extensions Carosouel -->
         <ul class="collapsible" data-collapsible="accordion">
@@ -418,7 +421,7 @@
     <div class="card-panel light-blue lighten-5">
         <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
         <hr/>
-        <a class="waves-effect waves-light btn red" @click="select('start')">Go Back</a>
+        <a class="waves-effect waves-light btn red" @click="select('start')">Previous</a>
         <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
         
     </div>
@@ -456,7 +459,7 @@
             <hr>
             <div class="card-panel red lighten-4">
                 <p class="red-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
-                <img src="/static/img/raw.png" alt="raw content" class="responsive-img">
+                <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
             </div>
         </div>
         <div class="card-panel light-blue lighten-5">
@@ -469,7 +472,7 @@
             <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Extensions</a>
             <hr/>
             <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
-            <a class="waves-effect waves-light btn red" @click="select('start')">Go Back</a>
+            <a class="waves-effect waves-light btn red" @click="select('start')">Previous</a>
             <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
             
         </div>
@@ -486,36 +489,37 @@
             <hr/>
             <div class="chip red white-text">1</div>
             <p>
-                Convert your metadata using one of these two options:
+                CONVERT YOUR METADATA USING ONE OF THESE TWO OPTIONS:
             </p>
-            <a title="Tavis OpenAPI V3 Converter" class="waves-effect waves-light btn-large blue" 
-               target="_blank" 
-               href="http://openapiconverter.azurewebsites.net/">
-                Converter 1
-            </a>
-            <a title="Mermade Converter" class="waves-effect waves-light btn-large blue" 
-                target="_blank" 
-                href="https://mermade.org.uk/openapi-converter">
-                Converter 2
-            </a>
-    <p class="grey-text">
-        <b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned above, and commit your changes even when they are not fully complete or valid. 
-    </p>
-    <hr/>
-    <div class="chip red white-text">2</div>
-    <p>Edit your converted metadata and clear all errors using this editor:</p>
-    <a class="waves-effect waves-light btn-large blue" target="_blank" href="http://smart-api.info/editor-oa3/">
-        Editor
-    </a>
-    <hr/>
-    <div class="chip red white-text">3</div>
-    <p>Submit your V3 API metadata:</p>
-
-    <a class="waves-effect waves-light btn-large green pulse" href="/add_api">Add Your API</a>
-    <hr>
+            <div class="row">
+                <div class="col s12 l6 card-panel white blue-text center-align padding20">
+                    <p>Tavis OpenAPI Converter</p>
+                    <a title="Tavis OpenAPI V3 Converter" class="waves-effect waves-light btn-large blue" target="_blank" href="http://openapiconverter.azurewebsites.net/">Converter 1</a>
+                    <br>
+                </div>
+                <div class="col s12 l6 card-panel white blue-text center-align padding20">
+                    <p>Mermade Converter</p>
+                    <a title="Mermade Converter" class="waves-effect waves-light btn-large blue" target="_blank" href="https://mermade.org.uk/openapi-converter">Converter 2</a>
+                    <br>
+                </div>
+            </div>
+            <p class="grey-text">
+                <b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned above, and commit your changes even when they are not fully complete or valid. 
+            </p>
+            <hr/>
+            <div class="chip red white-text">2</div>
+                <p>EDIT YOUR METADATA AND CLEAR ALL ERRORS USING THIS EDITOR:</p>
+                <a class="waves-effect waves-light btn-large blue" target="_blank" href="http://smart-api.info/editor-oa3/">
+                    Editor
+                </a>
+                <hr/>
+            <div class="chip red white-text">3</div>
+            <p>SUBMIT YOUR COVNVERTED V3 METADATA</p>
+            <a class="waves-effect waves-light btn-large green pulse" href="/add_api">Add Your API</a>
+            <hr>
             <div class="card-panel red lighten-4">
                 <p class="red-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
-                <img src="/static/img/raw.png" alt="raw content" class="responsive-img">
+                <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
             </div>
 </div>
 <div class="card-panel light-blue lighten-5">
@@ -528,7 +532,7 @@
 <div class="card-panel light-blue lighten-5">
     <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
     <hr>
-    <a class="waves-effect waves-light btn red" @click="select('yes')">Go Back</a>
+    <a class="waves-effect waves-light btn red" @click="select('yes')">Previous</a>
     <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
 </div>
 </div>
@@ -538,19 +542,19 @@
         <img class="roundPhoto" src="/static/img/guide2.png" width="100%" alt="start from scratch">
         <h3 class="text_h3 blue-text">Version 3</h3>
         <hr/>
-        <h2 class="text_h2 blue-text">How To Add Your API</h2>
-        <h3 class="text_h3 red-text">Check all boxes to proceed</h3>
+        <h2 class="text_h2 blue-text">How To Add Your V3 Metadata to SmartAPI</h2>
+        <h3 class="text_h3 red-text">Complete all steps to proceed <i class="material-icons red-text">check</i></h3>
         <hr>
         <table class="bordered">
             <thead>
               <tr>
                   <th class="center-align">Steps</th>
-                  <th >Complete</th>
+                  <th >Complete?</th>
               </tr>
             </thead>
             <tbody>
                 <!-- STEP 1 -->
-              <tr>
+              <tr v-show="!todo1">
                 <td class="center-align">
                     <h3 class="text_h3 blue-text">
                         <i class="material-icons red-text">looks_one</i> Host Your Metadata
@@ -567,20 +571,30 @@
                             On our Github repository. 
                         </li>
                         <li>
-                            <b><a class="chip green white-text" href="#hosting">HOST YOUR METADATA WITH US</a></b>
+                            <b><a class="chip blue white-text" href="#hosting">Learn More</a></b>
                         </li>
                     </ul>
                     
                 </td>
                 <td>
-                    <form action="#">                
-                      <input type="checkbox" id="test1" @click="completeToDo(1)"/>
-                      <label for="test1">DONE</label>
-                    </form>
+                    <button 
+                    class="red btn" 
+                    :class="{green: todo1 }"
+                    @click="completeToDo(1)">
+                        {{ button1Text }}
+                    </button>
                 </td>
               </tr>
+              <tr v-show="todo1">
+                  <td class="green white-text center-align">
+                      HOST YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
+                  </td>
+                  <td class="green white-text center-align">
+                      <button class="btn green white-text" @click="completeToDo(1)">Not Done</button>
+                  </td>
+              </tr>
               <!-- STEP 2 -->
-              <tr>
+              <tr v-show="!todo2">
                 <td class="center-align">
                     <h3 class="text_h3 blue-text"><i class="material-icons red-text">looks_two</i> Validate Your Metadata</h3>
                     <p>Validate your metadata and clear all errors using this editor:</p>
@@ -589,14 +603,24 @@
                         href="http://smart-api.info/editor-oa3/">Editor</a>
                 </td>
                 <td>
-                    <form action="#">                
-                      <input type="checkbox" id="test2" @click="completeToDo(2)"/>
-                      <label for="test2">DONE</label>
-                    </form>
+                    <button 
+                    class="red btn" 
+                    :class="{green: todo2 }"
+                    @click="completeToDo(2)">
+                        {{ button2Text }}
+                    </button>
                 </td>
               </tr>
+              <tr v-show="todo2">
+                  <td class="green white-text center-align">
+                      VALIDATE YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
+                  </td>
+                  <td class="green white-text center-align">
+                      <button class="btn green white-text" @click="completeToDo(2)">Not Done</button>
+                  </td>
+              </tr>
               <!-- STEP 3 -->
-              <tr>
+              <tr v-show="!todo3">
                 <td class="center-align">
                     <h3 class="text_h3 blue-text"><i class="material-icons red-text">looks_3</i> Add Required SmartAPI Extensions</h3>
                     <p>
@@ -614,15 +638,25 @@
                         href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">Extensions</a>
                 </td>
                 <td>
-                    <form action="#">                
-                      <input type="checkbox" id="test3" @click="completeToDo(3)"/>
-                      <label for="test3">DONE</label>
-                    </form>
+                    <button 
+                    class="red btn" 
+                    :class="{green: todo3 }"
+                    @click="completeToDo(3)">
+                        {{ button3Text }}
+                    </button>
                 </td>
+              </tr>
+              <tr v-show="todo3">
+                  <td class="green white-text center-align">
+                      ADD REQUIRED SMARTAPI EXTENSIONS - COMPLETE <i class="material-icons white-text">check</i>
+                  </td>
+                  <td class="green white-text center-align">
+                      <button class="btn green white-text" @click="completeToDo(3)">Not Done</button>
+                  </td>
               </tr>
             </tbody>
         </table>
-        <div v-if="todo1 && todo2 && todo3" class="card-panel  yellow lighten-5 hoverable">
+        <div id="submitBox" v-if="todo1 && todo2 && todo3" class="card-panel  green lighten-5 hoverable">
             <img width="50px" class="responsive-img rotate" src="/static/img/molecule.png">
             <br>
             <h3 class="text_h3 blue-text"><i class="material-icons red-text">looks_4</i> <b>You're Ready To Submit Your Metadata!</b></h3>
@@ -630,7 +664,7 @@
             <hr>
             <div class="card-panel red lighten-4">
                 <p class="red-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
-                <img src="/static/img/raw.png" alt="raw content" class="responsive-img">
+                <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
             </div>
         </div>
 <p>
@@ -701,7 +735,7 @@
 <div class="card-panel light-blue lighten-5">
     <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
     <hr/>
-    <a class="waves-effect waves-light btn red" @click="select('yes')">Go Back</a>
+    <a class="waves-effect waves-light btn red" @click="select('yes')">Previous</a>
     <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
 </div>
 </div>
@@ -731,7 +765,10 @@
             selection:'',
             todo1: false,
             todo2: false,
-            todo3: false
+            todo3: false,
+            button1Text: 'DONE?',
+            button2Text: 'DONE?',
+            button3Text: 'DONE?'
         },
         components:{
             // available as <hosting></hosting>
@@ -756,12 +793,15 @@
                 switch(todo) {
                     case 1:
                         this.todo1= !this.todo1;
+                        this.button1Text = this.todo1 ? 'DONE' : "DONE?"
                         break;
                     case 2:
                         this.todo2= !this.todo2;
+                        this.button2Text = this.todo2 ? 'DONE' : "DONE?"
                         break;
                     case 3:
                         this.todo3= !this.todo3;
+                        this.button3Text = this.todo3 ? 'DONE' : "DONE?"
                         break;
                     default:
                         return false
@@ -794,7 +834,7 @@
             $('.collapsible').collapsible();
 
             // Smooth Scrolling to Anchors
-            $(document).on('click', 'a[href^="#hosting"]', function (event) {
+            $(document).on('click', 'a[href^="#"]', function (event) {
                 event.preventDefault();
 
                 $('html, body').animate({

@@ -312,8 +312,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#329aef', end
 
 
 .padding20{
-  padding: 20px;
+  padding: 20px !important;
 }
+
 
 hr{
   border: 1px lightblue solid;
@@ -482,7 +483,6 @@ hr{
       }
     }
 
-/*MARCO CANO end*/
 
 .material-icons {
   font-family: 'Material Icons';
@@ -521,3 +521,5 @@ hr{
     .indicators{
     visibility: hidden;
   }
+
+  /*MARCO CANO end*/
