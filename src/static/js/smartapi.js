@@ -5,6 +5,10 @@ function check_user(){
         if (result.login){
             side_html = '<a href="/logout?next=' + window.location.pathname + '">Logout</a>';
             if (result.avatar_url){
+              //populate dashboard information
+              $('#dashboardPhoto').attr("src", result.avatar_url);
+              $('#dashboardName').text(result.name);
+              $('#dashboardUsername').text(result.login);
                 html += '<img class="avatar tooltipped" src="' + result.avatar_url +
                         '" alt="avatar" data-tooltip="' + result.name + '" />';
           }
@@ -104,7 +108,7 @@ $(function(){
     // Initialize dropdown button
     $(".dropdown-button").dropdown();
     // Initialize modal
-    $('.modal').modal({dismissible: false});
+    $('.modal').modal({dismissible: true});
     // Check user status
     check_user();
 

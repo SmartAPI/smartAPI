@@ -150,6 +150,12 @@ class DocumentationHandler(BaseHandler):
         documentation_output = documentation_template.render()
         self.write(documentation_output)
 
+class DashboardHandler(BaseHandler):
+    def get(self):
+        doc_file = "dashboard.html"
+        dashboard_template = templateEnv.get_template(doc_file)
+        dashboard_output = dashboard_template.render()
+        self.write(dashboard_output)
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -159,5 +165,6 @@ APP_LIST = [
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
     (r"/registry/?", RegistryHandler),
-    (r"/documentation/?", DocumentationHandler)
+    (r"/documentation/?", DocumentationHandler),
+    (r"/dashboard/?", DashboardHandler)
 ]
