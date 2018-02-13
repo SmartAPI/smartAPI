@@ -447,6 +447,8 @@ hr{
   }
 }
 
+
+
 .rotate {
     -webkit-animation: rotation 2s infinite linear;
 }
@@ -461,8 +463,8 @@ hr{
 }
 
 .swing-in-top-fwd {
-  -webkit-animation: swing-in-top-fwd 2s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
-          animation: swing-in-top-fwd 2s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+  -webkit-animation: swing-in-top-fwd 4s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
+          animation: swing-in-top-fwd 4s cubic-bezier(0.175, 0.885, 0.320, 1.275) both;
 }
 
 .tracking-in-expand {

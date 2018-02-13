@@ -4,12 +4,12 @@
 {% raw %}
 <div id="dashApp" class=""  style="height: 100%;">
   <div class="row" style="margin-bottom: 0">
-      <div class="col s12 m4 l3 xl3 blue">
-        <ul class="collection">
-          <li class="collection-item blue">
-            <img id="dashboardPhoto" src="" class="responsive-img swing-in-top-fwd" alt="user image">
+      <div class="col s12 m4 l3 xl3 blue gradientBackground">
+        <ul class="collection" style="border: none;">
+          <li class="collection-item " style="background-color: transparent;">
+            <img id="dashboardPhoto" src="" class="responsive-img circle" alt="user image">
           </li>
-          <li class="collection-item center-align blue white-text">
+          <li class="collection-item center-align blue white-text swing-in-top-fwd">
             <h4 class="text_h3 white-text" id="dashboardName">User</h4>
             <p>@<span id="dashboardUsername"></span></p>
           </li>
@@ -25,7 +25,7 @@
         </ul>
       </div>
     <div class="col s12 m8 l9 xl9 white center-align" >
-        <h4>My Dashboard</h4>
+        <h4 class="text_h3 blue-text tracking-in-expand">My Dashboard</h4>
         <div class="row">
           <div class="col s12">
             <ul class="tabs blue-text">
@@ -33,7 +33,7 @@
                 <a class="blue-text" href="#contributions">My Contributions ({{total}})</a>
               </li>
               <li class="tab col s3"><a class="blue-text" href="#details">
-                API Details</a>
+                Future Features</a>
               </li>
               <li class="tab col s3"><a class="blue-text" href="#about">
                 About SmartAPI</a>
@@ -52,7 +52,7 @@
                 </thead>
                 <tbody>
                   <!-- For each API -->
-                  <tr v-for="(api,index) in apis">
+                  <tr v-for="(api,index) in apis" class="">
                     <td>
                        <a href="#modal2" class="modal-trigger" @click="getDetails(api.info)"><b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span></a>
                     </td>
