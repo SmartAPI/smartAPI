@@ -4,7 +4,7 @@
 {% raw %}
 <div id="dashApp" class=""  style="height: 100%;">
   <div class="row" style="margin-bottom: 0">
-      <div class="col s12 m4 l3 xl3 blue gradientBackground">
+      <div class="col s12 m4 l3 xl3  gradientBackground">
         <ul class="collection" style="border: none;">
           <li class="collection-item " style="background-color: transparent;">
             <img id="dashboardPhoto" src="" class="responsive-img circle" alt="user image">
@@ -17,7 +17,7 @@
             <p>Contributions<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p>
           </li>
           <li class="collection-item center-align">
-            <a href="" class="btn blue">Button</a>
+            <a href="/add_api" class="btn blue">Add AN API</a>
           </li>
           <li class="collection-item center-align">
             <a href="/logout" class="btn red">Log Out</a>
@@ -32,8 +32,8 @@
               <li class="tab col s3">
                 <a class="blue-text" href="#contributions">My Contributions ({{total}})</a>
               </li>
-              <li class="tab col s3"><a class="blue-text" href="#details">
-                Future Features</a>
+              <li class="tab col s3"><a class="blue-text" href="#etensions">
+                SmartAPI Extensions</a>
               </li>
               <li class="tab col s3"><a class="blue-text" href="#about">
                 About SmartAPI</a>
@@ -54,7 +54,7 @@
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis" class="">
                     <td>
-                       <a href="#modal2" class="modal-trigger" @click="getDetails(api.info)"><b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span></a>
+                       <a href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)"><b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span></a>
                     </td>
                     <td class="tableTextOverflow">
                       <p class="tableTextOverflow">{{ api.info.description }}</p>
@@ -63,6 +63,8 @@
                       <a @click="refreshingThis(api.info.title)" class="btn green white-text">
                         <i class="large material-icons"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">autorenew</i>
                       </a>
+                      <br>
+                      <span class="green-text" style="font-size: 12px">Last Updated:<br>{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
                       <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn red white-text modal-trigger">
@@ -74,11 +76,26 @@
                 </tbody>
               </table>
           </div>
-          <div id="details" class="col s12 card-panel ">
-              <!-- Selected API details -->
+          <div id="etensions" class="col s12 card-panel ">
+            <div class="card-panel white">
+              <h3 class="text_h3 blue-text">SmartAPI Extensions</h3>
+            <p>
+                SmartAPI specific elements automatically generated from <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">parent document</a>.
+            </p>
+            <p>
+                Most of the SmartAPI extensions are optional, but a few are REQUIRED, for example:
+                <br>
+                <code>info.termOfService</code><br>
+                <code>info.contact.x-role</code><br>
+                <code>info.version</code><br>
+                For a full list of REQUIRED extensions refer to the recommendations column of the document here:
+            </p>
+            <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">SmartAPI Extensions</a>
+          </div>
           </div>
           <div id="about" class="col s12 card-panel center-align blue-text">
-              <h1 class="text_h2">SmartAPI</h1>
+              <h2 class="text_h2">SmartAPI</h2>
+              <i class="material-icons medium blue-text">info</i>
               <p>Version 1.2</p>
               <div class="card-panel">
                 <h3 class="text_h3 blue-text">SmartAPI Links:</h3>
@@ -90,8 +107,11 @@
                 </ul>
             </div>
             <div class="card-panel">
-              <h3 class="text_h3 blue-text">Contact</h3>
-              <a href="mailto:" class="">Email Us</a>
+              <h2 class="text_h2 blue-text">Contact</h2>
+              <a href="mailto:" class="">
+              <i class="material-icons medium blue-text">mail</i>
+              <br>
+              Email Us</a>
             </div>
           </div>
         </div>
@@ -101,7 +121,13 @@
   <div id="modal1" class="modal center-align">
     <div class="modal-content">
       <h4 class="text_h3 blue-text">Delete <b>{{ confirmModal.title }}</b>?</h4>
-      <a href='#!' @click="deleteForever(confirmModal.title, confirmModal.id)" class="red btn modal-action modal-close">Confirm Delete</a>
+      <div class="card-panel red lighten-4">
+        <i class="material-icons medium amber-text">warning</i>
+        <p class="white-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
+        <input @change="getAPIName(confirmModal.title, $event)" :placeholder="confirmModal.title" type="text" class="validate browser-default" style="outline: none; padding: 10px; width: 70%;">
+        <hr>
+        <a href='#!' :disabled="confirmDelete" @click="deleteForever(confirmModal.title, confirmModal.id)" class="amber btn modal-action modal-close">Delete API</a>
+      </div>
       <hr>
       <a href="#!" class="btn blue modal-action modal-close">Cancel</a>
     </div>
@@ -114,6 +140,9 @@
         <li class="collection-header"><h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4></li>
         <li class="collection-item">
           {{ selectedAPIContact.name }}<span class="grey-text"> / {{selectedAPIContact["x-role"]}}</span>
+        </li>
+        <li class="collection-item">
+          <a :href="selectedAPIGithub" target="_blank"><i class="small fa fa-github-square blue-text"></i> My Github</a>
         </li>
         <li class="collection-item">
           <p class="blue-text">Description:</p>
@@ -156,8 +185,10 @@
           },
           selectedAPI:{},
           selectedAPIContact: {},
+          selectedAPIGithub:'',
           apis:[],
-          total: 0
+          total: 0,
+          confirmDelete: true
         },
         methods:{
           getApis: function(){
@@ -183,10 +214,32 @@
             Materialize.toast(title+' was Refreshed!', 4000,'rounded green white-text');
             Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
           },
-          getDetails: function(fullApiInfo){
+          getDetails: function(fullApiInfo, meta){
             var self = this;
             self.selectedAPI = fullApiInfo;
             self.selectedAPIContact = self.selectedAPI.contact;
+            self.selectedAPIGithub = 'https://www.github.com/'+meta.github_username;
+          },
+          convertDate: function(timestamp){
+            var date = new Date(timestamp);
+            var formattedTime = date.getFullYear()+'-' 
+            + (date.getMonth()+1) 
+            + '-'+date.getDate()
+            + ' @ '+date.getHours()
+            + ':'+date.getMinutes();
+
+            return formattedTime;
+          },
+          getAPIName: function(APIToBeDeleted, event){
+            // confirm API name to delete forever
+            let input = event.target.value.trim();
+            if(input === APIToBeDeleted){
+              this.confirmDelete = false;
+            }
+            else{
+              this.confirmDelete = true;
+              Materialize.toast(input+' Does Not Match API Name', 4000,'rounded red white-text');
+            }
           }
         },
         mounted: function(){
@@ -198,6 +251,8 @@
            $('.modal').modal({dismissible: true});
            // notifications
            $('.tooltipped').tooltip({delay: 50});
+
+           $('.collapsible').collapsible();
 
         }
     });
