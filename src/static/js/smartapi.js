@@ -3,24 +3,28 @@ function check_user(){
         var html = "";
         var side_html = "";
         if (result.login){
-            side_html = '<a href="/logout?next=' + window.location.pathname + '">Logout</a>';
+            side_html = '<li><a href="/logout?next=' + window.location.pathname + '">Logout</a></li>';
             if (result.avatar_url){
               //populate dashboard information
               $('#dashboardPhoto').attr("src", result.avatar_url);
+              $('#navPhoto').attr("src", result.avatar_url);
               $('#dashboardName').text(result.name);
               $('#dashboardUsername').text(result.login);
-                html += '<img class="avatar tooltipped" src="' + result.avatar_url +
-                        '" alt="avatar" data-tooltip="' + result.name + '" />';
+              html += "<li class='blue'><a class='dropdown-button' href='#!'' data-activates='dropdown1'>"+result.name+"<i class='material-icons right'>arrow_drop_down</i></a></li>";
+              //side_html += "<li><a class='white-text' href='/dashboard'>My Dashboard</a></li>";
           }
-          html += '<a style="display: inline-block;" href="/logout?next=' + window.location.pathname + '">Logout</a>';
+          html += "<li><a class='btn red' href='/logout?next=" + window.location.pathname + "'>Logout</a></li>";
+          side_html += "<li class='blue'><a class='white-text' href='/dashboard'>My Dashboard</a></li><li><a class='red-text' href='/logout?next=" + window.location.pathname + "'>Logout</a></li>";
         }else{
-            html += '<a href="/login">Login</a>';
-            side_html = html;
+            html += "<li><a class='btn green' href='/oauth'>Login</a></li>";
+            side_html += html;
         }
-        $("#user_link").html(html).promise().done(function(){
+        // Append new items to navigation
+        $("#user_link").append(html).promise().done(function(){
             $('.tooltipped').tooltip();
+            $(".dropdown-button").dropdown();
         });
-        $("#side_user_link").html(side_html);
+        $("#side_user_link").append(side_html);
     }});
 };
 
@@ -104,7 +108,6 @@ $(function(){
           closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
         }
       );
-
     // Initialize dropdown button
     $(".dropdown-button").dropdown();
     // Initialize modal

@@ -609,4 +609,17 @@ hr{
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f85032', endColorstr='#e73827',GradientType=0 ); /* IE6-9 */
 }
 
+.flexDad{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flexKid{
+  width: 50%;
+  padding: 40px !important;
+  text-align: center;
+  font-size: 1em;
+}
+
   /*MARCO CANO end*/

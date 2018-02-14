@@ -1,26 +1,33 @@
-<title>smartAPI</title>
+<title>SmartAPI</title>
 
 <div class="navbar-fixed">
   <nav id="nav_f" class=" blue-grey darken-4" role="navigation">
     <div class="nav-wrapper">
       <a href="/" class="brand-logo" style="margin-left: 15px; color: #40c4ff;">SmartAPI</a>
-      <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
-      <ul class="right hide-on-med-and-down">
-        <li><a href="/">Home</a></li>
+      <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons" style="margin-left: 15px;">menu</i></a>
+      <ul class="right hide-on-med-and-down" id="user_link">
         <li><a href="/add_api">Add an API</a></li>
         <li><a href="/registry">Registry</a></li>
-        <li><a href="/editor-oa3/">Editor</a></li>
-        <li><a href="/dashboard/">Dash</a></li>
-        <li id="user_link"></li>
+        <li><a href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a></li>
       </ul>
     </div>
   </nav>
 </div>
 
-<ul class="side-nav" id="mobile-demo">
+<ul class="side-nav" id="mobile-demo" >
   <li><a href="/">Home</a></li>
   <li><a href="/add_api">Add an API</a></li>
   <li><a href="/registry">Registry</a></li>
-  <li><a href="/editor-oa3/">Editor</a></li>
+  <li><a href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a></li>
   <li id="side_user_link"></li>
 </ul>
+
+<!-- Dropdown Structure -->
+<ul id="dropdown1" class="dropdown-content center-align">
+  <li><a class="blue-text" href="/dashboard">My Dashboard <i class="material-icons blue-text">dashboard</i></a></li>
+  <li class="divider"></li>
+  <li><a class="blue-text" href="/add_api">Add an API <i class="material-icons blue-text">add</i></a></li>
+  <li><a class="red-text" href="/logout?next='/'">Logout <i class="material-icons red-text">exit_to_app</i></a></li>
+</ul>
+
+
