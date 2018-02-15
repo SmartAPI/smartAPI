@@ -265,7 +265,6 @@ footer.page-footer {
 }
 
 .title {
-  font-size: 72px;
   background: -webkit-linear-gradient(#eee, #40c4ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -621,5 +620,101 @@ hr{
   text-align: center;
   font-size: 1em;
 }
+
+.indexBackground{
+  background-color: #323232;
+  background-image: url('../img/mountain.jpeg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 0px 0px;
+  position: relative;
+  width: 100% !important;
+  margin:0 auto;
+}
+
+@keyframes animatedBackground {
+    0% { background-position: 0 0; }
+    100% { background-position:300px 0; }
+}
+@-moz-keyframes animatedBackground {
+    0% { background-position: 0 0; }
+    100% { background-position:300px 0; }
+}
+@-webkit-keyframes animatedBackground {
+    0% { background-position: 0 0; }
+    100% { background-position:300px 0; }
+}
+@-ms-keyframes animatedBackground {
+    0% { background-position: 0 0; }
+    100% { background-position:300px 0; }
+}
+@-o-keyframes animatedBackground {
+    0% { background-position: 0 0; }
+    100% { background-position:300px 0; }
+}
+
+.animatedBackground:hover{
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left;
+  animation: animatedBackground 20s linear infinite;
+  -moz-animation: animatedBackground 20s linear infinite;
+  -webkit-animation: animatedBackground 20s linear infinite;
+  -ms-animation: animatedBackground 20s linear infinite;
+  -o-animation: animatedBackground 20s linear infinite;
+}
+
+.animatedBackground{
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left;
+  animation: animatedBackground paused;
+  -moz-animation: animatedBackground paused;
+  -webkit-animation: animatedBackground paused;
+  -ms-animation: animatedBackground paused;
+  -o-animation: animatedBackground paused;
+}
+
+.indexChild{
+  background-color: rgba(4, 75, 123,.1);
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  border: 2px white dotted;
+  height: 200px;
+  width: 200px;
+}
+
+.indexChild:hover{
+  background-color: rgba(4, 75, 123,.2);
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  border: 2px white dotted;
+  height: 200px;
+  width: 200px;
+}
+
+.flexDadIndex{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content:center;
+}
+
+.flexKidIndex{
+  width: 50%;
+  min-width: 600px;
+  flex-grow: 100%;
+  padding: 40px !important;
+  text-align: center;
+  font-size: 1em;
+}
+
+.text-shadow{
+  font-weight: lighter;
+  text-shadow: 1px 1px 2px grey;
+}
+
+
 
   /*MARCO CANO end*/
