@@ -3,16 +3,9 @@
 {% include "header.html" %}
 {% raw %}
 <div id="docapp" class="gradientBackground"  style="height: 100%;">
-    <div class="container">
-        <h2 class="text_h2 center white-text" style="margin-top: 0px;">
-          {{ title }}
-      </h2>
-  </div>
-
-
 
   <!-- start of INTRO -->
-  <div v-if="!selection" class="center-align container padding20">
+  <div v-if="!selection" class="center-align padding20">
     <div class="card-panel white">
         <a target="_blank" href="https://www.openapis.org/">
             <img class="responsive-img roundPhotoLink hoverable" src="/static/img/openapi-logo.png" alt="openAPI v3">
@@ -35,8 +28,8 @@
                 </a>
              </div>
             </div>       
-            <div class="carousel-item blue white-text padding20" href="#one!" >
-                <h2 class="chip white blue-text">What is OpenAPI?</h2>
+            <div class="carousel-item blue-grey white-text padding20" href="#one!" >
+                <h2 class="white-text text_h3">What is OpenAPI?</h2>
                 <p class="white-text flow-text">
                     The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. SmartBear Software is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
                 </p> 
@@ -44,18 +37,18 @@
                     APIs form the connecting glue between modern applications. Nearly every application uses APIs to connect with corporate data sources, third party data services or other applications. Creating an open description format for API services that is vendor neutral, portable and open is critical to accelerating the vision of a truly connected world.
                 </p>
                 <hr>
-                <a class="btn amber" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
+                <a class="btn blue" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
             </div>
-            <div class="carousel-item blue white-text" href="#two!">
-              <h2 class="chip white blue-text">
+            <div class="carousel-item blue-grey white-text" href="#two!">
+              <h2 class="white-text text_h3">
                 What is SmartAPI?
             </h2>
             <p class="white-text">
               The smartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a openAPI-based specification for defining the key API metadata elements and value sets. smartAPIs leverage the Open API specification v3 and JSON-LD for providing semantically annotated JSON content that can be treated as Linked Data.
           </p>
       </div>
-      <div class="carousel-item blue white-text" href="#three!">
-        <h4 class="chip white blue-text">
+      <div class="carousel-item blue-grey white-text" href="#three!">
+        <h4 class="white-text text_h3">
             What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?
         </h4>
         <p>

@@ -37,7 +37,7 @@
     min-height: 632px;
     max-height: 864px;
     position: relative;
-    background-color: #2196F3;
+    background-color: #323232;
 }
 
 #nav_f{
@@ -623,7 +623,7 @@ hr{
 
 .indexBackground{
   background-color: #323232;
-  background-image: url('../img/mountain.jpeg');
+  background-image: url('../img/mountain.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 0px 0px;
@@ -715,6 +715,53 @@ hr{
   text-shadow: 1px 1px 2px grey;
 }
 
+.topic:hover{
+  background-color: #90a4ae;
+}
 
+.topic span{
+  background-color: rgba(255,255,255,.1);
+  margin-top: 10px;
+  padding: 5px;
+  border: dotted white 2px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+  font-size: 2em;
+  font-weight: lighter;
+  font-variant: small-caps;
+}
+
+.topic span:hover{
+  background-color: rgba(255,255,255,.2);
+  margin-top: 10px;
+  padding: 5px;
+  border: solid white 2px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+  font-size: 2em;
+  font-weight: lighter;
+  font-variant: small-caps;
+  transition: .5s;
+}
+
+.topic:hover img{
+    -webkit-animation:spin 2s linear infinite;
+    -moz-animation:spin 2s linear infinite;
+    animation:spin 2s linear infinite;
+}
+
+.topic{
+  background-color: #627D8A;
+  border-radius: 0px;
+  transition: .5s;
+  -webkit-transition:.5s;
+  -webkit-transition-timing-function: ease-in;
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotateY(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotateY(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotateY(360deg); transform:rotateY(360deg); } }
 
   /*MARCO CANO end*/
