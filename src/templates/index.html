@@ -10,11 +10,11 @@
     </div>
 </div>
 
-<div id="intro1" class="section scrollspy">
+<div style="display: none;" id="intro1" class="section scrollspy">
     <div class="container">
         <div class="row">
             <div class="col s4">
-                <img class="responsive-img" src="/static/img/metadata.jpg">
+                <img class="responsive-img circle" src="/static/img/metadata2.png">
             </div>
             <div class="col s8">
                 <h2 class="center header text_h2 blue-grey-text">What is a SmartAPI?</h2>
@@ -24,7 +24,7 @@
 </div>
 
 
-<div class="row blue-grey">
+<div style="display: none;" id="topicsBox" class="row blue-grey">
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a href="/registry" >
         <img src="/static/img/search50.png" alt="icon">
@@ -88,7 +88,7 @@
 
 </div>
 
-<div class="section scrollspy" id="intro2">
+<div style="display: none;" class="section scrollspy" id="intro2">
     <div class="container">
         <div class="row">
           <div class="col s8">
@@ -104,7 +104,7 @@
 </div>
 
 
-<div class="section scrollspy" id="intro3">
+<div style="display: none;" class="section scrollspy" id="intro3">
     <div class="container">
       <div class="row">
         <div class="col s4">
@@ -117,6 +117,29 @@
       </div>
     </div>
 </div>
+<div id="tracker" style="height: 100px; width: 100%;" class="indexBackground">
+    
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script type="text/javascript">
+    var options = [
+    {selector: '#tracker', offset: 100, callback: function(){
+        $('#intro1').fadeIn(5000);
+    } },
+    {selector: '#tracker', offset: 150, callback: function(){
+        $('#topicsBox').slideDown('slow');
+    } },
+    {selector: '#tracker', offset: 200, callback: function(){
+        $('#intro2').slideDown('slow');
+    } },
+    {selector: '#tracker', offset: 250, callback: function(){
+        $('#intro3').slideDown('slow');
+    } }
+  ];
+  Materialize.scrollFire(options);
+</script>
 
 {% include "footer.html" %}
 {% endblock %}

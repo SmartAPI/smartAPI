@@ -626,6 +626,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   position: relative;
   width: 100% !important;
   margin:0 auto;
+  background-attachment: fixed;
 }
 
 @keyframes animatedBackground {
@@ -677,7 +678,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%,-50%);
-  border: 2px white dotted;
+  border-radius: 10px;
   height: 200px;
   width: 200px;
 }
@@ -771,7 +772,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   font-size: 2em;
   font-weight: lighter;
   font-variant: small-caps;
-  transition: .5s;
+  transition: .7s;
 }
 
 h1, h2 , h3, h4 ,h5{
