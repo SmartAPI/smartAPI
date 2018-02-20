@@ -5,11 +5,7 @@ function check_user(){
         if (result.login){
             side_html = '<li><a href="/logout?next=' + window.location.pathname + '">Logout</a></li>';
             if (result.avatar_url){
-              //populate dashboard information
-              $('#dashboardPhoto').attr("src", result.avatar_url);
               $('#navPhoto').attr("src", result.avatar_url);
-              $('#dashboardName').text(result.name);
-              $('#dashboardUsername').text(result.login);
               html += "<li class='blue'><a class='dropdown-button' href='#!'' data-activates='dropdown1'>"+result.name+"<i class='material-icons right'>arrow_drop_down</i></a></li>";
               //side_html += "<li><a class='white-text' href='/dashboard'>My Dashboard</a></li>";
           }

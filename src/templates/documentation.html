@@ -2,7 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<div id="docapp" class="gradientBackground"  style="height: 100%;">
+<div id="docapp" class="blue-grey"  style="height: 100%;">
 
   <!-- start of INTRO -->
   <div v-if="!selection" class="center-align padding20">
@@ -58,8 +58,10 @@
 </div>
 </div>
 <div class="card-panel green">
-    <a class="transparentButton" @click="select('start')">
-        BEGIN GUIDE <i class="material-icons white-text">navigate_next</i>
+    <h4 class="white-text">ADD YOUR API</h4>
+    <br>
+    <a class="clearButton" @click="select('start')">
+        START HERE
     </a>
 </div>
 <div class="card-panel light-blue lighten-5">
@@ -437,14 +439,14 @@
             <li class="collection-header blue white-text">
                 <h4 class="text_h3">INSTRUCTIONS</h4>
             </li>
-            <li class="collection-item">
+            <!-- <li class="collection-item">
                 <i class="material-icons medium blue-text">create_new_folder</i>
                 <br>
               <h3 class="text_h3 blue-text">Host Your Metadata</h3>  
               <p>
                   Decide where you want to host your metadata: On your own Github account or you may <a href="#hostingforNo">host your metadata on our Github account</a>.
               </p>
-            </li>
+            </li> -->
             <li class="collection-item">
                 <i class="material-icons medium blue-text">edit</i>
                 <br>
@@ -467,14 +469,14 @@
                 </ul>
                 <hr>
                 <a class="btn-large editor green" target="_blank" href="http://smart-api.info/editor-oa3/">API EDITOR</a>
-                <p>
+                <p class="grey-text">
                     This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a> interface can also be useful for creating your API metadata from the scratch. But be aware of that this interface does not support any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a> (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can of course add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.
                 </p>
-                <p>For a complete list of SmartAPI extensions visit this link:</p>
+                <p class="grey-text">For a complete list of SmartAPI extensions visit this link:</p>
                 <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Extensions</a>
                     
             </li>
-            <li class="collection-item">
+            <!-- <li class="collection-item">
                 <i class="material-icons medium blue-text">extension</i>
                 <br>
                 <h3 class="text_h3 blue-text">
@@ -489,22 +491,27 @@
                     For a full list of required extensions refer to the recommendations column of the document here:
                 </p>
                 <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Extensions</a>
-            </li>
-            <li class="collection-item">
+            </li> -->
+            <!-- <li class="collection-item">
                 <i class="material-icons medium blue-text">note_add</i>
                 <br>
                 <h3 class="text_h3 blue-text">Done writing/editing your metadata?</h3>
                 <a class="waves-effect waves-light btn-large green pulse" target="_blank" href="/add_api">Add Your API</a>
                 <hr>
-                <div class="card-panel red lighten-4">
-                    <p class="white-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
+                <div class="card-panel yellow lighten-4">
+                    <p class="blue-grey-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
                     <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
                 </div>
+            </li> -->
+            <li class="collection-item green padding20">
+                <h4 class="white-text">Done Creating Your V3 Metadata?</h4>
+                <br>
+                <a href="#!" class="clearButton" @click="select('3')">NEXT</a>
             </li>
         </ul>
     </div>
         <!-- Hosting Information for starting from scratch -->
-        <div id="hostingforNo" class="card-panel light-blue lighten-5">
+        <!-- <div id="hostingforNo" class="card-panel light-blue lighten-5">
                 <i class="material-icons blue-text large">create_new_folder</i>
                 <br>
                 <h3 class="text_h3 blue-text tracking-in-expand">
@@ -533,7 +540,7 @@
                     </li>
                 </ul>
             </div>
-        </div>
+        </div> -->
         <div class="card-panel light-blue lighten-5">
             <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
             <hr>
@@ -580,7 +587,7 @@
                     <b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned above, and commit your changes even when they are not fully complete or valid. 
                 </p>
                 </li>
-                <li class="collection-item">
+                <!-- <li class="collection-item">
                     <i class="material-icons medium blue-text">edit</i>
                     <br>
                     <h3 class="text_h3 blue-text">EDIT YOUR METADATA:</h3>
@@ -590,8 +597,8 @@
                     <a class="btn-large blue" target="_blank" href="http://smart-api.info/editor-oa3/">
                         Editor
                     </a>
-                </li>
-                <li class="collection-item">
+                </li> -->
+                <!-- <li class="collection-item">
                     <i class="material-icons medium blue-text">extension</i>
                     <br>
                     <h3 class="text_h3 blue-text">ADD THE REQUIRED SMARTAPI EXTENSIONS</h3>
@@ -611,20 +618,25 @@
                     <h3 class="text_h3 blue-text">SUBMIT YOUR CONVERTED V3 METADATA</h3>
                     <a class="waves-effect waves-light btn-large green pulse" href="/add_api">Add Your API</a>
                     <hr>
-                    <div class="card-panel red lighten-4">
-                        <p class="white-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
+                    <div class="card-panel yellow lighten-4">
+                        <p class="blue-grey-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
                         <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
                     </div>
+                </li> -->
+                <li class="collection-item green padding20">
+                    <h4 class="white-text">Done Converting Your Metadata?</h4>
+                    <br>
+                    <a href="#!" class="clearButton" @click="select('3')">NEXT</a>
                 </li>
             </ul>      
 </div>
-<div class="card-panel light-blue lighten-5">
+<!-- <div class="card-panel light-blue lighten-5">
     <p class="blue-text"><b>Submit V2 metadata</b></p>
     <p>
         <i class="material-icons amber-text">build</i> <b class="amber-text">COMING SOON</b>
     </p>
     <a target="_blank" href="http://smart-api.info/editor-oa3/" class="waves-effect waves-light btn red disabled" >Sumbit As IS</a>
-</div>
+</div> -->
 <div class="card-panel light-blue lighten-5">
     <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
     <hr>
@@ -639,7 +651,7 @@
         <h3 class="text_h3 blue-text tracking-in-expand">Version 3</h3>
         <ul class="collection">
                 <li class="collection-header blue white-text">
-                    <h4 class="text_h3">INSTRUCTIONS</h4>
+                    <h4 class="text_h3">FINAL STEP</h4>
                 </li>
                 <li class="collection-item">
                     <h3 class="text_h3 red-text">
@@ -657,9 +669,36 @@
             <tbody>
                 <!-- STEP 1 -->
               <tr v-show="!todo1">
+                
+                <td class="center-align">
+                    <h3 class="text_h3 blue-text"><i class="material-icons red-text">looks_one</i> Validate Your Metadata</h3>
+                    <p>Validate your metadata and clear all errors using this editor:</p>
+                    <a class="waves-effect waves-light btn-large blue" 
+                        target="_blank" 
+                        href="http://smart-api.info/editor-oa3/">Editor</a>
+                </td>
+                <td>
+                    <button 
+                    class="red btn" 
+                    :class="{green: todo1 }"
+                    @click="completeToDo(1)">
+                        {{ button1Text }}
+                    </button>
+                </td>
+              </tr>
+              <tr v-show="todo1">
+                  <td class="green white-text center-align">
+                      VALIDATE YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
+                  </td>
+                  <td class="green white-text center-align">
+                      <button class="btn green white-text" @click="completeToDo(1)">Not Done</button>
+                  </td>
+              </tr>
+              <!-- STEP 2 -->
+              <tr v-show="!todo2">
                 <td class="center-align">
                     <h3 class="text_h3 blue-text">
-                        <i class="material-icons red-text">looks_one</i> Host Your Metadata
+                        <i class="material-icons red-text">looks_two</i> Host Your Metadata
                     </h3>
                     Host your metadata in a version-control system:
                     <ul>
@@ -681,32 +720,6 @@
                 <td>
                     <button 
                     class="red btn" 
-                    :class="{green: todo1 }"
-                    @click="completeToDo(1)">
-                        {{ button1Text }}
-                    </button>
-                </td>
-              </tr>
-              <tr v-show="todo1">
-                  <td class="green white-text center-align">
-                      HOST YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
-                  </td>
-                  <td class="green white-text center-align">
-                      <button class="btn green white-text" @click="completeToDo(1)">Not Done</button>
-                  </td>
-              </tr>
-              <!-- STEP 2 -->
-              <tr v-show="!todo2">
-                <td class="center-align">
-                    <h3 class="text_h3 blue-text"><i class="material-icons red-text">looks_two</i> Validate Your Metadata</h3>
-                    <p>Validate your metadata and clear all errors using this editor:</p>
-                    <a class="waves-effect waves-light btn-large blue" 
-                        target="_blank" 
-                        href="http://smart-api.info/editor-oa3/">Editor</a>
-                </td>
-                <td>
-                    <button 
-                    class="red btn" 
                     :class="{green: todo2 }"
                     @click="completeToDo(2)">
                         {{ button2Text }}
@@ -715,7 +728,7 @@
               </tr>
               <tr v-show="todo2">
                   <td class="green white-text center-align">
-                      VALIDATE YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
+                      HOST YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
                   </td>
                   <td class="green white-text center-align">
                       <button class="btn green white-text" @click="completeToDo(2)">Not Done</button>
@@ -758,14 +771,12 @@
               </tr>
             </tbody>
         </table>
-        <div id="submitBox" v-if="todo1 && todo2 && todo3" class="card-panel  green lighten-5 hoverable">
-            <img width="50px" class="responsive-img rotate" src="/static/img/molecule.png">
-            <br>
-            <h3 class="text_h3 blue-text"><i class="material-icons red-text">looks_4</i> <b>You're Ready To Submit Your Metadata!</b></h3>
+        <div id="submitBox" v-if="todo1 && todo2 && todo3" class="card-panel  white">
+            <h3 class="text_h3 green-text"><i class="material-icons red-text">looks_4</i> <b>You're Ready To Submit Your Metadata!</b></h3>
             <a class="waves-effect waves-light btn-large green pulse" href="/add_api">Add Your API</a>
             <hr>
-            <div class="card-panel red lighten-4">
-                <p class="white-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
+            <div class="card-panel yellow lighten-4">
+                <p class="blue-grey-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
                 <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
             </div>
         </div>
@@ -775,7 +786,7 @@
 </div>
 <!-- Hosting Information -->
 <div id="hosting" class="card-panel light-blue lighten-5">
-        <i class="material-icons blue-text large">create_new_folder</i>
+        <i class="large fa fa-github-square blue-text"></i>
         <br>
         <h3 class="text_h3 blue-text tracking-in-expand">
             Host Your Metadata With Us
@@ -804,6 +815,9 @@
         </ul>
     </div>
 </div>
+<div class="card-panel white-text">
+    <h2 class="text_h2 blue-text">Advanced</h2>
+</div>
 <div class="card-panel light-blue lighten-5">
     <i class="material-icons blue-text large">developer_board</i>
     <h3 class="text_h3 blue-text">
@@ -826,8 +840,8 @@
 <div class="card-panel light-blue lighten-5">
     <h3 class="text_h3 blue-text">Not What You Are Looking For?</h3>
     <hr/>
-    <a class="waves-effect waves-light btn red" @click="select('yes')">Previous</a>
-    <a class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
+    <a  class="waves-effect waves-light btn red" @click="select('yes')">Previous</a>
+    <a  class="waves-effect waves-light btn red" @click="select('start')">Start Over</a>
 </div>
 </div>
 
@@ -843,27 +857,18 @@
 
 <script>
     
-    var Hosting={
-        template: (
-            '<div><h1>WORKS</h1></div>'
-            )
-    }
-
     var app = new Vue({
         el: '#docapp',
-        data: {
-            title: 'Start Guide',
-            selection:'',
-            todo1: false,
-            todo2: false,
-            todo3: false,
-            button1Text: 'DONE?',
-            button2Text: 'DONE?',
-            button3Text: 'DONE?'
-        },
-        components:{
-            // available as <hosting></hosting>
-            'hosting': Hosting
+        data: function(){
+            return{
+                selection:'',
+                todo1: false,
+                todo2: false,
+                todo3: false,
+                button1Text: 'DONE?',
+                button2Text: 'DONE?',
+                button3Text: 'DONE?'
+            }
         },
         methods:{
             select: function(input){

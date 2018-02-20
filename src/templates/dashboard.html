@@ -2,22 +2,25 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<div id="dashApp" class=""  style="height: 100%;">
-  <div class="row" style="margin-bottom: 0">
+<div id="dashApp" style="height: 100%;">
+  <!-- IF NO USERINFO DISPLAY LOGIN-->
+  <div v-if="!userInfo.name" class="padding20 card-panel red center-align">
+    <h3 class="text_h3 white-text">You Must Be Signed In To Use Your Dashboard</h3>
+    <a href="/oauth" class="btn green">Login</a>
+  </div>
+  <!-- IF USERINFO DISPLAY DASHBOARD -->
+  <div v-if="userInfo.name" class="row" style="margin-bottom: 0">
       <div class="col s12 m4 l3 xl3  gradientBackground">
         <ul class="collection" style="border: none;">
           <li class="collection-item " style="background-color: transparent;">
-            <img id="dashboardPhoto" src="" class="responsive-img circle" alt="user image">
+            <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle" alt="user image">
           </li>
           <li class="collection-item center-align blue white-text swing-in-top-fwd">
-            <h4 class="text_h3 white-text" id="dashboardName">User</h4>
-            <p>@<span id="dashboardUsername"></span></p>
+            <h4 class="text_h3 white-text">{{userInfo.name}}</h4>
+            <p>@<span>{{userInfo.login}}</span></p>
           </li>
           <li class="collection-item">
             <p>Contributions<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p>
-          </li>
-          <li class="collection-item center-align">
-            <a href="/add_api" class="btn blue">Add AN API</a>
           </li>
           <li class="collection-item center-align">
             <a href="/logout" class="btn red">Log Out</a>
@@ -73,6 +76,15 @@
                            onmouseout="this.innerHTML='delete';">
                             delete</i>
                       </a>
+                    </td>
+                  </tr>
+                  <!-- IF nor apis present -->
+                  <tr v-if="apis.length === 0">
+                    <td colspan="2"  class="center-align">
+                      <span class="grey-text">No Contributions Yet</span><br>
+                    </td>
+                    <td colspan="2"  class="center-align">
+                      <a class="btn red white-text" href="" @click="reloadAPIs()">Error? Reload APIs</a>
                     </td>
                   </tr>
                   
@@ -144,7 +156,7 @@
   <div id="modal1" class="modal center-align">
     <div class="modal-content">
       <h4 class="text_h3 blue-text">Delete <b>{{ confirmModal.title }}</b>?</h4>
-      <div class="card-panel red lighten-4">
+      <div class="card-panel deep-orange accent-2">
         <i class="material-icons medium amber-text">warning</i>
         <p class="white-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
         <input @change="getAPIName(confirmModal.title, $event)" :placeholder="confirmModal.title" type="text" class="validate browser-default" style="outline: none; padding: 10px; width: 70%;">
@@ -193,15 +205,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 
 <script>
+  
+
     var app = new Vue({
         el: '#dashApp',
         data: {
-          userInfo:{
-            name:'',
-            username:'newgene',
-            avatar:'',
-            email:''
-          },
+          userInfo:{},
           confirmModal:{
             title:'',
             id:''
@@ -216,10 +225,13 @@
         methods:{
           getApis: function(){
             var self=this;
-            axios.get("http://smart-api.info/api/query?size=100&q=_meta.github_username:"+self.userInfo.username).then(function(response){
+            axios.get("http://smart-api.info/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
                   //console.log(response.data.hits);
                   self.apis = response.data.hits;
                   self.total = response.data.total;
+              }).catch(err=>{
+                Materialize.toast('Failed To Load APIs', 4000,'rounded red white-text');
+                throw err;
               });
           },
           deleteAPI: function(title, id){
@@ -262,6 +274,21 @@
 
             return formattedTime;
           },
+          reloadAPIs: function(){
+            this.getUserInfo();
+          },
+          getUserInfo: function(){
+            var self= this;
+            axios.get('/user').then(response=>{
+              // console.log('user data');
+              // console.log(response.data);
+              self.userInfo = response.data;
+              self.getApis();
+
+            }).catch(err=>{
+              throw err;
+            })
+          },
           getAPIName: function(APIToBeDeleted, event){
             // confirm API name to delete forever
             let input = event.target.value.trim();
@@ -276,7 +303,7 @@
         },
         mounted: function(){
            // JQuery Initializations
-           this.getApis();
+           this.getUserInfo();
            // tabs
            $('ul.tabs').tabs();
            // modals
