@@ -9,11 +9,11 @@
     <a href="/oauth" class="btn green">Login</a>
   </div>
   <!-- IF USERINFO DISPLAY DASHBOARD -->
-  <div v-if="userInfo.name" class="row" style="margin-bottom: 0">
+  <div v-if="userInfo.name" class="row" style="margin-bottom: 0; width: 100%;">
       <div class="col s12 m4 l3 xl3  gradientBackground">
         <ul class="collection" style="border: none;">
           <li class="collection-item " style="background-color: transparent;">
-            <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle" alt="user image">
+            <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle hideOnSmall" alt="user image">
           </li>
           <li class="collection-item center-align blue white-text swing-in-top-fwd">
             <h4 class="text_h3 white-text">{{userInfo.name}}</h4>

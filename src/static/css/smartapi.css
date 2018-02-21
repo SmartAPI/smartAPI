@@ -62,12 +62,6 @@
     box-shadow: 0 0 0 3px #fff, 0 0 0 4px #999, 0 2px 5px 4px rgba(0,0,0,.2);
 }
 
-.text_h {
-    padding: 15% 0 0 0;
-    font-size: 6.0em;
-    font-weight: 100;
-    color:white;
-}
 
 .brand-logo{
     position: absolute;
@@ -80,24 +74,18 @@
     letter-spacing: 7px;
 }
 
-.text_h3 {
+.text_h3, .text_h2 {
   font-weight: 100;
-  margin-bottom: 4%;
-  line-height: 4.5rem;
-  font-size: 1.8em;
-  color: #fff;
 }
 
-.text_h2 {
-  font-size: 2.5em;
-  font-weight: 100;
-  margin-bottom: 4%;
-  line-height: 4.5rem;
+
+.span_h2 {
+  font-weight: 300;color: #2196F3;
 }
 
-.span_h2 {font-weight: 300;color: #2196F3;}
-
-.text_b{color: #2196F3;}
+.text_b{
+  color: #2196F3;
+}
 
 .promo i {
     color: #2196F3;
@@ -279,21 +267,21 @@ footer.page-footer {
 }
 
 .roundPhotoLink{
-  width: 25%;
+  width: 20%;
   border-radius: 100%;
-  padding: 15px;
+  padding: 5px;
   box-shadow: 1px 1px 2px grey;
   border: none;
-  background-color: white;
+  background-color: transparent;
 }
 
 .roundPhotoLink:hover{
-  width: 25%;
+  width: 20%;
   border-radius: 100%;
-  padding: 15px;
+  padding: 5px;
   box-shadow: 1px 1px 2px grey;
   border: none;
-  background-color: #627D8A;
+  background-color: white;
 }
 
 .gradientBackground{
@@ -485,56 +473,56 @@ hr{
     @-webkit-keyframes colorchange {
       0% {
         
-        color: blue;
+        color: #00b0ff;
       }
       
       10% {
         
-        color: green;
+        color: #b3e5fc;
       }
       
       20% {
         
-        color: blue;
+        color: #00b0ff;
       }
       
       30% {
         
-        color: green;
+        color: #b3e5fc;
       }
       
       40% {
         
-        color: blue;
+        color: #00b0ff;
       }
       
       50% {
         
-        color: green;
+        color: #b3e5fc;
       }
       
       60% {
         
-        color: blue;
+        color: white;
       }
       
       70% {
         
-        color: green;
+        color: #b3e5fc;
       }
       80% {
      
-        color: blue;
+        color: #00b0ff;
       }
       
       90% {
      
-        color: green;
+        color: #b3e5fc;
       }
       
       100% {
         
-        color: blue;
+        color: white;
       }
     }
 
@@ -679,8 +667,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   top: 50%; left: 50%;
   transform: translate(-50%,-50%);
   border-radius: 10px;
-  height: 200px;
-  width: 200px;
+  height: auto;
+  width: auto;
+  padding: 20px;
+}
+
+#indexTitle{
+  font-size: 4em;
 }
 
 .flexDadIndex{
@@ -696,6 +689,23 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   padding: 40px !important;
   text-align: center;
   font-size: 1em;
+}
+
+.flexGuideDad{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content:center;
+}
+
+.flexGuideKid{
+  align-content: center;
+  flex:3;
+  flex-grow: 1;
+  flex-shrink: 2;
+  padding: 20px !important;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .text-shadow{
@@ -776,13 +786,32 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
 }
 
 h1, h2 , h3, h4 ,h5{
-  font-weight: lighter;
+  font-weight: 100;
 }
 
 /*Hide Images on Small Screen*/
 @media only screen and (max-width: 500px) {
     .introPic {
         display: none;
+    }
+
+    .hideOnSmall{
+      display: none;
+    }
+
+    .topic img{
+      display: none;
+    }
+}
+
+/*Hide Images on Small Screen*/
+@media only screen and (max-width: 900px) {
+    .introPic {
+        display: none;
+    }
+
+    .hideOnMedium{
+      display: none;
     }
 
     .topic img{
@@ -793,5 +822,30 @@ h1, h2 , h3, h4 ,h5{
 @-moz-keyframes spinTopic { 100% { -moz-transform: rotateY(360deg); } }
 @-webkit-keyframes spinTopic { 100% { -webkit-transform: rotateY(360deg); } }
 @keyframes spinTopic { 100% { -webkit-transform: rotateY(360deg); transform:rotateY(360deg); } }
+
+#navPhoto{
+  width: 50px;
+  height: 50px;
+  padding: 0px;
+  box-sizing: border-box;
+  margin:5px;
+  border: 2px white solid;
+}
+
+#navPhoto:hover{
+  width: 50px;
+  height: 50px;
+  padding: 0px;
+  box-sizing: border-box;
+  margin:5px;
+  border: 2px #b2ff59 solid;
+}
+
+#navPhotoLink{
+  height: 60px;
+  padding: 0;
+}
+
+
 
   /*MARCO CANO end*/
