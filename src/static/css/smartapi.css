@@ -779,6 +779,17 @@ h1, h2 , h3, h4 ,h5{
   font-weight: lighter;
 }
 
+/*Hide Images on Small Screen*/
+@media only screen and (max-width: 500px) {
+    .introPic {
+        display: none;
+    }
+
+    .topic img{
+      display: none;
+    }
+}
+
 @-moz-keyframes spinTopic { 100% { -moz-transform: rotateY(360deg); } }
 @-webkit-keyframes spinTopic { 100% { -webkit-transform: rotateY(360deg); } }
 @keyframes spinTopic { 100% { -webkit-transform: rotateY(360deg); transform:rotateY(360deg); } }
