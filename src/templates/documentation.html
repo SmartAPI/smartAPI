@@ -69,287 +69,15 @@
             <code>info.version</code><br>
             For a full list of REQUIRED extensions refer to the recommendations column of the document here:
         </p>
-        <!-- Collapsible Extensions Carosouel -->
-        <ul class="collapsible" data-collapsible="accordion">
-            <li>
-                <div class="collapsible-header blue white-text">
-                    <i class="material-icons">extension</i>Extensions
-                </div>
-                <div class="collapsible-body">
-                    <table class="bordered responsive-table highlight" style="font-size: 12px;">
-                        <thead>
-                            <tr>
-                                <th>Object</th>
-                                <th >Field</th>
-                                <th >Recommendation</th>
-                                <th >Datatype</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td id="fixed-fields-1">
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#oasObject">OpenAPI Object</a></td>
-                                <td >
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#oasExternalResources">x-externalResources</a></td>
-                                <td >
-                                    
-                                </td>
-                                <td >
-                                    External Resource Object
-                                </td>
-                                <td>
-                                    A list of external resources pertinent to the API.
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>   
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoObject">Info Object</a></td>
-                                <td >
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoDescription">description</a></td>
-                                <td >SHOULD</td>
-                                <td >string</td>
-                                <td>
-                                    See <a href="#fixed-fields-1">above</a>.
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoObject">Info Object</a></td>
-                                <td >
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoTermsOfService">termsOfService</a></td>
-                                <td >REQUIRED</td>
-                                <td >URL</td>
-                                <td>
-                                    See <a href="#fixed-fields-1">above</a>.
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoObject">Info Object</a></td>
-                                <td >
-                                    <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoVersion">version</a></td>
-                                <td >REQUIRED</td>
-                                <td >string</td>
-                                <td>
-                                    The version of the API definition. Specify API version using <a target="_blank" href="http://semver.org/spec/v2.0.0.html">Semantic Versioning</a>. The major.minor portion of the semver (for example 3.0) shall designate the feature set. Typically, .patch versions address errors in the API metadata, not the feature set.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoObject">Info Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#otherContacts">contacts</a></td>
-                                    <td ></td>
-                                    <td >Contact Object</td>
-                                    <td>A list of other contacts.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoObject">Info Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoAccessRestriction">x-accessRestriction</a></td>
-                                    <td ></td>
-                                    <td >enum</td>
-                                    <td>
-                                        Indicate whether there are restrictions to using the API. Values to use: none, limited, fee.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoObject">Info Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#infoImplementationLanguage">x-implementationLanguage</a></td>
-                                    <td ></td>
-                                    <td >string</td>
-                                    <td>Language the API was written in.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#contactObject">Contact Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#contactRole">x-role</a></td>
-                                    <td >REQUIRED</td>
-                                    <td >enum</td>
-                                    <td>
-                                        Indicate the role of the contact. Values can be: <code>responsible organization</code>,<code>responsible developer</code>,<code>contributor</code>,<code>support</code>.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#contactObject">Contact Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#contactId">x-id</a></td>
-                                    <td >SHOULD</td>
-                                    <td >string</td>
-                                    <td>A unique identifiers for the contact.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#serverObject">Server Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#serverLocation">x-location</a></td>
-                                    <td ></td>
-                                    <td >string</td>
-                                    <td>Location, city and country of the server hosting the API.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#serverObject">Server Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#serverMaturity">x-maturity</a></td>
-                                    <td ></td>
-                                    <td >enum</td>
-                                    <td>Maturity of the API. Values to use: development, staging, production.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#operationObject">Operation Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#operationSummary">summary</a></td>
-                                    <td >REQUIRED</td>
-                                    <td >string</td>
-                                    <td>See <a href="#operation-object">above.</a></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#operationObject">Operation Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#operationAccessRestriction">x-accessRestriction</a></td>
-                                    <td ></td>
-                                    <td >enum</td>
-                                    <td>Access restrictions to invoke the operation. values: none, limited, fee.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#externalResourceObject">External Resource Object [smartAPI extension]</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#externalResourceUrl">x-url</a></td>
-                                    <td >REQUIRED</td>
-                                    <td >string</td>
-                                    <td>The URL for the target documentation. Value MUST be in the format of a URL.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#externalResourceObject">External Resource Object [smartAPI extension]</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#externalResourceType">x-type</a></td>
-                                    <td >REQUIRED</td>
-                                    <td >enum</td>
-                                    <td>values: <code>api documentation</code>, <code>website</code>,<code>developer forum</code>,<code>mailing list</code>,<code>social media</code>,<code>publication</code> </a></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#externalResourceObject">External Resource Object [smartAPI extension]</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#externalResourceDescription">x-description</a></td>
-                                    <td ></td>
-                                    <td >string</td>
-                                    <td>A short description of the target documentation. <a target="_blank" href="http://spec.commonmark.org/">CommonMark syntax</a> can be used for rich text representation.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject">Parameter Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterType">x-parameterType</a></td>
-                                    <td >SHOULD</td>
-                                    <td >uri</td>
-                                    <td>A concept URI to describe the type of parameter.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject">Parameter Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterValueType">x-valueType</a></td>
-                                    <td >SHOULD</td>
-                                    <td >[uri]</td>
-                                    <td>A list of URIs to define the types of accepted value types. These should be selected from a registry of value types such as identifiers.org.  This attribute is different from</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject">Parameter Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterExampleValue"></a></td>
-                                    <td >examples</td>
-                                    <td ></td>
-                                    <td>Use the Schema object to define examples.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseObject">Response Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseContent">content</a></td>
-                                    <td >SHOULD</td>
-                                    <td >Map[string, <a target="_blank" href="#mediaTypeObject">Media Type Object</a>]</td>
-                                    <td>
-                                        Use media type definitions listed at <a target="_blank" href="https://www.iana.org/assignments/media-types/media-types.xhtml">RFC6838</a>.
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseObject">Response Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseSchema"></a></td>
-                                    <td ></td>
-                                    <td >URI</td>
-                                    <td>
-                                        Specify the json schema using a Reference Object, or use &quot;x-uri&quot; as an additional property in the schema field to point to an external location for an XML, RDF, etc schema.</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseObject">Response Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseDataType">x-responseValueType</a></td>
-                                    <td ></td>
-                                    <td >
-                                        <a target="_blank" href="#responseValueTypeObject">Response Value Type Object</a> \</td>
-                                    <td>
-                                        <a target="_blank" href="#referenceObject">Reference Object</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseValueTypeObject">Response Value Type Object [smartAPI extension]</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseValueTypeObjectPath">x-path</a></td>
-                                    <td >
-                                        
-                                    </td>
-                                    <td >string</td>
-                                    <td>
-                                        The path using dot notation to the element of interest. e.g. friend.name to follow the path from root object to the name attribute to the name field</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseValueTypeObject">Response Value Type Object [smartAPI extension]</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#responseValueTypeObjectValue">x-valueType</a></td>
-                                    <td >
-                                        
-                                    </td>
-                                    <td >string</td>
-                                    <td>
-                                        The value type for the field. e.g. <a target="_blank" href="http://identifiers.org/ncbigene">http://identifiers.org/ncbigene</a> indicates that the field type is from the NCBI Gene database
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#tagObject">Tag Object</a></td>
-                                    <td >
-                                        <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#tagName">x-id</a></td>
-                                    <td ></td>
-                                    <td >URI</td>
-                                    <td>
-                                        The name of the tag. Recommend that you use URI to specify the concept.
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </li>
-
-            </ul>
-            <br>
-            <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Open on Github</a>
+        <button class="btn green" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md')">Load Extensions from Github</button>
+        <!-- <button class="btn red" @click="cleanUpConversion()">Hide</button> -->
+        <!-- Dynamic HTML from loading will dump in here -->
+        <div id="targetDiv" class="container">
+            <!-- dynamic content -->
+        </div>
+        <hr>
+        <br>
+        <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Open on Github</a>
         </div>          
     </div>
 
@@ -375,7 +103,7 @@
 </div>
 <!-- if YES ask for version -->
 <div v-if="selection === 'yes' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; right: 0; margin:50px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('start')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
     <div class="card-panel white">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
             <i class="material-icons blue-text">chat_bubble</i> Which Version Do You Have?
@@ -411,7 +139,7 @@
 </div>
 <!-- if NO start from scratch -->
 <div v-if="selection === 'no' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; right: 0; margin:50px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('start')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
     <div class="card-panel white">
         <img class="roundPhoto" src="/static/img/guide3.png" width="100%" alt="start from scratch">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">Start From Scratch</h3>
@@ -469,7 +197,7 @@
     </div>
     <!-- if VERSION 2 -->
     <div v-if="selection === '2' " class="center-align container padding20" style="position: relative;">
-        <a @click="select('yes')" style="position: absolute; top:0; right: 0; margin:50px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+        <a @click="select('yes')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
         <div class="card-panel white">
             <img class="roundPhoto" src="/static/img/guide1.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text tracking-in-expand flow-text">Version 2</h3>
@@ -516,7 +244,7 @@
 </div>
 <!-- if VERSION 3 -->
 <div v-if="selection === '3' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('yes')" style="position: absolute; top:0; right: 0; margin:50px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('yes')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
 
     <div class="card-panel white">
         <img class="roundPhoto" src="/static/img/guide2.png" width="100%" alt="start from scratch">
@@ -722,6 +450,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+<!-- markdown converter -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
 
 <script>
     
@@ -753,6 +483,41 @@
             },
             showInfo: function(){
                 $('#learnMoreBlock').slideToggle('slow');
+            },
+            convertMarkdownToHtml: function(url){
+                // covert markdown from raw data url to html
+                axios.get(url).then(response=>{
+
+                    var md = new Remarkable({
+                      html:         true,        // Enable HTML tags in source
+                      xhtmlOut:     false,        // Use '/' to close single tags (<br />)
+                      breaks:       false,        // Convert '\n' in paragraphs into <br>
+                      langPrefix:   'language-',  // CSS language prefix for fenced blocks
+                      linkify:      true,        // Autoconvert URL-like text to links
+
+                      // Enable some language-neutral replacement + quotes beautification
+                      typographer:  false,
+
+                      // Double + single quotes replacement pairs, when typographer enabled,
+                      // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+                      quotes: '“”‘’',
+
+                      // Highlighter function. Should return escaped HTML,
+                      // or '' if the source string is not changed
+                      highlight: function (/*str, lang*/) { return ''; }
+                    });
+                    var target = document.getElementById('targetDiv');
+                    var html = md.render(response.data);
+                    target.innerHTML = html;
+
+                }).catch(err=>{
+                    throw err;
+                })
+                
+            },
+            cleanUpConversion: function(){
+                var target = document.getElementById('targetDiv');
+                target.innerHTML = '';
             },
             completeToDo: function(todo){
                 // upon completing and checking all 3 checklists items

@@ -253,7 +253,7 @@ footer.page-footer {
 }
 
 .title {
-  background: -webkit-linear-gradient(#eee, #40c4ff);
+  background: -webkit-linear-gradient(#eee, #29A6C8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -766,7 +766,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   border-radius: 10px;
   text-decoration: none;
   color: white;
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: lighter;
   font-variant: small-caps;
 }
@@ -779,7 +779,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   border-radius: 10px;
   text-decoration: none;
   color: white;
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: lighter;
   font-variant: small-caps;
   transition: .7s;
@@ -838,7 +838,7 @@ h1, h2 , h3, h4 ,h5{
   padding: 0px;
   box-sizing: border-box;
   margin:5px;
-  border: 2px #b2ff59 solid;
+  border: 2px #29A6C8 solid;
 }
 
 #navPhotoLink{

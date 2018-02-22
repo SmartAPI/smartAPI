@@ -44,11 +44,12 @@
             </ul>
           </div>
           <div id="contributions" class="col s12 card-panel ">
-              <table class="bordered highlight" style="table-layout: fixed;">
+              <table class="bordered highlight striped" style="table-layout: fixed;">
                 <thead>
                   <tr class="grey-text">
                       <th>API Name</th>
-                      <th>Description</th>
+                      <th class="hideOnSmall">Description</th>
+                      <th class="center-align">Last Updated</th>
                       <th class="center-align">Refresh</th>
                       <th class="center-align">Delete</th>
                   </tr>
@@ -59,22 +60,20 @@
                     <td>
                        <a href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span></a>
                     </td>
-                    <td class="tableTextOverflow">
+                    <td class="tableTextOverflow hideOnSmall">
                       <p class="tableTextOverflow">{{ api.info.description }}</p>
                     </td>
                     <td class="center-align">
-                      <a @click="refreshingThis(api.info.title)" class="#c6ff00 lime-text" style="cursor: pointer;">
-                        <i class="medium material-icons"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
-                      </a>
-                      <br>
-                      <span class="green-text" style="font-size: 12px">Last Updated:<br>{{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-size: 12px;" class="green-text">{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
-                      <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class=" white-text modal-trigger" style="cursor: pointer;">
-                        <i class="medium material-icons red-text" 
-                           onmouseover="this.innerHTML='delete_forever';" 
-                           onmouseout="this.innerHTML='delete';">
-                            delete</i>
+                      <a @click="refreshingThis(api.info.title)" class="green btn lime-text" style="cursor: pointer;">
+                        <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
+                      </a>
+                    </td>
+                    <td class="center-align">
+                      <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn red white-text modal-trigger" style="cursor: pointer;">
+                        <i class="material-icons white-text">delete_forever</i>
                       </a>
                     </td>
                   </tr>
