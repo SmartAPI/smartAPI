@@ -18,18 +18,18 @@
         <div class="flexGuideDad" id="learnMoreBlock" style="display: none; margin-top: 15px;">
             <div class="flexGuideKid white">
                 <h4 class="flow-text">What is OpenAPI?</h4>
-                <p class="blue-grey-text">
+                <p class="blue-grey-text left-align">
                     The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. SmartBear Software is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
                 </p> 
-                <p class="blue-grey-text">
+                <p class="blue-grey-text left-align">
                     APIs form the connecting glue between modern applications. Nearly every application uses APIs to connect with corporate data sources, third party data services or other applications. Creating an open description format for API services that is vendor neutral, portable and open is critical to accelerating the vision of a truly connected world.
                 </p>
                 <hr>
                 <a class="btn green" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
             </div>
-            <div class="flexGuideKid white">
+            <div class="flexGuideKid light-blue lighten-5">
                 <h4 class="flow-text">What is SmartAPI?</h4>
-                <p class="blue-grey-text">
+                <p class="blue-grey-text left-align">
                   The smartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a openAPI-based specification for defining the key API metadata elements and value sets. smartAPIs leverage the Open API specification v3 and JSON-LD for providing semantically annotated JSON content that can be treated as Linked Data.
                 </p>
                 <hr>
@@ -37,7 +37,7 @@
             </div>
             <div class="flexGuideKid white">
                 <h4 class="flow-text">What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?</h4>
-                <p class="blue-grey-text">
+                <p class="blue-grey-text left-align">
                     SmartBear donated the Swagger Specification in 2015 as part of the formation of the Open API Initiative. Following the announcement of the OAI, the Swagger specification was renamed the OpenAPI Specification and is semantically identical to the specification formerly known as the Swagger 2.0 specification. OAS – and the Swagger Specification before it – is widely recognized as the most popular open source framework for defining and creating RESTful APIs, and today tens of thousands of developers are building thousands of open source repos of tools leveraging the OpenAPI Specification.
                 </p>
             </div>
@@ -59,9 +59,6 @@
 
     <div class="card-panel white">
         <p>
-            SmartAPI specific elements automatically generated from <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">parent document</a>.
-        </p>
-        <p>
             Most of the SmartAPI extensions are optional, but a few are REQUIRED, for example:
             <br>
             <code>info.termOfService</code><br>
@@ -69,15 +66,14 @@
             <code>info.version</code><br>
             For a full list of REQUIRED extensions refer to the recommendations column of the document here:
         </p>
-        <button class="btn green" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md')">Load Extensions from Github</button>
-        <!-- <button class="btn red" @click="cleanUpConversion()">Hide</button> -->
+        <button class="btn green hideOnSmall" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md', 'targetDiv')">Show/Hide Extensions</button>
+        <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Open on Github</a>
+        <hr>
         <!-- Dynamic HTML from loading will dump in here -->
-        <div id="targetDiv" class="container">
+        <div id="targetDiv" class="container dynamicTable hideOnSmall">
             <!-- dynamic content -->
         </div>
-        <hr>
-        <br>
-        <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Open on Github</a>
+
         </div>          
     </div>
 
@@ -103,7 +99,7 @@
 </div>
 <!-- if YES ask for version -->
 <div v-if="selection === 'yes' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
     <div class="card-panel white">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
             <i class="material-icons blue-text">chat_bubble</i> Which Version Do You Have?
@@ -139,7 +135,7 @@
 </div>
 <!-- if NO start from scratch -->
 <div v-if="selection === 'no' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
     <div class="card-panel white">
         <img class="roundPhoto" src="/static/img/guide3.png" width="100%" alt="start from scratch">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">Start From Scratch</h3>
@@ -197,7 +193,7 @@
     </div>
     <!-- if VERSION 2 -->
     <div v-if="selection === '2' " class="center-align container padding20" style="position: relative;">
-        <a @click="select('yes')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+        <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
         <div class="card-panel white">
             <img class="roundPhoto" src="/static/img/guide1.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text tracking-in-expand flow-text">Version 2</h3>
@@ -244,7 +240,7 @@
 </div>
 <!-- if VERSION 3 -->
 <div v-if="selection === '3' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('yes')" style="position: absolute; top:0; right: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
 
     <div class="card-panel white">
         <img class="roundPhoto" src="/static/img/guide2.png" width="100%" alt="start from scratch">
@@ -484,40 +480,41 @@
             showInfo: function(){
                 $('#learnMoreBlock').slideToggle('slow');
             },
-            convertMarkdownToHtml: function(url){
-                // covert markdown from raw data url to html
-                axios.get(url).then(response=>{
+            convertMarkdownToHtml: function(url, target){
+                // covert markdown from raw data url to html, and dump html in target
+                if ($("#"+target).html().length > 0){
+                    document.getElementById(target).innerHTML = "";
+                }else{
+                    axios.get(url).then(response=>{
 
-                    var md = new Remarkable({
-                      html:         true,        // Enable HTML tags in source
-                      xhtmlOut:     false,        // Use '/' to close single tags (<br />)
-                      breaks:       false,        // Convert '\n' in paragraphs into <br>
-                      langPrefix:   'language-',  // CSS language prefix for fenced blocks
-                      linkify:      true,        // Autoconvert URL-like text to links
+                        var md = new Remarkable({
+                          html:         true,        // Enable HTML tags in source
+                          xhtmlOut:     false,        // Use '/' to close single tags (<br />)
+                          breaks:       false,        // Convert '\n' in paragraphs into <br>
+                          langPrefix:   'language-',  // CSS language prefix for fenced blocks
+                          linkify:      true,        // Autoconvert URL-like text to links
 
-                      // Enable some language-neutral replacement + quotes beautification
-                      typographer:  false,
+                          // Enable some language-neutral replacement + quotes beautification
+                          typographer:  false,
 
-                      // Double + single quotes replacement pairs, when typographer enabled,
-                      // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
-                      quotes: '“”‘’',
+                          // Double + single quotes replacement pairs, when typographer enabled,
+                          // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+                          quotes: '“”‘’',
 
-                      // Highlighter function. Should return escaped HTML,
-                      // or '' if the source string is not changed
-                      highlight: function (/*str, lang*/) { return ''; }
+                          // Highlighter function. Should return escaped HTML,
+                          // or '' if the source string is not changed
+                          highlight: function (/*str, lang*/) { return ''; }
+                        });
+                        var targetDump = document.getElementById(target);
+                        var html = md.render(response.data);
+                        targetDump.innerHTML = html;
+
+                    }).catch(err=>{
+                        throw err;
                     });
-                    var target = document.getElementById('targetDiv');
-                    var html = md.render(response.data);
-                    target.innerHTML = html;
-
-                }).catch(err=>{
-                    throw err;
-                })
+                }
                 
-            },
-            cleanUpConversion: function(){
-                var target = document.getElementById('targetDiv');
-                target.innerHTML = '';
+                
             },
             completeToDo: function(todo){
                 // upon completing and checking all 3 checklists items

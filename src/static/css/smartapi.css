@@ -846,6 +846,19 @@ h1, h2 , h3, h4 ,h5{
   padding: 0;
 }
 
+.dynamicTable table tr:nth-child(odd){
+  background-color: #eceff1;
+}
+
+.dynamicTable table tr{
+  border-bottom: 1px grey solid;
+}
+
+.dynamicTable{
+  width: 100%;
+  max-width: 100%;
+  overflow: scroll;
+}
 
 
   /*MARCO CANO end*/
