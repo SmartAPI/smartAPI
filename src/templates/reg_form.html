@@ -1,72 +1,73 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-
-
-<div class="section no-pad-bot single_section">
-  <div class="container">
-    <br><br>
-    <h3 class="header center blue-text">Register your API metadata</h3>
-    <div class="row center">
-      <br><br>
-
-      <form id="apireg_form">
-        <div class="row">
-            <div class="input-field col s6 offset-s3">
-                <i class="material-icons prefix">link</i>
-                <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
-                <!--<label for="url_input">API Metadata URL</label>-->
-
-            </div>
-        </div>
-        <div>
-          <div class="row">
-            <div class="center-align">
-              <input type="checkbox" id="dry_run" name="dryrun"/>
-              <label for="dry_run">Dry run only. API won't actually saved.</label></p>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div class="row">
-            <div class="col s3 offset-s3">
-              <button class="btn waves-effect waves-light red accent-2" onclick="javascript:this.form.reset()">Cancel</button>
-            </div>
-            <div class="col s3">
-              <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
-             </div>
-           </div>
-         </div>
+<div id="regApp" class="indexBackground row">
+  <div class="col s12 l4 padding20">
+    <div class="arrow_box center-align padding20">
+      <h3 class="white-text">Before You Submit</h3>
+    </div>
+    <div class="center-align padding20">
+      <h4 class="white-text">Did You...</h4>
+      <ul class="footerList" style="background-color: rgba(4, 75, 123,.6);">
+        <li class="white-text padding20">
+          <i class="material-icons white-text">check</i> Add the required <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">SmartAPI Extensions</a>?
+        </li>
+        <li class="white-text padding20">
+          <i class="material-icons white-text">check</i> Clear all errors in the <a href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a>?
+        </li>
+        <li class="white-text padding20">
+          <i class="material-icons white-text">check</i> Copy the link to the raw data?
+        </li>
+        <li class="white-text padding20" style="font-size: 12px; border-bottom: none;">
+          Need Help? Use our guide to help you through the process of adding an API.<br><br>
+          <a href="/documentation" class="clearButton">GUIDE</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="section no-pad-bot single_section container col l8 s12" style="margin-bottom: 10% !important; margin-top: 10%;">
+    <div class="container center-align white hoverable padding20">
+      <h3 class="header center blue-grey-text">Register your API metadata</h3>
+        <form id="apireg_form">
+            <i class="material-icons prefix">link</i>
+            <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
+            <br>
+            <input type="checkbox" id="dry_run" name="dryrun"/>
+            <label for="dry_run">Dry run only. API won't actually saved.</label></p>
+            <button class="btn waves-effect waves-light red accent-2" onclick="javascript:this.form.reset()">Cancel</button>
+            <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <a class="modal-trigger" href="#submit_mask"></a>
+
+  <div id="submit_mask" class="modal">
+    <div class="modal-content">
+      <h4>Submitting...</h4>
     </div>
   </div>
 </div>
+{% include "footer.html" %}
+{% endblock %}
 
-<a class="modal-trigger" href="#submit_mask"></a>
-
-<div id="submit_mask" class="modal">
-  <div class="modal-content">
-    <h4>Submitting...</h4>
-  </div>
-</div>
-
+{% block extra_scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 
 <script>
-    
   var app = new Vue({
-      el: '#regapp',
-      data: function(){
-          return{
-              
-          }
-      },
-      methods:{
+    el: 'regApp',
+    data: function(){
+      return{
+        choice:''
+      }
+    },
+    methods:{
 
-        }
-      });
-
-{% include "footer.html" %}
+    }
+  });
+</script>
 {% endblock %}

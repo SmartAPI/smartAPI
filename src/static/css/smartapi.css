@@ -860,5 +860,31 @@ h1, h2 , h3, h4 ,h5{
   overflow: scroll;
 }
 
+.footerList li{
+  border-bottom: #607d8b dotted 1px;
+}
+
+/*Arrow Box -Bottom Arrow*/
+
+.arrow_box {
+  position: relative;
+  background: #3189C3;
+  padding: 
+}
+.arrow_box:after {
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(49, 137, 195, 0);
+  border-top-color: #3189C3;
+  border-width: 30px;
+  margin-left: -30px;
+}
+
 
   /*MARCO CANO end*/
