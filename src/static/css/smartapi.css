@@ -711,7 +711,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
 
 
 .indexChild{
-  background-color: rgba(4, 75, 123,.2);
+  background-color: rgba(4, 75, 123,.4);
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%,-50%);
@@ -723,6 +723,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
 
 #indexTitle{
   font-size: 4em;
+  font-weight: lighter;
 }
 
 .flexDadIndex{
@@ -913,6 +914,15 @@ h1, h2 , h3, h4 ,h5{
   border-bottom: #607d8b dotted 1px;
 }
 
+.footerLink{
+  color: #627D8A;
+}
+
+.footerLink:hover{
+  transition: 1s;
+  color: white;
+}
+
 /*Arrow Box -Bottom Arrow*/
 
 .arrow_box {
@@ -933,6 +943,10 @@ h1, h2 , h3, h4 ,h5{
   border-top-color: #3189C3;
   border-width: 30px;
   margin-left: -30px;
+}
+
+#beforeSubmitList li:hover{
+  background-color: rgba(4, 75, 123,.8);
 }
 
 .textShadow{

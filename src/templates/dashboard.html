@@ -44,9 +44,9 @@
             </ul>
           </div>
           <div id="contributions" class="col s12 card-panel ">
-              <table class="bordered highlight striped" style="table-layout: fixed;">
+              <table id="dashboardTable" class="bordered striped" style="table-layout: fixed;">
                 <thead>
-                  <tr class="grey-text">
+                  <tr class="blue-grey-text">
                       <th>API Name</th>
                       <th class="hideOnSmall">Description</th>
                       <th class="center-align">Last Updated</th>
@@ -67,7 +67,7 @@
                       <span style="font-size: 12px;" class="green-text">{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
-                      <a @click="refreshingThis(api.info.title)" class="green btn lime-text" style="cursor: pointer;">
+                      <a @click="refreshingThis(api.info.title)" class="green btn" style="cursor: pointer;">
                         <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
                       </a>
                     </td>
@@ -208,18 +208,20 @@
 
     var app = new Vue({
         el: '#dashApp',
-        data: {
-          userInfo:{},
-          confirmModal:{
-            title:'',
-            id:''
-          },
-          selectedAPI:{},
-          selectedAPIContact: {},
-          selectedAPIGithub:'',
-          apis:[],
-          total: 0,
-          confirmDelete: true
+        data: function(){
+          return {
+            userInfo:{},
+            confirmModal:{
+              title:'',
+              id:''
+            },
+            selectedAPI:{},
+            selectedAPIContact: {},
+            selectedAPIGithub:'',
+            apis:[],
+            total: 0,
+            confirmDelete: true
+          }
         },
         methods:{
           getApis: function(){

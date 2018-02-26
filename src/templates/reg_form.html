@@ -7,16 +7,16 @@
       <h5 class="white-text">Before You Submit</h5>
     </div>
     <div class="center-align padding20">
-      <h5 class="white-text textShadow">Did You...</h5>
+      <h5 class="white-text textShadow" style="font-weight: bolder;">DID YOU...</h5>
       <ul id="beforeSubmitList" class="footerList textShadow" style="background-color: rgba(4, 75, 123,.6); display: none;">
         <li class="white-text padding20">
-          <i class="material-icons green-text puff-in-center">check</i> Add the required <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">SmartAPI Extensions</a>?
+          <i class="material-icons cyan-text puff-in-center">check</i> Add the required <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">SmartAPI Extensions</a>?
         </li>
         <li class="white-text padding20">
-          <i class="material-icons green-text puff-in-center">check</i> Clear all errors in the <a href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a>?
+          <i class="material-icons cyan-text puff-in-center">check</i> Clear all errors in the <a href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a>?
         </li>
         <li class="white-text padding20">
-          <i class="material-icons green-text puff-in-center">check</i> Copy the link to the raw data?
+          <i class="material-icons cyan-text puff-in-center">check</i> Copy the link to the raw data?
         </li>
         <li class="white-text padding20" style="font-size: 12px; border-bottom: none;">
           Need Help? Use our guide to help you through the process of adding an API.<br><br>
@@ -26,7 +26,7 @@
     </div>
   </div>
   <div class="section no-pad-bot single_section container col l8 s12" style="margin-bottom: 10% !important; margin-top: 10%;">
-    <div id="submitBox" class="container center-align white hoverable padding20" style="opacity: 0">
+    <div id="submitBox" class="container center-align white hoverable padding20">
       <h3 class="header center blue-grey-text">Register your API metadata</h3>
         <form id="apireg_form">
             <i class="material-icons prefix">link</i>
@@ -71,7 +71,6 @@
     mounted: function(){
       setTimeout(function(){
         $('#beforeSubmitList').slideDown('slow');
-        $('#submitBox').animate({opacity: 1}, 2000)
       }, 1000);
         
       
