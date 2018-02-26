@@ -16,11 +16,11 @@
             <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle hideOnSmall" alt="user image">
           </li>
           <li class="collection-item center-align blue white-text swing-in-top-fwd">
-            <h4 class="text_h3 white-text">{{userInfo.name}}</h4>
+            <h4 class="text_h3 white-text textShadow">{{userInfo.name}}</h4>
             <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="small fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
           </li>
-          <li class="collection-item">
-            <p>Contributions<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p>
+          <li class="collection-item blue-grey-text">
+            <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p>
           </li>
           <li class="collection-item center-align">
             <a href="/logout" class="btn red">Log Out</a>
@@ -43,12 +43,12 @@
               </li>
             </ul>
           </div>
-          <div id="contributions" class="col s12 card-panel ">
-              <table id="dashboardTable" class="bordered striped" style="table-layout: fixed;">
+          <div id="contributions" class="col s12 card-panel">
+              <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text">
                       <th>API Name</th>
-                      <th class="hideOnSmall">Description</th>
+                      <!-- <th class="hideOnSmall">Description</th> -->
                       <th class="center-align">Last Updated</th>
                       <th class="center-align">Refresh</th>
                       <th class="center-align">Delete</th>
@@ -56,15 +56,15 @@
                 </thead>
                 <tbody>
                   <!-- For each API -->
-                  <tr v-for="(api,index) in apis" class="">
+                  <tr v-for="(api,index) in apis">
                     <td>
-                       <a href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span></a>
+                       <a style="font-size: 12px;" href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span> <i class="material-icons tiny red-text">launch</i></a>
                     </td>
-                    <td class="tableTextOverflow hideOnSmall">
+                    <!-- <td class="tableTextOverflow hideOnSmall" style="max-width: 100px; overflow: hidden;">
                       <p class="tableTextOverflow">{{ api.info.description }}</p>
-                    </td>
+                    </td> -->
                     <td class="center-align">
-                      <span style="font-size: 12px;" class="green-text">{{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-size: 12px; font-weight: bold" class="green-text"><i class="material-icons tiny green-text">timer</i> {{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
                       <a @click="refreshingThis(api.info.title)" class="green btn" style="cursor: pointer;">
@@ -171,19 +171,26 @@
   <div id="modal2" class="modal center-align">
     <div class="modal-content"> 
       <ul class="collection with-header">
-        <li class="collection-header"><h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4></li>
+        <li class="collection-header">
+          <h4 class="text_h3 blue-text">{{selectedAPI.title}} <span class="green-text" style="font-size: 16px; font-weight: bold;">Version {{ selectedAPI.version }}</span></h4>
+
+        </li>
         <li class="collection-item">
           {{ selectedAPIContact.name }}<span class="grey-text"> / {{selectedAPIContact["x-role"]}}</span>
         </li>
         <li class="collection-item">
-          <a :href="selectedAPIGithub" target="_blank"><i class="small fa fa-github-square blue-text"></i> My Github</a>
+          <a :href="selectedAPIGithub" target="_blank"><i class="small fa fa-github-alt blue-text"></i> My Github</a>
+        </li>
+        <li class="collection-item padding20">
+          <fieldset class="padding20">
+          <legend class="blue-text">Description:</legend>
+            <p class="blue-grey-text">{{ selectedAPI.description }}</p>
+          </fieldset>
         </li>
         <li class="collection-item">
-          <p class="blue-text">Description:</p>
-          <p>{{ selectedAPI.description }}</p>
+          <i class="material-icons tiny blue-text">info_outline</i>
+          <a :href="selectedAPI.termsOfService" target="_blank">Terms of Service</a>
         </li>
-        <li class="collection-item">Version {{ selectedAPI.version }}</li>
-        <li class="collection-item"><a :href="selectedAPI.termsOfService" target="_blank">Terms of Service</a></li>
       </ul>
       <a href="#!" class="btn blue modal-action modal-close">Close</a>
     </div>
