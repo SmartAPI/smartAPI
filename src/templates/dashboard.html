@@ -20,7 +20,21 @@
             <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="small fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
           </li>
           <li class="collection-item blue-grey-text">
-            <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p>
+            <!-- <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p> -->
+            <table class="table" style="font-size: 1.5em; font-weight: lighter;">
+              <thead>
+                <th class="center-align" style="font-weight: lighter;">
+                  CONTRIBUTIONS
+                </th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="blue-text center-align">
+                    {{ total+" API's" }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </li>
           <li class="collection-item center-align">
             <a href="/logout" class="btn red">Log Out</a>
@@ -47,32 +61,34 @@
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text">
-                      <th>API Name</th>
+                      <th>API Name <i class="material-icons tiny blue-grey-text">filter_drama</i></th>
                       <!-- <th class="hideOnSmall">Description</th> -->
-                      <th class="center-align">Last Updated</th>
-                      <th class="center-align">Refresh</th>
-                      <th class="center-align">Delete</th>
+                      <th class="center-align">Last Updated <i class="material-icons tiny blue-grey-text">schedule</i> </th>
+                      <th class="center-align">Refresh <i class="material-icons tiny blue-grey-text">refresh</i></th>
+                      <th class="center-align">Delete <i class="material-icons tiny blue-grey-text">delete</i></th>
                   </tr>
                 </thead>
                 <tbody>
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td>
-                       <a style="font-size: 12px;" href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span> <i class="material-icons tiny red-text">launch</i></a>
+                       <a style="font-size: 12px;" href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                     </td>
                     <!-- <td class="tableTextOverflow hideOnSmall" style="max-width: 100px; overflow: hidden;">
                       <p class="tableTextOverflow">{{ api.info.description }}</p>
                     </td> -->
                     <td class="center-align">
-                      <span style="font-size: 12px; font-weight: bold" class="green-text"><i class="material-icons tiny green-text">timer</i> {{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-size: 12px; font-weight: bold" class="green-text">{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
-                      <a @click="refreshingThis(api.info.title)" class="green btn" style="cursor: pointer;">
+                      <!-- <a @click="refreshingThis(api.info.title)" class="green btn" style="cursor: pointer;">
                         <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
-                      </a>
+                      </a> -->
+                      <!-- refresh button global component -->
+                      <refresh :refresh='refreshingThis' :title='api.info.title'></refresh>
                     </td>
                     <td class="center-align">
-                      <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn red white-text modal-trigger" style="cursor: pointer;">
+                      <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn scale-in-center red white-text modal-trigger" style="cursor: pointer;">
                         <i class="material-icons white-text">delete_forever</i>
                       </a>
                     </td>
@@ -211,8 +227,49 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 
 <script>
-  
 
+  // Refresh Button Component
+  Vue.component('refresh', {
+    data: function(){
+      return{
+        counter:30,
+        currentlyRefreshing: false,
+        text: 'refresh'
+      }
+    },
+    // declare the props
+    props: ['refresh', 'title'],
+    // like data, the prop can be used inside templates and
+    // is also made available in the vm as this.message
+    methods:{
+      countDown: function(){
+        this.counter --;
+        if( this.counter > 0 ){
+          setTimeout(this.countDown,1000);
+          this.currentlyRefreshing = true;
+          this.text =this.counter+'...';
+          var thing =$(this.$el);
+          thing[0].text=this.text;
+        }
+        else if ( this.counter === 0){
+          this.currentlyRefreshing = false;
+          this.counter = 30;
+          this.text = `<i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>`;
+          var thing =$(this.$el);
+          thing[0].innerHTML=this.text;
+        }
+      },
+      getText: function(){
+        return this.text;
+        console.log(this.text);
+      }
+    },
+    template: `<a :disabled='currentlyRefreshing' @click="refresh(title); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
+                <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
+              </a>`
+  })
+
+  // Main Dashboard Component
     var app = new Vue({
         el: '#dashApp',
         data: function(){
@@ -227,12 +284,23 @@
             selectedAPIGithub:'',
             apis:[],
             total: 0,
-            confirmDelete: true
+            confirmDelete: true,
+            counter: 30
           }
         },
         methods:{
           getApis: function(){
             var self=this;
+            // production version
+            // axios.get("http://smart-api.info/api/query?size=100&q=_meta.github_username:"+self.userInfo.login).then(function(response){
+            //       //console.log(response.data.hits);
+            //       self.apis = response.data.hits;
+            //       self.total = response.data.total;
+            //   }).catch(err=>{
+            //     Materialize.toast('Failed To Load APIs', 4000,'rounded red white-text');
+            //     throw err;
+            //   });
+              // testing version
             axios.get("http://smart-api.info/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
                   //console.log(response.data.hits);
                   self.apis = response.data.hits;
@@ -263,6 +331,7 @@
             Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
           },
           refreshingThis: function(title){
+            var self = this;
             Materialize.toast(title+' was Refreshed!', 4000,'rounded green white-text');
             Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
           },
