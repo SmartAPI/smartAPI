@@ -2,7 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<div id="docapp" class="blue-grey indexBackground"  style="height: 100%;">
+<main id="docapp" class="blue-grey indexBackground"  style="height: 100%;">
 
   <!-- start of INTRO -->
   <div v-if="!selection" class="center-align padding20">
@@ -410,8 +410,17 @@
             </li>
             <li class="collection-item center-align">
                 <p>Choose the appropiate project to host your metadata under:</p>
-                <a class="btn-large green" target="_blank" href="https://github.com/SmartAPI/smartapi_registry">SmartAPI Project</a>
-                <a class="btn-large green" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry">NCATS-Tangerine Project</a>
+                <div class="row">
+                    <div class="s12 m6 l6 col">
+                        <a class="btn-large green" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry">NCATS Translator Project</a>
+                        <br>
+                        <br>
+                        <a class="chip blue white-text" target="_blank" href="https://ncats.nih.gov/translator">More Info</a>
+                    </div>
+                    <div class="s12 m6 l6 col">
+                        <a class="btn-large green" target="_blank" href="https://github.com/SmartAPI/smartapi_registry">SmartAPI Project</a>
+                    </div>
+                </div>
             </li>
         </ul>
     </div>
@@ -440,7 +449,7 @@
 </div>
 </div>
 
-</div>
+</main>
 {% endraw %}
 {% include "footer.html" %}
 {% endblock %}

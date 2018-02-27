@@ -6,10 +6,10 @@ function check_user(){
             side_html = '<li><a href="/logout?next=' + window.location.pathname + '">Logout</a></li>';
             if (result.avatar_url){
               $('#navPhoto').attr("src", result.avatar_url);
-              html += "<li><a class='tooltipped' data-tooltip='My Dashboard' id='navPhotoLink' href='/dashboard'><img id='navPhoto' class='circle responsive-img' src='"+result.avatar_url+"' alt='user photo'></a></li>";
+              html += "<li><a class='tooltipped' data-tooltip='My Dashboard' id='navPhotoLink' href=''><img id='navPhoto' class='circle responsive-img' src='"+result.avatar_url+"' alt='user photo'></a></li>";
           }
           html += "<li><a class='btn red' href='/logout?next=" + window.location.pathname + "'>Logout</a></li>";
-          side_html += "<li><a class='blue-text' href='/dashboard'>My Dashboard</a></li><li><a class='red-text' href='/logout?next=" + window.location.pathname + "'>Logout</a></li>";
+          side_html += "<li><a class='blue-text' href=''>My Dashboard</a></li><li><a class='red-text' href='/logout?next=" + window.location.pathname + "'>Logout</a></li>";
         }else{
             html += "<li><a class='btn green' href='/oauth'>Login</a></li>";
             side_html += html;

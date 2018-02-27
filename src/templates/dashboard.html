@@ -2,7 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<div id="dashApp" style="height: 100%;">
+<main id="dashApp" style="height: 100%;">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.name" class="padding20 card-panel red center-align">
     <h3 class="text_h3 white-text">You Must Be Signed In To Use Your Dashboard</h3>
@@ -12,7 +12,7 @@
   <div v-if="userInfo.name" class="row" style="margin-bottom: 0; width: 100%;">
       <div class="col s12 m4 l3 xl3  gradientBackground">
         <ul class="collection" style="border: none;">
-          <li class="collection-item " style="background-color: transparent;">
+          <li class="collection-item center-align" style="background-color: transparent;">
             <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle hideOnSmall" alt="user image">
           </li>
           <li class="collection-item center-align blue white-text swing-in-top-fwd">
@@ -196,7 +196,7 @@
     </div>
   </div>
   <!-- details modal end -->
-</div>
+</main>
 
 
 
