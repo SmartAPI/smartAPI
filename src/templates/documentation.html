@@ -85,7 +85,7 @@
 <div v-if="selection === 'start' " class="center-align container padding20 row">
     <div class="card-panel white">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
-            <i class="material-icons blue-text">chat_bubble</i> Do You Have <b>OpenAPI</b> Metadata?
+             Do You Have <b>OpenAPI</b> Metadata?
         </h3>
         <a class="waves-effect waves-light btn-large blue" @click="select('yes')">YES</a>
         <a class="waves-effect waves-light btn-large red" @click="select('no')">NO</a>
@@ -102,10 +102,10 @@
 </div>
 <!-- if YES ask for version -->
 <div v-if="selection === 'yes' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
     <div class="card-panel white">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
-            <i class="material-icons blue-text">chat_bubble</i> Which Version Do You Have?
+           Which Version Do You Have?
         </h3>
         <a class="waves-effect waves-light btn-large blue" @click="select('2')">Version 2</a>
         <a class="waves-effect waves-light btn-large green" @click="select('3')">Version 3</a>
@@ -138,7 +138,7 @@
 </div>
 <!-- if NO start from scratch -->
 <div v-if="selection === 'no' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
     <div class="card-panel white">
         <img class="roundPhoto" src="/static/img/guide3.png" width="100%" alt="start from scratch">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">Start From Scratch</h3>
@@ -196,7 +196,7 @@
     </div>
     <!-- if VERSION 2 -->
     <div v-if="selection === '2' " class="center-align container padding20" style="position: relative;">
-        <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+        <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
         <div class="card-panel white">
             <img class="roundPhoto" src="/static/img/guide1.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text tracking-in-expand flow-text">Version 2</h3>
@@ -243,7 +243,7 @@
 </div>
 <!-- if VERSION 3 -->
 <div v-if="selection === '3' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px;" class="waves-effect waves-light btn red"><i class="material-icons">keyboard_backspace</i></a>
+    <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
 
     <div class="card-panel white">
         <img class="roundPhoto" src="/static/img/guide2.png" width="100%" alt="start from scratch">
@@ -290,7 +290,7 @@
                       VALIDATE YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
                   </td>
                   <td class="green white-text center-align">
-                      <button class="btn green white-text" @click="completeToDo(1)">Not Done</button>
+                      <button class="btn green white-text" @click="completeToDo(1)">Details</button>
                   </td>
               </tr>
               <!-- STEP 2 -->
@@ -330,7 +330,7 @@
                       HOST YOUR METADATA - COMPLETE <i class="material-icons white-text">check</i>
                   </td>
                   <td class="green white-text center-align">
-                      <button class="btn green white-text" @click="completeToDo(2)">Not Done</button>
+                      <button class="btn green white-text" @click="completeToDo(2)">Details</button>
                   </td>
               </tr>
               <!-- STEP 3 -->
@@ -365,7 +365,7 @@
                       ADD REQUIRED SMARTAPI EXTENSIONS - COMPLETE <i class="material-icons white-text">check</i>
                   </td>
                   <td class="green white-text center-align">
-                      <button class="btn green white-text" @click="completeToDo(3)">Not Done</button>
+                      <button class="btn green white-text" @click="completeToDo(3)">Details</button>
                   </td>
               </tr>
             </tbody>

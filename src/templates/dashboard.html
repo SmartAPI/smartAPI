@@ -16,8 +16,8 @@
             <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle hideOnSmall" alt="user image">
           </li>
           <li class="collection-item center-align blue white-text swing-in-top-fwd">
-            <h4 class="text_h3 white-text textShadow">{{userInfo.name}}</h4>
-            <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="small fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
+            <h5 class="text_h3 white-text textShadow">Hello, {{ userInfo.name.split(" ")[0] }}!</h5>
+            <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
           </li>
           <li class="collection-item blue-grey-text">
             <!-- <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p> -->
@@ -47,7 +47,7 @@
           <div class="col s12">
             <ul class="tabs blue-text">
               <li class="tab col s3">
-                <a class="blue-text" href="#contributions">My Contributions ({{total}})</a>
+                <a class="blue-text" href="#contributions">API List ({{total}})</a>
               </li>
               <li class="tab col s3"><a class="blue-text" href="#etensions">
                 SmartAPI Extensions</a>
@@ -232,7 +232,9 @@
   Vue.component('refresh', {
     data: function(){
       return{
+        //timeout before being able to refresh again
         counter:30,
+        //bind to disable attr while waiting
         currentlyRefreshing: false,
         text: 'refresh'
       }
@@ -284,8 +286,7 @@
             selectedAPIGithub:'',
             apis:[],
             total: 0,
-            confirmDelete: true,
-            counter: 30
+            confirmDelete: true
           }
         },
         methods:{
