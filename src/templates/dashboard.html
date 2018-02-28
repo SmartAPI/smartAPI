@@ -2,33 +2,37 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<main id="dashApp" style="height: 100%;">
+<main id="dashApp" style="height: 100%;" class="indexBackground padding20">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.name" class="padding20 card-panel red center-align">
-    <h3 class="text_h3 white-text">You Must Be Signed In To Use Your Dashboard</h3>
-    <a href="/oauth" class="btn green">Login</a>
+    <h3 class="text_h3 white-text">
+      You Must Be Signed In To Use Your Dashboard
+    </h3>
+    <a href="/oauth" class="btn green">
+      Login
+    </a>
   </div>
   <!-- IF USERINFO DISPLAY DASHBOARD -->
   <div v-if="userInfo.name" class="row" style="margin-bottom: 0; width: 100%;">
-      <div class="col s12 m4 l3 xl3  gradientBackground">
+      <div class="col s12 m4 l3 xl3 transparent">
         <ul class="collection" style="border: none;">
-          <li class="collection-item center-align" style="background-color: transparent;">
-            <img id="dashboardPhoto" :src="userInfo.avatar_url" class="responsive-img circle hideOnSmall" alt="user image">
+          <li class="collection-item center-align transparent" >
+            <img id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
           </li>
-          <li class="collection-item center-align blue white-text swing-in-top-fwd">
-            <h5 class="text_h3 white-text textShadow">Hello, {{ userInfo.name.split(" ")[0] }}!</h5>
+          <li class="collection-item center-align white-text padding20 blue" >
+            <h5 class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.name.split(" ")[0] }}!</h5>
             <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
           </li>
           <li class="collection-item blue-grey-text">
             <!-- <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p> -->
-            <table class="table" style="font-size: 1.5em; font-weight: lighter;">
+            <table class="table lighter" style="font-size: 1.5em;">
               <thead>
-                <th class="center-align" style="font-weight: lighter;">
+                <th class="center-align lighter">
                   CONTRIBUTIONS
                 </th>
               </thead>
               <tbody>
-                <tr>
+                <tr class="swing-in-top-fwd">
                   <td class="blue-text center-align">
                     {{ total+" API's" }}
                   </td>
@@ -37,23 +41,29 @@
             </table>
           </li>
           <li class="collection-item center-align">
-            <a href="/logout" class="btn red">Log Out</a>
+            <a href="/logout" class="btn red smallFont">Log Out</a>
           </li>
         </ul>
       </div>
-    <div class="col s12 m8 l9 xl9 white center-align" >
-        <h4 class="text_h3 blue-text tracking-in-expand">My Dashboard</h4>
+    <div class="col s12 m8 l9 xl9  center-align" >
+        <!-- <h5 class="text_h3 white-text tracking-in-expand textShadow">MY DASHBOARD</h5> -->
         <div class="row">
           <div class="col s12">
-            <ul class="tabs blue-text">
-              <li class="tab col s3">
-                <a class="blue-text" href="#contributions">API List ({{total}})</a>
+            <ul class="tabs blue-grey">
+              <li class="tab col s3 blue-grey darken-1">
+                <a class="white-text textShadow" href="#contributions">
+                  API List ({{total}})
+                </a>
               </li>
-              <li class="tab col s3"><a class="blue-text" href="#etensions">
-                SmartAPI Extensions</a>
+              <li class="tab col s3 blue-grey darken-2">
+                <a class="white-text textShadow" href="#etensions">
+                  SmartAPI Extensions
+                </a>
               </li>
-              <li class="tab col s3"><a class="blue-text" href="#about">
-                About SmartAPI</a>
+              <li class="tab col s3 blue-grey darken-3">
+                <a class="white-text textShadow" href="#about">
+                  About SmartAPI
+                </a>
               </li>
             </ul>
           </div>
@@ -61,24 +71,24 @@
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text">
-                      <th>API Name <i class="material-icons tiny blue-grey-text">filter_drama</i></th>
+                      <th class="lighter">API Name</th>
                       <!-- <th class="hideOnSmall">Description</th> -->
-                      <th class="center-align">Last Updated <i class="material-icons tiny blue-grey-text">schedule</i> </th>
-                      <th class="center-align">Refresh <i class="material-icons tiny blue-grey-text">refresh</i></th>
-                      <th class="center-align">Delete <i class="material-icons tiny blue-grey-text">delete</i></th>
+                      <th class="center-align lighter">Last Updated</th>
+                      <th class="center-align lighter">Refresh</th>
+                      <th class="center-align lighter">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td>
-                       <a style="font-size: 12px;" href="#modal2" class="modal-trigger" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text" style="font-size:12px">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
+                       <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                     </td>
                     <!-- <td class="tableTextOverflow hideOnSmall" style="max-width: 100px; overflow: hidden;">
                       <p class="tableTextOverflow">{{ api.info.description }}</p>
                     </td> -->
                     <td class="center-align">
-                      <span style="font-size: 12px; font-weight: bold" class="green-text">{{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
                       <!-- <a @click="refreshingThis(api.info.title)" class="green btn" style="cursor: pointer;">
@@ -186,26 +196,27 @@
   <!-- Details Modal -->
   <div id="modal2" class="modal center-align">
     <div class="modal-content"> 
-      <ul class="collection with-header">
-        <li class="collection-header">
-          <h4 class="text_h3 blue-text">{{selectedAPI.title}} <span class="green-text" style="font-size: 16px; font-weight: bold;">Version {{ selectedAPI.version }}</span></h4>
-
+      <ul class="collection with-header" style="border: none;">
+        <li class="collection-header padding20">
+          <h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4>
+          <span class="chip blue white-text smallFont" style="font-size: 12px; font-weight: bold;">Version {{ selectedAPI.version }}</span>
         </li>
-        <li class="collection-item">
-          {{ selectedAPIContact.name }}<span class="grey-text"> / {{selectedAPIContact["x-role"]}}</span>
+        <li class="collection-item blue-grey lighten-4">
+          <h4 class="blue-grey-text">{{ selectedAPIContact.name }}</h4>
+          <h5 class="blue-grey-text lighter" style="text-transform: uppercase; font-size: 16px;">{{ selectedAPIContact["x-role"] }}</h5>
         </li>
-        <li class="collection-item">
+        <li class="collection-item blue-grey lighten-5">
           <a :href="selectedAPIGithub" target="_blank"><i class="small fa fa-github-alt blue-text"></i> My Github</a>
         </li>
-        <li class="collection-item padding20">
-          <fieldset class="padding20">
+        <li class="collection-item padding20 blue-grey lighten-5">
+          <fieldset class="padding20 white" style="border-radius: 10px; border: none;">
           <legend class="blue-text">Description:</legend>
             <p class="blue-grey-text">{{ selectedAPI.description }}</p>
           </fieldset>
         </li>
-        <li class="collection-item">
+        <li class="collection-item blue-grey lighten-5">
           <i class="material-icons tiny blue-text">info_outline</i>
-          <a :href="selectedAPI.termsOfService" target="_blank">Terms of Service</a>
+          <a :href="selectedAPI.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
         </li>
       </ul>
       <a href="#!" class="btn blue modal-action modal-close">Close</a>
