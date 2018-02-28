@@ -250,8 +250,8 @@
           setTimeout(this.countDown,1000);
           this.currentlyRefreshing = true;
           this.text =this.counter+'...';
-          var thing =$(this.$el);
-          thing[0].text=this.text;
+          var thisElement =$(this.$el);
+          thisElement[0].text=this.text;
         }
         else if ( this.counter === 0){
           this.currentlyRefreshing = false;
@@ -265,6 +265,9 @@
         return this.text;
         console.log(this.text);
       }
+    },
+    mounted: function(){
+      // mounted logic
     },
     template: `<a :disabled='currentlyRefreshing' @click="refresh(title); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
                 <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
@@ -334,7 +337,7 @@
           refreshingThis: function(title){
             var self = this;
             Materialize.toast(title+' was Refreshed!', 4000,'rounded green white-text');
-            Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
+            //Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
           },
           getDetails: function(fullApiInfo, meta){
             var self = this;
