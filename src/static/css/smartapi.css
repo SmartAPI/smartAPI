@@ -263,9 +263,9 @@ hr{
 }
 
 .tableTextOverflow{
-  overflow: hidden; 
-  text-overflow: ellipsis; 
-  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 12px;
 }
 
@@ -509,56 +509,56 @@ hr{
 
     @-webkit-keyframes colorchange {
       0% {
-        
+
         color: #00b0ff;
       }
-      
+
       10% {
-        
+
         color: #b3e5fc;
       }
-      
+
       20% {
-        
+
         color: #00b0ff;
       }
-      
+
       30% {
-        
+
         color: #b3e5fc;
       }
-      
+
       40% {
-        
+
         color: #00b0ff;
       }
-      
+
       50% {
-        
+
         color: #b3e5fc;
       }
-      
+
       60% {
-        
+
         color: white;
       }
-      
+
       70% {
-        
+
         color: #b3e5fc;
       }
       80% {
-     
+
         color: #00b0ff;
       }
-      
+
       90% {
-     
+
         color: #b3e5fc;
       }
-      
+
       100% {
-        
+
         color: white;
       }
     }
@@ -596,7 +596,7 @@ hr{
     background: none;
     -moz-border-radius: 50px;
     -webkit-border-radius: 50px;
-    border-radius: 50px; 
+    border-radius: 50px;
   }
     .indicators{
     visibility: hidden;
@@ -664,10 +664,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e55b2b', end
   width: 100% !important;
   margin:0 auto;
   background-attachment: fixed;
-    transition:background-size  10s linear;  
-    -moz-transition:background-size  10s linear;  
-    -o-transition:background-size 10s linear;  
-    transition:background-size  10s linear; 
+    transition:background-size  10s linear;
+    -moz-transition:background-size  10s linear;
+    -o-transition:background-size 10s linear;
+    transition:background-size  10s linear;
 }
 
 .indexBackgroundAnimated:focus{
@@ -870,7 +870,7 @@ h1, h2 , h3, h4 ,h5{
     }
 }
 
-/*Hide Images on Small Screen*/
+/*Hide Images on Medium Screen*/
 @media only screen and (max-width: 900px) {
     .introPic {
         display: none;
@@ -944,7 +944,7 @@ h1, h2 , h3, h4 ,h5{
 .arrow_box {
   position: relative;
   background: #3189C3;
-  padding: 
+  padding:
 }
 .arrow_box:after {
   top: 100%;
@@ -994,10 +994,10 @@ body {
 .circleGradientBox{
   background: -webkit-radial-gradient(bottom left,#263238, #3C7092);
   background-size: 100%;
-    transition:background-size  .5s ease-in;  
-    -moz-transition:background-size  .5s ease-in;  
-    -o-transition:background-size .5s ease-in;  
-    transition:background-size  .5s ease-in; 
+    transition:background-size  .5s ease-in;
+    -moz-transition:background-size  .5s ease-in;
+    -o-transition:background-size .5s ease-in;
+    transition:background-size  .5s ease-in;
 }
 
 .circleGradientBox:hover{
@@ -1009,5 +1009,116 @@ body {
    color: #eceff1;
  }
 
+ .shine, .chrome {
+  font-size: 3em;
+  margin: 0 auto;
+  margin-bottom: 1em;
+}
+
+.shine {
+  background: #222 -webkit-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff)) 0 0 no-repeat;
+  -webkit-background-size: 150px;
+  color: rgba(255, 255, 255, 0.3);
+  -webkit-background-clip: text;
+  -webkit-animation-name: shine;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-iteration-count: infinite;
+  text-shadow: 0 0px 0px rgba(255, 255, 255, 0.5);
+}
+
+.chrome {
+  background: #222 -webkit-gradient(linear, left top, right top, from(#222), to(#222), color-stop(0.5, #fff)) 0 0 no-repeat;
+  background-image: -webkit-linear-gradient(-40deg, transparent 0%, transparent 40%, #fff 50%, transparent 60%, transparent 100%);
+  -webkit-background-size: 200px;
+  color: rgba(255, 255, 255, 0.3);
+  -webkit-background-clip: text;
+  -webkit-animation-name: shine;
+  -webkit-animation-duration: 5s;
+  -webkit-animation-iteration-count: infinite;
+  text-shadow: 0 0px 0px rgba(255, 255, 255, 0.5);
+}
+
+@-webkit-keyframes shine {
+  0%, 10% {
+    background-position: -1000px;
+  }
+  20% {
+    background-position: top left;
+  }
+  90% {
+    background-position: top right;
+  }
+  100% {
+    background-position: 1000px;
+  }
+}
+
+.scanChild1{
+  background-color: #cfd8dc;
+  opacity:.5;
+  position: absolute;
+  right:-600px;
+  width:50px;
+  height:800px;
+  transition: 1.5s;
+  transition: right 1.5s ease-out;
+  -moz-transition: right  1.5s ease-out;
+  -o-transition: right  1.5s ease-out;
+  transition: right 1.5s ease-out;
+}
+
+.scanChild2{
+  background-color: #cfd8dc;
+  opacity:.5;
+  position: absolute;
+  left:-600px;
+  width:50px;
+  height:800px;
+  transition: 1.5s;
+  transition: left 1.5s ease-out;
+  -moz-transition: left  1.5s ease-out;
+  -o-transition: left 1.5s ease-out;
+  transition: left 1.5s ease-out;
+}
+
+.scanParent:hover .scanChild1{
+  right: 900px;
+}
+
+.scanParent:hover .scanChild2{
+  left: 900px;
+}
+
+.coolCont{
+  min-height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.coolCont div:nth-child(1){
+  position: absolute;
+  width: 100%;
+  top:0px;
+  transition: all 1s ease;
+  opacity: 1;
+}
+
+.coolCont div:nth-child(2){
+  position: absolute;
+  width: 100%;
+  top:-500px;
+  transition: all 1s ease;
+  opacity: 0;
+}
+
+.coolCont:hover div:nth-child(1){
+  top:-500px;
+  opacity: 0;
+}
+
+.coolCont:hover div:nth-child(2){
+  top:0px;
+  opacity: 1;
+}
 
   /*MARCO CANO end*/

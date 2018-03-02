@@ -13,16 +13,24 @@
         <h5 class="white-text tracking-in-expand flow-text">
             <b>SmartAPI</b> and <b>OpenAPI</b>
         </h5>
-        <a class="btn blue" @click='showInfo'><i class="white-text material-icons">info</i> Learn More</a>
+        <a class="btn blue" @click='showInfo'>Learn More</a>
 
         <div class="flexGuideDad" id="learnMoreBlock" style="display: none; margin-top: 15px;">
             <div class="flexGuideKid white">
                 <h4 class="flow-text">What is OpenAPI?</h4>
                 <p class="blue-grey-text left-align">
-                    The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI) was created by a consortium of forward-looking industry experts who recognize the immense value of standardizing on how REST APIs are described. As an open governance structure under the Linux Foundation, the OAI is focused on creating, evolving and promoting a vendor neutral description format. SmartBear Software is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
-                </p> 
+                    The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI)
+                    was created by a consortium of forward-looking industry experts who recognize the immense value
+                    of standardizing how REST APIs are described. As an open governance structure under the Linux Foundation,
+                    the OAI is focused on creating, evolving and promoting a vendor-neutral description format. SmartBear Software
+                    is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
+                </p>
                 <p class="blue-grey-text left-align">
-                    APIs form the connecting glue between modern applications. Nearly every application uses APIs to connect with corporate data sources, third party data services or other applications. Creating an open description format for API services that is vendor neutral, portable and open is critical to accelerating the vision of a truly connected world.
+                    APIs form the connecting glue between modern applications.
+                    Nearly every application uses APIs to connect with corporate data sources,
+                    third-party data services or other applications. Creating an open description format
+                    for API services that is vendor-neutral, portable and open is critical to accelerating the
+                    vision of a truly connected world.
                 </p>
                 <hr>
                 <a class="btn green" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
@@ -30,7 +38,12 @@
             <div class="flexGuideKid light-blue lighten-5">
                 <h4 class="flow-text">What is SmartAPI?</h4>
                 <p class="blue-grey-text left-align">
-                  The smartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a openAPI-based specification for defining the key API metadata elements and value sets. smartAPIs leverage the Open API specification v3 and JSON-LD for providing semantically annotated JSON content that can be treated as Linked Data.
+                  The smartAPI project aims to maximize the FAIRness (Findability, Accessibility,
+                  Interoperability and Reusability) of web-based Application Programming Interfaces (APIs).
+                  Rich metadata is essential to properly describe your API so that it becomes discoverable, connected,
+                  and reusable. We have developed an OpenAPI-based specification for defining the key API metadata
+                  elements and value sets. SmartAPIs leverage the Open API specification v3 and JSON-LD for providing
+                  semantically annotated JSON content that can be treated as Linked Data.
                 </p>
                 <hr>
                 <a class="btn green" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification">SmartAPI Specification</a>
@@ -38,10 +51,15 @@
             <div class="flexGuideKid white">
                 <h4 class="flow-text">What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?</h4>
                 <p class="blue-grey-text left-align">
-                    SmartBear donated the Swagger Specification in 2015 as part of the formation of the Open API Initiative. Following the announcement of the OAI, the Swagger specification was renamed the OpenAPI Specification and is semantically identical to the specification formerly known as the Swagger 2.0 specification.
-                </p> 
+                    SmartBear donated the Swagger Specification in 2015 as part of the formation of the OpenAPI
+                    Initiative. Following the announcement of the OAI, the Swagger specification was renamed the
+                    OpenAPI Specification and is semantically identical to the specification formerly known as the
+                    Swagger 2.0 specification.
+                </p>
                 <p class="blue-grey-text left-align">
-                    OAS – and the Swagger Specification before it – is widely recognized as the most popular open source framework for defining and creating RESTful APIs, and today tens of thousands of developers are building thousands of open source repos of tools leveraging the OpenAPI Specification. 
+                    OAS – and the Swagger Specification before it – is widely recognized as the most popular
+                    open source framework for defining and creating RESTful APIs, and today tens of thousands of
+                    developers are building thousands of open source repos of tools leveraging the OpenAPI Specification.
                 </p>
             </div>
         </div>
@@ -69,15 +87,22 @@
             <code>info.version</code><br>
             For a full list of REQUIRED extensions refer to the recommendations column of the document here:
         </p>
-        <button class="btn green hideOnSmall" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md', 'targetDiv')">Show/Hide Extensions</button>
-        <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Open on Github</a>
+        <button
+          id="extBtn"
+          class="btn green hideOnSmall"
+          @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md', 'targetDiv')">
+            {{ btnTxtExt}}
+          </button>
+        <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">
+          Open on Github
+        </a>
         <hr>
         <!-- Dynamic HTML from loading will dump in here -->
         <div id="targetDiv" class="container dynamicTable hideOnSmall">
             <!-- dynamic content -->
         </div>
 
-        </div>          
+        </div>
     </div>
 
 </div>
@@ -151,7 +176,7 @@
             <!-- <li class="collection-item">
                 <i class="material-icons medium blue-text">create_new_folder</i>
                 <br>
-              <h3 class="text_h3 blue-text">Host Your Metadata</h3>  
+              <h3 class="text_h3 blue-text">Host Your Metadata</h3>
               <p>
                   Decide where you want to host your metadata: On your own Github account or you may <a href="#hostingforNo">host your metadata on our Github account</a>.
               </p>
@@ -162,7 +187,7 @@
                 <h3 class="text_h3 blue-text flow-text">Create and Edit Your V3 OpenAPI Metadata</h3>
                 <hr>
                 <p>
-                    You can start with an existing metadata example below. 
+                    You can start with an existing metadata example below.
                     <br>The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
                 </p>
                 <p class="blue-text">
@@ -178,12 +203,17 @@
                 </ul>
                 <hr>
                 <a class="btn-large editor green" target="_blank" href="http://smart-api.info/editor-oa3/">API EDITOR</a>
-                <p class="grey-text">
-                    This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a> interface can also be useful for creating your API metadata from the scratch. But be aware of that this interface does not support any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a> (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can of course add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.
+                <p class="grey-text left-align">
+                    This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a>
+                    interface can also be useful for creating your API metadata from scratch. But be aware
+                    that this interface does not support
+                    any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a>
+                    (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can, of course,
+                    add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.
                 </p>
-                <p class="grey-text">For a complete list of SmartAPI extensions visit this link:</p>
+                <p class="grey-text">For a complete list of SmartAPI extensions, visit this link:</p>
                 <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Extensions</a>
-                    
+
             </li>
             <li class="collection-item green padding20">
                 <h4 class="white-text flow-text">Done Creating Your V3 Metadata?</h4>
@@ -192,7 +222,7 @@
             </li>
         </ul>
     </div>
-        
+
     </div>
     <!-- if VERSION 2 -->
     <div v-if="selection === '2' " class="center-align container padding20" style="position: relative;">
@@ -201,7 +231,9 @@
             <img class="roundPhoto" src="/static/img/guide1.png" width="100%" alt="start from scratch">
             <h3 class="text_h3 blue-text tracking-in-expand flow-text">Version 2</h3>
             <p>
-                If you already have an API metadata document in older <b>Swagger/OpenAPI V2</b> specification you will need to follow these steps to convert your metadata to the latest <b>OpenAPI V3</b> format, and then edit it in the editor below.
+                If you already have an API metadata document in older <b>Swagger/OpenAPI V2</b> specification
+                you will need to follow these steps to convert your metadata to the latest <b>OpenAPI V3</b> format,
+                and then edit it in the editor below.
             </p>
             <ul class="collection">
                 <li class="collection-header blue white-text padding20">
@@ -229,7 +261,8 @@
                     </div>
                 </div>
                 <p class="grey-text">
-                    <b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned above, and commit your changes even when they are not fully complete or valid. 
+                    <b>Tip:</b> Feel free to play with your API metadata file with the tools we mentioned
+                    above, and commit your changes even when they are not fully complete or valid.
                 </p>
                 </li>
                 <li class="collection-item green padding20">
@@ -237,7 +270,7 @@
                     <br>
                     <a href="#!" class="clearButton" @click="select('3')">NEXT</a>
                 </li>
-            </ul>      
+            </ul>
 </div>
 
 </div>
@@ -268,18 +301,18 @@
             <tbody>
                 <!-- STEP 1 -->
               <tr v-show="!todo1">
-                
+
                 <td class="center-align">
                     <h3 class="text_h3 blue-text flow-text"><i class="material-icons red-text">looks_one</i> Validate Your Metadata</h3>
                     <p>Validate your metadata and clear all errors using this editor:</p>
-                    <a class="waves-effect waves-light btn-large blue" 
-                        target="_blank" 
+                    <a class="waves-effect waves-light btn-large blue"
+                        target="_blank"
                         href="http://smart-api.info/editor-oa3/">Editor</a>
                 </td>
                 <td>
-                    <button 
-                    class="red btn" 
-                    :class="{green: todo1 }"
+                    <button
+                    class="green btn"
+                    :class="{blue: todo1 }"
                     @click="completeToDo(1)">
                         {{ button1Text }}
                     </button>
@@ -314,12 +347,12 @@
                             <b><a class="chip blue white-text" href="#hosting">Learn More</a></b>
                         </li>
                     </ul>
-                    
+
                 </td>
                 <td>
-                    <button 
-                    class="red btn" 
-                    :class="{green: todo2 }"
+                    <button
+                    class="green btn"
+                    :class="{'blue': todo2 }"
                     @click="completeToDo(2)">
                         {{ button2Text }}
                     </button>
@@ -345,16 +378,16 @@
                         <li><code>info.contact.x-role</code></li>
                         <li><code>info.version</code></li>
                     </ul>
-                    
+
                     <p>For a full list of required extensions refer to the recommendations column of the document here:</p>
-                    <a class="waves-effect waves-light btn-large blue" 
-                        target="_blank" 
+                    <a class="waves-effect waves-light btn-large blue"
+                        target="_blank"
                         href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">Extensions</a>
                 </td>
                 <td>
-                    <button 
-                    class="red btn" 
-                    :class="{green: todo3 }"
+                    <button
+                    class="green btn"
+                    :class="{blue: todo3 }"
                     @click="completeToDo(3)">
                         {{ button3Text }}
                     </button>
@@ -398,15 +431,21 @@
         <ul class="collection left-align">
             <li class="collection-item">
                 <div class="chip red white-text">1</div>
-                                Each API should create a separate folder to host its metadata. The folder "_example_api" provides basic template for adding API metadata, so you can start with copying "_example_api" folder and renaming it to your API name.
+                                Each API should create a separate folder to host its metadata.
+                                The folder "_example_api" provides a basic template for adding API metadata,
+                                so you can start with copying the "_example_api" folder and renaming it to your API name.
             </li>
             <li class="collection-item">
                 <div class="chip red white-text">2</div>
-                                Fill in the metadata about your API according to the instruction. Also please refer to the existing examples like <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a> and <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a> APIs. See more details in the next section.
+                                Fill in the metadata about your API according to the instructions.
+                                Also, please refer to the existing examples like <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a>
+                                and <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a> APIs.
             </li>
             <li class="collection-item">
                 <div class="chip red white-text">3</div>
-                                Add an entry to <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/API_LIST.yml">API_LIST.yml</a> file following the existing example. This is the master list of the APIs available in this repo. Our SmartAPI application will import all the API metadata based on this file.
+                                Add an entry to the <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/API_LIST.yml">API_LIST.yml</a>
+                                file following the existing example. This is the master list of the APIs available in this repo.
+                                Our SmartAPI application will import all the API metadata based on this file.
             </li>
             <li class="collection-item center-align">
                 <p>Choose the appropiate project to host your metadata under:</p>
@@ -434,17 +473,26 @@
         <b>CORS</b> Support
     </h3>
     <p>
-        If you want users are able to request your API from the browser, e.g. in a web application, your API should support <a target="_blank" href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing">CORS</a>. We recommend every public API to support CORS. Depending on your web server (e.g. Apache or Nginx) and/or the web framework (e.g. Django, Flask, Tornado) you use, you can find the relevant instruction to enable CORS for your API <a target="_blank" href="https://enable-cors.org/">here</a>, or via Google.
+        If you want users to be able to request your API from the browser, e.g. in a web application,
+        your API should support <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a>.
+        We recommend every public API to support CORS. Depending on your web server (e.g. Apache or Nginx) and/or the web framework
+        (e.g. Django, Flask, Tornado) you use, you can find the relevant instruction to enable CORS for
+        your API <a target="_blank" href="https://enable-cors.org/">here</a>, or via Google.
     </p>
 </div>
 <div class="card-panel light-blue lighten-5">
     <i class="material-icons blue-text large">settings_ethernet</i>
     <h3 class="text_h3 blue-text flow-text flow-text">How to choose URIs for annotating API input/output</h3>
     <p>
-        Typically for a JSON-based REST API, we use URIs to annotate both the acceptable parameter value types and the fields from the response data object, both in SmartAPI metdata files and/or JSON-LD context files.
+        Typically for a JSON-based REST API, we
+        use <a target="_blank" href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier">URIs</a>
+        to annotate both the acceptable parameter value types and the fields from the response data object,
+        both in SmartAPI metdata files and/or JSON-LD context files.
     </p>
     <p>
-        To help you decide which URIs to use, we maintain a <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/ID_MAPPING.csv">ID_MAPPING.csv</a> file to keep records of all URIs we will use. Feel free to add URIs for additional field types. Please make sure not to break the csv format, as that will break github's nice csv rendering and search features.
+        To help you decide which URIs to use, we maintain an <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/ID_MAPPING.csv">ID_MAPPING.csv</a>
+        file to keep records of all URIs we will use. Feel free to add URIs for additional field types.
+        Please make sure not to break the CSV format, as that will break GitHub's nice CSV rendering and search features.
     </p>
 </div>
 </div>
@@ -462,7 +510,7 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
 
 <script>
-    
+
     var app = new Vue({
         el: '#docapp',
         data: function(){
@@ -471,9 +519,10 @@
                 todo1: false,
                 todo2: false,
                 todo3: false,
-                button1Text: 'DONE?',
-                button2Text: 'DONE?',
-                button3Text: 'DONE?'
+                button1Text: 'DONE',
+                button2Text: 'DONE',
+                button3Text: 'DONE',
+                btnTxtExt:'SHOW EXTENSIONS'
             }
         },
         methods:{
@@ -489,10 +538,22 @@
                 // scroll to top after selection
                 scroll(0,0);
             },
+            toggleExtTxt: function(){
+
+              let text = $("#extBtn").text();
+              if(text === 'SHOW EXTENSIONS'){
+                this.btnTxtExt = 'HIDE EXTENSIONS';
+              }
+              else{
+                this.btnTxtExt = 'SHOW EXTENSIONS';
+              }
+            },
             showInfo: function(){
                 $('#learnMoreBlock').slideToggle('slow');
             },
             convertMarkdownToHtml: function(url, target){
+
+              this.toggleExtTxt();
                 // covert markdown from raw data url to html, and dump html in target
                 if ($("#"+target).html().length > 0){
                     document.getElementById(target).innerHTML = "";
@@ -525,8 +586,8 @@
                         throw err;
                     });
                 }
-                
-                
+
+
             },
             completeToDo: function(todo){
                 // upon completing and checking all 3 checklists items
@@ -534,15 +595,15 @@
                 switch(todo) {
                     case 1:
                         this.todo1= !this.todo1;
-                        this.button1Text = this.todo1 ? 'DONE' : "DONE?"
+                        this.button1Text = this.todo1 ? 'DONE' : "DONE"
                         break;
                     case 2:
                         this.todo2= !this.todo2;
-                        this.button2Text = this.todo2 ? 'DONE' : "DONE?"
+                        this.button2Text = this.todo2 ? 'DONE' : "DONE"
                         break;
                     case 3:
                         this.todo3= !this.todo3;
-                        this.button3Text = this.todo3 ? 'DONE' : "DONE?"
+                        this.button3Text = this.todo3 ? 'DONE' : "DONE"
                         break;
                     default:
                         return false
