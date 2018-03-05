@@ -5,6 +5,11 @@ html,
 body {
     height: 100%;
 }
+/* background for highlighted text */
+mark{
+    background: #c7f8ff;
+    color: black;
+}
 </style>
 {% endblock %}
 
@@ -55,43 +60,33 @@ body {
             </div>
           </div>
     </div>
-
+    <main>
     <div id="app" style="height: 100%">
         <div class="side-nav" id="filters">
             <div class="row">
                 <div class="col s12">
                     <h5>Tags</h5>
-                    <div class="collection">
-                        <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active">
+                    <div class="collection blue-text">
+                        <a v-for="tag in tags" href="#!" class="collection-item blue-text" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active">
                          >{{tag.name}}&nbsp;({{tag.count}})
                         </a>
                     </div>
-                    <!-- <h5>Schemes</h5>
-                    <div class="collection">
-                        <a v-for="scheme in schemes" href="#!" class="collection-item" :class="{ active: scheme.active }" @click.prevent="scheme.active = !scheme.active">
-                         {{scheme.id}}
-                        </a>
-                    </div> -->
                 </div>
             </div>
         </div>
         <div class="row full-height">
             <div class="col l2 hide-on-med-and-down sidebar">
-                <h5 style="padding-top:100px">Tags</h5>
+                <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a v-for="tag in tags" href="#!" class="collection-item" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active;search(query)">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a v-for="tag in tags" href="#!" class="collection-item blue-text smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
-                <!-- <h5>Schemes</h5>
-                <div class="collection">
-                    <a v-for="scheme in schemes" href="#!" class="collection-item" :class="{ active: scheme.active }" @click.prevent="scheme.active = !scheme.active">{{scheme.id}}</a>
-                </div> -->
             </div>
             <div class="col l10 s12">
                 <div class="row">
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                         <div class="input-field col s12 l6 offset-l3">
-                            <i class="material-icons prefix">search</i>
-                            <input id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
+                            <i class="material-icons prefix blue-text">search</i>
+                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
                             <label for="search_query"></label>
                         </div>
                         <div class="col s12 selected-tags">
@@ -99,10 +94,6 @@ body {
                                 {{tag.name}}
                                 <i class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
-                            <!-- <div class="chip" v-for="scheme in schemes" v-if="scheme.active">
-                                {{scheme.id}}
-                                <i class="close material-icons" @click="scheme.active = false">close</i>
-                            </div> -->
                         </div>
                         <div class="col s12">
                             <button type="submit" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
@@ -112,14 +103,14 @@ body {
                 </div>
                 <div class="row search-results">
                     <div class="col s12">
-                        <div>Total APIs: {{total}}</div>
-                        <div class="card " v-for="api in paginatedApis">
+                        <div>Total APIs: <span class="blue-text">{{total}}</span></div>
+                        <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">{{api.info.title}}</span>
-                                <p v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                             </div>
                             <div class="card-action">
-                                <a href="#" @click.prevent="toggleDetails(api)">Details</a>
+                                <a class="green-text" href="#" @click.prevent="toggleDetails(api)">Details</a>
                             </div>
                             <div class="card-content" v-if="api.showDetails == true">
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
@@ -134,7 +125,7 @@ body {
                                 </ul>
                                 <a class="waves-effect waves-light btn blue"
                                    v-bind:href='"/ui/?url=/api/metadata/"+api._id' target="_blank">
-                                   View API Doc<i class="material-icons right">send</i>
+                                   View API Doc<i class="material-icons right">folder_open</i>
                                 </a>
                                 <a class="waves-effect waves-light btn blue"
                                    v-bind:href='"/editor-oa3/?url=/api/metadata/"+api._id' target="_blank">
@@ -150,7 +141,7 @@ body {
                                         <a href="#" @click.prevent="prevPage()"><i class="material-icons">chevron_left</i> Previous</a>
                                     </li>
 
-                                    <li class="waves-effect" :class="{ active: page == n }" v-for="n in pages">
+                                    <li class="waves-effect" :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
                                         <a href="#" @click.prevent="page = n">{{n}}</a>
                                     </li>
 
@@ -173,6 +164,7 @@ body {
             </div>
         </div>
     </div>
+  </main>
     {% endraw %}
 {% include "footer.html" %}
 {% endblock %}
@@ -182,44 +174,46 @@ body {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+    <!-- Mark JS for search results highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
 
     <script>
-        $(function () {
-            $(".button-collapse").sideNav();
-        });
 
         var app = new Vue({
             el: '#app',
-            data: {
-                total: 0,
-                apis: [],
-                tags:[],
-                // tags: [{
-                //     id: 'tag1',
-                //     count: 1,
-                //     active: false
-                // }, {
-                //     name: 'tag2',
-                //     count: 1,
-                //     active: false
-                // }],
-                // schemes: [{
-                //     id: 'scheme1',
-                //     active: false
-                // }, {
-                //     id: 'scheme2',
-                //     active: false
-                // }, {
-                //     id: 'scheme3',
-                //     active: false
-                // }, {
-                //     id: 'scheme4',
-                //     active: false
-                // }],
-                query: '',
-                page: 1,
-                pages: 1,
-                perPage: 20
+            data: function(){
+              return {
+                  total: 0,
+                  apis: [],
+                  tags:[],
+                  // tags: [{
+                  //     id: 'tag1',
+                  //     count: 1,
+                  //     active: false
+                  // }, {
+                  //     name: 'tag2',
+                  //     count: 1,
+                  //     active: false
+                  // }],
+                  // schemes: [{
+                  //     id: 'scheme1',
+                  //     active: false
+                  // }, {
+                  //     id: 'scheme2',
+                  //     active: false
+                  // }, {
+                  //     id: 'scheme3',
+                  //     active: false
+                  // }, {
+                  //     id: 'scheme4',
+                  //     active: false
+                  // }],
+                  query: '',
+                  page: 1,
+                  pages: 1,
+                  perPage: 20,
+                  keywords:''
+              }
             },
             methods: {
                 loading_start: function(){
@@ -227,6 +221,21 @@ body {
                 },
                 loading_end: function(){
                     $('#loading-overlay').hide();
+                },
+                getKeywords: function(){
+                  var self= this;
+                  // Read the keyword
+                  self.keywords = $("input[name='query']").val();
+                  self.mark();
+                },
+                mark: function(){
+                  //unmark and mark current search
+                  var self= this;
+                  $(".context").unmark({
+                    done: function() {
+                      $(".context").mark(self.keywords);
+                    }
+                  });
                 },
                 refreshApis: function(){
                     var self = this;
@@ -271,11 +280,11 @@ body {
                     this.refreshApis();
                 },
                 search: function (query) {
+                    var self = this;
                     if (!query)
                         query = $('#search_query').val();
-                    query = query || "__all__";
+                      query = query || "__all__";
                     if (query) {
-                        var self = this;
                         var params = {
                             "params": {
                                 "q": query,
@@ -289,6 +298,7 @@ body {
                             self.loading_end();
                             self.apis = response.data.hits;
                             self.total = response.data.total;
+
                             self.calculatePages();
                         });
                     }
@@ -329,8 +339,13 @@ body {
                 }
             },
             created: function () {
+                $(".button-collapse").sideNav();
                 this.refreshApis();
                 this.refreshTags();
+            },
+            updated: function(){
+              // Highlight matches in results
+              this.getKeywords();
             },
             computed: {
                 paginatedApis: function () {
