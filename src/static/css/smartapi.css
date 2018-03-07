@@ -1030,7 +1030,7 @@ body {
   color: rgba(255, 255, 255, 0.3);
   -webkit-background-clip: text;
   -webkit-animation-name: shine;
-  -webkit-animation-duration: 2s;
+  -webkit-animation-duration: 3s;
   -webkit-animation-iteration-count: infinite;
   text-shadow: 0 0px 0px rgba(255, 255, 255, 0.5);
 }
@@ -1203,6 +1203,15 @@ body {
    .close:hover{
      color: red;
      transition: all .5s ease;
+   }
+
+   ::selection{
+     background: #328CC4;
+     color: white;
+   }
+
+   .section{
+     padding-bottom: 0px;
    }
 
 
