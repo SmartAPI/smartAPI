@@ -12,13 +12,13 @@
     </div>
 </div>
 
-<!-- TEST ANIMATION BLOCK -->
+<!-- new to SmartAPI-->
 <div class="whiteBack" style="overflow: hidden;">
-  <div class="row coolCont">
+  <div class="row coolCont dna-right">
     <div class="col l12 blue-text padding20 center-align coolText1" style="cursor: pointer;">
       <h5 class="shine flow-text hideOnMedium hideOnSmall lighter">New to SmartAPI?</h5>
       <h5 class="flow-text grey-text hideOnLarge">NEW TO SMARTAPI?</h5>
-      <i class="fa fa-hand-pointer-o blue-text hideOnLarge fa-2x heartbeat" aria-hidden="true"></i>
+      <i class="fa fa-hand-pointer-o blue-grey-text hideOnLarge fa-2x heartbeat" aria-hidden="true"></i>
     </div>
     <div class="col l12 grey-text padding20 center-align coolText1">
         <p style="text-transform: uppercase;">
@@ -28,16 +28,13 @@
     </div>
   </div>
 </div>
-<!-- TEST Depending -->
 
 <div style="display: none;" id="intro1" class="section scrollspy" style="padding-bottom:0px !important;">
     <div class="container">
         <div class="row">
             <div class="col l4">
-                <!-- <img width="100%" class="responsive-img circle hideOnSmall hideOnMedium" src="/static/img/ball.png"> -->
                 <figure>
-                  <!-- <img src="/static/img/network.svg" alt='network'/> -->
-                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                  <svg version="1.1" id="netSVG" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                   	 viewBox="0 0 400 400" style="enable-background:new 0 0 400 400;" xml:space="preserve">
                   <style type="text/css">
                   	.st0{fill:#2F81C1;}
@@ -46,7 +43,7 @@
                     .stMain{fill:lightyellow;stroke:#2751be;stroke-width:8;stroke-miterlimit:10;}
                   </style>
                   <g>
-                  	<polygon class="st0" points="355.7,254 206.8,195.9 283.5,191 283.5,190 206.4,194.9 308.8,129.9 308.2,129.1 205.5,194.3
+                    <polygon class="st0" points="355.7,254 206.8,195.9 283.5,191 283.5,190 206.4,194.9 308.8,129.9 308.2,129.1 205.5,194.3
                   		233.7,116.9 233.7,117 327.7,73 327.3,72 287.2,90.8 293,64.6 292,64.4 286,91.4 234.1,115.7 244,88.7 243,88.3 204.6,193.7
                   		164,17.4 163,17.6 203.9,194.9 141.6,188 141.4,189 203.2,195.9 137.4,245 67.6,224 67.4,225 136.4,245.7 58.2,304.1 58.8,304.9
                   		203.8,196.6 180,377.4 181,377.6 192.4,291.1 243.1,345.8 243.9,345.2 192.9,290.2 192.5,290.5 204.8,196.8 277.1,297.8
@@ -70,7 +67,7 @@
                 </figure>
             </div>
             <div class="col l8">
-                  <h2 class="center header text_h2 blue-grey-text flow-text">What is a SmartAPI?</h2>
+                  <h2 class="center header text_h2 flow-text">What is a SmartAPI?</h2>
                   <p class="intro-tex blue-grey-text ">
                       The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a <a href="http://openapis.org" target="_blank"></a>openAPI-based <a href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" target="_blank"> specification</a> for defining the key API metadata elements and value sets. SmartAPI's leverage the <a href="https://www.openapis.org/" target="_blank">Open API specification v3 </a> and <a href="http://json-ld.org" target="_blank">JSON-LD</a> for providing semantically annotated JSON content that can be treated as <a href="http://linkeddata.org/" target="_blank">Linked Data</a>.
                   </p>
@@ -78,6 +75,9 @@
         </div>
 </div>
 
+<div class="section hide-on-med-and-up divWithImage" style="background-image: url('static/img/graph.png'); ">
+  <!-- Image break on small screen -->
+</div>
 
 <div style="display: none; margin-bottom:0px;" id="topicsBox" class="row blue-grey">
     <div class="col s12 m6 l4 center-align padding20 topic">
@@ -148,12 +148,12 @@
         <div class="row">
           <div class="col l8 s12">
             <h2 class="center header text_h2 flow-text">Why do we need SmartAPIs? </h2>
-            <p class="intro-text">
+            <p class="intro-text blue-grey-text">
                 Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as <a href="http://www.programmableweb.com/" target="_blank">Programmable Web</a>, <a href="https://www.biocatalogue.org/" target="_blank">BioCatalogue</a> and cloud platforms such as <a href="https://galaxyproject.org/" target="_blank">Galaxy</a>. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.
             </p>
           </div>
-          <div class="col s12 l4 center-align">
-            <img width='70%' class="responsive-img introPic hideOnMedium hideOnSmall circle" src="/static/img/graph.png">
+          <div class="col s12 l4 center-align padding20">
+            <img width='100%' class="responsive-img introPic hideOnMedium hideOnSmall circle" src="/static/img/graph.png">
           </div>
         </div>
     </div>
@@ -163,12 +163,12 @@
 <div style="display: none;" class="section scrollspy" id="intro3">
     <div class="container">
       <div class="row">
-        <div class="col l4 s12 center-align">
-            <img width='70%' class="responsive-img introPic hideOnMedium hideOnSmall circle" src="/static/img/strand.png">
+        <div class="col l4 s12 center-align padding20">
+            <img width='100%' class="responsive-img introPic hideOnMedium hideOnSmall circle" src="/static/img/strand.png">
         </div>
         <div class="col l8 s12">
           <h2 class="center header text_h2 flow-text"> What does the SmartAPI offer? </h2>
-          <p class="intro-text">
+          <p class="intro-text blue-grey-text">
             Richly annotated APIs will provide the assets by which users will be able to search, browse, query, and reuse APIs. Users and intelligent agents being able to traverse a highly connected network of smartAPIs. Users will be able to automatically find APIs whose outputs are the inputs for other services. Ultimately, we envision the automatic generation of workflows that take users to where they want to go with what they have today.
         </p>
         </div>
@@ -183,6 +183,7 @@
 <!-- ScrollFire Animations and Dependencies-->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vivus/0.4.3/vivus.js"></script>
 <script type="text/javascript">
 
     $('.st2').addClass('blink-1');
@@ -212,6 +213,8 @@
     var options = [
     {selector: '#tracker', offset: 100, callback: function(){
         $('#intro1').fadeIn(5000);
+        // Duration is in frames - Vivus
+        new Vivus('netSVG', {duration: 200},);
     } },
     {selector: '#tracker', offset: 150, callback: function(){
         $('#topicsBox').slideDown('slow');

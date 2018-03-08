@@ -1417,5 +1417,13 @@ body {
      transition: all .7s;
    }
 
+   .divWithImage{
+     background-size: cover;
+     width: 100%; 
+     min-height: 300px;
+     background-position: right;
+     display: block;
+   }
+
 
   /*MARCO CANO end*/

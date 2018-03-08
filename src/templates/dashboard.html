@@ -2,7 +2,7 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<main id="dashApp" style="height: 100%;" class="indexBackground padding20">
+<main id="dashApp" style="height: 100%; padding-top:20px;" class="indexBackground ">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.name" class="padding20 card-panel red center-align">
     <h3 class="text_h3 white-text">
@@ -51,18 +51,18 @@
           <div class="col s12">
             <ul class="tabs blue-grey">
               <li class="tab col s3 blue-grey darken-1">
-                <a class="white-text textShadow" href="#contributions">
+                <a class="white-text textShadow " href="#contributions" style="font-size:10px;">
                   API List ({{total}})
                 </a>
               </li>
               <li class="tab col s3 blue-grey darken-2">
-                <a class="white-text textShadow" href="#etensions">
-                  SmartAPI Extensions
+                <a class="white-text textShadow" href="#extensions" style="font-size:10px;">
+                  Extensions
                 </a>
               </li>
               <li class="tab col s3 blue-grey darken-3">
-                <a class="white-text textShadow" href="#about">
-                  About SmartAPI
+                <a class="white-text textShadow" href="#about" style="font-size:10px;">
+                  About
                 </a>
               </li>
             </ul>
@@ -116,7 +116,7 @@
                 </tbody>
               </table>
           </div>
-          <div id="etensions" class="col s12 card-panel ">
+          <div id="extensions" class="col s12 card-panel ">
             <div class="card-panel white">
               <h3 class="text_h3 blue-text">SmartAPI Extensions</h3>
             <p>
