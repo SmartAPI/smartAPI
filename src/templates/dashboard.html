@@ -8,7 +8,7 @@
     <h3 class="text_h3 white-text">
       You Must Be Signed In To Use Your Dashboard
     </h3>
-    <a href="/oauth" class="btn green"> 
+    <a href="/oauth" class="btn green">
       Login
     </a>
   </div>
@@ -112,7 +112,7 @@
                       <a class="btn red white-text" href="" @click="reloadAPIs()">Error? Reload APIs</a>
                     </td>
                   </tr>
-                  
+
                 </tbody>
               </table>
           </div>
@@ -195,7 +195,7 @@
   <!-- delete Modal end -->
   <!-- Details Modal -->
   <div id="modal2" class="modal center-align">
-    <div class="modal-content"> 
+    <div class="modal-content">
       <ul class="collection with-header" style="border: none;">
         <li class="collection-header padding20">
           <h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4>
@@ -334,7 +334,7 @@
           deleteForever: function(title, apiID){
             // ID for api to be deleted forever
             //console.log(id+' deleted TEST');
-            
+
             // axios.delete('/api/metadata/', { data: { 'id': apiID } }).then(response=>{
             //   //sucessful deletion
             //   Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
@@ -358,8 +358,8 @@
           },
           convertDate: function(timestamp){
             var date = new Date(timestamp);
-            var formattedTime = date.getFullYear()+'-' 
-            + (date.getMonth()+1) 
+            var formattedTime = date.getFullYear()+'-'
+            + (date.getMonth()+1)
             + '-'+date.getDate()
             + ' @ '+date.getHours()
             + ':'+date.getMinutes();

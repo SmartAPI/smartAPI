@@ -2,36 +2,72 @@
 {% block content %}
 {% include "header.html" %}
 <main>
-<div class="section no-pad-bot indexBackground" id="index-banner">
+<div class="section no-pad-bot indexBackground scanParent" id="index-banner">
+    <!-- <div class="scanChild1"></div>
+    <div class="scanChild2"></div> -->
     <div class="center-align indexChild">
         <h1 id="indexTitle" class="flow-text skewTitle textShadow white-text">SmartAPI Project</h1>
+        <hr />
         <h5 class="white-text">Building a connected network of FAIR APIs</h5>
-        <hr>
-        <p style="font-weight: lighter;" class="white-text">New To SmartAPI?</p>
-        <a class="clearButton" href="/documentation">Start Here</a>
     </div>
 </div>
 
 <!-- TEST ANIMATION BLOCK -->
-<!-- <div class="whiteBack" style="overflow: hidden;">
+<div class="whiteBack" style="overflow: hidden;">
   <div class="row coolCont">
-    <div class="col l12 blue-text padding20 center-align coolText1">
-      <h3 class="shine">Welcome</h3>
+    <div class="col l12 blue-text padding20 center-align coolText1" style="cursor: pointer;">
+      <h5 class="shine flow-text hideOnMedium hideOnSmall lighter">New to SmartAPI?</h5>
+      <h5 class="flow-text grey-text hideOnLarge">NEW TO SMARTAPI?</h5>
+      <i class="fa fa-hand-pointer-o blue-text hideOnLarge fa-2x heartbeat" aria-hidden="true"></i>
     </div>
-    <div class="col l12 blue-grey-text padding20 center-align coolText1">
-      <p>
-        Some text
-      </p>
+    <div class="col l12 grey-text padding20 center-align coolText1">
+        <p style="text-transform: uppercase;">
+          A step-by-step guide to help you contribute to SmartAPI for the first time
+        </p>
+        <a class="clearButtonBlue" href="/documentation">Start Here</a>
     </div>
   </div>
-</div> -->
+</div>
 <!-- TEST Depending -->
 
 <div style="display: none;" id="intro1" class="section scrollspy" style="padding-bottom:0px !important;">
     <div class="container">
         <div class="row">
             <div class="col l4">
-                <img width="100%" class="responsive-img circle hideOnSmall hideOnMedium" src="/static/img/ball.png">
+                <!-- <img width="100%" class="responsive-img circle hideOnSmall hideOnMedium" src="/static/img/ball.png"> -->
+                <figure>
+                  <!-- <img src="/static/img/network.svg" alt='network'/> -->
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                  	 viewBox="0 0 400 400" style="enable-background:new 0 0 400 400;" xml:space="preserve">
+                  <style type="text/css">
+                  	.st0{fill:#2F81C1;}
+                  	.st1{fill:white;stroke:#AAE1F9;stroke-width:5;stroke-miterlimit:10;}
+                    .st2{fill:white;stroke:#6dd454;stroke-width:6;stroke-miterlimit:10;}
+                    .stMain{fill:lightyellow;stroke:#2751be;stroke-width:8;stroke-miterlimit:10;}
+                  </style>
+                  <g>
+                  	<polygon class="st0" points="355.7,254 206.8,195.9 283.5,191 283.5,190 206.4,194.9 308.8,129.9 308.2,129.1 205.5,194.3
+                  		233.7,116.9 233.7,117 327.7,73 327.3,72 287.2,90.8 293,64.6 292,64.4 286,91.4 234.1,115.7 244,88.7 243,88.3 204.6,193.7
+                  		164,17.4 163,17.6 203.9,194.9 141.6,188 141.4,189 203.2,195.9 137.4,245 67.6,224 67.4,225 136.4,245.7 58.2,304.1 58.8,304.9
+                  		203.8,196.6 180,377.4 181,377.6 192.4,291.1 243.1,345.8 243.9,345.2 192.9,290.2 192.5,290.5 204.8,196.8 277.1,297.8
+                  		277.9,297.2 205.9,196.6 355.3,255 	"/>
+                  </g>
+                  <circle class="st1" cx="308.5" cy="129.5" r="22"/>
+                  <circle class="stMain" cx="205.5" cy="192.5" r="32"/>
+                  <circle class="st2" cx="58.5" cy="304.5" r="26"/>
+                  <circle class="st2" cx="141.5" cy="188.5" r="12"/>
+                  <circle class="st1" cx="243.5" cy="88.5" r="16"/>
+                  <circle class="st1" cx="277.5" cy="297.5" r="28"/>
+                  <circle class="st2" cx="180.5" cy="377.5" r="6"/>
+                  <circle class="st2" cx="67.5" cy="224.5" r="14"/>
+                  <circle class="st1" cx="163.5" cy="17.5" r="9"/>
+                  <circle class="st2" cx="292.5" cy="64.5" r="8"/>
+                  <circle class="st1" cx="327.5" cy="72.5" r="16"/>
+                  <circle class="st1" cx="283.5" cy="190.5" r="14"/>
+                  <circle class="st2" cx="353.5" cy="253.5" r="25"/>
+                  <circle class="st2" cx="243.5" cy="345.5" r="19"/>
+                  </svg>
+                </figure>
             </div>
             <div class="col l8">
                   <h2 class="center header text_h2 blue-grey-text flow-text">What is a SmartAPI?</h2>
@@ -43,10 +79,10 @@
 </div>
 
 
-<div style="display: none;" id="topicsBox" class="row blue-grey">
+<div style="display: none; margin-bottom:0px;" id="topicsBox" class="row blue-grey">
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a href="/registry" >
-            <img src="/static/img/search50.png" alt="icon">
+            <img src="/static/img/search50.png" alt="icon" class="hideOnMedium hideOnSmall">
             <br>
             <span class="white-text">Registry</span>
         </a>
@@ -56,7 +92,7 @@
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a target="_blank" href="http://smart-api.info/editor-oa3/" >
-            <img src="/static/img/edit50.png" alt="icon">
+            <img src="/static/img/edit50.png" alt="icon" class="hideOnMedium hideOnSmall">
             <br>
             <span class="white-text">Editor</span>
        </a>
@@ -66,7 +102,7 @@
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a href="https://github.com/SmartAPI" target="_blank" >
-            <img src="/static/img/api50.png" alt="icon">
+            <img src="/static/img/api50.png" alt="icon" class="hideOnMedium hideOnSmall">
             <br>
             <span class="white-text">API</span>
        </a>
@@ -76,7 +112,7 @@
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" >
-            <img src="/static/img/specs50.png" alt="icon">
+            <img src="/static/img/specs50.png" alt="icon" class="hideOnMedium hideOnSmall">
             <br>
             <span class="white-text">Specification</span>
        </a>
@@ -86,7 +122,7 @@
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a href="/documentation" >
-            <img src="/static/img/guide50.png" alt="icon">
+            <img src="/static/img/guide50.png" alt="icon" class="hideOnMedium hideOnSmall">
             <br>
             <span class="white-text">Guide</span>
        </a>
@@ -96,7 +132,7 @@
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic">
         <a href="https://goo.gl/D4e0xL" target="_blank">
-            <img src="/static/img/group50.png" alt="icon">
+            <img src="/static/img/group50.png" alt="icon" class="hideOnMedium hideOnSmall">
             <br>
             <span class="white-text">Working Group</span>
         </a>
@@ -148,6 +184,31 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <script type="text/javascript">
+
+    $('.st2').addClass('blink-1');
+
+    $( window ).resize(function() {
+      let $window = $(window).width();
+      if ($window < 500){
+        $('#index-banner').attr('style','min-height:400px;');
+      }else{
+        $('#index-banner').attr('style','min-height:682px;');
+      }
+    });
+
+    var lastScrollTop = 0;
+      $(window).scroll(function(event){
+         var st = $(this).scrollTop();
+         if (st > lastScrollTop){
+             // downscroll code
+             $('#index-banner').animate({'background-position': '50%'}, 8000);
+         } else {
+            // upscroll code
+            $('#index-banner').animate({'background-position': '0px 0px'}, 8000);
+         }
+         lastScrollTop = st;
+      });
+
     var options = [
     {selector: '#tracker', offset: 100, callback: function(){
         $('#intro1').fadeIn(5000);
