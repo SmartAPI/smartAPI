@@ -157,6 +157,13 @@ class DashboardHandler(BaseHandler):
         dashboard_output = dashboard_template.render()
         self.write(dashboard_output)
 
+class SmartAPIUIHandler(BaseHandler):
+    def get(self):
+        doc_file = "smartapi-ui.html"
+        dashboard_template = templateEnv.get_template(doc_file)
+        dashboard_output = dashboard_template.render()
+        self.write(dashboard_output)
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
@@ -166,5 +173,6 @@ APP_LIST = [
     (r"/logout/?", LogoutHandler),
     (r"/registry/?", RegistryHandler),
     (r"/documentation/?", DocumentationHandler),
-    (r"/dashboard/?", DashboardHandler)
+    (r"/dashboard/?", DashboardHandler),
+    (r"/ui/?", SmartAPIUIHandler)
 ]

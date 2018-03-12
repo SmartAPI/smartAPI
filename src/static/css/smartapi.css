@@ -916,38 +916,6 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
   background-color: #90a4ae;
 }
 
-.topic span{
-  background-color: rgba(255,255,255,.1);
-  margin-top: 10px;
-  padding: 5px;
-  border: dotted white 2px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: white;
-  font-size: 2em;
-  font-weight: lighter;
-  font-variant: small-caps;
-}
-
-.topic span:hover{
-  background-color: rgba(255,255,255,.2);
-  margin-top: 10px;
-  padding: 5px;
-  border: solid white 2px;
-  border-radius: 10px;
-  text-decoration: none;
-  color: white;
-  font-size: 2em;
-  font-weight: lighter;
-  font-variant: small-caps;
-  transition: 2s;
-}
-
-.topic:hover img{
-    -webkit-animation:spinTopic 2s linear infinite;
-    -moz-animation:spinTopic 2s linear infinite;
-    animation:spinTopic 2s linear infinite;
-}
 
 .topic{
   background-color: #627D8A;
@@ -1419,11 +1387,32 @@ body {
 
    .divWithImage{
      background-size: cover;
-     width: 100%; 
+     width: 100%;
      min-height: 300px;
      background-position: right;
      display: block;
    }
+
+   .topic svg{
+     width: 70px;
+   }
+
+   @font-face {
+    font-family: smartFont;
+    src: url('../img/Monoglyceride.ttf');
+  }
+
+  .logoFont{
+    font-family: smartFont;
+  }
+
+  .l-blue-text{
+    color: #AEE2F7;
+  }
+
+  .blue-text{
+    color: #2F81C1;
+  }
 
 
   /*MARCO CANO end*/

@@ -61,7 +61,7 @@ mark{
           </div>
     </div>
     <main>
-    <div id="app" style="height: 100%">
+    <div id="app" style="height: 100%;">
         <div class="side-nav" id="filters">
             <div class="row">
                 <div class="col s12">
@@ -106,7 +106,18 @@ mark{
                         <div>Total APIs: <span class="blue-text">{{total}}</span></div>
                         <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
-                                <span class="card-title">{{api.info.title}}</span>
+                                <span class="card-title">
+                                  {{api.info.title}}
+                                  <span v-if="api.openapi[0] === '3'">
+                                    <span style="font-size:7px; border-radius:10px;" class="badge white-text green">OAS3</span>
+                                  </span>
+                                  <span v-else-if="api.openapi[0] === '2'">
+                                    <span style="font-size:7px; border-radius:10px;" class="badge white-text blue">Swagger2</span>
+                                  </span>
+                                  <span style="font-size:7px; border-radius:10px;" class="badge white-text grey">V.{{api.info.version}}</span>
+                                </span>
+                                <br />
+                                <br />
                                 <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                             </div>
                             <div class="card-action">
@@ -118,18 +129,20 @@ mark{
                                 <strong>version:</strong> {{api.info.version}}<br>
                                 <strong>developer:</strong> {{api.info.contact.name}}<br>
                                 <strong>operations:</strong>
-                                <ul class="browser-default">
-                                    <li v-for="(summary, operation) in getOperations(api)">
-                                        <strong>{{operation}}</strong> - {{summary}}
-                                    </li>
-                                </ul>
-                                <a class="waves-effect waves-light btn blue"
+                                <table class="bordered">
+                                    <tr v-for="(summary, operation) in getOperations(api)">
+                                      <td class="smallFont">{{operation}}</td>
+                                      <td class="blue-grey-text smallFont">{{summary}}</td>
+                                    </tr>
+                                </table>
+                                <br />
+                                <a class="waves-effect waves-light btn blue smallFont"
                                    v-bind:href='"/ui/?url=/api/metadata/"+api._id' target="_blank">
-                                   View API Doc<i class="material-icons right">folder_open</i>
+                                   View API Doc
                                 </a>
-                                <a class="waves-effect waves-light btn blue"
+                                <a class="waves-effect waves-light btn blue smallFont"
                                    v-bind:href='"/editor-oa3/?url=/api/metadata/"+api._id' target="_blank">
-                                   Edit<i class="material-icons right">edit</i>
+                                   Edit
                                 </a>
                             </div>
                         </div>
@@ -297,6 +310,7 @@ mark{
                         axios.get('/api/query?size=100', params).then(function (response) {
                             self.loading_end();
                             self.apis = response.data.hits;
+                            console.log(self.apis);
                             self.total = response.data.total;
 
                             self.calculatePages();
@@ -325,13 +339,13 @@ mark{
                     if (raw) {
                         for(var path in api.paths) {
                             for(var method in api.paths[path]) {
-                                operations[[method, path].join(' ')] = api.paths[path][method].summary;
+                                operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
                             }
                         }
                     }else{
                         api.paths.forEach(function(path){
                             for(var method in path['pathitem']) {
-                                operations[[method, path.path].join(' ')] = path['pathitem'][method].summary;
+                                operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
                             }
                         })
                     }
