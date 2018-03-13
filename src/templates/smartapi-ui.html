@@ -14,9 +14,12 @@
 </style>
 
 <main id="ui-app" class="indexBackground">
-  <div class="container transparent center-align" style="margin-bottom: 0px;">
+  <!-- <div class="container transparent center-align" style="margin-bottom: 0px;">
     <img width="15%" alt="SmartAPI" src="/static/img/logo-large.svg" class="" />
     <h4  class="textShadow white-text logoFont lighter hide-on-small-only" style="margin:5px;">Smart<span class="l-blue-text">API</span></h4>
+  </div> -->
+  <div v-if="failed" class="white red-text container center-align" style="padding: 200px 20px;">
+    <h5>Oops, Something Went Wrong!</h5>
   </div>
   <div class="container white" id="swagger-ui"></div>
 </main>
@@ -33,35 +36,78 @@
   <!-- SwaggerUIStandalonePreset and StandaloneLayout -->
   <script>
 
+  // Plug-in to hide empty tags in Swagger UI
+  const HideEmptyTagsPlugin = () => {
+    return {
+      statePlugins: {
+        spec: {
+          wrapSelectors: {
+            taggedOperations: (ori) => (...args) => {
+              return ori(...args)
+                .filter(tagMeta => tagMeta.get("operations") && tagMeta.get("operations").size > 0)
+            }
+          }
+        }
+      }
+    }
+  };
+
   var app = new Vue({
       el: '#ui-app',
       data: function(){
         return {
-          apiUrl:"https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml"
+          apiID:'',
+          failed: false
         }
       },
       methods: {
+        loadSwaggerUI: function(dataurl){
 
+          const ui = SwaggerUIBundle({
+              url: dataurl,
+              dom_id: '#swagger-ui',
+              deepLinking: true,
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                // SwaggerUIStandalonePreset
+                // disables TopBar
+              ],
+              plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl,
+                // plug-in to hide empty tags
+                HideEmptyTagsPlugin
+              ],
+              // layout: "StandaloneLayout"
+              // disables TopBar
+            })
+            window.ui = ui;
+
+        }
       },
       mounted: function(){
 
-        const ui = SwaggerUIBundle({
-            url: this.apiUrl ,
-            dom_id: '#swagger-ui',
-            deepLinking: true,
-            presets: [
-              SwaggerUIBundle.presets.apis,
-              // SwaggerUIStandalonePreset
-              // disables TopBar
-            ],
-            plugins: [
-              SwaggerUIBundle.plugins.DownloadUrl
-            ],
-            // layout: "StandaloneLayout"
-            // disables TopBar
-          })
-          window.ui = ui;
+        this.apiID = '{{apiID}}';
+
+        var params = {
+            "params": {
+                "q": this.apiID
+            }
+        }
+
+        axios.get('/api/query?size=100', params).then(res=>{
+          console.log(res.data.hits);
+          let api= res.data.hits[0];
+          console.log(api._meta.url);
+          this.loadSwaggerUI(api._meta.url);
+        }).catch(err=>{
+          throw err;
+          this.failed = true;
+        });
+      },
+      updated: function(){
+        $('.opblock-summary-method').addClass('red');
       }
   });
+
   </script>
 {% endblock %}

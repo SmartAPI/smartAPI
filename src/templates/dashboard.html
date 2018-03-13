@@ -316,7 +316,7 @@
             //     throw err;
             //   });
               // testing version
-            axios.get("http://smart-api.info/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
+            axios.get("/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
                   //console.log(response.data.hits);
                   self.apis = response.data.hits;
                   self.total = response.data.total;

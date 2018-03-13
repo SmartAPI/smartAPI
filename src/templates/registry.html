@@ -108,10 +108,10 @@ mark{
                             <div class="card-content ">
                                 <span class="card-title">
                                   {{api.info.title}}
-                                  <span v-if="api.openapi[0] === '3'">
+                                  <span v-if=" api.hasOwnProperty('openapi') ">
                                     <span style="font-size:7px; border-radius:10px;" class="badge white-text green">OAS3</span>
                                   </span>
-                                  <span v-else-if="api.openapi[0] === '2'">
+                                  <span v-else-if=" api.hasOwnProperty('swagger') ">
                                     <span style="font-size:7px; border-radius:10px;" class="badge white-text blue">Swagger2</span>
                                   </span>
                                   <span style="font-size:7px; border-radius:10px;" class="badge white-text grey">V.{{api.info.version}}</span>
@@ -136,8 +136,8 @@ mark{
                                     </tr>
                                 </table>
                                 <br />
-                                <a class="waves-effect waves-light btn blue smallFont"
-                                   v-bind:href='"/ui/?url=/api/metadata/"+api._id' target="_blank">
+                                <a class="waves-effect waves-light btn green smallFont"
+                                   v-bind:href='"/ui/"+api._id' >
                                    View API Doc
                                 </a>
                                 <a class="waves-effect waves-light btn blue smallFont"
