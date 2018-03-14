@@ -10,6 +10,24 @@ mark{
     background: #c7f8ff;
     color: black;
 }
+
+.operation{
+  padding: 10px;
+  border-radius: 5px;
+  border:#e0e0e0 1px solid;
+  font-size: 12px;
+  color: #424242;
+}
+
+.versionBadge{
+  padding: 6px;
+  border-radius: 100%;
+  border:none;
+  font-size: 12px;
+  color: #424242;
+  line-height: inherit;
+}
+
 </style>
 {% endblock %}
 
@@ -107,31 +125,43 @@ mark{
                         <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
-                                  {{api.info.title}}
+                                  <span class="blue-text lighter">{{api.info.title}}</span>
+                                  <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text grey">V.{{api.info.version}}</span>
                                   <span v-if=" api.hasOwnProperty('openapi') ">
-                                    <span style="font-size:7px; border-radius:10px;" class="badge white-text green">OAS3</span>
+                                    <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text green">OAS3</span>
                                   </span>
                                   <span v-else-if=" api.hasOwnProperty('swagger') ">
-                                    <span style="font-size:7px; border-radius:10px;" class="badge white-text blue">Swagger2</span>
+                                    <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text blue">Swagger2</span>
                                   </span>
-                                  <span style="font-size:7px; border-radius:10px;" class="badge white-text grey">V.{{api.info.version}}</span>
+
                                 </span>
                                 <br />
                                 <br />
                                 <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                             </div>
                             <div class="card-action">
-                                <a class="green-text" href="#" @click.prevent="toggleDetails(api)">Details</a>
+                                <a class="green-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
+                                   show details
+                                </a>
                             </div>
                             <div class="card-content" v-if="api.showDetails == true">
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>version:</strong> {{api.info.version}}<br>
                                 <strong>developer:</strong> {{api.info.contact.name}}<br>
-                                <strong>operations:</strong>
                                 <table class="bordered">
+                                  <thead>
+                                    <th class="center-align lighter">
+                                      Operations
+                                    </th>
+                                    <th class="center-align lighter">
+                                      Summary
+                                    </th>
+                                  </thead>
                                     <tr v-for="(summary, operation) in getOperations(api)">
-                                      <td class="smallFont">{{operation}}</td>
+                                      <td>
+                                        <span :class="operationStyling(operation)">{{operation}}</span>
+                                      </td>
                                       <td class="blue-grey-text smallFont">{{summary}}</td>
                                     </tr>
                                 </table>
@@ -229,6 +259,35 @@ mark{
               }
             },
             methods: {
+                showHideDetails: function(event){
+                  let text = $(event.target).text().trim().toLowerCase();
+                  if(text === 'show details'){
+                    event.target.text = 'hide details';
+                  }
+                  else{
+                    event.target.text = 'show details';
+                  }
+                },
+                operationStyling: function(op){
+                  console.log(op.substr(0,3));
+                  switch( op.substr(0,3) ){
+                        case 'GET' :
+                          return 'light-blue lighten-4 operation';
+                          break;
+                        case 'POS' :
+                          return 'light-green accent-1 operation';
+                          break;
+                        case 'PUT' :
+                          return 'yellow accent-1 operation';
+                          break;
+                        case 'DEL' :
+                            return 'deep-orange lighten-4 operation';
+                            break;
+                        default:
+                           return 'grey lighten-3 operation'
+                            break;
+                  }
+                },
                 loading_start: function(){
                     $('#loading-overlay').show();
                 },

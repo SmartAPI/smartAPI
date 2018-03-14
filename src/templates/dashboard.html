@@ -4,10 +4,10 @@
 {% raw %}
 <main id="dashApp" style="height: 100%; padding-top:20px;" class="indexBackground ">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
-  <div v-if="!userInfo.name" class="padding20 card-panel red center-align">
-    <h3 class="text_h3 white-text">
+  <div v-if="!userInfo.name" class="padding20 card-panel white center-align">
+    <h5 class="text_h3 blue-grey-text-text">
       You Must Be Signed In To Use Your Dashboard
-    </h3>
+    </h5>
     <a href="/oauth" class="btn green">
       Login
     </a>
@@ -180,13 +180,13 @@
   <!-- Modal for Deletion Confirmation -->
   <div id="modal1" class="modal center-align">
     <div class="modal-content">
-      <h4 class="text_h3 blue-text">Delete <b>{{ confirmModal.title }}</b>?</h4>
-      <div class="card-panel deep-orange accent-2">
-        <i class="material-icons medium amber-text">warning</i>
-        <p class="white-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
+      <h5 class="blue-text">Delete <b>{{ confirmModal.title }}</b>?</h5>
+      <div class="white padding20">
+        <i class="material-icons small amber-text">warning</i>
+        <p class="red-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
         <input @change="getAPIName(confirmModal.title, $event)" :placeholder="confirmModal.title" type="text" class="validate browser-default" style="outline: none; padding: 10px; width: 70%;">
-        <hr>
-        <a href='#!' :disabled="confirmDelete" @click="deleteForever(confirmModal.title, confirmModal.id)" class="amber btn modal-action modal-close">Delete API</a>
+        <hr/>
+        <a href='#!' :disabled="confirmDelete" @click="deleteForever(confirmModal.title, confirmModal.id)" class=" deep-orange darken-2 btn modal-action modal-close">Delete API</a>
       </div>
       <hr>
       <a href="#!" class="btn blue modal-action modal-close">Cancel</a>
@@ -389,7 +389,7 @@
             }
             else{
               this.confirmDelete = true;
-              Materialize.toast(input+' Does Not Match API Name', 4000,'rounded red white-text');
+              Materialize.toast(input+' Does Not Match API Name', 4000,'rounded orange white-text');
             }
           }
         },

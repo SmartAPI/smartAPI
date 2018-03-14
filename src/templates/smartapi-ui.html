@@ -11,17 +11,35 @@
  h2.title{
    padding-top: 20px;
  }
+ span.url{
+   word-wrap: break-word;
+ }
+
+ div.info{
+
+ }
+
 </style>
 
-<main id="ui-app" class="indexBackground">
-  <!-- <div class="container transparent center-align" style="margin-bottom: 0px;">
-    <img width="15%" alt="SmartAPI" src="/static/img/logo-large.svg" class="" />
-    <h4  class="textShadow white-text logoFont lighter hide-on-small-only" style="margin:5px;">Smart<span class="l-blue-text">API</span></h4>
-  </div> -->
-  <div v-if="failed" class="white red-text container center-align" style="padding: 200px 20px;">
-    <h5>Oops, Something Went Wrong!</h5>
+<main id="ui-app" class="indexBackground" style="width: 100%;">
+  <div class="container white center-align padding20" style="margin-bottom: -50px; margin-top:20px;">
+    <span class="hide-on-small-only show-on-medium-and-up">
+      <img width="15%" alt="SmartAPI" src="/static/img/logo-large.svg" class="" />
+      <h4  class="blue-grey-text logoFont lighter" style="margin:5px;">Smart<span class="l-blue-text">API</span></h4>
+    </span>
+    <span class="show-on-small hide-on-med-and-up">
+      <img width="15%" alt="SmartAPI" src="/static/img/logo-small.svg" class="" />
+      <h5  class="blue-grey-text logoFont lighter" style="margin:5px;">SmartAPI</h5>
+    </span>
   </div>
-  <div class="container white" id="swagger-ui"></div>
+  <div v-if="!data" class="white blue-text container center-align" style="padding: 200px 20px;">
+    <p v-if="!data">
+      Loading
+      <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
+      <span class="sr-only">Loading...</span>
+    </p>
+  </div>
+  <div class="container white" id="swagger-ui" style="overflow: hidden; margin-bottom:20px;"></div>
 </main>
 
 {% endraw %}
@@ -57,7 +75,7 @@
       data: function(){
         return {
           apiID:'',
-          failed: false
+          data: false
         }
       },
       methods: {
@@ -95,17 +113,17 @@
         }
 
         axios.get('/api/query?size=100', params).then(res=>{
-          console.log(res.data.hits);
+          //console.log(res.data.hits);
           let api= res.data.hits[0];
-          console.log(api._meta.url);
+          //console.log(api._meta.url);
           this.loadSwaggerUI(api._meta.url);
+          this.data = true;
         }).catch(err=>{
           throw err;
-          this.failed = true;
         });
       },
       updated: function(){
-        $('.opblock-summary-method').addClass('red');
+
       }
   });
 
