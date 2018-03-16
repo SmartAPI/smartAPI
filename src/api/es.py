@@ -148,14 +148,19 @@ class ESQuery():
 
     def get_api(self, api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
         if api_name == 'all':
-            query = {'query': {"match_all": {}}}
+            query = {'query': {"bool": {"must_not": {"term":{"_meta._archived": "true"}}}}}
         else:
             query = {
                 "query": {
-                    "match": {
-                        "_id": {
-                            "query": api_name
-                        }
+                    "bool": {
+                        "must": {
+                            "match": {
+                                "_id": {
+                                    "query": api_name
+                                }
+                            }
+                        },
+                        "must_not": {"term": {"_meta._archived": "true"}}
                     }
                 }
             }
@@ -247,17 +252,17 @@ class ESQuery():
                 #     }
                 # }
 
-        if filters:
-            query = {
-                "query": {
-                    "bool": {
-                        "must": query["query"],
-                        "filter": {
-                            "terms": filters
-                        }
-                    }
+        query = {
+            "query": {
+                "bool": {
+                    "must": query["query"],
+                    "must_not": {"term":{"_meta._archived": "true"}}
                 }
             }
+        }
+
+        if filters:
+            query["query"]["bool"]["filter"] = {"terms": filters}        
 
         if not fields or fields == 'all':
             pass
@@ -289,6 +294,11 @@ class ESQuery():
 
     def _do_aggregations(self, _field, agg_name, size):
         query = {
+            "query": {
+                "bool": {
+                    "must_not": {"term":{"_meta._archived": "true"}}
+                }
+            },
             "aggs": {
                 agg_name: {
                     "terms": {
@@ -317,6 +327,29 @@ class ESQuery():
         """delete a saved API metadata, be careful with the deletion."""
         if ask("Are you sure to delete this API metadata?") == 'Y':
             print(self._es.delete(index=self._index, doc_type=self._doc_type, id=id))
+
+    def archive_api(self, id, user):
+        """ function to set an _archive flag for an API, making it
+        unsearchable from the front end, takes an id identifying the API, 
+        and a user that must match the APIs creator. """
+        # does the api exist?
+        try:
+            _doc = self._es.get(index=self._index, doc_type=self._doc_type, id=id, _source=['_meta'])
+        except:
+            _doc = None
+        if not _doc:
+            return (404, {"success": False, "error": "Could not retrieve API '{}' to delete".format(id)})
+        # is the api unarchived?
+        if _doc.get('_source', {}).get('_meta',{}).get('_archived', False):
+            return (405, {"success": False, "error": "API '{}' already deleted".format(id)})
+        # is this user the owner of this api?
+        _user = user.get('login', None)
+        if _doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
+            return (405, {"success": False, "error": "User '{user}' is not the owner of API '{id}'".format(user=_user, id=id)})
+        # do the archive
+        self._es.update(index=self._index, doc_type=self._doc_type, id=id, body={"doc":{"_meta":{"_archived": "true"}}})
+
+        return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
     def fetch_all(self, as_list=False, id_list=[]):
         """return a generator of all docs from the ES index.

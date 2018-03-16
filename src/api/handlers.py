@@ -10,7 +10,7 @@ import yaml
 
 from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
-
+import config
 
 class BaseHandler(tornado.web.RequestHandler):
     def return_json(self, data):
@@ -22,7 +22,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def support_cors(self, *args, **kwargs):
         '''Provide server side support for CORS request.'''
         self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.set_header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS")
         self.set_header("Access-Control-Allow-Headers",
                         "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
         self.set_header("Access-Control-Allow-Credentials", "false")
@@ -38,7 +38,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return json.loads(user_json)
 
 
-class QueryHanlder(BaseHandler):
+class QueryHandler(BaseHandler):
     def get(self):
         q = self.get_argument('q', None)
         if not q:
@@ -107,7 +107,7 @@ class APIHandler(BaseHandler):
         # check if a logged in user
         user = self.get_current_user()
         if not user:
-            res = {'success': False, 'error': 'Authenicate first with your github account.'}
+            res = {'success': False, 'error': 'Authenticate first with your github account.'}
             self.set_status(401)
             self.return_json(res)
         else:
@@ -174,6 +174,22 @@ class APIMetaDataHandler(BaseHandler):
         res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
         self.return_json(res)
 
+    def delete(self, api_name):
+        '''delete API metadata for a matched api_name,
+           checks to see if current user matches the creating user.'''
+        # must be logged in first
+        user = self.get_current_user()
+        api_key = self.get_argument('api_key', None)        
+        if not user:
+            res = {'success': False, 'error': 'Authenticate first with your github account.'}
+            self.set_status(401)
+        elif api_key != config.API_KEY:
+            self.set_status(405)
+            res = {'success': False, 'error': 'Invalid API key.'}
+        else:
+            (status, res) = self.esq.archive_api(api_name, user)
+            self.set_status(status)
+        self.return_json(res)
 
 class ValueSuggestionHandler(BaseHandler):
     esq = ESQuery()
@@ -193,7 +209,7 @@ class ValueSuggestionHandler(BaseHandler):
 
 APP_LIST = [
     (r'/?', APIHandler),
-    (r'/query/?', QueryHanlder),
+    (r'/query/?', QueryHandler),
     (r'/validate/?', ValidateHandler),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),
