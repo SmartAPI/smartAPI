@@ -2,13 +2,13 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<main id="dashApp" style="height: 100%;" class="indexBackground padding20">
+<main id="dashApp" style="height: 100%; padding-top:20px;" class="indexBackground ">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
-  <div v-if="!userInfo.name" class="padding20 card-panel red center-align">
-    <h3 class="text_h3 white-text">
+  <div v-if="!userInfo.name" class="padding20 card-panel white center-align">
+    <h5 class="text_h3 blue-grey-text-text">
       You Must Be Signed In To Use Your Dashboard
-    </h3>
-    <a href="/oauth" class="btn green"> 
+    </h5>
+    <a href="/oauth" class="btn green">
       Login
     </a>
   </div>
@@ -51,18 +51,18 @@
           <div class="col s12">
             <ul class="tabs blue-grey">
               <li class="tab col s3 blue-grey darken-1">
-                <a class="white-text textShadow" href="#contributions">
+                <a class="white-text textShadow " href="#contributions" style="font-size:10px;">
                   API List ({{total}})
                 </a>
               </li>
               <li class="tab col s3 blue-grey darken-2">
-                <a class="white-text textShadow" href="#etensions">
-                  SmartAPI Extensions
+                <a class="white-text textShadow" href="#extensions" style="font-size:10px;">
+                  Extensions
                 </a>
               </li>
               <li class="tab col s3 blue-grey darken-3">
-                <a class="white-text textShadow" href="#about">
-                  About SmartAPI
+                <a class="white-text textShadow" href="#about" style="font-size:10px;">
+                  About
                 </a>
               </li>
             </ul>
@@ -112,11 +112,11 @@
                       <a class="btn red white-text" href="" @click="reloadAPIs()">Error? Reload APIs</a>
                     </td>
                   </tr>
-                  
+
                 </tbody>
               </table>
           </div>
-          <div id="etensions" class="col s12 card-panel ">
+          <div id="extensions" class="col s12 card-panel ">
             <div class="card-panel white">
               <h3 class="text_h3 blue-text">SmartAPI Extensions</h3>
             <p>
@@ -180,13 +180,13 @@
   <!-- Modal for Deletion Confirmation -->
   <div id="modal1" class="modal center-align">
     <div class="modal-content">
-      <h4 class="text_h3 blue-text">Delete <b>{{ confirmModal.title }}</b>?</h4>
-      <div class="card-panel deep-orange accent-2">
-        <i class="material-icons medium amber-text">warning</i>
-        <p class="white-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
+      <h5 class="blue-text">Delete <b>{{ confirmModal.title }}</b>?</h5>
+      <div class="white padding20">
+        <i class="material-icons small amber-text">warning</i>
+        <p class="red-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
         <input @change="getAPIName(confirmModal.title, $event)" :placeholder="confirmModal.title" type="text" class="validate browser-default" style="outline: none; padding: 10px; width: 70%;">
-        <hr>
-        <a href='#!' :disabled="confirmDelete" @click="deleteForever(confirmModal.title, confirmModal.id)" class="amber btn modal-action modal-close">Delete API</a>
+        <hr/>
+        <a href='#!' :disabled="confirmDelete" @click="deleteForever(confirmModal.title, confirmModal.id)" class=" deep-orange darken-2 btn modal-action modal-close">Delete API</a>
       </div>
       <hr>
       <a href="#!" class="btn blue modal-action modal-close">Cancel</a>
@@ -195,7 +195,7 @@
   <!-- delete Modal end -->
   <!-- Details Modal -->
   <div id="modal2" class="modal center-align">
-    <div class="modal-content"> 
+    <div class="modal-content">
       <ul class="collection with-header" style="border: none;">
         <li class="collection-header padding20">
           <h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4>
@@ -316,7 +316,7 @@
             //     throw err;
             //   });
               // testing version
-            axios.get("http://smart-api.info/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
+            axios.get("/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
                   //console.log(response.data.hits);
                   self.apis = response.data.hits;
                   self.total = response.data.total;
@@ -334,7 +334,7 @@
           deleteForever: function(title, apiID){
             // ID for api to be deleted forever
             //console.log(id+' deleted TEST');
-            
+
             // axios.delete('/api/metadata/', { data: { 'id': apiID } }).then(response=>{
             //   //sucessful deletion
             //   Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
@@ -358,8 +358,8 @@
           },
           convertDate: function(timestamp){
             var date = new Date(timestamp);
-            var formattedTime = date.getFullYear()+'-' 
-            + (date.getMonth()+1) 
+            var formattedTime = date.getFullYear()+'-'
+            + (date.getMonth()+1)
             + '-'+date.getDate()
             + ' @ '+date.getHours()
             + ':'+date.getMinutes();
@@ -389,7 +389,7 @@
             }
             else{
               this.confirmDelete = true;
-              Materialize.toast(input+' Does Not Match API Name', 4000,'rounded red white-text');
+              Materialize.toast(input+' Does Not Match API Name', 4000,'rounded orange white-text');
             }
           }
         },
