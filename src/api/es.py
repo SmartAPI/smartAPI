@@ -408,6 +408,48 @@ class ESQuery():
             self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
         print("Done.")
 
+    def refresh_one_api(self, _id, user, dryrun=True):
+        ''' refresh one API metadata based on the saved metadata url '''
+        print("Refreshing API metadata:")
+        try:
+            api_doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id)
+        except:
+            return (404, {"success": False, "error": "Could not retrieve API '{}' to delete".format(_id)})
+        api_doc['_source'].update({'_id': api_doc['_id']})
+        _user = user.get('login', None)
+        if api_doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
+            return (405, {"success": False, "error": "User '{user}' is not the owner of API '{id}'".format(user=_user, id=_id)})
+        status = self._refresh_one(api_doc=api_doc['_source'], dryrun=dryrun)
+        print("="*25)
+        if dryrun:
+            print("This is a dryrun! No actual changes have been made.")
+            print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
+        if status.get('success', False):
+            print("Success.")
+            return (200, status)
+        else:
+            print("Failed.")
+            return (405, status)
+
+    def _refresh_one(self, api_doc, dryrun=True):
+        ''' refresh one API metadata based on the saved metadata url
+            api_doc is the metadata document from ES '''
+        _id = api_doc['_id']
+        _meta = api_doc['_meta']
+        print("\t{}...".format(_id), end='')
+        new_api_doc = get_api_metadata_by_url(_meta['url'])
+        if new_api_doc and isinstance(new_api_doc, dict):
+            if new_api_doc.get('success', None) is False:
+                status = new_api_doc
+            else:
+                _meta['timestamp'] = datetime.now().isoformat()
+                new_api_doc['_meta'] = _meta
+                status = self.save_api(new_api_doc, overwrite=True, dryrun=dryrun)
+        else:
+            status = {'success': False, 'error': 'Invalid input data.'}
+
+        return status 
+
     def refresh_all(self, id_list=[], dryrun=True, return_status=False):
         '''refresh API metadata based on the saved metadata urls.'''
         success_cnt = 0
@@ -416,20 +458,7 @@ class ESQuery():
             status_li = []
         print("Refreshing API metadata:")
         for api_doc in self.fetch_all(id_list=id_list):
-            _id = api_doc['_id']
-            _meta = api_doc['_meta']
-            print("\t{}...".format(_id), end='')
-            new_api_doc = get_api_metadata_by_url(_meta['url'])
-            if new_api_doc and isinstance(new_api_doc, dict):
-                if new_api_doc.get('success', None) is False:
-                    status = new_api_doc
-                else:
-                    _meta['timestamp'] = datetime.now().isoformat()
-                    new_api_doc['_meta'] = _meta
-                    status = self.save_api(new_api_doc, overwrite=True, dryrun=dryrun)
-            else:
-                status = {'success': False, 'error': 'Invalid input data.'}
-
+            status = self._refresh_one(api_doc, dryrun=dryrun)
             if status.get('success', False):
                 print("Success.")
                 success_cnt += 1

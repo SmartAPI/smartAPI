@@ -174,6 +174,25 @@ class APIMetaDataHandler(BaseHandler):
         res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
         self.return_json(res)
 
+    def put(self, api_name):
+        ''' refresh API metadata for a matched api_name,
+            checks to see if current user matches the creating user.'''
+        dryrun = self.get_argument('dryrun', '').lower()
+        dryrun = dryrun in ['on', '1', 'true']
+        #api_key = self.get_argument('api_key', None)        
+        # must be logged in first
+        user = self.get_current_user()
+        if not user:
+            res = {'success': False, 'error': 'Authenticate first with your github account.'}
+            self.set_status(401)
+        #elif api_key != config.API_KEY:
+        #    self.set_status(405)
+        #    res = {'success': False, 'error': 'Invalid API key.'}
+        else:
+            (status, res) = self.esq.refresh_one_api(_id=api_name, user=user, dryrun=dryrun)
+            self.set_status(status)
+        self.return_json(res)
+
     def delete(self, api_name):
         '''delete API metadata for a matched api_name,
            checks to see if current user matches the creating user.'''
@@ -206,6 +225,18 @@ class ValueSuggestionHandler(BaseHandler):
             res = {'error': 'missing required "field" parameter'}
         self.return_json(res)
 
+class GitWebhookHandler(BaseHandler):
+    pass
+#class GitWebhookHandler(BaseHandler):
+#    esq = ESQuery()
+#
+#    def post(self):
+#        data = tornado.escape.json_decode(self.request.body)
+#        if data:
+#            repository_full_name = data.get('repository', {}).get('full_name', '')
+#            prefix = 'https://raw.githubusercontent.com'
+#            urls = []
+#            for commit_obj in data.get("commits", []):
 
 APP_LIST = [
     (r'/?', APIHandler),
@@ -213,4 +244,5 @@ APP_LIST = [
     (r'/validate/?', ValidateHandler),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),
+    #(r'/webhook_payload/?', GitWebhookHandler),
 ]
