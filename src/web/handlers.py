@@ -157,7 +157,7 @@ class DashboardHandler(BaseHandler):
         dashboard_output = dashboard_template.render()
         self.write(dashboard_output)
 
-class SmartAPIUIHandler(BaseHandler):
+class SwaggerUIHandler(BaseHandler):
     def get(self, yourApiID):
         doc_file = "smartapi-ui.html"
         dashboard_template = templateEnv.get_template(doc_file)
@@ -174,5 +174,5 @@ APP_LIST = [
     (r"/registry/?", RegistryHandler),
     (r"/documentation/?", DocumentationHandler),
     (r"/dashboard/?", DashboardHandler),
-    (r"/ui/(.+)/?", SmartAPIUIHandler)
+    (r"/ui/(.+)/?", SwaggerUIHandler)
 ]

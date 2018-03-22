@@ -95,7 +95,7 @@
                         <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
                       </a> -->
                       <!-- refresh button global component -->
-                      <refresh :refresh='refreshingThis' :title='api.info.title'></refresh>
+                      <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
                     </td>
                     <td class="center-align">
                       <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn scale-in-center red white-text modal-trigger" style="cursor: pointer;">
@@ -251,7 +251,7 @@
       }
     },
     // declare the props
-    props: ['refresh', 'title'],
+    props: ['refresh', 'title', 'id'],
     // like data, the prop can be used inside templates and
     // is also made available in the vm as this.message
     methods:{
@@ -280,7 +280,7 @@
     mounted: function(){
       // mounted logic
     },
-    template: `<a :disabled='currentlyRefreshing' @click="refresh(title); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
+    template: `<a :disabled='currentlyRefreshing' @click="refresh(title,id); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
                 <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
               </a>`
   })
@@ -345,9 +345,12 @@
 
             Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
           },
-          refreshingThis: function(title){
+          refreshingThis: function(title, id){
             var self = this;
-            Materialize.toast(title+' was Refreshed!', 4000,'rounded green white-text');
+            axios.put('/api/metadata/'+id).then(res=>{
+
+            }).catch()
+            Materialize.toast(id+' was Refreshed!', 4000,'rounded green white-text');
             //Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
           },
           getDetails: function(fullApiInfo, meta){
@@ -358,9 +361,9 @@
           },
           convertDate: function(timestamp){
             var date = new Date(timestamp);
-            var formattedTime = date.getFullYear()+'-'
-            + (date.getMonth()+1)
-            + '-'+date.getDate()
+            var formattedTime = (date.getMonth()+1)+'-'
+            + date.getDate()
+            + '-'+date.getFullYear()
             + ' @ '+date.getHours()
             + ':'+date.getMinutes();
 
