@@ -7,6 +7,9 @@ import tornado.options
 import tornado.web
 import tornado.escape
 import yaml
+import re
+import hashlib
+import hmac
 
 from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
@@ -225,18 +228,47 @@ class ValueSuggestionHandler(BaseHandler):
             res = {'error': 'missing required "field" parameter'}
         self.return_json(res)
 
+
 class GitWebhookHandler(BaseHandler):
-    pass
-#class GitWebhookHandler(BaseHandler):
-#    esq = ESQuery()
-#
-#    def post(self):
-#        data = tornado.escape.json_decode(self.request.body)
-#        if data:
-#            repository_full_name = data.get('repository', {}).get('full_name', '')
-#            prefix = 'https://raw.githubusercontent.com'
-#            urls = []
-#            for commit_obj in data.get("commits", []):
+    esq = ESQuery()
+
+    def post(self):
+        # do message authentication
+        digest_obj = hmac.new(key=config.API_KEY.encode(), msg=self.request.body, digestmod=hashlib.sha1)
+        if not hmac.compare_digest('sha1=' + digest_obj.hexdigest(), self.request.headers.get('X-Hub-Signature', '')):
+            self.set_status(405)
+            self.return_json({'success': False, 'error': 'Invalid authentication'})
+            return
+        data = tornado.escape.json_decode(self.request.body)
+        # get repository owner name
+        repo_owner = data.get('repository', {}).get('owner', {}).get('name', None)
+        if not repo_owner:
+            self.set_status(405)
+            self.return_json({'success': False, 'error': 'Cannot get repository owner'})
+            return
+        # get repo name
+        repo_name = data.get('repository', {}).get('name', None)
+        if not repo_name:
+            self.set_status(405)
+            self.return_json({'success': False, 'error': 'Cannot get repository name'})
+            return
+        # find all modified files in all commits
+        modified_files = set()
+        for commit_obj in data.get('commits', []):
+            for fi in commit_obj.get('added', []):
+                modified_files.add(fi)
+            for fi in commit_obj.get('modified', []):
+                modified_files.add(fi)
+        # build query
+        _query = {"query": {"bool": {"should": [
+            {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)), 
+            "max_determinized_states": 200000}}} for fi in modified_files]}}}
+        # get list of ids that need to be refreshed
+        ids_refresh = [x['_id'] for x in self.esq.fetch_all(query=_query)]
+        # if there are any ids to refresh, do it
+        if ids_refresh:
+            self.esq.refresh_all(id_list=ids_refresh, dryrun=False)
+
 
 APP_LIST = [
     (r'/?', APIHandler),
@@ -244,5 +276,5 @@ APP_LIST = [
     (r'/validate/?', ValidateHandler),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),
-    #(r'/webhook_payload/?', GitWebhookHandler),
+    (r'/webhook_payload/?', GitWebhookHandler),
 ]

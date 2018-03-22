@@ -351,16 +351,19 @@ class ESQuery():
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
-    def fetch_all(self, as_list=False, id_list=[]):
+    def fetch_all(self, as_list=False, id_list=[], query={}):
         """return a generator of all docs from the ES index.
             return a list instead if as_list is True.
-            if id_list is passed, it returns only docs from the given ids.
+            if query is passed, it returns docs that match the query.
+            else if id_list is passed, it returns only docs from the given ids.
         """
-        if id_list:
-            query = {"query": {"ids": {"type": ES_DOC_TYPE, "values": id_list}}}
+        if query:
+            _query = query
+        elif id_list:
+            _query = {"query": {"ids": {"type": ES_DOC_TYPE, "values": id_list}}}
         else:
-            query = {"query": {"match_all": {}}}
-        scan_res = helpers.scan(client=self._es, query=query,
+            _query = {"query": {"match_all": {}}}
+        scan_res = helpers.scan(client=self._es, query=_query,
                                 index=self._index, doc_type=self._doc_type)
 
         def _fn(x):
