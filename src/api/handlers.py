@@ -7,10 +7,13 @@ import tornado.options
 import tornado.web
 import tornado.escape
 import yaml
+import re
+import hashlib
+import hmac
 
 from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
-
+import config
 
 class BaseHandler(tornado.web.RequestHandler):
     def return_json(self, data):
@@ -22,7 +25,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def support_cors(self, *args, **kwargs):
         '''Provide server side support for CORS request.'''
         self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.set_header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS")
         self.set_header("Access-Control-Allow-Headers",
                         "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
         self.set_header("Access-Control-Allow-Credentials", "false")
@@ -38,7 +41,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return json.loads(user_json)
 
 
-class QueryHanlder(BaseHandler):
+class QueryHandler(BaseHandler):
     def get(self):
         q = self.get_argument('q', None)
         if not q:
@@ -107,7 +110,7 @@ class APIHandler(BaseHandler):
         # check if a logged in user
         user = self.get_current_user()
         if not user:
-            res = {'success': False, 'error': 'Authenicate first with your github account.'}
+            res = {'success': False, 'error': 'Authenticate first with your github account.'}
             self.set_status(401)
             self.return_json(res)
         else:
@@ -174,6 +177,41 @@ class APIMetaDataHandler(BaseHandler):
         res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
         self.return_json(res)
 
+    def put(self, api_name):
+        ''' refresh API metadata for a matched api_name,
+            checks to see if current user matches the creating user.'''
+        dryrun = self.get_argument('dryrun', '').lower()
+        dryrun = dryrun in ['on', '1', 'true']
+        #api_key = self.get_argument('api_key', None)        
+        # must be logged in first
+        user = self.get_current_user()
+        if not user:
+            res = {'success': False, 'error': 'Authenticate first with your github account.'}
+            self.set_status(401)
+        #elif api_key != config.API_KEY:
+        #    self.set_status(405)
+        #    res = {'success': False, 'error': 'Invalid API key.'}
+        else:
+            (status, res) = self.esq.refresh_one_api(_id=api_name, user=user, dryrun=dryrun)
+            self.set_status(status)
+        self.return_json(res)
+
+    def delete(self, api_name):
+        '''delete API metadata for a matched api_name,
+           checks to see if current user matches the creating user.'''
+        # must be logged in first
+        user = self.get_current_user()
+        api_key = self.get_argument('api_key', None)        
+        if not user:
+            res = {'success': False, 'error': 'Authenticate first with your github account.'}
+            self.set_status(401)
+        elif api_key != config.API_KEY:
+            self.set_status(405)
+            res = {'success': False, 'error': 'Invalid API key.'}
+        else:
+            (status, res) = self.esq.archive_api(api_name, user)
+            self.set_status(status)
+        self.return_json(res)
 
 class ValueSuggestionHandler(BaseHandler):
     esq = ESQuery()
@@ -191,10 +229,52 @@ class ValueSuggestionHandler(BaseHandler):
         self.return_json(res)
 
 
+class GitWebhookHandler(BaseHandler):
+    esq = ESQuery()
+
+    def post(self):
+        # do message authentication
+        digest_obj = hmac.new(key=config.API_KEY.encode(), msg=self.request.body, digestmod=hashlib.sha1)
+        if not hmac.compare_digest('sha1=' + digest_obj.hexdigest(), self.request.headers.get('X-Hub-Signature', '')):
+            self.set_status(405)
+            self.return_json({'success': False, 'error': 'Invalid authentication'})
+            return
+        data = tornado.escape.json_decode(self.request.body)
+        # get repository owner name
+        repo_owner = data.get('repository', {}).get('owner', {}).get('name', None)
+        if not repo_owner:
+            self.set_status(405)
+            self.return_json({'success': False, 'error': 'Cannot get repository owner'})
+            return
+        # get repo name
+        repo_name = data.get('repository', {}).get('name', None)
+        if not repo_name:
+            self.set_status(405)
+            self.return_json({'success': False, 'error': 'Cannot get repository name'})
+            return
+        # find all modified files in all commits
+        modified_files = set()
+        for commit_obj in data.get('commits', []):
+            for fi in commit_obj.get('added', []):
+                modified_files.add(fi)
+            for fi in commit_obj.get('modified', []):
+                modified_files.add(fi)
+        # build query
+        _query = {"query": {"bool": {"should": [
+            {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)), 
+            "max_determinized_states": 200000}}} for fi in modified_files]}}}
+        # get list of ids that need to be refreshed
+        ids_refresh = [x['_id'] for x in self.esq.fetch_all(query=_query)]
+        # if there are any ids to refresh, do it
+        if ids_refresh:
+            self.esq.refresh_all(id_list=ids_refresh, dryrun=False)
+
+
 APP_LIST = [
     (r'/?', APIHandler),
-    (r'/query/?', QueryHanlder),
+    (r'/query/?', QueryHandler),
     (r'/validate/?', ValidateHandler),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),
+    (r'/webhook_payload/?', GitWebhookHandler),
 ]
