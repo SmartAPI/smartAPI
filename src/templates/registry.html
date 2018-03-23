@@ -11,7 +11,6 @@ mark{
     color: black;
 }
 
-
 </style>
 {% endblock %}
 
@@ -63,13 +62,13 @@ mark{
           </div>
     </div>
     <main>
-    <div id="app" style="height: 100%;">
+    <div id="app" style="height: 100%;" class="white">
         <div class="side-nav" id="filters">
             <div class="row">
                 <div class="col s12">
                     <h5>Tags</h5>
-                    <div class="collection blue-text">
-                        <a v-for="tag in tags" href="#!" class="collection-item blue-text" :class="{ active: tag.active }" @click.prevent="tag.active = !tag.active">
+                    <div class="collection">
+                        <a v-for="tag in tags" href="#!" class="collection-item blue-grey-text" :class="{ active: 'tag.active' }" @click.prevent="tag.active = !tag.active">
                          >{{tag.name}}&nbsp;({{tag.count}})
                         </a>
                     </div>
@@ -80,7 +79,7 @@ mark{
             <div class="col l2 hide-on-med-and-down sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a v-for="tag in tags" href="#!" class="collection-item blue-text smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;<span class="l-blue-text">({{tag.count}})</span></a>
                 </div>
             </div>
             <div class="col l10 s12">
@@ -88,12 +87,12 @@ mark{
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                         <div class="input-field col s12 l6 offset-l3">
                             <i class="material-icons prefix blue-text">search</i>
-                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
+                            <input style="background-color: white; border-radius: 5px; padding:5px; color: #307FC1;" aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
                             <label for="search_query"></label>
                         </div>
                         <div class="col s12 selected-tags">
                             <div class="chip" v-for="tag in tags" v-if="tag.active">
-                                {{tag.name}}
+                                <i class="fa fa-tag blue-text" aria-hidden="true"></i>  {{tag.name}}
                                 <i class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
                         </div>
@@ -356,7 +355,7 @@ mark{
                         axios.get('/api/query?size=100', params).then(function (response) {
                             self.loading_end();
                             self.apis = response.data.hits;
-                            console.log(self.apis);
+                            //console.log(self.apis);
                             self.total = response.data.total;
 
                             self.calculatePages();

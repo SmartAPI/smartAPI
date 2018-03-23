@@ -2,15 +2,17 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<main id="docapp" class="blue-grey indexBackground"  style="height: 100%;">
+<main id="docapp" class="blue-grey testBack"  style="height: 100%;">
 
   <!-- start of INTRO -->
   <div v-if="!selection" class="center-align padding20">
-    <div class=" transparent padding20">
+    <div class=" transparent padding20 mainBack">
         <a class="hideOnSmall" target="_blank" href="https://www.openapis.org/">
-            <img class="responsive-img roundPhotoLink hoverable hideOnSmall" src="/static/img/openapi-logo.png" alt="openAPI v3">
+          <object width="20%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
+          <object width="20%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
+          <object width="30%"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
         </a>
-        <h5 class="white-text tracking-in-expand flow-text textShadow">
+        <h5 class="white-text  flow-text textShadow">
             <b>SmartAPI</b> and <b>OpenAPI</b>
         </h5>
         <a class="btn blue" @click='showInfo'>Learn More</a>
@@ -64,10 +66,10 @@
             </div>
         </div>
 </div>
-<div class="card-panel green">
+<div class="card-panel blue-grey">
     <h4 class="white-text flow-text">ADD YOUR API</h4>
     <br>
-    <a class="clearButton" @click="select('start')">
+    <a class="btn green" @click="select('start')">
         START HERE
     </a>
 </div>

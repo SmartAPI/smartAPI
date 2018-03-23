@@ -1,7 +1,7 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
-<main id="regApp" class="indexBackground row">
+<main id="regApp" class="testBack row" style="margin: 0;">
   <div class="col s12 l4 padding20">
     <div class="arrow_box center-align padding20" style="border-radius: 10px;">
       <h5 class="white-text">Before You Submit</h5>
@@ -26,10 +26,10 @@
     </div>
   </div>
   <div class="section no-pad-bot single_section container col l8 s12" style="margin-bottom: 10% !important; margin-top: 10%;">
-    <div id="submitBox" class="container center-align white hoverable padding20">
+    <div id="submitBox" class="container center-align white hoverable padding20" style="border-radius: 10px;">
       <h3 class="header center blue-grey-text">Register your API metadata</h3>
         <form id="apireg_form">
-            <i class="material-icons prefix">link</i>
+            <!-- <i class="material-icons prefix">link</i> -->
             <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
             <br>
             <input type="checkbox" id="dry_run" name="dryrun"/>

@@ -1,0 +1,27 @@
+<svg  version="1.1" id="editIcon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 60 60" style="enable-background:new 0 0 60 60;" xml:space="preserve">
+  <style type="text/css">
+    .st0box{fill:#AAE1F9;stroke-width:5;}
+    .st1Lbox{fill:#2F81C1;stroke-width:5;}
+    .editIconCode{fill:none;stroke:#AAE1F9;stroke-width:1;stroke-linecap:round;stroke-miterlimit:10;}
+  </style>
+  <g>
+    <path class="st0box" d="M55,5v50H5V5H55 M56,4H4v52h52V4L56,4z"/>
+  </g>
+  <g>
+    <path class="st1Lbox" d="M52,16v36H39V16H52 M53,15H38v38h15V15L53,15z"/>
+  </g>
+  <g>
+    <path class="st1Lbox" d="M35,16v36H8V16H35 M36,15H7v38h29V15L36,15z"/>
+  </g>
+  <g>
+    <path class="st1Lbox" d="M52,8v5H8V8H52 M53,7H7v7h46V7L53,7z"/>
+  </g>
+  <line class="editIconCode" x1="10.5" y1="18.5" x2="30.5" y2="18.5"/>
+  <line class="editIconCode" x1="13.5" y1="21.5" x2="22.5" y2="21.5"/>
+  <line class="editIconCode" x1="13.5" y1="24.5" x2="25.5" y2="24.5"/>
+  <line class="editIconCode" x1="13.5" y1="27.5" x2="30.5" y2="27.5"/>
+  <line class="editIconCode" x1="10.5" y1="30.5" x2="30.5" y2="30.5"/>
+  <line class="editIconCode" x1="14.5" y1="33.5" x2="23.5" y2="33.5"/>
+  <line class="editIconCode" x1="14.5" y1="36.5" x2="25.5" y2="36.5"/>
+  <line class="editIconCode" x1="10.5" y1="39.5" x2="30.5" y2="39.5"/>
+</svg>

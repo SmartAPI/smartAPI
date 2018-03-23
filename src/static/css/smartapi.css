@@ -762,6 +762,32 @@ background: linear-gradient(to bottom, rgba(255,255,255,1) 0%,rgba(246,246,246,1
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
 }
 
+.themeBack{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#273238+0,e4f2fc+100 */
+background: rgb(39,50,56); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(39,50,56,1) 0%, rgba(228,242,252,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(39,50,56,1) 0%,rgba(228,242,252,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(39,50,56,1) 0%,rgba(228,242,252,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#273238', endColorstr='#e4f2fc',GradientType=0 ); /* IE6-9 */
+}
+
+.testBack{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#2b85bc+0,273238+57 */
+background: rgb(43,133,188); /* Old browsers */
+background: -moz-linear-gradient(45deg, rgba(43,133,188,1) 0%, rgba(39,50,56,1) 57%); /* FF3.6-15 */
+background: -webkit-linear-gradient(45deg, rgba(43,133,188,1) 0%,rgba(39,50,56,1) 57%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(45deg, rgba(43,133,188,1) 0%,rgba(39,50,56,1) 57%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', endColorstr='#273238',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
+
+.whiteTransBack{
+  background-color: rgba(255,255,255,.8);
+}
+
+.blue-text{
+  color: #3883BE !important;
+}
+
 .flexDad{
   display: flex;
   flex-wrap: wrap;
@@ -775,40 +801,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
   font-size: 1em;
 }
 
-.indexBackground{
-  background-color: #323232;
-  background-image: url('../img/mountain.jpg');
+.mainBack{
+  background-color: #CFEEFB;
+  background-image: url('../img/net-pattern.svg');
   background-repeat: no-repeat;
-  background-size: cover;
-  background-position: 0px 0px;
-  position: relative;
-  width: 100% !important;
-  margin:0 auto;
-  background-attachment: fixed;
-}
-
-.indexBackgroundAnimated{
-  background-color: #323232;
-  background-image: url('../img/mountain.jpg');
-  background-repeat: no-repeat;
-  background-size: 100%;
-  background-position: center;
-  position: relative;
-  width: 100% !important;
-  margin:0 auto;
-  background-attachment: fixed;
-    transition:background-size  10s linear;
-    -moz-transition:background-size  10s linear;
-    -o-transition:background-size 10s linear;
-    transition:background-size  10s linear;
-}
-
-.indexBackgroundAnimated:focus{
-  background-color: #323232;
-  background-image: url('../img/mountain.jpg');
-  background-repeat: no-repeat;
-  background-size: 150%;
-  background-position: center;
+  background-size:contain;
+  background-position: top left;
   position: relative;
   width: 100% !important;
   margin:0 auto;
@@ -860,7 +858,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
 
 
 .indexChild{
-  background-color: rgba(4, 75, 123,.4);
+  background-color: transparent;
   position: absolute;
   top: 50%; left: 50%;
   transform: translate(-50%,-50%);
@@ -929,7 +927,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', end
   background-color: rgba(255,255,255,.1);
   margin-top: 10px;
   padding: 5px;
-  border: dotted white 2px;
+  border: solid white 2px;
   border-radius: 10px;
   text-decoration: none;
   color: white;
@@ -1002,7 +1000,7 @@ h1, h2 , h3, h4 ,h5{
   padding: 0px;
   box-sizing: border-box;
   margin:5px;
-  border: 2px #29A6C8 solid;
+  border: 2px #B9E6F8 solid;
 }
 
 #navPhotoLink{
@@ -1308,14 +1306,6 @@ body {
      padding-bottom: 0px;
    }
 
-   .tri-right{
-     background-image: url('../img/tri-right.png');
-     background-repeat: repeat-y;
-     background-position: right top;
-     background-size: 50px;
-     background-attachment: scroll;
-   }
-
    .dna-right{
      background-image: url('../img/dna-right.png');
      background-repeat: repeat-y;
@@ -1323,19 +1313,11 @@ body {
      background-attachment: fixed;
    }
 
-   .tri-left{
-     background-image: url('../img/tri-left.png');
-     background-repeat: repeat-y;
-     background-position: left top;
-     background-size: 50px;
-     background-attachment: scroll;
-   }
-
    .clearButtonBlue{
      background-color: rgba(34, 163, 227, .1);
      margin-top: 10px;
      padding: 5px;
-     border: dotted #338DC5 2px;
+     border: solid #338DC5 2px;
      border-radius: 10px;
      text-decoration: none;
      color: #338DC5;

@@ -2,9 +2,16 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<main id="dashApp" style="height: 100%; padding-top:20px;" class="indexBackground ">
+<style>
+
+.tabs .indicator{
+  background: #328CC4;
+}
+
+</style>
+<main id="dashApp" style="height: 100%; padding-top:20px;" class="testBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
-  <div v-if="!userInfo.name" class="padding20 card-panel white center-align">
+  <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
     <h5 class="text_h3 blue-grey-text-text">
       You Must Be Signed In To Use Your Dashboard
     </h5>
@@ -13,19 +20,23 @@
     </a>
   </div>
   <!-- IF USERINFO DISPLAY DASHBOARD -->
-  <div v-if="userInfo.name" class="row" style="margin-bottom: 0; width: 100%;">
+  <div v-if="userInfo.login" class="row" style="margin-bottom: 0; width: 100%;">
       <div class="col s12 m4 l3 xl3 transparent">
         <ul class="collection" style="border: none;">
-          <li class="collection-item center-align transparent" >
-            <img id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
+          <li class="collection-item center-align transparent" style="border-bottom: none;">
+            <img v-if="userInfo.avatar_url" id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
+            <img v-else id="dashboardPhoto" width="70%" src="/static/img/user-default.png" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
           </li>
-          <li class="collection-item center-align white-text padding20 blue" >
-            <h5 class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.name.split(" ")[0] }}!</h5>
+          <li class="collection-item center-align white-text padding20 blue" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
+
+            <h5 v-if="userInfo.name" class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.name.split(" ")[0] }}!</h5>
+            <h5 v-else class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.login }}!</h5>
+            <!-- <h5 class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.name.split(" ")[0] }}!</h5> -->
             <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
           </li>
           <li class="collection-item blue-grey-text">
             <!-- <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p> -->
-            <table class="table lighter" style="font-size: 1.5em;">
+            <table class="table lighter" style="font-size: 1em;">
               <thead>
                 <th class="center-align lighter">
                   CONTRIBUTIONS
@@ -49,25 +60,25 @@
         <!-- <h5 class="text_h3 white-text tracking-in-expand textShadow">MY DASHBOARD</h5> -->
         <div class="row">
           <div class="col s12">
-            <ul class="tabs blue-grey">
-              <li class="tab col s3 blue-grey darken-1">
+            <ul class="tabs transparent">
+              <li class="tab col s3 transparent">
                 <a class="white-text textShadow " href="#contributions" style="font-size:10px;">
-                  API List ({{total}})
+                  API List <span class="l-blue-text">({{total}})</span>
                 </a>
               </li>
-              <li class="tab col s3 blue-grey darken-2">
+              <li class="tab col s3 transparent">
                 <a class="white-text textShadow" href="#extensions" style="font-size:10px;">
                   Extensions
                 </a>
               </li>
-              <li class="tab col s3 blue-grey darken-3">
+              <li class="tab col s3 transparent">
                 <a class="white-text textShadow" href="#about" style="font-size:10px;">
                   About
                 </a>
               </li>
             </ul>
           </div>
-          <div id="contributions" class="col s12 card-panel">
+          <div id="contributions" class="col s12 card-panel white">
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text">
@@ -118,7 +129,7 @@
           </div>
           <div id="extensions" class="col s12 card-panel ">
             <div class="card-panel white">
-              <h3 class="text_h3 blue-text">SmartAPI Extensions</h3>
+              <h3 class="text_h3 blue-text flow-text">SmartAPI Extensions</h3>
             <p>
                 SmartAPI specific elements automatically generated from <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">parent document</a>.
             </p>
@@ -134,11 +145,11 @@
           </div>
           </div>
           <div id="about" class="col s12 card-panel center-align blue-text">
-              <h2 class="text_h2">SmartAPI</h2>
+              <h2 class="text_h2 flow-text">SmartAPI</h2>
               <i class="material-icons medium blue-text">info</i>
               <p>Version 1.2</p>
               <div class="card-panel">
-                <h3 class="text_h3 blue-text">SmartAPI Links:</h3>
+                <h3 class="text_h3 blue-text flow-text">SmartAPI Links:</h3>
                 <div class="row flexDad">
                   <div class="card-panel col s12 m6 l3 blue center-align flexKid">
                     <a href="https://github.com/SmartAPI/smartAPI" class="white-text">
@@ -167,7 +178,7 @@
                 </div>
             </div>
             <div class="card-panel">
-              <h2 class="text_h2 blue-text">Contact</h2>
+              <h2 class="text_h2 blue-text flow-text">Contact</h2>
               <a href="mailto:" class="">
               <i class="material-icons medium blue-text">mail</i>
               <br>
@@ -316,7 +327,7 @@
             //     throw err;
             //   });
               // testing version
-            axios.get("/api/query?size=100&q=_meta.github_username:newgene").then(function(response){
+            axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login).then(function(response){
                   //console.log(response.data.hits);
                   self.apis = response.data.hits;
                   self.total = response.data.total;
@@ -348,9 +359,11 @@
           refreshingThis: function(title, id){
             var self = this;
             axios.put('/api/metadata/'+id).then(res=>{
+              Materialize.toast(title+' was Refreshed!', 4000,'rounded green white-text');
+            }).catch(err=>{
+              Materialize.toast(title+' failed to refresh', 4000,'rounded red white-text');
+            })
 
-            }).catch()
-            Materialize.toast(id+' was Refreshed!', 4000,'rounded green white-text');
             //Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
           },
           getDetails: function(fullApiInfo, meta){
@@ -376,7 +389,7 @@
             var self= this;
             axios.get('/user').then(response=>{
               // console.log('user data');
-              // console.log(response.data);
+              //console.log(response.data);
               self.userInfo = response.data;
               self.getApis();
 
