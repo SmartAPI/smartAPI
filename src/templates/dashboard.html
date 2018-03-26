@@ -24,18 +24,22 @@
       <div class="col s12 m4 l3 xl3 transparent">
         <ul class="collection" style="border: none;">
           <li class="collection-item center-align transparent" style="border-bottom: none;">
-            <img v-if="userInfo.avatar_url" id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
+            <img v-if="userInfo.avatar_url" id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall hide-on-med-and-down" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
             <img v-else id="dashboardPhoto" width="70%" src="/static/img/user-default.png" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
           </li>
           <li class="collection-item center-align white-text padding20 blue" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
-
+            <img v-if="userInfo.avatar_url" width="30%" :src="userInfo.avatar_url" class="show-on-medium-and-down hide-on-med-and-up circle" alt="user image" style="margin: 0 auto; border: 3px solid white;">
             <h5 v-if="userInfo.name" class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.name.split(" ")[0] }}!</h5>
             <h5 v-else class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.login }}!</h5>
             <!-- <h5 class="text_h3 white-text textShadow swing-in-top-fwd">Hello, {{ userInfo.name.split(" ")[0] }}!</h5> -->
             <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
           </li>
-          <li class="collection-item blue-grey-text">
-            <!-- <p>CONTRIBUTIONS<span class="chip secondary-content badge blue white-text">{{total}} APIs</span></p> -->
+          <!--  -->
+          <li class="collection-item center-align blue-grey darken-4 white-text show-on-small hide-on-med-and-up">
+            <span class="logoFont blue-grey-text">SmartAPI</span><br />CONTRIBUTIONS <span class="l-blue-text">({{ total+") API's" }}</span>
+          </li>
+          <!--  -->
+          <li class="collection-item blue-grey-text hide-on-small-only">
             <table class="table lighter" style="font-size: 1em;">
               <thead>
                 <th class="center-align lighter">
@@ -51,7 +55,7 @@
               </tbody>
             </table>
           </li>
-          <li class="collection-item center-align">
+          <li class="collection-item center-align hide-on-small-only">
             <a href="/logout" class="btn red smallFont">Log Out</a>
           </li>
         </ul>
@@ -66,7 +70,7 @@
                   API List <span class="l-blue-text">({{total}})</span>
                 </a>
               </li>
-              <li class="tab col s3 transparent">
+              <!-- <li class="tab col s3 transparent">
                 <a class="white-text textShadow" href="#extensions" style="font-size:10px;">
                   Extensions
                 </a>
@@ -75,18 +79,18 @@
                 <a class="white-text textShadow" href="#about" style="font-size:10px;">
                   About
                 </a>
-              </li>
+              </li> -->
             </ul>
           </div>
           <div id="contributions" class="col s12 card-panel white">
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text">
-                      <th class="lighter">API Name</th>
+                      <th class="lighter smallFont">API Name</th>
                       <!-- <th class="hideOnSmall">Description</th> -->
-                      <th class="center-align lighter">Last Updated</th>
-                      <th class="center-align lighter">Refresh</th>
-                      <th class="center-align lighter">Delete</th>
+                      <th class="center-align lighter smallFont">Last Updated</th>
+                      <th class="center-align lighter smallFont">Refresh</th>
+                      <th class="center-align lighter smallFont">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -127,7 +131,7 @@
                 </tbody>
               </table>
           </div>
-          <div id="extensions" class="col s12 card-panel ">
+          <!-- <div id="extensions" class="col s12 card-panel ">
             <div class="card-panel white">
               <h3 class="text_h3 blue-text flow-text">SmartAPI Extensions</h3>
             <p>
@@ -184,7 +188,8 @@
               <br>
               Email Us</a>
             </div>
-          </div>
+          </div> -->
+
         </div>
     </div>
   </div>
