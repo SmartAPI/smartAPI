@@ -233,6 +233,7 @@
         data: function(){
           return {
             userInfo:{},
+            apiKey:'G93U24vcjrZReaRNfZ7qz1Y3Ltd941TL',
             confirmModal:{
               title:'',
               id:''
@@ -276,16 +277,16 @@
           deleteForever: function(title, apiID){
             // ID for api to be deleted forever
             //console.log(id+' deleted TEST');
+            var self = this;
 
-            // axios.delete('/api/metadata/', { data: { 'id': apiID } }).then(response=>{
-            //   //sucessful deletion
-            //   Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
-            // }).catch(error=>{
-            //   //error deleting
-            //   Materialize.toast(title+' was Deleted!', 4000,'rounded amber black-text');
-            // });
+            axios.delete('/api/metadata/'+apiID+'?api_key='+self.apiKey).then(response=>{
+              //sucessful deletion
+              Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
+            }).catch(error=>{
+              //error deleting
+              Materialize.toast("Failed to delete "+title, 4000,'rounded amber black-text');
+            });
 
-            Materialize.toast(title+' was Deleted!', 4000,'rounded red white-text');
           },
           refreshingThis: function(title, id){
             var self = this;
