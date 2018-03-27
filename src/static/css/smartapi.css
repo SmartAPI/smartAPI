@@ -813,6 +813,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', end
   background-attachment: fixed;
 }
 
+.dashboardBack{
+  background-image: url('/static/img/net.svg');
+  background-repeat: no-repeat; 
+  background-position: right bottom;
+  background-size: cover;
+}
+
 @keyframes animatedBackground {
     0% { background-position: 0 0; }
     100% { background-position:300px 0; }

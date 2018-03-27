@@ -122,12 +122,12 @@ mark{
                                 <br />
                                 <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                             </div>
-                            <div class="card-action">
+                            <div class="card-action grey lighten-5">
                                 <a class="green-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
                                    show details
                                 </a>
                             </div>
-                            <div class="card-content" v-if="api.showDetails == true">
+                            <div class="card-content grey lighten-5" v-if="api.showDetails == true">
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>version:</strong> {{api.info.version}}<br>
@@ -248,29 +248,29 @@ mark{
                   //toggle show/hide text on details link per card
                   let text = $(event.target).text().trim().toLowerCase();
                   if(text === 'show details'){
-                    event.target.text = 'hide details';
+                    event.target.innerHTML = 'hide details';
                   }
-                  else{
-                    event.target.text = 'show details';
+                  else if(text === 'hide details'){
+                    event.target.innerHTML = 'show details';
                   }
                 },
                 operationStyling: function(op){
                   //styles operations based on type
                   switch( op.substr(0,3) ){
                         case 'GET' :
-                          return 'light-blue lighten-4 operation';
+                          return 'light-blue white-text operation';
                           break;
                         case 'POS' :
-                          return 'light-green accent-1 operation';
+                          return 'light-green accent-4 white-text operation';
                           break;
                         case 'PUT' :
-                          return 'yellow accent-1 operation';
+                          return 'yellow lighten-1 operation';
                           break;
                         case 'DEL' :
-                            return 'deep-orange lighten-4 operation';
+                            return 'deep-orange accent-3 white-text operation';
                             break;
                         default:
-                           return 'grey lighten-3 operation'
+                           return 'grey darken-1 white-text operation'
                             break;
                   }
                 },

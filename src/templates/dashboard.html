@@ -9,7 +9,7 @@
 }
 
 </style>
-<main id="dashApp" style="height: 100%; padding-top:20px;" class="testBack">
+<main id="dashApp" style="height: 100%; padding-top:20px;" class="blue-grey darken-3 dashboardBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
     <h5 class="text_h3 blue-grey-text-text">
@@ -70,16 +70,7 @@
                   API List <span class="l-blue-text">({{total}})</span>
                 </a>
               </li>
-              <!-- <li class="tab col s3 transparent">
-                <a class="white-text textShadow" href="#extensions" style="font-size:10px;">
-                  Extensions
-                </a>
-              </li>
-              <li class="tab col s3 transparent">
-                <a class="white-text textShadow" href="#about" style="font-size:10px;">
-                  About
-                </a>
-              </li> -->
+
             </ul>
           </div>
           <div id="contributions" class="col s12 card-panel white">
@@ -99,16 +90,10 @@
                     <td>
                        <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                     </td>
-                    <!-- <td class="tableTextOverflow hideOnSmall" style="max-width: 100px; overflow: hidden;">
-                      <p class="tableTextOverflow">{{ api.info.description }}</p>
-                    </td> -->
                     <td class="center-align">
                       <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
-                      <!-- <a @click="refreshingThis(api.info.title)" class="green btn" style="cursor: pointer;">
-                        <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
-                      </a> -->
                       <!-- refresh button global component -->
                       <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
                     </td>
@@ -131,65 +116,6 @@
                 </tbody>
               </table>
           </div>
-          <!-- <div id="extensions" class="col s12 card-panel ">
-            <div class="card-panel white">
-              <h3 class="text_h3 blue-text flow-text">SmartAPI Extensions</h3>
-            <p>
-                SmartAPI specific elements automatically generated from <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">parent document</a>.
-            </p>
-            <p>
-                Most of the SmartAPI extensions are optional, but a few are REQUIRED, for example:
-                <br>
-                <code>info.termOfService</code><br>
-                <code>info.contact.x-role</code><br>
-                <code>info.version</code><br>
-                For a full list of REQUIRED extensions refer to the recommendations column of the document here:
-            </p>
-            <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">SmartAPI Extensions</a>
-          </div>
-          </div>
-          <div id="about" class="col s12 card-panel center-align blue-text">
-              <h2 class="text_h2 flow-text">SmartAPI</h2>
-              <i class="material-icons medium blue-text">info</i>
-              <p>Version 1.2</p>
-              <div class="card-panel">
-                <h3 class="text_h3 blue-text flow-text">SmartAPI Links:</h3>
-                <div class="row flexDad">
-                  <div class="card-panel col s12 m6 l3 blue center-align flexKid">
-                    <a href="https://github.com/SmartAPI/smartAPI" class="white-text">
-                    <i class="material-icons medium white-text">folder</i>
-                    <br>
-                    SmartAPI Repository</a>
-                  </div>
-                  <div class="card-panel col s12 m6 l3 blue center-align flexKid">
-                    <a href="https://github.com/SmartAPI/smartAPI-Specification" class="white-text">
-                    <i class="material-icons medium white-text">extension</i>
-                    <br>
-                    SmartAPI Specification</a>
-                  </div>
-                  <div class="card-panel col s12 m6 l3 blue center-align flexKid">
-                    <a href="smartAPI-editor" class="white-text">
-                    <i class="material-icons medium white-text">edit</i>
-                    <br>
-                    SmartAPI Editor</a>
-                  </div>
-                  <div class="card-panel col s12 m6 l3 blue center-align flexKid">
-                    <a href="https://github.com/SmartAPI/smartapi_registry" class="white-text">
-                    <i class="material-icons medium white-text">dehaze</i>
-                    <br>
-                    SmartAPI Registry</a>
-                  </div>
-                </div>
-            </div>
-            <div class="card-panel">
-              <h2 class="text_h2 blue-text flow-text">Contact</h2>
-              <a href="mailto:" class="">
-              <i class="material-icons medium blue-text">mail</i>
-              <br>
-              Email Us</a>
-            </div>
-          </div> -->
-
         </div>
     </div>
   </div>

@@ -6,19 +6,20 @@
 
   <!-- start of INTRO -->
   <div v-if="!selection" class="center-align padding20">
-    <div class=" transparent padding20 mainBack">
+    <div class=" transparent padding20 dashboardBack">
         <a class="hideOnSmall" target="_blank" href="https://www.openapis.org/">
           <object width="20%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
           <object width="20%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
           <object width="30%"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
         </a>
         <h5 class="white-text  flow-text textShadow">
-            <b>SmartAPI</b> and <b>OpenAPI</b>
+            <b class="logoFont">SmartAPI</b> and <b>OpenAPI</b>
         </h5>
         <a class="btn blue" @click='showInfo'>Learn More</a>
 
         <div class="flexGuideDad" id="learnMoreBlock" style="display: none; margin-top: 15px;">
             <div class="flexGuideKid white">
+                <object width="100px" data="/static/img/openapi-logo.png" class="circle"></object>
                 <h4 class="flow-text">What is OpenAPI?</h4>
                 <p class="blue-grey-text left-align">
                     The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI)
@@ -35,9 +36,10 @@
                     vision of a truly connected world.
                 </p>
                 <hr>
-                <a class="btn green" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
+                <a class="btn blue" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
             </div>
             <div class="flexGuideKid light-blue lighten-5">
+              <object width="100px" data="/static/img/logo-medium.svg" class="circle"></object>
                 <h4 class="flow-text">What is SmartAPI?</h4>
                 <p class="blue-grey-text left-align">
                   The smartAPI project aims to maximize the FAIRness (Findability, Accessibility,
@@ -48,9 +50,10 @@
                   semantically annotated JSON content that can be treated as Linked Data.
                 </p>
                 <hr>
-                <a class="btn green" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification">SmartAPI Specification</a>
+                <a class="btn blue" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification">SmartAPI Specification</a>
             </div>
             <div class="flexGuideKid white">
+                <object width="100px" data="/static/img/swagger-logo.jpeg" class="circle"></object>
                 <h4 class="flow-text">What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?</h4>
                 <p class="blue-grey-text left-align">
                     SmartBear donated the Swagger Specification in 2015 as part of the formation of the OpenAPI
