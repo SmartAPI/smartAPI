@@ -292,6 +292,7 @@
             var self = this;
             axios.put('/api/metadata/'+id).then(res=>{
               Materialize.toast(title+' was Refreshed!', 4000,'rounded green white-text');
+              self.reloadAPIs();
             }).catch(err=>{
               Materialize.toast(title+' failed to refresh', 4000,'rounded red white-text');
             })
