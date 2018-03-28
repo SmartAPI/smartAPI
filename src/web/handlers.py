@@ -174,5 +174,5 @@ APP_LIST = [
     (r"/registry/?", RegistryHandler),
     (r"/documentation/?", DocumentationHandler),
     (r"/dashboard/?", DashboardHandler),
-    (r"/ui/(.+)/?", SwaggerUIHandler)
+    (r"/api-ui/(.+)/?", SwaggerUIHandler)
 ]
