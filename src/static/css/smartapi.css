@@ -815,7 +815,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', end
 
 .dashboardBack{
   background-image: url('/static/img/net.svg');
-  background-repeat: no-repeat; 
+  background-repeat: no-repeat;
   background-position: right bottom;
   background-size: cover;
 }
@@ -921,6 +921,13 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', end
   background-color: #90a4ae;
 }
 
+.margin10{
+  margin:10px !important;
+}
+
+.margin20{
+  margin:20px !important;
+}
 
 .topic{
   background-color: #627D8A;
@@ -944,10 +951,10 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', end
 }
 
 .clearButton:hover{
-  background-color: rgba(255,255,255,.2);
+  background-color: rgba(15, 55, 83, 0.7);
   margin-top: 10px;
   padding: 5px;
-  border: solid white 2px;
+  border: solid #b3e5fc 2px;
   border-radius: 10px;
   text-decoration: none;
   color: white;
@@ -1113,7 +1120,7 @@ body {
  }
 
  .shine, .chrome {
-  font-size: 3em;
+  font-size: 2em;
   margin: 0 auto;
   margin-bottom: 1em;
 }
@@ -1314,33 +1321,34 @@ body {
    }
 
    .dna-right{
-     background-image: url('../img/dna-right.png');
+     background-image: url('../img/dna.svg');
+     background-size: 100px;
      background-repeat: repeat-y;
      background-position: right top;
      background-attachment: fixed;
    }
 
    .clearButtonBlue{
-     background-color: rgba(34, 163, 227, .1);
+     background-color: rgba(15, 55, 83, 0.7);
      margin-top: 10px;
      padding: 5px;
      border: solid #338DC5 2px;
      border-radius: 10px;
      text-decoration: none;
-     color: #338DC5;
+     color: #b3e5fc;
      font-size: 1.5em;
      font-weight: lighter;
      font-variant: small-caps;
    }
 
    .clearButtonBlue:hover{
-     background-color: rgba(34, 163, 227, .4);
+     background-color: rgba(15, 55, 83, 1);
      margin-top: 10px;
      padding: 5px;
      border: solid #338DC5 2px;
      border-radius: 10px;
      text-decoration: none;
-     color: #338DC5;
+     color: white;
      font-size: 1.5em;
      font-weight: lighter;
      font-variant: small-caps;

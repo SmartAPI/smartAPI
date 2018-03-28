@@ -3,32 +3,30 @@
 {% include "header.html" %}
 <main>
 <div class="section no-pad-bot mainBack blue lighten-5" id="index-banner">
-    <!-- <div class="scanChild1"></div>
-    <div class="scanChild2"></div> -->
     <div class="center-align indexChild">
         <object width="60%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
         <object width="40%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
         <object width="100%"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
-        <h1  class="blue-grey-text logoFont lighter hide-on-small-only" style="margin:5px;">Smart<span class="blue-text">API</span></h1>
-        <h3 class="logoFont blue-text lighter show-on-small hide-on-med-and-up">SmartAPI</h3>
+        <h3  class="blue-grey-text logoFont lighter hide-on-small-only" style="margin:5px;">Smart<span class="blue-text">API</span></h3>
+        <h3 class="logoFont blue-text lighter show-on-small hide-on-med-and-up margin10">SmartAPI</h3>
         <hr/>
         <h5 class=" blue-text hide-on-small-only" style="font-weight: 100;">BUILDING A CONNECTED NETWORK OF FAIR APIS</h5>
-        <p class="hide-on-med-only hide-on-large-only show-on-small  blue-text">
+        <h5 class="hide-on-med-only hide-on-large-only show-on-small blue-text">
           BUILDING A CONNECTED NETWORK OF FAIR APIS
-        </p>
+        </h5>
     </div>
 </div>
 
 <!-- new to SmartAPI-->
 <div class="whiteBack" style="overflow: hidden;">
-  <div class="row coolCont dna-right">
+  <div class="row coolCont dna-right" style="margin-bottom: 0px;">
     <div class="col l12 blue-text padding20 center-align coolText1" style="cursor: pointer;">
-      <h5 class="shine flow-text hideOnMedium hideOnSmall lighter">New to <span class="logoFont">SmartAPI</span>?</h5>
-      <h5 class="flow-text grey-text hideOnLarge">NEW TO SMARTAPI?</h5>
-      <i class="fa fa-hand-pointer-o blue-grey-text hideOnLarge fa-2x heartbeat" aria-hidden="true"></i>
+      <h5 class="shine hideOnMedium hideOnSmall ">New to <span class="logoFont">SmartAPI</span>?</h5>
+      <h5 class="grey-text hideOnLarge">New to <b class="blue-text logoFont">SmartAPI</b>?</h5>
+      <i class="fa fa-hand-pointer-o blue-text hideOnLarge fa-2x heartbeat" aria-hidden="true"></i>
     </div>
     <div class="col l12 grey-text padding20 center-align coolText1">
-        <p style="text-transform: uppercase;" class="lighter">
+        <p style="text-transform: uppercase; font-size:1em;" >
           Follow this step-by-step guide to help you contribute to SmartAPI for the first time
         </p>
         <a class="clearButtonBlue" href="/documentation">Start Here</a>
@@ -39,87 +37,88 @@
 <div style="display: none;" id="intro1" class="section scrollspy" style="padding-bottom:0px !important;">
     <div class="container">
         <div class="row">
-            <div class="col l4">
+            <div class="col l4 m4">
               <object data="/static/img/network.svg" id="whatIs"></object>
             </div>
-            <div class="col l8">
-                  <h2 class="center header text_h2 flow-text">What is a <span class="logoFont blue-grey-text">SmartAPI</span>?</h2>
-                  <p class="intro-tex blue-grey-text lighter">
+            <div class="col l8 m8">
+                  <h2 class="center hide-on-small-onlyter header text_h2 flow-text hide-on-small-only">What is a <span class="logoFont blue-grey-text">SmartAPI</span>?</h2>
+                  <!-- content for small screen only -->
+                  <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
+                      <img width='40%' class="responsive-img" src="/static/img/logo-medium.svg">
+                  </div>
+                  <h3 class="center hide-on-med-and-up show-on-small">What is a <span class="logoFont blue-grey-text">Smart<span class="blue-text">API</span></span>?</h3>
+                  <p class="intro-tex blue-grey-text">
                       The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a <a href="http://openapis.org" target="_blank"></a>openAPI-based <a href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" target="_blank"> specification</a> for defining the key API metadata elements and value sets. SmartAPI's leverage the <a href="https://www.openapis.org/" target="_blank">Open API specification v3 </a> and <a href="http://json-ld.org" target="_blank">JSON-LD</a> for providing semantically annotated JSON content that can be treated as <a href="http://linkeddata.org/" target="_blank">Linked Data</a>.
                   </p>
             </div>
         </div>
 </div>
 
-<div class="section hide-on-med-and-up divWithImage" style="background-image: url('static/img/graph.png'); ">
-  <!-- Image break on small screen -->
-</div>
-
 <div style="display: none; margin-bottom:0px;" id="topicsBox" class="row blue-grey">
 
     <div class="col s12 m6 l4 center-align padding20 topic" id="registryBox">
         <a href="/registry" >
-            <object width="70px" data="/static/img/search.svg" id="registryIcon"></object>
+            <object class="margin10" width="70px" data="/static/img/search.svg" id="registryIcon"></object>
             <br>
-            <h5 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text flow-text">Registry</h5>
+            <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Registry</h4>
             <span class="clearButton hide-on-small-only">Registry</span>
         </a>
-        <p class="white-text" style="font-weight: lighter;">
+        <p class="l-blue-text" style="font-weight: lighter;">
             Search the registry of SmartAPIs
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="editBox">
         <a target="_blank" href="http://smart-api.info/editor-oa3/" >
-              <object width="70px" data="/static/img/edit.svg" id="editIcon"></object>
+              <object class="margin10" width="70px" data="/static/img/edit.svg" id="editIcon"></object>
             <br>
-            <h5 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text flow-text">Editor</h5>
+            <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Editor</h4>
             <span class="clearButton hide-on-small-only">Editor</span>
        </a>
-        <p class="white-text" style="font-weight: lighter;">
+        <p class="l-blue-text" style="font-weight: lighter;">
             Author your own SmartAPI metadata
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="apiBox">
         <a href="https://github.com/SmartAPI" target="_blank" >
-            <object width="70px" data="/static/img/api.svg" id="apiIcon"></object>
+            <object class="margin10" width="70px" data="/static/img/api.svg" id="apiIcon"></object>
             <br>
-            <h5 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text flow-text">API</h5>
+            <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">API</h4>
             <span class="clearButton hide-on-small-only">API</span>
        </a>
-        <p class="white-text" style="font-weight: lighter;">
+        <p class="l-blue-text" style="font-weight: lighter;">
             Learn about and access the SmartAPI services
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="specBox">
         <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" >
-            <object width="70px" data="/static/img/spec.svg" id="specIcon"></object>
+            <object class="margin10" width="70px" data="/static/img/spec.svg" id="specIcon"></object>
             <br>
-            <h5 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text flow-text">Specification</h5>
+            <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Specification</h4>
             <span class="clearButton hide-on-small-only">Specification</span>
        </a>
-        <p class="white-text" style="font-weight: lighter;">
+        <p class="l-blue-text" style="font-weight: lighter;">
             SmartAPI metadata specification to start your API
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="guideBox">
         <a href="/documentation" >
-            <object width="70px" data="/static/img/guide.svg" id="guideIcon"></object>
+            <object class="margin10" width="70px" data="/static/img/guide.svg" id="guideIcon"></object>
             <br>
-            <h5 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text flow-text">Guide</h5>
+            <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Guide</h4>
             <span class="clearButton hide-on-small-only">Guide</span>
        </a>
-        <p class="white-text" style="font-weight: lighter;">
+        <p class="l-blue-text" style="font-weight: lighter;">
             Contribute to SmartAPI for the first time
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="groupBox">
         <a href="https://goo.gl/D4e0xL" target="_blank">
-            <object width="70px" data="/static/img/group.svg" id="groupIcon"></object>
+            <object class="margin10" width="70px" data="/static/img/group.svg" id="groupIcon"></object>
             <br>
-            <h5 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text flow-text">Working Group</h5>
+            <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Working Group</h4>
             <span class="clearButton hide-on-small-only">Working Group</span>
         </a>
-        <p class="white-text" style="font-weight: lighter;">
+        <p class="l-blue-text" style="font-weight: lighter;">
             Join the API Interoperability working group
         </p>
     </div>
@@ -129,14 +128,19 @@
 <div style="display: none;" class="section scrollspy" id="intro2">
     <div class="container">
         <div class="row">
-          <div class="col l8 s12">
-            <h2 class="center header blue-grey-text text_h2 flow-text">Why do we need <span class="logoFont">SmartAPI</span>s? </h2>
-            <p class="intro-text blue-grey-text lighter">
+          <div class="col l8 s12 m8">
+            <h2 class="center header blue-grey-text text_h2 flow-text hide-on-small-only">Why do we need <span class="logoFont">SmartAPI</span>s? </h2>
+            <!-- content for small screen only -->
+            <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
+                <img width='70%' class="responsive-img" src="/static/img/graph.png">
+            </div>
+            <h3 class="center hide-on-med-and-up show-on-small">Why do we need <span class="logoFont blue-grey-text">Smart<span class="blue-text">API</span></span>s?</h3>
+            <p class="intro-text blue-grey-text">
                 Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as <a href="http://www.programmableweb.com/" target="_blank">Programmable Web</a>, <a href="https://www.biocatalogue.org/" target="_blank">BioCatalogue</a> and cloud platforms such as <a href="https://galaxyproject.org/" target="_blank">Galaxy</a>. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.
             </p>
           </div>
-          <div class="col s12 l4 center-align padding20">
-            <img width='100%' class="responsive-img introPic hideOnMedium hideOnSmall circle" src="/static/img/graph.png">
+          <div class="col s12 l4 center-align padding20 hide-on-small-only m4">
+            <img width='100%' class="responsive-img introPic circle" src="/static/img/graph.png">
           </div>
         </div>
     </div>
@@ -146,12 +150,17 @@
 <div style="display: none;" class="section scrollspy" id="intro3">
     <div class="container">
       <div class="row">
-        <div class="col l4 s12 center-align padding20">
-            <img width='100%' class="responsive-img introPic hideOnMedium hideOnSmall circle" src="/static/img/strand.png">
+        <div class="col l4 s12 center-align padding20 hide-on-small-only m4">
+            <img width='100%' class="responsive-img introPic circle" src="/static/img/strand.png">
         </div>
-        <div class="col l8 s12">
-          <h2 class="center header blue-grey-text text_h2 flow-text"> What does the <span class="logoFont">SmartAPI</span> offer? </h2>
-          <p class="intro-text blue-grey-text lighter">
+        <div class="col l8 s12 m8">
+          <h2 class="center header blue-grey-text text_h2 flow-text hide-on-small-only"> What does the <span class="logoFont">SmartAPI</span> offer? </h2>
+          <!-- content for small screen only -->
+          <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
+              <img width='70%' class="responsive-img" src="/static/img/strand.png">
+          </div>
+          <h3 class="center hide-on-med-and-up show-on-small">What does the <span class="logoFont blue-grey-text">Smart<span class="blue-text">API</span></span> offer?</h3>
+          <p class="intro-text blue-grey-text">
             Richly annotated APIs will provide the assets by which users will be able to search, browse, query, and reuse APIs. Users and intelligent agents being able to traverse a highly connected network of smartAPIs. Users will be able to automatically find APIs whose outputs are the inputs for other services. Ultimately, we envision the automatic generation of workflows that take users to where they want to go with what they have today.
         </p>
         </div>
