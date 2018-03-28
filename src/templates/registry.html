@@ -214,28 +214,6 @@ mark{
                   total: 0,
                   apis: [],
                   tags:[],
-                  // tags: [{
-                  //     id: 'tag1',
-                  //     count: 1,
-                  //     active: false
-                  // }, {
-                  //     name: 'tag2',
-                  //     count: 1,
-                  //     active: false
-                  // }],
-                  // schemes: [{
-                  //     id: 'scheme1',
-                  //     active: false
-                  // }, {
-                  //     id: 'scheme2',
-                  //     active: false
-                  // }, {
-                  //     id: 'scheme3',
-                  //     active: false
-                  // }, {
-                  //     id: 'scheme4',
-                  //     active: false
-                  // }],
                   query: '',
                   page: 1,
                   pages: 1,
@@ -258,19 +236,28 @@ mark{
                   //styles operations based on type
                   switch( op.substr(0,3) ){
                         case 'GET' :
-                          return 'light-blue white-text operation';
+                          return 'bold blue-text operation';
                           break;
                         case 'POS' :
-                          return 'light-green accent-4 white-text operation';
+                          return 'bold green-text operation';
                           break;
                         case 'PUT' :
-                          return 'yellow lighten-1 operation';
+                          return 'bold amber-text operation';
                           break;
                         case 'DEL' :
-                            return 'deep-orange accent-3 white-text operation';
+                            return 'bold red-text operation';
+                            break;
+                        case 'HEA' :
+                            return 'bold deep-purple-text operation';
+                            break;
+                        case 'PAT' :
+                            return 'bold brown-text operation';
+                            break;
+                        case 'PAR' :
+                            return 'bold teal-text operation';
                             break;
                         default:
-                           return 'grey darken-1 white-text operation'
+                           return 'bold gray-text operation'
                             break;
                   }
                 },

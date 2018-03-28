@@ -202,6 +202,10 @@ footer.page-footer {
    margin-bottom: 0;
 }
 
+.bold{
+  font-weight: bold;
+}
+
 .sidebar {
    height: 100%;
    overflow-y: auto;
@@ -1413,10 +1417,6 @@ body {
 
   .operation{
     padding: 10px;
-    border-radius: 5px;
-    border:#e0e0e0 1px solid;
-    font-size: 12px;
-    color: #424242;
   }
 
   .versionBadge{
