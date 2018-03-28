@@ -159,10 +159,10 @@ class DashboardHandler(BaseHandler):
 
 class SwaggerUIHandler(BaseHandler):
     def get(self, yourApiID):
-        doc_file = "smartapi-ui.html"
-        dashboard_template = templateEnv.get_template(doc_file)
-        dashboard_output = dashboard_template.render(apiID = yourApiID )
-        self.write(dashboard_output)
+        swaggerUI_file = "smartapi-ui.html"
+        swagger_template = templateEnv.get_template(swaggerUI_file)
+        swagger_output = swagger_template.render(apiID = yourApiID )
+        self.write(swagger_output)
 
 APP_LIST = [
     (r"/", MainHandler),
