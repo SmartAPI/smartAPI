@@ -266,32 +266,31 @@
             var self = this;
             axios.delete('/api/metadata/'+apiID+'?api_key='+self.apiKey).then(response=>{
               //sucessful deletion
-              if( res.success ){
+              if( res.data.success ){
                 Materialize.toast(title+' was deleted!', 4000,'rounded green white-text');
-                self.getAPIs();
-              }else if( !res.success ){
+              }else if( !res.data.success ){
                 Materialize.toast('Failed to delete '+title, 4000,'rounded red white-text');
               }
             }).catch(error=>{
               //error deleting
-              throw(err);
+              throw(error);
             });
+            self.getApis();
 
           },
           refreshingThis: function(title, id){
             var self = this;
             axios.put('/api/metadata/'+id).then(res=>{
-              if( res.success ){
+              if( res.data.success ){
                 Materialize.toast(title+' was refreshed!', 4000,'rounded green white-text');
-                self.getAPIs();
-              }else if( !res.success ){
+              }else if( !res.data.success ){
                 Materialize.toast(title+' failed to refresh', 4000,'rounded red white-text');
               }
             }).catch(err=>{
               throw(err);
-            })
+            });
+            self.getApis();
 
-            //Materialize.toast(title+' Failed To Refresh', 4000,'rounded red white-text');
           },
           getDetails: function(fullApiInfo, meta){
             var self = this;
