@@ -2,6 +2,15 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
+<style>
+.transparentBlue{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3081c1+2,3081c1+39,3081c1+51,3081c1+60,3081c1+100&0+1,0.84+39,1+51,0.86+61,0+100 */
+background: -moz-linear-gradient(left, rgba(48,129,193,0) 1%, rgba(48,129,193,0.02) 2%, rgba(48,129,193,0.84) 39%, rgba(48,129,193,1) 51%, rgba(48,129,193,0.87) 60%, rgba(48,129,193,0.86) 61%, rgba(48,129,193,0) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(left, rgba(48,129,193,0) 1%,rgba(48,129,193,0.02) 2%,rgba(48,129,193,0.84) 39%,rgba(48,129,193,1) 51%,rgba(48,129,193,0.87) 60%,rgba(48,129,193,0.86) 61%,rgba(48,129,193,0) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to right, rgba(48,129,193,0) 1%,rgba(48,129,193,0.02) 2%,rgba(48,129,193,0.84) 39%,rgba(48,129,193,1) 51%,rgba(48,129,193,0.87) 60%,rgba(48,129,193,0.86) 61%,rgba(48,129,193,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', endColorstr='#003081c1',GradientType=1 ); /* IE6-9 */
+}
+</style>
 <main id="docapp" class="blue-grey testBack"  style="height: 100%;">
 
   <!-- start of INTRO -->
@@ -69,15 +78,15 @@
             </div>
         </div>
 </div>
-<div class="card-panel blue-grey">
-    <h4 class="white-text flow-text">ADD YOUR API</h4>
+<div class="card-panel transparentBlue">
+    <h4 class="white-text lighter">ADD YOUR API</h4>
     <br>
-    <a class="btn green" @click="select('start')">
+    <a class="clearButton" @click="select('start')">
         START HERE
     </a>
 </div>
 <div class="card-panel light-blue lighten-5">
-    <i class="material-icons blue-text large">extension</i>
+    <i class="material-icons blue-text medium">extension</i>
     <br>
     <h3 class="text_h3 blue-text tracking-in-expand flow-text">
         SmartAPI Extensions
@@ -113,7 +122,7 @@
 </div>
 <!-- Start of Guide -->
 <div v-if="selection === 'start' " class="center-align container padding20 row">
-    <div class="card-panel white">
+    <div class="card-panel white z-depth-5">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
              Do You Have <b>OpenAPI</b> Metadata?
         </h3>
@@ -133,7 +142,7 @@
 <!-- if YES ask for version -->
 <div v-if="selection === 'yes' " class="center-align container padding20" style="position: relative;">
     <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
-    <div class="card-panel white">
+    <div class="card-panel white z-depth-5">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
            Which Version Do You Have?
         </h3>
@@ -436,24 +445,24 @@
 
         <ul class="collection left-align">
             <li class="collection-item">
-                <div class="chip red white-text">1</div>
+                <div class="chip red white-text smallFont">1</div>
                                 Each API should create a separate folder to host its metadata.
                                 The folder "_example_api" provides a basic template for adding API metadata,
                                 so you can start with copying the "_example_api" folder and renaming it to your API name.
             </li>
             <li class="collection-item">
-                <div class="chip red white-text">2</div>
+                <div class="chip red white-text smallFont">2</div>
                                 Fill in the metadata about your API according to the instructions.
                                 Also, please refer to the existing examples like <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a>
                                 and <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a> APIs.
             </li>
             <li class="collection-item">
-                <div class="chip red white-text">3</div>
+                <div class="chip red white-text smallFont">3</div>
                                 Add an entry to the <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/API_LIST.yml">API_LIST.yml</a>
                                 file following the existing example. This is the master list of the APIs available in this repo.
                                 Our SmartAPI application will import all the API metadata based on this file.
             </li>
-            <li class="collection-item center-align">
+            <li class="collection-item center-align smallFont">
                 <p>Choose the appropiate project to host your metadata under:</p>
                 <div class="row">
                     <div class="s12 m6 l6 col">

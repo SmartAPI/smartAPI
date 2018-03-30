@@ -219,7 +219,7 @@
     mounted: function(){
       // mounted logic
     },
-    template: `<a :disabled='currentlyRefreshing' @click="refresh(title,id); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
+    template: `<a @mouseenter="$event.target.classList.add('pulse')" @mouseleave="$event.target.classList.remove('pulse')" :disabled='currentlyRefreshing' @click="refresh(title,id); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
                 <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
               </a>`
   })

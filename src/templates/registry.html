@@ -11,6 +11,14 @@ mark{
     color: black;
 }
 
+.link{
+  transition: all .5s;
+}
+
+.link:hover{
+  color: var(--blue-medium) !important;
+}
+
 </style>
 {% endblock %}
 
@@ -86,8 +94,8 @@ mark{
                 <div class="row">
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                         <div class="input-field col s12 l6 offset-l3">
-                            <i class="material-icons prefix blue-text">search</i>
-                            <input style="background-color: white; border-radius: 5px; padding:5px; color: #307FC1;" aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
+                            <i class="material-icons prefix grey-text">search</i>
+                            <input  aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
                             <label for="search_query"></label>
                         </div>
                         <div class="col s12 selected-tags">
@@ -116,11 +124,15 @@ mark{
                                   <span v-else-if=" api.hasOwnProperty('swagger') ">
                                     <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text blue">Swagger2</span>
                                   </span>
-
                                 </span>
                                 <br />
                                 <br />
-                                <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <p class="blue-grey-text smallFont" v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <div class="full-width">
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="tag.active = !tag.active;search(tag.name);" class="grey-text link" style="font-size: 9px; margin:3px; cursor: pointer;">
+                                    #{{tag.name}}
+                                  </a>
+                                </div>
                             </div>
                             <div class="card-action grey lighten-5">
                                 <a class="green-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
@@ -142,7 +154,7 @@ mark{
                                     </th>
                                   </thead>
                                     <tr v-for="(summary, operation) in getOperations(api)">
-                                      <td>
+                                      <td class="">
                                         <span :class="operationStyling(operation)">{{operation}}</span>
                                       </td>
                                       <td class="blue-grey-text smallFont">
@@ -151,7 +163,7 @@ mark{
                                     </tr>
                                 </table>
                                 <br />
-                                <a class="waves-effect waves-light btn green smallFont"
+                                <a class="waves-effect waves-light btn  light-blue darken-4 smallFont"
                                    v-bind:href='"/api-ui/"+api._id' >
                                    View API Doc
                                 </a>
@@ -323,6 +335,18 @@ mark{
                 clear_form: function(){
                     this.query = '';
                     this.refreshApis();
+                },
+                searchForTags: function(tagName){
+                  var self = this;
+                  for (var i = 0; i < self.tags.length; i++) {
+                    if (self.tags[i].name === tagName) {
+                      self.tags[i].active = !self.tags[i].active;
+                      self.search();
+                    }
+                    else{
+                      self.search();
+                    }
+                  }
                 },
                 search: function (query) {
                     var self = this;

@@ -3,12 +3,13 @@
 {% include "header.html" %}
 <main id="regApp" class="testBack row" style="margin: 0;">
   <div class="col s12 l4 padding20">
-    <div class="arrow_box center-align padding20" style="border-radius: 10px;">
+    <div class="arrow_box center-align padding20 z-depth-5 hide-on-small-only" style="border-radius: 10px;">
       <h5 class="white-text">Before You Submit</h5>
     </div>
-    <div class="center-align padding20">
+
+    <div class="center-align padding20 hide-on-small-only">
       <h5 class="white-text textShadow" style="font-weight: bolder;">DID YOU...</h5>
-      <ul id="beforeSubmitList" class="footerList textShadow" style="background-color: rgba(4, 75, 123,.6); display: none;">
+      <ul id="beforeSubmitList" class="footerList textShadow" style="background-color: rgba(0,0, 0,.6); display: none;">
         <li class="white-text padding20">
           <i class="material-icons cyan-text">check</i> Add the required <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">SmartAPI Extensions</a>?
         </li>
@@ -26,8 +27,9 @@
     </div>
   </div>
   <div class="section no-pad-bot single_section container col l8 s12" style="margin-bottom: 10% !important; margin-top: 10%;">
-    <div id="submitBox" class="container center-align white hoverable padding20" style="border-radius: 10px;">
-      <h3 class="header center blue-grey-text">Register your API metadata</h3>
+    <div id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
+      <object width="100px"  alt="SmartAPI" data="/static/img/owl-fly.gif" class=""></object>
+      <h3 class="header center blue-grey-text flow-text">Register your API metadata</h3>
         <form id="apireg_form">
             <!-- <i class="material-icons prefix">link</i> -->
             <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
@@ -36,6 +38,9 @@
             <label for="dry_run">Dry run only. API won't actually saved.</label></p>
             <button class="btn waves-effect waves-light red accent-2" onclick="javascript:this.form.reset()">Cancel</button>
             <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
+            <blockquote class="show-on-small hide-on-med-and-up padding20 grey-text">
+              Need Help? Use our guide <a href="/documentation" class="blue-text">HERE.</a> to help you through the process of adding an API.
+            </blockquote>
         </form>
       </div>
     </div>
