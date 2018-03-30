@@ -266,9 +266,9 @@
             var self = this;
             axios.delete('/api/metadata/'+apiID+'?api_key='+self.apiKey).then(response=>{
               //sucessful deletion
-              if( res.data.success ){
+              if( response.data.success ){
                 Materialize.toast(title+' was deleted!', 4000,'rounded green white-text');
-              }else if( !res.data.success ){
+              }else if( !response.data.success ){
                 Materialize.toast('Failed to delete '+title, 4000,'rounded red white-text');
               }
             }).catch(error=>{
