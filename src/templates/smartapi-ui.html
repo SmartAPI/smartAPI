@@ -2,10 +2,10 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
-<link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/>
-
+<!-- <link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/> -->
+<link type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/>
 <style>
-   h2.title span {
+  h2.title span {
    display: none !important;
  }
  h2.title{
@@ -24,7 +24,7 @@
 <main id="ui-app" class="indexBackground" style="width: 100%;">
   <div class="container white center-align padding20" style="margin-bottom: -50px; margin-top:20px;">
     <span class="hide-on-small-only show-on-medium-and-up">
-      <img width="15%" alt="SmartAPI" src="/static/img/logo-large.svg" class="" />
+      <img width="15%" alt="SmartAPI" src="/static/img/logo-large.svg" />
       <h4  class="blue-grey-text logoFont lighter" style="margin:5px;">Smart<span class="l-blue-text">API</span></h4>
     </span>
     <span class="show-on-small hide-on-med-and-up">
@@ -34,7 +34,7 @@
   </div>
   <div v-if="!data" class="white blue-text container center-align" style="padding: 200px 20px;">
     <p v-if="!data">
-      <object width="300px" data="/static/img/owl-fly.gif" id="whatIs"></object>
+      <object width="200px" data="/static/img/fly.gif" alt="loading"></object>
       <h2 class="title">Loading...</h2>
     </p>
   </div>

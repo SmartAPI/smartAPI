@@ -1,4 +1,14 @@
 /*MARCO CANO Additions*/
+:root{
+  --blue-light:#E4F2FC;
+  --blue-medium:#3F85BB;
+  --blue-dark:#273238;
+}
+/* Small side nav css */
+.side-nav{
+  background-color: var(--blue-light);
+}
+
 
 .title {
   background: -webkit-linear-gradient(var(--blue-dark), var(--blue-medium));
