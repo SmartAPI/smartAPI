@@ -4,14 +4,33 @@
 {% raw %}
 <style>
 .transparentBlue{
-  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3081c1+2,3081c1+39,3081c1+51,3081c1+60,3081c1+100&0+1,0.84+39,1+51,0.86+61,0+100 */
-background: -moz-linear-gradient(left, rgba(48,129,193,0) 1%, rgba(48,129,193,0.02) 2%, rgba(48,129,193,0.84) 39%, rgba(48,129,193,1) 51%, rgba(48,129,193,0.87) 60%, rgba(48,129,193,0.86) 61%, rgba(48,129,193,0) 100%); /* FF3.6-15 */
-background: -webkit-linear-gradient(left, rgba(48,129,193,0) 1%,rgba(48,129,193,0.02) 2%,rgba(48,129,193,0.84) 39%,rgba(48,129,193,1) 51%,rgba(48,129,193,0.87) 60%,rgba(48,129,193,0.86) 61%,rgba(48,129,193,0) 100%); /* Chrome10-25,Safari5.1-6 */
-background: linear-gradient(to right, rgba(48,129,193,0) 1%,rgba(48,129,193,0.02) 2%,rgba(48,129,193,0.84) 39%,rgba(48,129,193,1) 51%,rgba(48,129,193,0.87) 60%,rgba(48,129,193,0.86) 61%,rgba(48,129,193,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', endColorstr='#003081c1',GradientType=1 ); /* IE6-9 */
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3982bc+1,273238+100 */
+  background: rgb(57,130,188); /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(57,130,188,1) 1%, rgba(39,50,56,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(57,130,188,1) 1%,rgba(39,50,56,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(57,130,188,1) 1%,rgba(39,50,56,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3982bc', endColorstr='#273238',GradientType=0 ); /* IE6-9 */
+}
+.determinate{
+  transition: all 1s;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#7db9e8+0,7abaff+100&0+0,1+100 */
+  background: -moz-linear-gradient(left, rgba(125,185,232,0) 0%, rgba(122,186,255,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, rgba(125,185,232,0) 0%,rgba(122,186,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, rgba(125,185,232,0) 0%,rgba(122,186,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#007db9e8', endColorstr='#7abaff',GradientType=1 ); /* IE6-9 */
+  color: var(--blue-medium);
+  padding: 6px;
+  text-align: center;
 }
 </style>
 <main id="docapp" class="blue-grey testBack"  style="height: 100%;">
+
+
+<!-- PROGRESS BAR -->
+<div v-if="selection" class="progress padding20" style="background-color: var(--blue-medium);">
+    <div class="determinate light-blue lighten-4" :style="{width: progressText}" >{{progressText || '0%'}}</div>
+</div>
+<!-- PROGRESS BAR -->
 
   <!-- start of INTRO -->
   <div v-if="!selection" class="center-align padding20">
@@ -78,18 +97,17 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
             </div>
         </div>
 </div>
-<div class="card-panel transparentBlue">
+<div class="card-panel animatedBlue">
     <h4 class="white-text lighter">ADD YOUR API</h4>
     <br>
     <a class="clearButton" @click="select('start')">
         START HERE
     </a>
 </div>
-<div class="card-panel light-blue lighten-5">
-    <i class="material-icons blue-text medium">extension</i>
-    <br>
-    <h3 class="text_h3 blue-text tracking-in-expand flow-text">
-        SmartAPI Extensions
+<div class="card-panel grey lighten-4" >
+
+    <h3 class="blue-text flow-text">
+        <i class="material-icons blue-text">extension</i> SmartAPI Extensions
     </h3>
 
     <div class="card-panel white">
@@ -121,16 +139,18 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
 
 </div>
 <!-- Start of Guide -->
+
+
 <div v-if="selection === 'start' " class="center-align container padding20 row">
     <div class="card-panel white z-depth-5">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
              Do You Have <b>OpenAPI</b> Metadata?
         </h3>
-        <a class="waves-effect waves-light btn-large blue" @click="select('yes')">YES</a>
-        <a class="waves-effect waves-light btn-large red" @click="select('no')">NO</a>
+        <a class="btn-large blue" @click="select('yes'); setProgress(10);">YES</a>
+        <a class="btn-large red" @click="select('no'); setProgress(50);">NO</a>
     </div>
 
-    <div class="card-panel light-blue lighten-5">
+    <div class="card-panel grey lighten-4">
         <h3 class="text_h3 blue-text flow-text">
          Back to Introduction
      </h3>
@@ -140,16 +160,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
 
 </div>
 <!-- if YES ask for version -->
-<div v-if="selection === 'yes' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+<div v-if="selection === 'yes' "  class="center-align container padding20" style="position: relative;">
+    <a @click="select('start'); setProgress(-10)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
     <div class="card-panel white z-depth-5">
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
            Which Version Do You Have?
         </h3>
-        <a class="waves-effect waves-light btn-large blue" @click="select('2')">Version 2</a>
-        <a class="waves-effect waves-light btn-large green" @click="select('3')">Version 3</a>
+        <a class="waves-effect waves-light btn-large blue" @click="select('2'); setProgress(40);">Version 2</a>
+        <a class="waves-effect waves-light btn-large green" @click="select('3'); setProgress(40);">Version 3</a>
     </div>
-    <div class="card-panel light-blue lighten-5">
+    <div class="card-panel grey lighten-4">
         <h3 class="text_h3 blue-text flow-text">Don't Know Which Version You Have?</h3>
         <div class="row">
             <div class="card-panel white blue-text col s12 l6 padding20">
@@ -176,101 +196,84 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
     </div>
 </div>
 <!-- if NO start from scratch -->
-<div v-if="selection === 'no' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('start')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
-    <div class="card-panel white">
-        <img class="roundPhoto hideOnSmall" src="/static/img/guide3.png" width="100%" alt="start from scratch">
-        <h3 class="text_h3 blue-text tracking-in-expand flow-text">Start From Scratch</h3>
-    </div>
-    <div class="card-panel">
-        <ul class="collection">
-            <li class="collection-header blue white-text padding20">
-                <h4 class="text_h3 flow-text">INSTRUCTIONS</h4>
-            </li>
-            <!-- <li class="collection-item">
-                <i class="material-icons medium blue-text">create_new_folder</i>
+<!--  -->
+<div v-if="selection === 'no' "  class="center-align container padding20 white docBack" style="position: relative;">
+    <a @click="select('start'); setProgress(-40)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+    <div class="card-panel transparent ">
+        <h3 class="blue-grey-text tracking-in-expand flow-text">Start From Scratch</h3>
+        <ul class="collection transparent" style="border: none;">
+            <li class="collection-item transparent">
+                <object class="margin10" width="120px" data="/static/img/v0.svg" id="editIcon"></object>
                 <br>
-              <h3 class="text_h3 blue-text">Host Your Metadata</h3>
-              <p>
-                  Decide where you want to host your metadata: On your own Github account or you may <a href="#hostingforNo">host your metadata on our Github account</a>.
-              </p>
-            </li> -->
-            <li class="collection-item">
-                <i class="material-icons medium blue-text">edit</i>
-                <br>
-                <h3 class="text_h3 blue-text flow-text">Create and Edit Your V3 OpenAPI Metadata</h3>
-                <hr>
-                <p>
-                    You can start with an existing metadata example below.
-                    <br>The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
+                <h3 class="blue-text flow-text">
+                  <i class="fa fa-check-square-o blue-text" aria-hidden="true"></i> Create and Edit Your V3 OpenAPI Metadata
+                </h3>
+                <p class="flow-text blue-grey-text">
+                    You can start with an existing metadata example below. The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
                 </p>
-                <p class="blue-text">
-                    <b>Metadata Examples</b>
-                </p>
+                <h5 class="flow-text blue-text">Metadata Examples</h5>
                 <ul>
-                    <li class="chip blue white-text hoverable">
-                        <a class="white-text" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a>
+                    <li class="blue-text">
+                        <a class="blue-text" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank"> <i class="material-icons">link</i> MyGene.info</a>
                     </li>
-                    <li class="chip blue white-text hoverable">
-                        <a class="white-text" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a>
+                    <li class="blue-text">
+                        <a class="blue-text" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank"> <i class="material-icons">link</i> MyVariant.info</a>
                     </li>
                 </ul>
-                <hr>
-                <a class="btn-large editor green" target="_blank" href="http://smart-api.info/editor-oa3/">API EDITOR</a>
-                <p class="grey-text left-align">
-                    This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a>
+                <a class="btn-large editor green margin20" target="_blank" href="http://smart-api.info/editor-oa3/">API EDITOR</a>
+                <p class="grey-text left-align ">
+                    Note: This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a>
                     interface can also be useful for creating your API metadata from scratch. But be aware
                     that this interface does not support
                     any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a>
                     (those fields with "x-" prefix) we added to the standard OpenAPI v3 specifications. You can, of course,
-                    add extra SmartAPI fields after you export your metadata from the GUI interface to the editor.
+                    add extra SmartAPI fields after you export your metadata from the GUI interface to the editor. You will add those extensions at a later step.
                 </p>
                 <p class="grey-text">For a complete list of SmartAPI extensions, visit this link:</p>
                 <a class="btn blue" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1" target="_blank">Extensions</a>
 
             </li>
-            <li class="collection-item green padding20">
+            <li class="collection-item transparentBlue padding20">
                 <h4 class="white-text flow-text">Done Creating Your V3 Metadata?</h4>
                 <br>
-                <a href="#!" class="clearButton" @click="select('3')">NEXT</a>
+                <a href="#!" class="clearButton" @click="select('3'); setProgress(50);">NEXT</a>
             </li>
         </ul>
     </div>
 
+
     </div>
     <!-- if VERSION 2 -->
-    <div v-if="selection === '2' " class="center-align container padding20" style="position: relative;">
-        <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
-        <div class="card-panel white">
-            <img class="roundPhoto hideOnSmall" src="/static/img/guide1.png" width="100%" alt="start from scratch">
-            <h3 class="text_h3 blue-text tracking-in-expand flow-text">Version 2</h3>
-            <p>
+    <div v-if="selection === '2' " class="center-align container padding20 docBack white" style="position: relative;">
+        <a @click="select('yes'); setProgress(-40)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+        <div class="card-panel transparent">
+            <h3 class="blue-grey-text tracking-in-expand flow-text">Version 2</h3>
+            <object class="margin10" width="120px" data="/static/img/v2.svg" id="editIcon"></object>
+
+            <p class="blue-grey-text flow-text">
                 If you already have an API metadata document in older <b>Swagger/OpenAPI V2</b> specification
                 you will need to follow these steps to convert your metadata to the latest <b>OpenAPI V3</b> format,
                 and then edit it in the editor below.
             </p>
-            <ul class="collection">
-                <li class="collection-header blue white-text padding20">
-                    <h4 class="text_h3 flow-text">INSTRUCTIONS</h4>
-                </li>
+            <ul class="collection noBorder" >
                 <li class="collection-item">
                     <i class="material-icons medium blue-text">code</i>
                 <br>
-                <h3 class="text_h3 blue-text flow-text">
-                    CONVERT YOUR METADATA:
+                <h3 class="blue-text flow-text">
+                    <i class="fa fa-check-square-o blue-text" aria-hidden="true"></i> CONVERT YOUR METADATA:
                 </h3>
-                <p>
+                <p class="blue-grey-text flow-text">
                     Use any of these two options to convert your V2 Metadata to V3 Metadata.
                 </p>
                 <div class="row">
                     <div class="col s12 l6 white blue-text center-align padding20">
-                        <p>Tavis OpenAPI Converter</p>
-                        <a title="Tavis OpenAPI V3 Converter" class="btn-large blue" target="_blank" href="http://openapiconverter.azurewebsites.net/">Converter 1</a>
+                        <p class="blue-text flow-text">Tavis OpenAPI Converter</p>
+                        <a title="Tavis OpenAPI V3 Converter" class="btn-large green" target="_blank" href="http://openapiconverter.azurewebsites.net/">Converter 1</a>
                         <br>
                     </div>
                     <div class="col s12 l6 white blue-text center-align padding20">
-                        <p>Mermade Converter</p>
-                        <a title="Mermade Converter" class="btn-large blue" target="_blank" href="https://mermade.org.uk/openapi-converter">Converter 2</a>
+                        <p class="blue-text flow-text">Mermade Converter</p>
+                        <a title="Mermade Converter" class="btn-large green" target="_blank" href="https://mermade.org.uk/openapi-converter">Converter 2</a>
                         <br>
                     </div>
                 </div>
@@ -279,197 +282,144 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
                     above, and commit your changes even when they are not fully complete or valid.
                 </p>
                 </li>
-                <li class="collection-item green padding20">
+                <li class="collection-item transparentBlue padding20">
                     <h4 class="white-text flow-text">Done Converting Your Metadata?</h4>
                     <br>
-                    <a href="#!" class="clearButton" @click="select('3')">NEXT</a>
+                    <a href="#!" class="clearButton" @click="select('3'); setProgress(30);">NEXT</a>
                 </li>
             </ul>
 </div>
 
 </div>
 <!-- if VERSION 3 -->
-<div v-if="selection === '3' " class="center-align container padding20" style="position: relative;">
-    <a @click="select('yes')" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+<div v-if="selection === '3' "  class="center-align container padding20 white docBack" style="position: relative;">
+    <a @click="select('yes'); setProgress(-40); completeToDo(1);completeToDo(2);completeToDo(3);" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
 
-    <div class="card-panel white">
-        <img class="roundPhoto hideOnSmall" src="/static/img/guide2.png" width="100%" alt="start from scratch">
-        <h3 class="text_h3 blue-text tracking-in-expand flow-text">Version 3</h3>
-        <ul class="collection">
-                <li class="collection-header blue white-text padding20">
-                    <h4 class="text_h3 flow-text">FINAL STEP</h4>
-                </li>
-                <li class="collection-item">
-                    <h3 class="text_h3 red-text flow-text">
-                        Complete all steps to proceed <i class="material-icons red-text">check</i>
-                    </h3>
-                </li>
-        </ul>
+    <div class="card-panel transparent">
+        <h3 class="blue-text tracking-in-expand flow-text">Version 3</h3>
+        <object class="margin10" width="120px" data="/static/img/v3.svg" id="editIcon"></object>
         <table class="bordered">
-            <thead>
-              <tr>
-                  <th class="center-align">Steps</th>
-                  <th >Complete?</th>
-              </tr>
-            </thead>
+
             <tbody>
                 <!-- STEP 1 -->
-              <tr v-show="!todo1">
+              <tr >
 
                 <td class="center-align">
-                    <h3 class="text_h3 blue-text flow-text"><i class="material-icons red-text">looks_one</i> Validate Your Metadata</h3>
-                    <p>Validate your metadata and clear all errors using this editor:</p>
-                    <a class="waves-effect waves-light btn-large blue"
-                        target="_blank"
-                        href="http://smart-api.info/editor-oa3/">Editor</a>
-                </td>
-                <td>
-                    <button
-                    class="btn"
-                    :class="{'blue': todo1, 'green': !todo1}"
-                    @click="completeToDo(1)">
-                        {{ button1Text }}
-                    </button>
-                </td>
-              </tr>
-              <tr v-show="todo1">
-                  <td class="green white-text center-align textShadow">
-                      VALIDATE YOUR METADATA
-                  </td>
-                  <td class="green white-text center-align">
-                      <button class="btn blue white-text" @click="completeToDo(1)">Details</button>
-                  </td>
-              </tr>
-              <!-- STEP 2 -->
-              <tr v-show="!todo2">
-                <td class="center-align">
-                    <h3 class="text_h3 blue-text flow-text">
-                        <i class="material-icons red-text">looks_two</i> Host Your Metadata
+                    <h3 class="blue-text flow-text">
+                      <i class="fa fa-check-square-o blue-text" aria-hidden="true"></i> Validate Your Metadata
                     </h3>
-                    Host your metadata in a version-control system:
-                    <ul>
-                        <li>
-                            On your Github repository.
-                        </li>
-                        <li>
-                            <b>OR</b>
-                        </li>
-                        <li>
-                            On our project specific repositories:
-                        </li>
-                        <li>
-                            <b><a class="chip blue white-text" href="#hosting">Learn More</a></b>
-                        </li>
-                    </ul>
-
-                </td>
-                <td>
-                    <button
-                    class="green btn"
-                    :class="{'blue': todo2 }"
-                    @click="completeToDo(2)">
-                        {{ button2Text }}
-                    </button>
-                </td>
-              </tr>
-              <tr v-show="todo2">
-                  <td class="green white-text center-align textShadow">
-                      HOST YOUR METADATA
-                  </td>
-                  <td class="green white-text center-align">
-                      <button class="btn blue white-text" @click="completeToDo(2)">Details</button>
-                  </td>
-              </tr>
-              <!-- STEP 3 -->
-              <tr v-show="!todo3">
-                <td class="center-align">
-                    <h3 class="text_h3 blue-text flow-text"><i class="material-icons red-text">looks_3</i> Add Required SmartAPI Extensions</h3>
-                    <p>
-                        Most of the SmartAPI extensions are optional, but a few are REQUIRED, for example:
+                    <p class="blue-grey-text flow-text">
+                      Validate your metadata and clear all errors using this editor:
                     </p>
-                    <ul>
+                    <a class="btn blue" target="_blank" href="http://smart-api.info/editor-oa3/">Editor</a>
+                    <br />
+                    <i class="fa fa-arrow-down light-blue-text fa-2x margin20" aria-hidden="true"></i>
+                </td>
+              </tr>
+
+              <!-- STEP 2 -->
+              <tr>
+                <td class="center-align">
+                    <h3 class="blue-text flow-text">
+                      <i class="fa fa-check-square-o blue-text" aria-hidden="true"></i> Host Your Metadata
+                    </h3>
+                    <p class="blue-grey-text flow-text">
+                      Host your metadata in a version-control system. On your own Github repository or on <a href="#hosting">our project specific repositories</a>.
+                    </p>
+                    <a class="btn blue white-text" href="#hosting">Hosting Info</a>
+                    <br />
+                    <i class="fa fa-arrow-down light-blue-text fa-2x margin20" aria-hidden="true"></i>
+                </td>
+              </tr>
+
+              <tr>
+                <td class="center-align">
+                    <h3 class="blue-text flow-text">
+                      <i class="fa fa-check-square-o blue-text" aria-hidden="true"></i> Add Required SmartAPI Extensions
+                    </h3>
+                    <p class="blue-grey-text flow-text">
+                        Most of the SmartAPI extensions are optional, but a few are <b>required</b>, for example:
+                    </p>
+                    <ul class="padding20 grey lighten-5">
                         <li><code>info.termOfService</code></li>
                         <li><code>info.contact.x-role</code></li>
                         <li><code>info.version</code></li>
                     </ul>
 
-                    <p>For a full list of required extensions refer to the recommendations column of the document here:</p>
-                    <a class="waves-effect waves-light btn-large blue"
+                    <p class="blue-grey-text flow-text">
+                      For a full list of required extensions refer to the recommendations column of the document here:
+                    </p>
+                    <a class="btn blue"
                         target="_blank"
                         href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">Extensions</a>
-                </td>
-                <td>
-                    <button
-                    class="green btn"
-                    :class="{blue: todo3 }"
-                    @click="completeToDo(3)">
-                        {{ button3Text }}
-                    </button>
+                    <br />
+                    <i class="fa fa-arrow-down light-blue-text fa-2x margin20" aria-hidden="true"></i>
                 </td>
               </tr>
-              <tr v-show="todo3">
-                  <td class="green white-text center-align textShadow">
-                      ADD REQUIRED SMARTAPI EXTENSIONS
-                  </td>
-                  <td class="green white-text center-align">
-                      <button class="btn blue white-text" @click="completeToDo(3)">Details</button>
-                  </td>
+              <tr class="transparentBlue padding20" v-if='!todo1 && !todo2 && !todo3'>
+                <td class="center-align">
+                  <h4 class="white-text flow-text">Completed All Steps?</h4>
+                  <br>
+                  <a href="#!" class="clearButton" @click="completeToDo(1);completeToDo(2);completeToDo(3); setProgress(50);">NEXT</a>
+                </td>
               </tr>
+
             </tbody>
         </table>
-        <div id="submitBox" v-if="todo1 && todo2 && todo3" class="card-panel  white padding20">
-            <h3 class="text_h3 green-text flow-text"><i class="material-icons red-text">looks_4</i> You're Ready To Submit Your Metadata!</h3>
-            <a class="waves-effect waves-light btn-large green pulse" href="/add_api">Add Your API</a>
-            <br />
-            <hr>
-            <div class="card-panel yellow lighten-4">
+        <div id="submitBox" v-if='todo1 && todo2 && todo3' class="card-panel blue padding20">
+            <object class="margin10" width="120px" data="/static/img/owl-fly.gif" id="complete"></object>
+            <h3 class="white-text flow-text">You're Ready To Submit Your Metadata!</h3>
+            <a class="clearButton margin20" href="/add_api">Add Your API</a>
+            <div class="card-panel grey lighten-4 margin20">
                 <p class="blue-grey-text"><b>Important!</b> Before submitting make sure to copy the URL to the RAW content!</p>
                 <img src="/static/img/raw.gif" alt="raw content" class="responsive-img">
             </div>
         </div>
-<!-- <p>
-    If you have the permission, commit your changes to this repo. Otherwise, feel free to submit a pull-request. Please check the "build status" badge above, and make sure it's green after your changes. We run some validation tests in this <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/tests.py">tests.py</a> for each commit. (Tip: you can run python tests.py locally from the root of this repo to make sure all tests pass before you commit your code.)
-</p> -->
+
 </div>
 <!-- Hosting Information -->
-<div id="hosting" class="card-panel light-blue lighten-5">
-        <i class="large fa fa-github-square blue-text"></i>
-        <br>
-        <h3 class="text_h3 blue-text tracking-in-expand flow-text">
-            Host Your Metadata With Us
+<div class="card-panel blue-grey darken-4 white-text">
+    <h2 class="white-text flow-text">Hosting</h2>
+</div>
+<div id="hosting" class="card-panel grey lighten-4">
+
+        <h3 class="blue-text flow-text">
+          <i class="fa fa-github-square blue-text"></i>  Host Your Metadata With Us
         </h3>
         <div class="card-panel white">
-            <p>
+            <p class="blue-grey-text flow-text">
              The link below provides an optional place for those who need to have a place to host their own API metadata.
          </p>
 
         <ul class="collection left-align">
-            <li class="collection-item">
+            <li class="collection-item blue-grey-text">
                 <div class="chip red white-text smallFont">1</div>
                                 Each API should create a separate folder to host its metadata.
                                 The folder "_example_api" provides a basic template for adding API metadata,
                                 so you can start with copying the "_example_api" folder and renaming it to your API name.
             </li>
-            <li class="collection-item">
+            <li class="collection-item blue-grey-text">
                 <div class="chip red white-text smallFont">2</div>
                                 Fill in the metadata about your API according to the instructions.
                                 Also, please refer to the existing examples like <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml" target="_blank">mygene.info</a>
                                 and <a href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/openapi_minimum.yml" target="_blank">myvariant.info</a> APIs.
             </li>
-            <li class="collection-item">
+            <li class="collection-item blue-grey-text">
                 <div class="chip red white-text smallFont">3</div>
                                 Add an entry to the <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/API_LIST.yml">API_LIST.yml</a>
                                 file following the existing example. This is the master list of the APIs available in this repo.
                                 Our SmartAPI application will import all the API metadata based on this file.
             </li>
             <li class="collection-item center-align smallFont">
-                <p>Choose the appropiate project to host your metadata under:</p>
+                <p class="blue-grey-text flow-text">
+                  Choose the appropiate project to host your metadata under:
+                </p>
                 <div class="row">
                     <div class="s12 m6 l6 col">
                         <a class="btn-large green" target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry">NCATS Translator Project</a>
                         <br>
                         <br>
-                        <a class="chip blue white-text" target="_blank" href="https://ncats.nih.gov/translator">More Info</a>
+                        <a class="chip blue white-text" target="_blank" href="https://ncats.nih.gov/translator">NCATS More Info</a>
                     </div>
                     <div class="s12 m6 l6 col">
                         <a class="btn-large green" target="_blank" href="https://github.com/SmartAPI/smartapi_registry">SmartAPI Project</a>
@@ -479,15 +429,15 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
         </ul>
     </div>
 </div>
-<div class="card-panel white-text">
-    <h2 class="text_h2 blue-text flow-text">Advanced</h2>
+<div class="card-panel blue-grey darken-4 white-text">
+    <h2 class="white-text flow-text">Advanced</h2>
 </div>
-<div class="card-panel light-blue lighten-5">
+<div class="card-panel grey lighten-4">
     <i class="material-icons blue-text large">developer_board</i>
-    <h3 class="text_h3 blue-text flow-text">
+    <h3 class="blue-text flow-text">
         <b>CORS</b> Support
     </h3>
-    <p>
+    <p class="blue-grey-text flow-text">
         If you want users to be able to request your API from the browser, e.g. in a web application,
         your API should support <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a>.
         We recommend every public API to support CORS. Depending on your web server (e.g. Apache or Nginx) and/or the web framework
@@ -495,16 +445,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
         your API <a target="_blank" href="https://enable-cors.org/">here</a>, or via Google.
     </p>
 </div>
-<div class="card-panel light-blue lighten-5">
+<div class="card-panel grey lighten-4">
     <i class="material-icons blue-text large">settings_ethernet</i>
-    <h3 class="text_h3 blue-text flow-text flow-text">How to choose URIs for annotating API input/output</h3>
-    <p>
+    <h3 class="blue-text flow-text">How to choose URIs for annotating API input/output</h3>
+    <p class="blue-grey-text flow-text">
         Typically for a JSON-based REST API, we
         use <a target="_blank" href="https://en.wikipedia.org/wiki/Uniform_Resource_Identifier">URIs</a>
         to annotate both the acceptable parameter value types and the fields from the response data object,
         both in SmartAPI metdata files and/or JSON-LD context files.
     </p>
-    <p>
+    <p class="blue-grey-text flow-text">
         To help you decide which URIs to use, we maintain an <a target="_blank" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/ID_MAPPING.csv">ID_MAPPING.csv</a>
         file to keep records of all URIs we will use. Feel free to add URIs for additional field types.
         Please make sure not to break the CSV format, as that will break GitHub's nice CSV rendering and search features.
@@ -534,10 +484,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
                 todo1: false,
                 todo2: false,
                 todo3: false,
-                button1Text: 'DONE',
-                button2Text: 'DONE',
-                button3Text: 'DONE',
-                btnTxtExt:'SHOW EXTENSIONS'
+                btnTxtExt:'SHOW EXTENSIONS',
+                progress: 0,
+                progressText: '',
             }
         },
         methods:{
@@ -553,9 +502,24 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
                 // scroll to top after selection
                 scroll(0,0);
             },
+            setProgress(input){
+              if (input == 'reset' || this.progress < 0) {
+                this.progress = 0;
+                this.progressText = this.progress.toString()+'%';
+              }else{
+                if (this.progress+input < 100) {
+                  this.progress += input;
+                  this.progressText = this.progress.toString()+'%';
+                }
+                else if(this.progress+input > 100){
+                  this.progress = 100;
+                  this.progressText = this.progress.toString()+'%';
+                }
+              }
+            },
             toggleExtTxt: function(){
-
               let text = $("#extBtn").text();
+              text = text.trim();
               if(text === 'SHOW EXTENSIONS'){
                 this.btnTxtExt = 'HIDE EXTENSIONS';
               }
@@ -610,15 +574,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#003081c1', e
                 switch(todo) {
                     case 1:
                         this.todo1= !this.todo1;
-                        this.button1Text = this.todo1 ? 'DETAILS' : "DONE"
                         break;
                     case 2:
                         this.todo2= !this.todo2;
-                        this.button2Text = this.todo2 ? 'DETAILS' : "DONE"
                         break;
                     case 3:
                         this.todo3= !this.todo3;
-                        this.button3Text = this.todo3 ? 'DETAILS' : "DONE"
                         break;
                     default:
                         return false
