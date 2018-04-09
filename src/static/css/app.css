@@ -166,6 +166,15 @@ background: linear-gradient(45deg, rgba(43,133,188,1) 0%,rgba(39,50,56,1) 57%); 
 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', endColorstr='#273238',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 }
 
+.mainBackgroundParticle{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#273238+0,3883be+100 */
+  background: rgb(39,50,56) !important; /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(39,50,56,1) 0%, rgba(56,131,190,1) 100%) !important; /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(39,50,56,1) 0%,rgba(56,131,190,1) 100%) !important; /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(39,50,56,1) 0%,rgba(56,131,190,1) 100%) !important; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#273238', endColorstr='#3883be',GradientType=0 ) !important; /* IE6-9 */
+}
+
 .whiteTransBack{
   background-color: rgba(255,255,255,.8);
 }
@@ -487,7 +496,7 @@ h1, h2 , h3, h4 ,h5{
 }
 
 .textShadow{
-  text-shadow: 1px 1px 1px #37474f;
+  text-shadow: 2px 2px 1px #37474f;
 }
 
 body {

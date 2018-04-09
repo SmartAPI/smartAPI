@@ -1,20 +1,23 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
+
 <main>
-<div class="section no-pad-bot mainBack blue lighten-5" id="index-banner">
-    <div class="center-align indexChild">
-        <object width="60%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
-        <object width="40%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
+<div class="section no-pad-bot light-blue lighten-5 mainBackgroundParticle" id="index-banner">
+  <div id="particles-js">
+    <div class="center-align indexChild" >
+        <object width="40%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
+        <object width="60%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
         <object width="100%"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
-        <h3 class="blue-grey-text logoFont lighter hide-on-small-only" style="margin:5px;">Smart<span class="blue-text">API</span></h3>
-        <h3 class="logoFont blue-text lighter show-on-small hide-on-med-and-up margin10">SmartAPI</h3>
+        <h3 class="white-text logoFont lighter hide-on-small-only textShadow" style="margin:5px;">Smart<span class="l-blue-text ">API</span></h3>
+        <h3 class="logoFont white-text lighter show-on-small hide-on-med-and-up margin10 textShadow">SmartAPI</h3>
         <hr/>
-        <h5 class=" blue-text hide-on-small-only" style="font-weight: 100;">BUILDING A CONNECTED NETWORK OF FAIR APIS</h5>
-        <h5 class="hide-on-med-only hide-on-large-only show-on-small blue-text">
+        <h5 class="white-text hide-on-small-only" style="font-weight: 100;">BUILDING A CONNECTED NETWORK OF FAIR APIS</h5>
+        <h5 class="hide-on-med-only hide-on-large-only show-on-small l-blue-text">
           BUILDING A CONNECTED NETWORK OF FAIR APIS
         </h5>
     </div>
+  </div>
 </div>
 
 <!-- new to SmartAPI-->
@@ -178,7 +181,123 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vivus/0.4.3/vivus.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script type="text/javascript">
+
+    /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
+    particlesJS("particles-js",{
+  "particles": {
+    "number": {
+      "value": 80,
+      "density": {
+        "enable": true,
+        "value_area": 800
+      }
+    },
+    "color": {
+      "value": "#ffffff"
+    },
+    "shape": {
+      "type": "circle",
+      "stroke": {
+        "width": 0,
+        "color": "#000000"
+      },
+      "polygon": {
+        "nb_sides": 5
+      },
+      "image": {
+        "src": "img/github.svg",
+        "width": 100,
+        "height": 100
+      }
+    },
+    "opacity": {
+      "value": 0.5,
+      "random": false,
+      "anim": {
+        "enable": false,
+        "speed": 1,
+        "opacity_min": 0.1,
+        "sync": false
+      }
+    },
+    "size": {
+      "value": 3,
+      "random": true,
+      "anim": {
+        "enable": false,
+        "speed": 1,
+        "size_min": 0.1,
+        "sync": false
+      }
+    },
+    "line_linked": {
+      "enable": true,
+      "distance": 300,
+      "color": "#8AC5E5",
+      "opacity": 0.4,
+      "width": 2
+    },
+    "move": {
+      "enable": true,
+      "speed": 1,
+      "direction": "none",
+      "random": false,
+      "straight": false,
+      "out_mode": "out",
+      "bounce": false,
+      "attract": {
+        "enable": false,
+        "rotateX": 600,
+        "rotateY": 1200
+      }
+    }
+  },
+  "interactivity": {
+    "detect_on": "canvas",
+    "events": {
+      "onhover": {
+        "enable": false,
+        "mode": "repulse"
+      },
+      "onclick": {
+        "enable": true,
+        "mode": "repulse"
+      },
+      "resize": true
+    },
+    "modes": {
+      "grab": {
+        "distance": 800,
+        "line_linked": {
+          "opacity": 1
+        }
+      },
+      "bubble": {
+        "distance": 800,
+        "size": 80,
+        "duration": 2,
+        "opacity": 0.8,
+        "speed": 3
+      },
+      "repulse": {
+        "distance": 100,
+        "duration": .7
+      },
+      "push": {
+        "particles_nb": 4
+      },
+      "remove": {
+        "particles_nb": 2
+      }
+    }
+  },
+  "retina_detect": true
+});
+
+
+
 
     // Animated Icons SVGs
     new Vivus('whatIs', {duration: 200, type: 'oneByOne'},);
