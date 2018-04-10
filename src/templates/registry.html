@@ -143,7 +143,7 @@ mark{
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>version:</strong> {{api.info.version}}<br>
-                                <strong>developer:</strong> {{api.info.contact.name}}<br>
+                                <span v-if='api.info.contact.name'><strong>developer:</strong> {{api.info.contact.name }}<br></span>
                                 <table class="bordered">
                                   <thead>
                                     <th class="center-align lighter">
