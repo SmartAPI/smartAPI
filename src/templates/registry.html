@@ -1,74 +1,17 @@
 {% extends "main.html" %}
 {% block extra_head %}
-<style>
-html,
-body {
-    height: 100%;
-}
-/* background for highlighted text */
-mark{
-    background: #c7f8ff;
-    color: black;
-}
-
-.link{
-  transition: all .5s;
-}
-
-.link:hover{
-  color: var(--blue-medium) !important;
-}
-
-</style>
 {% endblock %}
-
 {% block content %}
 {% include "header.html" %}
 
   {% raw %}
-    <div id="loading-overlay">
-          <div class="preloader-wrapper big active loading-container">
-            <div class="spinner-layer spinner-blue">
-              <div class="circle-clipper left">
-                <div class="circle"></div>
-              </div><div class="gap-patch">
-                <div class="circle"></div>
-              </div><div class="circle-clipper right">
-                <div class="circle"></div>
-              </div>
-            </div>
-
-            <div class="spinner-layer spinner-red">
-              <div class="circle-clipper left">
-                <div class="circle"></div>
-              </div><div class="gap-patch">
-                <div class="circle"></div>
-              </div><div class="circle-clipper right">
-                <div class="circle"></div>
-              </div>
-            </div>
-
-            <div class="spinner-layer spinner-yellow">
-              <div class="circle-clipper left">
-                <div class="circle"></div>
-              </div><div class="gap-patch">
-                <div class="circle"></div>
-              </div><div class="circle-clipper right">
-                <div class="circle"></div>
-              </div>
-            </div>
-
-            <div class="spinner-layer spinner-green">
-              <div class="circle-clipper left">
-                <div class="circle"></div>
-              </div><div class="gap-patch">
-                <div class="circle"></div>
-              </div><div class="circle-clipper right">
-                <div class="circle"></div>
-              </div>
-            </div>
-          </div>
+  <!-- Loading Screen -->
+  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+    <div class="center-align" style="padding-top: 300px;">
+      <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
+      <h5 class="white-text">Loading</h5>
     </div>
+  </div>
     <main>
     <div id="app" style="height: 100%;" class="white">
         <div class="side-nav" id="filters">
@@ -116,13 +59,17 @@ mark{
                         <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
-                                  <span class="blue-text lighter">{{api.info.title}}</span>
-                                  <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text grey">V.{{api.info.version}}</span>
-                                  <span v-if=" api.hasOwnProperty('openapi') ">
-                                    <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text green">OAS3</span>
+                                  <span class="blue-text lighter">
+                                    {{api.info.title}}
                                   </span>
-                                  <span v-else-if=" api.hasOwnProperty('swagger') ">
-                                    <span style="font-size:7px; border-radius:10px;" class="versionBadge white-text blue">Swagger2</span>
+                                  <span class="versionBadge grey">
+                                    V.{{api.info.version}}
+                                  </span>
+                                  <span v-if=" api.hasOwnProperty('openapi') " class="versionBadge green">
+                                    OAS3
+                                  </span>
+                                  <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
+                                    Swagger2
                                   </span>
                                 </span>
                                 <br />

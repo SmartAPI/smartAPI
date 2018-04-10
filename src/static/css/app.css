@@ -835,14 +835,38 @@ body {
     padding: 10px;
   }
 
+  .link{
+    transition: all .5s;
+  }
+
+  .link:hover{
+    color: var(--blue-medium) !important;
+  }
+
   .versionBadge{
+    color: white !important;
     padding: 6px;
-    border-radius: 100%;
     border:none;
     font-size: 12px;
     color: #424242;
-    line-height: inherit;
+    font-size:7px;
+    border-radius:10px;
+    margin-right:3px;
+    vertical-align: top;
   }
+
+  html,
+  body {
+      height: 100%;
+  }
+  /* background for highlighted text in registry */
+  mark{
+      background: #c7f8ff;
+      color: black;
+  }
+
+
+
 
 
   /*MARCO CANO end*/

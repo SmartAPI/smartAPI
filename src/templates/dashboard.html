@@ -9,6 +9,7 @@
 }
 
 </style>
+
 <main id="dashApp" style="height: 100%; padding-top:20px;" class="blue-grey darken-3 dashboardBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
@@ -19,6 +20,14 @@
       Login
     </a>
   </div>
+  <!-- LOADING -->
+  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+    <div class="center-align" style="padding-top: 300px;">
+      <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
+      <h5 class="white-text">Loading</h5>
+    </div>
+  </div>
+  <!-- Loading END -->
   <!-- IF USERINFO DISPLAY DASHBOARD -->
   <div v-if="userInfo.login" class="row" style="margin-bottom: 0; width: 100%;">
       <div class="col s12 m4 l3 xl3 transparent">
@@ -76,8 +85,8 @@
           <div id="contributions" class="col s12 card-panel white" style="padding:0;">
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
-                  <tr class="blue-grey-text">
-                      <th class="lighter smallFont center-align">API Name</th>
+                  <tr class="blue-grey-text grey lighten-5">
+                      <th class="lighter smallFont center-align">API Name (A-Z)</th>
                       <!-- <th class="hideOnSmall">Description</th> -->
                       <th class="center-align lighter smallFont">Last Updated</th>
                       <th class="center-align lighter smallFont">Refresh</th>
@@ -123,7 +132,7 @@
       <div class="white padding20">
         <i class="material-icons small amber-text">warning</i>
         <p class="red-text">This action cannot be undone. Please type in the exact name of the API to confirm.</p>
-        <input @change="getAPIName(confirmModal.title, $event)" :placeholder="confirmModal.title" type="text" class="validate browser-default" style="outline: none; padding: 10px; width: 70%;">
+        <input v-model="inputApiName" :placeholder="confirmModal.title" type="text" class="validate browser-default" style="outline: none; padding: 10px; width: 70%;">
         <hr/>
         <a href='#!' :disabled="confirmDelete" @click="deleteForever(confirmModal.title, confirmModal.id)" class=" deep-orange darken-2 btn modal-action modal-close">Delete API</a>
       </div>
@@ -140,7 +149,7 @@
           <h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4>
           <span class="chip blue white-text smallFont" style="font-size: 12px; font-weight: bold;">Version {{ selectedAPI.version }}</span>
         </li>
-        <li class="collection-item blue-grey lighten-4">
+        <li v-if="selectedAPIContact.name" class="collection-item blue-grey lighten-4">
           <h4 class="blue-grey-text">{{ selectedAPIContact.name }}</h4>
           <h5 class="blue-grey-text lighter" style="text-transform: uppercase; font-size: 16px;">{{ selectedAPIContact["x-role"] }}</h5>
         </li>
@@ -175,6 +184,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+<!-- Moment.js -->
+<script src="/static/js/moment.js"></script>
 
 <script>
 
@@ -213,7 +224,7 @@
       },
       getText: function(){
         return this.text;
-        console.log(this.text);
+        //console.log(this.text);
       }
     },
     mounted: function(){
@@ -236,6 +247,7 @@
               id:''
             },
             selectedAPI:{},
+            inputApiName:'',
             selectedAPIContact: {},
             selectedAPIGithub:'',
             apis:[],
@@ -248,8 +260,9 @@
             var self=this;
             axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login).then(function(response){
                   //console.log(response.data.hits);
-                  self.apis = response.data.hits;
+                  self.apis = self.sortApisByName(response.data.hits);
                   self.total = response.data.total;
+                  self.hideLoading();
               }).catch(err=>{
                 Materialize.toast('Failed To Load APIs', 4000,'rounded red white-text');
                 throw err;
@@ -264,10 +277,13 @@
           deleteForever: function(title, apiID){
             // ID for api to be deleted forever
             var self = this;
+            self.showLoading();
             axios.delete('/api/metadata/'+apiID+'?api_key='+self.apiKey).then(response=>{
               //sucessful deletion
+              self.hideLoading();
               if( response.data.success ){
                 Materialize.toast(title+' was deleted!', 4000,'rounded green white-text');
+                window.location.reload(true);
               }else if( !response.data.success ){
                 Materialize.toast('Failed to delete '+title, 4000,'rounded red white-text');
               }
@@ -280,7 +296,9 @@
           },
           refreshingThis: function(title, id){
             var self = this;
+            self.showLoading();
             axios.put('/api/metadata/'+id).then(res=>{
+              self.hideLoading();
               if( res.data.success ){
                 Materialize.toast(title+' was refreshed!', 4000,'rounded green white-text');
               }else if( !res.data.success ){
@@ -292,6 +310,18 @@
             self.getApis();
 
           },
+          showLoading: function(){
+            $('#loading-overlay').show();
+          },
+          hideLoading: function(){
+            $('#loading-overlay').hide();
+          },
+          sortApisByName: function(apis){
+            var self = this;
+            //console.log(apis);
+            var sortedAPIS = _.sortBy(apis, 'info.title');
+            return sortedAPIS;
+          },
           getDetails: function(fullApiInfo, meta){
             var self = this;
             self.selectedAPI = fullApiInfo;
@@ -300,43 +330,27 @@
           },
           convertDate: function(timestamp){
             var date = new Date(timestamp);
-            var formattedTime = (date.getMonth()+1)+'-'
-            + date.getDate()
-            + '-'+date.getFullYear()
-            + ' @ '+date.getHours()
-            + ':'+date.getMinutes();
-
-            return formattedTime;
+            date = moment(date).format('LLL');
+            return date;
           },
           reloadAPIs: function(){
+            this.showLoading();
             this.getUserInfo();
           },
           getUserInfo: function(){
             var self= this;
             axios.get('/user').then(response=>{
-              // console.log('user data');
-              //console.log(response.data);
               self.userInfo = response.data;
               self.getApis();
 
             }).catch(err=>{
               throw err;
             })
-          },
-          getAPIName: function(APIToBeDeleted, event){
-            // confirm API name to delete forever
-            let input = event.target.value.trim();
-            if(input === APIToBeDeleted){
-              this.confirmDelete = false;
-            }
-            else{
-              this.confirmDelete = true;
-              Materialize.toast(input+' Does Not Match API Name', 4000,'rounded orange white-text');
-            }
           }
         },
         mounted: function(){
            // JQuery Initializations
+           this.showLoading();
            this.getUserInfo();
            // tabs
            $('ul.tabs').tabs();
@@ -347,6 +361,18 @@
 
            $('.collapsible').collapsible();
 
+        },
+        watch: {
+          // whenever input changes
+          inputApiName: function () {
+            if(this.inputApiName.trim() === this.confirmModal.title){
+              this.confirmDelete = false;
+            }
+            else{
+              this.confirmDelete = true;
+              //Materialize.toast(this.inputApiName+' Does Not Match API Name', 4000,'rounded orange white-text');
+            }
+          }
         }
     });
 </script>
