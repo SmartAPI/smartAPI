@@ -10,7 +10,7 @@
 
 </style>
 
-<main id="dashApp" style="height: 100%; padding-top:20px;" class="blue-grey darken-3 dashboardBack">
+<main id="dashApp" style="padding-top:20px;" class="blue-grey darken-3 dashboardBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
     <h5 class="text_h3 blue-grey-text-text">
@@ -72,22 +72,54 @@
     <div class="col s12 m8 l9 xl9  center-align" >
         <!-- <h5 class="text_h3 white-text tracking-in-expand textShadow">MY DASHBOARD</h5> -->
         <div class="row">
+          <!-- Search API -->
+          <div class="col s12 testBack" style="padding: 0px !important;">
+            <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:#347CA9 2px solid;"/>
+            <table class="bordered noPadding grey lighten-5" style="table-layout: fixed;">
+              <thead v-if="searchQuery">
+                <th class="lighter smallFont center-align">API Name</th>
+                <th class="center-align lighter smallFont">Last Updated</th>
+                <th class="center-align lighter smallFont">Refresh</th>
+                <th class="center-align lighter smallFont">Delete</th>
+              </thead>
+              <tbody >
+                <tr v-for="(api,index) in searchResults">
+                  <td style="padding: 5px 5px;">
+                     <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
+                  </td>
+                  <td style="padding: 5px 5px;" class="center-align">
+                    <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
+                  </td>
+                  <td style="padding: 5px 5px;" class="center-align">
+                    <!-- refresh button global component -->
+                    <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
+                  </td>
+                  <td style="padding: 5px 5px;" class="center-align">
+                    <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn scale-in-center red white-text modal-trigger" style="cursor: pointer;">
+                      <i class="material-icons white-text">delete_forever</i>
+                    </a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- Search END -->
           <div class="col s12">
             <ul class="tabs transparent">
               <li class="tab col s3 transparent">
                 <a class="white-text textShadow " href="#contributions" style="font-size:10px;">
-                  API List <span class="l-blue-text">({{total}})</span>
+                  All APIs <span class="l-blue-text">({{total}})</span>
                 </a>
               </li>
 
             </ul>
           </div>
+
           <div id="contributions" class="col s12 card-panel white" style="padding:0;">
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text grey lighten-5">
                       <th class="lighter smallFont center-align">API Name (A-Z)</th>
-                      <!-- <th class="hideOnSmall">Description</th> -->
                       <th class="center-align lighter smallFont">Last Updated</th>
                       <th class="center-align lighter smallFont">Refresh</th>
                       <th class="center-align lighter smallFont">Delete</th>
@@ -122,6 +154,7 @@
                 </tbody>
               </table>
           </div>
+
         </div>
     </div>
   </div>
@@ -252,7 +285,9 @@
             selectedAPIGithub:'',
             apis:[],
             total: 0,
-            confirmDelete: true
+            confirmDelete: true,
+            searchQuery:'',
+            searchResults:[]
           }
         },
         methods:{
@@ -364,13 +399,21 @@
         },
         watch: {
           // whenever input changes
-          inputApiName: function () {
-            if(this.inputApiName.trim() === this.confirmModal.title){
+          inputApiName: function (input) {
+            if(input.trim() === this.confirmModal.title){
               this.confirmDelete = false;
             }
             else{
               this.confirmDelete = true;
               //Materialize.toast(this.inputApiName+' Does Not Match API Name', 4000,'rounded orange white-text');
+            }
+          },
+          searchQuery: function(query){
+            if(!query){
+              this.searchResults = [];
+            }else{
+              let result = this.apis.filter(o => o.info.title.toLowerCase().includes(query.toLowerCase()));
+              this.searchResults = result;
             }
           }
         }
