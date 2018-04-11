@@ -428,7 +428,7 @@ class ESQuery():
             print("This is a dryrun! No actual changes have been made.")
             print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
         else:
-            self._es.refresh(index=self._index)
+            self._es.indices.refresh(index=self._index)
         if status.get('success', False):
             print("Success.")
             return (200, status)
