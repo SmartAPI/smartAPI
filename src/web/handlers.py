@@ -9,6 +9,7 @@ import tornado.gen
 from tornado.httputil import url_concat
 from jinja2 import Environment, FileSystemLoader
 import torngithub
+from api.es import ESQuery
 from torngithub import json_encode, json_decode
 
 import config
@@ -46,12 +47,14 @@ class BaseHandler(tornado.web.RequestHandler):
 class MainHandler(BaseHandler):
     def get(self):
         subdomain = self.request.host.split(".")[0]
-        if subdomain not in ['www', 'dev', 'smart-api']:
-            # try to get a registered subdomains
-            if subdomain.lower() in config.REGISTERED_SUBDOMAINS:
+        if subdomain.lower() not in ['www', 'dev', 'smart-api']:
+            # try to get a registered subdomain/tag
+            esq = ESQuery()
+            api_id = esq.get_api_id_from_subdomain(subdomain)
+            if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)
-                swagger_output = swagger_template.render(apiID = config.REGISTERED_SUBDOMAINS[subdomain.lower()])
+                swagger_output = swagger_template.render(apiID = api_id)
                 self.write(swagger_output)
                 return
         index_file = "index.html"
