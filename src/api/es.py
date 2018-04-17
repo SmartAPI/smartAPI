@@ -419,7 +419,7 @@ class ESQuery():
         try:
             api_doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id)
         except:
-            return (404, {"success": False, "error": "Could not retrieve API '{}' to delete".format(_id)})
+            return (404, {"success": False, "error": "Could not retrieve API '{}' to refresh".format(_id)})
         api_doc['_source'].update({'_id': api_doc['_id']})
         _user = user.get('login', None)
         if api_doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
