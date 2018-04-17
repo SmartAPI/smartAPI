@@ -45,6 +45,15 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
+        subdomain = self.request.host.split(".")[0]
+        if subdomain not in ['www', 'dev', 'smart-api']:
+            # try to get a registered subdomains
+            if subdomain.lower() in config.REGISTERED_SUBDOMAINS:
+                swaggerUI_file = "smartapi-ui.html"
+                swagger_template = templateEnv.get_template(swaggerUI_file)
+                swagger_output = swagger_template.render(apiID = config.REGISTERED_SUBDOMAINS[subdomain.lower()])
+                self.write(swagger_output)
+                return
         index_file = "index.html"
         index_template = templateEnv.get_template(index_file)
         index_output = index_template.render()
@@ -174,5 +183,6 @@ APP_LIST = [
     (r"/registry/?", RegistryHandler),
     (r"/documentation/?", DocumentationHandler),
     (r"/dashboard/?", DashboardHandler),
-    (r"/api-ui/(.+)/?", SwaggerUIHandler)
+    (r"/api-ui/(.+)/?", SwaggerUIHandler),
+    (r"/ui/(.+)/?", SwaggerUIHandler)
 ]
