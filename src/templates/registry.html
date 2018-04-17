@@ -3,7 +3,11 @@
 {% endblock %}
 {% block content %}
 {% include "header.html" %}
-
+<style>
+  .collection a.collection-item{
+    color: var(--blue-medium);
+  }
+</style>
   {% raw %}
   <!-- Loading Screen -->
   <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
@@ -30,7 +34,7 @@
             <div class="col l2 hide-on-med-and-down sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;<span class="l-blue-text">({{tag.count}})</span></a>
+                    <a v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
             </div>
             <div class="col l10 s12">
@@ -76,8 +80,8 @@
                                 <br />
                                 <p class="blue-grey-text smallFont" v-html="compiledMarkdown(api.info.description || '')"></p>
                                 <div class="full-width">
-                                  <a v-for="tag in api.tags" href="#!" @click.prevent="tag.active = !tag.active;search(tag.name);" class="grey-text link" style="font-size: 9px; margin:3px; cursor: pointer;">
-                                    #{{tag.name}}
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);" class="grey-text link" style="font-size: 11px; margin:3px; cursor: pointer;">
+                                    <i class="fa fa-tag blue-text" aria-hidden="true"></i> {{tag.name}}
                                   </a>
                                 </div>
                             </div>
@@ -181,6 +185,18 @@
               }
             },
             methods: {
+                matchTagAndSearch: function(tagName){
+                  var self = this;
+                  for (var i = 0; i < self.tags.length; i++) {
+                    if (self.tags[i].name === tagName) {
+                      self.tags[i].active = true;
+                      self.search(self.tags[i].name);
+                    }
+                    else{
+                      self.search(tagName);
+                    }
+                  }
+                },
                 showHideDetails: function(event){
                   //toggle show/hide text on details link per card
                   let text = $(event.target).text().trim().toLowerCase();
