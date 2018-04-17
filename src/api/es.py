@@ -129,7 +129,9 @@ class ESQuery():
         api_id = metadata.encode_api_id()
         doc_exists = self.exists(api_id)
         if doc_exists and not overwrite:
-            return {"success": False, "error": "API exists. Not saved."}
+            is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
+            if not is_archived:
+                return {"success": False, "error": "API exists. Not saved."}
         _doc = metadata.convert_es()
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
