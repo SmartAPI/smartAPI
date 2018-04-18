@@ -6,7 +6,14 @@
 }
 /* Small side nav css */
 .side-nav{
-  background-color: var(--blue-light);
+  background-color: var(--blue-dark);
+}
+
+.side-nav a{
+  color: var(--blue-light) !important;
+  text-transform: uppercase !important;
+  font-size: 5vw !important;
+  font-weight: lighter !important;
 }
 
 .title {
@@ -640,7 +647,7 @@ footer{
 .coolCont div:nth-child(1){
   position: absolute;
   width: 100%;
-  top:30%;
+  top:25%;
   transition: all 1s ease;
   opacity: 1;
 }
@@ -871,6 +878,37 @@ mark{
   background: #c7f8ff;
   color: black;
 }
+
+.transparentBlue{
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#3982bc+1,273238+100 */
+  background: rgb(57,130,188); /* Old browsers */
+  background: -moz-linear-gradient(top, rgba(57,130,188,1) 1%, rgba(39,50,56,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(57,130,188,1) 1%,rgba(39,50,56,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(57,130,188,1) 1%,rgba(39,50,56,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3982bc', endColorstr='#273238',GradientType=0 ); /* IE6-9 */
+}
+.determinate{
+  transition: all 1s;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#7db9e8+0,7abaff+100&0+0,1+100 */
+  background: -moz-linear-gradient(left, rgba(125,185,232,0) 0%, rgba(122,186,255,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(left, rgba(125,185,232,0) 0%,rgba(122,186,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to right, rgba(125,185,232,0) 0%,rgba(122,186,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#007db9e8', endColorstr='#7abaff',GradientType=1 ); /* IE6-9 */
+  color: var(--blue-medium);
+  padding: 6px;
+  text-align: center;
+}
+
+  .nextBox{
+    background-color: #01579b !important;
+    transition: 1s all;
+  }
+
+  .nextBox:hover{
+    background-color: #0277bd !important;
+    transition: 1s all;
+  }
+
 
 
 /*MARCO CANO end*/

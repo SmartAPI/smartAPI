@@ -1,0 +1,50 @@
+h2.title span {
+ display: none !important;
+}
+.swagger-ui .info .title{
+ font-size: 10vw !important;
+ font-family: smartFont !important;
+}
+
+h2.title{
+ padding-top: 20px;
+}
+span.url{
+ word-wrap: break-word;
+}
+
+div.info{
+text-align: center;
+}
+
+div.info a{
+color: var(--blue-medium) !important;
+text-decoration: underline;
+}
+
+.servers select{
+ display: block;
+ width: auto;
+}
+
+.swagger-ui .btn{
+ margin-left: 10px;
+ padding: 5px !important;
+ line-height: normal;
+ background-color: var(--blue-dark);
+ color: white;
+ border: var(--blue-light) 1px solid;
+ transition: 1s all;
+ font-weight: normal;
+}
+
+.swagger-ui .btn:hover{
+ margin-left: 10px;
+ padding: 5px !important;
+ line-height: normal;
+ background-color: var(--blue-medium);
+ color: white;
+ border: var(--blue-light) 1px solid;
+ transition: 1s all;
+ font-weight: normal;
+}
