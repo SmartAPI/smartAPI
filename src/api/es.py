@@ -314,6 +314,19 @@ class ESQuery():
         res = res["aggregations"]
         return res
 
+    def get_api_id_from_subdomain(self, subdomain):
+        query = {
+            "query": {
+                "term": {"_meta.subdomain": subdomain}
+            }
+        }
+        try:
+            res = self._es.search(index=self._index, doc_type=self._doc_type, body=query, size=1, _source=False)
+        except:
+            return
+        if res.get('hits', {}).get('hits', []):
+            return res['hits']['hits'][0]['_id']
+
     def value_suggestion(self, field, size=100, use_raw=True):
         """return a list of existing values for the given field."""
         _field = field + ".raw" if use_raw else field
@@ -419,7 +432,7 @@ class ESQuery():
         try:
             api_doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id)
         except:
-            return (404, {"success": False, "error": "Could not retrieve API '{}' to delete".format(_id)})
+            return (404, {"success": False, "error": "Could not retrieve API '{}' to refresh".format(_id)})
         api_doc['_source'].update({'_id': api_doc['_id']})
         _user = user.get('login', None)
         if api_doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
