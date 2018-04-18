@@ -12,7 +12,7 @@
 .side-nav a{
   color: var(--blue-light) !important;
   text-transform: uppercase !important;
-  font-size: 5vw !important;
+  font-size: 1.2em !important;
   font-weight: lighter !important;
 }
 
