@@ -26,6 +26,7 @@ text-decoration: underline;
 .servers select{
  display: block;
  width: auto;
+ max-width: 100%;
 }
 
 .swagger-ui .btn{
@@ -37,6 +38,15 @@ text-decoration: underline;
  border: var(--blue-light) 1px solid;
  transition: 1s all;
  font-weight: normal;
+}
+.swagger-ui input[type=email], .swagger-ui input[type=password], .swagger-ui input[type=search], .swagger-ui input[type=text] {
+  min-width: 100px;
+  margin: 5px 0;
+  padding: 8px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background: #fff;
+  max-width: 90%;
 }
 
 .swagger-ui .btn:hover{
