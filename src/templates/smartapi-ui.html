@@ -2,6 +2,7 @@
 {% block content %}
 {% include "simple-header.html" %}
 {% raw %}
+
 <!-- <link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/> -->
 <link type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/>
 <link type="text/css" rel="stylesheet" href="/static/css/custom-swagger.css"/>
@@ -13,10 +14,12 @@
     </p>
   </div>
   <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
+  <div class="blue-grey darken-4 padding20 center l-blue-text lighter">
+    <a href="http://smart-api.info/" target="_blank" class="logoFont l-blue-text">SmartAPI</a>
+  </div>
 </main>
 
 {% endraw %}
-{% include "footer.html" %}
 {% endblock %}
 {% block extra_scripts %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>

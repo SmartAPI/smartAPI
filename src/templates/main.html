@@ -51,7 +51,7 @@
 
     </head>
 
-    <body id="top" class="scrollspy" onload="init();">
+    <body id="top" class="scrollspy" onload="indexSVGAnimation()">
 
             {% block content %}
             {% endblock %}
@@ -78,6 +78,12 @@
         {% endblock %}
         <script type="text/javascript">
             $('.collapsible').collapsible();
+            function indexSVGAnimation(){
+              // init function should only happen on index otherwise an error will occurr on other pages
+              if (window.location.href === 'http://smart-api.info/') {
+                init();
+              }
+            }
         </script>
     </body>
 </html>
