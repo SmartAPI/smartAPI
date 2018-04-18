@@ -47,6 +47,7 @@ class BaseHandler(tornado.web.RequestHandler):
 class MainHandler(BaseHandler):
     def get(self):
         subdomain = self.request.host.split(".")[0]
+        print("Host: {} - Subdomain: {}".format(self.request.host, subdomain))
         if subdomain.lower() not in ['www', 'dev', 'smart-api']:
             # try to get a registered subdomain/tag
             esq = ESQuery()
@@ -170,7 +171,14 @@ class DashboardHandler(BaseHandler):
         self.write(dashboard_output)
 
 class SwaggerUIHandler(BaseHandler):
-    def get(self, yourApiID):
+    def get(self, yourApiID=None):
+        if not yourApiID: 
+            if self.get_argument('url', False):
+                api_id = self.get_argument('url').split('/')[-1]
+                self.redirect('/ui/{}'.format(api_id), permanent=True)
+            else:
+                raise tornado.web.HTTPError(404)
+            return
         swaggerUI_file = "smartapi-ui.html"
         swagger_template = templateEnv.get_template(swaggerUI_file)
         swagger_output = swagger_template.render(apiID = yourApiID )
@@ -187,5 +195,6 @@ APP_LIST = [
     (r"/documentation/?", DocumentationHandler),
     (r"/dashboard/?", DashboardHandler),
     (r"/api-ui/(.+)/?", SwaggerUIHandler),
-    (r"/ui/(.+)/?", SwaggerUIHandler)
+    (r"/ui/(.+)/?", SwaggerUIHandler),
+    (r"/ui/?", SwaggerUIHandler)
 ]
