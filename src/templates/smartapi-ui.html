@@ -1,6 +1,6 @@
 {% extends "main.html" %}
 {% block content %}
-{% include "header.html" %}
+{% include "simple-header.html" %}
 {% raw %}
 <!-- <link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/> -->
 <link type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/>
@@ -8,6 +8,11 @@
   h2.title span {
    display: none !important;
  }
+ .swagger-ui .info .title{
+   font-size: 10vw !important;
+   font-family: smartFont !important;
+ }
+
  h2.title{
    padding-top: 20px;
  }
@@ -19,24 +24,25 @@
   text-align: center;
  }
 
+ div.info a{
+  color: var(--blue-medium) !important;
+  text-decoration: underline;
+ }
+
+ .servers select{
+   display: block;
+   width: auto;
+ }
+
 </style>
 
 <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
-  <div class=" transparent center-align padding20 " style="margin-bottom: -50px; margin-top:0px;">
-    <span class="hide-on-small-only show-on-medium-and-up" style="margin-bottom: 60px;">
-      <img width="15%" alt="SmartAPI" src="/static/img/logo-large.svg" />
-      <h4  class="white-text logoFont lighter" style="margin:5px;">Smart<span class="l-blue-text">API</span></h4>
-    </span>
-    <span class="show-on-small hide-on-med-and-up" style="margin-bottom: 60px;">
-      <h5  class="white-text logoFont lighter" style="margin:5px;">SmartAPI</h5>
-    </span>
-  </div>
-  <div v-if="!data" class="white blue-text container center-align" style="padding: 200px 20px;border-radius: 20px;">
+  <div v-if="!data" class="white blue-text center-align" style="padding: 200px 20px;">
     <p v-if="!data">
       <h4 class="title">Please Wait...</h4>
     </p>
   </div>
-  <div class="grey container lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden; margin-bottom:20px; border-radius: 20px;"></div>
+  <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
 </main>
 
 {% endraw %}
