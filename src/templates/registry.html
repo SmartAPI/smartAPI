@@ -7,6 +7,12 @@
   .collection a.collection-item{
     color: var(--blue-medium);
   }
+  mark{
+    background: transparent;
+    color: red;
+    font-weight: bold;
+  }
+
 </style>
   {% raw %}
   <!-- Loading Screen -->
@@ -245,6 +251,7 @@
                 getKeywords: function(){
                   var self= this;
                   // Read the keyword
+
                   self.keywords = $("input[name='query']").val();
                   self.mark();
                 },

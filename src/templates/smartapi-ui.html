@@ -2,7 +2,6 @@
 {% block content %}
 {% include "simple-header.html" %}
 {% raw %}
-
 <!-- <link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/> -->
 <link type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/>
 <link type="text/css" rel="stylesheet" href="/static/css/custom-swagger.css"/>
@@ -90,9 +89,7 @@
         }
 
         axios.get('/api/query?size=100', params).then(res=>{
-          //console.log(res.data.hits);
           let api= res.data.hits[0];
-          //console.log(api._meta.url);
           this.loadSwaggerUI(api._meta.url);
           this.data = true;
         }).catch(err=>{

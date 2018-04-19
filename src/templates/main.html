@@ -62,28 +62,27 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.2/axios.min.js"></script>
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" ></script>-->
-
         <!-- Materialize Compiled and minified JavaScript -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-
         <!-- Select2 https://select2.github.io/ -->
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js"></script>-->
-
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.6.9/sweetalert2.min.js"></script>
-
         <script src="/static/js/smartapi.js"></script>
 
         {% block extra_scripts %}
         {% endblock %}
         <script type="text/javascript">
             $('.collapsible').collapsible();
+
             function indexSVGAnimation(){
               // init function should only happen on index otherwise an error will occurr on other pages
-              if (window.location.href === 'http://smart-api.info/' || 'http://dev.smart-api.info/') {
+              console.log(window.location.href);
+              if (window.location.href === 'http://smart-api.info/' || 'http://dev.smart-api.info/' || 'http://localhost:8000/') {
                 init();
               }
             }
+
         </script>
     </body>
 </html>

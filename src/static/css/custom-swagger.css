@@ -60,11 +60,6 @@ text-decoration: underline;
  font-weight: normal;
 }
 
-.swagger-ui .opblock-body pre{
-  max-height: 500px;
-  max-width: 400px;
-  overflow: scroll;
-}
 .swagger-ui .parameters-col_description input[type=text]{
   height: auto !important;
 }
@@ -85,4 +80,21 @@ text-decoration: underline;
 
 .swagger-ui section.models{
   background-color: #ececec;
+}
+/* resizes response box on Swagger UI - shows after clicking Execute*/
+.swagger-ui .opblock-body pre {
+  font-size: 12px;
+  margin: 0;
+  max-height: 500px;
+  width:calc(100vw /3 *2.1);
+  resize: horizontal;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding: 10px;
+  white-space: pre-wrap;
+  border-radius: 4px;
+  background: #41444e;
+  font-family: Source Code Pro, monospace;
+  font-weight: 600;
+  color: #fff;
 }

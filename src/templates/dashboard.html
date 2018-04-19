@@ -8,6 +8,30 @@
   background: #328CC4;
 }
 
+.smallButton{
+  padding:4px;
+  margin: 3px;
+  font-size: 12px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  background-color: rgb(209, 209, 209);
+  color: grey;
+  transition: all .5s;
+}
+
+.smallButton:hover{
+  padding:4px;
+  margin: 3px;
+  font-size: 12px;
+  border-radius: 2px;
+  border: none;
+  cursor: pointer;
+  background-color: rgb(121, 121, 121);
+  color: white;
+  transition: all .5s;
+}
+
 </style>
 
 <main id="dashApp" style="padding-top:20px;" class="blue-grey darken-3 dashboardBack">
@@ -119,7 +143,7 @@
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text grey lighten-5">
-                      <th class="lighter smallFont center-align">API Name (A-Z)</th>
+                      <th class="lighter smallFont center-align">API Name <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></th>
                       <th class="center-align lighter smallFont">Last Updated</th>
                       <th class="center-align lighter smallFont">Refresh</th>
                       <th class="center-align lighter smallFont">Delete</th>
@@ -287,7 +311,8 @@
             total: 0,
             confirmDelete: true,
             searchQuery:'',
-            searchResults:[]
+            searchResults:[],
+            sortASC: true
           }
         },
         methods:{
@@ -295,7 +320,8 @@
             var self=this;
             axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login).then(function(response){
                   //console.log(response.data.hits);
-                  self.apis = self.sortApisByName(response.data.hits);
+                  self.apis = response.data.hits;
+                  self.sortApisByName();
                   self.total = response.data.total;
                   self.hideLoading();
               }).catch(err=>{
@@ -351,11 +377,11 @@
           hideLoading: function(){
             $('#loading-overlay').hide();
           },
-          sortApisByName: function(apis){
+          sortApisByName: function(){
             var self = this;
-            //console.log(apis);
-            var sortedAPIS = _.sortBy(apis, 'info.title');
-            return sortedAPIS;
+            self.sortASC = !self.sortASC;
+            //var sortedAPIS = _.sortBy(self.apis,'info.title');
+            //return sortedAPIS;
           },
           getDetails: function(fullApiInfo, meta){
             var self = this;
@@ -414,6 +440,16 @@
             }else{
               let result = this.apis.filter(o => o.info.title.toLowerCase().includes(query.toLowerCase()));
               this.searchResults = result;
+            }
+          },
+          sortASC: function(sort){
+            var self = this;
+            if (!sort) {
+              self.apis = _.sortBy(self.apis,'info.title');
+              $("#sortName").text('A-Z');
+            }else if (sort){
+              self.apis = _.sortBy(self.apis,'info.title').reverse();
+              $("#sortName").text('Z-A');
             }
           }
         }
