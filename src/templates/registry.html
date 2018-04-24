@@ -65,7 +65,10 @@
                 </div>
                 <div class="row search-results">
                     <div class="col s12">
-                        <div>Total APIs: <span class="blue-text">{{total}}</span></div>
+                        <div>
+                          Total APIs: <span class="blue-text">{{total}}</span>
+                          <span style="float: right">Sorted <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span>
+                        </div>
                         <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
@@ -187,7 +190,8 @@
                   page: 1,
                   pages: 1,
                   perPage: 20,
-                  keywords:''
+                  keywords:'',
+                  sortASC: true
               }
             },
             methods: {
@@ -279,7 +283,8 @@
                     this.loading_start();
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
-                        self.apis = response.data.hits;
+                        //self.apis = response.data.hits;
+                        self.apis = _.sortBy(response.data.hits,'info.title');
                         self.total = response.data.total;
                         self.calculatePages();
                     });
@@ -376,7 +381,11 @@
                         })
                     }
                     return operations;
-                }
+                },
+                sortApisByName: function(){
+                  var self = this;
+                  self.sortASC = !self.sortASC;
+                },
             },
             created: function () {
                 $(".button-collapse").sideNav();
@@ -393,6 +402,18 @@
                         end = start + this.perPage;
                     return this.apis && this.apis.slice(start, end);
                 }
+            },
+            watch:{
+              sortASC: function(sort){
+                var self = this;
+                if (!sort) {
+                  self.apis = _.sortBy(self.apis,'info.title');
+                  $("#sortName").text('A-Z');
+                }else if (sort){
+                  self.apis = _.sortBy(self.apis,'info.title').reverse();
+                  $("#sortName").text('Z-A');
+                }
+              }
             }
         });
     </script>

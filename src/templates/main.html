@@ -77,9 +77,18 @@
 
             function indexSVGAnimation(){
               // init function should only happen on index otherwise an error will occurr on other pages
-              console.log(window.location.href);
-              if (window.location.href === 'http://smart-api.info/' || 'http://dev.smart-api.info/' || 'http://localhost:8000/') {
-                init();
+              switch (window.location.toString()) {
+                case 'http://localhost:8000/':
+                  init();
+                  break;
+                  case 'http://dev.smart-api.info/':
+                    init();
+                    break;
+                    case 'http://smart-api.info/':
+                      init();
+                      break;
+                default: return false;
+
               }
             }
 

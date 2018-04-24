@@ -911,5 +911,31 @@ mark{
   }
 
 
+  .smallButton{
+    padding:4px;
+    margin: 3px;
+    font-size: 12px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    background-color: rgb(209, 209, 209);
+    color: grey;
+    transition: all .5s;
+  }
+
+  .smallButton:hover{
+    padding:4px;
+    margin: 3px;
+    font-size: 12px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    background-color: rgb(121, 121, 121);
+    color: white;
+    transition: all .5s;
+  }
+
+
+
 
 /*MARCO CANO end*/

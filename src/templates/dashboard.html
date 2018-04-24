@@ -8,30 +8,6 @@
   background: #328CC4;
 }
 
-.smallButton{
-  padding:4px;
-  margin: 3px;
-  font-size: 12px;
-  border-radius: 2px;
-  border: none;
-  cursor: pointer;
-  background-color: rgb(209, 209, 209);
-  color: grey;
-  transition: all .5s;
-}
-
-.smallButton:hover{
-  padding:4px;
-  margin: 3px;
-  font-size: 12px;
-  border-radius: 2px;
-  border: none;
-  cursor: pointer;
-  background-color: rgb(121, 121, 121);
-  color: white;
-  transition: all .5s;
-}
-
 </style>
 
 <main id="dashApp" style="padding-top:20px;" class="blue-grey darken-3 dashboardBack">
@@ -93,15 +69,15 @@
           </li>
         </ul>
       </div>
-    <div class="col s12 m8 l9 xl9  center-align" >
+    <div class="col s12 m8 l9 xl9 center-align" >
         <!-- <h5 class="text_h3 white-text tracking-in-expand textShadow">MY DASHBOARD</h5> -->
         <div class="row">
           <!-- Search API -->
-          <div class="col s12 testBack" style="padding: 0px !important;">
-            <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:#347CA9 2px solid;"/>
+          <div class="col s12 nextBox" style="padding: 0px !important; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+            <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-light) 2px solid;"/>
             <table class="bordered noPadding grey lighten-5" style="table-layout: fixed;">
               <thead v-if="searchQuery">
-                <th class="lighter smallFont center-align">API Name</th>
+                <th class="lighter smallFont center-align">Name</th>
                 <th class="center-align lighter smallFont">Last Updated</th>
                 <th class="center-align lighter smallFont">Refresh</th>
                 <th class="center-align lighter smallFont">Delete</th>
@@ -143,7 +119,7 @@
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text grey lighten-5">
-                      <th class="lighter smallFont center-align">API Name <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></th>
+                      <th class="lighter smallFont center-align">Name <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></th>
                       <th class="center-align lighter smallFont">Last Updated</th>
                       <th class="center-align lighter smallFont">Refresh</th>
                       <th class="center-align lighter smallFont">Delete</th>
