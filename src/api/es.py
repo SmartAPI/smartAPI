@@ -317,7 +317,12 @@ class ESQuery():
     def get_api_id_from_subdomain(self, subdomain):
         query = {
             "query": {
-                "term": {"_meta.subdomain": subdomain}
+                "bool": {
+                    "should": [
+                        {"term": {"_meta.subdomain": subdomain}},
+                        {"ids": {"values": [subdomain]}}
+                    ]
+                }
             }
         }
         try:
