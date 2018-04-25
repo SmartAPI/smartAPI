@@ -24,7 +24,7 @@
   <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
     <div class="center-align" style="padding-top: 300px;">
       <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
-      <h5 class="white-text">Loading</h5>
+      <h3 class="white-text">Loading...</h3>
     </div>
   </div>
   <!-- Loading END -->
@@ -84,17 +84,17 @@
               </thead>
               <tbody >
                 <tr v-for="(api,index) in searchResults">
-                  <td style="padding: 5px 5px;">
+                  <td >
                      <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                   </td>
-                  <td style="padding: 5px 5px;" class="center-align">
+                  <td  class="center-align">
                     <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
                   </td>
-                  <td style="padding: 5px 5px;" class="center-align">
+                  <td  class="center-align">
                     <!-- refresh button global component -->
                     <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
                   </td>
-                  <td style="padding: 5px 5px;" class="center-align">
+                  <td class="center-align">
                     <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn scale-in-center red white-text modal-trigger" style="cursor: pointer;">
                       <i class="material-icons white-text">delete_forever</i>
                     </a>
@@ -128,17 +128,17 @@
                 <tbody>
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
-                    <td style="padding: 5px 5px;">
+                    <td style="overflow: hidden;">
                        <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                     </td>
-                    <td style="padding: 5px 5px;" class="center-align">
+                    <td  class="center-align">
                       <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
                     </td>
-                    <td style="padding: 5px 5px;" class="center-align">
+                    <td class="center-align">
                       <!-- refresh button global component -->
                       <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
                     </td>
-                    <td style="padding: 5px 5px;" class="center-align">
+                    <td class="center-align">
                       <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn scale-in-center red white-text modal-trigger" style="cursor: pointer;">
                         <i class="material-icons white-text">delete_forever</i>
                       </a>

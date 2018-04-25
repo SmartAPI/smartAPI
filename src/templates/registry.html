@@ -15,16 +15,16 @@
 
 </style>
   {% raw %}
-  <!-- Loading Screen -->
-  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
-    <div class="center-align" style="padding-top: 300px;">
-      <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
-      <h5 class="white-text">Loading</h5>
-    </div>
-  </div>
     <main>
+      <!-- Loading Screen -->
+      <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+        <div class="center-align" style="padding-top: 300px;">
+          <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
+          <h3 class="white-text">Loading...</h3>
+        </div>
+      </div>
     <div id="app" style="height: 100%;" class="white">
-        <div class="side-nav" id="filters">
+        <!-- <div class="side-nav" id="filters">
             <div class="row">
                 <div class="col s12">
                     <h5>Tags</h5>
@@ -35,20 +35,20 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="row full-height">
-            <div class="col l2 hide-on-med-and-down sidebar">
+            <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
                     <a v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
             </div>
-            <div class="col l10 s12">
+            <div class="col l10 s12 ">
                 <div class="row">
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                         <div class="input-field col s12 l6 offset-l3">
                             <i class="material-icons prefix grey-text">search</i>
-                            <input  aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
+                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
                             <label for="search_query"></label>
                         </div>
                         <div class="col s12 selected-tags">
@@ -64,6 +64,10 @@
                     </form>
                 </div>
                 <div class="row search-results">
+                  <!-- Special Tags -->
+                  <!-- <div v-if='specialTags[0]' class="col s12">
+                    <h1 class="blue-text">Translator</h1>
+                  </div> -->
                     <div class="col s12">
                         <div>
                           Total APIs: <span class="blue-text">{{total}}</span>
@@ -87,9 +91,9 @@
                                 </span>
                                 <br />
                                 <br />
-                                <p class="blue-grey-text smallFont" v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                                 <div class="full-width">
-                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);" class="grey-text link" style="font-size: 11px; margin:3px; cursor: pointer;">
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag blue-text" aria-hidden="true"></i> {{tag.name}}
                                   </a>
                                 </div>
@@ -191,7 +195,8 @@
                   pages: 1,
                   perPage: 20,
                   keywords:'',
-                  sortASC: true
+                  sortASC: true,
+                  specialTags: [{name:'Translator', disabled: true}]
               }
             },
             methods: {
@@ -338,8 +343,10 @@
                         if (filters)
                             params["params"]["filters"] = filters;
                         this.loading_start();
+                        $(".context").unmark();
                         axios.get('/api/query?size=100', params).then(function (response) {
                             self.loading_end();
+                            $(".context").unmark();
                             self.apis = response.data.hits;
                             //console.log(self.apis);
                             self.total = response.data.total;
@@ -384,6 +391,7 @@
                 },
                 sortApisByName: function(){
                   var self = this;
+                  $(".context").unmark();
                   self.sortASC = !self.sortASC;
                 },
             },
