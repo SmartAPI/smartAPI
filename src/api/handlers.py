@@ -11,6 +11,7 @@ import re
 import hashlib
 import hmac
 
+from collections import OrderedDict
 from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
 import config
@@ -21,6 +22,21 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/json; charset=UTF-8")
         self.support_cors()
         self.write(_json_data)
+
+    def return_yaml(self, data):
+        def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
+            class OrderedDumper(Dumper):
+                pass
+            def _dict_representer(dumper, data):
+                return dumper.represent_mapping(
+                    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                    data.items())
+            OrderedDumper.add_representer(OrderedDict, _dict_representer)
+            return yaml.dump(data, stream, OrderedDumper, **kwds)
+        
+        self.set_header("Content-Type", "application/x-yaml; charset=UTF-8")
+        self.support_cors()
+        self.write(ordered_dump(data=data, Dumper=yaml.SafeDumper, default_flow_style=False))
 
     def support_cors(self, *args, **kwargs):
         '''Provide server side support for CORS request.'''
@@ -160,6 +176,7 @@ class APIMetaDataHandler(BaseHandler):
            if api_name is "all", return a list of all APIs
         '''
         fields = self.get_argument('fields', None)
+        out_format = self.get_argument('format', 'json').lower()
         return_raw = self.get_argument('raw', False)
         with_meta = self.get_argument('meta', False)
         size = self.get_argument('size', None)
@@ -175,7 +192,10 @@ class APIMetaDataHandler(BaseHandler):
         if fields:
             fields = fields.split(',')
         res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
-        self.return_json(res)
+        if out_format == 'yaml':
+            self.return_yaml(res)
+        else:
+            self.return_json(res)
 
     def put(self, api_name):
         ''' refresh API metadata for a matched api_name,
