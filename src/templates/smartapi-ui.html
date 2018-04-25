@@ -7,11 +7,6 @@
 <link type="text/css" rel="stylesheet" href="/static/css/custom-swagger.css"/>
 
 <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
-  <div v-if="!data" class="white blue-text center-align" style="padding: 200px 20px;">
-    <p v-if="!data">
-      <h4 class="title">Please Wait...</h4>
-    </p>
-  </div>
   <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
   <div class="blue-grey darken-4 padding20 center l-blue-text lighter">
     <a href="http://smart-api.info/" target="_blank" class="logoFont l-blue-text">SmartAPI</a>
@@ -50,8 +45,7 @@
       el: '#ui-app',
       data: function(){
         return {
-          apiID:'',
-          data: false
+          apiID:''
         }
       },
       methods: {
@@ -81,21 +75,8 @@
       mounted: function(){
 
         this.apiID = '{{apiID}}';
+        this.loadSwaggerUI('/api/metadata/'+this.apiID+'?format=yaml');
 
-        var params = {
-            "params": {
-                "q": this.apiID
-            }
-        }
-
-        axios.get('/api/metadata/'+this.apiID+'?format=yaml').then(res=>{
-          let api= res.data;
-          console.log(JSON.stringify(res.data, null, 2));
-          this.loadSwaggerUI(res.data);
-          this.data = true;
-        }).catch(err=>{
-          throw err;
-        });
       },
       updated: function(){
 
