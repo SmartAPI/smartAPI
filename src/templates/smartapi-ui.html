@@ -88,9 +88,9 @@
             }
         }
 
-        axios.get('/api/metadata/'+this.apiID).then(res=>{
+        axios.get('/api/metadata/'+this.apiID+'?format=yaml').then(res=>{
           let api= res.data;
-          console.log(res.data);
+          console.log(JSON.stringify(res.data, null, 2));
           this.loadSwaggerUI(res.data);
           this.data = true;
         }).catch(err=>{
