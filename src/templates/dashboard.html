@@ -8,6 +8,10 @@
   background: #328CC4;
 }
 
+.modal{
+  width: 85%;
+}
+
 </style>
 
 <main id="dashApp" style="padding-top:20px;" class="blue-grey darken-3 dashboardBack">
@@ -129,7 +133,7 @@
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td style="overflow: hidden;">
-                       <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
+                       <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                     </td>
                     <td  class="center-align">
                       <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
@@ -174,33 +178,94 @@
     </div>
   </div>
   <!-- delete Modal end -->
+
   <!-- Details Modal -->
   <div id="modal2" class="modal center-align">
-    <div class="modal-content">
-      <ul class="collection with-header" style="border: none;">
-        <li class="collection-header padding20">
-          <h4 class="text_h3 blue-text">{{selectedAPI.title}}</h4>
-          <span class="chip blue white-text smallFont" style="font-size: 12px; font-weight: bold;">Version {{ selectedAPI.version }}</span>
-        </li>
-        <li v-if="selectedAPIContact.name" class="collection-item blue-grey lighten-4">
-          <h4 class="blue-grey-text">{{ selectedAPIContact.name }}</h4>
-          <h5 class="blue-grey-text lighter" style="text-transform: uppercase; font-size: 16px;">{{ selectedAPIContact["x-role"] }}</h5>
-        </li>
-        <li class="collection-item blue-grey lighten-5">
-          <a :href="selectedAPIGithub" target="_blank"><i class="small fa fa-github-alt blue-text"></i> My Github</a>
-        </li>
-        <li class="collection-item padding20 blue-grey lighten-5">
-          <fieldset class="padding20 white" style="border-radius: 10px; border: none;">
-          <legend class="blue-text">Description:</legend>
-            <p class="blue-grey-text">{{ selectedAPI.description }}</p>
-          </fieldset>
-        </li>
-        <li class="collection-item blue-grey lighten-5">
-          <i class="material-icons tiny blue-text">info_outline</i>
-          <a :href="selectedAPI.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
-        </li>
-      </ul>
-      <a href="#!" class="btn blue modal-action modal-close">Close</a>
+    <div class="modal-content" style="padding-top:45px;">
+      <div class="row">
+        <div class="col s12">
+          <ul class="tabs transparent">
+            <li class="tab col s3"><a href="#test1" class="active blue-text">About</a></li>
+            <li class="tab col s3"><a class="blue-text" href="#test2"><i class="tiny material-icons">settings</i> Settings</a></li>
+          </ul>
+        </div>
+        <!-- About -->
+        <div id="test1" class="col s12">
+          <ul class="collection with-header" style="border: none;">
+            <li class="collection-header padding20">
+              <object width="100px"  alt="SmartAPI" data="/static/img/logo-medium.svg" class="hide-on-small-only"></object>
+              <h2 class="blue-text flow-text">
+                {{selectedAPI.title}}
+                <span class="versionBadge grey hide-on-small-only" style="font-size: 12px;">Version {{ selectedAPI.version }}</span>
+              </h2>
+              <hr />
+              <a :href="'/ui/'+selectedAPIId" class="btn blue">View API Doc</a>
+            </li>
+            <li v-if="selectedAPIContact.name" class="collection-item blue-grey lighten-4">
+              <p class="blue-grey-text noMargin flow-text"><a class="link " :href="selectedAPIGithub" target="_blank">{{ selectedAPIContact.name }}</a><br class="hide-on-med-and-up" /> / {{ selectedAPIContact["x-role"] }}</p>
+            </li>
+            <li class="collection-item padding20 blue-grey lighten-5">
+              <p style="line-height: 1.2em;" class="blue-grey-text flow-text">{{ selectedAPI.description }}</p>
+            </li>
+            <li class="collection-item blue-grey lighten-5">
+              <i class="material-icons tiny blue-text">info_outline</i>
+              <a :href="selectedAPI.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+            </li>
+          </ul>
+        </div>
+        <!-- Settings -->
+        <div id="test2" class="col s12 white">
+          <div class="row">
+            <div class="col s12 m12 l12 center-align">
+              <h5>API Short Name Registration</h5>
+            </div>
+            <div v-if='!hasShortName' class="col s12 m12 l12 center-align">
+              <p class="grey-text">
+                You can register a unique subdomain to share your API docs. <br />
+                If you go to <b>your-subdomain</b>.smart-api.info, it will take users to your API documentation.
+              </p>
+              <a v-if='!createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="blue btn">Create a new short name</a>
+              <a v-if='createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="red btn">Cancel</a>
+            </div>
+            <div v-if='hasShortName' class="col s12 m12 l12">
+              <p class="green-text flow-text">
+                 <b>Your url: </b> <a :href=" 'http://'+selectedAPIMeta.subdomain+'.smart-api.info'" target="_blank" class="green-text">http://{{selectedAPIMeta.subdomain}}.smart-api.info</a>
+                 <a class="btn green" @click.prevent='createOrEditMode = !createOrEditMode'>Edit</a>
+              </p>
+            </div>
+            <div v-if="createOrEditMode" style="width: 100%; display: flex; align-items: center;justify-content: center; flex-wrap: wrap;">
+              <div class="center-align padding20 grey-text smallFont" style="flex: 1; min-width: 100%;">
+                Short name length must be 4-50 characters. Short names will be converted to lower case.
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <input autocomplete="false" v-model='myShortName' placeholder="Enter short name here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <p id="availabilityResults" v-bind:class="{'green-text': availableShortName, 'red-text': !availableShortName }">
+                  <span v-if="myShortName" class="grey-text">http://</span>
+                  <span v-if="myShortName">{{myShortName}}</span>
+                  <span v-if="myShortName" class="grey-text">.smart-api.info</span>
+                  <span v-if="!myShortName" class="grey-text">Check Short Name Availability</span>
+                  <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
+                  <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
+                  <br />
+                  <span v-if="myShortName.length <= 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
+                  <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span>
+                </p>
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <a @click.prevent="setShortname()" :disabled='!availableShortName && !hasShortName' :class="!availableShortName ? 'btn grey' : 'green btn pulse' " >Claim it</a>
+              </div>
+              <!-- Sucess registering short name -->
+              <div id="shortNameSuccess" class="center-align padding20 green smallFont" style="flex: 1; min-width: 100%; display: none;">
+                <h5 class="white-text"><i class="fa fa-check white-text" aria-hidden="true"></i> Short Name Registered</h5>
+                <a href="#!" class="btn green modal-action modal-close">Close</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a href="#!" style="position: absolute; top:1%; right: 5%; font-size: 2em;" class="red-text modal-action modal-close">&times;</a>
     </div>
   </div>
   <!-- details modal end -->
@@ -282,13 +347,19 @@
             selectedAPI:{},
             inputApiName:'',
             selectedAPIContact: {},
+            selectedAPIMeta: {},
             selectedAPIGithub:'',
+            selectedAPIId:'',
             apis:[],
             total: 0,
             confirmDelete: true,
             searchQuery:'',
             searchResults:[],
-            sortASC: true
+            sortASC: true,
+            myShortName:'',
+            availableShortName: false,
+            hasShortName: false,
+            createOrEditMode: false
           }
         },
         methods:{
@@ -359,11 +430,20 @@
             //var sortedAPIS = _.sortBy(self.apis,'info.title');
             //return sortedAPIS;
           },
-          getDetails: function(fullApiInfo, meta){
+          getDetails: function(fullApi){
             var self = this;
-            self.selectedAPI = fullApiInfo;
-            self.selectedAPIContact = self.selectedAPI.contact;
-            self.selectedAPIGithub = 'https://www.github.com/'+meta.github_username;
+            //console.log(fullApi);
+            self.selectedAPI = fullApi.info;
+            self.selectedAPIMeta = fullApi._meta;
+            self.selectedAPIId = fullApi._id;
+            self.selectedAPIContact = fullApi.info.contact;
+            self.selectedAPIGithub = 'https://www.github.com/'+fullApi._meta.github_username;
+            var sub = fullApi._meta.subdomain;
+            if (sub) {
+              self.hasShortName = true;
+            }else{
+              self.hasShortName = false;
+            }
           },
           convertDate: function(timestamp){
             var date = new Date(timestamp);
@@ -373,6 +453,40 @@
           reloadAPIs: function(){
             this.showLoading();
             this.getUserInfo();
+          },
+          evaluateShortname: function(){
+            var self = this;
+            //$('#shortNameSuccess').show();
+            axios.get('http://smart-api.info/api/query?q=_meta.subdomain:'+self.myShortName+'&fields=_meta').then(response=>{
+              //console.log(response.data.hits);
+              //$('#shortNamSg').hide();
+              if (response.data.total) {
+                var hits = response.data.hits;
+                for (var i = 0; i < hits.length; i++) {
+                  //console.log(hits[i]._meta.subdomain);
+                  var sub = hits[i]._meta.subdomain;
+                  if (sub === self.myShortName) {
+                    //if it matches a result
+                    self.availableShortName = false;
+                  }else{
+                    //if result but no match
+                    self.availableShortName = true;
+                  }
+                }
+              }else{
+                //if no results you can choose anything
+                self.availableShortName = true;
+              }
+            }).catch(error =>{
+              throw error;
+              self.availableShortName = false;
+              Materialize.toast('Short name check failed', 4000,'rounded red white-text');
+            })
+
+          },
+          setShortname: function(){
+            //claim it button clicked
+            console.log(this.myShortName);
           },
           getUserInfo: function(){
             var self= this;
@@ -426,6 +540,16 @@
             }else if (sort){
               self.apis = _.sortBy(self.apis,'info.title').reverse();
               $("#sortName").text('Z-A');
+            }
+          },
+          myShortName: function(shortname){
+            var self = this;
+            self.myShortName = self.myShortName.toLowerCase();
+            //console.log(shortname);
+            if (shortname.length > 3 && shortname.length <= 50) {
+              self.evaluateShortname();
+            }else{
+              self.availableShortName = false;
             }
           }
         }
