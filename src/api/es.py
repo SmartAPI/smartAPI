@@ -1,10 +1,10 @@
 import json
+import string
 from datetime import date, datetime
 
 from elasticsearch import Elasticsearch, RequestError, helpers
 
 from .transform import APIMetadata, decode_raw, get_api_metadata_by_url
-
 
 ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_oas3'
@@ -314,13 +314,13 @@ class ESQuery():
         res = res["aggregations"]
         return res
 
-    def get_api_id_from_subdomain(self, subdomain):
+    def get_api_id_from_slug(self, slug_name):
         query = {
             "query": {
                 "bool": {
                     "should": [
-                        {"term": {"_meta.subdomain": subdomain}},
-                        {"ids": {"values": [subdomain]}}
+                        {"term": {"_meta.slug": slug_name}},
+                        {"ids": {"values": [slug_name]}}
                     ]
                 }
             }
@@ -354,7 +354,7 @@ class ESQuery():
         and a user that must match the APIs creator. """
         # does the api exist?
         try:
-            _doc = self._es.get(index=self._index, doc_type=self._doc_type, id=id, _source=['_meta'])
+            _doc = self._es.get(index=self._index, doc_type=self._doc_type, id=id)
         except:
             _doc = None
         if not _doc:
@@ -366,8 +366,10 @@ class ESQuery():
         _user = user.get('login', None)
         if _doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
             return (405, {"success": False, "error": "User '{user}' is not the owner of API '{id}'".format(user=_user, id=id)})
-        # do the archive
-        self._es.update(index=self._index, doc_type=self._doc_type, id=id, body={"doc":{"_meta":{"_archived": "true"}}})
+        # do the archive, deregister the slug name
+        _doc['_source']['_meta']['_archived'] = 'true'
+        _doc['_source']['_meta'].pop('slug', None)
+        self._es.index(index=self._index, doc_type=self._doc_type, id=id, body=_doc['_source'])
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
@@ -430,6 +432,45 @@ class ESQuery():
             _id = _doc.pop('_id')
             self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
         print("Done.")
+
+    def _validate_slug_name(self, slug_name):
+        ''' Function that determines whether slug_name is a valid slug name '''
+        _valid_chars = string.ascii_letters + string.digits + "-_~"
+        _slug = slug_name.lower()
+        
+        # reserved for dev node, normal web functioning
+        if _slug in ['www', 'dev', 'smart-api']:
+            return (False, {"success": False, "error": "Slug name '{}' is reserved, please choose another".format(_slug)})
+
+        # length requirements
+        if len(slug_name) < 4 or len(slug_name) > 50:
+            return (False, {"success": False, "error": "Slug name must be between 4 and 50 chars"})
+
+        # character requirements
+        if not all([x in _valid_chars for x in slug_name]):
+            return (False, {"success": False, "error": "Slug name contains invalid characters.  Valid characters: '{}'".format(_valid_chars)})        
+
+        # does it exist already?
+        if len(self._es.search(index=self._index, doc_type=self._doc_type, body={"query":{"term":{"_meta.slug.raw": _slug}}}, _source=False).get('hits', {}).get('hits', [])) > 0:
+            return (False, {"success": False, "error": "Slug name '{}' already exists, please choose another".format(_slug)})
+
+        # good name
+        return (True, {})
+
+    def set_slug_name(self, _id, user, slug_name):
+        ''' set the slug name of API _id to slug_name. '''
+        if not self.exists(_id):
+            return (404, {"success": False, "error": "Could not retrieve API '{}' to set slug name".format(_id)})
+
+        _valid, _resp = self._validate_slug_name(slug_name=slug_name)
+
+        if not _valid:
+            return (405, _resp)
+
+        # update the slug name 
+        self._es.update(index=self._index, doc_type=self._doc_type, id=_id, body={"doc": {"_meta": {"slug": slug_name.lower()}}})
+
+        return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
 
     def refresh_one_api(self, _id, user, dryrun=True):
         ''' refresh one API metadata based on the saved metadata url '''
