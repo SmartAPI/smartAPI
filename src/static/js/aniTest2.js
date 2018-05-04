@@ -30,7 +30,7 @@ function getMCSymbolPrototype(symbol, nominalBounds, frameBounds) {
 
 	// Layer_1
 	this.shape = new cjs.Shape();
-	this.shape.graphics.f("#2170A5").s().p("ABdCCQhDgQhtgxIhggvQAIhFBZgxQAsgYApgLQEGEPh9AAQgTAAgcgGg");
+	this.shape.graphics.f("#3884BE").s().p("ABdCCQhDgQhtgxIhggvQAIhFBZgxQAsgYApgLQEGEPh9AAQgTAAgcgGg");
 
 	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1));
 
@@ -42,7 +42,7 @@ function getMCSymbolPrototype(symbol, nominalBounds, frameBounds) {
 
 	// Layer_1
 	this.shape = new cjs.Shape();
-	this.shape.graphics.rf(["#AAE1F9","#2F81C1"],[0,1],-11.8,-69.9,0,-11.8,-69.9,127.7).s().p("AmMOqQi2hOiNiMQiNiNhNi3QhQi9AAjPQAAjOBQi+QBNi2CNiNQCNiNC2hNQC+hQDOAAQDPAAC9BQQC3BNCNCNQCMCNBOC2QBQC+AADOQAADPhQC9QhOC3iMCNQiNCMi3BOQi9BQjPAAQjOAAi+hQg");
+	this.shape.graphics.f("#3884BE").s().p("AmMOqQi2hOiNiMQiNiNhNi3QhQi9AAjPQAAjOBQi+QBNi2CNiNQCNiNC2hNQC+hQDOAAQDPAAC9BQQC3BNCNCNQCMCNBOC2QBQC+AADOQAADPhQC9QhOC3iMCNQiNCMi3BOQi9BQjPAAQjOAAi+hQg");
 
 	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1));
 
@@ -54,7 +54,7 @@ function getMCSymbolPrototype(symbol, nominalBounds, frameBounds) {
 
 	// Layer_1
 	this.shape = new cjs.Shape();
-	this.shape.graphics.lf(["#AAE1F9","#A8E0F8","#83C3E7","#65ABD9","#4D98CF","#3C8BC7","#3283C2","#2F81C1"],[0,0.008,0.145,0.29,0.443,0.604,0.78,1],-30.1,1.8,5,-73.3).s().p("AlAmrQAbh2D2DYQAAgOAFgNQAKgaAZAIQBPAYDKFaIAyA4QjDBShSCwQgpBZgCBHQlprkAlidg");
+	this.shape.graphics.f("#3884BE").s().p("AlAmrQAbh2D2DYQAAgOAFgNQAKgaAZAIQBPAYDKFaIAyA4QjDBShSCwQgpBZgCBHQlprkAlidg");
 
 	this.timeline.addTween(cjs.Tween.get(this.shape).wait(1));
 
@@ -74,7 +74,7 @@ function getMCSymbolPrototype(symbol, nominalBounds, frameBounds) {
 	this.shape_1.setTransform(3.9,1.6);
 
 	this.shape_2 = new cjs.Shape();
-	this.shape_2.graphics.lf(["#AAE1F9","#2F81C1"],[0,1],45.4,-19.6,-0.6,-59).s().p("AoMitQT+kJkXD9QiyChrtFNg");
+	this.shape_2.graphics.f("#3884BE").s().p("AoMitQT+kJkXD9QiyChrtFNg");
 	this.shape_2.setTransform(-0.1,0);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[{t:this.shape_2},{t:this.shape_1},{t:this.shape}]}).wait(1));
