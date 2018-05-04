@@ -5,7 +5,7 @@
 <style>
 
 .tabs .indicator{
-  background: #328CC4;
+  background: var(--blue-medium);
 }
 
 .modal{
@@ -133,7 +133,7 @@
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td style="overflow: hidden;">
-                       <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
+                       <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                     </td>
                     <td  class="center-align">
                       <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
@@ -202,7 +202,7 @@
               <a :href="'/ui/'+selectedAPIId" class="btn blue">View API Doc</a>
             </li>
             <li v-if="selectedAPIContact.name" class="collection-item blue-grey lighten-4">
-              <p class="blue-grey-text noMargin flow-text"><a class="link " :href="selectedAPIGithub" target="_blank">{{ selectedAPIContact.name }}</a><br class="hide-on-med-and-up" /> / {{ selectedAPIContact["x-role"] }}</p>
+              <p class="blue-grey-text noMargin flow-text"><a class="link " :href=" 'https://www.github.com/'+selectedAPIMeta.github_username" target="_blank">{{ selectedAPIContact.name }}</a><br class="hide-on-med-and-up" /> / {{ selectedAPIContact["x-role"] }}</p>
             </li>
             <li class="collection-item padding20 blue-grey lighten-5">
               <p style="line-height: 1.2em;" class="blue-grey-text flow-text">{{ selectedAPI.description }}</p>
@@ -217,48 +217,50 @@
         <div id="test2" class="col s12 white">
           <div class="row">
             <div class="col s12 m12 l12 center-align">
-              <h5>API Short Name Registration</h5>
+              <h5>Custom Slug Registration</h5>
             </div>
             <div v-if='!hasShortName' class="col s12 m12 l12 center-align">
+              <object width="100px" data="/static/img/wand.svg" alt='custom slug' style='border-radius: 10px;'></object>
               <p class="grey-text">
-                You can register a unique subdomain to share your API docs. <br />
-                If you go to <b>your-subdomain</b>.smart-api.info, it will take users to your API documentation.
+                You can register a unique slug to make sharing your API easier. <br />
+                If you go to <b>your-slug</b>.smart-api.info, it will take users to your API documentation.
               </p>
-              <a v-if='!createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="blue btn">Create a new short name</a>
+              <a v-if='!createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="blue btn">Create a new slug</a>
               <a v-if='createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="red btn">Cancel</a>
             </div>
             <div v-if='hasShortName' class="col s12 m12 l12">
               <p class="green-text flow-text">
-                 <b>Your url: </b> <a :href=" 'http://'+selectedAPIMeta.subdomain+'.smart-api.info'" target="_blank" class="green-text">http://{{selectedAPIMeta.subdomain}}.smart-api.info</a>
+                 <b>Your new url: </b> <a :href=" 'http://'+myShortName+'.smart-api.info'" target="_blank" class="green-text">http://{{myShortName}}.smart-api.info</a>
                  <a class="btn green" @click.prevent='createOrEditMode = !createOrEditMode'>Edit</a>
               </p>
             </div>
             <div v-if="createOrEditMode" style="width: 100%; display: flex; align-items: center;justify-content: center; flex-wrap: wrap;">
               <div class="center-align padding20 grey-text smallFont" style="flex: 1; min-width: 100%;">
-                Short name length must be 4-50 characters. Short names will be converted to lower case.
+                Slug length must be 4-50 characters A-Z and/or numbers 0-9. Slugs will be converted to lower case. URL protected characters not allowed.
               </div>
               <div style="flex: 1; min-width: 200px;">
-                <input autocomplete="false" v-model='myShortName' placeholder="Enter short name here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                <input autocomplete="false" v-model='myShortName' placeholder="Enter slug here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
               </div>
               <div style="flex: 1; min-width: 200px;">
                 <p id="availabilityResults" v-bind:class="{'green-text': availableShortName, 'red-text': !availableShortName }">
                   <span v-if="myShortName" class="grey-text">http://</span>
                   <span v-if="myShortName">{{myShortName}}</span>
                   <span v-if="myShortName" class="grey-text">.smart-api.info</span>
-                  <span v-if="!myShortName" class="grey-text">Check Short Name Availability</span>
+                  <span v-if="!myShortName" class="grey-text">Check Slug Availability</span>
                   <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
                   <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
                   <br />
                   <span v-if="myShortName.length <= 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
-                  <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span>
+                  <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length <= 3 && invalidChars"/>
+                  <span v-if="invalidChars" class="red-text"><i class="tiny material-icons">warning</i> Invalid Characters</span>
                 </p>
               </div>
               <div style="flex: 1; min-width: 200px;">
-                <a @click.prevent="setShortname()" :disabled='!availableShortName && !hasShortName' :class="!availableShortName ? 'btn grey' : 'green btn pulse' " >Claim it</a>
+                <a @click.prevent="setShortname()" :disabled='!availableShortName && !hasShortName' :class="!availableShortName ? 'btn grey' : 'green btn pulse' " >Set Slug</a>
               </div>
               <!-- Sucess registering short name -->
               <div id="shortNameSuccess" class="center-align padding20 green smallFont" style="flex: 1; min-width: 100%; display: none;">
-                <h5 class="white-text"><i class="fa fa-check white-text" aria-hidden="true"></i> Short Name Registered</h5>
+                <h5 class="white-text"><i class="fa fa-check white-text" aria-hidden="true"></i> Slug Registered</h5>
                 <a href="#!" class="btn green modal-action modal-close">Close</a>
               </div>
             </div>
@@ -348,7 +350,6 @@
             inputApiName:'',
             selectedAPIContact: {},
             selectedAPIMeta: {},
-            selectedAPIGithub:'',
             selectedAPIId:'',
             apis:[],
             total: 0,
@@ -359,7 +360,8 @@
             myShortName:'',
             availableShortName: false,
             hasShortName: false,
-            createOrEditMode: false
+            createOrEditMode: false,
+            invalidChars: false
           }
         },
         methods:{
@@ -391,7 +393,7 @@
               self.hideLoading();
               if( response.data.success ){
                 Materialize.toast(title+' was deleted!', 4000,'rounded green white-text');
-                window.location.reload(true);
+                self.apis=[];
               }else if( !response.data.success ){
                 Materialize.toast('Failed to delete '+title, 4000,'rounded red white-text');
               }
@@ -437,7 +439,6 @@
             self.selectedAPIMeta = fullApi._meta;
             self.selectedAPIId = fullApi._id;
             self.selectedAPIContact = fullApi.info.contact;
-            self.selectedAPIGithub = 'https://www.github.com/'+fullApi._meta.github_username;
             var sub = fullApi._meta.subdomain;
             if (sub) {
               self.hasShortName = true;
@@ -456,14 +457,11 @@
           },
           evaluateShortname: function(){
             var self = this;
-            //$('#shortNameSuccess').show();
-            axios.get('http://smart-api.info/api/query?q=_meta.subdomain:'+self.myShortName+'&fields=_meta').then(response=>{
-              //console.log(response.data.hits);
-              //$('#shortNamSg').hide();
+            axios.get('/api/query?q=__all__&filters=[_meta.subdomain.raw:'+this.myShortName+']&fields=_meta').then(response=>{
+              //console.log(response.data);
               if (response.data.total) {
                 var hits = response.data.hits;
                 for (var i = 0; i < hits.length; i++) {
-                  //console.log(hits[i]._meta.subdomain);
                   var sub = hits[i]._meta.subdomain;
                   if (sub === self.myShortName) {
                     //if it matches a result
@@ -486,7 +484,19 @@
           },
           setShortname: function(){
             //claim it button clicked
-            console.log(this.myShortName);
+            var self = this;
+            axios.put('/api/metadata/'+self.selectedAPIId+'?slug='+self.myShortName).then(response=>{
+              if( response.data.success ){
+                Materialize.toast('Subdomain was registered', 4000,'rounded green white-text');
+                self.reloadAPIs();
+                self.hasShortName = true;
+                self.createOrEditMode = false;
+              }else if( !response.data.success ){
+                Materialize.toast('Subdomain could not be set', 4000,'rounded red white-text');
+              }
+            }).catch(error=>{
+              throw error;
+            });
           },
           getUserInfo: function(){
             var self= this;
@@ -545,12 +555,22 @@
           myShortName: function(shortname){
             var self = this;
             self.myShortName = self.myShortName.toLowerCase();
-            //console.log(shortname);
-            if (shortname.length > 3 && shortname.length <= 50) {
-              self.evaluateShortname();
+            var re = /[^a-zA-Z0-9\-\_\~]/;
+            self.invalidChars = false;
+            if (re.test(self.myShortName) ) {
+              self.invalidChars = true;
+            }
+            if( !re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50 ) {
+                self.evaluateShortname();
+            }else if(re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50){
+              self.invalidChars = true;
+              self.availableShortName = false;
             }else{
               self.availableShortName = false;
             }
+          },
+          apis: function(apis){
+            //console.log('something changed');
           }
         }
     });
