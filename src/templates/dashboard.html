@@ -439,7 +439,7 @@
             self.selectedAPIMeta = fullApi._meta;
             self.selectedAPIId = fullApi._id;
             self.selectedAPIContact = fullApi.info.contact;
-            var sub = fullApi._meta.subdomain;
+            var sub = fullApi._meta.slug;
             if (sub) {
               self.hasShortName = true;
             }else{
@@ -462,7 +462,7 @@
               if (response.data.total) {
                 var hits = response.data.hits;
                 for (var i = 0; i < hits.length; i++) {
-                  var sub = hits[i]._meta.subdomain;
+                  var sub = hits[i]._meta.slug;
                   if (sub === self.myShortName) {
                     //if it matches a result
                     self.availableShortName = false;
