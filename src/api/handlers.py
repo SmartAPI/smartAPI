@@ -41,7 +41,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def support_cors(self, *args, **kwargs):
         '''Provide server side support for CORS request.'''
         self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS")
+        self.set_header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
         self.set_header("Access-Control-Allow-Headers",
                         "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
         self.set_header("Access-Control-Allow-Credentials", "false")
@@ -200,6 +200,7 @@ class APIMetaDataHandler(BaseHandler):
     def put(self, api_name):
         ''' refresh API metadata for a matched api_name,
             checks to see if current user matches the creating user.'''
+        slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
         #api_key = self.get_argument('api_key', None)        
@@ -212,7 +213,10 @@ class APIMetaDataHandler(BaseHandler):
         #    self.set_status(405)
         #    res = {'success': False, 'error': 'Invalid API key.'}
         else:
-            (status, res) = self.esq.refresh_one_api(_id=api_name, user=user, dryrun=dryrun)
+            if slug_name:
+                (status, res) = self.esq.set_slug_name(_id=api_name, user=user, slug_name=slug_name)
+            else:
+                (status, res) = self.esq.refresh_one_api(_id=api_name, user=user, dryrun=dryrun)
             self.set_status(status)
         self.return_json(res)
 

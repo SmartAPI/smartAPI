@@ -46,12 +46,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
-        subdomain = self.request.host.split(".")[0]
-        print("Host: {} - Subdomain: {}".format(self.request.host, subdomain))
-        if subdomain.lower() not in ['www', 'dev', 'smart-api']:
+        slug = self.request.host.split(".")[0]
+        #print("Host: {} - Slug: {}".format(self.request.host, slug))
+        if slug.lower() not in ['www', 'dev', 'smart-api']:
             # try to get a registered subdomain/tag
             esq = ESQuery()
-            api_id = esq.get_api_id_from_subdomain(subdomain)
+            api_id = esq.get_api_id_from_slug(slug)
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)
