@@ -34,7 +34,7 @@ class BaseHandler(tornado.web.RequestHandler):
             OrderedDumper.add_representer(OrderedDict, _dict_representer)
             return yaml.dump(data, stream, OrderedDumper, **kwds)
         
-        self.set_header("Content-Type", "application/x-yaml; charset=UTF-8")
+        self.set_header("Content-Type", "text/x-yaml; charset=UTF-8")
         self.support_cors()
         self.write(ordered_dump(data=data, Dumper=yaml.SafeDumper, default_flow_style=False))
 
