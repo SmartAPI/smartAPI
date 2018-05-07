@@ -489,7 +489,7 @@
             axios.put('/api/metadata/'+self.selectedAPIId+'?slug='+self.myShortName).then(response=>{
               if( response.data.success ){
                 Materialize.toast('Subdomain was registered', 4000,'rounded green white-text');
-                self.reloadAPIs();
+                self.getApis();
                 self.hasShortName = true;
                 self.createOrEditMode = false;
               }else if( !response.data.success ){
