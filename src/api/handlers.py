@@ -226,9 +226,13 @@ class APIMetaDataHandler(BaseHandler):
         # must be logged in first
         user = self.get_current_user()
         api_key = self.get_argument('api_key', None)        
+        slug_name = self.get_argument('slug', '').lower()
         if not user:
             res = {'success': False, 'error': 'Authenticate first with your github account.'}
             self.set_status(401)
+        elif slug_name:
+            (status, res) = self.esq.delete_slug(_id=api_name, user=user, slug_name=slug_name)
+            self.set_status(status)
         elif api_key != config.API_KEY:
             self.set_status(405)
             res = {'success': False, 'error': 'Invalid API key.'}

@@ -136,7 +136,7 @@ class ESQuery():
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
         try:
-            self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id)
+            self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id, refresh=True)
         except RequestError as e:
             return {"success": False, "error": str(e)}
         return {"success": True, '_id': api_id}
@@ -369,7 +369,7 @@ class ESQuery():
         # do the archive, deregister the slug name
         _doc['_source']['_meta']['_archived'] = 'true'
         _doc['_source']['_meta'].pop('slug', None)
-        self._es.index(index=self._index, doc_type=self._doc_type, id=id, body=_doc['_source'])
+        self._es.index(index=self._index, doc_type=self._doc_type, id=id, body=_doc['_source'], refresh=True)
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
@@ -462,16 +462,45 @@ class ESQuery():
         if not self.exists(_id):
             return (404, {"success": False, "error": "Could not retrieve API '{}' to set slug name".format(_id)})
 
+        _user = self._es.get(index=self._index, doc_type=self._doc_type, id=_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
+
+        # Make sure this is the correct user
+        if user.get('login', None) != _user:
+            return (405, {"success": False, "error": "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)})
+
+        # validate the slug name
         _valid, _resp = self._validate_slug_name(slug_name=slug_name)
 
         if not _valid:
             return (405, _resp)
 
         # update the slug name 
-        self._es.update(index=self._index, doc_type=self._doc_type, id=_id, body={"doc": {"_meta": {"slug": slug_name.lower()}}})
+        self._es.update(index=self._index, doc_type=self._doc_type, id=_id, body={"doc": {"_meta": {"slug": slug_name.lower()}}}, refresh=True)
 
         return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
 
+    def delete_slug(self, _id, user, slug_name):
+        ''' delete the slug of API _id. '''
+        if not self.exists(_id):
+            return (404, {"success": False, "error": "Could not retrieve API '{}' to delete slug name".format(_id)})
+
+        doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id).get('_source', {})
+        
+        # Make sure this is the correct user
+        if user.get('login', None) != doc.get('_meta', {}).get('github_username', ''):
+            return (405, {"success": False, "error": "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)})
+
+        # Make sure this is the correct slug name
+        if doc.get('_meta', {}).get('slug', '') != slug_name:
+            return (405, {"success": False, "error": "API '{}' slug name is not '{}'".format(_id, slug_name)})
+        
+        # do the delete
+        doc['_meta'].pop('slug')
+
+        self._es.index(index=self._index, doc_type=self._doc_type, body=doc, id=_id, refresh=True)
+
+        return (200, {"success": True, "{}".format(_id): "slug '{}' deleted".format(slug_name)})
+    
     def refresh_one_api(self, _id, user, dryrun=True):
         ''' refresh one API metadata based on the saved metadata url '''
         print("Refreshing API metadata:")
