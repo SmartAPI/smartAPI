@@ -159,7 +159,7 @@ class APIHandler(BaseHandler):
                         }
                         data['_meta'] = _meta
                         esq = ESQuery()
-                        res = esq.save_api(data, overwrite=overwrite, dryrun=dryrun)
+                        res = esq.save_api(data, overwrite=overwrite, dryrun=dryrun, user_name=user['login'])
                         self.return_json(res)
                 else:
                     self.return_json({'success': False, 'error': 'Invalid input data.'})

@@ -119,7 +119,7 @@ class ESQuery():
         '''
         return self._es.exists(index=self._index, doc_type=self._doc_type, id=api_id)
 
-    def save_api(self, api_doc, overwrite=False, dryrun=False):
+    def save_api(self, api_doc, user_name, overwrite=False, dryrun=False):
         metadata = APIMetadata(api_doc)
         valid = metadata.validate()
         if not valid['valid']:
@@ -128,10 +128,15 @@ class ESQuery():
 
         api_id = metadata.encode_api_id()
         doc_exists = self.exists(api_id)
-        if doc_exists and not overwrite:
-            is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
-            if not is_archived:
-                return {"success": False, "error": "API exists. Not saved."}
+        if doc_exists:
+            if not overwrite:
+                is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
+                if not is_archived:
+                    return {"success": False, "error": "API exists. Not saved."}
+            else:
+                _owner = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
+                if _owner != user_name:
+                    return {"success": False, "error": "Cannot overwrite an API that doesn't belong to you"}
         _doc = metadata.convert_es()
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
@@ -443,15 +448,26 @@ class ESQuery():
             return (False, {"success": False, "error": "Slug name '{}' is reserved, please choose another".format(_slug)})
 
         # length requirements
-        if len(slug_name) < 4 or len(slug_name) > 50:
+        if len(_slug) < 4 or len(_slug) > 50:
             return (False, {"success": False, "error": "Slug name must be between 4 and 50 chars"})
 
         # character requirements
-        if not all([x in _valid_chars for x in slug_name]):
+        if not all([x in _valid_chars for x in _slug]):
             return (False, {"success": False, "error": "Slug name contains invalid characters.  Valid characters: '{}'".format(_valid_chars)})        
 
         # does it exist already?
-        if len(self._es.search(index=self._index, doc_type=self._doc_type, body={"query":{"term":{"_meta.slug.raw": _slug}}}, _source=False).get('hits', {}).get('hits', [])) > 0:
+        _query = {
+            "query": {
+                "bool": {
+                    "should": [
+                        {"term": {"_meta.slug.raw": _slug}},
+                        {"ids": {"values": [_slug]}}
+                    ]
+                }
+            }
+        }
+                    
+        if len(self._es.search(index=self._index, doc_type=self._doc_type, body=_query, _source=False).get('hits', {}).get('hits', [])) > 0:
             return (False, {"success": False, "error": "Slug name '{}' already exists, please choose another".format(_slug)})
 
         # good name
