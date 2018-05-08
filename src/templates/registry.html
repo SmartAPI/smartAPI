@@ -20,7 +20,7 @@
       <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
         <div class="center-align" style="padding-top: 300px;">
           <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
-          <h3 class="white-text">Loading...</h3>
+          <h3 class="white-text logoFont">Loading...</h3>
         </div>
       </div>
     <div id="app" style="height: 100%;" class="white">
@@ -76,7 +76,7 @@
                         <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
-                                  <span class="blue-text lighter">
+                                  <span class="blue-text bold">
                                     {{api.info.title}}
                                   </span>
                                   <span class="versionBadge grey">
@@ -88,10 +88,14 @@
                                   <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
                                     Swagger2
                                   </span>
+                                  <span v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge amber">
+                                    My API
+                                  </span>
                                 </span>
                                 <br />
                                 <br />
-                                <p class="blue-grey-text" v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <p class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag blue-text" aria-hidden="true"></i> {{tag.name}}
@@ -121,7 +125,7 @@
                                       <td class="">
                                         <span :class="operationStyling(operation)">{{operation}}</span>
                                       </td>
-                                      <td class="blue-grey-text smallFont">
+                                      <td class="blue-grey-text">
                                         {{summary}}
                                       </td>
                                     </tr>
@@ -196,7 +200,8 @@
                   perPage: 20,
                   keywords:'',
                   sortASC: true,
-                  specialTags: [{name:'Translator', disabled: true}]
+                  specialTags: [{name:'Translator', disabled: true}],
+                  userInfo: {}
               }
             },
             methods: {
@@ -394,8 +399,17 @@
                   $(".context").unmark();
                   self.sortASC = !self.sortASC;
                 },
+                getUserInfo: function(){
+                  var self= this;
+                  axios.get('/user').then(response=>{
+                    self.userInfo = response.data;
+                  }).catch(err=>{
+                    throw err;
+                  })
+                }
             },
             created: function () {
+                this.getUserInfo();
                 $(".button-collapse").sideNav();
                 this.refreshApis();
                 this.refreshTags();
