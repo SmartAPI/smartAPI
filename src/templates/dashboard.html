@@ -498,6 +498,7 @@
                 self.myShortName = '';
                 Materialize.toast('Slug was registered', 4000,'rounded green white-text');
                 self.createOrEditMode = false;
+                self.hasShortName = true;
                 $('#loadingCog').show();
               }else if( !response.data.success ){
                 $('#loadingCog').hide();
@@ -516,6 +517,7 @@
                 self.apis[self.selectedAPIIndex]._meta.slug= '';
                 Materialize.toast('Slug was deleted', 4000,'rounded green white-text');
                 self.createOrEditMode = false;
+                self.hasShortName = false;
                 $('#loadingCog').show();
               }else if( !response.data.success ){
                 $('#loadingCog').hide();
