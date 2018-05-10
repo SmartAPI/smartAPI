@@ -187,16 +187,16 @@ class SwaggerUIHandler(BaseHandler):
 class BrandingHandler(BaseHandler):
     def get(self):
         doc_file = "brand.html"
-        dashboard_template = templateEnv.get_template(doc_file)
-        dashboard_output = dashboard_template.render()
-        self.write(dashboard_output)
+        branding_template = templateEnv.get_template(doc_file)
+        branding_output = branding_template.render()
+        self.write(branding_output)
 
 class GuideHandler(BaseHandler):
     def get(self):
         doc_file = "guide.html"
-        documentation_template = templateEnv.get_template(doc_file)
-        documentation_output = documentation_template.render()
-        self.write(documentation_output)
+        guide_template = templateEnv.get_template(doc_file)
+        guide_output = guide_template.render()
+        self.write(guide_output)
 
 APP_LIST = [
     (r"/", MainHandler),
