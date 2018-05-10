@@ -1,0 +1,139 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+{% raw %}
+<style>
+
+</style>
+<main id="brand-app" class="white" style="width: 100%;">
+  <div class="full-width brandBack"></div>
+  <div class="container center-align">
+    <h3 class="blue-grey-text">Branding</h3>
+    <h5 class="blue-grey-text">- Guidelines -</h5>
+    <p class="blue-grey-text lighter" style="margin:10px 10%;">
+      If you use any of the <span class="logoFont">SmartAPI</span> logos, illustrations or any other images approved for use under these brand guidelines, you agree that you will do so in compliance with the terms and conditions indicated on this page. If you do so, <span class="logoFont">SmartAPI</span> grants you a non-transferable, non-exclusive, royalty-free limited license to use its creative assets, and only in accordance with these brand guidelines. This is not a trademark license.
+    </p>
+    <p class="blue-grey-text lighter" style="margin:10px 10%;">
+      Please refer to these guidelines to achieve consistency and make sure the branded elements of <span class="logoFont">SmartAPI</span> are used correctly across every application. We reserve the right to terminate or modify your permission to display our creative assets.
+    </p>
+    <hr />
+    <h5 class="blue-grey-text">Don't Do This</h5>
+    <div class="swatchParent">
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Distort our images.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Change the original images in any way.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Apply filters to our images.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Overlay images or text over our images.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Crop our images in any way.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Don't rotate our images.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Recreate our images.
+      </div>
+      <div class="dont blue-grey-text lighter">
+        <i class="fa fa-ban red-text" aria-hidden="true"></i> Use our images commercially use without permission.
+      </div>
+    </div>
+    <hr />
+    <h5 class="blue-grey-text">Colors</h5>
+    <div class="swatchParent">
+      <div class="swatch" style="background-color: #E4F2FC;">
+        #E4F2FC
+      </div>
+      <div class="swatch" style="background-color: #B2E3F5;">
+        #B2E3F5
+      </div>
+      <div class="swatch" style="background-color: #3F85BB;">
+        #3F85BB
+      </div>
+      <div class="swatch" style="background-color: #273238;">
+        #273238
+      </div>
+    </div>
+    <hr />
+    <h5 class="blue-grey-text">Brand Name & Font</h5>
+    <p class="blue-grey-text lighter">
+      <span class="logoFont">SmartAPI</span> recommends the use of our font whenever possible.<br /> The <b>first letter</b> and the word <b>API</b> in our logo must always be capitalized.
+    </p>
+      <p class="blue-grey-text lighter">
+         <span class="logoFont">SmartAPI</span> uses the font MonoGlyceride by <a href="http://www.tepidmonkey.net/" target="_blank">TepicMonkey.net</a>. <a class='link bold' href='https://www.1001freefonts.com/monoglyceride.font' target='_blank'>Download Here</a>
+      </p>
+    <hr />
+    <h5 class="blue-grey-text">Logos</h5>
+    <p class="blue-grey-text lighter" style="margin:10px 10%;">
+      To maintain consistency on our presence online please make sure the logos of <span class="logoFont">SmartAPI</span> are used correctly across your application/device.
+      <br /> <span class="logoFont">SmartAPI</span> has a preferred logo for small, medium and large screens.<br />
+       When using our logo on medium and up screens the <span class="logoFont">SmartAPI</span> text logo must accompany below the logo images.
+    </p>
+    <object width="80%" data="/static/img/logo-sizes.svg" alt="logo sisez"></object>
+    <hr />
+    <h5 class="blue-grey-text">Downloads</h5>
+    <div class="swatchParent">
+      <div class="downloadBox">
+        <img height="100px" src="/static/img/download.svg" alt='logo'/>
+        <span class="blue-text smallFont">ALL (PNG + SVG)</span>
+        <a class="smallButton" href="/static/img/logos.zip" download="/static/img/logos.zip">
+        Download
+        </a>
+      </div>
+      <div class="downloadBox">
+        <img height="100px" src="/static/img/logo-small.svg" alt='logo'/>
+        <span class="blue-text smallFont">Logo (SM) SVG</span>
+        <a class="smallButton" href="/static/img/logo-small.svg" download="/static/img/logo-small.svg">
+        Download
+        </a>
+      </div>
+      <div class="downloadBox">
+        <img height="100px" src="/static/img/logo-medium.svg" alt='logo'/>
+        <span class="blue-text smallFont">Logo (MD) SVG</span>
+        <a class="smallButton" href="/static/img/logo-medium.svg" download="/static/img/logo-medium.svg">
+        Download
+        </a>
+      </div>
+      <div class="downloadBox">
+        <img height="100px" src="/static/img/logo-large.svg" alt='logo'/>
+        <span class="blue-text smallFont">Logo (LG) SVG</span>
+        <a class="smallButton" href="/static/img/logo-large.svg" download="/static/img/logo-large.svg">
+        Download
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endraw %}
+{% include "footer.html" %}
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+  <script>
+
+
+  var app = new Vue({
+      el: '#brand-app',
+      data: function(){
+        return {
+          apiID:''
+        }
+      },
+      methods: {
+
+      },
+      created: function(){
+
+      }
+  });
+
+  </script>
+{% endblock %}

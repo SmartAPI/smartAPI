@@ -172,7 +172,7 @@ class DashboardHandler(BaseHandler):
 
 class SwaggerUIHandler(BaseHandler):
     def get(self, yourApiID=None):
-        if not yourApiID: 
+        if not yourApiID:
             if self.get_argument('url', False):
                 api_id = self.get_argument('url').split('/')[-1]
                 self.redirect('/ui/{}'.format(api_id), permanent=True)
@@ -183,6 +183,20 @@ class SwaggerUIHandler(BaseHandler):
         swagger_template = templateEnv.get_template(swaggerUI_file)
         swagger_output = swagger_template.render(apiID = yourApiID )
         self.write(swagger_output)
+
+class BrandingHandler(BaseHandler):
+    def get(self):
+        doc_file = "brand.html"
+        dashboard_template = templateEnv.get_template(doc_file)
+        dashboard_output = dashboard_template.render()
+        self.write(dashboard_output)
+
+class GuideHandler(BaseHandler):
+    def get(self):
+        doc_file = "guide.html"
+        documentation_template = templateEnv.get_template(doc_file)
+        documentation_output = documentation_template.render()
+        self.write(documentation_output)
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -196,5 +210,7 @@ APP_LIST = [
     (r"/dashboard/?", DashboardHandler),
     (r"/api-ui/(.+)/?", SwaggerUIHandler),
     (r"/ui/(.+)/?", SwaggerUIHandler),
-    (r"/ui/?", SwaggerUIHandler)
+    (r"/ui/?", SwaggerUIHandler),
+    (r"/branding/?", BrandingHandler),
+    (r"/guide/?", GuideHandler)
 ]

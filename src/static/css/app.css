@@ -942,7 +942,57 @@ mark{
     transition: all .5s;
   }
 
+  .swatchParent{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
 
+  .dont{
+    flex: 1;
+    flex-basis: 100px;
+    margin: 10px;
+    border-radius: 5px;
+  }
+
+  .swatch{
+    flex: 1;
+    max-width: 128px;
+    padding: 20px 10px;
+    border: white solid 1px;
+    border-radius: 5px;
+    width: auto;
+    margin: 10px;
+    transition: 1s all;
+  }
+
+  .downloadBox{
+    flex: 1;
+    max-width: 128px;
+    padding: 20px 10px;
+    border: white solid 1px;
+    border-radius: 5px;
+    width: auto;
+    margin: 10px;
+    transition: 1s all;
+  }
+
+  .swatch:hover{
+    transform: scale(1.1);
+  }
+
+  .downloadBox:hover > img{
+    transform: translateY(-5px);
+    transition: 1s all;
+  }
+
+  .brandBack{
+    min-height: 40vh;
+    background-image: url('/static/img/brand-hero.jpg');
+    background-size: cover;
+    background-position: bottom center;
+    background-attachment: fixed;
+  }
 
 
 /*MARCO CANO end*/
