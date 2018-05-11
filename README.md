@@ -1,4 +1,4 @@
-# smartAPI
+# SmartAPI
 Intelligent APIs for a more connected web.
 
 A BD2K/Network-of-BioThings project.

@@ -23,21 +23,6 @@
   .position-relative{
     position: relative;
   }
-  .docsMenu{
-    padding: 20px 20px 20px 0px;
-    transition: all 1s;
-    margin-left: -160px;
-    margin-top: 10px;
-    width: 200px;
-    border-radius: 0px 20px 20px 0px;
-    background-color: var(--blue-medium);
-    opacity: .5;
-  }
-  .docsMenu:hover{
-    margin-left: 0px;
-    background-color: var(--blue-light);
-    opacity: 1;
-  }
 
   .contentDocs{
     overflow: scroll;
@@ -49,24 +34,70 @@
     max-width: 80vw;
     overflow: auto;
   }
+  h2, h1, h3{
+    font-size: 2em !important;
+  }
+
+  .sidenav {
+    height: 100%;
+    width: auto;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-color: var(--blue-dark);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    display: none;
+    box-shadow: 0px 0px 10px black;
+    opacity: .9;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 1em;
+    color: white;
+    display: block;
+    transition: 0.3s;
+    font-weight: normal;
+    text-shadow: 1px 1px 1px black;
+}
+
+.sidenav a:hover {
+    color: white;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+a.closebtn:hover{
+  color: red !important;
+  transition: 1s all;
+}
+
+
 </style>
 <main id="docs-app" style="width: 100%;">
-  <div class="row flexP">
-    <div class="flex1 testBack position-relative">
-      <div class="position-absolute docsMenu z-depth-4">
-        <div class="position-relative">
-          <i class="fa fa-bars white-text position-absolute show-on-small hide-on-med-and-up" aria-hidden="true" style="right: 0;"></i>
-          <i class="fa fa-plus position-absolute hide-on-small-only show-on-medium-and-up" aria-hidden="true" style="right: 0; color: var(--blue-light)"></i>
-        </div>
+  <div class="row">
+    <div class="testBack padding20">
+      <div id="mySidenav" class="sidenav testBack">
+        <a href="javascript:void(0)" class="closebtn" @click="closeNav()">&times;</a>
         <ul class="collection with-header noBorder">
           <li class="collection-header noBorder transparent">
-            <h4 class="blue-grey-text">
+            <h5 class="l-blue-text center-align">
               <i class="fa fa-file-text-o" aria-hidden="true"></i> Docs
-            </h4>
+            </h5>
           </li>
           <li class="collection-item noBorder transparent">
             <a href="#!" class="link" @click="reset">
-              Introduction
+              Introduction <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </a>
           </li>
           <li class="collection-item noBorder transparent">
@@ -75,7 +106,7 @@
             id="extBtn"
             class="link"
             @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/README.md')">
-              Get Started
+              Get Started <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </a>
           </li>
           <li class="collection-item noBorder transparent">
@@ -84,18 +115,30 @@
             id="extBtn"
             class="link"
             @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md')">
-              SmartAPI Extensions
+              SmartAPI Extensions <i class="fa fa-chevron-right" aria-hidden="true"></i>
+            </a>
+          </li>
+          <li class="collection-item noBorder transparent">
+            <a
+            href="#!"
+            id="extBtn"
+            class="link"
+            @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/README.md')">
+              OpenAPI Specification <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </a>
           </li>
           <li class="collection-item noBorder transparent">
             <a href="/branding" class="link">
-              Branding
+              Branding <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </a>
           </li>
         </ul>
       </div>
       <div class="container white padding20 contentDocs z-depth-4">
         <h3 class="logoFont blue-text center-align flow-text">SmartAPI Documentation</h3>
+        <div class="center-align">
+          <span class="btn blue white-text" @click="openNav()">&#9776; Menu</span>
+        </div>
         <hr />
         <div v-if='!clicked' class="center-align">
           <object width="200px" data="/static/img/logo-large.svg" alt="logo"></object>
@@ -109,7 +152,7 @@
               Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as <a href="http://www.programmableweb.com/" target="_blank">Programmable Web</a>, <a href="https://www.biocatalogue.org/" target="_blank">BioCatalogue</a> and cloud platforms such as <a href="https://galaxyproject.org/" target="_blank">Galaxy</a>. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.
           </p>
         </div>
-        <div id="targetDiv" class="dynamicTable">
+        <div id="targetDiv" class="dynamicTable blue-grey-text">
       </div>
     </div>
   </div>
@@ -125,7 +168,6 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
   <script>
 
-
   var app = new Vue({
       el: '#docs-app',
       data: function(){
@@ -138,42 +180,43 @@
           document.getElementById('targetDiv').innerHTML = "";
           this.clicked = false;
         },
+        openNav: function(){
+          $('#mySidenav').delay(400).slideDown('slow');
+        },
+        closeNav: function(){
+          $('#mySidenav').delay(400).slideUp('slow');
+        },
         convertMarkdownToHtml: function(url){
             this.clicked = true;
             // covert markdown from raw data url to html, and dump html in target
-            if ($("#targetDiv").html().length > 0){
-                document.getElementById("targetDiv").innerHTML = "";
-            }else{
-                axios.get(url).then(response=>{
+            document.getElementById("targetDiv").innerHTML = "";
+            axios.get(url).then(response=>{
 
-                    var md = new Remarkable({
-                      html:         true,        // Enable HTML tags in source
-                      xhtmlOut:     false,        // Use '/' to close single tags (<br />)
-                      breaks:       false,        // Convert '\n' in paragraphs into <br>
-                      langPrefix:   'language-',  // CSS language prefix for fenced blocks
-                      linkify:      true,        // Autoconvert URL-like text to links
+                var md = new Remarkable({
+                  html:         true,        // Enable HTML tags in source
+                  xhtmlOut:     false,        // Use '/' to close single tags (<br />)
+                  breaks:       false,        // Convert '\n' in paragraphs into <br>
+                  langPrefix:   'language-',  // CSS language prefix for fenced blocks
+                  linkify:      true,        // Autoconvert URL-like text to links
 
-                      // Enable some language-neutral replacement + quotes beautification
-                      typographer:  false,
+                  // Enable some language-neutral replacement + quotes beautification
+                  typographer:  false,
 
-                      // Double + single quotes replacement pairs, when typographer enabled,
-                      // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
-                      quotes: '“”‘’',
+                  // Double + single quotes replacement pairs, when typographer enabled,
+                  // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+                  quotes: '“”‘’',
 
-                      // Highlighter function. Should return escaped HTML,
-                      // or '' if the source string is not changed
-                      highlight: function (/*str, lang*/) { return ''; }
-                    });
-                    var targetDump = document.getElementById("targetDiv");
-                    var html = md.render(response.data);
-                    targetDump.innerHTML = html;
-
-                }).catch(err=>{
-                    throw err;
+                  // Highlighter function. Should return escaped HTML,
+                  // or '' if the source string is not changed
+                  highlight: function (/*str, lang*/) { return ''; }
                 });
-            }
+                var targetDump = document.getElementById("targetDiv");
+                var html = md.render(response.data);
+                targetDump.innerHTML = html;
 
-
+            }).catch(err=>{
+                throw err;
+            });
         }
       },
       created: function(){
