@@ -23,7 +23,7 @@ if src_path not in sys.path:
     sys.path.append(src_path)
 
 TEMPLATE_PATH = os.path.join(src_path, 'templates/')
-
+AVAILABLE_TAGS = ['translator', 'nihdatacommons']
 
 # Docs: http://docs.python-guide.org/en/latest/scenarios/web/
 # Load template file templates/site.html
@@ -150,10 +150,21 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
 
 
 class RegistryHandler(BaseHandler):
-    def get(self):
+    def get(self, tag=None):
         template_file = "registry.html"
         reg_template = templateEnv.get_template(template_file)
-        reg_output = reg_template.render()
+        if tag: 
+            if tag.lower() in AVAILABLE_TAGS:
+                print("tags: {}".format([tag.lower()]))
+                reg_output = reg_template.render(Tags=[tag.lower()], Special=True)
+            else:
+                raise tornado.web.HTTPError(404)
+        elif self.get_argument('tags', False):
+            tags = [x.strip().lower() for x in self.get_argument('tags').split(',')]
+            print("tags: {}".format(tags))
+            reg_output = reg_template.render(Tags=tags, Special=False)
+        else:
+            reg_output = reg_template.render()
         self.write(reg_output)
 
 class DocumentationHandler(BaseHandler):
@@ -205,6 +216,7 @@ APP_LIST = [
     (r"/login/?", LoginHandler),
     (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
+    (r"/registry/(.+)/?", RegistryHandler),
     (r"/registry/?", RegistryHandler),
     (r"/documentation/?", DocumentationHandler),
     (r"/dashboard/?", DashboardHandler),
