@@ -40,7 +40,7 @@
             <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a :disabled='tagsCloseable' v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
             </div>
             <div class="col l10 s12 ">
@@ -54,7 +54,7 @@
                         <div class="col s12 selected-tags">
                             <div class="chip" v-for="tag in tags" v-if="tag.active">
                                 <i class="fa fa-tag blue-text" aria-hidden="true"></i>  {{tag.name}}
-                                <i class="close material-icons" @click="tag.active = false;search(query)">close</i>
+                                <i v-if='tagsCloseable' class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
                         </div>
                         <div class="col s12">
@@ -65,9 +65,10 @@
                 </div>
                 <div class="row search-results">
                   <!-- Special Tags -->
-                  <!-- <div v-if='specialTags[0]' class="col s12">
-                    <h1 class="blue-text">Translator</h1>
-                  </div> -->
+                  <div v-if='specialUI' class="col s12">
+                    <h1 class="blue-text logoFont tracking-in-expand">{{Tags}}</h1>
+                  </div>
+                  <!-- Special Tags -->
                     <div class="col s12">
                         <div>
                           Total APIs: <span class="blue-text">{{total}}</span>
@@ -88,7 +89,7 @@
                                   <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
                                     Swagger2
                                   </span>
-                                  <span v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge amber">
+                                  <span v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge blue">
                                     My API
                                   </span>
                                 </span>
@@ -111,7 +112,8 @@
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>version:</strong> {{api.info.version}}<br>
-                                <span v-if='api.info.contact.name'><strong>developer:</strong> {{api.info.contact.name }}<br></span>
+                                <span v-if='api.info.contact.name'><strong>developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br></span>
+                                <span v-else><strong>developer:</strong>N/A<br></span>
                                 <table class="bordered">
                                   <thead>
                                     <th class="center-align lighter">
@@ -200,7 +202,9 @@
                   perPage: 20,
                   keywords:'',
                   sortASC: true,
-                  specialTags: [{name:'Translator', disabled: true}],
+                  specialUI: false,
+                  specialTags: [],
+                  tagsCloseable : true,
                   userInfo: {}
               }
             },
@@ -406,6 +410,29 @@
                   }).catch(err=>{
                     throw err;
                   })
+                },
+                handleSpecialTags: function(sTag){
+                  var self = this;
+                  self.specialUI = true;
+                  for (var i = 0; i < self.tags.length; i++) {
+                    for (var x = 0; x < rTags.length; x++) {
+                      if (self.tags[i] === rTags[x]) {
+                        self.tags[i].active = true;
+                        self.tagsCloseable = false;
+                      }
+                    }
+                  }
+                },
+                handleRegularTags: function(rTags){
+                  var self = this;
+                  for (var i = 0; i < self.tags.length; i++) {
+                    for (var x = 0; x < rTags.length; x++) {
+                      if (self.tags[i] === rTags[x]) {
+                        self.tags[i].active = true;
+                        self.tagsCloseable = false;
+                      }
+                    }
+                  }
                 }
             },
             created: function () {
@@ -413,6 +440,12 @@
                 $(".button-collapse").sideNav();
                 this.refreshApis();
                 this.refreshTags();
+                if( {{Special}} ){
+                  this.handleSpecialTags({{Tags}});
+                }
+                else if ({{!Special}}) {
+                  this.handleRegularTags({{Tags}});
+                }
             },
             updated: function(){
               // Highlight matches in results
