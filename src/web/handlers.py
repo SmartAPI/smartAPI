@@ -156,13 +156,13 @@ class RegistryHandler(BaseHandler):
         if tag: 
             if tag.lower() in AVAILABLE_TAGS:
                 print("tags: {}".format([tag.lower()]))
-                reg_output = reg_template.render(Tags=[tag.lower()], Special=True)
+                reg_output = reg_template.render(Tags=[tag.lower()], Special="true")
             else:
                 raise tornado.web.HTTPError(404)
         elif self.get_argument('tags', False):
             tags = [x.strip().lower() for x in self.get_argument('tags').split(',')]
             print("tags: {}".format(tags))
-            reg_output = reg_template.render(Tags=tags, Special=False)
+            reg_output = reg_template.render(Tags=tags, Special="false")
         else:
             reg_output = reg_template.render()
         self.write(reg_output)
