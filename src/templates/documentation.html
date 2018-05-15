@@ -82,13 +82,23 @@ a.closebtn:hover{
   transition: 1s all;
 }
 
+mark{
+  background: transparent;
+  color: red;
+  font-weight: bold;
+}
+
+#first_name:focus{
+  width: 25% !important;
+  text-align: center;
+}
 
 </style>
 <main id="docs-app" style="width: 100%;">
   <div class="row">
     <div class="testBack padding20">
       <div id="mySidenav" class="sidenav testBack">
-        <a href="javascript:void(0)" class="closebtn" @click="closeNav()">&times;</a>
+        <a href="javascript:void(0)" class="closebtn" @click="toggleShowHide()">&times;</a>
         <ul class="collection with-header noBorder">
           <li class="collection-header noBorder transparent">
             <h5 class="l-blue-text center-align">
@@ -137,7 +147,11 @@ a.closebtn:hover{
       <div class="container white padding20 contentDocs z-depth-4">
         <h3 class="logoFont blue-text center-align flow-text">SmartAPI Documentation</h3>
         <div class="center-align">
-          <span class="btn blue white-text" @click="openNav()">&#9776; Menu</span>
+          <span class="btn blue white-text" @click="toggleShowHide()">&#9776;<span v-if='!show'> Hide</span> Menu</span>
+          <br />
+          <form @submit.prevent='mark()'>
+            <input v-if='clicked' autocomplete="false" v-model='words' placeholder="Find" id="first_name" type="text" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 10%; outline: none; padding: 2px; border-radius: 20px; border:var(--blue-medium) 2px solid; right:0; text-align: center; transition: 1s all;">
+          </form>
         </div>
         <hr />
         <div v-if='!clicked' class="center-align">
@@ -152,7 +166,7 @@ a.closebtn:hover{
               Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as <a href="http://www.programmableweb.com/" target="_blank">Programmable Web</a>, <a href="https://www.biocatalogue.org/" target="_blank">BioCatalogue</a> and cloud platforms such as <a href="https://galaxyproject.org/" target="_blank">Galaxy</a>. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.
           </p>
         </div>
-        <div id="targetDiv" class="dynamicTable blue-grey-text">
+        <div id="targetDiv" class="dynamicTable blue-grey-text context">
       </div>
     </div>
   </div>
@@ -166,13 +180,17 @@ a.closebtn:hover{
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
   <!-- markdown converter -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
+  <!-- Mark JS for search results highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
   <script>
 
   var app = new Vue({
       el: '#docs-app',
       data: function(){
         return {
-          clicked: false
+          clicked: false,
+          words:'',
+          show: true
         }
       },
       methods: {
@@ -180,14 +198,18 @@ a.closebtn:hover{
           document.getElementById('targetDiv').innerHTML = "";
           this.clicked = false;
         },
-        openNav: function(){
-          $('#mySidenav').delay(400).slideDown('slow');
-        },
-        closeNav: function(){
-          $('#mySidenav').delay(400).slideUp('slow');
+        toggleShowHide: function(){
+          if (this.show) {
+            $('#mySidenav').show();
+            this.show = !this.show;
+          }else{
+            $('#mySidenav').hide();
+            this.show = !this.show;
+          }
         },
         convertMarkdownToHtml: function(url){
             this.clicked = true;
+            this.words='';
             // covert markdown from raw data url to html, and dump html in target
             document.getElementById("targetDiv").innerHTML = "";
             axios.get(url).then(response=>{
@@ -217,10 +239,19 @@ a.closebtn:hover{
             }).catch(err=>{
                 throw err;
             });
+        },
+        mark: function(){
+          //unmark and mark current search
+          var self= this;
+          $(".context").unmark({
+            done: function() {
+              $(".context").mark(self.words);
+            }
+          });
         }
       },
       created: function(){
-
+      
       }
   });
 
