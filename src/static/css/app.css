@@ -978,7 +978,7 @@ mark{
   }
 
   .swatch:hover{
-    transform: scale(1.1);
+    /* transform: scale(1.1); */
   }
 
   .downloadBox:hover > img{
@@ -990,8 +990,9 @@ mark{
     min-height: 40vh;
     background-image: url('/static/img/brand-hero.jpg');
     background-size: cover;
-    background-position: bottom center;
-    background-attachment: fixed;
+    background-attachment:scroll;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
 

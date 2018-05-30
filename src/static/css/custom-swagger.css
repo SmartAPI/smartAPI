@@ -3,7 +3,6 @@ h2.title span {
 }
 .swagger-ui .info .title{
  font-size: 3.5em !important;
- font-family: smartFont !important;
  margin-bottom: 20px;
  line-height: normal;
 }

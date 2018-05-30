@@ -111,9 +111,10 @@
                             <div class="card-content grey lighten-5" v-if="api.showDetails == true">
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
-                                <strong>version:</strong> {{api.info.version}}<br>
-                                <span v-if='api.info.contact.name'><strong>developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br></span>
-                                <span v-else><strong>developer:</strong>N/A<br></span>
+                                <strong>Version:</strong> {{api.info.version}}<br>
+                                <span v-if='api && api.info.contact.name'>
+                                  <strong>Developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br>
+                                </span>
                                 <table class="bordered">
                                   <thead>
                                     <th class="center-align lighter">
@@ -188,7 +189,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
 
     <script>
-
         var app = new Vue({
             el: '#app',
             data: function(){
@@ -440,12 +440,12 @@
                 $(".button-collapse").sideNav();
                 this.refreshApis();
                 this.refreshTags();
-                if( {{Special}} ){
-                  this.handleSpecialTags({{Tags}});
-                }
-                else if ({{!Special}}) {
-                  this.handleRegularTags({{Tags}});
-                }
+                // if( {{Special}} === 'true' ){
+                //   this.handleSpecialTags({{Tags}});
+                // }
+                // else if ({{Special}} === 'false' && {{Tags}}.length) {
+                //   this.handleRegularTags({{Tags}});
+                // }
             },
             updated: function(){
               // Highlight matches in results
