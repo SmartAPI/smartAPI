@@ -57,8 +57,10 @@ function save_api(form, overwrite, savev2){
                     title: "Version 2 Detected",
                     text: "Continue saving anyway?",
                     icon: "warning",
+                    showCancelButton: true,
                     buttons: true,
                     dangerMode: true,
+                    confirmButtonText: 'Yes, save it!'
                   })
                   .then((willSave) => {
                     if (willSave) {
@@ -80,12 +82,12 @@ function save_api(form, overwrite, savev2){
                       showCancelButton: true,
                       confirmButtonColor: '#3085d6',
                       cancelButtonColor: '#d33',
-                      confirmButtonText: 'Yes, Overwrite it!'
+                      confirmButtonText: 'Yes, overwrite it!'
                   }).then(function() {
                       save_api(form, true);
                   }, function(){});
               }
-              else{
+              else if(!response.swagger_v2){
                   swal(
                       response.valid==false?'ValidationError':'Error',
                       response.error,
