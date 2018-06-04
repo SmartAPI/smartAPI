@@ -51,11 +51,11 @@ function save_api(form, overwrite, savev2){
 
             }
             else{
-              if ( (response.error.indexOf("swagger_v2") != -1) && response.swagger_v2 ){
+              if ( response.hasOwnProperty("swagger_v2") && response.swagger_v2 ){
                 // -----------
                 swal({
                     title: "Version 2 Detected",
-                    text: "Continue saving anyway?",
+                    text: "Only V3 will experience full functionality. Continue saving anyway?",
                     icon: "warning",
                     showCancelButton: true,
                     buttons: true,
@@ -87,7 +87,7 @@ function save_api(form, overwrite, savev2){
                       save_api(form, true);
                   }, function(){});
               }
-              else if(!response.swagger_v2){
+              else if( !response.hasOwnProperty("swagger_v2") ){
                   swal(
                       response.valid==false?'ValidationError':'Error',
                       response.error,
