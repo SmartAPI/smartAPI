@@ -21,6 +21,14 @@ else:
 # Official oas3 json schema for validation is still in-development.
 # For now we us this updated oas3-schema from swagger-editor
 OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.1.11/src/plugins/validation/structural-validation/oas3-schema.js'
+SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.2.9/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
+
+# List of root keys that should be indexed in version 2 schema
+SWAGGER2_PATH_ITEMS = ['info', 'tags']
+
+# list of major versions of schema that we support
+SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
+
 # This is a separate schema for SmartAPI extensions only
 SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
@@ -82,15 +90,29 @@ def get_api_metadata_by_url(url, as_string=False):
 
 class APIMetadata:
     def __init__(self, metadata):
+        # get the major version of the schema type
+        if metadata.get('openapi', False):
+            self.schema_version = 'OAS' + metadata['openapi'].split('.')[0]
+        elif metadata.get('swagger', False):
+            self.schema_version = 'SWAGGER' + metadata['swagger'].split('.')[0]
+        else:
+            self.schema_version = None
+        # set the correct schema validation url
+        if self.schema_version == 'SWAGGER2':
+            self.schema_url = SWAGGER2_SCHEMA_URL
+        else:
+            self.schema_url = OAS3_SCHEMA_URL
         self.get_schema()
         self.metadata = metadata
         self._meta = self.metadata.pop('_meta', {})
+        if self.schema_version == 'SWAGGER2':
+            self._meta['swagger_v2'] = True
 
     def get_schema(self):
-        schema = requests.get(OAS3_SCHEMA_URL).text
+        schema = requests.get(self.schema_url).text
         if schema.startswith("export default "):
             schema = schema[len("export default "):]
-        self.oas3_schema = json.loads(schema)
+        self.oas_schema = json.loads(schema)
         self.smartapi_schema = requests.get(SMARTAPI_SCHEMA_URL).json()
 
     def encode_api_id(self):
@@ -99,19 +121,29 @@ class APIMetadata:
             raise ValueError("Missing required _meta.url field.")
         return blake2b(x.encode('utf8'), digest_size=16).hexdigest()
 
-    def validate(self):
+    def validate(self, raise_error_on_v2=True):
         '''Validate API metadata against JSON Schema.'''
+        if not self.schema_version or self.schema_version not in SUPPORTED_SCHEMA_VERSIONS:
+            return {"valid": False, "error": "Unsupported schema version '{}'.  Supported versions are: '{}'.".format(self.schema_version, SUPPORTED_SCHEMA_VERSIONS)}
+        if raise_error_on_v2 and self.schema_version == 'SWAGGER2':
+            return {"valid": False, "error": "Found a v2 swagger schema, please convert to v3 for fullest functionality or click the checkbox to proceed with v2 anyway.", "swagger_v2": True}
         try:
-            jsonschema.validate(self.metadata, self.oas3_schema)
+            jsonschema.validate(self.metadata, self.oas_schema)
         except jsonschema.ValidationError as e:
             err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
-            return {"valid": False, "error": "[OAS3] " + err_msg}
-        try:
-            jsonschema.validate(self.metadata, self.smartapi_schema)
-        except jsonschema.ValidationError as e:
-            err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
-            return {"valid": False, "error": "[SmartAPI] " + err_msg}
-        return {"valid": True}
+            return {"valid": False, "error": "[{}] ".format(self.schema_version) + err_msg}
+        if self.schema_version == 'OAS3':
+            try:
+                jsonschema.validate(self.metadata, self.smartapi_schema)
+            except jsonschema.ValidationError as e:
+                err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
+                return {"valid": False, "error": "[SmartAPI] " + err_msg}
+            _warning = ""
+            _ret = {"valid": True}
+        else:
+            _warning = "No SmartAPI extensions supported on Swagger/OpenAPI version 2"
+            _ret = {"valid": True, "_warning": _warning, "swagger_v2": True}
+        return _ret
 
     def _encode_raw(self):
         '''return encoded and compressed metadata'''
@@ -127,11 +159,13 @@ class APIMetadata:
         # convert paths to a list of each path item
         _paths = []
         for path in _d['paths']:
-            _paths.append({
-                "path": path,
-                "pathitem": _d['paths'][path]
-            })
-        _d['paths'] = _paths
+            if ((self.schema_version == 'OAS3') or (path in SWAGGER2_PATH_ITEMS)):
+                _paths.append({
+                    "path": path,
+                    "pathitem": _d['paths'][path]
+                })
+        if _paths:
+            _d['paths'] = _paths
 
         #include compressed binary raw metadata as "~raw"
         _d["~raw"] = encode_raw(self.metadata)
