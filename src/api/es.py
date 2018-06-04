@@ -119,15 +119,16 @@ class ESQuery():
         '''
         return self._es.exists(index=self._index, doc_type=self._doc_type, id=api_id)
 
-    def save_api(self, api_doc, user_name=None, override_owner=False, overwrite=False, dryrun=False):
+    def save_api(self, api_doc, user_name=None, override_owner=False, overwrite=False, dryrun=False, overwrite_if_identical=True, save_v2=False):
         metadata = APIMetadata(api_doc)
-        valid = metadata.validate()
+        valid = metadata.validate(raise_error_on_v2=not save_v2)
         if not valid['valid']:
             valid['success'] = False
             return valid
 
         api_id = metadata.encode_api_id()
         doc_exists = self.exists(api_id)
+        _raw = ""
         if doc_exists:
             if not overwrite:
                 is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
@@ -137,9 +138,14 @@ class ESQuery():
                 _owner = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
                 if _owner != user_name:
                     return {"success": False, "error": "Cannot overwrite an API that doesn't belong to you"}
+            _raw = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["~raw"]).get('_source', {})['~raw']
         _doc = metadata.convert_es()
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
+        #print("********************\nOLD RAW: {}\n***********************\n\n".format(_doc.get('~raw')))
+        #print("********************\nNEW RAW: {}\n***********************\n\n".format(_raw))
+        if not overwrite_if_identical and decode_raw(_raw, sorted=False) == decode_raw(_doc.get('~raw'), sorted=False):
+            return {"success": True, '_id': "No changes in document."}
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id, refresh=True)
         except RequestError as e:
@@ -542,7 +548,7 @@ class ESQuery():
             print("Failed.")
             return (405, status)
 
-    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True):
+    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True, overwrite_if_identical=True):
         ''' refresh one API metadata based on the saved metadata url
             api_doc is the metadata document from ES '''
         _id = api_doc['_id']
@@ -555,7 +561,7 @@ class ESQuery():
             else:
                 _meta['timestamp'] = datetime.now().isoformat()
                 new_api_doc['_meta'] = _meta
-                status = self.save_api(new_api_doc, user_name=user, override_owner=override_owner, overwrite=True, dryrun=dryrun)
+                status = self.save_api(new_api_doc, user_name=user, override_owner=override_owner, overwrite=True, dryrun=dryrun, overwrite_if_identical=overwrite_if_identical, save_v2=True)
         else:
             status = {'success': False, 'error': 'Invalid input data.'}
 
@@ -569,7 +575,7 @@ class ESQuery():
             status_li = []
         print("Refreshing API metadata:")
         for api_doc in self.fetch_all(id_list=id_list):
-            status = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True)
+            status = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True, overwrite_if_identical=False, save_v2=True)
             if status.get('success', False):
                 print("Success.")
                 success_cnt += 1
