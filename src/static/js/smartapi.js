@@ -25,11 +25,14 @@ function check_user(){
 
 
 /* for reg_form.html */
-function save_api(form, overwrite){
+function save_api(form, overwrite, savev2){
     $("#submit_mask").modal("open");
     var data = $(form).serialize();
     if (overwrite){
       data += "&overwrite=true";
+    }
+    if (savev2){
+      data += "&save_v2=true";
     }
     $.ajax({
         url: "/api",
@@ -37,7 +40,7 @@ function save_api(form, overwrite){
         data: data,
         success: function(response) {
             $("#submit_mask").modal("close");
-            console.log(response);
+            //console.log(response);
             if (response.success){
                 var msg = 'API metadata saved!';
                 if (response.dryrun){
@@ -45,6 +48,27 @@ function save_api(form, overwrite){
                   msg += ' If you do want to register your API, uncheck "dry run" and try again. </p>';
                 }
                 swal('Good job!', msg, 'success');
+                if (!response.dryrun && response.swagger_v2){
+                  // -----------
+                  swal({
+                      title: "Version 2 Detected",
+                      text: "Continue saving anyway?",
+                      icon: "warning",
+                      buttons: true,
+                      dangerMode: true,
+                    })
+                    .then((willSave) => {
+                      if (willSave) {
+                        save_api(form, true, true);
+                        swal("Your data has been saved!", {
+                          icon: "success",
+                        });
+                      } else {
+                        swal("Your data has not been saved");
+                      }
+                    });
+                  // ----------
+                }
             }
             else{
               if (response.error.indexOf("API exists") != -1){
@@ -115,4 +139,3 @@ $(function(){
   });
 
   // Particles
-  
