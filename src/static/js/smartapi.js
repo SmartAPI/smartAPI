@@ -51,7 +51,7 @@ function save_api(form, overwrite, savev2){
 
             }
             else{
-              if (response.swagger_v2){
+              if ( (response.error.indexOf("swagger_v2") != -1) && response.swagger_v2 ){
                 // -----------
                 swal({
                     title: "Version 2 Detected",
