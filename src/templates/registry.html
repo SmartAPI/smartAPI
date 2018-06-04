@@ -113,6 +113,7 @@
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>Version:</strong> {{api.info.version}}<br>
                                 <template v-if='api && api.info.contact.name'>
+
                                   <strong>Developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br>
                                 </template>
                                 <table class="bordered">
