@@ -48,29 +48,30 @@ function save_api(form, overwrite, savev2){
                   msg += ' If you do want to register your API, uncheck "dry run" and try again. </p>';
                 }
                 swal('Good job!', msg, 'success');
-                if (!response.dryrun && response.swagger_v2){
-                  // -----------
-                  swal({
-                      title: "Version 2 Detected",
-                      text: "Continue saving anyway?",
-                      icon: "warning",
-                      buttons: true,
-                      dangerMode: true,
-                    })
-                    .then((willSave) => {
-                      if (willSave) {
-                        save_api(form, true, true);
-                        swal("Your data has been saved!", {
-                          icon: "success",
-                        });
-                      } else {
-                        swal("Your data has not been saved");
-                      }
-                    });
-                  // ----------
-                }
+
             }
             else{
+              if (response.swagger_v2){
+                // -----------
+                swal({
+                    title: "Version 2 Detected",
+                    text: "Continue saving anyway?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                  })
+                  .then((willSave) => {
+                    if (willSave) {
+                      save_api(form, true, true);
+                      swal("Your data has been saved!", {
+                        icon: "success",
+                      });
+                    } else {
+                      swal("Your data has not been saved");
+                    }
+                  });
+                // ----------
+              }
               if (response.error.indexOf("API exists") != -1){
                   swal({
                       title: 'API exists. Overwrite?',
