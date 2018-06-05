@@ -6,9 +6,6 @@
 .tabs .indicator{
   background: var(--blue-medium);
 }
-.modal{
-  width: 85%;
-}
 </style>
 <main id="dashApp" style="padding-top:20px;" class="blue-grey darken-3 dashboardBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
@@ -235,14 +232,14 @@
             </div>
             <div v-if='!hasShortName' class="col s12 m12 l12 center-align">
               <object width="100px" data="/static/img/wand.svg" alt='custom slug' style='border-radius: 10px;'></object>
-              <p class="grey-text flow-text">
+              <p class="grey-text">
                 Every project has a subdomain that is available to serve its documentation.<br />
-                By default we use your <i>API ID</i>. If you go to <b>your-api-id</b>.smart-api.info it should allow users to view your API documentation.
+                By default we use your <i>API ID</i>. If you go to <span class="blue-text"><b>your-api-id</b>.smart-api.info</span> it should allow users to view your API documentation.
               </p>
-              <p class="grey-text flow-text">
+              <p class="grey-text">
                 You can also register a unique slug to make sharing your API easier.
                 <br />
-                If you go to <b>your-slug</b>.smart-api.info, it will take users to your API documentation.
+                If you go to <span class="blue-text"><b>your-slug</b>.smart-api.info</span>, it will take users to your API documentation.
               </p>
               <a v-if='!createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="blue btn">Create a new slug</a>
               <a v-if='createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="red btn">Cancel</a>
@@ -251,13 +248,13 @@
               <p id="loadingCog" style="display: none;">
                 <i class="fa fa-thumbs-up fa-2x green-text" aria-hidden="true"></i>
               </p>
-              <p class="grey-text flow-text">
+              <p class="grey-text">
                 You have registered your custom slug!
                 <br />
                 If you visit to link below, it will take users to your API documentation.
               </p>
               <p class="green-text flow-text">
-                 <a :href=" 'http://'+apis[selectedAPIIndex]._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{apis[selectedAPIIndex]._meta.slug}}</b>.smart-api.info</a>
+                 <a :href=" 'http://'+apis[selectedAPIIndex]._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{apis[selectedAPIIndex]._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                  <br />
                  <hr />
                  <a class="btn green smallFont margin20" @click.prevent='createOrEditMode = !createOrEditMode'>Edit Slug</a>
