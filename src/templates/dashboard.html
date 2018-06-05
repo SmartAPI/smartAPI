@@ -454,6 +454,9 @@
             var self = this;
             //modal will show the apis index of the item clicked
             self.selectedAPIIndex = index;
+            if (!self.selectedAPIIndex.info.contact.name) {
+              self.selectedAPIIndex.info.contact.name = 'not available';
+            }
             //hasShortName sets display for slug registration view
             if (self.apis[index]._meta.slug) {
               self.hasShortName=true;
