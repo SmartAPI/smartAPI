@@ -54,8 +54,8 @@ function save_api(form, overwrite, savev2){
               if ( response.hasOwnProperty("swagger_v2") && response.swagger_v2 ){
                 // -----------
                 swal({
-                    title: "Version 2 Detected",
-                    text: "Only V3 will experience full functionality. Continue saving anyway?",
+                    title: "Swagger V2 Detected",
+                    text: "Only OpenAPI V3 will experience full functionality. Continue saving anyway?",
                     icon: "warning",
                     showCancelButton: true,
                     buttons: true,
