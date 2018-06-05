@@ -199,7 +199,7 @@
               <hr />
               <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Doc</a>
             </li>
-            <template v-if="apis[selectedAPIIndex] && apis[selectedAPIIndex].info.contact.hasOwnProperty('name')">
+            <template v-if="apis[selectedAPIIndex] && apis[selectedAPIIndex].info">
               <li  class="collection-item blue-grey lighten-4">
                 <p class="blue-grey-text noMargin flow-text"><a class="link " :href=" 'https://www.github.com/'+apis[selectedAPIIndex]._meta.github_username" target="_blank">{{ apis[selectedAPIIndex].info.contact.name || apis[selectedAPIIndex]._meta.github_username }}</a><br class="hide-on-med-and-up" /> / {{ apis[selectedAPIIndex].info.contact["x-role"] }}</p>
               </li>
