@@ -1,6 +1,11 @@
 {% extends "main.html" %}
 {% block content %}
 {% include "header.html" %}
+<style>
+.swal2-icon.swal2-warning{
+  font-size: 1em;
+}
+</style>
 <main id="regApp" class="testBack row" style="margin: 0;">
   <div class="col s12 l4 padding20">
     <div class="arrow_box center-align padding20 z-depth-5 hide-on-small-only" style="border-radius: 10px;">
@@ -46,7 +51,7 @@
               <br />
               <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
               <br />
-              <a href="/documentation"><i class="fa fa-info-circle" aria-hidden="true"></i> Upgrade your Metadata</a>
+              <a href="/guide"><i class="fa fa-info-circle" aria-hidden="true"></i> Upgrade your Metadata</a>
             </blockquote>
         </form>
       </div>
