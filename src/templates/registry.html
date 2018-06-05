@@ -115,7 +115,7 @@
                                 <template v-if='api && api.info.hasOwnProperty("name")'>
                                   <strong>Developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br>
                                 </template>
-                                <table class="bordered">
+                                <table v-if=" api.hasOwnProperty('openapi') " class="bordered">
                                   <thead>
                                     <th class="center-align lighter">
                                       Operations
