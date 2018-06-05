@@ -3,13 +3,15 @@
 {% include "simple-header.html" %}
 {% raw %}
 <!-- <link type="text/css" rel="stylesheet" href="/static/css/swagger-ui.css"/> -->
-<link type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/>
-<link type="text/css" rel="stylesheet" href="/static/css/custom-swagger.css"/>
+<link id="pagestyle" type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/>
+<link id="customstyle" type="text/css" rel="stylesheet" href="/static/css/custom-swagger.css"/>
 
 <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
   <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
   <div class="blue-grey darken-4 padding20 center l-blue-text lighter">
     <a href="http://smart-api.info/" target="_blank" class="logoFont l-blue-text">SmartAPI</a>
+    <br />
+    <button id="styleButton" class="smallButton hide-on-small-only" style="magin: auto" @click="toggleStyles()">{{btntxt}}</button>
   </div>
 </main>
 
@@ -45,10 +47,25 @@
       el: '#ui-app',
       data: function(){
         return {
-          apiID:''
+          apiID:'',
+          smartStyle: true,
+          btntxt: 'Swith to Swagger Theme'
         }
       },
       methods: {
+        toggleStyles: function(){
+
+          if (this.smartStyle) {
+            document.getElementById('pagestyle').setAttribute('href','/static/css/swagger-ui.css');
+            // document.getElementById('customstyle').remove();
+            this.btntxt="Swith to SmartAPI theme";
+            this.smartStyle = !this.smartStyle;
+          }else{
+            document.getElementById('pagestyle').setAttribute('href','/static/css/swagger-news.css');
+            this.smartStyle = !this.smartStyle;
+            this.btntxt="Swith to Swagger theme";
+          }
+        },
         loadSwaggerUI: function(dataurl){
 
           const ui = SwaggerUIBundle({

@@ -1,6 +1,4 @@
-h2.title span {
- display: none !important;
-}
+
 .swagger-ui .info .title{
  font-size: 3.5em !important;
  margin-bottom: 20px;
@@ -76,6 +74,10 @@ text-decoration: underline;
 .swagger-ui select{
   border: var(--blue-dark) 2px solid !important;
   color: var(--blue-dark) !important;
+}
+
+.swagger-ui select{
+  display: block;
 }
 
 .swagger-ui section.models{

@@ -112,8 +112,10 @@
                                 <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
                                 <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
                                 <strong>Version:</strong> {{api.info.version}}<br>
-                                <template v-if='api && api.info.hasOwnProperty("name")'>
-                                  <strong>Developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br>
+                                <!-- <template v-if='api && api.info.hasOwnProperty("name")'> -->
+                                <template v-for='name in checkForName(api)'>
+                                  <!-- <strong>Developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br> -->
+                                  <strong>Developer:</strong> {{ name }}<br>
                                 </template>
                                 <table v-if=" api.hasOwnProperty('openapi') " class="bordered">
                                   <thead>
@@ -219,6 +221,16 @@
                     else{
                       self.search(tagName);
                     }
+                  }
+                },
+                checkForName: function(api){
+                  // console.log(api);
+                  if (_.get(api, 'info.contact.name')) {
+                    // console.log(api.info.contact.name)
+                    return [api.info.contact.name];
+                  }
+                  else{
+                    return ['Name Unavailable'];
                   }
                 },
                 showHideDetails: function(event){

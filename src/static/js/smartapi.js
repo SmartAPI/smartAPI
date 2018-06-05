@@ -47,7 +47,12 @@ function save_api(form, overwrite, savev2){
                   msg += ' <p class="blue-text text-darken-2">Well, not really, because this is a dryrun.';
                   msg += ' If you do want to register your API, uncheck "dry run" and try again. </p>';
                 }
-                swal('Good job!', msg, 'success');
+                // swal('Good job!', msg, 'success');
+                swal({
+                  type: 'success',
+                  title: 'Good Job!',
+                  html: "You can see your API documentation <b><a href='/ui/"+response._id+"'>HERE</a></b>",
+                })
 
             }
             else{
@@ -60,7 +65,8 @@ function save_api(form, overwrite, savev2){
                     showCancelButton: true,
                     buttons: true,
                     dangerMode: true,
-                    confirmButtonText: 'Yes, save it!'
+                    confirmButtonText: 'Yes, save it!',
+                    footer: '<a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification</a>'
                   })
                   .then((willSave) => {
                     if (willSave) {

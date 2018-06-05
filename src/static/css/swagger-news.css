@@ -1361,7 +1361,7 @@
 .swagger-ui .info .title {
   font-size: 36px;
   margin: 0;
-  font-family: Open Sans, sans-serif;
+  /* font-family: Open Sans, sans-serif; */
   color: #3b4151
 }
 
@@ -1380,7 +1380,8 @@
 .swagger-ui .info .title small pre {
   margin: 0;
   font-family: Titillium Web, sans-serif;
-  color: #fff
+  color: #fff;
+  display: block;
 }
 
 .swagger-ui .auth-btn-wrapper {

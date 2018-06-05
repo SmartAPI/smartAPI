@@ -131,6 +131,12 @@
                     <td style="overflow: hidden;">
                        <a href="#modal2" class="modal-trigger smallFont hide-on-large-only" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                        <a href="#modal2" class="modal-trigger hide-on-med-and-down" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
+                       <span v-if=" api.hasOwnProperty('openapi') " class="smallFont green-text hide-on-med-and-down ">
+                         - OAS3
+                       </span>
+                       <span v-else-if=" api.hasOwnProperty('swagger') " class="smallFont blue-text hide-on-med-and-down show-on-large-only">
+                         - Swagger2
+                       </span>
                     </td>
                     <td  class="center-align">
                       <span style="font-weight: bold" class="green-text smallFont hide-on-large-only ">{{ convertDate(api._meta.timestamp) }}</span>
@@ -196,14 +202,20 @@
               <object width="100px"  alt="SmartAPI" data="/static/img/logo-medium.svg" class="hide-on-small-only"></object>
               <h2 class="blue-text flow-text">
                 {{apis[selectedAPIIndex].info.title}}
-                <span class="versionBadge grey hide-on-small-only" style="font-size: 12px;">Version {{apis[selectedAPIIndex].info.version}}</span>
+                <span class="versionBadge grey hide-on-small-only">Version {{apis[selectedAPIIndex].info.version}}</span>
+                <span v-if=" apis[selectedAPIIndex].hasOwnProperty('openapi') " class="versionBadge green hide-on-small-only">
+                  OAS3
+                </span>
+                <span v-else-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') " class="versionBadge blue hide-on-small-only">
+                  Swagger2
+                </span>
               </h2>
               <hr />
               <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Doc</a>
             </li>
-            <template v-if="apis[selectedAPIIndex] && apis[selectedAPIIndex].info.hasOwnProperty('name')">
+            <template v-for='name in checkForName(apis[selectedAPIIndex])'>
               <li  class="collection-item blue-grey lighten-4">
-                <p class="blue-grey-text noMargin flow-text"><a class="link " :href=" 'https://www.github.com/'+apis[selectedAPIIndex]._meta.github_username" target="_blank">{{ apis[selectedAPIIndex].info.contact.name || apis[selectedAPIIndex]._meta.github_username }}</a><br class="hide-on-med-and-up" /> / {{ apis[selectedAPIIndex].info.contact["x-role"] }}</p>
+                <p class="blue-grey-text noMargin flow-text"><a class="link " :href=" 'https://www.github.com/'+apis[selectedAPIIndex]._meta.github_username" target="_blank"><i class="fa fa-github-alt"></i> {{ name }}</a><br class="hide-on-med-and-up" /> <span v-if="apis[selectedAPIIndex].hasOwnProperty('openapi')">/ {{ apis[selectedAPIIndex].info.contact["x-role"] || 'N/A' }}</span></p>
               </li>
             </template>
             <li class="collection-item padding20 blue-grey lighten-5">
@@ -394,7 +406,17 @@
                   self.total = response.data.total;
                   self.hideLoading();
               }).catch(err=>{
-                Materialize.toast('Failed To Load APIs', 4000,'rounded red white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'error',
+                  title: 'Failed to load APIS'
+                })
                 throw err;
               });
           },
@@ -412,10 +434,30 @@
               //sucessful deletion
               self.hideLoading();
               if( response.data.success ){
-                Materialize.toast(title+' was deleted!', 4000,'rounded green white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'success',
+                  title: title+' was deleted!'
+                })
                 self.apis=[];
               }else if( !response.data.success ){
-                Materialize.toast('Failed to delete '+title, 4000,'rounded red white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'error',
+                  title: 'Failed to delete '+title
+                })
               }
             }).catch(error=>{
               //error deleting
@@ -430,9 +472,30 @@
             axios.put('/api/metadata/'+id).then(res=>{
               self.hideLoading();
               if( res.data.success ){
-                Materialize.toast(title+' was refreshed!', 4000,'rounded green white-text');
+                // Materialize.toast(title+' was refreshed!', 4000,'rounded green white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'success',
+                  title: title+' was refreshed!'
+                })
               }else if( !res.data.success ){
-                Materialize.toast(title+' failed to refresh', 4000,'rounded red white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'error',
+                  title: title+' failed to refresh'
+                })
               }
             }).catch(err=>{
               throw(err);
@@ -461,6 +524,16 @@
               self.hasShortName=true;
             }else{
               self.hasShortName=false;
+            }
+          },
+          checkForName: function(api){
+            // console.log(api);
+            if (_.get(api, 'info.contact.name')) {
+              // console.log(api.info.contact.name)
+              return [api.info.contact.name];
+            }
+            else{
+              return ['Name Unavailable'];
             }
           },
           convertDate: function(timestamp){
@@ -500,13 +573,35 @@
               if( response.data.success ){
                 self.apis[self.selectedAPIIndex]._meta.slug= response.data[self.apis[self.selectedAPIIndex]._id+'._meta.slug'];
                 self.myShortName = '';
-                Materialize.toast('Slug was registered', 4000,'rounded green white-text');
+
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'success',
+                  title:'Slug was registered'
+                })
+
                 self.createOrEditMode = false;
                 self.hasShortName = true;
                 $('#loadingCog').show();
               }else if( !response.data.success ){
                 $('#loadingCog').hide();
-                Materialize.toast('Slug could not be set', 4000,'rounded red white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'error',
+                  title:'Slug failed to register'
+                })
               }
             }).catch(error=>{
               throw error;
@@ -519,13 +614,33 @@
             axios.delete('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+"?slug="+self.apis[self.selectedAPIIndex]._meta.slug).then(response=>{
               if( response.data.success ){
                 self.apis[self.selectedAPIIndex]._meta.slug= '';
-                Materialize.toast('Slug was deleted', 4000,'rounded green white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'success',
+                  title:'Slug was deleted'
+                })
                 self.createOrEditMode = false;
                 self.hasShortName = false;
                 $('#loadingCog').show();
               }else if( !response.data.success ){
                 $('#loadingCog').hide();
-                Materialize.toast('Slug could not be set', 4000,'rounded red white-text');
+                const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 2000
+                });
+
+                toast({
+                  type: 'error',
+                  title:'Slug could not be set'
+                })
               }
             }).catch(error=>{
               throw error;

@@ -17,9 +17,8 @@
 }
 
 .title {
-  background: -webkit-linear-gradient(var(--blue-dark), var(--blue-medium));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--blue-dark);
+  font-weight: lighter;
 }
 
 .roundPhoto{
@@ -931,6 +930,18 @@ mark{
   }
 
   .smallButton:hover{
+    padding:4px;
+    margin: 3px;
+    font-size: 12px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    background-color: rgb(121, 121, 121);
+    color: white;
+    transition: all .5s;
+  }
+
+  .smallButton:focus{
     padding:4px;
     margin: 3px;
     font-size: 12px;
