@@ -129,10 +129,12 @@
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td style="overflow: hidden;">
-                       <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
+                       <a href="#modal2" class="modal-trigger smallFont hide-on-large-only" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
+                       <a href="#modal2" class="modal-trigger hide-on-med-and-down" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                     </td>
                     <td  class="center-align">
-                      <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-weight: bold" class="green-text smallFont hide-on-large-only ">{{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-weight: bold" class="green-text hide-on-med-and-down"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
                       <!-- refresh button global component -->
