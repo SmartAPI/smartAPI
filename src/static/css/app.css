@@ -1006,5 +1006,8 @@ mark{
     background-position: center;
   }
 
+  .swal2-icon.swal2-warning{
+    font-size: 1em;
+  }
 
 /*MARCO CANO end*/

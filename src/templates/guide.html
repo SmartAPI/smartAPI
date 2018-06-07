@@ -230,6 +230,19 @@
                 you will need to follow these steps to convert your metadata to the latest <b>OpenAPI V3</b> format,
                 and then edit it in the editor below.
             </p>
+            <div class="card yellow lighten-4">
+              <div class="card-content blue-grey-text">
+                <span class="card-title">Submit Swagger V2 Metadata</span>
+                <p><i class="material-icons red-text">warning</i> You may submit your V2 metadata as it is up to this point, however you will experience
+                <b>limited functionality</b>.</p>
+                <a class="link" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification</a>
+                <hr />
+                <p class="bold">We recommend you continue with this process to convert yout metadata to OpenAPI v3 metadata to be fully compatible with SmartAPI and BiotThings Explorer.</p>
+              </div>
+              <div class="card-action">
+                <button class="btn blue" @click='submitV2()'>Submit V2</button>
+              </div>
+            </div>
             <ul class="collection noBorder" >
                 <li class="collection-item">
                     <i class="material-icons medium blue-text">code</i>
@@ -487,6 +500,17 @@
                 this.selection= input;
                 // scroll to top after selection
                 scroll(0,0);
+            },
+            submitV2: function(){
+              swal({
+                  title: "Are you sure?",
+                  text: "Only OpenAPI V3 will experience full functionality. Continue saving anyway?",
+                  icon: "warning",
+                  type: 'warning',
+                  showConfirmButton: false,
+                  showCancelButton: false,
+                  footer: '<a href="/add_api">Continue</a>'
+                })
             },
             setProgress(input){
               if (input == 'reset' || this.progress < 0) {
