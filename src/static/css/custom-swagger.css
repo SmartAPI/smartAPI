@@ -7,13 +7,10 @@
 
 h2.title{
  padding-top: 20px;
+ text-align: center;
 }
 span.url{
  word-wrap: break-word;
-}
-
-div.info{
-text-align: center;
 }
 
 div.info a{
