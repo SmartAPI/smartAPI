@@ -195,6 +195,7 @@
 
         <div id="test1" class="col s12">
           <ul v-if="selectedAPIIndex || selectedAPIIndex === 0" class="collection with-header" style="border: none;">
+
             <li class="collection-header padding20">
               <object width="100px"  alt="SmartAPI" data="/static/img/logo-medium.svg" class="hide-on-small-only"></object>
               <h2 class="blue-text flow-text">
@@ -206,8 +207,26 @@
                 <span v-else-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') " class="versionBadge blue hide-on-small-only">
                   Swagger2
                 </span>
+                <template class="show-on-small hide-on-med-and-up">
+                  <span v-if=" apis[selectedAPIIndex].hasOwnProperty('openapi') " class="versionBadge green hide-on-med-and-up">
+                    V3
+                  </span>
+                  <span v-else-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') " class="versionBadge blue hide-on-med-and-up">
+                    V2
+                  </span>
+                </template>
               </h2>
               <hr />
+              <template v-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') ">
+                <div class="yellow lighten-5 smallFont padding20">
+                  APIs in Swagger V2 specification will experience limited functionality. We recommendd you update your metadata to OpenAPI V3 specification.
+                  <br />
+                  <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+                  <br />
+                  <a href="/guide" class="green-text">Use our guide to help you convert your API to OpenAPI V3 specification.</a>
+                </div>
+                <hr />
+              </template>
               <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Doc</a>
             </li>
             <template v-for='name in checkForName(apis[selectedAPIIndex])'>

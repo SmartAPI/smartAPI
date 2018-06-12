@@ -452,12 +452,39 @@
                 $(".button-collapse").sideNav();
                 this.refreshApis();
                 this.refreshTags();
-                // if( {{Special}} === 'true' ){
-                //   this.handleSpecialTags({{Tags}});
+
+                // switch ({{Special}}) {
+                //   case null:
+                //     console.log('null');
+                //     break;
+                //   case undefined:
+                //     console.log('undefined');
+                //     break;
+                //   case false:
+                //     console.log('false');
+                //     break;
+                //   case true:
+                //     console.log('true');
+                //     break;
+                //   default:
+                //     console.log('default')
                 // }
-                // else if ({{Special}} === 'false' && {{Tags}}.length) {
+
+                // if( {{Special}} === true ){
+                //   console.log({{Tags}});
+                //   var specTags = {{Tags}};
+                //   if (specTags.length) {
+                //     this.handleSpecialTags(specTags);
+                //   }else{
+                //     return false;
+                //   }
+                // }
+                // else if ({{Special}} === false && {{Tags}}.length) {
+                //   //console.log('there was NO special tags');
                 //   this.handleRegularTags({{Tags}});
                 // }
+
+
             },
             updated: function(){
               // Highlight matches in results
