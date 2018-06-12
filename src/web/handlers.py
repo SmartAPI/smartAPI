@@ -155,14 +155,14 @@ class RegistryHandler(BaseHandler):
         reg_template = templateEnv.get_template(template_file)
         if tag: 
             if tag.lower() in AVAILABLE_TAGS:
-                print("tags: {}".format([tag.lower()]))
-                reg_output = reg_template.render(Tags=json.dumps({"Tags": [tag.lower()]}), Special="true")
+                #print("tags: {}".format([tag.lower()]))
+                reg_output = reg_template.render(Context=json.dumps({"Tags": [tag.lower()], "Special": True}))
             else:
                 raise tornado.web.HTTPError(404)
         elif self.get_argument('tags', False):
             tags = [x.strip().lower() for x in self.get_argument('tags').split(',')]
-            print("tags: {}".format(tags))
-            reg_output = reg_template.render(Tags=json.dumps({"Tags": tags}), Special="false")
+            #print("tags: {}".format(tags))
+            reg_output = reg_template.render(Context=json.dumps({"Tags": tags, "Special": False}))
         else:
             reg_output = reg_template.render()
         self.write(reg_output)
