@@ -164,7 +164,7 @@ class RegistryHandler(BaseHandler):
             #print("tags: {}".format(tags))
             reg_output = reg_template.render(Context=json.dumps({"Tags": tags, "Special": False}))
         else:
-            reg_output = reg_template.render()
+            reg_output = reg_template.render(Context=json.dumps({}))
         self.write(reg_output)
 
 class DocumentationHandler(BaseHandler):
