@@ -54,7 +54,7 @@
                         <div class="col s12 selected-tags">
                             <div class="chip" v-for="tag in tags" v-if="tag.active">
                                 <i class="fa fa-tag blue-text" aria-hidden="true"></i>  {{tag.name}}
-                                <i v-if='tagsCloseable' class="close material-icons" @click="tag.active = false;search(query)">close</i>
+                                <i v-if='tag.closeable' class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
                         </div>
                         <div class="col s12">
@@ -66,7 +66,7 @@
                 <div class="row search-results">
                   <!-- Special Tags -->
                   <div v-if='specialUI' class="col s12">
-                    <h1 class="blue-text logoFont tracking-in-expand">{{Tags}}</h1>
+                    <h1 class="blue-text tracking-in-expand">{{specialTags}}</h1>
                   </div>
                   <!-- Special Tags -->
                     <div class="col s12">
@@ -205,7 +205,7 @@
                   keywords:'',
                   sortASC: true,
                   specialUI: false,
-                  specialTags: [],
+                  specialTags: '',
                   tagsCloseable : true,
                   userInfo: {}
               }
@@ -426,13 +426,11 @@
                 handleSpecialTags: function(sTag){
                   var self = this;
                   self.specialUI = true;
+                  self.tags = sTag.Tags;
                   for (var i = 0; i < self.tags.length; i++) {
-                    for (var x = 0; x < rTags.length; x++) {
-                      if (self.tags[i] === rTags[x]) {
-                        self.tags[i].active = true;
-                        self.tagsCloseable = false;
-                      }
-                    }
+                    self.tags[i].active = true;
+                    self.tags[i].closeable = false;
+                    self.specialTags = self.tags[i].toUpperCase();
                   }
                 },
                 handleRegularTags: function(rTags){
@@ -453,29 +451,11 @@
                 this.refreshApis();
                 this.refreshTags();
 
-                // switch ({{Special}}) {
-                //   case null:
-                //     console.log('null');
-                //     break;
-                //   case undefined:
-                //     console.log('undefined');
-                //     break;
-                //   case false:
-                //     console.log('false');
-                //     break;
-                //   case true:
-                //     console.log('true');
-                //     break;
-                //   default:
-                //     console.log('default')
-                // }
-
-
 
                 // if( {{Special}} === true ){
                 //   console.log({{Tags}});
                 //   var specTags = {{Tags}};
-                //   if (specTags.length) {
+                //   if (specTags) {
                 //     this.handleSpecialTags(specTags);
                 //   }else{
                 //     return false;
