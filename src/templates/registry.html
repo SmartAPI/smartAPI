@@ -13,6 +13,11 @@
     font-weight: bold;
   }
 
+  .disable {
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
 </style>
   {% raw %}
     <main>
@@ -40,7 +45,7 @@
             <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a :disabled='tagsCloseable' v-for="tag in tags" href="#!" class="collection-item smallFont" :class="{ active: tag.active, blue: tag.active, 'white-text': tag.active }" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a :class="{ disable: tag.name === specialTagName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name !== specialTagName.toLowerCase(), green: tag.active  && tag.name === specialTagName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
             </div>
             <div class="col l10 s12 ">
@@ -52,10 +57,13 @@
                             <label for="search_query"></label>
                         </div>
                         <div class="col s12 selected-tags">
-                            <div class="chip" v-for="tag in tags" v-if="tag.active">
-                                <i class="fa fa-tag blue-text" aria-hidden="true"></i>  {{tag.name}}
-                                <i v-if='tag.closeable' class="close material-icons" @click="tag.active = false;search(query)">close</i>
+                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name === specialTagName.toLowerCase(), 'white-text': tag.name === specialTagName.toLowerCase() }">
+                                <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
+                                <i v-if="tag.name !== specialTagName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
+                            <!-- <div class="chip green white-text" v-if="specialTagsUI">
+                                <i class="fa fa-tag white-text" aria-hidden="true"></i>  {{specialTagName.toLowerCase() }}
+                            </div> -->
                         </div>
                         <div class="col s12">
                             <button type="submit" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
@@ -65,8 +73,8 @@
                 </div>
                 <div class="row search-results">
                   <!-- Special Tags -->
-                  <div v-if='specialUI' class="col s12">
-                    <h1 class="blue-text tracking-in-expand">{{specialTags}}</h1>
+                  <div v-if='specialTagsUI' class="col s12">
+                    <h1 class="blue-text tracking-in-expand">{{specialTagName}}</h1>
                   </div>
                   <!-- Special Tags -->
                     <div class="col s12">
@@ -89,9 +97,9 @@
                                   <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
                                     Swagger2
                                   </span>
-                                  <span v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge orange darken-4">
+                                  <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge orange darken-4">
                                     My API
-                                  </span>
+                                  </a>
                                 </span>
                                 <br />
                                 <br />
@@ -204,10 +212,11 @@
                   perPage: 20,
                   keywords:'',
                   sortASC: true,
-                  specialUI: false,
-                  specialTags: '',
+                  specialTagsUI: false,
+                  specialTagName: '',
                   tagsCloseable : true,
-                  userInfo: {}
+                  userInfo: {},
+                  context:{}
               }
             },
             methods: {
@@ -423,27 +432,43 @@
                     throw err;
                   })
                 },
-                handleSpecialTags: function(sTag){
-                  var self = this;
-                  self.specialUI = true;
-                  self.tags = sTag.Tags;
-                  for (var i = 0; i < self.tags.length; i++) {
-                    self.tags[i].active = true;
-                    self.tags[i].closeable = false;
-                    self.specialTags = self.tags[i].toUpperCase();
-                  }
-                },
                 handleRegularTags: function(rTags){
                   var self = this;
-                  for (var i = 0; i < self.tags.length; i++) {
-                    for (var x = 0; x < rTags.length; x++) {
-                      if (self.tags[i] === rTags[x]) {
-                        self.tags[i].active = true;
-                        self.tagsCloseable = false;
+                  setTimeout(function(){
+                    self.specialUI = false;
+                    for (var i = 0; i < rTags.length; i++) {
+                      for (var x = 0; x < self.tags.length; x++) {
+                        if (rTags[i] === self.tags[x].name) {
+                          self.matchTagAndSearch(self.tags[x].name);
+                        }
                       }
                     }
+                  },2000);
+
+                },
+                handleContext: function(context){
+                  if (context.Special) {
+                    this.handleSpecialTags(this.context.Tags[0]);
+                  }else if (!context.Special && context.Tags) {
+                    this.handleRegularTags(this.context.Tags);
                   }
+                },
+                handleSpecialTags: function(tagname){
+                  var self = this;
+                  setTimeout(function(){
+                    self.specialTagsUI = true;
+                    self.specialTagName = tagname.toUpperCase();
+                    for (var i = 0; i < self.tags.length; i++) {
+                      if (self.tags[i].name === tagname) {
+                        self.matchTagAndSearch(self.tags[i].name);
+                      }
+                      else{
+                        return false;
+                      }
+                    }
+                  },2000);
                 }
+
             },
             created: function () {
                 this.getUserInfo();
@@ -451,27 +476,8 @@
                 this.refreshApis();
                 this.refreshTags();
 
-
-                // if( {{Special}} === true ){
-                //   console.log({{Tags}});
-                //   var specTags = {{Tags}};
-                //   if (specTags) {
-                //     this.handleSpecialTags(specTags);
-                //   }else{
-                //     return false;
-                //   }
-                // }
-                // else if ({{Special}} === false && {{Tags}}.length) {
-                //   //console.log('there was NO special tags');
-                //   this.handleRegularTags({{Tags}});
-                // }
-
-                console.log({{Context}});
-
-                // if ({{Context["Special"]}} ) {
-                //     var specTags = {{Context["Tags"]}};
-                //     this.handleSpecialTags(specTags);
-                // }
+                this.context = {{Context}};
+                this.handleContext(this.context);
 
 
             },
