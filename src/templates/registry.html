@@ -45,21 +45,34 @@
             <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a :class="{ disable: tag.name === specialTagName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name !== specialTagName.toLowerCase(), green: tag.active  && tag.name === specialTagName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a :class="{ disable: tag.name === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
             </div>
             <div class="col l10 s12 ">
                 <div class="row">
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
+                      <template v-if='specialTagsUI'>
+                        <div  class="col s12 l3 input-field">
+                          <h5 class=" blue white-text" style="padding: 3px; border-radius: 5px;">{{specialTagName}}</h5>
+                        </div>
+                        <div class="input-field col s12 l6">
+                            <i class="material-icons prefix grey-text">search</i>
+                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
+                            <label for="search_query"></label>
+                        </div>
+                      </template>
+                      <template v-else>
                         <div class="input-field col s12 l6 offset-l3">
                             <i class="material-icons prefix grey-text">search</i>
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
                             <label for="search_query"></label>
                         </div>
+                      </template>
+
                         <div class="col s12 selected-tags">
-                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name === specialTagName.toLowerCase(), 'white-text': tag.name === specialTagName.toLowerCase() }">
+                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name === specialTagOriginalName.toLowerCase(), 'white-text': tag.name === specialTagOriginalName.toLowerCase() }">
                                 <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
-                                <i v-if="tag.name !== specialTagName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
+                                <i v-if="tag.name !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
                             <!-- <div class="chip green white-text" v-if="specialTagsUI">
                                 <i class="fa fa-tag white-text" aria-hidden="true"></i>  {{specialTagName.toLowerCase() }}
@@ -73,9 +86,9 @@
                 </div>
                 <div class="row search-results">
                   <!-- Special Tags -->
-                  <div v-if='specialTagsUI' class="col s12">
+                  <!-- <div v-if='specialTagsUI' class="col s12">
                     <h1 class="blue-text tracking-in-expand">{{specialTagName}}</h1>
-                  </div>
+                  </div> -->
                   <!-- Special Tags -->
                     <div class="col s12">
                         <div>
@@ -217,6 +230,7 @@
                   sortASC: true,
                   specialTagsUI: false,
                   specialTagName: '',
+                  specialTagOriginalName: '',
                   userInfo: {},
                   context:{}
               }
@@ -479,7 +493,17 @@
                 handleSpecialTags: function(tagname){
                   var self = this;
                     self.specialTagsUI = true;
-                    self.specialTagName = tagname.toUpperCase();
+                    self.specialTagOriginalName = tagname.toUpperCase();
+                    switch (tagname) {
+                      case 'translator':
+                        self.specialTagName = 'NCATS Biomedical Data Translator';
+                        break;
+                        case 'nihdatacommons' || 'NIHdatacommons':
+                          self.specialTagName = 'NIH Data Commons';
+                          break;
+                      default:
+                        self.specialTagName = tagname.toUpperCase();
+                    }
                     for (var i = 0; i < self.tags.length; i++) {
                       if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
                         self.tags[i].active = true;
