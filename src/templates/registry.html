@@ -223,7 +223,7 @@
                 matchTagAndSearch: function(tagName){
                   var self = this;
                   for (var i = 0; i < self.tags.length; i++) {
-                    if (self.tags[i].name === tagName) {
+                    if (self.tags[i].name.toLowerCase() === tagName.toLowerCase()) {
                       self.tags[i].active = true;
                       self.search(self.tags[i].name);
                     }
@@ -474,9 +474,8 @@
                 $(".button-collapse").sideNav();
                 this.refreshApis();
                 this.refreshTags();
-
+                console.log({{Context}})
                 this.context = {{Context}};
-                // this.handleContext(this.context);
             },
             updated: function(){
               // Highlight matches in results
