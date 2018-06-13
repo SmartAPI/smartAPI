@@ -335,7 +335,7 @@
                     self.context= {{Context}};
                     if (self.context.Special) {
                       self.handleSpecialTags(self.context.Tags[0]);
-                    }else if(!self.context.Special) {
+                    }else if(!self.context.Special && self.context.Tags ) {
                       self.handleRegularTags(self.context.Tags);
                     }
                     var params = {
