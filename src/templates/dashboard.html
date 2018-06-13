@@ -126,7 +126,7 @@
                   <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td style="overflow: hidden;">
-                       <a href="#modal2" class="modal-trigger smallFont hide-on-large-only" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
+                       <a href="#modal2" class="modal-trigger smallFont hide-on-large-only" @click="getDetails(index)"><span class="hide-on-small-only">{{index+1 }}-</span> <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                        <a href="#modal2" class="modal-trigger hide-on-med-and-down" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                        <span v-if=" api.hasOwnProperty('openapi') " class="smallFont green-text hide-on-med-and-down ">
                          - OAS3

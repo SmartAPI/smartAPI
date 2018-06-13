@@ -319,6 +319,7 @@
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
                         //self.apis = response.data.hits;
+                        self.handleContext(self.context);
                         self.apis = _.sortBy(response.data.hits,'info.title');
                         self.total = response.data.total;
                         self.calculatePages();
@@ -434,7 +435,7 @@
                 },
                 handleRegularTags: function(rTags){
                   var self = this;
-                  setTimeout(function(){
+                  // setTimeout(function(){
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
@@ -443,8 +444,7 @@
                         }
                       }
                     }
-                  },2000);
-
+                  // },2000);
                 },
                 handleContext: function(context){
                   if (context.Special) {
@@ -455,7 +455,7 @@
                 },
                 handleSpecialTags: function(tagname){
                   var self = this;
-                  setTimeout(function(){
+                  // setTimeout(function(){
                     self.specialTagsUI = true;
                     self.specialTagName = tagname.toUpperCase();
                     for (var i = 0; i < self.tags.length; i++) {
@@ -466,9 +466,8 @@
                         return false;
                       }
                     }
-                  },2000);
+                  // },2000);
                 }
-
             },
             created: function () {
                 this.getUserInfo();
@@ -477,9 +476,7 @@
                 this.refreshTags();
 
                 this.context = {{Context}};
-                this.handleContext(this.context);
-
-
+                // this.handleContext(this.context);
             },
             updated: function(){
               // Highlight matches in results
