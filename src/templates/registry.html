@@ -377,7 +377,7 @@
                     }
                     else if (self.context.Special && !query) {
                       console.log(self.context.Special)
-                      query = self.context.Tags[0];
+                      query = query || "__all__";
                     }
                     if (query) {
                         var params = {
