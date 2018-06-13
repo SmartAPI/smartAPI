@@ -106,7 +106,10 @@
                                 <p class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
-                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
+                                  <!-- <a v-for="tag in api.tags" href="#!" @click.prevent="tag.active = !tag.active;search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;"> -->
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch2(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
+
+                                  <!-- <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;"> -->
                                     <i class="fa fa-tag blue-text" aria-hidden="true"></i> {{tag.name}}
                                   </a>
                                 </div>
@@ -214,7 +217,6 @@
                   sortASC: true,
                   specialTagsUI: false,
                   specialTagName: '',
-                  tagsCloseable : true,
                   userInfo: {},
                   context:{}
               }
@@ -229,6 +231,16 @@
                     }
                     else{
                       self.search(tagName);
+                    }
+                  }
+                },matchTagAndSearch2: function(tagName){
+                  var self = this;
+                  for (var i = 0; i < self.tags.length; i++) {
+                    if (self.tags[i].name === tagName) {
+                      self.tags[i].active = !self.tags[i].active;
+                    }
+                    else{
+                      // self.search(tagName);
                     }
                   }
                 },
@@ -305,8 +317,6 @@
                 },
                 refreshApis: function(){
                     var self = this;
-                    // axios.get('/api/metadata/all?meta=1').then(function (response) {
-                    //     self.apis = response.data;
                     var params = {
                         "params": {
                             "q": "__all__",
@@ -318,8 +328,6 @@
                     this.loading_start();
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
-                        //self.apis = response.data.hits;
-                        self.handleContext(self.context);
                         self.apis = _.sortBy(response.data.hits,'info.title');
                         self.total = response.data.total;
                         self.calculatePages();
@@ -361,9 +369,16 @@
                 },
                 search: function (query) {
                     var self = this;
-                    if (!query)
-                        query = $('#search_query').val();
+                    self.context= {{Context}};
+                    if (!self.context.Special && !query){
+                      console.log(self.context.Special)
+                      query = $('#search_query').val();
                       query = query || "__all__";
+                    }
+                    else if (self.context.Special && !query) {
+                      console.log(self.context.Special)
+                      query = self.context.Tags[0];
+                    }
                     if (query) {
                         var params = {
                             "params": {
@@ -380,6 +395,7 @@
                             $(".context").unmark();
                             self.apis = response.data.hits;
                             //console.log(self.apis);
+                            self.handleContext(self.context);
                             self.total = response.data.total;
 
                             self.calculatePages();
@@ -439,7 +455,7 @@
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
                         if (rTags[i] === self.tags[x].name) {
-                          self.matchTagAndSearch(self.tags[x].name);
+                          self.tags[x].active = true;
                         }
                       }
                     }
@@ -457,7 +473,7 @@
                     self.specialTagName = tagname.toUpperCase();
                     for (var i = 0; i < self.tags.length; i++) {
                       if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-                        self.matchTagAndSearch(self.tags[i].name);
+                        self.tags[i].active = true;
                       }
                       else{
                         return false;
@@ -468,10 +484,12 @@
             created: function () {
                 this.getUserInfo();
                 $(".button-collapse").sideNav();
-                this.refreshApis();
+                // this.refreshApis();
                 this.refreshTags();
+                this.search();
                 console.log({{Context}})
                 this.context = {{Context}};
+                console.log(this.context);
             },
             updated: function(){
               // Highlight matches in results
