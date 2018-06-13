@@ -459,7 +459,7 @@
                     self.specialTagsUI = true;
                     self.specialTagName = tagname.toUpperCase();
                     for (var i = 0; i < self.tags.length; i++) {
-                      if (self.tags[i].name === tagname) {
+                      if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
                         self.matchTagAndSearch(self.tags[i].name);
                       }
                       else{
