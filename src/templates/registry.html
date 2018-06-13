@@ -316,7 +316,12 @@
                   });
                 },
                 refreshApis: function(){
+
                     var self = this;
+                    self.context= {{Context}};
+                    if (self.context.Special) {
+                      self.handleSpecialTags(self.context.Tags[0]);
+                    }
                     var params = {
                         "params": {
                             "q": "__all__",
@@ -339,14 +344,15 @@
                         self.tags = _.map(response.data.field_values.buckets, function(item){
                             return {'name':item.key, 'count': item.doc_count, 'active': false};
                         });
+                        self.refreshApis();
                     });
                 },
                 getQueryFilters: function(){
                     var filters = [];
                     this.tags.forEach(function(item){
-                        if (item.active)
-                            filters.push(item.name);
-                    });
+                      if (item.active)
+                          filters.push(item.name);
+                      });
                     if (filters.length > 0)
                         filters = {'tags.name.raw': filters};
                         return filters;
@@ -378,6 +384,7 @@
                     else if (self.context.Special && !query) {
                       console.log(self.context.Special)
                       query = query || "__all__";
+                      self.handleSpecialTags(self.context.Tags[0]);
                     }
                     if (query) {
                         var params = {
@@ -473,6 +480,7 @@
                     self.specialTagName = tagname.toUpperCase();
                     for (var i = 0; i < self.tags.length; i++) {
                       if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
+                        console.log('MATCH')
                         self.tags[i].active = true;
                       }
                       else{
@@ -484,9 +492,9 @@
             created: function () {
                 this.getUserInfo();
                 $(".button-collapse").sideNav();
-                // this.refreshApis();
                 this.refreshTags();
-                this.search();
+                // this.refreshApis();
+                // this.search();
                 console.log({{Context}})
                 this.context = {{Context}};
                 console.log(this.context);
