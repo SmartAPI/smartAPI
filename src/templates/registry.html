@@ -321,6 +321,8 @@
                     self.context= {{Context}};
                     if (self.context.Special) {
                       self.handleSpecialTags(self.context.Tags[0]);
+                    }else if(!self.context.Special) {
+                      self.handleRegularTags(self.context.Tags);
                     }
                     var params = {
                         "params": {
@@ -480,7 +482,6 @@
                     self.specialTagName = tagname.toUpperCase();
                     for (var i = 0; i < self.tags.length; i++) {
                       if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-                        console.log('MATCH')
                         self.tags[i].active = true;
                       }
                       else{
@@ -495,9 +496,9 @@
                 this.refreshTags();
                 // this.refreshApis();
                 // this.search();
-                console.log({{Context}})
+                //console.log({{Context}})
                 this.context = {{Context}};
-                console.log(this.context);
+                //console.log(this.context);
             },
             updated: function(){
               // Highlight matches in results
