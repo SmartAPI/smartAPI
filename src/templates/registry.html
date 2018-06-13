@@ -223,7 +223,7 @@
                 matchTagAndSearch: function(tagName){
                   var self = this;
                   for (var i = 0; i < self.tags.length; i++) {
-                    if (self.tags[i].name.toLowerCase() === tagName.toLowerCase()) {
+                    if (self.tags[i].name === tagName) {
                       self.tags[i].active = true;
                       self.search(self.tags[i].name);
                     }
@@ -435,7 +435,6 @@
                 },
                 handleRegularTags: function(rTags){
                   var self = this;
-                  // setTimeout(function(){
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
@@ -444,7 +443,6 @@
                         }
                       }
                     }
-                  // },2000);
                 },
                 handleContext: function(context){
                   if (context.Special) {
@@ -455,7 +453,6 @@
                 },
                 handleSpecialTags: function(tagname){
                   var self = this;
-                  // setTimeout(function(){
                     self.specialTagsUI = true;
                     self.specialTagName = tagname.toUpperCase();
                     for (var i = 0; i < self.tags.length; i++) {
@@ -466,7 +463,6 @@
                         return false;
                       }
                     }
-                  // },2000);
                 }
             },
             created: function () {
