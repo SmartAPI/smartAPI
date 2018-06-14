@@ -278,14 +278,14 @@
                   var self= this;
                   // Read the keyword
                   self.keywords = $("input[name='query']").val();
-                  self.mark();
+                  self.mark(self.keywords);
                 },
-                mark: function(){
+                mark: function(kw){
                   //unmark and mark current search
                   var self= this;
                   $(".context").unmark({
                     done: function() {
-                      $(".context").mark(self.keywords);
+                      $(".context").mark(kw);
                     }
                   });
                 },
@@ -306,12 +306,13 @@
                     var filters = this.getQueryFilters();
                     if (filters)
                         params["params"]["filters"] = filters;
-                    this.loading_start();
+                    self.loading_start();
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
                         self.apis = _.sortBy(response.data.hits,'info.title');
                         self.total = response.data.total;
                         self.calculatePages();
+
                     });
                 },
                 refreshTags: function (){
