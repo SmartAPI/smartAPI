@@ -29,18 +29,6 @@
         </div>
       </div>
     <div id="app" style="height: 100%;" class="white">
-        <!-- <div class="side-nav" id="filters">
-            <div class="row">
-                <div class="col s12">
-                    <h5>Tags</h5>
-                    <div class="collection">
-                        <a v-for="tag in tags" href="#!" class="collection-item blue-grey-text" :class="{ active: 'tag.active' }" @click.prevent="tag.active = !tag.active">
-                         >{{tag.name}}&nbsp;({{tag.count}})
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div> -->
         <div class="row full-height">
             <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
@@ -53,7 +41,9 @@
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                       <template v-if='specialTagsUI'>
                         <div  class="col s12 l3 input-field">
-                          <h5 class=" blue white-text" style="padding: 3px; border-radius: 5px;">{{specialTagName}}</h5>
+                          <a :href="specialTagURL" target="_blank" style="cursor: pointer;">
+                            <img v-if="specialTagsUI" width="100%" :src="specialTagImage"  :alt="specialTagName"/>
+                          </a>
                         </div>
                         <div class="input-field col s12 l6">
                             <i class="material-icons prefix grey-text">search</i>
@@ -74,9 +64,6 @@
                                 <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
                                 <i v-if="tag.name !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
-                            <!-- <div class="chip green white-text" v-if="specialTagsUI">
-                                <i class="fa fa-tag white-text" aria-hidden="true"></i>  {{specialTagName.toLowerCase() }}
-                            </div> -->
                         </div>
                         <div class="col s12">
                             <button type="submit" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
@@ -85,13 +72,8 @@
                     </form>
                 </div>
                 <div class="row search-results">
-                  <!-- Special Tags -->
-                  <!-- <div v-if='specialTagsUI' class="col s12">
-                    <h1 class="blue-text tracking-in-expand">{{specialTagName}}</h1>
-                  </div> -->
-                  <!-- Special Tags -->
                     <div class="col s12">
-                        <div>
+                        <div class="blue-grey-text">
                           Total APIs: <span class="blue-text">{{total}}</span>
                           <span style="float: right">Sorted <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span>
                         </div>
@@ -119,34 +101,35 @@
                                 <p class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></p>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
-                                  <!-- <a v-for="tag in api.tags" href="#!" @click.prevent="tag.active = !tag.active;search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;"> -->
-                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch2(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
-
-                                  <!-- <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;"> -->
-                                    <i class="fa fa-tag blue-text" aria-hidden="true"></i> {{tag.name}}
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
+                                    <i class="fa fa-tag" aria-hidden="true"></i> {{tag.name}}
                                   </a>
                                 </div>
                             </div>
-                            <div class="card-action grey lighten-5">
-                                <a class="green-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
+                            <div class="card-action grey lighten-3">
+                                <a style="border-radius: 20px;" class="btn grey white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
                                    show details
                                 </a>
                             </div>
-                            <div class="card-content grey lighten-5" v-if="api.showDetails == true">
-                                <strong>SmartAPI ID:</strong> <a v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
-                                <strong>Metadata URL:</strong> <a v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
-                                <strong>Version:</strong> {{api.info.version}}<br>
-                                <!-- <template v-if='api && api.info.hasOwnProperty("name")'> -->
+                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails == true">
+                                <strong class="blue-grey-text"><i class="fa fa-square blue-text" aria-hidden="true"></i> SmartAPI ID:</strong> <a class="link" v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a><br>
+                                <strong class="blue-grey-text"><i class="fa fa-square blue-text" aria-hidden="true"></i> Metadata URL:</strong> <a class="link" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a><br>
+                                <strong class="blue-grey-text"><i class="fa fa-square blue-text" aria-hidden="true"></i> Version:</strong> <span class="black-text">{{api.info.version}}</span><br>
                                 <template v-for='name in checkForName(api)'>
-                                  <!-- <strong>Developer:</strong> {{api.info.contact.name || api._meta.github_username }}<br> -->
-                                  <strong>Developer:</strong> {{ name }}<br>
+                                  <strong class="blue-grey-text"><i class="fa fa-square blue-text" aria-hidden="true"></i> Developer:</strong> <span class="black-text">{{ name }}</span><br>
                                 </template>
-                                <table v-if=" api.hasOwnProperty('openapi') " class="bordered">
-                                  <thead>
-                                    <th class="center-align lighter">
+                                <br />
+                                <a class="btn green smallFont"
+                                   v-bind:href='"/ui/"+api._id' >
+                                   View API Doc
+                                </a>
+                                <br />
+                                <table v-if=" api.hasOwnProperty('openapi') " class="bordered grey lighten-5" style="margin: 20px 0px;">
+                                  <thead class="grey lighten-1">
+                                    <th class="center-align blue-grey-text">
                                       Operations
                                     </th>
-                                    <th class="center-align lighter">
+                                    <th class="center-align blue-grey-text">
                                       Summary
                                     </th>
                                   </thead>
@@ -160,28 +143,21 @@
                                     </tr>
                                 </table>
                                 <br />
-                                <a class="waves-effect waves-light btn  light-blue darken-4 smallFont"
-                                   v-bind:href='"/ui/"+api._id' >
-                                   View API Doc
-                                </a>
                                 <a class="waves-effect waves-light btn blue smallFont"
                                    v-bind:href='"/editor-oa3/?url=/api/metadata/"+api._id' target="_blank">
-                                   Edit
+                                   Edit <i class="fa fa-pencil" aria-hidden="true"></i>
                                 </a>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col s12 m6 l6">
                                 <ul class="pagination">
                                     <li class="waves-effect" :class="{ disabled: page <= 1 }">
                                         <a href="#" @click.prevent="prevPage()"><i class="material-icons">chevron_left</i> Previous</a>
                                     </li>
-
                                     <li class="waves-effect" :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
                                         <a href="#" @click.prevent="page = n">{{n}}</a>
                                     </li>
-
                                     <li class="waves-effect" :class="{ disabled: page >= pages }">
                                         <a href="#" @click.prevent="nextPage()">Next <i class="material-icons">chevron_right</i></a>
                                     </li>
@@ -211,9 +187,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-    <!-- Mark JS for search results highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
-
     <script>
         var app = new Vue({
             el: '#app',
@@ -230,6 +204,8 @@
                   sortASC: true,
                   specialTagsUI: false,
                   specialTagName: '',
+                  specialTagImage: '',
+                  specialTagURL: '',
                   specialTagOriginalName: '',
                   userInfo: {},
                   context:{}
@@ -243,25 +219,10 @@
                       self.tags[i].active = true;
                       self.search(self.tags[i].name);
                     }
-                    else{
-                      self.search(tagName);
-                    }
-                  }
-                },matchTagAndSearch2: function(tagName){
-                  var self = this;
-                  for (var i = 0; i < self.tags.length; i++) {
-                    if (self.tags[i].name === tagName) {
-                      self.tags[i].active = !self.tags[i].active;
-                    }
-                    else{
-                      // self.search(tagName);
-                    }
                   }
                 },
                 checkForName: function(api){
-                  // console.log(api);
                   if (_.get(api, 'info.contact.name')) {
-                    // console.log(api.info.contact.name)
                     return [api.info.contact.name];
                   }
                   else{
@@ -316,7 +277,6 @@
                 getKeywords: function(){
                   var self= this;
                   // Read the keyword
-
                   self.keywords = $("input[name='query']").val();
                   self.mark();
                 },
@@ -393,12 +353,12 @@
                     var self = this;
                     self.context= {{Context}};
                     if (!self.context.Special && !query){
-                      console.log(self.context.Special)
+                      // console.log(self.context.Special)
                       query = $('#search_query').val();
                       query = query || "__all__";
                     }
                     else if (self.context.Special && !query) {
-                      console.log(self.context.Special)
+                      // console.log(self.context.Special)
                       query = query || "__all__";
                       self.handleSpecialTags(self.context.Tags[0]);
                     }
@@ -417,10 +377,8 @@
                             self.loading_end();
                             $(".context").unmark();
                             self.apis = response.data.hits;
-                            //console.log(self.apis);
                             self.handleContext(self.context);
                             self.total = response.data.total;
-
                             self.calculatePages();
                         });
                     }
@@ -497,19 +455,22 @@
                     switch (tagname) {
                       case 'translator':
                         self.specialTagName = 'NCATS Biomedical Data Translator';
+                        self.specialTagImage = '/static/img/ncats-logo.png';
+                        self.specialTagURL = 'https://ncats.nih.gov/translator';
                         break;
                         case 'nihdatacommons' || 'NIHdatacommons':
                           self.specialTagName = 'NIH Data Commons';
+                          self.specialTagImage = '/static/img/nih-logo.png';
+                          self.specialTagURL = 'https://commonfund.nih.gov/commons';
                           break;
                       default:
                         self.specialTagName = tagname.toUpperCase();
+                        self.specialTagImage = '/static/img/logo-small.png';
+                        self.specialTagURL = 'https://smart-api.info';
                     }
                     for (var i = 0; i < self.tags.length; i++) {
                       if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
                         self.tags[i].active = true;
-                      }
-                      else{
-                        return false;
                       }
                     }
                 }
@@ -518,11 +479,7 @@
                 this.getUserInfo();
                 $(".button-collapse").sideNav();
                 this.refreshTags();
-                // this.refreshApis();
-                // this.search();
-                //console.log({{Context}})
                 this.context = {{Context}};
-                //console.log(this.context);
             },
             updated: function(){
               // Highlight matches in results
