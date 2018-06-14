@@ -40,8 +40,8 @@
                 <div class="row">
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                       <template v-if='specialTagsUI'>
-                        <div  class="col s12 l3 input-field">
-                          <a :href="specialTagURL" target="_blank" style="cursor: pointer;">
+                        <div  class="col s12 l3">
+                          <a :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
                             <img v-if="specialTagsUI" width="100%" :src="specialTagImage"  :alt="specialTagName"/>
                           </a>
                         </div>
