@@ -33,7 +33,7 @@
             <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
                 <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
                 <div class="collection">
-                    <a :class="{ disable: tag.name === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
+                    <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
                 </div>
             </div>
             <div class="col l10 s12 ">
@@ -60,9 +60,9 @@
                       </template>
 
                         <div class="col s12 selected-tags">
-                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name === specialTagOriginalName.toLowerCase(), 'white-text': tag.name === specialTagOriginalName.toLowerCase() }">
+                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
                                 <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
-                                <i v-if="tag.name !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
+                                <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
                         </div>
                         <div class="col s12">
