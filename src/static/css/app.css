@@ -847,6 +847,7 @@ footer{
 
 .operation{
   padding: 10px;
+  word-break: break-all;
 }
 
 .link{
