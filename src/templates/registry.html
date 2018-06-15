@@ -40,9 +40,9 @@
                 <div class="row">
                     <form class="col s12 center-align" @submit.prevent="search(query)" id="api_search_form">
                       <template v-if='specialTagsUI'>
-                        <div  class="col s12 l3 input-field">
+                        <div  class="col s12 l3 input-field center-align">
                           <a class='tooltipped' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
-                            <img v-if="specialTagsUI" width="100%" style="max-width: 500px;" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
+                            <img v-if="specialTagsUI" width="auto" style="max-height: 40px;" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
                           </a>
                         </div>
                         <div class="input-field col s12 l6">
