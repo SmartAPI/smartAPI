@@ -41,11 +41,13 @@ def encode_raw(metadata):
     return _raw
 
 
-def decode_raw(raw, sorted=True):
+def decode_raw(raw, sorted=True, as_string=False):
     '''if sorted is True, the keys in the decoded dictionary will follow
        a defined order.
     '''
     _raw = gzip.decompress(base64.urlsafe_b64decode(raw)).decode('utf-8')
+    if as_string:
+        return _raw
     d = json.loads(_raw)
     if sorted:
         d2 = OrderedDict()
