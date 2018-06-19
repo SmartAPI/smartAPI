@@ -73,6 +73,7 @@ class QueryHandler(BaseHandler):
         return_raw = self.get_argument('raw', '').lower() in ['1', 'true']
         size = self.get_argument('size', None)
         from_ = self.get_argument('from', 0)
+        raw_query = self.get_argument('rawquery', '').lower() in ['1', 'true']
         try:
             size = int(size)   # size capped to 100 for now by query_api method below.
         except (TypeError, ValueError):
@@ -82,7 +83,7 @@ class QueryHandler(BaseHandler):
         except (TypeError, ValueError):
             from_ = 0
         esq = ESQuery()
-        res = esq.query_api(q=q, filters=filters, fields=fields, return_raw=return_raw, size=size, from_=from_)
+        res = esq.query_api(q=q, filters=filters, fields=fields, return_raw=return_raw, size=size, from_=from_, raw_query=raw_query)
         self.return_json(res)
 
 

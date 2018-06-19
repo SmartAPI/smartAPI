@@ -142,9 +142,8 @@ class ESQuery():
         _doc = metadata.convert_es()
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
-        #print("********************\nOLD RAW: {}\n***********************\n\n".format(_doc.get('~raw')))
-        #print("********************\nNEW RAW: {}\n***********************\n\n".format(_raw))
-        if not overwrite_if_identical and decode_raw(_raw, sorted=False) == decode_raw(_doc.get('~raw'), sorted=False):
+        if not overwrite_if_identical and decode_raw(_raw, as_string=True) == decode_raw(_doc.get('~raw'), as_string=True):
+            print("No changes in _id {}".format(api_id))
             return {"success": True, '_id': "No changes in document."}
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id, refresh=True)
@@ -196,7 +195,7 @@ class ESQuery():
             res = res[0]
         return res
 
-    def query_api(self, q, filters=None, fields=None, return_raw=True, size=None, from_=0):
+    def query_api(self, q, filters=None, fields=None, return_raw=True, size=None, from_=0, raw_query=False):
         # query = {
         #     "query":{
         #         "match" : {
@@ -275,7 +274,10 @@ class ESQuery():
         }
 
         if filters:
-            query["query"]["bool"]["filter"] = {"terms": filters}        
+            if len(filters) == 1:
+                query["query"]["bool"]["filter"] = {"terms": filters}     
+            else:
+                query["query"]["bool"]["filter"] = [{"terms": {philter[0]:philter[1]}} for philter in filters.items()]
 
         if not fields or fields == 'all':
             pass
@@ -288,6 +290,9 @@ class ESQuery():
         # else:
         #     query['_source'] = ['@id', attr_input, attr_output]
         # print(query)
+        if raw_query:
+            return query
+
         res = self._es.search(self._index, self._doc_type, body=query)
         if not return_raw:
             _res = res['hits']
@@ -548,7 +553,7 @@ class ESQuery():
             print("Failed.")
             return (405, status)
 
-    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True, overwrite_if_identical=True):
+    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True, overwrite_if_identical=True, save_v2=False):
         ''' refresh one API metadata based on the saved metadata url
             api_doc is the metadata document from ES '''
         _id = api_doc['_id']
@@ -567,7 +572,7 @@ class ESQuery():
 
         return status 
 
-    def refresh_all(self, id_list=[], dryrun=True, return_status=False):
+    def refresh_all(self, id_list=[], dryrun=True, return_status=False, overwrite_if_identical=False):
         '''refresh API metadata based on the saved metadata urls.'''
         success_cnt = 0
         total_cnt = 0
@@ -575,7 +580,7 @@ class ESQuery():
             status_li = []
         print("Refreshing API metadata:")
         for api_doc in self.fetch_all(id_list=id_list):
-            status = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True, overwrite_if_identical=False, save_v2=True)
+            status = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True, overwrite_if_identical=overwrite_if_identical, save_v2=True)
             if status.get('success', False):
                 print("Success.")
                 success_cnt += 1
