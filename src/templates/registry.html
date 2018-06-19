@@ -53,7 +53,7 @@
                     <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-user" aria-hidden="true"></i> By Authors</div>
                     <div class="collapsible-body noPadding">
                       <div class="collection">
-                          <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query);">{{author.name}}  <span class="bold">({{author.count}})</span></a>
+                          <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query);">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
                       </div>
                     </div>
                   </li>
