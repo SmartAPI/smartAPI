@@ -20,8 +20,8 @@ else:
 
 # Official oas3 json schema for validation is still in-development.
 # For now we us this updated oas3-schema from swagger-editor
-OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.1.11/src/plugins/validation/structural-validation/oas3-schema.js'
-SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.2.9/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
+OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/oas3-schema.js'
+SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
 
 # List of root keys that should be indexed in version 2 schema
 SWAGGER2_PATH_ITEMS = ['info', 'tags']
