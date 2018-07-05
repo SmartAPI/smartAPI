@@ -6,37 +6,33 @@
   font-size: 1em;
 }
 </style>
-<main id="regApp" class="testBack row" style="margin: 0;">
-  <div class="col s12 l4 padding20">
-    <div class="arrow_box center-align padding20 z-depth-5 hide-on-small-only" style="border-radius: 10px;">
-      <h5 class="white-text">Before You Submit</h5>
-    </div>
+<main id="regApp" class="testBack row" style="margin: 0; display: flex;">
 
-    <div class="center-align padding20 hide-on-small-only">
-      <h5 class="white-text textShadow" style="font-weight: bolder;">DID YOU...</h5>
-      <ul id="beforeSubmitList" class="footerList textShadow" style="background-color: rgba(0,0, 0,.6); display: none;">
-        <li class="white-text padding20">
-          <i class="material-icons cyan-text">check</i> Add the required <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">SmartAPI Extensions</a>?
-        </li>
-        <li class="white-text padding20">
-          <i class="material-icons cyan-text">check</i> Clear all errors in the <a href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a>?
-        </li>
-        <li class="white-text padding20">
-          <i class="material-icons cyan-text">check</i> Copy the link to the raw data?
-        </li>
-        <li class="white-text padding20 smallFont" style="border-bottom: none;">
-          Need Help? Use our guide to help you through the process of adding an API.<br><br>
-          <a href="/guide" class="clearButton">GUIDE</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <div class="section no-pad-bot single_section container col l8 s12" style="margin-bottom: 10% !important; margin-top: 10%;">
+  <div class="section no-pad-bot single_section container col l12 s12" style="margin-bottom: 10% !important; margin-top: 10%;">
     <div id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
-      <object width="100px"  alt="SmartAPI" data="/static/img/owl-fly.gif" class=""></object>
+      <div class="arrow_box center-align padding20 z-depth-3 hide-on-small-only margin20" style="border-radius: 10px;">
+        <h5 class="white-text">
+          <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Before You Submit Your Data Did You..
+       </h5>
+       <ul id="beforeSubmitList" class="footerList" style="display: none;">
+         <li class="white-text">
+           <i class="material-icons">check</i> Add the required <a class="white-text bold underlined" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1">SmartAPI Extensions</a>?
+         </li>
+         <li class="white-text">
+           <i class="material-icons">check</i> Clear all errors in the <a class="white-text bold underlined" href="http://smart-api.info/editor-oa3/" target="_blank">Editor</a>?
+         </li>
+         <li class="white-text">
+           <i class="material-icons">check</i> Copy the link to the raw data?
+         </li>
+         <li class="white-text padding20" style="border-bottom: none;">
+           Need Help? Use our <a href="/guide" class="white-text underlined bolder">GUIDE</a> to help you through the process of adding an API.
+
+         </li>
+       </ul>
+      </div>
+      <object width="200px"  alt="SmartAPI" data="/static/img/api-welcome.svg" class=""></object>
       <h3 class="header center blue-grey-text flow-text">Register your API metadata</h3>
         <form id="apireg_form">
-            <!-- <i class="material-icons prefix">link</i> -->
             <input placeholder="Enter the URL to your API Metadata here" name="url" type="url" class="validate">
             <br>
             <input type="checkbox" id="dry_run" name="dryrun"/>

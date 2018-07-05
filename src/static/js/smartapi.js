@@ -40,19 +40,25 @@ function save_api(form, overwrite, savev2){
         data: data,
         success: function(response) {
             $("#submit_mask").modal("close");
-            //console.log(response);
             if (response.success){
                 var msg = 'API metadata saved!';
                 if (response.dryrun){
-                  msg += ' <p class="blue-text text-darken-2">Well, not really, because this is a dryrun.';
-                  msg += ' If you do want to register your API, uncheck "dry run" and try again. </p>';
+                  swal({
+                    imageUrl: '/static/img/api-dryrun.svg',
+                    imageWidth: 300,
+                    imageAlt: 'Dry Run',
+                    title: 'Awesome! But...',
+                    html: "Because this is a dryrun your data has not been saved. If you want to register your API, uncheck 'dry run' and try again.",
+                  })
+
+                }else if (response.success){
+                  swal({
+                    imageUrl: '/static/img/api-sucess.svg',
+                    imageWidth: 300,
+                    title: 'Good Job!',
+                    html: "You can see your API documentation <b><a href='/ui/"+response._id+"'>HERE</a></b>",
+                  })
                 }
-                // swal('Good job!', msg, 'success');
-                swal({
-                  type: 'success',
-                  title: 'Good Job!',
-                  html: "You can see your API documentation <b><a href='/ui/"+response._id+"'>HERE</a></b>",
-                })
 
             }
             else{
@@ -61,21 +67,25 @@ function save_api(form, overwrite, savev2){
                 swal({
                     title: "Swagger V2 Detected",
                     text: "Only OpenAPI V3 will experience full functionality. Continue saving anyway?",
-                    icon: "warning",
+                    imageUrl: '/static/img/api-v2.svg',
+                    imageWidth: 300,
                     showCancelButton: true,
-                    buttons: true,
-                    dangerMode: true,
                     confirmButtonText: 'Yes, save it!',
                     footer: '<a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification</a>'
                   })
                   .then((willSave) => {
-                    if (willSave) {
+
+                    if (willSave.value) {
                       save_api(form, true, true);
-                      swal("Your data has been saved!", {
-                        icon: "success",
-                      });
-                    } else {
-                      swal("Your data has not been saved");
+
+                    } else if (!willSave.value) {
+                      swal({
+                          title: "Uh-oh!",
+                          text: "Your Data Has Not Been Saved",
+                          imageUrl: '/static/img/api-fail.svg',
+                          imageWidth: 300,
+                          confirmButtonText: 'OK',
+                        })
                     }
                   });
                 // ----------
@@ -84,21 +94,34 @@ function save_api(form, overwrite, savev2){
                   swal({
                       title: 'API exists. Overwrite?',
                       text: "You won't be able to revert this!",
-                      type: 'warning',
+                      imageUrl: '/static/img/api-overwrite.svg',
+                      imageWidth: 300,
                       showCancelButton: true,
                       confirmButtonColor: '#3085d6',
                       cancelButtonColor: '#d33',
                       confirmButtonText: 'Yes, overwrite it!'
-                  }).then(function() {
+                  }).then((willSave)=>{
+                    if( willSave.value){
                       save_api(form, true);
-                  }, function(){});
+
+                    }else if (!willSave.value) {
+                      swal({
+                          title: "Uh-oh!",
+                          text: "Your Data Has Not Been Saved",
+                          imageUrl: '/static/img/api-fail.svg',
+                          imageWidth: 300,
+                          confirmButtonText: 'OK',
+                        })
+                    }
+                  });
               }
               else if( !response.hasOwnProperty("swagger_v2") ){
-                  swal(
-                      response.valid==false?'ValidationError':'Error',
-                      response.error,
-                      'error'
-                  );
+                  swal({
+                        imageUrl: '/static/img/api-error.svg',
+                        imageWidth: 300,
+                        title: response.valid==false?'ValidationError':'Error',
+                        text:response.error
+                      });
               }
             }
         }
