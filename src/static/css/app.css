@@ -16,6 +16,14 @@
   font-weight: lighter !important;
 }
 
+.bold{
+  font-weight: bold;
+}
+
+.underlined{
+  text-decoration: underline;
+}
+
 .title {
   color: var(--blue-dark);
   font-weight: lighter;
