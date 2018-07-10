@@ -153,7 +153,7 @@ class RegistryHandler(BaseHandler):
     def get(self, tag=None):
         template_file = "registry.html"
         reg_template = templateEnv.get_template(template_file)
-        if tag: 
+        if tag:
             if tag.lower() in AVAILABLE_TAGS:
                 #print("tags: {}".format([tag.lower()]))
                 reg_output = reg_template.render(Context=json.dumps({"Tags": [tag.lower()], "Special": True}))
@@ -209,6 +209,13 @@ class GuideHandler(BaseHandler):
         guide_output = guide_template.render()
         self.write(guide_output)
 
+class APIEditorHandler(BaseHandler):
+    def get(self):
+        doc_file = "editor.html"
+        editor_template = templateEnv.get_template(doc_file)
+        editor_output = editor_template.render()
+        self.write(editor_output)
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
@@ -224,5 +231,6 @@ APP_LIST = [
     (r"/ui/(.+)/?", SwaggerUIHandler),
     (r"/ui/?", SwaggerUIHandler),
     (r"/branding/?", BrandingHandler),
-    (r"/guide/?", GuideHandler)
+    (r"/guide/?", GuideHandler),
+    (r"/api-editor/?", APIEditorHandler)
 ]
