@@ -209,12 +209,35 @@ class GuideHandler(BaseHandler):
         guide_output = guide_template.render()
         self.write(guide_output)
 
+# class APIEditorHandler(BaseHandler):
+#     def get(self):
+#         doc_file = "editor.html"
+#         editor_template = templateEnv.get_template(doc_file)
+#         editor_output = editor_template.render()
+#         self.write(editor_output)
+
 class APIEditorHandler(BaseHandler):
+    def get(self, yourApiID=None):
+        if not yourApiID:
+            if self.get_argument('url', False):
+                api_id = self.get_argument('url').split('/')[-1]
+                self.redirect('/api-editor/{}'.format(api_id), permanent=True)
+            else:
+                # raise tornado.web.HTTPError(404)
+                self.redirect('/error/')
+            return
+        swaggerEditor_file = "editor.html"
+        swagger_template = templateEnv.get_template(swaggerEditor_file)
+        swagger_output = swagger_template.render(apiID = yourApiID )
+        self.write(swagger_output)
+
+
+class ErrorHandler(BaseHandler):
     def get(self):
-        doc_file = "editor.html"
-        editor_template = templateEnv.get_template(doc_file)
-        editor_output = editor_template.render()
-        self.write(editor_output)
+        doc_file = "error.html"
+        error_template = templateEnv.get_template(doc_file)
+        error_output = error_template.render()
+        self.write(error_output)
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -232,5 +255,8 @@ APP_LIST = [
     (r"/ui/?", SwaggerUIHandler),
     (r"/branding/?", BrandingHandler),
     (r"/guide/?", GuideHandler),
-    (r"/api-editor/?", APIEditorHandler)
+    (r"/api-editor/(.+)/?", APIEditorHandler),
+    (r"/api-editor/?", APIEditorHandler),
+    (r"/error/?", ErrorHandler),
+
 ]

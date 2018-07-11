@@ -6,6 +6,7 @@
 <!-- <link id="pagestyle" type="text/css" rel="stylesheet" href="/static/css/swagger-news.css"/> -->
 <link id="customstyle" type="text/css" rel="stylesheet" href="/static/css/custom-swagger.css"/>
 <link rel="stylesheet" href="/static/js/node_modules/swagger-editor-dist/swagger-editor.css"/>
+<meta name="viewport" content="width=1024">
 <style>
 /* #swagger-editor .topbar-wrapper{
   display: none;
@@ -115,6 +116,7 @@ body {
   <!-- <script src="/static/js/node_modules/swagger-editor-dist/validation-worker.js.map"></script> -->
   <script>
 
+
   var app = new Vue({
       el: '#editor-app',
       data: function(){
@@ -125,23 +127,36 @@ body {
         }
       },
       methods: {
-        loadSwaggerEditor: function(){
-          const editor = SwaggerEditorBundle({
-            url: 'https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json',
-            dom_id: '#swagger-editor',
-            layout: 'StandaloneLayout',
-            deeplinking: true,
-            presets: [
-              SwaggerEditorStandalonePreset
-            ]
-          })
+        loadSwaggerEditor: function(myUrl){
+          if (myUrl) {
+            const editor = SwaggerEditorBundle({
+              url: myUrl,
+              dom_id: '#swagger-editor',
+              layout: 'StandaloneLayout',
+              deeplinking: true,
+              presets: [
+                SwaggerEditorStandalonePreset
+              ]
+            })
+          }else{
+            const editor = SwaggerEditorBundle({
+              dom_id: '#swagger-editor',
+              layout: 'StandaloneLayout',
+              deeplinking: true,
+              presets: [
+                SwaggerEditorStandalonePreset
+              ]
+            })
+          }
 
           window.editor = editor;
-      }
+      },
+
     },
       mounted: function(){
-        this.loadSwaggerEditor();
-
+        this.apiID = '{{apiID}}';
+        this.loadSwaggerEditor('/api/metadata/'+this.apiID+'?format=yaml');
+        // this.loadSwaggerEditor();
       },
       updated: function(){
 

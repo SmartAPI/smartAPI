@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "simple-header.html" %}
+{% raw %}
+<style>
+
+#error{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90vh;
+}
+
+.content{
+  flex: 1;
+  align-self: center;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+</style>
+
+<section id="error">
+  <div class="center-align blue-text content">
+    <object width="200px" data="/static/img/api-fail.svg" alt="Error"></object>
+    <h1>Oh No...</h1>
+    <h5>Something went wrong</h5>
+    <p>
+      If the problem persists please let us know and file an issue <a class="link" target="_blank" href="https://github.com/SmartAPI/smartAPI/issues">HERE</a>.
+    </p>
+    <a class="btn blue" href="/">Back To SmartAPI</a>
+  </div>
+</section>
+{% endraw %}
+{% endblock %}
