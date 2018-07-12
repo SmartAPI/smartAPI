@@ -102,13 +102,16 @@ body {
 {% endraw %}
 {% endblock %}
 {% block extra_scripts %}
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
-  <!-- Swagger Editor CDN dependencies -->
-  <script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/swagger-editor-bundle.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/swagger-editor-standalone-preset.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/swagger-editor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/validation.worker.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+<!-- Swagger Editor CDN dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/swagger-editor-bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/swagger-editor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/swagger-editor-standalone-preset.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swagger-editor-dist@3.6.3/validation.worker.js"></script>
+
+
+
   <script>
 
 
@@ -124,7 +127,7 @@ body {
       },
       methods: {
         loadSwaggerEditor: function(myUrl){
-          if (myUrl) {
+
             const editor = SwaggerEditorBundle({
               url: myUrl,
               dom_id: '#swagger-editor',
@@ -134,16 +137,6 @@ body {
                 SwaggerEditorStandalonePreset
               ]
             })
-          }else{
-            const editor = SwaggerEditorBundle({
-              dom_id: '#swagger-editor',
-              layout: 'StandaloneLayout',
-              deeplinking: true,
-              presets: [
-                SwaggerEditorStandalonePreset
-              ]
-            })
-          }
 
           window.editor = editor;
       },
@@ -159,7 +152,6 @@ body {
           this.loadSwaggerEditor('');
         }
 
-        // this.loadSwaggerEditor();
       },
       updated: function(){
 
