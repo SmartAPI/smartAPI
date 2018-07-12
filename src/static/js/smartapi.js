@@ -92,7 +92,7 @@ function save_api(form, overwrite, savev2){
               }
               if (response.error.indexOf("API exists") != -1){
                   swal({
-                      title: 'API exists. Overwrite?',
+                      title: 'This API already exists, do you want to overwrite it?',
                       text: "You won't be able to revert this!",
                       imageUrl: '/static/img/api-overwrite.svg',
                       imageWidth: 300,

@@ -209,13 +209,6 @@ class GuideHandler(BaseHandler):
         guide_output = guide_template.render()
         self.write(guide_output)
 
-# class APIEditorHandler(BaseHandler):
-#     def get(self):
-#         doc_file = "editor.html"
-#         editor_template = templateEnv.get_template(doc_file)
-#         editor_output = editor_template.render()
-#         self.write(editor_output)
-
 class APIEditorHandler(BaseHandler):
     def get(self, yourApiID=None):
         if not yourApiID:
@@ -224,20 +217,16 @@ class APIEditorHandler(BaseHandler):
                 self.redirect('/api-editor/{}'.format(api_id), permanent=True)
             else:
                 # raise tornado.web.HTTPError(404)
-                self.redirect('/error/')
+                swaggerEditor_file = "editor.html"
+                swagger_template = templateEnv.get_template(swaggerEditor_file)
+                swagger_output = swagger_template.render(Context=json.dumps({"Id": '', "Data": False}) )
+                self.write(swagger_output)
             return
         swaggerEditor_file = "editor.html"
         swagger_template = templateEnv.get_template(swaggerEditor_file)
-        swagger_output = swagger_template.render(apiID = yourApiID )
+        swagger_output = swagger_template.render(Context=json.dumps({"Id": yourApiID, "Data": True}) )
         self.write(swagger_output)
 
-
-class ErrorHandler(BaseHandler):
-    def get(self):
-        doc_file = "error.html"
-        error_template = templateEnv.get_template(doc_file)
-        error_output = error_template.render()
-        self.write(error_output)
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -250,13 +239,10 @@ APP_LIST = [
     (r"/registry/?", RegistryHandler),
     (r"/documentation/?", DocumentationHandler),
     (r"/dashboard/?", DashboardHandler),
-    (r"/api-ui/(.+)/?", SwaggerUIHandler),
     (r"/ui/(.+)/?", SwaggerUIHandler),
     (r"/ui/?", SwaggerUIHandler),
     (r"/branding/?", BrandingHandler),
     (r"/guide/?", GuideHandler),
     (r"/api-editor/(.+)/?", APIEditorHandler),
-    (r"/api-editor/?", APIEditorHandler),
-    (r"/error/?", ErrorHandler),
-
+    (r"/api-editor/?", APIEditorHandler)
 ]
