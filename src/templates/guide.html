@@ -16,7 +16,7 @@
         <a class="hideOnSmall" target="_blank" href="https://www.openapis.org/">
           <object width="20%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
           <object width="20%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
-          <object width="30%"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
+          <object style="max-width: 500px;" width="30%"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
         </a>
 
         <h5 class="white-text flow-text textShadow" style="font-size: 5vw;">
@@ -118,6 +118,8 @@
 
 <div v-if="selection === 'start' " class="center-align container padding20 row">
     <div class="card-panel white z-depth-5">
+        <object width="200px" data="/static/img/api-thinking.svg" alt='thinking'></object>
+        <br />
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
              Do You Have <b>OpenAPI</b> Metadata?
         </h3>
@@ -130,7 +132,7 @@
          Back to Introduction
      </h3>
      <hr>
-     <a class="waves-effect waves-light btn red" href="/documentation">Go Back</a>
+     <a class="waves-effect waves-light btn red" href="/guide">Go Back</a>
  </div>
 
 </div>
@@ -138,6 +140,8 @@
 <div v-if="selection === 'yes' "  class="center-align container padding20" style="position: relative;">
     <a @click="select('start'); setProgress(-10)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
     <div class="card-panel white z-depth-5">
+        <object width="200px" data="/static/img/api-thinking.svg" alt='thinking'></object>
+        <br />
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
            Which Version Do You Have?
         </h3>

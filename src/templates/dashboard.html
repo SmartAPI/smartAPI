@@ -250,7 +250,7 @@
               <h3 class="flow-text blue-grey-text padding20">Custom Slug Registration</h3>
             </div>
             <div v-if='!hasShortName' class="col s12 m12 l12 center-align">
-              <object width="100px" data="/static/img/wand.svg" alt='custom slug' style='border-radius: 10px;'></object>
+              <object width="250px" data="/static/img/wand.svg" alt='custom slug' style='border-radius: 10px;'></object>
               <p class="grey-text">
                 Every project has a subdomain that is available to serve its documentation.<br />
                 By default we use your <i>API ID</i>. If you go to <span class="blue-text"><b>your-api-id</b>.smart-api.info</span> it should allow users to view your API documentation.
@@ -264,8 +264,8 @@
               <a v-if='createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="red btn">Cancel</a>
             </div>
             <div v-if='hasShortName' class="col s12 m12 l12">
-              <p id="loadingCog" style="display: none;">
-                <i class="fa fa-thumbs-up fa-2x green-text" aria-hidden="true"></i>
+              <p>
+                <i class="fa fa-check-circle-o green-text fa-5x" aria-hidden="true"></i>
               </p>
               <p class="grey-text">
                 You have registered your custom slug!
