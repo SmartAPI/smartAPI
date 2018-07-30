@@ -494,7 +494,7 @@ h1, h2 , h3, h4 ,h5{
 
 .arrow_box {
   position: relative;
-  background: #3189C3;
+  background: #d3dfe7;
   padding:
 }
 .arrow_box:after {
@@ -507,7 +507,7 @@ h1, h2 , h3, h4 ,h5{
   position: absolute;
   pointer-events: none;
   border-color: rgba(49, 137, 195, 0);
-  border-top-color: #3189C3;
+  border-top-color: #d3dfe7;
   border-width: 30px;
   margin-left: -30px;
 }

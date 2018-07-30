@@ -22,6 +22,12 @@
         <h5 class="white-text flow-text textShadow" style="font-size: 5vw;">
             <b class="logoFont">SmartAPI</b> and <b>OpenAPI</b>
         </h5>
+        <p class="margin20 padding20 white-text">
+          SmartAPI uses OpenAPI-based specification for defining the key API metadata
+          elements and value sets.<br />
+          SmartAPIs leverages the Open API specification V3 and JSON-LD to provide
+          semantically annotated JSON content that can be treated as Linked Data.
+        </p>
         <a class="btn blue" @click='showInfo'>Learn More</a>
 
         <div class="flexGuideDad" id="learnMoreBlock" style="display: none; margin-top: 15px;">
@@ -52,9 +58,7 @@
                   The smartAPI project aims to maximize the FAIRness (Findability, Accessibility,
                   Interoperability and Reusability) of web-based Application Programming Interfaces (APIs).
                   Rich metadata is essential to properly describe your API so that it becomes discoverable, connected,
-                  and reusable. We have developed an OpenAPI-based specification for defining the key API metadata
-                  elements and value sets. SmartAPIs leverage the Open API specification v3 and JSON-LD for providing
-                  semantically annotated JSON content that can be treated as Linked Data.
+                  and reusable.
                 </p>
                 <hr>
                 <a class="btn blue" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification">SmartAPI Specification</a>
@@ -77,14 +81,16 @@
         </div>
 </div>
 <div class="card-panel animatedBlue">
+    <h5 class="white-text lighter bold">GUIDE</h5>
     <h4 class="white-text lighter">ADD YOUR API</h4>
     <br>
     <a class="clearButton" @click="select('start')">
-        START HERE
+        START
     </a>
 </div>
 <div class="card-panel grey lighten-4">
-
+    <h4 class="blue-text lighter">Resources</h4>
+    <hr />
     <h3 class="blue-text flow-text">
         <i class="material-icons blue-text">extension</i> SmartAPI Extensions
     </h3>
@@ -241,7 +247,7 @@
                 <b>limited functionality</b>.</p>
                 <a class="link" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification</a>
                 <hr />
-                <p class="bold">We recommend you continue with this process to convert yout metadata to OpenAPI v3 metadata to be fully compatible with SmartAPI and BiotThings Explorer.</p>
+                <p class="bold">We recommend you continue with this process to convert your metadata to OpenAPI v3 metadata to be fully compatible with SmartAPI and BiotThings Explorer.</p>
               </div>
               <div class="card-action">
                 <button class="btn blue" @click='submitV2()'>Submit V2</button>
