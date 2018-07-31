@@ -219,23 +219,25 @@
               <hr />
               <template v-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') ">
                 <div class="yellow lighten-5 smallFont padding20">
-                  APIs in Swagger V2 specification will experience limited functionality. We recommendd you update your metadata to OpenAPI V3 specification.
+                  APIs in Swagger V2 specification will experience limited functionality. <br />We recommendd you update your metadata to OpenAPI V3 specification.
                   <br />
-                  <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+                  <a target="_blank" class="underlined" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                   <br />
-                  <a href="/guide" class="green-text">Use our guide to help you convert your API to OpenAPI V3 specification.</a>
+                  <a href="/guide" class="green-text underlined">Use our guide to help you convert your API to OpenAPI V3 specification.</a>
                 </div>
                 <hr />
               </template>
               <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Doc</a>
             </li>
-            <template v-for='name in checkForName(apis[selectedAPIIndex])'>
+            <template v-for='link in checkForAPIInfoLink(apis[selectedAPIIndex])'>
               <li  class="collection-item blue-grey lighten-4">
-                <p class="blue-grey-text noMargin flow-text"><a class="link " :href=" 'https://www.github.com/'+apis[selectedAPIIndex]._meta.github_username" target="_blank"><i class="fa fa-github-alt"></i> {{ name }}</a><br class="hide-on-med-and-up" /> <span v-if="apis[selectedAPIIndex].hasOwnProperty('openapi')">/ {{ apis[selectedAPIIndex].info.contact["x-role"] || 'N/A' }}</span></p>
+                <a class="link blue-grey-text underlined" :href="link" target="_blank">
+                 More Info
+                </a>
               </li>
             </template>
             <li class="collection-item padding20 blue-grey lighten-5">
-              <p style="line-height: 1.2em;" class="blue-grey-text flow-text">{{ apis[selectedAPIIndex].info.description }}</p>
+              <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(apis[selectedAPIIndex].info.description || '')"></p>
             </li>
             <li class="collection-item blue-grey lighten-5">
               <i class="material-icons tiny blue-text">info_outline</i>
@@ -436,6 +438,9 @@
                 throw err;
               });
           },
+          compiledMarkdown: function (mdtext) {
+              return marked(mdtext, { sanitize: true })
+          },
           deleteAPI: function(title, id){
             // api information sent to modal for confirmation to be deleted
             var self = this;
@@ -542,14 +547,16 @@
               self.hasShortName=false;
             }
           },
-          checkForName: function(api){
+          checkForAPIInfoLink: function(api){
             // console.log(api);
-            if (_.get(api, 'info.contact.name')) {
-              // console.log(api.info.contact.name)
-              return [api.info.contact.name];
+            if (_.get(api, 'info.contact.x-id')) {
+              return [api.info.contact['x-id']];
+            }
+            else if (_.get(api, 'info.contact.url')) {
+              return [api.info.contact.url];
             }
             else{
-              return ['Name Unavailable'];
+              return ['http://smart-api.info/'];
             }
           },
           convertDate: function(timestamp){
