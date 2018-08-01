@@ -214,7 +214,7 @@ class APIEditorHandler(BaseHandler):
         if not yourApiID:
             if self.get_argument('url', False):
                 api_id = self.get_argument('url').split('/')[-1]
-                self.redirect('/api-editor/{}'.format(api_id), permanent=True)
+                self.redirect('/editor/{}'.format(api_id), permanent=True)
             else:
                 # raise tornado.web.HTTPError(404)
                 swaggerEditor_file = "editor.html"
@@ -243,6 +243,6 @@ APP_LIST = [
     (r"/ui/?", SwaggerUIHandler),
     (r"/branding/?", BrandingHandler),
     (r"/guide/?", GuideHandler),
-    (r"/api-editor/(.+)/?", APIEditorHandler),
-    (r"/api-editor/?", APIEditorHandler)
+    (r"/editor/(.+)/?", APIEditorHandler),
+    (r"/editor/?", APIEditorHandler)
 ]

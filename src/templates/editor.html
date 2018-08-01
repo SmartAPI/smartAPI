@@ -58,21 +58,34 @@
       mounted: function(){
         this.context = {{Context}};
 
+
+
         if (this.context.Data) {
           this.apiID = this.context.Id;
           this.loadSwaggerEditor('/api/metadata/'+this.apiID+'?format=yaml');
         }else{
-          swal({
-                imageUrl: '/static/img/api-editor.svg',
-                imageWidth: 200,
-                title:'API Editor',
-                text:'Here you can design, describe, and document your API with this open source editor fully dedicated to OpenAPI-based APIs.'
-              });
+          if(!localStorage.getItem("DontShow")) {
+            swal({
+                  imageUrl: '/static/img/api-editor.svg',
+                  imageWidth: 200,
+                  title:'API Editor',
+                  text:'Here you can design, describe, and document your API with this open source editor fully dedicated to OpenAPI-based APIs.',
+                  footer:`<button class="smallButton" id="forgetMe">Don't show this again</button>`
+                });
+          }
+          $(document).on("click", "#forgetMe", function() {
+              localStorage.setItem("DontShow", "true");
+              swal.close();
+          });
+
           this.loadSwaggerEditor('');
         }
 
       }
   });
+
+
+
 
 </script>
 {% endblock %}

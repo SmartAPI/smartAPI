@@ -362,9 +362,15 @@
                     }else if(!self.context.Special && self.context.Tags ) {
                       self.handleRegularTags(self.context.Tags);
                     }
+                    //check for existing query in url string
+                    this.checkforQuery();
+                    let query = this.query;
+                    if(!this.query){
+                      query="__all__"
+                    }
                     var params = {
                         "params": {
-                            "q": "__all__",
+                            "q": query,
                         }
                     }
                     var filters = this.getQueryFilters();
@@ -562,6 +568,15 @@
                         self.tags[i].active = true;
                       }
                     }
+                },
+                checkforQuery: function(){
+                  var url_string = window.location.href
+                  var url = new URL(url_string);
+                  var q = url.searchParams.get("q");
+                  if (q) {
+                    this.query = q;
+                    $('.card').css('background','yellow');
+                  }
                 }
             },
             created: function () {
@@ -571,10 +586,14 @@
                 this.refreshTags();
                 this.getAuthors();
                 this.context = {{Context}};
+
             },
             updated: function(){
               // Highlight matches in results
               this.getKeywords();
+              if (this.query) {
+                $('.card').addClass('scale-in-center');
+              }
             },
             computed: {
                 paginatedApis: function () {

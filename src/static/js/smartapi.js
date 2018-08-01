@@ -56,7 +56,7 @@ function save_api(form, overwrite, savev2){
                     imageUrl: '/static/img/api-sucess.svg',
                     imageWidth: 300,
                     title: 'Good Job!',
-                    html: "You can see your API documentation <b><a href='/ui/"+response._id+"'>HERE</a></b>",
+                    html: "You can see your API documentation <b><a href='/registry?q="+response._id+"'>HERE</a></b>",
                   })
                 }
 
