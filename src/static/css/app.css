@@ -373,9 +373,6 @@ a.middle-indicator-text{
 .topic{
   background-color: #627D8A;
   border-radius: 0px;
-  transition: 1.5s;
-  -webkit-transition:1.5s;
-  -webkit-transition-timing-function: ease-in;
 }
 
 .clearButton{
