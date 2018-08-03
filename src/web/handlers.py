@@ -227,6 +227,13 @@ class APIEditorHandler(BaseHandler):
         swagger_output = swagger_template.render(Context=json.dumps({"Id": yourApiID, "Data": True}) )
         self.write(swagger_output)
 
+class AboutHandler(BaseHandler):
+    def get(self):
+        doc_file = "about.html"
+        about_template = templateEnv.get_template(doc_file)
+        about_output = about_template.render()
+        self.write(about_output)
+
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -244,5 +251,6 @@ APP_LIST = [
     (r"/branding/?", BrandingHandler),
     (r"/guide/?", GuideHandler),
     (r"/editor/(.+)/?", APIEditorHandler),
-    (r"/editor/?", APIEditorHandler)
+    (r"/editor/?", APIEditorHandler),
+    (r"/about/?", AboutHandler)
 ]

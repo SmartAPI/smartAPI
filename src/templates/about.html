@@ -1,0 +1,221 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+{% raw %}
+<style>
+  .fair{
+    font-size: 3em;
+    align-items: center;
+    vertical-align: middle;
+    color: var(--blue-medium);
+    padding: 20px;
+    text-align: center;
+  }
+
+  .contributor{
+    background: rgb(255, 255, 255);
+    padding: 10px !important;
+    transition: all 1s;
+  }
+  .contributor:hover{
+    background: rgb(224, 224, 224);
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  #modal1{
+    border-top: 25px solid var(--blue-medium);
+  }
+
+  .fairTable tbody tr td{
+    padding: 0px;
+  }
+
+  .aboutPic{
+    border: #c4c4c4 solid 10px;
+  }
+
+
+</style>
+<main id="about-app" class="white" style="width: 100%;">
+
+  <section class="container center padding20">
+    <object width="30%" data='/static/img/logo-large-text.svg' alt="logo"></object>
+    <p class="blue-grey-text">
+      The SmartAPI project aims to maximize the <b>FAIR</b>ness of web-based Application Programming Interfaces (APIs).
+      Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable.
+      We have developed a openAPI-based specification for defining the key API metadata elements and value sets.
+      SmartAPI's leverage the <a href="https://www.openapis.org/" target="_blank">Open API</a> specification v3 and <a href="https://json-ld.org/" target="_blank">JSON-LD</a> for providing semantically annotated JSON content that can be treated as Linked Data.
+    </p>
+  </section>
+
+  <section class="container center padding20">
+    <h5 class="blue-text">What is FAIR?</h5>
+    <table class="fairTable">
+      <tbody>
+        <tr>
+          <td>
+            <span class="fair">F</span>
+          </td>
+          <td>
+            <p class="blue-grey-text">
+              <b>Findable:</b> The first step in (re)using data is to find it.
+              Metadata and data should be easy to find for both humans and computers.
+              Machine-readable metadata are essential for automatic discovery of datasets and services, so this is an essential component of the FAIRification process.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="fair">A</span>
+          </td>
+          <td>
+            <p class="blue-grey-text">
+              <b>Accessible:</b> Once the user finds the required data, she/he needs to know how can they be accessed, possibly including authentication and authorization.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="fair">I</span>
+          </td>
+          <td>
+            <p class="blue-grey-text">
+              <b>Interoperable:</b> The data usually need to be integrated with other data.
+              In addition, the data need to interoperate with applications or workflows for analysis, storage, and processing.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <span class="fair">R</span>
+          </td>
+          <td>
+            <p class="blue-grey-text">
+              <b>Reusable:</b> The ultimate goal of FAIR is to optimise the reuse of data.
+              To achieve this, metadata and data should be well-described so that they can be replicated and/or combined in different settings.
+            </p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="container center padding20">
+    <h5 class="blue-text">Contributors</h5>
+    <div class="row">
+      <template v-for='(person,index) in contributors'>
+        <div href="#modal1" class="col s6 m3 l2 contributor modal-trigger" @click='popUpDetails(index)'>
+          <img class="circle scale-in-center" width="70%"  :src="person.image" :alt="person.name"/>
+          <p class="bold blue-text">{{person.name}} {{person.lastname}}</p>
+          <p class="blue-grey-text smallFont">{{person.title}}</p>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <div id="modal1" class="modal center-align">
+    <div v-if='selectedPerson'  class="modal-content row">
+      <div class="col s12 m4 l4">
+        <div>
+          <img class="circle aboutPic" width="80%" :src="selectedPerson.image" :alt="selectedPerson.name"/>
+          <p>
+            <template v-for='link in selectedPerson.links'>
+              <a :href="link.href" target="_blank">
+                <i v-if="link.title === 'twitter'" class="fa fa-twitter-square fa-3x" aria-hidden="true"></i>
+                <i v-if="link.title === 'linkedin'" class="fa fa-linkedin-square fa-3x" aria-hidden="true"></i>
+                <i v-if="link.title === 'github'" class="fa fa-github-square fa-3x" aria-hidden="true"></i>
+              </a>
+            </template>
+          </p>
+        </div>
+        <p class="grey-text smallFont">
+          Search SmartAPI for contributions by {{selectedPerson.name}} {{selectedPerson.lastname}}<br />
+          <a class="btn blue smallFont margin20" :href="'/registry?q='+selectedPerson.name+' '+selectedPerson.lastname"><i class="fa fa-search" aria-hidden="true"></i> Search</a>
+        </p>
+      </div>
+      <div class="col s12 m8 l8">
+        <p>
+          <span style="font-size: 2em;" class="blue-text bold">{{selectedPerson.name}} {{selectedPerson.lastname}}</span> <span class="grey-text">/ {{selectedPerson.title}}</span>
+        </p>
+        <p>
+          <a :href="selectedPerson.personal_site" target="_blank">More About {{selectedPerson.name}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+        </p>
+        <h5>
+          About
+        </h5>
+        <p class="left-align blue-grey-text" style="font-size:.9em; border-left: #e4e4e4 solid 2px; padding: 10px;" v-html="compiledMarkdown(selectedPerson.bio || '')"></p>
+        <h5>
+          Education
+        </h5>
+        <ul class="collection" >
+          <template v-for='item in selectedPerson.education'>
+            <li class="collection-item"><i class="fa fa-university blue-text" aria-hidden="true"></i> {{item}}</li>
+          </template>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endraw %}
+{% include "footer.html" %}
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+  <script>
+
+  var app = new Vue({
+      el: '#about-app',
+      data: function(){
+        return {
+          selectedPerson:{},
+          contributors:[
+            {
+              name:'Chunlei',
+              lastname:'Wu',
+              title:'Associate Professor @ TSRI',
+              bio:'Chunlei Wu is an Associate Professor of Molecular Medicine in the Department of Molecular and Experimental Medicine at the Scripps Research Institute. Prior to joining Scripps in July 2011, he was the Research Investigator II at the Genomics Institute of the Novartis Research Foundation (GNF) in San Diego, CA. Chunlei originally joined TSRI as a member of the Su Lab, but has since become a principal investigator of his own lab and now has his own site at http://wulab.io. Chunlei and Andrew continue to work together in a highly open and collaborative manner.',
+              education:['Ph.D., Biomathmetics and biostatistics, The University of Texas Health Science Center at Houston'],
+              image:'http://www.gravatar.com/avatar/108605daee6b3c24d02db9753637a66b?s=200',
+              personal_site:'https://wulab.io/',
+              links:[
+                {title:"twitter", href:'https://twitter.com/'},
+                {title:"github", href:'https://github.com/'},
+                {title:"linkedin", href:'https://linkedin.com/'},
+              ]
+            },
+            {
+              name:'Marco',
+              lastname:'Cano',
+              title:'Research Programmer II @ TSRI',
+              bio:"I'm a full-stack web developer with a background in Web/Graphic Design and Multimedia Animation. Love to build professional modern websites using the latest technologies and the best possible UI/UX design.",
+              education:['3D Animation and Multimedia Design -Palomar College','Full Stack Web Development – UCSD'],
+              image:'https://avatars1.githubusercontent.com/u/23092057?s=460&v=4',
+              personal_site:'http://www.marcodarko.com/',
+              links:[
+                {title:"twitter", href:'https://twitter.com/biothingsapi'},
+                {title:"github", href:'https://github.com/marcodarko'},
+                {title:"linkedin", href:'https://linkedin.com/'},
+              ]
+            },
+          ]
+        }
+      },
+      methods: {
+        popUpDetails: function(index){
+          this.selectedPerson = this.contributors[index];
+        },
+        compiledMarkdown: function (mdtext) {
+            return marked(mdtext, { sanitize: true })
+        }
+      },
+      mounted: function(){
+        // modals
+        $('.modal').modal({dismissible: true});
+      }
+  });
+  </script>
+{% endblock %}
