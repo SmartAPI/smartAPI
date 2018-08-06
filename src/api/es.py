@@ -165,13 +165,20 @@ class ESQuery():
             query = {
                 "query": {
                     "bool": {
-                        "must": {
-                            "match": {
-                                "_id": {
-                                    "query": api_name
+                        "should": [
+                            {
+                                "match": {
+                                    "_id": {
+                                        "query": api_name
+                                    }
+                                }
+                            },
+                            {
+                                "term": {
+                                    "_meta.slug": api_name
                                 }
                             }
-                        },
+                        ],
                         "must_not": {"term": {"_meta._archived": "true"}}
                     }
                 }
