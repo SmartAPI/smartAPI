@@ -35,14 +35,29 @@
     border: #c4c4c4 solid 10px;
   }
 
+  .contributor-container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .contributor-box{
+    flex:1;
+    flex-basis: 170px;
+    max-width: 170px;
+  }
+
 
 </style>
 <main id="about-app" class="white" style="width: 100%;">
 
   <section class="container center padding20">
-    <object width="30%" data='/static/img/logo-large-text.svg' alt="logo"></object>
-    <p class="blue-grey-text">
-      The SmartAPI project aims to maximize the <b>FAIR</b>ness of web-based Application Programming Interfaces (APIs).
+    <object width="40%"  alt="SmartAPI" data="/static/img/logo-small-text.svg" class="hide-on-med-only hide-on-large-only"></object>
+    <object width="45%"  alt="SmartAPI" data="/static/img/logo-medium-text.svg"class="hide-on-small-only hide-on-large-only"></object>
+    <object width="50%" style="max-width: 600px;"  alt="SmartAPI" data="/static/img/logo-large-text.svg" class="hide-on-small-only hide-on-med-only"></object>
+    <h3 class="blue-text flow-text bold">BUILDING A CONNECTED NETWORK OF FAIR APIS</h3>
+    <p class="blue-grey-text flow-text">
+      The SmartAPI project aims to maximize the FAIRness of web-based Application Programming Interfaces (APIs).
       Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable.
       We have developed a openAPI-based specification for defining the key API metadata elements and value sets.
       SmartAPI's leverage the <a href="https://www.openapis.org/" target="_blank">Open API</a> specification v3 and <a href="https://json-ld.org/" target="_blank">JSON-LD</a> for providing semantically annotated JSON content that can be treated as Linked Data.
@@ -50,7 +65,7 @@
   </section>
 
   <section class="container center padding20">
-    <h5 class="blue-text">What is FAIR?</h5>
+    <h2 class="blue-text flow-text bold">What is FAIR?</h2>
     <table class="fairTable">
       <tbody>
         <tr>
@@ -58,7 +73,7 @@
             <span class="fair">F</span>
           </td>
           <td>
-            <p class="blue-grey-text">
+            <p class="blue-grey-text flow-text">
               <b>Findable:</b> The first step in (re)using data is to find it.
               Metadata and data should be easy to find for both humans and computers.
               Machine-readable metadata are essential for automatic discovery of datasets and services, so this is an essential component of the FAIRification process.
@@ -70,7 +85,7 @@
             <span class="fair">A</span>
           </td>
           <td>
-            <p class="blue-grey-text">
+            <p class="blue-grey-text flow-text">
               <b>Accessible:</b> Once the user finds the required data, she/he needs to know how can they be accessed, possibly including authentication and authorization.
             </p>
           </td>
@@ -80,7 +95,7 @@
             <span class="fair">I</span>
           </td>
           <td>
-            <p class="blue-grey-text">
+            <p class="blue-grey-text flow-text">
               <b>Interoperable:</b> The data usually need to be integrated with other data.
               In addition, the data need to interoperate with applications or workflows for analysis, storage, and processing.
             </p>
@@ -91,7 +106,7 @@
             <span class="fair">R</span>
           </td>
           <td>
-            <p class="blue-grey-text">
+            <p class="blue-grey-text flow-text">
               <b>Reusable:</b> The ultimate goal of FAIR is to optimise the reuse of data.
               To achieve this, metadata and data should be well-described so that they can be replicated and/or combined in different settings.
             </p>
@@ -102,13 +117,14 @@
   </section>
 
   <section class="container center padding20">
-    <h5 class="blue-text">Contributors</h5>
-    <div class="row">
+    <h2 class="blue-text flow-text bold">Contributors</h2>
+    <div class="contributor-container">
       <template v-for='(person,index) in contributors'>
-        <div href="#modal1" class="col s6 m3 l2 contributor modal-trigger" @click='popUpDetails(index)'>
+        <div href="#modal1" class="contributor-box contributor modal-trigger" @click='popUpDetails(index)'>
           <img class="circle scale-in-center" width="70%"  :src="person.image" :alt="person.name"/>
           <p class="bold blue-text">{{person.name}} {{person.lastname}}</p>
           <p class="blue-grey-text smallFont">{{person.title}}</p>
+          <img :src="person.work_logo" width="100%" alt="logo"/>
         </div>
       </template>
     </div>
@@ -138,13 +154,16 @@
         <p>
           <span style="font-size: 2em;" class="blue-text bold">{{selectedPerson.name}} {{selectedPerson.lastname}}</span> <span class="grey-text">/ {{selectedPerson.title}}</span>
         </p>
-        <p>
-          <a :href="selectedPerson.personal_site" target="_blank">More About {{selectedPerson.name}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
-        </p>
+        <a :href="selectedPerson.work_website" target="_blank"><img :src="selectedPerson.work_logo" width="200px" alt="logo"/></a>
+        <hr />
         <h5>
           About
         </h5>
         <p class="left-align blue-grey-text" style="font-size:.9em; border-left: #e4e4e4 solid 2px; padding: 10px;" v-html="compiledMarkdown(selectedPerson.bio || '')"></p>
+        <p>
+          <a :href="selectedPerson.personal_site" target="_blank">More About {{selectedPerson.name}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+        </p>
+        <hr />
         <h5>
           Education
         </h5>
@@ -176,29 +195,113 @@
             {
               name:'Chunlei',
               lastname:'Wu',
-              title:'Associate Professor @ TSRI',
+              title:'Associate Professor',
+              work_logo:'/static/img/scripps.svg',
+              work_website:'https://www.scripps.edu/',
               bio:'Chunlei Wu is an Associate Professor of Molecular Medicine in the Department of Molecular and Experimental Medicine at the Scripps Research Institute. Prior to joining Scripps in July 2011, he was the Research Investigator II at the Genomics Institute of the Novartis Research Foundation (GNF) in San Diego, CA. Chunlei originally joined TSRI as a member of the Su Lab, but has since become a principal investigator of his own lab and now has his own site at http://wulab.io. Chunlei and Andrew continue to work together in a highly open and collaborative manner.',
               education:['Ph.D., Biomathmetics and biostatistics, The University of Texas Health Science Center at Houston'],
               image:'http://www.gravatar.com/avatar/108605daee6b3c24d02db9753637a66b?s=200',
               personal_site:'https://wulab.io/',
               links:[
-                {title:"twitter", href:'https://twitter.com/'},
-                {title:"github", href:'https://github.com/'},
-                {title:"linkedin", href:'https://linkedin.com/'},
+                {title:"twitter", href:'https://twitter.com/chunleiwu'},
+                {title:"github", href:'https://github.com/newgene'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/chunleiwu'},
+              ]
+            },
+            {
+              name:'Cyrus',
+              lastname:'Afrasiabi',
+              title:'Research Programmer III',
+              work_logo:'/static/img/scripps.svg',
+              work_website:'https://www.scripps.edu/',
+              bio:'I came to the Su Lab from UC Berkeley where I worked in a phylogenomics lab primarily doing bioinformatics application development.  Before this I did work on the analysis of medical images, the analysis of animal vocalizations, and digital system design.  I am currently working on the myvariant.info project.',
+              education:['2011 M. Eng. in Biomedical Engineering from Cornell University','2003 BS in Electrical and Computer Engineering from Cornell University'],
+              image:'http://sulab.org/wp-content/uploads/2018/03/cyrus2.jpg',
+              personal_site:'#',
+              links:[
+                {title:"twitter", href:'#'},
+                {title:"github", href:'https://github.com/cyrus0824'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/cyrus-afrasiabi-b623604a'},
               ]
             },
             {
               name:'Marco',
               lastname:'Cano',
-              title:'Research Programmer II @ TSRI',
-              bio:"I'm a full-stack web developer with a background in Web/Graphic Design and Multimedia Animation. Love to build professional modern websites using the latest technologies and the best possible UI/UX design.",
+              title:'Research Programmer II',
+              work_logo:'/static/img/scripps.svg',
+              work_website:'https://www.scripps.edu/',
+              bio:"I'm a full-stack web developer with a background in Web/Graphic Design and Multimedia Animation. Love to build professional modern websites using the latest technologies and the best possible UI/UX design. Currently working for the Su/Wu Lab at The Scripps Research Institute.  Current projects include: http://BioThings.io and http://SmartAPI.info",
               education:['3D Animation and Multimedia Design -Palomar College','Full Stack Web Development – UCSD'],
               image:'https://avatars1.githubusercontent.com/u/23092057?s=460&v=4',
               personal_site:'http://www.marcodarko.com/',
               links:[
-                {title:"twitter", href:'https://twitter.com/biothingsapi'},
+                {title:"twitter", href:'#'},
                 {title:"github", href:'https://github.com/marcodarko'},
-                {title:"linkedin", href:'https://linkedin.com/'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/marco-alvarado-cano'},
+              ]
+            },
+            {
+              name:'Michel',
+              lastname:'Dumontier',
+              title:'Distinguished Professor',
+              work_logo:'/static/img/mu.png',
+              work_website:'https://www.maastrichtuniversity.nl/',
+              bio:"Dr. Michel Dumontier is a Distinguished Professor of Data Science at Maastricht University. His research focuses on the development of computational methods for scalable integration and reproducible analysis of FAIR (Findable, Accessible, Interoperable and Reusable) data across scales - from molecules, tissues, organs, individuals, populations to the environment. His group combines semantic web technologies with effective indexing, machine learning and network analysis for drug discovery and personalized medicine. ",
+              education:['2004 PhD, Biochemistry (Bioinformatics) from University of Toronto','1998 Bachelor of Sciencee, Biochemistry from University of Manitoba'],
+              image:'https://avatars3.githubusercontent.com/u/993852?s=460&v=4',
+              personal_site:'http://dumontierlab.com/#',
+              links:[
+                {title:"twitter", href:'https://twitter.com/micheldumontier'},
+                {title:"github", href:'https://github.com/micheldumontier'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/dumontier'},
+              ]
+            },
+            {
+              name:'Amrapali',
+              lastname:'Zaveri',
+              title:'Postdoctoral Researcher',
+              work_logo:'/static/img/mu.png',
+              work_website:'https://www.maastrichtuniversity.nl/',
+              bio:`I am from Pune, India where I studied Bachelors of Science and Masters in Bioinformatics. This was where my interests in science, biology and computers were born and nurtured. My training in bioinformatics took me to Singapore to work as a Senior Research Assistant at the National Neuroscience Institute. This is where I got introduced to ontologies, Semantic Web and Linked Data that could be used to solve biological problems. That brought me to Germany where I pursued my PhD in Computer Science in the University of Leipzig. My focus was on consumption of Linked Data for healthcare, educational and economic research leveraging data quality. Then I got the opportunity to pursue my research ideas further as a postdoctoral researcher at Stanford University in the Biomedical Informatics department. This is where I brought the worlds of Semantic Web and Biology together. After spending just a little over a year at Stanford, my professor got an opportunity to start a Data Science Institute at the University of Maastricht, Netherlands. I followed too and have been here since January 2017.`,
+              education:['2015 PhD Philosophy from Leipzig University','2007 M.Sc, Bioinformatics from Sikkim Manipal University of Health, Medical and Technological Sciences','2005 B.Sc, Zoology from Savitribai Phule Pune University'],
+              image:'https://avatars3.githubusercontent.com/u/713103?s=460&v=4',
+              personal_site:'https://amrapalizaveri.com/',
+              links:[
+                {title:"twitter", href:'https://twitter.com/amrapaliz?lang=en'},
+                {title:"github", href:'https://github.com/amrapalijz'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/amrapalizaveri/'},
+              ]
+            },
+            {
+              name:'Shima',
+              lastname:'Dastgheib',
+              title:'Postdoctoral Researcher',
+              work_logo:'/static/img/mu.png',
+              work_website:'https://www.maastrichtuniversity.nl/',
+              bio:`I am from Pune, India where I studied Bachelors of Science and Masters in Bioinformatics. This was where my interests in science, biology and computers were born and nurtured. My training in bioinformatics took me to Singapore to work as a Senior Research Assistant at the National Neuroscience Institute. This is where I got introduced to ontologies, Semantic Web and Linked Data that could be used to solve biological problems. That brought me to Germany where I pursued my PhD in Computer Science in the University of Leipzig. My focus was on consumption of Linked Data for healthcare, educational and economic research leveraging data quality. Then I got the opportunity to pursue my research ideas further as a postdoctoral researcher at Stanford University in the Biomedical Informatics department. This is where I brought the worlds of Semantic Web and Biology together. After spending just a little over a year at Stanford, my professor got an opportunity to start a Data Science Institute at the University of Maastricht, Netherlands. I followed too and have been here since January 2017.`,
+              education:['2017 Postdoctoral Reserach Scholar from Stanford University School of Medicine','2014 PhD Computer Science from The University of Georgia','2008 Masters in Information Technology from Shiraz University','2004 B.S. Electrical Engineering from Shiraz University'],
+              image:'https://i1.rgstatic.net/ii/profile.image/544408740339712-1506808566542_Q512/Shima_Dastgheib2.jpg',
+              personal_site:'https://scholar.google.com/citations?user=i5ElwboAAAAJ&hl=en',
+              links:[
+                {title:"twitter", href:'https://twitter.com/shimadastgheib?lang=en'},
+                {title:"github", href:'https://github.com/BinaryStars'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/shima-dastgheib-91a51027/'},
+              ]
+            },
+            {
+              name:'Trish',
+              lastname:'Whetzel',
+              title:'Bioinformatician',
+              work_logo:'/static/img/embl-01.png',
+              work_website:'https://www.ebi.ac.uk/',
+              bio:`Web and Android developer. Background in bioinformatics and ontology development/management. Currently Bioinformatician at European Bioinformatics Institute | EMBL-EBI`,
+              education:['2016 Full Stack Nanodegree in Python Web Developement and Databases from Udacity','2000 PhD in Immunology and Microbiology from University of Delaware'],
+              image:'https://avatars0.githubusercontent.com/u/2167174?s=460&v=4',
+              personal_site:'https://avatars0.githubusercontent.com/u/2167174?s=460&v=4',
+              links:[
+                {title:"twitter", href:'https://twitter.com/trishwhetzel?lang=en'},
+                {title:"github", href:'https://github.com/twhetzel'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/trishwhetzel/'},
               ]
             },
           ]

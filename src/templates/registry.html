@@ -104,6 +104,14 @@
                           Total APIs: <span class="blue-text">{{total}}</span>
                           <span style="float: right">Sorted <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span>
                         </div>
+                        <template v-if="total === 0">
+                          <div class="card">
+                            <div class="card-content center ">
+                              <img src="/static/img/api-fail.svg" width="150px"/>
+                              <h5 class="blue-text">Your Search Returned No Results</h5>
+                            </div>
+                          </div>
+                        </template>
                         <div class="card context" v-for="api in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
@@ -575,7 +583,6 @@
                   var q = url.searchParams.get("q");
                   if (q) {
                     this.query = q;
-                    $('.card').css('background','yellow');
                   }
                 }
             },
