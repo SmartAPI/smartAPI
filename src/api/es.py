@@ -1,5 +1,6 @@
 import json
 import string
+import requests
 from datetime import date, datetime
 
 from elasticsearch import Elasticsearch, RequestError, helpers
@@ -128,7 +129,7 @@ class ESQuery():
 
         api_id = metadata.encode_api_id()
         doc_exists = self.exists(api_id)
-        _raw = ""
+        #_raw = ""
         if doc_exists:
             if not overwrite:
                 is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
@@ -138,13 +139,13 @@ class ESQuery():
                 _owner = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
                 if _owner != user_name:
                     return {"success": False, "error": "Cannot overwrite an API that doesn't belong to you"}
-            _raw = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["~raw"]).get('_source', {})['~raw']
+            #_raw = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["~raw"]).get('_source', {})['~raw']
         _doc = metadata.convert_es()
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
-        if not overwrite_if_identical and decode_raw(_raw, as_string=True) == decode_raw(_doc.get('~raw'), as_string=True):
-            print("No changes in _id {}".format(api_id))
-            return {"success": True, '_id': "No changes in document."}
+        #if not overwrite_if_identical and decode_raw(_raw, as_string=True) == decode_raw(_doc.get('~raw'), as_string=True):
+        #    print("No changes in _id {}".format(api_id))
+        #    return {"success": True, '_id': "No changes in document."}
         try:
             self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id, refresh=True)
         except RequestError as e:
@@ -603,3 +604,31 @@ class ESQuery():
             print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
         if return_status:
             return status_li
+    
+    def cron_refresh(self, id_list=[]):
+        '''refresh API metadata based on the saved metadata urls.'''
+        print("Refreshing API metadata:")
+        for api_doc in self.fetch_all(id_list=id_list):
+            doc_etag = api_doc.get('_meta', {}).get('ETag', '')
+            try:
+                curr_etag = requests.get(api_doc.get('_meta', {}).get('url', '')).headers.get('ETag', 'N').strip('W/"')
+            except:
+                print("Error retrieving metadata doc for API {}".format(api_doc.get('_id', '')))
+            if doc_etag != curr_etag:
+                # doc changed...
+                _meta = api_doc['_meta']
+                print("\t{}...".format(api_doc['_id']), end='')
+                new_api_doc = get_api_metadata_by_url(_meta['url'])
+                if new_api_doc and isinstance(new_api_doc, dict):
+                    if new_api_doc.get('success', None) is False:
+                        print("Error: {}".format(new_api_doc))
+                        continue
+                    else:
+                        _meta['timestamp'] = datetime.now().isoformat()
+                        new_api_doc['_meta'] = _meta
+                        status = self.save_api(new_api_doc, override_owner=True, overwrite=True, dryrun=False, save_v2=True)
+                        print("Success: {}".format(status))
+                else:
+                    print("Error: {}".format(new_api_doc))
+            else:
+                print("Doc {} unchanged".format(api_doc['_id']))
