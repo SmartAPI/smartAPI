@@ -50,7 +50,7 @@
                     </div>
                   </li>
                   <li>
-                    <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-user" aria-hidden="true"></i> By Authors</div>
+                    <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-user" aria-hidden="true"></i> By Owners</div>
                     <div class="collapsible-body noPadding">
                       <div class="collection">
                           <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query);">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
@@ -215,7 +215,7 @@
                                 </table>
                                 <br />
                                 <a class="waves-effect waves-light btn blue smallFont"
-                                   v-bind:href='"/api-editor/"+api._id'>
+                                   v-bind:href='"/editor/"+api._id'>
                                    Edit <i class="fa fa-pencil" aria-hidden="true"></i>
                                 </a>
                             </div>
