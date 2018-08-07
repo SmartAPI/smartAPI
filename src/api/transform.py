@@ -107,6 +107,10 @@ class APIMetadata:
         self.get_schema()
         self.metadata = metadata
         self._meta = self.metadata.pop('_meta', {})
+        try:
+            self._meta['ETag'] = requests.get(self._meta['url']).headers.get('ETag', 'I').strip('W/"')
+        except:
+            pass
         if self.schema_version == 'SWAGGER2':
             self._meta['swagger_v2'] = True
 
