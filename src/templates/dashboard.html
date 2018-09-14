@@ -30,8 +30,8 @@
       <div class="col s12 m4 l3 xl3 transparent">
         <ul class="collection" style="border: none;">
           <li class="collection-item center-align transparent" style="border-bottom: none;">
-            <img v-if="userInfo.avatar_url" id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall hide-on-med-and-down" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
-            <img v-else id="dashboardPhoto" width="70%" src="/static/img/user-default.png" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid;">
+            <img v-if="userInfo.avatar_url" id="dashboardPhoto" width="70%" :src="userInfo.avatar_url" class="responsive-img hideOnSmall hide-on-med-and-down" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid; max-width:250px;">
+            <img v-else id="dashboardPhoto" width="70%" src="/static/img/user-default.png" class="responsive-img hideOnSmall" alt="user image" style="box-shadow: 5px 5px 5px #273238; margin-bottom: -25px; border-radius: 10px; border: 2px white solid; max-width:250px;">
           </li>
           <li class="collection-item center-align white-text padding20 blue" style="border-top-left-radius: 10px; border-top-right-radius: 10px;">
             <img v-if="userInfo.avatar_url" width="30%" :src="userInfo.avatar_url" class="show-on-medium-and-down hide-on-med-and-up circle" alt="user image" style="margin: 0 auto; border: 3px solid white;">
@@ -82,7 +82,14 @@
               <tbody >
                 <tr v-for="(api,index) in searchResults">
                   <td >
-                     <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
+                     <!-- <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a> -->
+                     <a href="#modal2" class="modal-trigger smallFont" @click="getDetailsSearch(api)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
+                     <span v-if=" api.hasOwnProperty('openapi') " class="smallFont green-text hide-on-med-and-down ">
+                       - OAS3
+                     </span>
+                     <span v-else-if=" api.hasOwnProperty('swagger') " class="smallFont blue-text hide-on-med-and-down show-on-large-only">
+                       - Swagger2
+                     </span>
                   </td>
                   <td  class="center-align">
                     <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
@@ -240,8 +247,10 @@
               <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(apis[selectedAPIIndex].info.description || '')"></p>
             </li>
             <li class="collection-item blue-grey lighten-5">
-              <i class="material-icons tiny blue-text">info_outline</i>
-              <a :href="apis[selectedAPIIndex].termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+              <i v-if="apis[selectedAPIIndex].info.termsOfService || apis[selectedAPIIndex].termsOfService" class="material-icons tiny blue-text">info_outline</i>
+              <a v-if="apis[selectedAPIIndex].info.termsOfService" :href="apis[selectedAPIIndex].info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+              <a v-if="apis[selectedAPIIndex].termsOfService" :href="apis[selectedAPIIndex].termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+
             </li>
           </ul>
         </div>
@@ -413,6 +422,13 @@
           }
         },
         methods:{
+          getDetailsSearch(apiInfo){
+            for (var i = 0; i < this.apis.length; i++) {
+              if (this.apis[i]._id === apiInfo._id) {
+                this.selectedAPIIndex = i;
+              }
+            }
+          },
           getApis: function(){
             var self=this;
             self.apis=[];

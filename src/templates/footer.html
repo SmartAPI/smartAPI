@@ -46,7 +46,7 @@
     <div class="footer-copyright blue-grey darken-4">
         <div class="container blue-grey-text">
             <hr>
-            <p>Copyright &copy; 2017.
+            <p>Copyright &copy; <span id="year"></span>.
                 <a target="_blank" class="blue-grey-text" href="http://smart-api.info">SmartAPI consortium</a>.
                 All content available via <a target="_blank" rel="license" href="http://creativecommons.org/licenses/by/4.0/">
                 <i class="fa fa-creative-commons blue-grey-text" aria-hidden="true"></i>
@@ -62,3 +62,9 @@
         </div>
     </div>
 </footer>
+<script>
+var currentTime = new Date()
+var year = currentTime.getFullYear()
+var myelement = document.getElementById("year");
+    myelement.innerHTML= year;
+</script>
