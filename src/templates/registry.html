@@ -163,7 +163,7 @@
                                           Metadata URL:
                                         </td>
                                         <td class="noPadding">
-                                          <a class="link" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a>
+                                          <a class="link" target="_blank" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a>
                                         </td>
                                       </tr>
                                       <tr>
@@ -469,6 +469,7 @@
                         var params = {
                             "params": {
                                 "q": query,
+                                // 'fields':['info','_meta']
                             }
                         };
                         var filters = this.getQueryFilters();
