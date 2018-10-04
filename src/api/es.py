@@ -290,7 +290,12 @@ class ESQuery():
         if not fields or fields == 'all':
             pass
         else:
-            query['_source'] = fields
+            try:
+                _fields = json.loads(fields)
+                assert isinstance(_fields, list)
+                query['_source'] = _fields
+            except:    
+                query['_source'] = fields
         if size and isinstance(size, int):
             query['size'] = min(size, 100)    # set max size to 100 for now.
         if from_ and isinstance(from_, int) and from_ > 0:
