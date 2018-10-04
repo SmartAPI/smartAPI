@@ -22,6 +22,54 @@
     padding: 0px;
   }
 
+  /* styles for '...' */
+.truncateDescription p {
+  /* hide text if it more than N lines  */
+  overflow: hidden;
+  /* for set '...' in absolute position */
+  position: relative;
+  /* use this value to count block height */
+  line-height: 1.2em;
+  /* max-height = line-height (1.2) * lines max number (3) */
+  max-height: 3.6em;
+  /* fix problem when last visible word doesn't adjoin right side  */
+  text-align: justify;
+  /* place for '...' */
+  margin-right: -1em;
+  padding-right: 1em;
+}
+/* create the ... */
+.truncateDescription p:before {
+  /* points in the end */
+  content: '...';
+  /* absolute position */
+  position: absolute;
+  /* set position to right bottom corner of block */
+  right: 0;
+  bottom: 0;
+}
+/* hide ... if we have text, which is less than or equal to max lines */
+.truncateDescription p:after {
+  /* points in the end */
+  content: '';
+  /* absolute position */
+  position: absolute;
+  /* set position to right bottom corner of text */
+  right: 0;
+  /* set width and height */
+  width: 1em;
+  height: 1em;
+  margin-top: 0.2em;
+  /* bg color = bg color under block */
+  background: white;
+}
+
+.truncateDescription{
+  /* Makes room on the parent for the ... */
+  margin-right: 1.1em;
+}
+
+
 </style>
   {% raw %}
     <main>
@@ -133,7 +181,8 @@
                                 </span>
                                 <br />
                                 <br />
-                                <p class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></p>
+                                <div class="blue-grey-text flow-text truncateDescription" v-html="compiledMarkdown(api.info.description || '')"></div>
+                                <!-- <div class="blue-grey-text flow-text truncateDescription-null" v-html="compiledMarkdown(_.truncate(api.info.description,{'length': 300,'omission': ' [...]'}) || '')"></div> -->
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
@@ -155,7 +204,7 @@
                                           SmartAPI ID:
                                         </td>
                                         <td class="noPadding">
-                                          <a class="link" v-bind:href='"/api/metadata/"+api._id'>{{api._id}}</a>
+                                          <a class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>{{api._id}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
                                         </td>
                                       </tr>
                                       <tr>
@@ -163,7 +212,7 @@
                                           Metadata URL:
                                         </td>
                                         <td class="noPadding">
-                                          <a class="link" target="_blank" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}}</a>
+                                          <a class="link" target="_blank" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
                                         </td>
                                       </tr>
                                       <tr>
@@ -379,6 +428,7 @@
                     var params = {
                         "params": {
                             "q": query,
+                            'fields':['info','_meta']
                         }
                     }
                     var filters = this.getQueryFilters();
@@ -469,7 +519,6 @@
                         var params = {
                             "params": {
                                 "q": query,
-                                // 'fields':['info','_meta']
                             }
                         };
                         var filters = this.getQueryFilters();
