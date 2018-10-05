@@ -327,7 +327,7 @@ class ESQuery():
                 query['_source'] = _fields
             except ValueError as e:
                 # should pass errors back to handlers
-                pass
+                return {'success': False, 'error': 'Could not split "fields" argument due to the following error: "{}"'.format(str(e))}
         if size and isinstance(size, int):
             query['size'] = min(size, 100)    # set max size to 100 for now.
         if from_ and isinstance(from_, int) and from_ > 0:
