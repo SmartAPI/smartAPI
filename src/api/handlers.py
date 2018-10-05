@@ -62,6 +62,7 @@ class QueryHandler(BaseHandler):
         q = self.get_argument('q', None)
         if not q:
             self.return_json({'success': False, 'error': 'missing required parameter.'})
+            return
 
         filters = self.get_argument('filters', None)
         if filters:
