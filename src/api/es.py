@@ -1,7 +1,9 @@
 import json
 import string
 import requests
+import sys
 from datetime import date, datetime
+from shlex import shlex
 
 from elasticsearch import Elasticsearch, RequestError, helpers
 
@@ -31,6 +33,36 @@ def get_es(es_host=None):
     es_host = es_host or ES_HOST
     es = Elasticsearch(es_host, timeout=120)
     return es
+
+
+def split_ids(q):
+    '''split input query string into list of ids.
+       any of " \t\n\x0b\x0c\r|,+" as the separator,
+        but perserving a phrase if quoted
+        (either single or double quoted)
+        more detailed rules see:
+        http://docs.python.org/2/library/shlex.html#parsing-rules
+
+        e.g. split_ids('CDK2 CDK3') --> ['CDK2', 'CDK3']
+             split_ids('"CDK2 CDK3"\n CDk4')  --> ['CDK2 CDK3', 'CDK4']
+
+    '''
+    # Python3 strings are already unicode, .encode
+    # now returns a bytearray, which cannot be searched with
+    # shlex.  For now, do this terrible thing until we discuss
+    if sys.version_info.major == 3:
+        lex = shlex(q, posix=True)
+    else:
+        lex = shlex(q.encode('utf8'), posix=True)
+    lex.whitespace = ' \t\n\x0b\x0c\r|,+'
+    lex.whitespace_split = True
+    lex.commenters = ''
+    if sys.version_info.major == 3:
+        ids = [x.strip() for x in list(lex)]
+    else:
+        ids = [x.decode('utf8').strip() for x in list(lex)]
+    ids = [x for x in ids if x]
+    return ids
 
 
 def create_index(index_name=None, es=None):
@@ -291,11 +323,11 @@ class ESQuery():
             pass
         else:
             try:
-                _fields = json.loads(fields)
-                assert isinstance(_fields, list)
+                _fields = split_ids(fields)
                 query['_source'] = _fields
-            except:    
-                query['_source'] = fields
+            except ValueError as e:
+                # should pass errors back to handlers
+                pass
         if size and isinstance(size, int):
             query['size'] = min(size, 100)    # set max size to 100 for now.
         if from_ and isinstance(from_, int) and from_ > 0:
