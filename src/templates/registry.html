@@ -98,9 +98,8 @@
                       </template>
                       <template v-else>
                         <div class="input-field col s12 l6 offset-l3">
-                            <!-- <i class="material-icons prefix grey-text">search</i> -->
-                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
-                            <label for="search_query"></label>
+                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 70%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                            <!-- <a href="#" role="button" class="smallButton tooltipped" data-position="bottom" data-tooltip="Click to copy URL to clipboard">Share URL</a> -->
                         </div>
                       </template>
 
@@ -134,7 +133,7 @@
                             </div>
                           </div>
                         </template>
-                        <div class="card context" v-for="api in paginatedApis">
+                        <div class="card context" v-for="(api,index) in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
                                   <span class="blue-text bold">
@@ -155,10 +154,9 @@
                                 </span>
                                 <br />
                                 <br />
-                                <a :class="{ descriptionContainer : api.info.description && api.info.description.length > 300 }" @click.prevent="handleDescriptionClick($event)" style="position:relative; display:block;">
+                                <a :class="{ descriptionContainer : api.info.description && api.info.description.length > 500 }" @click.prevent="api.showP = !api.showP; handleDescriptionClick($event, api.showP)" style="position:relative; display:block;">
                                   <div style="pointer-events: none;" class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></div>
-                                  <div style="pointer-events: none;" class="whiteFadeBox center" v-if="api.info.description && api.info.description.length> 300">
-                                  </div>
+                                  <div style="pointer-events: none;" class="whiteFadeBox center" v-if="api.info.description && api.info.description.length> 500"></div>
                                 </a>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
@@ -310,10 +308,17 @@
               }
             },
             methods: {
-                handleDescriptionClick(event){
-                  event.target.style.maxHeight = 'none';
-                  if (event.target.children[1]) {
-                    event.target.children[1].hidden = true;
+                handleDescriptionClick(event, show){
+                  if (show) {
+                    event.target.style.maxHeight = 'none';
+                    if (event.target.children[1]) {
+                      event.target.children[1].hidden = true;
+                    }
+                  }else{
+                    event.target.style.maxHeight = '200px';
+                    if (event.target.children[1]) {
+                      event.target.children[1].hidden = false;
+                    }
                   }
                 },
                 matchTagAndSearch: function(tagName){
