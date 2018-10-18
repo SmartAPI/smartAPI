@@ -91,24 +91,27 @@
                           </a>
                         </div>
                         <div class="input-field col s12 l6">
-                            <i class="material-icons prefix grey-text">search</i>
-                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here">
-                            <label for="search_query"></label>
+                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                            <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
+                            </input>
+                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton"><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
                         </div>
                       </template>
                       <template v-else>
                         <div class="input-field col s12 l6 offset-l3">
-                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 70%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
-                            <!-- <a href="#" role="button" class="smallButton tooltipped" data-position="bottom" data-tooltip="Click to copy URL to clipboard">Share URL</a> -->
+                            <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                            <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
+                            </input>
+                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton"><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
                         </div>
                       </template>
 
                         <div class="col s12 selected-tags">
-                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
+                            <div class="chip scale-in-center" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
                                 <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
                                 <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
-                            <div class="chip" v-for="author in authors" v-if="author.active">
+                            <div class="chip scale-in-center" v-for="author in authors" v-if="author.active">
                                 <i class="fa fa-user" aria-hidden="true"></i>  {{author.name}}
                                 <i class="close material-icons" @click="author.active = false;search(query)">close</i>
                             </div>
@@ -283,7 +286,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+    <script src="/static/js/clipboard.js"></script>
     <script>
+        new ClipboardJS('.copyBtn');
+            ClipboardJS.isSupported();
+
         var app = new Vue({
             el: '#app',
             data: function(){
@@ -304,7 +311,9 @@
                   specialTagOriginalName: '',
                   userInfo: {},
                   context:{},
-                  authors: []
+                  authors: [],
+                  shareURL:'',
+                  shareURLButtonVisible: false
               }
             },
             methods: {
@@ -490,6 +499,24 @@
                     }
                   }
                 },
+                buildShareURL: function(q){
+                  var filters = [];
+                  var finalFilters = '';
+                  var finalURL = window.location.origin+window.location.pathname;
+                  this.tags.forEach(function(item){
+                    if (item.active)
+                        filters.push(item.name);
+                    });
+                  console.log(filters.length);
+                  if (filters.length > 0) {
+                    finalFilters = filters.join(',')
+                    finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
+                  }else{
+                    finalURL = finalURL+'?q='+q;
+                  }
+                  this.shareURL =finalURL;
+                  this.shareURLButtonVisible = true;
+                },
                 search: function (query) {
                     var self = this;
                     self.context= {{Context}};
@@ -514,6 +541,9 @@
                         if (filters)
                             params["params"]["filters"] = filters;
                         this.loading_start();
+                        // Share search URL
+                        self.buildShareURL(query);
+
                         $(".context").unmark();
                         axios.get('/api/query?size=100', params).then(function (response) {
                             self.loading_end();
