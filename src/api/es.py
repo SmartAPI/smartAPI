@@ -87,6 +87,14 @@ def create_index(index_name=None, es=None):
                         }
                     }
                 },
+                {
+                    "ignore_schema_field": {
+                        "match": "schema",
+                        "mapping": {
+                            "enabled": False
+                        }
+                    }
+                },
 
                 # this must be the last template
                 {
@@ -315,7 +323,7 @@ class ESQuery():
 
         if filters:
             if len(filters) == 1:
-                query["query"]["bool"]["filter"] = {"terms": filters}     
+                query["query"]["bool"]["filter"] = {"terms": filters}
             else:
                 query["query"]["bool"]["filter"] = [{"terms": {philter[0]:philter[1]}} for philter in filters.items()]
 
@@ -411,7 +419,7 @@ class ESQuery():
 
     def archive_api(self, id, user):
         """ function to set an _archive flag for an API, making it
-        unsearchable from the front end, takes an id identifying the API, 
+        unsearchable from the front end, takes an id identifying the API,
         and a user that must match the APIs creator. """
         # does the api exist?
         try:
@@ -498,7 +506,7 @@ class ESQuery():
         ''' Function that determines whether slug_name is a valid slug name '''
         _valid_chars = string.ascii_letters + string.digits + "-_~"
         _slug = slug_name.lower()
-        
+
         # reserved for dev node, normal web functioning
         if _slug in ['www', 'dev', 'smart-api']:
             return (False, {"success": False, "error": "Slug name '{}' is reserved, please choose another".format(_slug)})
@@ -509,7 +517,7 @@ class ESQuery():
 
         # character requirements
         if not all([x in _valid_chars for x in _slug]):
-            return (False, {"success": False, "error": "Slug name contains invalid characters.  Valid characters: '{}'".format(_valid_chars)})        
+            return (False, {"success": False, "error": "Slug name contains invalid characters.  Valid characters: '{}'".format(_valid_chars)})
 
         # does it exist already?
         _query = {
@@ -522,7 +530,7 @@ class ESQuery():
                 }
             }
         }
-                    
+
         if len(self._es.search(index=self._index, doc_type=self._doc_type, body=_query, _source=False).get('hits', {}).get('hits', [])) > 0:
             return (False, {"success": False, "error": "Slug name '{}' already exists, please choose another".format(_slug)})
 
@@ -546,7 +554,7 @@ class ESQuery():
         if not _valid:
             return (405, _resp)
 
-        # update the slug name 
+        # update the slug name
         self._es.update(index=self._index, doc_type=self._doc_type, id=_id, body={"doc": {"_meta": {"slug": slug_name.lower()}}}, refresh=True)
 
         return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
@@ -557,7 +565,7 @@ class ESQuery():
             return (404, {"success": False, "error": "Could not retrieve API '{}' to delete slug name".format(_id)})
 
         doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id).get('_source', {})
-        
+
         # Make sure this is the correct user
         if user.get('login', None) != doc.get('_meta', {}).get('github_username', ''):
             return (405, {"success": False, "error": "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)})
@@ -565,14 +573,14 @@ class ESQuery():
         # Make sure this is the correct slug name
         if doc.get('_meta', {}).get('slug', '') != slug_name:
             return (405, {"success": False, "error": "API '{}' slug name is not '{}'".format(_id, slug_name)})
-        
+
         # do the delete
         doc['_meta'].pop('slug')
 
         self._es.index(index=self._index, doc_type=self._doc_type, body=doc, id=_id, refresh=True)
 
         return (200, {"success": True, "{}".format(_id): "slug '{}' deleted".format(slug_name)})
-    
+
     def refresh_one_api(self, _id, user, dryrun=True):
         ''' refresh one API metadata based on the saved metadata url '''
         print("Refreshing API metadata:")
@@ -615,7 +623,7 @@ class ESQuery():
         else:
             status = {'success': False, 'error': 'Invalid input data.'}
 
-        return status 
+        return status
 
     def refresh_all(self, id_list=[], dryrun=True, return_status=False, overwrite_if_identical=False):
         '''refresh API metadata based on the saved metadata urls.'''
@@ -641,7 +649,7 @@ class ESQuery():
             print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
         if return_status:
             return status_li
-    
+
     def cron_refresh(self, id_list=[]):
         '''refresh API metadata based on the saved metadata urls.'''
         print("Refreshing API metadata:")
