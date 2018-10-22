@@ -319,7 +319,7 @@
             Vue.component('description', {
               data: function(){
                 return{
-                  result:'',
+                  result:null,
                   fullTXT:false
                 }
               },
@@ -331,7 +331,6 @@
                 }
               },
               mounted: function(){
-                console.log('text',this.text)
                 this.compileMDWN(this.text)
               },
               template: `<div style="display:flex;">
@@ -345,7 +344,7 @@
                             <br />
                             <i class="material-icons">expand_less</i>
                           </div>
-                          <div style="flex:7;" v-bind:class="{'max-height-none padding20' : fullTXT, 'max-height-200 padding20': !fullTXT}">
+                          <div style="flex:7; position:relative;" v-bind:class="{'max-height-none padding20' : fullTXT, 'max-height-200 padding20': !fullTXT}">
                             <div class="blue-grey-text flow-text" v-html="text"></div>
                             <div v-if="!fullTXT" class="whiteFadeBox center"></div>
                           </div>
@@ -378,14 +377,6 @@
               }
             },
             methods: {
-              test: function(show){
-                console.log('SHOW', show)
-                if (show) {
-                  return 'max-height-none green'
-                }else{
-                  return 'max-height-200 red'
-                }
-              },
                 handleDescriptionClick(event, show){
                   if (show) {
                     event.target.style.maxHeight = 'none';
@@ -505,9 +496,6 @@
                         self.loading_end();
                         self.apis = _.sortBy(response.data.hits,'info.title');
                         self.apis = response.data.hits;
-                        for (var i = 0; i < self.apis.length; i++) {
-                          self.apis[i].showFullText = false;
-                        }
                         self.total = response.data.total;
                         self.calculatePages();
                     });
@@ -544,7 +532,6 @@
                         // return filters;
                     this.authors.forEach(function(item){
                       if (item.active){
-                        console.log(item.name)
                         authorFilters.push(item.name);
                       }
                       });
@@ -621,10 +608,6 @@
                             self.loading_end();
                             $(".context").unmark();
                             self.apis = response.data.hits;
-                            for (var i = 0; i < self.apis.length; i++) {
-                              self.apis[i].showFullText = false;
-                            }
-                            console.log(self.apis)
                             self.handleContext(self.context);
                             self.total = response.data.total;
                             self.calculatePages();
