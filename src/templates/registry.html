@@ -19,7 +19,7 @@
   }
 
   .noPadding{
-    padding: 0px;
+    padding: 0px !important;
   }
 
   .whiteFadeBox{
@@ -41,6 +41,29 @@
 
   .descriptionContainer:hover{
     cursor: pointer;
+  }
+
+  .max-height-none{
+    max-height: none !important;
+    overflow: auto;
+  }
+
+  .max-height-200{
+    max-height: 200px !important;
+    overflow: hidden;
+  }
+
+  .expandBtn{
+    flex:1;
+    align-self:center;
+    max-width:30px;
+    padding:3px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .expandBtn:hover{
+    background: lightgrey !important;
   }
 
 
@@ -157,10 +180,12 @@
                                 </span>
                                 <br />
                                 <br />
-                                <a :class="{ descriptionContainer : api.info.description && api.info.description.length > 500 }" @click.prevent="api.showP = !api.showP; handleDescriptionClick($event, api.showP)" style="position:relative; display:block;">
-                                  <div style="pointer-events: none;" class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></div>
-                                  <div style="pointer-events: none;" class="whiteFadeBox center" v-if="api.info.description && api.info.description.length> 500"></div>
-                                </a>
+                                <template v-if="api.info.description && api.info.description.length > 500">
+                                  <description :text='api.info.description'></description>
+                                </template>
+                                <template v-else>
+                                  <div class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></div>
+                                </template>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
@@ -291,6 +316,42 @@
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
 
+            Vue.component('description', {
+              data: function(){
+                return{
+                  result:'',
+                  fullTXT:false
+                }
+              },
+              props: ['text'],
+              methods:{
+                compileMDWN: function(mdtext){
+                  this.result = marked(mdtext, { sanitize: true });
+                  return this.result;
+                }
+              },
+              mounted: function(){
+                console.log('text',this.text)
+                this.compileMDWN(this.text)
+              },
+              template: `<div style="display:flex;">
+                          <div v-if="!fullTXT" class="grey center expandBtn" @click.prevent="fullTXT = !fullTXT;">
+                            <i class="material-icons">expand_less</i>
+                            <br />
+                            <i class="material-icons">expand_more</i>
+                          </div>
+                          <div v-else class="green center expandBtn" @click.prevent="fullTXT = !fullTXT;">
+                            <i class="material-icons">expand_more</i>
+                            <br />
+                            <i class="material-icons">expand_less</i>
+                          </div>
+                          <div style="flex:7;" v-bind:class="{'max-height-none padding20' : fullTXT, 'max-height-200 padding20': !fullTXT}">
+                            <div class="blue-grey-text flow-text" v-html="text"></div>
+                            <div v-if="!fullTXT" class="whiteFadeBox center"></div>
+                          </div>
+                        </div>`
+            })
+
         var app = new Vue({
             el: '#app',
             data: function(){
@@ -317,6 +378,14 @@
               }
             },
             methods: {
+              test: function(show){
+                console.log('SHOW', show)
+                if (show) {
+                  return 'max-height-none green'
+                }else{
+                  return 'max-height-200 red'
+                }
+              },
                 handleDescriptionClick(event, show){
                   if (show) {
                     event.target.style.maxHeight = 'none';
@@ -435,6 +504,10 @@
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
                         self.apis = _.sortBy(response.data.hits,'info.title');
+                        self.apis = response.data.hits;
+                        for (var i = 0; i < self.apis.length; i++) {
+                          self.apis[i].showFullText = false;
+                        }
                         self.total = response.data.total;
                         self.calculatePages();
                     });
@@ -507,7 +580,6 @@
                     if (item.active)
                         filters.push(item.name);
                     });
-                  console.log(filters.length);
                   if (filters.length > 0) {
                     finalFilters = filters.join(',')
                     finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
@@ -549,6 +621,10 @@
                             self.loading_end();
                             $(".context").unmark();
                             self.apis = response.data.hits;
+                            for (var i = 0; i < self.apis.length; i++) {
+                              self.apis[i].showFullText = false;
+                            }
+                            console.log(self.apis)
                             self.handleContext(self.context);
                             self.total = response.data.total;
                             self.calculatePages();
