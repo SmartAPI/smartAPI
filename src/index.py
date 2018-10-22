@@ -69,6 +69,7 @@ settings = {
 if options.debug:
     settings.update({
         "static_path": STATIC_PATH,
+        "debug": True
     })
 
 
@@ -82,7 +83,7 @@ def main():
     http_server.listen(options.port, address=options.address)
     loop = tornado.ioloop.IOLoop.instance()
     if options.debug:
-        tornado.autoreload.start(loop)
+        # tornado.autoreload.start(loop)
         logging.info('Server is running on "%s:%s"...' % (options.address, options.port))
     loop.start()
 
