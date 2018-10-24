@@ -24,7 +24,7 @@ OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/
 SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
 
 # List of root keys that should be indexed in version 2 schema
-SWAGGER2_PATH_ITEMS = ['info', 'tags']
+SWAGGER2_INDEXED_ITEMS = ['info', 'tags', 'swagger', 'host', 'basePath']
 
 # list of major versions of schema that we support
 SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
@@ -159,19 +159,25 @@ class APIMetadata:
 
     def convert_es(self):
         '''convert API metadata for ES indexing.'''
-        _d = copy.copy(self.metadata)
-        _d['_meta'] = self._meta
 
-        # convert paths to a list of each path item
-        _paths = []
-        for path in _d['paths']:
-            if ((self.schema_version == 'OAS3') or (path in SWAGGER2_PATH_ITEMS)):
+        if self.schema_version == 'OAS3':
+            _d = copy.copy(self.metadata)
+            _d['_meta'] = self._meta
+            # convert paths to a list of each path item
+            _paths = []
+            for path in _d.get('paths', []):
                 _paths.append({
                     "path": path,
                     "pathitem": _d['paths'][path]
                 })
-        if _paths:
-            _d['paths'] = _paths
+            if _paths:
+                _d['paths'] = _paths
+        else:
+            # swagger 2 or other, only index limited fields
+            _d = {"_meta": self._meta}
+            for key in SWAGGER2_INDEXED_ITEMS:
+                if key in self.metadata:
+                    _d[key] = self.metadata[key]
 
         #include compressed binary raw metadata as "~raw"
         _d["~raw"] = encode_raw(self.metadata)
