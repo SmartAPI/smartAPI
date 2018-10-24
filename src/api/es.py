@@ -641,7 +641,7 @@ class ESQuery():
                 print("Failed.")
             total_cnt += 1
             if return_status:
-                status_li.append((_id, status))
+                status_li.append((api_doc['_id'], status))
         print("="*25)
         print("Successfully refreshed {}/{} API meteadata.".format(success_cnt, total_cnt))
         if dryrun:
