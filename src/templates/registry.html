@@ -53,19 +53,33 @@
     overflow: hidden;
   }
 
-  .expandBtn{
-    flex:1;
-    align-self:center;
-    max-width:30px;
-    padding:3px;
-    border-radius: 10px;
-    cursor: pointer;
+  .expandButtonMore{
+    margin:auto;
+    transform: scale(.7);
+    border-radius: 20px;
+    transition: opacity .5s;
+    opacity: 0;
   }
 
-  .expandBtn:hover{
-    background: lightgrey !important;
+  .expandContainer{
+    position: relative;
   }
 
+  .expandContainer:hover a.expandButtonMore{
+    opacity: 1;
+  }
+
+  .expandContainer:hover a.expandButtonLess{
+    opacity: 1;
+  }
+
+  .expandButtonLess{
+    margin:auto;
+    transform: scale(.7);
+    border-radius: 20px;
+    transition: opacity .5s;
+    opacity: 0;
+  }
 
 </style>
   {% raw %}
@@ -125,7 +139,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton"><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
+                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton" ><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
                         </div>
                       </template>
 
@@ -333,19 +347,24 @@
               mounted: function(){
                 this.compileMDWN(this.text)
               },
-              template: `<div style="display:flex;">
-                          <div v-if="!fullTXT" class="grey center expandBtn" @click.prevent="fullTXT = !fullTXT;">
-                            <i class="material-icons">expand_less</i>
-                            <br />
-                            <i class="material-icons">expand_more</i>
-                          </div>
-                          <div v-else class="green center expandBtn" @click.prevent="fullTXT = !fullTXT;">
-                            <i class="material-icons">expand_more</i>
-                            <br />
-                            <i class="material-icons">expand_less</i>
-                          </div>
-                          <div style="flex:7; position:relative;" v-bind:class="{'max-height-none padding20' : fullTXT, 'max-height-200 padding20': !fullTXT}">
+              template: `<div>
+                          <div class="expandContainer" v-bind:class="{'max-height-none padding20' : fullTXT, 'max-height-200 padding20': !fullTXT}">
+
+                            <div class="center">
+                              <a class="btn grey lighten-1 expandButtonMore" v-if="!fullTXT" @click.prevent="fullTXT = !fullTXT;">Click to expand</a>
+                              <a class="btn grey lighten-1 expandButtonLess" v-if="fullTXT" @click.prevent="fullTXT = !fullTXT;">
+                                Collapse
+                              </a>
+                            </div>
+
                             <div class="blue-grey-text flow-text" v-html="result"></div>
+
+                            <div class="center">
+                              <a class="btn grey lighten-1 expandButtonLess" v-if="fullTXT" @click.prevent="fullTXT = !fullTXT;">
+                                Collapse
+                              </a>
+                            </div>
+
                             <div v-if="!fullTXT" class="whiteFadeBox center"></div>
                           </div>
                         </div>`
@@ -666,7 +685,7 @@
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
-                        if (rTags[i] === self.tags[x].name) {
+                        if (rTags[i].toLowerCase() === self.tags[x].name.toLowerCase()) {
                           self.tags[x].active = true;
                         }
                       }
