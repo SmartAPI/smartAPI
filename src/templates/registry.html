@@ -24,7 +24,7 @@
 
   .whiteFadeBox{
     width: 100%;
-    height: 50%;
+    height: 30%;
     position: absolute;
     bottom: 0;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+100 */
@@ -192,8 +192,8 @@
                                     My&nbsp;API
                                   </a>
                                 </span>
-                                <br />
-                                <br />
+                                <!-- <br /> -->
+                                <!-- <br /> -->
                                 <template v-if="api.info.description && api.info.description.length > 500">
                                   <description :text='api.info.description'></description>
                                 </template>
@@ -348,10 +348,10 @@
                 this.compileMDWN(this.text)
               },
               template: `<div>
-                          <div class="expandContainer" v-bind:class="{'max-height-none padding20' : fullTXT, 'max-height-200 padding20': !fullTXT}">
+                          <div class="expandContainer" v-bind:class="{'max-height-none' : fullTXT, 'max-height-200': !fullTXT}">
 
                             <div class="center">
-                              <a class="btn grey lighten-1 expandButtonMore" v-if="!fullTXT" @click.prevent="fullTXT = !fullTXT;">Click to expand</a>
+
                               <a class="btn grey lighten-1 expandButtonLess" v-if="fullTXT" @click.prevent="fullTXT = !fullTXT;">
                                 Collapse
                               </a>
@@ -365,7 +365,9 @@
                               </a>
                             </div>
 
-                            <div v-if="!fullTXT" class="whiteFadeBox center"></div>
+                            <div v-if="!fullTXT" class="whiteFadeBox center">
+                              <a class="btn grey lighten-1 expandButtonMore" v-if="!fullTXT" @click.prevent="fullTXT = !fullTXT;">Click to expand</a>
+                            </div>
                           </div>
                         </div>`
             })
