@@ -36,11 +36,6 @@ def get_json(filename):
         return json.load(f)
 
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.redirect('/website/')
-
-
 def add_apps(prefix='', app_list=[]):
     '''
     Add prefix to each url handler specified in app_list.
@@ -54,6 +49,7 @@ def add_apps(prefix='', app_list=[]):
         return [('/'+prefix+url, handler) for url, handler in app_list]
     else:
         return app_list
+
 
 APP_LIST = [
     # (r"/", MainHandler),
