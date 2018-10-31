@@ -588,11 +588,18 @@
                     if (item.active)
                         filters.push(item.name);
                     });
-                  if (filters.length > 0) {
-                    finalFilters = filters.join(',')
-                    finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
+                  if (q !== '__all__') {
+                    if (filters.length > 0) {
+                      finalFilters = filters.join(',')
+                      finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
+                    }else{
+                      finalURL = finalURL+'?q='+q;
+                    }
                   }else{
-                    finalURL = finalURL+'?q='+q;
+                    if (filters.length > 0) {
+                      finalFilters = filters.join(',')
+                      finalURL = finalURL+"?tags="+finalFilters;
+                    }
                   }
                   this.shareURL =finalURL;
                   this.shareURLButtonVisible = true;
