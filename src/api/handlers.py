@@ -16,14 +16,16 @@ from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
 import config
 
+
 class BaseHandler(tornado.web.RequestHandler):
     def return_json(self, data):
         _json_data = json.dumps(data, indent=2)
         self.set_header("Content-Type", "application/json; charset=UTF-8")
         self.support_cors()
         self.write(_json_data)
-
+        
     def return_yaml(self, data):
+        
         def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
             class OrderedDumper(Dumper):
                 pass

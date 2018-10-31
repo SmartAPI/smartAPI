@@ -75,7 +75,7 @@ def create_index(index_name=None, es=None):
                     "ignore_example_field": {
                         "match": "example",
                         "mapping": {
-                            "index": "no"
+                            "index": False
                         }
                     }
                 },
@@ -83,7 +83,7 @@ def create_index(index_name=None, es=None):
                     "ignore_ref_field": {
                         "match": "$ref",
                         "mapping": {
-                            "index": "no"
+                            "index": False
                         }
                     }
                 },
@@ -95,19 +95,26 @@ def create_index(index_name=None, es=None):
                         }
                     }
                 },
-
+                {
+                    "ignore_content_field": {
+                        "match": "content",
+                        "mapping": {
+                            "enabled": False
+                        }
+                    }
+                },
                 # this must be the last template
                 {
                     "template_1": {
                         "match": "*",
                         "match_mapping_type": "string",
                         "mapping": {
-                            "type": "string",
-                            "index": "analyzed",
+                            "type": "text",
+                            "index": True,
+                            "ignore_malformed": True,
                             "fields": {
                                 "raw": {
-                                    "type": "string",
-                                    "index": "not_analyzed"
+                                    "type": "keyword"
                                 }
                             }
                         }
@@ -116,6 +123,9 @@ def create_index(index_name=None, es=None):
             ],
             "properties": {
                 "components": {
+                    "enabled": False
+                },
+                "definitions": {
                     "enabled": False
                 },
                 "~raw": {
@@ -127,7 +137,7 @@ def create_index(index_name=None, es=None):
     mapping = {"mappings": mapping}
     body.update(mapping)
     _es = es or get_es()
-    print(_es.indices.create(index=index_name, body=body))
+    print(_es.indices.create(index=index_name, body=body),end=" ")
 
 
 # def _encode_api_object_id(api_doc):
@@ -172,22 +182,25 @@ class ESQuery():
         #_raw = ""
         if doc_exists:
             if not overwrite:
-                is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
+                is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=[
+                                           "_meta"]).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
                 if not is_archived:
                     return {"success": False, "error": "API exists. Not saved."}
             elif not override_owner:
-                _owner = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
+                _owner = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=[
+                                      "_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
                 if _owner != user_name:
                     return {"success": False, "error": "Cannot overwrite an API that doesn't belong to you"}
             #_raw = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["~raw"]).get('_source', {})['~raw']
         _doc = metadata.convert_es()
         if dryrun:
             return {"success": True, '_id': "this is a dryrun. API is not saved.", "dryrun": True}
-        #if not overwrite_if_identical and decode_raw(_raw, as_string=True) == decode_raw(_doc.get('~raw'), as_string=True):
+        # if not overwrite_if_identical and decode_raw(_raw, as_string=True) == decode_raw(_doc.get('~raw'), as_string=True):
         #    print("No changes in _id {}".format(api_id))
         #    return {"success": True, '_id': "No changes in document."}
         try:
-            self._es.index(index=self._index, doc_type=self._doc_type, body=_doc, id=api_id, refresh=True)
+            self._es.index(index=self._index, doc_type=self._doc_type,
+                           body=_doc, id=api_id, refresh=True)
         except RequestError as e:
             return {"success": False, "error": str(e)}
         return {"success": True, '_id': api_id}
@@ -201,7 +214,8 @@ class ESQuery():
 
     def get_api(self, api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
         if api_name == 'all':
-            query = {'query': {"bool": {"must_not": {"term":{"_meta._archived": "true"}}}}}
+            query = {'query': {"bool": {"must_not": {
+                "term": {"_meta._archived": "true"}}}}}
         else:
             query = {
                 "query": {
@@ -274,14 +288,18 @@ class ESQuery():
                             "queries": [
                                 {
                                     "term": {
-                                        "info.title": q,
-                                        "boost": 2
+                                        "info.title": {
+                                            "value": q,
+                                            "boost": 2.0
+                                        }
                                     }
                                 },
                                 {
                                     "term": {
-                                        "server.url": q,
-                                        "boost": 1.1
+                                        "server.url": {
+                                            "value": q,
+                                            "boost": 1.1
+                                        }
                                     }
                                 },
                                 {
@@ -316,7 +334,7 @@ class ESQuery():
             "query": {
                 "bool": {
                     "must": query["query"],
-                    "must_not": {"term":{"_meta._archived": "true"}}
+                    "must_not": {"term": {"_meta._archived": "true"}}
                 }
             }
         }
@@ -325,7 +343,8 @@ class ESQuery():
             if len(filters) == 1:
                 query["query"]["bool"]["filter"] = {"terms": filters}
             else:
-                query["query"]["bool"]["filter"] = [{"terms": {philter[0]:philter[1]}} for philter in filters.items()]
+                query["query"]["bool"]["filter"] = [
+                    {"terms": {philter[0]:philter[1]}} for philter in filters.items()]
 
         if not fields or fields == 'all':
             pass
@@ -367,7 +386,7 @@ class ESQuery():
         query = {
             "query": {
                 "bool": {
-                    "must_not": {"term":{"_meta._archived": "true"}}
+                    "must_not": {"term": {"_meta._archived": "true"}}
                 }
             },
             "aggs": {
@@ -395,7 +414,8 @@ class ESQuery():
             }
         }
         try:
-            res = self._es.search(index=self._index, doc_type=self._doc_type, body=query, size=1, _source=False)
+            res = self._es.search(
+                index=self._index, doc_type=self._doc_type, body=query, size=1, _source=False)
         except:
             return
         if res.get('hits', {}).get('hits', []):
@@ -415,7 +435,8 @@ class ESQuery():
     def delete_api(self, id):
         """delete a saved API metadata, be careful with the deletion."""
         if ask("Are you sure to delete this API metadata?") == 'Y':
-            print(self._es.delete(index=self._index, doc_type=self._doc_type, id=id))
+            print(self._es.delete(index=self._index,
+                                  doc_type=self._doc_type, id=id))
 
     def archive_api(self, id, user):
         """ function to set an _archive flag for an API, making it
@@ -423,22 +444,24 @@ class ESQuery():
         and a user that must match the APIs creator. """
         # does the api exist?
         try:
-            _doc = self._es.get(index=self._index, doc_type=self._doc_type, id=id)
+            _doc = self._es.get(index=self._index,
+                                doc_type=self._doc_type, id=id)
         except:
             _doc = None
         if not _doc:
             return (404, {"success": False, "error": "Could not retrieve API '{}' to delete".format(id)})
         # is the api unarchived?
-        if _doc.get('_source', {}).get('_meta',{}).get('_archived', False):
+        if _doc.get('_source', {}).get('_meta', {}).get('_archived', False):
             return (405, {"success": False, "error": "API '{}' already deleted".format(id)})
         # is this user the owner of this api?
         _user = user.get('login', None)
-        if _doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
+        if _doc.get('_source', {}).get('_meta', {}).get('github_username', '') != _user:
             return (405, {"success": False, "error": "User '{user}' is not the owner of API '{id}'".format(user=_user, id=id)})
         # do the archive, deregister the slug name
         _doc['_source']['_meta']['_archived'] = 'true'
         _doc['_source']['_meta'].pop('slug', None)
-        self._es.index(index=self._index, doc_type=self._doc_type, id=id, body=_doc['_source'], refresh=True)
+        self._es.index(index=self._index, doc_type=self._doc_type,
+                       id=id, body=_doc['_source'], refresh=True)
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
@@ -472,7 +495,8 @@ class ESQuery():
         alias_d = self._es.indices.get_alias(self._index)
         assert len(alias_d) == 1
         index_name = list(alias_d.keys())[0]
-        outfile = outfile or "{}_backup_{}.json".format(index_name, get_datestamp())
+        outfile = outfile or "{}_backup_{}.json".format(
+            index_name, get_datestamp())
         out_f = open(outfile, 'w')
         doc_li = self.fetch_all(as_list=True)
         json.dump(doc_li, out_f, indent=2)
@@ -484,22 +508,36 @@ class ESQuery():
            must restore to a new index, cannot overwrite an existing one.
         """
         if self._es.indices.exists(index_name):
-            print("Error: index \"{}\" exists. Try a different index_name.".format(index_name))
+            print(
+                "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
             return
-
-        print("Loading docs from \"{}\"...".format(backupfile), end="")
+            
+        print("Loading docs from \"{}\"...".format(backupfile), end=" ")
         in_f = open(backupfile)
         doc_li = json.load(in_f)
         print("Done. [{}]".format(len(doc_li)))
 
-        print("Creating index...", end="")
+        print("Creating index...", end=" ")
         create_index(index_name, es=self._es)
         print("Done.")
 
-        print("Indexing...", end="")
+        print("Indexing...", end=" ")
         for _doc in doc_li:
             _id = _doc.pop('_id')
-            self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
+            
+            # convert saved data to new format
+            _paths = []
+            for path in _doc['paths']:
+                if "swagger" in _doc:
+                    _paths.append({
+                        "path": path,
+                        "pathitem": _doc['paths'][path]
+                    })
+            if _paths:
+                _doc['paths'] = _paths
+
+            self._es.index(index=index_name,
+                           doc_type=self._doc_type, body=_doc, id=_id)
         print("Done.")
 
     def _validate_slug_name(self, slug_name):
@@ -542,7 +580,8 @@ class ESQuery():
         if not self.exists(_id):
             return (404, {"success": False, "error": "Could not retrieve API '{}' to set slug name".format(_id)})
 
-        _user = self._es.get(index=self._index, doc_type=self._doc_type, id=_id, _source=["_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
+        _user = self._es.get(index=self._index, doc_type=self._doc_type, id=_id, _source=[
+                             "_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
 
         # Make sure this is the correct user
         if user.get('login', None) != _user:
@@ -555,7 +594,8 @@ class ESQuery():
             return (405, _resp)
 
         # update the slug name
-        self._es.update(index=self._index, doc_type=self._doc_type, id=_id, body={"doc": {"_meta": {"slug": slug_name.lower()}}}, refresh=True)
+        self._es.update(index=self._index, doc_type=self._doc_type, id=_id, body={
+                        "doc": {"_meta": {"slug": slug_name.lower()}}}, refresh=True)
 
         return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
 
@@ -564,7 +604,8 @@ class ESQuery():
         if not self.exists(_id):
             return (404, {"success": False, "error": "Could not retrieve API '{}' to delete slug name".format(_id)})
 
-        doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id).get('_source', {})
+        doc = self._es.get(index=self._index,
+                           doc_type=self._doc_type, id=_id).get('_source', {})
 
         # Make sure this is the correct user
         if user.get('login', None) != doc.get('_meta', {}).get('github_username', ''):
@@ -577,7 +618,8 @@ class ESQuery():
         # do the delete
         doc['_meta'].pop('slug')
 
-        self._es.index(index=self._index, doc_type=self._doc_type, body=doc, id=_id, refresh=True)
+        self._es.index(index=self._index, doc_type=self._doc_type,
+                       body=doc, id=_id, refresh=True)
 
         return (200, {"success": True, "{}".format(_id): "slug '{}' deleted".format(slug_name)})
 
@@ -585,18 +627,21 @@ class ESQuery():
         ''' refresh one API metadata based on the saved metadata url '''
         print("Refreshing API metadata:")
         try:
-            api_doc = self._es.get(index=self._index, doc_type=self._doc_type, id=_id)
+            api_doc = self._es.get(
+                index=self._index, doc_type=self._doc_type, id=_id)
         except:
             return (404, {"success": False, "error": "Could not retrieve API '{}' to refresh".format(_id)})
         api_doc['_source'].update({'_id': api_doc['_id']})
         _user = user.get('login', None)
-        if api_doc.get('_source',{}).get('_meta', {}).get('github_username', '') != _user:
+        if api_doc.get('_source', {}).get('_meta', {}).get('github_username', '') != _user:
             return (405, {"success": False, "error": "User '{user}' is not the owner of API '{id}'".format(user=_user, id=_id)})
-        status = self._refresh_one(api_doc=api_doc['_source'], user=_user, dryrun=dryrun)
+        status = self._refresh_one(
+            api_doc=api_doc['_source'], user=_user, dryrun=dryrun)
         print("="*25)
         if dryrun:
             print("This is a dryrun! No actual changes have been made.")
-            print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
+            print(
+                "When ready, run it again with \"dryrun=False\" to apply actual changes.")
         else:
             self._es.indices.refresh(index=self._index)
         if status.get('success', False):
@@ -619,7 +664,8 @@ class ESQuery():
             else:
                 _meta['timestamp'] = datetime.now().isoformat()
                 new_api_doc['_meta'] = _meta
-                status = self.save_api(new_api_doc, user_name=user, override_owner=override_owner, overwrite=True, dryrun=dryrun, overwrite_if_identical=overwrite_if_identical, save_v2=True)
+                status = self.save_api(new_api_doc, user_name=user, override_owner=override_owner, overwrite=True,
+                                       dryrun=dryrun, overwrite_if_identical=overwrite_if_identical, save_v2=True)
         else:
             status = {'success': False, 'error': 'Invalid input data.'}
 
@@ -633,7 +679,8 @@ class ESQuery():
             status_li = []
         print("Refreshing API metadata:")
         for api_doc in self.fetch_all(id_list=id_list):
-            status = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True, overwrite_if_identical=overwrite_if_identical, save_v2=True)
+            status = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True,
+                                       overwrite_if_identical=overwrite_if_identical, save_v2=True)
             if status.get('success', False):
                 print("Success.")
                 success_cnt += 1
@@ -641,12 +688,13 @@ class ESQuery():
                 print("Failed.")
             total_cnt += 1
             if return_status:
-                status_li.append((_id, status))
+                status_li.append((api_doc['_id'], status))
         print("="*25)
         print("Successfully refreshed {}/{} API meteadata.".format(success_cnt, total_cnt))
         if dryrun:
             print("This is a dryrun! No actual changes have been made.")
-            print("When ready, run it again with \"dryrun=False\" to apply actual changes.")
+            print(
+                "When ready, run it again with \"dryrun=False\" to apply actual changes.")
         if return_status:
             return status_li
 
@@ -654,11 +702,14 @@ class ESQuery():
         '''refresh API metadata based on the saved metadata urls.'''
         print("Refreshing API metadata:")
         for api_doc in self.fetch_all(id_list=id_list):
+            # print(api_doc.get('paths', {}))
             doc_etag = api_doc.get('_meta', {}).get('ETag', '')
             try:
-                curr_etag = requests.get(api_doc.get('_meta', {}).get('url', '')).headers.get('ETag', 'N').strip('W/"')
+                curr_etag = requests.get(api_doc.get('_meta', {}).get(
+                    'url', '')).headers.get('ETag', 'N').strip('W/"')
             except:
-                print("Error retrieving metadata doc for API {}".format(api_doc.get('_id', '')))
+                print("Error retrieving metadata doc for API {}".format(
+                    api_doc.get('_id', '')))
             if doc_etag != curr_etag:
                 # doc changed...
                 _meta = api_doc['_meta']
@@ -671,7 +722,8 @@ class ESQuery():
                     else:
                         _meta['timestamp'] = datetime.now().isoformat()
                         new_api_doc['_meta'] = _meta
-                        status = self.save_api(new_api_doc, override_owner=True, overwrite=True, dryrun=False, save_v2=True)
+                        status = self.save_api(
+                            new_api_doc, override_owner=True, overwrite=True, dryrun=False, save_v2=True)
                         print("Success: {}".format(status))
                 else:
                     print("Error: {}".format(new_api_doc))

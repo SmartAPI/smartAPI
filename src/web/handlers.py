@@ -47,7 +47,7 @@ class BaseHandler(tornado.web.RequestHandler):
 class MainHandler(BaseHandler):
     def get(self):
         slug = self.request.host.split(".")[0]
-        #print("Host: {} - Slug: {}".format(self.request.host, slug))
+        # print("Host: {} - Slug: {}".format(self.request.host, slug))
         if slug.lower() not in ['www', 'dev', 'smart-api']:
             # try to get a registered subdomain/tag
             esq = ESQuery()
