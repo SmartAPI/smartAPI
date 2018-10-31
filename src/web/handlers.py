@@ -55,7 +55,7 @@ class MainHandler(BaseHandler):
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)
-                swagger_output = swagger_template.render(apiID = api_id)
+                swagger_output = swagger_template.render(apiID=api_id)
                 self.write(swagger_output)
                 return
         index_file = "index.html"
@@ -155,17 +155,21 @@ class RegistryHandler(BaseHandler):
         reg_template = templateEnv.get_template(template_file)
         if tag:
             if tag.lower() in AVAILABLE_TAGS:
-                #print("tags: {}".format([tag.lower()]))
-                reg_output = reg_template.render(Context=json.dumps({"Tags": [tag.lower()], "Special": True}))
+                # print("tags: {}".format([tag.lower()]))
+                reg_output = reg_template.render(Context=json.dumps(
+                    {"Tags": [tag.lower()], "Special": True}))
             else:
                 raise tornado.web.HTTPError(404)
         elif self.get_argument('tags', False):
-            tags = [x.strip().lower() for x in self.get_argument('tags').split(',')]
-            #print("tags: {}".format(tags))
-            reg_output = reg_template.render(Context=json.dumps({"Tags": tags, "Special": False}))
+            tags = [x.strip().lower()
+                    for x in self.get_argument('tags').split(',')]
+            # print("tags: {}".format(tags))
+            reg_output = reg_template.render(
+                Context=json.dumps({"Tags": tags, "Special": False}))
         else:
             reg_output = reg_template.render(Context=json.dumps({}))
         self.write(reg_output)
+
 
 class DocumentationHandler(BaseHandler):
     def get(self):
@@ -174,12 +178,14 @@ class DocumentationHandler(BaseHandler):
         documentation_output = documentation_template.render()
         self.write(documentation_output)
 
+
 class DashboardHandler(BaseHandler):
     def get(self):
         doc_file = "dashboard.html"
         dashboard_template = templateEnv.get_template(doc_file)
         dashboard_output = dashboard_template.render()
         self.write(dashboard_output)
+
 
 class SwaggerUIHandler(BaseHandler):
     def get(self, yourApiID=None):
@@ -192,8 +198,9 @@ class SwaggerUIHandler(BaseHandler):
             return
         swaggerUI_file = "smartapi-ui.html"
         swagger_template = templateEnv.get_template(swaggerUI_file)
-        swagger_output = swagger_template.render(apiID = yourApiID )
+        swagger_output = swagger_template.render(apiID=yourApiID)
         self.write(swagger_output)
+
 
 class BrandingHandler(BaseHandler):
     def get(self):
@@ -202,12 +209,14 @@ class BrandingHandler(BaseHandler):
         branding_output = branding_template.render()
         self.write(branding_output)
 
+
 class GuideHandler(BaseHandler):
     def get(self):
         doc_file = "guide.html"
         guide_template = templateEnv.get_template(doc_file)
         guide_output = guide_template.render()
         self.write(guide_output)
+
 
 class APIEditorHandler(BaseHandler):
     def get(self, yourApiID=None):
@@ -219,13 +228,16 @@ class APIEditorHandler(BaseHandler):
                 # raise tornado.web.HTTPError(404)
                 swaggerEditor_file = "editor.html"
                 swagger_template = templateEnv.get_template(swaggerEditor_file)
-                swagger_output = swagger_template.render(Context=json.dumps({"Id": '', "Data": False}) )
+                swagger_output = swagger_template.render(
+                    Context=json.dumps({"Id": '', "Data": False}))
                 self.write(swagger_output)
             return
         swaggerEditor_file = "editor.html"
         swagger_template = templateEnv.get_template(swaggerEditor_file)
-        swagger_output = swagger_template.render(Context=json.dumps({"Id": yourApiID, "Data": True}) )
+        swagger_output = swagger_template.render(
+            Context=json.dumps({"Id": yourApiID, "Data": True}))
         self.write(swagger_output)
+
 
 class AboutHandler(BaseHandler):
     def get(self):

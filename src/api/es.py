@@ -137,7 +137,7 @@ def create_index(index_name=None, es=None):
     mapping = {"mappings": mapping}
     body.update(mapping)
     _es = es or get_es()
-    print(_es.indices.create(index=index_name, body=body),end=" ")
+    print(_es.indices.create(index=index_name, body=body), end=" ")
 
 
 # def _encode_api_object_id(api_doc):
@@ -179,7 +179,7 @@ class ESQuery():
 
         api_id = metadata.encode_api_id()
         doc_exists = self.exists(api_id)
-        #_raw = ""
+        # _raw = ""
         if doc_exists:
             if not overwrite:
                 is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=[
@@ -511,7 +511,7 @@ class ESQuery():
             print(
                 "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
             return
-            
+
         print("Loading docs from \"{}\"...".format(backupfile), end=" ")
         in_f = open(backupfile)
         doc_li = json.load(in_f)
@@ -524,7 +524,7 @@ class ESQuery():
         print("Indexing...", end=" ")
         for _doc in doc_li:
             _id = _doc.pop('_id')
-            
+
             # convert saved data to new format
             _paths = []
             for path in _doc['paths']:

@@ -25,7 +25,7 @@ define("address", default="127.0.0.1", help="run on localhost")
 define("debug", default=False, type=bool, help="run in debug mode")
 tornado.options.parse_command_line()
 if options.debug:
-    import tornado.autoreload
+    import tornado.autoreload  # pylint: disable=C0412
     import logging
     logging.getLogger().setLevel(logging.DEBUG)
     options.address = '0.0.0.0'
@@ -36,7 +36,7 @@ def get_json(filename):
         return json.load(f)
 
 
-def add_apps(prefix='', app_list=[]):
+def add_apps(prefix='', app_list=None):
     '''
     Add prefix to each url handler specified in app_list.
     add_apps('test', [('/', testhandler,
@@ -45,6 +45,8 @@ def add_apps(prefix='', app_list=[]):
                      [('/test/', testhandler,
                       ('/test/test2', test2handler)])
     '''
+    if not app_list:
+        app_list = []
     if prefix:
         return [('/'+prefix+url, handler) for url, handler in app_list]
     else:
@@ -72,7 +74,8 @@ if options.debug:
 def main():
     # required for proper github oauth authentication
     # ref: https://github.com/jkeylu/torngithub
-    tornado.httpclient.AsyncHTTPClient.configure("tornado.curl_httpclient.CurlAsyncHTTPClient")
+    tornado.httpclient.AsyncHTTPClient.configure(
+        "tornado.curl_httpclient.CurlAsyncHTTPClient")
 
     application = tornado.web.Application(APP_LIST, **settings)
     http_server = tornado.httpserver.HTTPServer(application)
@@ -80,7 +83,8 @@ def main():
     loop = tornado.ioloop.IOLoop.instance()
     if options.debug:
         # tornado.autoreload.start(loop)
-        logging.info('Server is running on "%s:%s"...' % (options.address, options.port))
+        logging.info('Server is running on "%s:%s"...',
+                     options.address, options.port)
     loop.start()
 
 
