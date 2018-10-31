@@ -19,12 +19,12 @@
   }
 
   .noPadding{
-    padding: 0px;
+    padding: 0px !important;
   }
 
   .whiteFadeBox{
     width: 100%;
-    height: 50%;
+    height: 30%;
     position: absolute;
     bottom: 0;
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+100 */
@@ -43,6 +43,43 @@
     cursor: pointer;
   }
 
+  .max-height-none{
+    max-height: none !important;
+    overflow: auto;
+  }
+
+  .max-height-200{
+    max-height: 200px !important;
+    overflow: hidden;
+  }
+
+  .expandButtonMore{
+    margin:auto;
+    transform: scale(.7);
+    border-radius: 20px;
+    transition: opacity .5s;
+    opacity: 0;
+  }
+
+  .expandContainer{
+    position: relative;
+  }
+
+  .expandContainer:hover a.expandButtonMore{
+    opacity: 1;
+  }
+
+  .expandContainer:hover a.expandButtonLess{
+    opacity: 1;
+  }
+
+  .expandButtonLess{
+    margin:auto;
+    transform: scale(.7);
+    border-radius: 20px;
+    transition: opacity .5s;
+    opacity: 0;
+  }
 
 </style>
   {% raw %}
@@ -102,7 +139,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton"><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
+                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton" ><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
                         </div>
                       </template>
 
@@ -155,12 +192,14 @@
                                     My&nbsp;API
                                   </a>
                                 </span>
-                                <br />
-                                <br />
-                                <a :class="{ descriptionContainer : api.info.description && api.info.description.length > 500 }" @click.prevent="api.showP = !api.showP; handleDescriptionClick($event, api.showP)" style="position:relative; display:block;">
-                                  <div style="pointer-events: none;" class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></div>
-                                  <div style="pointer-events: none;" class="whiteFadeBox center" v-if="api.info.description && api.info.description.length> 500"></div>
-                                </a>
+                                <!-- <br /> -->
+                                <!-- <br /> -->
+                                <template v-if="api.info.description && api.info.description.length > 500">
+                                  <description :text='api.info.description'></description>
+                                </template>
+                                <template v-else>
+                                  <div class="blue-grey-text flow-text" v-html="compiledMarkdown(api.info.description || '')"></div>
+                                </template>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
@@ -290,6 +329,48 @@
     <script>
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
+
+            Vue.component('description', {
+              data: function(){
+                return{
+                  result:null,
+                  fullTXT:false
+                }
+              },
+              props: ['text'],
+              methods:{
+                compileMDWN: function(mdtext){
+                  this.result = marked(mdtext, { sanitize: true });
+                  return this.result;
+                }
+              },
+              mounted: function(){
+                this.compileMDWN(this.text)
+              },
+              template: `<div>
+                          <div class="expandContainer" v-bind:class="{'max-height-none' : fullTXT, 'max-height-200': !fullTXT}">
+
+                            <div class="center">
+
+                              <a class="btn grey lighten-1 expandButtonLess" v-if="fullTXT" @click.prevent="fullTXT = !fullTXT;">
+                                Collapse
+                              </a>
+                            </div>
+
+                            <div class="blue-grey-text flow-text" v-html="result"></div>
+
+                            <div class="center">
+                              <a class="btn grey lighten-1 expandButtonLess" v-if="fullTXT" @click.prevent="fullTXT = !fullTXT;">
+                                Collapse
+                              </a>
+                            </div>
+
+                            <div v-if="!fullTXT" class="whiteFadeBox center">
+                              <a class="btn grey lighten-1 expandButtonMore" v-if="!fullTXT" @click.prevent="fullTXT = !fullTXT;">Click to expand</a>
+                            </div>
+                          </div>
+                        </div>`
+            })
 
         var app = new Vue({
             el: '#app',
@@ -435,6 +516,7 @@
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
                         self.apis = _.sortBy(response.data.hits,'info.title');
+                        self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
                     });
@@ -471,7 +553,6 @@
                         // return filters;
                     this.authors.forEach(function(item){
                       if (item.active){
-                        console.log(item.name)
                         authorFilters.push(item.name);
                       }
                       });
@@ -507,7 +588,6 @@
                     if (item.active)
                         filters.push(item.name);
                     });
-                  console.log(filters.length);
                   if (filters.length > 0) {
                     finalFilters = filters.join(',')
                     finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
@@ -607,7 +687,7 @@
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
-                        if (rTags[i] === self.tags[x].name) {
+                        if (rTags[i].toLowerCase() === self.tags[x].name.toLowerCase()) {
                           self.tags[x].active = true;
                         }
                       }
