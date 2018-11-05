@@ -131,7 +131,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton"><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
+                            <button @click.prevent='' title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="btn-small grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton"><small><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</small></button>
                         </div>
                       </template>
                       <template v-else>
@@ -139,7 +139,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton" ><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
+                            <button @click.prevent='' title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="btn-small grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" ><small><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</small></button>
                         </div>
                       </template>
 
