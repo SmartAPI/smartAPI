@@ -163,7 +163,7 @@
                     <div class="col s12">
                         <div class="blue-grey-text">
                           Total APIs: <span class="blue-text">{{total}}</span>
-                          <span style="float: right">Sorted <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span>
+                          <span style="float: right">Sort: <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span>
                         </div>
                         <template v-if="total === 0">
                           <div class="card">
@@ -515,7 +515,7 @@
                     self.loading_start();
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
-                        self.apis = _.sortBy(response.data.hits,'info.title');
+                        // self.apis = _.sortBy(response.data.hits,'info.title');
                         self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
@@ -602,6 +602,9 @@
                     }
                   }
                   this.shareURL =finalURL;
+                  //change url on toolbar
+                  window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
+                  //end
                   this.shareURLButtonVisible = true;
                 },
                 search: function (query) {
