@@ -7,3 +7,7 @@ torngithub==0.2.0
 Jinja2>=2.9.6
 pycurl>=7.19
 PyYAML>=3.12
+
+# for nosetests
+nose>=1.3.0
+httplib2>=0.8
