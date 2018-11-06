@@ -153,16 +153,33 @@ class RegistryHandler(BaseHandler):
     def get(self, tag=None):
         template_file = "registry.html"
         reg_template = templateEnv.get_template(template_file)
+        # author filter parsing
+        if self.get_argument('owners', False):
+            owners = [x.strip().lower()
+                      for x in self.get_argument('owners').split(',')]
+        else:
+            owners = []
+        # special url tag
         if tag:
             if tag.lower() in AVAILABLE_TAGS:
-                #print("tags: {}".format([tag.lower()]))
-                reg_output = reg_template.render(Context=json.dumps({"Tags": [tag.lower()], "Special": True}))
+                # print("tags: {}".format([tag.lower()]))
+                reg_output = reg_template.render(Context=json.dumps(
+                    {"Tags": [tag.lower()],
+                     "Special": True,
+                     "Owners": owners}))
             else:
                 raise tornado.web.HTTPError(404)
-        elif self.get_argument('tags', False):
-            tags = [x.strip().lower() for x in self.get_argument('tags').split(',')]
-            #print("tags: {}".format(tags))
-            reg_output = reg_template.render(Context=json.dumps({"Tags": tags, "Special": False}))
+        # typical query filter tags
+        elif self.get_argument('tags', False) or \
+                self.get_argument('authors', False):
+            tags = [x.strip().lower()
+                    for x in self.get_argument('tags', "").split(',')]
+            # print("tags: {}".format(tags))
+            reg_output = reg_template.render(
+                Context=json.dumps(
+                    {"Tags": tags,
+                     "Special": False,
+                     "Owners": owners}))
         else:
             reg_output = reg_template.render(Context=json.dumps({}))
         self.write(reg_output)
