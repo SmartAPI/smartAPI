@@ -582,12 +582,20 @@
                 },
                 buildShareURL: function(q){
                   var filters = [];
+                  var authorFilters = [];
                   var finalFilters = '';
                   var finalURL = window.location.origin+window.location.pathname;
                   this.tags.forEach(function(item){
                     if (item.active)
                         filters.push(item.name);
                     });
+                    // authors
+                  this.authors.forEach(function(item){
+                    if (item.active){
+                      authorFilters.push(item.name);
+                    }
+                  });
+                  // authors end
                   if (q !== '__all__') {
                     if (filters.length > 0) {
                       finalFilters = filters.join(',')
@@ -698,6 +706,7 @@
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
                         if (rTags[i].toLowerCase() === self.tags[x].name.toLowerCase()) {
+                          console.log('TAGE NAME ',self.tags[x].name)
                           self.tags[x].active = true;
                         }
                       }
