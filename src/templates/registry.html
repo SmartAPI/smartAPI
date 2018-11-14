@@ -167,9 +167,10 @@
                         </div>
                         <template v-if="total === 0">
                           <div class="card">
-                            <div class="card-content center ">
-                              <img src="/static/img/api-fail.svg" width="150px"/>
-                              <h5 class="blue-text">Your Search Returned No Results</h5>
+                            <div class="card-content center">
+                              <!-- <img src="/static/img/api-fail.svg" width="150px"/> -->
+                              <i class="fa fa-exclamation-circle fa-2x grey-text" aria-hidden="true"></i>
+                              <h5 class="grey-text">Your Search Returned No Results</h5>
                             </div>
                           </div>
                         </template>
@@ -515,9 +516,9 @@
                     self.loading_start();
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
-                        // self.apis = _.sortBy(response.data.hits,'info.title');
                         self.apis = response.data.hits;
                         self.total = response.data.total;
+                        self.handleContext(self.context);
                         self.calculatePages();
                     });
                 },
@@ -584,35 +585,74 @@
                   var filters = [];
                   var authorFilters = [];
                   var finalFilters = '';
+                  var finalAuthorFilters ='';
                   var finalURL = window.location.origin+window.location.pathname;
+                  // Collect TAGS
                   this.tags.forEach(function(item){
                     if (item.active)
                         filters.push(item.name);
                     });
-                    // authors
+                  // Collect Owners
                   this.authors.forEach(function(item){
                     if (item.active){
                       authorFilters.push(item.name);
                     }
                   });
-                  // authors end
+                  //Detect QUERY
                   if (q !== '__all__') {
-                    if (filters.length > 0) {
-                      finalFilters = filters.join(',')
-                      finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
-                    }else{
-                      finalURL = finalURL+'?q='+q;
-                    }
-                  }else{
-                    if (filters.length > 0) {
-                      finalFilters = filters.join(',')
-                      finalURL = finalURL+"?tags="+finalFilters;
-                    }
+                    finalURL = finalURL+'?q='+q+"&";
                   }
+                  else{
+                    finalURL = finalURL+"?";
+                  }
+                  // if BOTH filters exists
+                  if (filters.length && authorFilters.length) {
+                    finalFilters = filters.join(',')
+                    finalURL = finalURL+"tags="+finalFilters;
+
+                    finalAuthorFilters = authorFilters.join(',')
+                    finalURL = finalURL+"&owners="+finalAuthorFilters;
+                  }
+                  // if Owners Exist but no Tags
+                  else if (!filters.length && authorFilters.length) {
+                    finalAuthorFilters = authorFilters.join(',')
+                    finalURL = finalURL+"owners="+finalAuthorFilters;
+                  }
+                  // if Tags exists but no owners
+                  else if (filters.length && !authorFilters.length) {
+                    finalFilters = filters.join(',')
+                    finalURL = finalURL+"tags="+finalFilters;
+                  }
+
+
+
+
+
+                  // if (q !== '__all__') {
+                  //   if (filters.length > 0) {
+                  //     finalFilters = filters.join(',')
+                  //     finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
+                  //   }else{
+                  //     finalURL = finalURL+'?q='+q;
+                  //   }
+                  // }else{
+                  //   if (filters.length > 0) {
+                  //     finalFilters = filters.join(',')
+                  //     finalURL = finalURL+"?tags="+finalFilters;
+                  //   }
+                  // }
+                  //
+                  // if (filters.length > 0 && authorFilters.length > 0) {
+                  //   finalAuthorFilters = authorFilters.join(',')
+                  //   finalURL = finalURL+"&owners="+finalAuthorFilters;
+                  // }else if (!filters.length && authorFilters.length > 0){
+                  //   finalAuthorFilters = authorFilters.join(',')
+                  //   finalURL = finalURL+"?owners="+finalAuthorFilters;
+                  // }
+
                   this.shareURL =finalURL;
-                  //change url on toolbar
+                  //HTML5 change url history
                   window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
-                  //end
                   this.shareURLButtonVisible = true;
                 },
                 search: function (query) {
@@ -701,22 +741,40 @@
                   })
                 },
                 handleRegularTags: function(rTags){
+                  console.log("TAGS is happening");
                   var self = this;
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.tags.length; x++) {
                         if (rTags[i].toLowerCase() === self.tags[x].name.toLowerCase()) {
-                          console.log('TAGE NAME ',self.tags[x].name)
                           self.tags[x].active = true;
                         }
                       }
                     }
                 },
+                handleOwnerTags: function(rTags){
+                  console.log("OWNERS is happening");
+                  var self = this;
+                    self.specialUI = false;
+                    for (var i = 0; i < rTags.length; i++) {
+                      for (var x = 0; x < self.authors.length; x++) {
+                        if (rTags[i].toLowerCase() === self.authors[x].name.toLowerCase()) {
+                          console.log('TAG ',self.authors[x].name);
+                          self.authors[x].active = true;
+                        }
+                      }
+                    }
+                },
                 handleContext: function(context){
+                  console.log(context);
                   if (context.Special) {
                     this.handleSpecialTags(this.context.Tags[0]);
-                  }else if (!context.Special && context.Tags) {
+                  }
+                  if (!context.Special && !_.isEmpty(context.Tags)) {
                     this.handleRegularTags(this.context.Tags);
+                  }
+                  if (!context.Special &&  !_.isEmpty(context.Owners)) {
+                    this.handleOwnerTags(this.context.Owners);
                   }
                 },
                 handleSpecialTags: function(tagname){
