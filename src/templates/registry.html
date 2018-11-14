@@ -741,7 +741,6 @@
                   })
                 },
                 handleRegularTags: function(rTags){
-                  console.log("TAGS is happening");
                   var self = this;
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
@@ -753,20 +752,18 @@
                     }
                 },
                 handleOwnerTags: function(rTags){
-                  console.log("OWNERS is happening");
                   var self = this;
                     self.specialUI = false;
                     for (var i = 0; i < rTags.length; i++) {
                       for (var x = 0; x < self.authors.length; x++) {
                         if (rTags[i].toLowerCase() === self.authors[x].name.toLowerCase()) {
-                          console.log('TAG ',self.authors[x].name);
                           self.authors[x].active = true;
                         }
                       }
                     }
                 },
                 handleContext: function(context){
-                  console.log(context);
+                  // console.log(context);
                   if (context.Special) {
                     this.handleSpecialTags(this.context.Tags[0]);
                   }
