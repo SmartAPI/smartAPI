@@ -491,17 +491,15 @@
                 },
                 refreshApis: function(){
 
+                  console.log('REFRESH')
+
                     var self = this;
-                    self.context= {{Context}};
-                    if (self.context.Special) {
-                      self.handleSpecialTags(self.context.Tags[0]);
-                    }else if(!self.context.Special && self.context.Tags ) {
-                      self.handleRegularTags(self.context.Tags);
-                    }
+                    // self.context= {{Context}};
+                    self.handleContext(self.context);
                     //check for existing query in url string
-                    this.checkforQuery();
-                    let query = this.query;
-                    if(!this.query){
+                    self.checkforQuery();
+                    let query = self.query;
+                    if(!self.query){
                       query="__all__"
                     }
                     var params = {
@@ -510,7 +508,7 @@
                             'fields': 'info,_meta,paths,tags,openapi,swagger'
                         }
                     }
-                    var filters = this.getQueryFilters();
+                    var filters = self.getQueryFilters();
                     if (filters)
                         params["params"]["filters"] = filters;
                     self.loading_start();
@@ -518,26 +516,25 @@
                         self.loading_end();
                         self.apis = response.data.hits;
                         self.total = response.data.total;
-                        self.handleContext(self.context);
+                        // self.handleContext(self.context);
                         self.calculatePages();
                     });
                 },
-                refreshTags: function (){
+                loadFilters: function (){
                     var self = this;
                     axios.get('/api/suggestion?field=tags.name').then(function(response){
                         self.tags = _.map(response.data.field_values.buckets, function(item){
                             return {'name':item.key, 'count': item.doc_count, 'active': false};
                         });
-                        self.refreshApis();
-                    });
-                },
-                getAuthors: function (){
-                    var self = this;
-                    axios.get('/api/suggestion?field=info.contact.name').then(function(response){
-                        self.authors = _.map(response.data.field_values.buckets, function(item){
-                            return {'name':item.key, 'count': item.doc_count, 'active': false};
+                        axios.get('/api/suggestion?field=info.contact.name').then(function(response){
+                            self.authors = _.map(response.data.field_values.buckets, function(item){
+                                return {'name':item.key, 'count': item.doc_count, 'active': false};
+                            });
+                            //When all filters all loaded
+                            //share url params depend on filters being loaded
+                            self.refreshApis();
                         });
-                        // self.refreshApis();
+
                     });
                 },
                 getQueryFilters: function(){
@@ -548,21 +545,19 @@
                       if (item.active)
                           filters.push(item.name);
                       });
-                    if (filters.length > 0)
-                        // filters = {'tags.name.raw': filters};
-                        finalFilters['tags.name.raw'] = filters;
-                        // return filters;
+                    if (filters.length > 0){
+                      finalFilters['tags.name.raw'] = filters;
+                    }
+
                     this.authors.forEach(function(item){
                       if (item.active){
                         authorFilters.push(item.name);
                       }
                       });
-                    if (authorFilters.length > 0){
+                    if (authorFilters.length){
                       finalFilters['info.contact.name.raw'] = authorFilters;
-                      return finalFilters;
                     }
 
-                    // return filters;
                     return finalFilters;
                 },
                 clear_form: function(){
@@ -624,32 +619,6 @@
                     finalURL = finalURL+"tags="+finalFilters;
                   }
 
-
-
-
-
-                  // if (q !== '__all__') {
-                  //   if (filters.length > 0) {
-                  //     finalFilters = filters.join(',')
-                  //     finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
-                  //   }else{
-                  //     finalURL = finalURL+'?q='+q;
-                  //   }
-                  // }else{
-                  //   if (filters.length > 0) {
-                  //     finalFilters = filters.join(',')
-                  //     finalURL = finalURL+"?tags="+finalFilters;
-                  //   }
-                  // }
-                  //
-                  // if (filters.length > 0 && authorFilters.length > 0) {
-                  //   finalAuthorFilters = authorFilters.join(',')
-                  //   finalURL = finalURL+"&owners="+finalAuthorFilters;
-                  // }else if (!filters.length && authorFilters.length > 0){
-                  //   finalAuthorFilters = authorFilters.join(',')
-                  //   finalURL = finalURL+"?owners="+finalAuthorFilters;
-                  // }
-
                   this.shareURL =finalURL;
                   //HTML5 change url history
                   window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
@@ -659,12 +628,10 @@
                     var self = this;
                     self.context= {{Context}};
                     if (!self.context.Special && !query){
-                      // console.log(self.context.Special)
                       query = $('#search_query').val();
                       query = query || "__all__";
                     }
                     else if (self.context.Special && !query) {
-                      // console.log(self.context.Special)
                       query = query || "__all__";
                       self.handleSpecialTags(self.context.Tags[0]);
                     }
@@ -763,7 +730,7 @@
                     }
                 },
                 handleContext: function(context){
-                  // console.log(context);
+                  console.log(context);
                   if (context.Special) {
                     this.handleSpecialTags(this.context.Tags[0]);
                   }
@@ -813,8 +780,7 @@
                 this.getUserInfo();
                 $(".button-collapse").sideNav();
                 $('.collapsible').collapsible();
-                this.refreshTags();
-                this.getAuthors();
+                this.loadFilters();
                 this.context = {{Context}};
 
             },
