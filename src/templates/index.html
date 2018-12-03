@@ -4,7 +4,7 @@
 <style>
   p.blue-grey-text{
     font-size: 1.3em;
-    font-weight: lighter;
+    /* font-weight: lighter; */
   }
 </style>
 <main>
@@ -195,6 +195,7 @@
 <script src="/static/js/snap-svg-min.js"></script>
 <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
 <script src="/static/js/aniTest2.js"></script>
+<script src="https://unpkg.com/sweetalert2@7.22.0/dist/sweetalert2.all.js"></script>
 <script type="text/javascript">
 
 var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
@@ -413,24 +414,22 @@ function handleComplete(evt,comp) {
       }
     });
 
+    // Cookie Law Notification
 
-    // var options = [
-    // {selector: '#tracker', offset: 100, callback: function(){
-    //     $('#intro1').fadeIn(5000);
-    //     // Duration is in frames - Vivus
-    //     // new Vivus('netSVG', {duration: 200},);
-    // } },
-    // {selector: '#tracker', offset: 150, callback: function(){
-    //     $('#topicsBox').slideDown('slow');
-    // } },
-    // {selector: '#tracker', offset: 200, callback: function(){
-    //     $('#intro2').slideDown('slow');
-    // } },
-    // {selector: '#tracker', offset: 250, callback: function(){
-    //     $('#intro3').slideDown('slow');
-    // } }
-    //   ];
-    //   Materialize.scrollFire(options);
+    if(!localStorage.getItem("DontShowCookies")) {
+      swal({
+            toast: true,
+            width: '90vw',
+            position: 'top',
+            showConfirmButton: false,
+            html:'<p>This website uses cookies for analytics purposes. By continuining to use this website you are giving consent to cookies being used.</p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
+          });
+    }
+    $(document).on("click", "#cookieButton", function() {
+        localStorage.setItem("DontShowCookies", "true");
+        swal.close();
+    });
+
 
 </script>
 
