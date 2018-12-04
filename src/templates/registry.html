@@ -4,108 +4,7 @@
 {% block content %}
 {% include "header.html" %}
 <style>
-  .collection a.collection-item{
-    color: var(--blue-medium);
-  }
-  mark{
-    background: transparent;
-    color: red;
-    font-weight: bold;
-  }
-
-  .disable {
-    pointer-events: none;
-    cursor: not-allowed;
-  }
-
-  .noPadding{
-    padding: 0px !important;
-  }
-
-  .whiteFadeBox{
-    width: 100%;
-    height: 30%;
-    position: absolute;
-    bottom: 0;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+100 */
-  background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
-  }
-
-  .descriptionContainer{
-    max-height: 200px;
-    overflow: hidden;
-  }
-
-  .descriptionContainer:hover{
-    cursor: pointer;
-  }
-
-  .max-height-none{
-    max-height: none !important;
-    overflow: auto;
-  }
-
-  .max-height-200{
-    max-height: 200px !important;
-    overflow: hidden;
-  }
-
-  .expandButtonMore{
-    margin:auto;
-    transform: scale(.7);
-    border-radius: 20px;
-    transition: opacity .5s;
-    opacity: 0;
-  }
-
-  .expandContainer{
-    position: relative;
-  }
-
-  .expandContainer:hover a.expandButtonMore{
-    opacity: 1;
-  }
-
-  .expandContainer:hover a.expandButtonLess{
-    opacity: 1;
-  }
-
-  .expandButtonLess{
-    margin:auto;
-    transform: scale(.7);
-    border-radius: 20px;
-    transition: opacity .5s;
-    opacity: 0;
-  }
-
-  .tablePillRow{
-    margin-bottom: 3px;
-
-  }
-
-  .tablePillRow td:first-child{
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    text-align: center;
-    font-weight: bold;
-  }
-
-  .tablePillRow td:last-child{
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-    text-align: center;
-  }
-
-  .pillTable{
-    margin: auto;
-    max-width: 60vw;
-    min-width: 60%;
-    border-collapse:separate;
-    border-spacing:0em .5em;
-  }
+/* Test CSS */
 
 </style>
   {% raw %}
@@ -184,14 +83,6 @@
                 <div class="row search-results">
                     <div class="col s12">
                         <div class="blue-grey-text">
-                          <!-- Total APIs: <span class="blue-text">{{total}}</span> -->
-                          <!-- <span style="float: right">Sort: <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span> -->
-                           <!-- <select class="browser-default">
-                             <option value="" disabled selected>Sort By</option>
-                             <option value="1">Option 1</option>
-                             <option value="2">Option 2</option>
-                             <option value="3">Option 3</option>
-                           </select> -->
                            <div class="row">
                              <div class="col s5 m10">
                                Total APIs: <span class="blue-text">{{total}}</span>
@@ -339,12 +230,21 @@
                                 <table v-if=" api.hasOwnProperty('openapi') " class="bordered grey lighten-5" style="margin: 20px 0px;">
                                   <col width="30%">
                                   <col width="70%">
-                                    <tr v-for="(summary, operation) in getOperations(api)">
+                                    <!-- <tr v-for="(summary, operation) in getOperations(api)">
                                       <td :class="operationStyling(operation)">
                                         <span >{{operation}}</span>
                                       </td>
                                       <td class="blue-grey-text">
                                         {{summary}}
+                                      </td>
+                                    </tr> -->
+
+                                    <tr v-for="operation in getOperations(api)">
+                                      <td style="white-space: pre-wrap; word-break: break-word;">
+                                        <span class="versionBadge" :class="operationStyling(operation.method)">{{operation.method}}</span><span class="blue-text bold">{{operation.path}}</span>
+                                      </td>
+                                      <td class="blue-grey-text">
+                                        {{operation.summary}}
                                       </td>
                                     </tr>
                                 </table>
@@ -747,26 +647,40 @@
                   this.$set(api, 'showDetails', !api.showDetails);
                 },
                 getOperations: function (api, raw=false) {
-                    var operations = {};
+                    var operations = [];
                     if (raw) {
                         for(var path in api.paths) {
                             for(var method in api.paths[path]) {
-                                operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
+                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path })
                             }
                         }
                     }else{
                         api.paths.forEach(function(path){
                             for(var method in path['pathitem']) {
-                                operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
+                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path.path })
                             }
                         })
                     }
+                    //IF we want to order by method
+                    // operations = _.orderBy(operations,['method']);
                     return operations;
                 },
-                // sortApisByName: function(){
-                //   var self = this;
-                //   $(".context").unmark();
-                //   self.sortASC = !self.sortASC;
+                // getOperations: function (api, raw=false) {
+                //     var operations = {};
+                //     if (raw) {
+                //         for(var path in api.paths) {
+                //             for(var method in api.paths[path]) {
+                //                 operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
+                //             }
+                //         }
+                //     }else{
+                //         api.paths.forEach(function(path){
+                //             for(var method in path['pathitem']) {
+                //                 operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
+                //             }
+                //         })
+                //     }
+                //     return operations;
                 // },
                 getUserInfo: function(){
                   var self= this;
@@ -868,16 +782,6 @@
                 }
             },
             watch:{
-              // sortASC: function(sort){
-              //   var self = this;
-              //   if (!sort) {
-              //     self.apis = _.sortBy(self.apis,'info.title');
-              //     $("#sortName").text('A-Z');
-              //   }else if (sort){
-              //     self.apis = _.sortBy(self.apis,'info.title').reverse();
-              //     $("#sortName").text('Z-A');
-              //   }
-              // },
               sort: function(sort){
                 var self = this;
                 switch (sort) {
