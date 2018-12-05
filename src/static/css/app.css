@@ -923,10 +923,10 @@ mark{
   }
 
   .smallButton{
-    padding:4px !important;
+    padding:2px 9px !important;
     font-size: 12px !important;
-    border-radius: 2px !important;
-    border: none !important;
+    border-radius: 20px !important;
+    border: none;
     cursor: pointer !important;
     background-color: rgb(209, 209, 209) !important;
     color: grey !important;
@@ -934,10 +934,10 @@ mark{
   }
 
   .smallButton:hover{
-    padding:4px !important;
+    padding:2px 9px !important;
     font-size: 12px !important;
-    border-radius: 2px !important;
-    border: none !important;
+    border-radius: 20px !important;
+    border: none;
     cursor: pointer !important;
     background-color: rgb(121, 121, 121) !important;
     color: white !important;
@@ -1097,14 +1097,6 @@ mark{
 
   }
 
-  .tablePillRow:hover td:first-child{
-    background: var(--blue-medium) !important;
-  }
-
-  .tablePillRow:last-child:hover td:first-child{
-    background: lightgrey !important;
-  }
-
   .tablePillRow td:first-child{
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
@@ -1130,5 +1122,31 @@ mark{
   .pillTable tr td{
     padding: 5px 5px;
   }
+
+  .tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: none !important;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: var(--blue-medium);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s linear 900ms, opacity 300ms;
+}
 
 /*MARCO CANO end*/
