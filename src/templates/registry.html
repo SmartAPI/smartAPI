@@ -4,82 +4,7 @@
 {% block content %}
 {% include "header.html" %}
 <style>
-  .collection a.collection-item{
-    color: var(--blue-medium);
-  }
-  mark{
-    background: transparent;
-    color: red;
-    font-weight: bold;
-  }
-
-  .disable {
-    pointer-events: none;
-    cursor: not-allowed;
-  }
-
-  .noPadding{
-    padding: 0px !important;
-  }
-
-  .whiteFadeBox{
-    width: 100%;
-    height: 30%;
-    position: absolute;
-    bottom: 0;
-    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+0,1+100 */
-  background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
-  }
-
-  .descriptionContainer{
-    max-height: 200px;
-    overflow: hidden;
-  }
-
-  .descriptionContainer:hover{
-    cursor: pointer;
-  }
-
-  .max-height-none{
-    max-height: none !important;
-    overflow: auto;
-  }
-
-  .max-height-200{
-    max-height: 200px !important;
-    overflow: hidden;
-  }
-
-  .expandButtonMore{
-    margin:auto;
-    transform: scale(.7);
-    border-radius: 20px;
-    transition: opacity .5s;
-    opacity: 0;
-  }
-
-  .expandContainer{
-    position: relative;
-  }
-
-  .expandContainer:hover a.expandButtonMore{
-    opacity: 1;
-  }
-
-  .expandContainer:hover a.expandButtonLess{
-    opacity: 1;
-  }
-
-  .expandButtonLess{
-    margin:auto;
-    transform: scale(.7);
-    border-radius: 20px;
-    transition: opacity .5s;
-    opacity: 0;
-  }
+/* Test CSS */
 
 </style>
   {% raw %}
@@ -94,10 +19,6 @@
     <div id="app" style="height: 100%;" class="white">
         <div class="row full-height">
             <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
-                <!-- <h5 style="padding-top:100px" class="blue-grey-text">Tags</h5>
-                <div class="collection">
-                    <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}&nbsp;({{tag.count}})</a>
-                </div> -->
                 <h5 style="padding-top:100px" class="blue-grey-text"><i class="fa fa-filter" aria-hidden="true"></i> Filters</h5>
                 <ul class="collapsible">
                   <li>
@@ -131,7 +52,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton"><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
+                            <button @click.prevent='' title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="btn-small grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton"><small><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</small></button>
                         </div>
                       </template>
                       <template v-else>
@@ -139,7 +60,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton copyBtn scale-in-center" data-clipboard-target="#shareButton" ><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</button>
+                            <button @click.prevent='' title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="btn-small grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" ><small><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</small></button>
                         </div>
                       </template>
 
@@ -162,21 +83,33 @@
                 <div class="row search-results">
                     <div class="col s12">
                         <div class="blue-grey-text">
-                          Total APIs: <span class="blue-text">{{total}}</span>
-                          <span style="float: right">Sorted <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></span>
+                           <div class="row">
+                             <div class="col s5 m10">
+                               Total APIs: <span class="blue-text">{{total}}</span>
+                             </div>
+                             <div class="col s5 m2">
+                               <select class="browser-default" @change='sortResults($event)'>
+                                 <option value="" disabled selected>Sort By</option>
+                                 <option value="Search Relevance">Relevance</option>
+                                 <option value="Alpabethically A-Z">Alpabethically A-Z</option>
+                                 <option value="Alpabethically Z-A">Alpabethically Z-A</option>
+                                 <option value="Recently Updated">Recently Updated</option>
+                               </select>
+                             </div>
+                           </div>
                         </div>
                         <template v-if="total === 0">
                           <div class="card">
-                            <div class="card-content center ">
-                              <img src="/static/img/api-fail.svg" width="150px"/>
-                              <h5 class="blue-text">Your Search Returned No Results</h5>
+                            <div class="card-content center">
+                              <i class="fa fa-exclamation-circle fa-2x grey-text" aria-hidden="true"></i>
+                              <h5 class="grey-text">Your Search Returned No Results</h5>
                             </div>
                           </div>
                         </template>
                         <div class="card context" v-for="(api,index) in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
-                                  <span class="blue-text bold">
+                                  <span class="blue-grey-text bold">
                                     {{api.info.title}}
                                   </span>
                                   <span class="versionBadge grey">
@@ -192,8 +125,6 @@
                                     My&nbsp;API
                                   </a>
                                 </span>
-                                <!-- <br /> -->
-                                <!-- <br /> -->
                                 <template v-if="api.info.description && api.info.description.length > 500">
                                   <description :text='api.info.description'></description>
                                 </template>
@@ -207,95 +138,128 @@
                                   </a>
                                 </div>
                             </div>
-                            <div class="card-action grey lighten-3">
-                                <a style="border-radius: 20px;" class="btn grey white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
+                            <div class="card-action grey lighten-3" v-if="apis.length > 1">
+                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
                                    show details
                                 </a>
                             </div>
-                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails == true">
+                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails == true || apis.length === 1">
                                 <div class="row">
-                                  <table class="col l6">
+                                  <table class="pillTable">
                                     <tbody>
-                                      <tr>
-                                        <td class="noPadding blue-grey-text">
-                                          SmartAPI ID:
+                                      <tr class="tablePillRow">
+                                        <td class="grey white-text center">
+                                          Registry URL
                                         </td>
-                                        <td class="noPadding">
-                                          <a class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>{{api._id}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td class="noPadding blue-grey-text">
-                                          Metadata URL:
-                                        </td>
-                                        <td class="noPadding">
-                                          <a class="link" target="_blank" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                                        <td class="white blue-grey-text center" >
+                                          <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
+                                            <span :id="'url'+api._id" :value="api._id">http://smart-api.info?q={{api._id}}</span>
+                                          </a>
+                                          <button style="margin-left:10px;" class="smallButton copyBtn" :data-clipboard-target="'#url'+api._id">Copy</button>
                                         </td>
                                       </tr>
-                                      <tr>
-                                        <td class="noPadding blue-grey-text">
-                                          Version:
+                                      <tr class="tablePillRow">
+                                        <td class="grey white-text center">
+                                          SmartAPI ID
                                         </td>
-                                        <td class="noPadding">
-                                          <span class="blue-text">{{api.info.version}}</span>
+                                        <td class="white blue-grey-text center" >
+                                          <a title="Click to view collected SmartAPI metadata" class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>
+                                            <span :id="'id'+api._id" :value="api._id">{{api._id}}</span> <i class="fa fa-external-link" aria-hidden="true"></i>
+                                          </a>
+                                          <button style="margin-left:10px;" class="smallButton copyBtn" :data-clipboard-target="'#id'+api._id">Copy</button>
+                                        </td>
+                                      </tr>
+                                      <tr class="tablePillRow">
+                                        <td class="grey white-text">
+                                          Metadata URL
+                                        </td>
+                                        <td class="white blue-grey-text center">
+                                          <a title="Click to view original API metadata" class="link" target="_blank" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                                        </td>
+                                      </tr>
+                                      <tr class="tablePillRow">
+                                        <td class="grey white-text">
+                                          Version
+                                        </td>
+                                        <td class="white blue-grey-text center">
+                                          V {{api.info.version}}
                                         </td>
                                       </tr>
                                       <template v-for='name in checkForName(api)'>
-                                        <tr>
-                                          <td class="noPadding blue-grey-text">
-                                            Name:
+                                        <tr v-if="name != 'Name Unavailable'" class="tablePillRow">
+                                          <td class="grey white-text">
+                                            Contact
                                           </td>
-                                          <td class="noPadding">
-                                            <span class="blue-text">{{ name }}</span>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td colspan="2">
-                                            <a class="btn green smallFont"
-                                               v-bind:href='"/ui/"+api._id' >
-                                               View API Doc
-                                            </a>
+                                          <td class="white blue-grey-text center">
+                                            <i class="fa fa-user" aria-hidden="true"></i> {{ name }}
                                           </td>
                                         </tr>
                                       </template>
+                                      <tr v-if="api._meta.slug" class="tablePillRow">
+                                        <td class="grey white-text">
+                                          Registered Slug
+                                        </td>
+                                        <td class="white blue-grey-text" >
+                                           <b class="green-text">{{api._meta.slug}}</b> &gt; <a v-bind:href="'http://'+api._meta.slug+'.smart-api.info'" target="_blank">http://{{api._meta.slug}}.smart-api.info</a>
+                                        </td>
+                                      </tr>
+                                      <tr class="tablePillRow">
+                                        <td class="grey white-text center">
+                                          Last Updated
+                                        </td>
+                                        <td class="white blue-grey-text center" :id="'id'+api._id" :value="api._id">
+                                          {{ getDate(api._meta.timestamp) }}
+                                        </td>
+                                      </tr>
+                                      <tr class="tablePillRow">
+                                        <td colspan="2">
+                                          <a class="btn green smallFont scale-in-center"
+                                             v-bind:href='"/ui/"+api._id' >
+                                             View API Documentation
+                                          </a>
+                                          <a class="btn blue smallFont scale-in-center"
+                                             v-bind:href='"/editor/"+api._id'>
+                                             Edit <i class="fa fa-pencil" aria-hidden="true"></i>
+                                          </a>
+                                        </td>
+                                      </tr>
                                     </tbody>
                                   </table>
                                 </div>
+                                <h4 class="center grey-text">Operations</h4>
                                 <table v-if=" api.hasOwnProperty('openapi') " class="bordered grey lighten-5" style="margin: 20px 0px;">
-                                  <thead class="grey lighten-1">
-                                    <th class="center-align blue-grey-text">
-                                      Operations
-                                    </th>
-                                    <th class="center-align blue-grey-text">
-                                      Summary
-                                    </th>
-                                  </thead>
-                                    <tr v-for="(summary, operation) in getOperations(api)">
-                                      <td class="">
-                                        <span :class="operationStyling(operation)">{{operation}}</span>
+                                  <col width="30%">
+                                  <col width="70%">
+                                    <!-- <tr v-for="(summary, operation) in getOperations(api)">
+                                      <td :class="operationStyling(operation)">
+                                        <span >{{operation}}</span>
                                       </td>
                                       <td class="blue-grey-text">
                                         {{summary}}
                                       </td>
+                                    </tr> -->
+
+                                    <tr v-for="operation in getOperations(api)">
+                                      <td style="white-space: pre-wrap; word-break: break-word;">
+                                        <span class="versionBadge" :class="operationStyling(operation.method)">{{operation.method}}</span><span class="blue-text bold">{{operation.path}}</span>
+                                      </td>
+                                      <td class="blue-grey-text">
+                                        {{operation.summary}}
+                                      </td>
                                     </tr>
                                 </table>
-                                <br />
-                                <a class="waves-effect waves-light btn blue smallFont"
-                                   v-bind:href='"/editor/"+api._id'>
-                                   Edit <i class="fa fa-pencil" aria-hidden="true"></i>
-                                </a>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col s12 m6 l6">
                                 <ul class="pagination">
-                                    <li class="waves-effect" :class="{ disabled: page <= 1 }">
+                                    <li :class="{ disabled: page <= 1 }">
                                         <a href="#" @click.prevent="prevPage()"><i class="material-icons">chevron_left</i> Previous</a>
                                     </li>
-                                    <li class="waves-effect" :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
+                                    <li :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
                                         <a href="#" @click.prevent="page = n">{{n}}</a>
                                     </li>
-                                    <li class="waves-effect" :class="{ disabled: page >= pages }">
+                                    <li :class="{ disabled: page >= pages }">
                                         <a href="#" @click.prevent="nextPage()">Next <i class="material-icons">chevron_right</i></a>
                                     </li>
                                 </ul>
@@ -326,6 +290,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
     <script src="/static/js/clipboard.js"></script>
+    <script src="/static/js/moment.js"></script>
     <script>
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
@@ -384,7 +349,7 @@
                   pages: 1,
                   perPage: 20,
                   keywords:'',
-                  sortASC: true,
+                  // sortASC: true,
                   specialTagsUI: false,
                   specialTagName: '',
                   specialTagImage: '',
@@ -394,10 +359,19 @@
                   context:{},
                   authors: [],
                   shareURL:'',
-                  shareURLButtonVisible: false
+                  shareURLButtonVisible: false,
+                  sort: 'Relevance'
               }
             },
             methods: {
+                sortResults(e){
+                  console.log(e.target.value)
+                  this.sort = e.target.value;
+                },
+                getDate(timestamp){
+                  var date = moment(timestamp).format("LL");
+                  return date;
+                },
                 handleDescriptionClick(event, show){
                   if (show) {
                     event.target.style.maxHeight = 'none';
@@ -442,28 +416,28 @@
                   //styles operations based on type
                   switch( op.substr(0,3) ){
                         case 'GET' :
-                          return 'bold blue-text operation';
+                          return 'bold light-blue darken-1 white-text operation';
                           break;
                         case 'POS' :
-                          return 'bold green-text operation';
+                          return 'bold light-green white-text operation';
                           break;
                         case 'PUT' :
-                          return 'bold amber-text operation';
+                          return 'bold amber lighten-2 white-text operation';
                           break;
                         case 'DEL' :
-                            return 'bold red-text operation';
+                            return 'bold deep-orange darken-1 white-text operation';
                             break;
                         case 'HEA' :
-                            return 'bold deep-purple-text operation';
+                            return 'bold deep-purple lighten-1 white-text operation';
                             break;
                         case 'PAT' :
-                            return 'bold brown-text operation';
+                            return 'bold brown lighten-1 white-text operation';
                             break;
                         case 'PAR' :
-                            return 'bold teal-text operation';
+                            return 'bold teal lighten-1 white-text operation';
                             break;
                         default:
-                           return 'bold gray-text operation'
+                           return 'bold gray lighten-1 white-text operation'
                             break;
                   }
                 },
@@ -489,18 +463,12 @@
                   });
                 },
                 refreshApis: function(){
-
                     var self = this;
-                    self.context= {{Context}};
-                    if (self.context.Special) {
-                      self.handleSpecialTags(self.context.Tags[0]);
-                    }else if(!self.context.Special && self.context.Tags ) {
-                      self.handleRegularTags(self.context.Tags);
-                    }
+                    self.handleContext(self.context);
                     //check for existing query in url string
-                    this.checkforQuery();
-                    let query = this.query;
-                    if(!this.query){
+                    self.checkforQuery();
+                    let query = self.query;
+                    if(!self.query){
                       query="__all__"
                     }
                     var params = {
@@ -509,34 +477,33 @@
                             'fields': 'info,_meta,paths,tags,openapi,swagger'
                         }
                     }
-                    var filters = this.getQueryFilters();
+                    var filters = self.getQueryFilters();
                     if (filters)
                         params["params"]["filters"] = filters;
                     self.loading_start();
                     axios.get("/api/query?size=100", params).then(function(response){
                         self.loading_end();
-                        self.apis = _.sortBy(response.data.hits,'info.title');
+                        // console.log(response.data.hits);
                         self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
                     });
                 },
-                refreshTags: function (){
+                loadFilters: function (){
                     var self = this;
                     axios.get('/api/suggestion?field=tags.name').then(function(response){
                         self.tags = _.map(response.data.field_values.buckets, function(item){
                             return {'name':item.key, 'count': item.doc_count, 'active': false};
                         });
-                        self.refreshApis();
-                    });
-                },
-                getAuthors: function (){
-                    var self = this;
-                    axios.get('/api/suggestion?field=info.contact.name').then(function(response){
-                        self.authors = _.map(response.data.field_values.buckets, function(item){
-                            return {'name':item.key, 'count': item.doc_count, 'active': false};
+                        axios.get('/api/suggestion?field=info.contact.name').then(function(response){
+                            self.authors = _.map(response.data.field_values.buckets, function(item){
+                                return {'name':item.key, 'count': item.doc_count, 'active': false};
+                            });
+                            //When all filters all loaded
+                            //share url params depend on filters being loaded
+                            self.refreshApis();
                         });
-                        // self.refreshApis();
+
                     });
                 },
                 getQueryFilters: function(){
@@ -547,21 +514,19 @@
                       if (item.active)
                           filters.push(item.name);
                       });
-                    if (filters.length > 0)
-                        // filters = {'tags.name.raw': filters};
-                        finalFilters['tags.name.raw'] = filters;
-                        // return filters;
+                    if (filters.length > 0){
+                      finalFilters['tags.name.raw'] = filters;
+                    }
+
                     this.authors.forEach(function(item){
                       if (item.active){
                         authorFilters.push(item.name);
                       }
                       });
-                    if (authorFilters.length > 0){
+                    if (authorFilters.length){
                       finalFilters['info.contact.name.raw'] = authorFilters;
-                      return finalFilters;
                     }
 
-                    // return filters;
                     return finalFilters;
                 },
                 clear_form: function(){
@@ -582,38 +547,60 @@
                 },
                 buildShareURL: function(q){
                   var filters = [];
+                  var authorFilters = [];
                   var finalFilters = '';
+                  var finalAuthorFilters ='';
                   var finalURL = window.location.origin+window.location.pathname;
+                  // Collect TAGS
                   this.tags.forEach(function(item){
                     if (item.active)
                         filters.push(item.name);
                     });
+                  // Collect Owners
+                  this.authors.forEach(function(item){
+                    if (item.active){
+                      authorFilters.push(item.name);
+                    }
+                  });
+                  //Detect QUERY
                   if (q !== '__all__') {
-                    if (filters.length > 0) {
-                      finalFilters = filters.join(',')
-                      finalURL = finalURL+'?q='+q+"&tags="+finalFilters;
-                    }else{
-                      finalURL = finalURL+'?q='+q;
-                    }
-                  }else{
-                    if (filters.length > 0) {
-                      finalFilters = filters.join(',')
-                      finalURL = finalURL+"?tags="+finalFilters;
-                    }
+                    finalURL = finalURL+'?q='+q+"&";
                   }
+                  else{
+                    finalURL = finalURL+"?";
+                  }
+                  // if BOTH filters exists
+                  if (filters.length && authorFilters.length) {
+                    finalFilters = filters.join(',')
+                    finalURL = finalURL+"tags="+finalFilters;
+
+                    finalAuthorFilters = authorFilters.join(',')
+                    finalURL = finalURL+"&owners="+finalAuthorFilters;
+                  }
+                  // if Owners Exist but no Tags
+                  else if (!filters.length && authorFilters.length) {
+                    finalAuthorFilters = authorFilters.join(',')
+                    finalURL = finalURL+"owners="+finalAuthorFilters;
+                  }
+                  // if Tags exists but no owners
+                  else if (filters.length && !authorFilters.length) {
+                    finalFilters = filters.join(',')
+                    finalURL = finalURL+"tags="+finalFilters;
+                  }
+
                   this.shareURL =finalURL;
+                  //HTML5 change url history
+                  window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
                   this.shareURLButtonVisible = true;
                 },
                 search: function (query) {
                     var self = this;
                     self.context= {{Context}};
                     if (!self.context.Special && !query){
-                      // console.log(self.context.Special)
                       query = $('#search_query').val();
                       query = query || "__all__";
                     }
                     else if (self.context.Special && !query) {
-                      // console.log(self.context.Special)
                       query = query || "__all__";
                       self.handleSpecialTags(self.context.Tags[0]);
                     }
@@ -657,30 +644,44 @@
                     return marked(mdtext, { sanitize: true })
                 },
                 toggleDetails: function (api) {
-                    this.$set(api, 'showDetails', !api.showDetails);
+                  this.$set(api, 'showDetails', !api.showDetails);
                 },
                 getOperations: function (api, raw=false) {
-                    var operations = {};
+                    var operations = [];
                     if (raw) {
                         for(var path in api.paths) {
                             for(var method in api.paths[path]) {
-                                operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
+                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path })
                             }
                         }
                     }else{
                         api.paths.forEach(function(path){
                             for(var method in path['pathitem']) {
-                                operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
+                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path.path })
                             }
                         })
                     }
+                    //IF we want to order by method
+                    // operations = _.orderBy(operations,['method']);
                     return operations;
                 },
-                sortApisByName: function(){
-                  var self = this;
-                  $(".context").unmark();
-                  self.sortASC = !self.sortASC;
-                },
+                // getOperations: function (api, raw=false) {
+                //     var operations = {};
+                //     if (raw) {
+                //         for(var path in api.paths) {
+                //             for(var method in api.paths[path]) {
+                //                 operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
+                //             }
+                //         }
+                //     }else{
+                //         api.paths.forEach(function(path){
+                //             for(var method in path['pathitem']) {
+                //                 operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
+                //             }
+                //         })
+                //     }
+                //     return operations;
+                // },
                 getUserInfo: function(){
                   var self= this;
                   axios.get('/user').then(response=>{
@@ -700,11 +701,27 @@
                       }
                     }
                 },
+                handleOwnerTags: function(rTags){
+                  var self = this;
+                    self.specialUI = false;
+                    for (var i = 0; i < rTags.length; i++) {
+                      for (var x = 0; x < self.authors.length; x++) {
+                        if (rTags[i].toLowerCase() === self.authors[x].name.toLowerCase()) {
+                          self.authors[x].active = true;
+                        }
+                      }
+                    }
+                },
                 handleContext: function(context){
+                  // console.log(context);
                   if (context.Special) {
                     this.handleSpecialTags(this.context.Tags[0]);
-                  }else if (!context.Special && context.Tags) {
+                  }
+                  if (!context.Special && !_.isEmpty(context.Tags)) {
                     this.handleRegularTags(this.context.Tags);
+                  }
+                  if (!context.Special &&  !_.isEmpty(context.Owners)) {
+                    this.handleOwnerTags(this.context.Owners);
                   }
                 },
                 handleSpecialTags: function(tagname){
@@ -746,8 +763,7 @@
                 this.getUserInfo();
                 $(".button-collapse").sideNav();
                 $('.collapsible').collapsible();
-                this.refreshTags();
-                this.getAuthors();
+                this.loadFilters();
                 this.context = {{Context}};
 
             },
@@ -766,14 +782,23 @@
                 }
             },
             watch:{
-              sortASC: function(sort){
+              sort: function(sort){
                 var self = this;
-                if (!sort) {
+                switch (sort) {
+                  case 'Alpabethically A-Z':
                   self.apis = _.sortBy(self.apis,'info.title');
-                  $("#sortName").text('A-Z');
-                }else if (sort){
+                    break;
+                  case 'Alpabethically Z-A':
                   self.apis = _.sortBy(self.apis,'info.title').reverse();
-                  $("#sortName").text('Z-A');
+                  break;
+                  case 'Recently Updated':
+                  self.apis = _.sortBy(self.apis,'._meta.timestamp').reverse();
+                  break;
+                  case 'Search Relevance':
+                  self.search();
+                  break;
+                  default:
+                  self.apis = _.sortBy(self.apis,'info.title');
                 }
               }
             }

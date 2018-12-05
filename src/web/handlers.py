@@ -171,7 +171,7 @@ class RegistryHandler(BaseHandler):
                 raise tornado.web.HTTPError(404)
         # typical query filter tags
         elif self.get_argument('tags', False) or \
-                self.get_argument('authors', False):
+                self.get_argument('owners', False):
             tags = [x.strip().lower()
                     for x in self.get_argument('tags', "").split(',')]
             # print("tags: {}".format(tags))

@@ -922,34 +922,30 @@ mark{
     transition: 1s all;
   }
 
-
   .smallButton{
-    padding:4px;
-    margin: 3px;
-    font-size: 12px;
-    border-radius: 2px;
-    border: none;
-    cursor: pointer;
-    background-color: rgb(209, 209, 209);
-    color: grey;
+    padding:4px !important;
+    font-size: 12px !important;
+    border-radius: 2px !important;
+    border: none !important;
+    cursor: pointer !important;
+    background-color: rgb(209, 209, 209) !important;
+    color: grey !important;
     transition: all .5s;
   }
 
   .smallButton:hover{
-    padding:4px;
-    margin: 3px;
-    font-size: 12px;
-    border-radius: 2px;
-    border: none;
-    cursor: pointer;
-    background-color: rgb(121, 121, 121);
-    color: white;
+    padding:4px !important;
+    font-size: 12px !important;
+    border-radius: 2px !important;
+    border: none !important;
+    cursor: pointer !important;
+    background-color: rgb(121, 121, 121) !important;
+    color: white !important;
     transition: all .5s;
   }
 
   .smallButton:focus{
     padding:4px;
-    margin: 3px;
     font-size: 12px;
     border-radius: 2px;
     border: none;
@@ -1014,6 +1010,125 @@ mark{
 
   .swal2-icon.swal2-warning{
     font-size: 1em;
+  }
+
+  .btn{
+    border-radius: 20px !important;
+  }
+
+  .collection a.collection-item{
+    color: var(--blue-medium);
+  }
+  mark{
+    background: transparent;
+    color: red;
+    font-weight: bold;
+  }
+
+  .disable {
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  .noPadding{
+    padding: 0px !important;
+  }
+
+  .whiteFadeBox{
+    width: 100%;
+    height: 30%;
+    position: absolute;
+    bottom: 0;
+  background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+  }
+
+  .descriptionContainer{
+    max-height: 200px;
+    overflow: hidden;
+  }
+
+  .descriptionContainer:hover{
+    cursor: pointer;
+  }
+
+  .max-height-none{
+    max-height: none !important;
+    overflow: auto;
+  }
+
+  .max-height-200{
+    max-height: 200px !important;
+    overflow: hidden;
+  }
+
+  .expandButtonMore{
+    margin:auto;
+    transform: scale(.7);
+    border-radius: 20px;
+    transition: opacity .5s;
+    opacity: 0;
+  }
+
+  .expandContainer{
+    position: relative;
+  }
+
+  .expandContainer:hover a.expandButtonMore{
+    opacity: 1;
+  }
+
+  .expandContainer:hover a.expandButtonLess{
+    opacity: 1;
+  }
+
+  .expandButtonLess{
+    margin:auto;
+    transform: scale(.7);
+    border-radius: 20px;
+    transition: opacity .5s;
+    opacity: 0;
+  }
+
+  .tablePillRow{
+    margin-bottom: 3px;
+
+  }
+
+  .tablePillRow:hover td:first-child{
+    background: var(--blue-medium) !important;
+  }
+
+  .tablePillRow:last-child:hover td:first-child{
+    background: lightgrey !important;
+  }
+
+  .tablePillRow td:first-child{
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    text-align: center;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px #626262;
+  }
+
+  .tablePillRow td:last-child{
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    text-align: center;
+  }
+
+  .pillTable{
+    margin: auto;
+    max-width: 50vw;
+    min-width: 60%;
+    border-collapse:separate;
+    border-spacing:0em .5em;
+  }
+
+  .pillTable tr td{
+    padding: 5px 5px;
   }
 
 /*MARCO CANO end*/
