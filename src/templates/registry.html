@@ -493,7 +493,8 @@
                     var params = {
                         "params": {
                             "q": query,
-                            'fields': 'info,_meta,paths,tags,openapi,swagger'
+                            // 'fields': 'info,_meta,paths,tags,openapi,swagger,'
+                            'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
                         }
                     }
                     var filters = self.getQueryFilters();
@@ -635,7 +636,9 @@
                         var params = {
                             "params": {
                                 "q": query,
-                                'fields': 'info,_meta,paths,tags,openapi,swagger'
+                                // 'fields': 'info,_meta,paths,tags,openapi,swagger'
+                                'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
+
                             }
                         };
                         var filters = this.getQueryFilters();
@@ -673,18 +676,29 @@
                 toggleDetails: function (api) {
                   this.$set(api, 'showDetails', !api.showDetails);
                 },
+                validateFields(path){
+                  console.log(path);
+                  let paths = ['GET','POST','PUT','DELETE','PATCH','TRACE','HEAD','CONNECT'];
+                  if (paths.includes(path)) {
+                    return path;
+                  }else if (path === "PARAMETERS") {
+                      return 'GET';
+                  }
+
+                },
                 getOperations: function (api, raw=false) {
+                  var self= this;
                     var operations = [];
                     if (raw) {
                         for(var path in api.paths) {
                             for(var method in api.paths[path]) {
-                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path })
+                                operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': path['pathitem'][method].summary, 'path': path })
                             }
                         }
                     }else{
                         api.paths.forEach(function(path){
                             for(var method in path['pathitem']) {
-                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path.path })
+                                operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': path['pathitem'][method].summary, 'path': path.path })
                             }
                         })
                     }
