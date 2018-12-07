@@ -7,4 +7,4 @@ __pycache__
 src/config.py
 *.pyc
 
-smartapi_oai_v3_backup_20171117.json
+smartapi_oai_v3_backup_*.json
