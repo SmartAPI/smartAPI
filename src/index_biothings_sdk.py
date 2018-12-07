@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # main(web_settings.generate_app_list(), debug_settings={"STATI_PACTH": web_settings.STATIC_PATH, "debug": True},
     #      sentry_client_key=web_settings.SENTRY_CLIENT_KEY)
     src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
-    static_path = os.path.join(src_path, 'src\\static')
+    static_path = os.path.join(src_path, 'src', 'static')
     print(static_path)
     main(APP_LIST, 
         app_settings={"cookie_secret": config.COOKIE_SECRET}, 
