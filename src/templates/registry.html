@@ -304,6 +304,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
     <script src="/static/js/clipboard.js"></script>
     <script src="/static/js/moment.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
     <script>
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
@@ -677,14 +679,12 @@
                   this.$set(api, 'showDetails', !api.showDetails);
                 },
                 validateFields(path){
-                  console.log(path);
                   let paths = ['GET','POST','PUT','DELETE','PATCH','TRACE','HEAD','CONNECT'];
                   if (paths.includes(path)) {
                     return path;
                   }else if (path === "PARAMETERS") {
                       return 'GET';
                   }
-
                 },
                 getOperations: function (api, raw=false) {
                   var self= this;
