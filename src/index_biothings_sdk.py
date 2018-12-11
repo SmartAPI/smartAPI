@@ -1,5 +1,4 @@
 from biothings.web.index_base import main, options
-# from web.settings import MyPharmgkb_GeneWebSettings
 
 from api.handlers import APP_LIST as api_app_list
 from web.handlers import APP_LIST as web_app_list
@@ -37,5 +36,5 @@ if __name__ == '__main__':
     static_path = os.path.join(src_path, 'src', 'static')
     main(APP_LIST,
          app_settings={"cookie_secret": config.COOKIE_SECRET},
-         debug_settings={"static_path": static_path, "debug": True},
-         http_client='curl')
+         debug_settings={"static_path": static_path},
+         select_curl=True)
