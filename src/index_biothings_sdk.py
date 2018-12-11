@@ -7,6 +7,7 @@ from web.handlers import APP_LIST as web_app_list
 import os.path
 import config
 
+
 def add_apps(prefix='', app_list=None):
     '''
     Add prefix to each url handler specified in app_list.
@@ -30,17 +31,11 @@ APP_LIST = [
 
 APP_LIST += add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
-# Instantiate settings class to configure biothings web
-# web_settings = MyPharmgkb_GeneWebSettings(config='config')
 
 if __name__ == '__main__':
-    # set debug level on app settings
-    # web_settings.set_debug_level(options.debug)
-    # main(web_settings.generate_app_list(), debug_settings={"STATI_PACTH": web_settings.STATIC_PATH, "debug": True},
-    #      sentry_client_key=web_settings.SENTRY_CLIENT_KEY)
     src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
     static_path = os.path.join(src_path, 'src', 'static')
-    main(APP_LIST, 
-        app_settings={"cookie_secret": config.COOKIE_SECRET}, 
-        debug_settings={"static_path":static_path,"debug": True},
-        http_client='curl')
+    main(APP_LIST,
+         app_settings={"cookie_secret": config.COOKIE_SECRET},
+         debug_settings={"static_path": static_path, "debug": True},
+         http_client='curl')
