@@ -32,8 +32,8 @@ APP_LIST += add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
 
 if __name__ == '__main__':
-    src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
-    static_path = os.path.join(src_path, 'src', 'static')
+    (src_path, _) = os.path.split(os.path.abspath(__file__))
+    static_path = os.path.join(src_path, 'static')
     main(APP_LIST,
          app_settings={"cookie_secret": config.COOKIE_SECRET},
          debug_settings={"static_path": static_path},
