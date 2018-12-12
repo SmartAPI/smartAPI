@@ -138,6 +138,9 @@ class APIMetadata:
         except jsonschema.ValidationError as e:
             err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
             return {"valid": False, "error": "[{}] ".format(self.schema_version) + err_msg}
+        except Exception as e:
+            return {"valid": False, "error": "Unexpected Validation Error: {}".format(e)}
+
         if self.schema_version == 'OAS3':
             try:
                 jsonschema.validate(self.metadata, self.smartapi_schema)
