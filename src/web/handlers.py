@@ -260,6 +260,12 @@ class AboutHandler(BaseHandler):
         about_output = about_template.render()
         self.write(about_output)
 
+class PrivacyHandler(BaseHandler):
+    def get(self):
+        doc_file = "privacy.html"
+        privacy_template = templateEnv.get_template(doc_file)
+        privacy_output = privacy_template.render()
+        self.write(privacy_output)
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -278,5 +284,6 @@ APP_LIST = [
     (r"/guide/?", GuideHandler),
     (r"/editor/(.+)/?", APIEditorHandler),
     (r"/editor/?", APIEditorHandler),
-    (r"/about/?", AboutHandler)
+    (r"/about/?", AboutHandler),
+    (r"/privacy/?", PrivacyHandler)
 ]

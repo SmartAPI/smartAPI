@@ -25,7 +25,7 @@
                     <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-tag" aria-hidden="true"></i> By Tags</div>
                     <div class="collapsible-body noPadding">
                       <div class="collection">
-                          <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query);">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
+                          <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query); googleAnalytics('Registry_Tag', tag.name,1)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
                       </div>
                     </div>
                   </li>
@@ -33,7 +33,7 @@
                     <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-user" aria-hidden="true"></i> By Owners</div>
                     <div class="collapsible-body noPadding">
                       <div class="collection">
-                          <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query);">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
+                          <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query); googleAnalytics('Registry_Author', author.name,1)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
                       </div>
                     </div>
                   </li>
@@ -52,7 +52,10 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent='' title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="btn-small grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton"><small><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</small></button>
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1)" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
+                              Share Search
+                              <span class="tooltiptext">Click to copy search URL</span>
+                            </button>
                         </div>
                       </template>
                       <template v-else>
@@ -60,7 +63,10 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent='' title="Click To Copy Search URL" v-if="shareURLButtonVisible" style="cursor: pointer;" class="btn-small grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" ><small><i class="fa fa-clipboard" aria-hidden="true"></i> Share Search</small></button>
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1)" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
+                              Share Search
+                              <span class="tooltiptext">Click to copy search URL</span>
+                            </button>
                         </div>
                       </template>
 
@@ -75,8 +81,8 @@
                             </div>
                         </div>
                         <div class="col s12">
-                            <button type="submit" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
-                            <button class="waves-effect waves-light blue btn" v-on:click="clear_form()">clear</button>
+                            <button type="submit" @click="googleAnalytics('Registry_Searches',query, 1)" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
+                            <a class="blue btn" href="/registry">clear</a>
                         </div>
                     </form>
                 </div>
@@ -139,7 +145,7 @@
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
-                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event);}">
+                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event); googleAnalytics('Registry_APIs',api.info.title, 1)}">
                                    show details
                                 </a>
                             </div>
@@ -153,9 +159,13 @@
                                         </td>
                                         <td class="white blue-grey-text center" >
                                           <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
-                                            <span :id="'url'+api._id" :value="api._id">http://smart-api.info?q={{api._id}}</span>
+                                            <span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q={{api._id}}</span>
+                                            <!-- <span class="tooltiptext"><small>View on registry by itself</small></span> -->
                                           </a>
-                                          <button style="margin-left:10px;" class="smallButton copyBtn" :data-clipboard-target="'#url'+api._id">Copy</button>
+                                          <button style="margin-left:10px;" class="smallButton copyBtn tooltip" :data-clipboard-target="'#url'+api._id">
+                                            Copy
+                                            <span class="tooltiptext">Click to copy this API's registry URL</span>
+                                          </button>
                                         </td>
                                       </tr>
                                       <tr class="tablePillRow">
@@ -163,10 +173,14 @@
                                           SmartAPI ID
                                         </td>
                                         <td class="white blue-grey-text center" >
-                                          <a title="Click to view collected SmartAPI metadata" class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>
+                                          <a class="link tooltip" target="_blank" v-bind:href='"/api/metadata/"+api._id'>
                                             <span :id="'id'+api._id" :value="api._id">{{api._id}}</span> <i class="fa fa-external-link" aria-hidden="true"></i>
+                                            <span class="tooltiptext"><small>Collected SmartAPI metadata</small></span>
                                           </a>
-                                          <button style="margin-left:10px;" class="smallButton copyBtn" :data-clipboard-target="'#id'+api._id">Copy</button>
+                                          <button style="margin-left:10px;" class="smallButton copyBtn tooltip" :data-clipboard-target="'#id'+api._id">
+                                            Copy
+                                            <span class="tooltiptext">Click to copy SmartAPI ID</span>
+                                          </button>
                                         </td>
                                       </tr>
                                       <tr class="tablePillRow">
@@ -174,7 +188,10 @@
                                           Metadata URL
                                         </td>
                                         <td class="white blue-grey-text center">
-                                          <a title="Click to view original API metadata" class="link" target="_blank" v-bind:href='api._meta.url'>{{_.truncate(api._meta.url)}} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+                                          <a class="link tooltip" target="_blank" v-bind:href='api._meta.url'>
+                                            {{_.truncate(api._meta.url)}} <i class="fa fa-external-link" aria-hidden="true"></i>
+                                            <span class="tooltiptext"><small>Original API metadata</small></span>
+                                          </a>
                                         </td>
                                       </tr>
                                       <tr class="tablePillRow">
@@ -200,7 +217,12 @@
                                           Registered Slug
                                         </td>
                                         <td class="white blue-grey-text" >
-                                           <b class="green-text">{{api._meta.slug}}</b> &gt; <a v-bind:href="'http://'+api._meta.slug+'.smart-api.info'" target="_blank">http://{{api._meta.slug}}.smart-api.info</a>
+                                           <b class="green-text">{{api._meta.slug}}</b> &gt; <a class="tooltip"  v-bind:href="'http://'+api._meta.slug+'.smart-api.info'" target="_blank">
+                                             http://{{api._meta.slug}}.smart-api.info
+                                             <span class="tooltiptext">
+                                               <small>You can register a slug to share your docs in the user dashboard</small>
+                                             </span>
+                                           </a>
                                         </td>
                                       </tr>
                                       <tr class="tablePillRow">
@@ -230,15 +252,6 @@
                                 <table v-if=" api.hasOwnProperty('openapi') " class="bordered grey lighten-5" style="margin: 20px 0px;">
                                   <col width="30%">
                                   <col width="70%">
-                                    <!-- <tr v-for="(summary, operation) in getOperations(api)">
-                                      <td :class="operationStyling(operation)">
-                                        <span >{{operation}}</span>
-                                      </td>
-                                      <td class="blue-grey-text">
-                                        {{summary}}
-                                      </td>
-                                    </tr> -->
-
                                     <tr v-for="operation in getOperations(api)">
                                       <td style="white-space: pre-wrap; word-break: break-word;">
                                         <span class="versionBadge" :class="operationStyling(operation.method)">{{operation.method}}</span><span class="blue-text bold">{{operation.path}}</span>
@@ -291,6 +304,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
     <script src="/static/js/clipboard.js"></script>
     <script src="/static/js/moment.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
     <script>
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
@@ -349,7 +364,6 @@
                   pages: 1,
                   perPage: 20,
                   keywords:'',
-                  // sortASC: true,
                   specialTagsUI: false,
                   specialTagName: '',
                   specialTagImage: '',
@@ -364,6 +378,13 @@
               }
             },
             methods: {
+                googleAnalytics(category, label, value){
+                  if (!value) {
+                    value = 1;
+                  }
+                  // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
+                  ga('send', 'event', category, 'click', label , value );
+                },
                 sortResults(e){
                   console.log(e.target.value)
                   this.sort = e.target.value;
@@ -474,7 +495,8 @@
                     var params = {
                         "params": {
                             "q": query,
-                            'fields': 'info,_meta,paths,tags,openapi,swagger'
+                            // 'fields': 'info,_meta,paths,tags,openapi,swagger,'
+                            'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
                         }
                     }
                     var filters = self.getQueryFilters();
@@ -529,10 +551,13 @@
 
                     return finalFilters;
                 },
-                clear_form: function(){
-                    this.query = '';
-                    this.refreshApis();
-                },
+                // clear_form: function(){
+                //     var myURL = window.location.origin+'/registry';
+                //     window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", myURL);
+                //
+                //     this.query = '';
+                //     this.refreshApis();
+                // },
                 searchForTags: function(tagName){
                   var self = this;
                   for (var i = 0; i < self.tags.length; i++) {
@@ -564,9 +589,14 @@
                   });
                   //Detect QUERY
                   if (q !== '__all__') {
-                    finalURL = finalURL+'?q='+q+"&";
+                    finalURL = finalURL+'?q='+q;
+                    //if any tags are actuve
+                    if(authorFilters.length || filters.length){
+                      finalURL = finalURL+"&";
+                    }
                   }
-                  else{
+                  //if tags active but no query
+                  else if(authorFilters.length || filters.length){
                     finalURL = finalURL+"?";
                   }
                   // if BOTH filters exists
@@ -608,7 +638,9 @@
                         var params = {
                             "params": {
                                 "q": query,
-                                'fields': 'info,_meta,paths,tags,openapi,swagger'
+                                // 'fields': 'info,_meta,paths,tags,openapi,swagger'
+                                'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
+
                             }
                         };
                         var filters = this.getQueryFilters();
@@ -646,18 +678,27 @@
                 toggleDetails: function (api) {
                   this.$set(api, 'showDetails', !api.showDetails);
                 },
+                validateFields(path){
+                  let paths = ['GET','POST','PUT','DELETE','PATCH','TRACE','HEAD','CONNECT'];
+                  if (paths.includes(path)) {
+                    return path;
+                  }else if (path === "PARAMETERS") {
+                      return 'GET';
+                  }
+                },
                 getOperations: function (api, raw=false) {
+                  var self= this;
                     var operations = [];
                     if (raw) {
                         for(var path in api.paths) {
                             for(var method in api.paths[path]) {
-                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path })
+                                operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': path['pathitem'][method].summary, 'path': path })
                             }
                         }
                     }else{
                         api.paths.forEach(function(path){
                             for(var method in path['pathitem']) {
-                                operations.push({'method': method.toUpperCase(), 'summary': path['pathitem'][method].summary, 'path': path.path })
+                                operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': path['pathitem'][method].summary, 'path': path.path })
                             }
                         })
                     }
