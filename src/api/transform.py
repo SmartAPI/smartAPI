@@ -64,7 +64,7 @@ def decode_raw(raw, sorted=True, as_string=False):
 
 def get_api_metadata_by_url(url, as_string=False):
     try:
-        res = requests.get(url)
+        res = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
         return {"success": False, "error": "URL request is timeout."}
     except requests.exceptions.ConnectionError:
