@@ -37,4 +37,4 @@ if __name__ == '__main__':
     main(APP_LIST,
          app_settings={"cookie_secret": config.COOKIE_SECRET},
          debug_settings={"static_path": static_path},
-         select_curl=True)
+         use_curl=True)
