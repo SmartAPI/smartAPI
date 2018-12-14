@@ -27,6 +27,10 @@ if src_path not in sys.path:
 TEMPLATE_PATH = os.path.join(src_path, 'templates/')
 AVAILABLE_TAGS = ['translator', 'nihdatacommons']
 
+# your Github application Callback
+GITHUB_CALLBACK_PATH = "/oauth"
+GITHUB_SCOPE = ""
+
 # Docs: http://docs.python-guide.org/en/latest/scenarios/web/
 # Load template file templates/site.html
 templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
@@ -80,7 +84,7 @@ class LoginHandler(BaseHandler):
         xsrf = self.xsrf_token
         login_file = "login.html"
         login_template = templateEnv.get_template(login_file)
-        path = config.GITHUB_CALLBACK_PATH
+        path = GITHUB_CALLBACK_PATH
         _next = self.get_argument("next", "/")
         if _next != "/":
             path += "?next={}".format(_next)
@@ -125,15 +129,15 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
         # correct URL on login
         redirect_uri = url_concat(self.request.protocol +
                                   "://" + self.request.host +
-                                  config.GITHUB_CALLBACK_PATH,
+                                  GITHUB_CALLBACK_PATH,
                                   {"next": self.get_argument('next', '/')})
 
         # if we have a code, we have been authorized so we can log in
         if self.get_argument("code", False):
             user = yield self.get_authenticated_user(
                 redirect_uri=redirect_uri,
-                client_id=config.GITHUB_CLIENT_ID,
-                client_secret=config.GITHUB_CLIENT_SECRET,
+                client_id=self.web_settings.GITHUB_CLIENT_ID,
+                client_secret=self.web_settings.GITHUB_CLIENT_SECRET,
                 code=self.get_argument("code")
             )
             if user:
@@ -141,13 +145,13 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
                 self.set_secure_cookie("user", json_encode(user))
             else:
                 self.clear_cookie("user")
-            self.redirect(self.get_argument("next", "/"))
+            self.redirect(self.web_settings.get_argument("next", "/"))
             return
 
         # otherwise we need to request an authorization code
         yield self.authorize_redirect(
             redirect_uri=redirect_uri,
-            client_id=config.GITHUB_CLIENT_ID,
+            client_id=self.web_settings.GITHUB_CLIENT_ID,
             extra_params={"scope": config.GITHUB_SCOPE, "foo": 1}
         )
 
@@ -275,7 +279,7 @@ APP_LIST = [
     (r"/user/?", UserInfoHandler),
     (r"/add_api/?", AddAPIHandler),
     (r"/login/?", LoginHandler),
-    (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
+    (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
     (r"/registry/(.+)/?", RegistryHandler),
     (r"/registry/?", RegistryHandler),

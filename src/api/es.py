@@ -170,6 +170,7 @@ class ESQuery():
         '''
         return self._es.exists(index=self._index, doc_type=self._doc_type, id=api_id)
 
+    # used in APIHandler [POST]
     def save_api(self, api_doc, user_name=None, override_owner=False, overwrite=False, dryrun=False, overwrite_if_identical=True, save_v2=False):
         metadata = APIMetadata(api_doc)
         valid = metadata.validate(raise_error_on_v2=not save_v2)
@@ -212,6 +213,7 @@ class ESQuery():
             doc["_id"] = api_doc["_id"]
         return doc
 
+    # used in APIMetaDataHandler [GET]
     def get_api(self, api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
         if api_name == 'all':
             query = {'query': {"bool": {"must_not": {
@@ -421,6 +423,7 @@ class ESQuery():
         if res.get('hits', {}).get('hits', []):
             return res['hits']['hits'][0]['_id']
 
+    # used in ValueSuggestionHandler [GET]
     def value_suggestion(self, field, size=100, use_raw=True):
         """return a list of existing values for the given field."""
         _field = field + ".raw" if use_raw else field
@@ -438,6 +441,7 @@ class ESQuery():
             print(self._es.delete(index=self._index,
                                   doc_type=self._doc_type, id=id))
 
+    # used in APIMetaDataHandler [DELETE]
     def archive_api(self, id, user):
         """ function to set an _archive flag for an API, making it
         unsearchable from the front end, takes an id identifying the API,
@@ -465,6 +469,7 @@ class ESQuery():
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
+    # used in GitWebhookHandler [POST]
     def fetch_all(self, as_list=False, id_list=[], query={}):
         """return a generator of all docs from the ES index.
             return a list instead if as_list is True.
@@ -575,6 +580,7 @@ class ESQuery():
         # good name
         return (True, {})
 
+    # used in APIMetaDataHandler [PUT]
     def set_slug_name(self, _id, user, slug_name):
         ''' set the slug name of API _id to slug_name. '''
         if not self.exists(_id):
@@ -599,6 +605,7 @@ class ESQuery():
 
         return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
 
+    # used in APIMetaDataHandler [DELETE]
     def delete_slug(self, _id, user, slug_name):
         ''' delete the slug of API _id. '''
         if not self.exists(_id):
@@ -623,6 +630,7 @@ class ESQuery():
 
         return (200, {"success": True, "{}".format(_id): "slug '{}' deleted".format(slug_name)})
 
+    # used in APIMetaDataHandler [PUT]
     def refresh_one_api(self, _id, user, dryrun=True):
         ''' refresh one API metadata based on the saved metadata url '''
         print("Refreshing API metadata:")
