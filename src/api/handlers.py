@@ -16,13 +16,10 @@ from .es import ESQuery
 from .transform import get_api_metadata_by_url, APIMetadata
 import config
 
+from biothings.web.api.es.handlers.base_handler import BaseESRequestHandler
+from biothings.web.api.es.handlers import QueryHandler as BioThingsESQueryHandler
 
-class BaseHandler(tornado.web.RequestHandler):
-    def return_json(self, data):
-        _json_data = json.dumps(data, indent=2)
-        self.set_header("Content-Type", "application/json; charset=UTF-8")
-        self.support_cors()
-        self.write(_json_data)
+class BaseHandler(BaseESRequestHandler):
 
     def return_yaml(self, data):
 
@@ -42,16 +39,6 @@ class BaseHandler(tornado.web.RequestHandler):
         self.write(ordered_dump(
             data=data, Dumper=yaml.SafeDumper, default_flow_style=False))
 
-    def support_cors(self, *args, **kwargs):
-        '''Provide server side support for CORS request.'''
-        self.set_header("Access-Control-Allow-Origin", "*")
-        self.set_header("Access-Control-Allow-Methods",
-                        "GET,POST,PUT,DELETE,OPTIONS")
-        self.set_header("Access-Control-Allow-Headers",
-                        "Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control")
-        self.set_header("Access-Control-Allow-Credentials", "false")
-        self.set_header("Access-Control-Max-Age", "60")
-
     def options(self, *args, **kwargs):
         self.support_cors()
 
@@ -60,40 +47,6 @@ class BaseHandler(tornado.web.RequestHandler):
         if not user_json:
             return None
         return json.loads(user_json)
-
-
-class QueryHandler(BaseHandler):
-    def get(self):
-        q = self.get_argument('q', None)
-        if not q:
-            self.return_json(
-                {'success': False, 'error': 'missing required parameter.'})
-            return
-
-        filters = self.get_argument('filters', None)
-        if filters:
-            try:
-                filters = json.loads(filters)
-            except:
-                filters = None
-        fields = self.get_argument('fields', None)
-        return_raw = self.get_argument('raw', '').lower() in ['1', 'true']
-        size = self.get_argument('size', None)
-        from_ = self.get_argument('from', 0)
-        raw_query = self.get_argument('rawquery', '').lower() in ['1', 'true']
-        try:
-            # size capped to 100 for now by query_api method below.
-            size = int(size)
-        except (TypeError, ValueError):
-            size = None
-        try:
-            from_ = int(from_)
-        except (TypeError, ValueError):
-            from_ = 0
-        esq = ESQuery()
-        res = esq.query_api(q=q, filters=filters, fields=fields,
-                            return_raw=return_raw, size=size, from_=from_, raw_query=raw_query)
-        self.return_json(res)
 
 
 class ValidateHandler(BaseHandler):
@@ -331,7 +284,7 @@ class GitWebhookHandler(BaseHandler):
 
 APP_LIST = [
     (r'/?', APIHandler),
-    (r'/query/?', QueryHandler),
+    (r'/query/?', BioThingsESQueryHandler),
     (r'/validate/?', ValidateHandler),
     (r'/metadata/(.+)/?', APIMetaDataHandler),
     (r'/suggestion/?', ValueSuggestionHandler),

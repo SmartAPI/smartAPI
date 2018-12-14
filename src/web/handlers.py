@@ -12,7 +12,9 @@ import torngithub
 from api.es import ESQuery
 from torngithub import json_encode, json_decode
 
-import config
+from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
+
+from . import config
 import json
 import logging
 log = logging.getLogger("smartapi")
@@ -31,7 +33,7 @@ templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 
-class BaseHandler(tornado.web.RequestHandler):
+class BaseHandler(BioThingsBaseHandler):
     def get_current_user(self):
         user_json = self.get_secure_cookie("user")
         if not user_json:
@@ -115,7 +117,8 @@ class LogoutHandler(BaseHandler):
         self.redirect(self.get_argument("next", "/"))
 
 
-class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
+class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
+
     @tornado.gen.coroutine
     def get(self):
         # we can append next to the redirect uri, so the user gets the
