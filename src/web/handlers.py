@@ -145,7 +145,7 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
                 self.set_secure_cookie("user", json_encode(user))
             else:
                 self.clear_cookie("user")
-            self.redirect(self.web_settings.get_argument("next", "/"))
+            self.redirect(self.get_argument("next", "/"))
             return
 
         # otherwise we need to request an authorization code
