@@ -14,7 +14,6 @@ from torngithub import json_encode, json_decode
 
 from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
 
-from . import config
 import json
 import logging
 log = logging.getLogger("smartapi")
@@ -152,7 +151,7 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
         yield self.authorize_redirect(
             redirect_uri=redirect_uri,
             client_id=self.web_settings.GITHUB_CLIENT_ID,
-            extra_params={"scope": config.GITHUB_SCOPE, "foo": 1}
+            extra_params={"scope": GITHUB_SCOPE, "foo": 1}
         )
 
 
