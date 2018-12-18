@@ -39,9 +39,6 @@ class BaseHandler(BaseESRequestHandler):
         self.write(ordered_dump(
             data=data, Dumper=yaml.SafeDumper, default_flow_style=False))
 
-    def options(self, *args, **kwargs):
-        self.support_cors()
-
     def get_current_user(self):
         user_json = self.get_secure_cookie("user").decode('utf-8')
         if not user_json:
