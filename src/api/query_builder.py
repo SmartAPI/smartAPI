@@ -2,6 +2,7 @@ from biothings.web.api.es.query_builder import ESQueryBuilder as BiothingsESQuer
 
 import json
 
+
 class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
 
     def get_query_filters(self):
@@ -12,7 +13,11 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
             try:
                 terms_filter = json.loads(self.options.filters)
                 if terms_filter:
-                    _filter =  { "terms": terms_filter }
+                    if len(terms_filter) == 1:
+                        _filter = {"terms": terms_filter}
+                    else:
+                        _filter = [{"terms": {f[0]: f[1]}}
+                                   for f in terms_filter.items()]
             except:
                 pass
 
@@ -22,9 +27,9 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
 
         no_archived = {
             "term": {
-               "_meta._archived":"true"
-            } 
-        }           
+                "_meta._archived": "true"
+            }
+        }
         return no_archived
 
     def _extra_query_types(self, q):
@@ -70,3 +75,27 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
             }
         }
         return dis_max_query
+
+    def _query_GET_query(self, q):
+        if self._is_user_query():
+            _query = self._user_query(q)
+        elif self._is_match_all(q):
+            _query = self._match_all(q)
+        else:
+            _query = self._extra_query_types(q)
+
+        if not _query:
+            _query = self._default_query(q)
+
+        _query['query'] = self.add_query_filters(_query)
+
+        _query = self.queries.raw_query(_query)
+
+        _ret = self._return_query_kwargs({'body': _query})
+
+        if self.options.fetch_all:
+            # don't allow sorting for fetch all, defeats the purpose
+            _ret['body'].pop('sort', None)
+            _ret['body'].pop('size', None)
+            _ret.update(self.scroll_options)
+        return _ret
