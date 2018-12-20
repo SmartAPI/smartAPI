@@ -77,6 +77,8 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
         return dis_max_query
 
     def _query_GET_query(self, q):
+        # override as an alternative solution
+        # see change below
         if self._is_user_query():
             _query = self._user_query(q)
         elif self._is_match_all(q):
@@ -86,7 +88,8 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
 
         if not _query:
             _query = self._default_query(q)
-
+        
+        # previously assigned to _query directly
         _query['query'] = self.add_query_filters(_query)
 
         _query = self.queries.raw_query(_query)
@@ -94,7 +97,6 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
         _ret = self._return_query_kwargs({'body': _query})
 
         if self.options.fetch_all:
-            # don't allow sorting for fetch all, defeats the purpose
             _ret['body'].pop('sort', None)
             _ret['body'].pop('size', None)
             _ret.update(self.scroll_options)
