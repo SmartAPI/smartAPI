@@ -146,9 +146,16 @@ class SmartAPITest(unittest.TestCase):
     def test_query_invalid_size(self):
         self.get_status_code(self.api + '/query?q=__all__&size=my', 400)
 
-    # from how does it work
-    def test_query_invalid_from(self):
-        pass
+    def test_query_invalid_from(self): 
+        res_0 = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&fields=_id&size=5'))
+        ids_0 = set([hit['_id'] for hit in res_0['hits']])
+        res_1 = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&fields=_id&size=5&from=5'))
+        ids_1 = [hit['_id'] for hit in res_1['hits']]
+        for _id in ids_1:
+            if _id in ids_0:
+                self.assertTrue(False)
 
 
 if __name__ == '__main__':
