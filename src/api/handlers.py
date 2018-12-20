@@ -21,24 +21,6 @@ from biothings.web.api.es.handlers import QueryHandler as BioThingsESQueryHandle
 
 class BaseHandler(BaseESRequestHandler):
 
-    def return_yaml(self, data):
-
-        def ordered_dump(data, stream=None, Dumper=yaml.Dumper, **kwds):
-            class OrderedDumper(Dumper):
-                pass
-
-            def _dict_representer(dumper, data):
-                return dumper.represent_mapping(
-                    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-                    data.items())
-            OrderedDumper.add_representer(OrderedDict, _dict_representer)
-            return yaml.dump(data, stream, OrderedDumper, **kwds)
-
-        self.set_header("Content-Type", "text/x-yaml; charset=UTF-8")
-        self.support_cors()
-        self.write(ordered_dump(
-            data=data, Dumper=yaml.SafeDumper, default_flow_style=False))
-
     def get_current_user(self):
         user_json = self.get_secure_cookie("user").decode('utf-8')
         if not user_json:
