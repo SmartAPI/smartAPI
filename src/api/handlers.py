@@ -22,10 +22,10 @@ from biothings.web.api.es.handlers import QueryHandler as BioThingsESQueryHandle
 class BaseHandler(BaseESRequestHandler):
 
     def get_current_user(self):
-        user_json = self.get_secure_cookie("user").decode('utf-8')
+        user_json = self.get_secure_cookie("user")
         if not user_json:
             return None
-        return json.loads(user_json)
+        return json.loads(user_json.decode('utf-8'))
 
 
 class ValidateHandler(BaseHandler):
