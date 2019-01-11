@@ -388,7 +388,7 @@ class ESQuery():
         query = {
             "query": {
                 "bool": {
-                    "must_not": {"term": {"_meta._archived": "true"}}
+                    "must_not": {"term": {"_meta._archived": True}}
                 }
             },
             "aggs": {
@@ -429,10 +429,6 @@ class ESQuery():
         _field = field + ".raw" if use_raw else field
         agg_name = 'field_values'
         res = self._do_aggregations(_field, agg_name, size)
-        if use_raw and not res[agg_name]['buckets']:
-            # if *.raw does not return any buckets, try without it.
-            res = self._do_aggregations(field, agg_name, size)
-
         return res
 
     def delete_api(self, id):
