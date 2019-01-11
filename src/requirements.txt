@@ -1,12 +1,9 @@
-elasticsearch>=6.0.0,<7.0.0
+git+git://github.com/biothings/biothings.api.git#egg=biothings
 PyLD>=0.7.1
-requests>=2.18.3
-tornado>=4.5.1
 jsonschema>=2.6.0
 torngithub==0.2.0
 Jinja2>=2.9.6
 pycurl>=7.19
 PyYAML>=3.12
-git+git://github.com/biothings/biothings.api.git#egg=biothings
 # for nosetests
 nose>=1.3.0
