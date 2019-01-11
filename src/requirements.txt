@@ -7,6 +7,6 @@ torngithub==0.2.0
 Jinja2>=2.9.6
 pycurl>=7.19
 PyYAML>=3.12
-
+git+git://github.com/biothings/biothings.api.git#egg=biothings
 # for nosetests
 nose>=1.3.0
