@@ -43,11 +43,6 @@ class BaseHandler(BioThingsBaseHandler):
             return None
         return json_decode(user_json)
 
-    def return_json(self, data):
-        _json_data = json_encode(data)
-        self.set_header("Content-Type", "application/json; charset=UTF-8")
-        self.write(_json_data)
-
 
 class MainHandler(BaseHandler):
     def get(self):
