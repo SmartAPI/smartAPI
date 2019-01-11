@@ -22,11 +22,14 @@ Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43
     ```
     sudo apt install libcurl4-openssl-dev libssl-dev
     ```
+4. Change directory to SmartAPI source files
+    ```
+    cd smartAPI/src
+    ```
 3. Install python dependencies
     ```
-    pip install -r src/requirements.txt
+    pip install -r requirements.txt
     ```
-4. ```cd src```
 5. Create a config.py under src with the site-specific settings. Contact us for an example config.py file.
 6. Create index in Python shell:
     ```
