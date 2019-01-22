@@ -4,7 +4,7 @@
 # Python directories
 __pycache__
 
-src/config.py
+src/config_key.py
 *.pyc
 
 smartapi_*.json
