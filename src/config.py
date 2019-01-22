@@ -6,11 +6,17 @@ from web.handlers import APP_LIST as web_app_list
 
 from api.query_builder import SmartAPIQueryBuilder
 
+# *****************************************************************************
+# Elasticsearch variables
+# *****************************************************************************
 # elasticsearch index name
 ES_INDEX = 'smartapi_oas3'
 # elasticsearch document type
 ES_DOC_TYPE = 'api'
 
+# *****************************************************************************
+# App URL Patterns
+# *****************************************************************************
 def add_apps(prefix='', app_list=None):
     '''
     Add prefix to each url handler specified in app_list.
@@ -27,19 +33,18 @@ def add_apps(prefix='', app_list=None):
     else:
         return app_list
 
-
-APP_LIST = [
-    # (r"/", MainHandler),
-]
-
+APP_LIST = []
 APP_LIST += add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
 
-ACCESS_CONTROL_ALLOW_METHODS = 'GET,POST,PUT,DELETE,OPTIONS'
-
+# *****************************************************************************
+# Customized Biothings Query Component
+# *****************************************************************************
+# Subclass of biothings.web.api.es.query_builder.ESQueryBuilder
 ES_QUERY_BUILDER = SmartAPIQueryBuilder
-
+# Keyword Argument Control
 QUERY_GET_ESQB_KWARGS.update({'filters': {'default': None, 'type': str}})
-
-# only disables API endpoint caching, web components are not affected 
+# Header Strings
+ACCESS_CONTROL_ALLOW_METHODS = 'GET,POST,PUT,DELETE,OPTIONS'
+# Only affects API endpoints, Web components are not affected 
 DISABLE_CACHING = True
