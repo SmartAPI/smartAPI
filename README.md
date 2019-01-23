@@ -30,7 +30,11 @@ Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43
     ```
     pip install -r requirements.txt
     ```
-5. Create a config.py under src with the site-specific settings. Contact us for an example config.py file.
+5. Create a *config_key.py* under *src* with
+    ```
+    API_KEY, COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+    ```
+    Follow [this instruction](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) to create your Github client ID and secret.
 6. Create index in Python shell:
     ```
     from api import es  
