@@ -76,18 +76,12 @@ class APIHandler(BaseHandler):
             self.return_json(res)
         else:
             # save an API metadata
-            # api_key = self.get_argument('api_key', None)
             overwrite = self.get_argument('overwrite', '').lower()
             overwrite = overwrite in ['1', 'true']
             dryrun = self.get_argument('dryrun', '').lower()
             dryrun = dryrun in ['on', '1', 'true']
             save_v2 = self.get_argument('save_v2', '').lower()
             save_v2 = save_v2 in ['1', 'true']
-            # if api_key != config.API_KEY:
-            #     self.set_status(405)
-            #     res = {'success': False, 'error': 'Invalid API key.'}
-            #     self.return_json(res)
-            # else:
             url = self.get_argument('url', None)
             if url:
                 data = get_api_metadata_by_url(url)
@@ -155,16 +149,12 @@ class APIMetaDataHandler(BaseHandler):
         slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
-        # api_key = self.get_argument('api_key', None)
         # must be logged in first
         user = self.get_current_user()
         if not user:
             res = {'success': False,
                    'error': 'Authenticate first with your github account.'}
             self.set_status(401)
-        # elif api_key != config.API_KEY:
-        #    self.set_status(405)
-        #    res = {'success': False, 'error': 'Invalid API key.'}
         else:
             if slug_name:
                 (status, res) = self.esq.set_slug_name(
@@ -180,7 +170,6 @@ class APIMetaDataHandler(BaseHandler):
            checks to see if current user matches the creating user.'''
         # must be logged in first
         user = self.get_current_user()
-        api_key = self.get_argument('api_key', None)
         slug_name = self.get_argument('slug', '').lower()
         if not user:
             res = {'success': False,
@@ -190,9 +179,6 @@ class APIMetaDataHandler(BaseHandler):
             (status, res) = self.esq.delete_slug(
                 _id=api_name, user=user, slug_name=slug_name)
             self.set_status(status)
-        elif api_key != config.API_KEY:
-            self.set_status(405)
-            res = {'success': False, 'error': 'Invalid API key.'}
         else:
             (status, res) = self.esq.archive_api(api_name, user)
             self.set_status(status)
