@@ -12,7 +12,8 @@ import torngithub
 from api.es import ESQuery
 from torngithub import json_encode, json_decode
 
-import config
+from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
+
 import json
 import logging
 log = logging.getLogger("smartapi")
@@ -25,29 +26,28 @@ if src_path not in sys.path:
 TEMPLATE_PATH = os.path.join(src_path, 'templates/')
 AVAILABLE_TAGS = ['translator', 'nihdatacommons']
 
+# your Github application Callback
+GITHUB_CALLBACK_PATH = "/oauth"
+GITHUB_SCOPE = ""
+
 # Docs: http://docs.python-guide.org/en/latest/scenarios/web/
 # Load template file templates/site.html
 templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
 templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 
-class BaseHandler(tornado.web.RequestHandler):
+class BaseHandler(BioThingsBaseHandler):
     def get_current_user(self):
         user_json = self.get_secure_cookie("user")
         if not user_json:
             return None
         return json_decode(user_json)
 
-    def return_json(self, data):
-        _json_data = json_encode(data)
-        self.set_header("Content-Type", "application/json; charset=UTF-8")
-        self.write(_json_data)
-
 
 class MainHandler(BaseHandler):
     def get(self):
         slug = self.request.host.split(".")[0]
-        #print("Host: {} - Slug: {}".format(self.request.host, slug))
+        # print("Host: {} - Slug: {}".format(self.request.host, slug))
         if slug.lower() not in ['www', 'dev', 'smart-api']:
             # try to get a registered subdomain/tag
             esq = ESQuery()
@@ -55,7 +55,7 @@ class MainHandler(BaseHandler):
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)
-                swagger_output = swagger_template.render(apiID = api_id)
+                swagger_output = swagger_template.render(apiID=api_id)
                 self.write(swagger_output)
                 return
         index_file = "index.html"
@@ -78,7 +78,7 @@ class LoginHandler(BaseHandler):
         xsrf = self.xsrf_token
         login_file = "login.html"
         login_template = templateEnv.get_template(login_file)
-        path = config.GITHUB_CALLBACK_PATH
+        path = GITHUB_CALLBACK_PATH
         _next = self.get_argument("next", "/")
         if _next != "/":
             path += "?next={}".format(_next)
@@ -115,22 +115,23 @@ class LogoutHandler(BaseHandler):
         self.redirect(self.get_argument("next", "/"))
 
 
-class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
+class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
+
     @tornado.gen.coroutine
     def get(self):
         # we can append next to the redirect uri, so the user gets the
         # correct URL on login
         redirect_uri = url_concat(self.request.protocol +
                                   "://" + self.request.host +
-                                  config.GITHUB_CALLBACK_PATH,
+                                  GITHUB_CALLBACK_PATH,
                                   {"next": self.get_argument('next', '/')})
 
         # if we have a code, we have been authorized so we can log in
         if self.get_argument("code", False):
             user = yield self.get_authenticated_user(
                 redirect_uri=redirect_uri,
-                client_id=config.GITHUB_CLIENT_ID,
-                client_secret=config.GITHUB_CLIENT_SECRET,
+                client_id=self.web_settings.GITHUB_CLIENT_ID,
+                client_secret=self.web_settings.GITHUB_CLIENT_SECRET,
                 code=self.get_argument("code")
             )
             if user:
@@ -144,8 +145,8 @@ class GithubLoginHandler(tornado.web.RequestHandler, torngithub.GithubMixin):
         # otherwise we need to request an authorization code
         yield self.authorize_redirect(
             redirect_uri=redirect_uri,
-            client_id=config.GITHUB_CLIENT_ID,
-            extra_params={"scope": config.GITHUB_SCOPE, "foo": 1}
+            client_id=self.web_settings.GITHUB_CLIENT_ID,
+            extra_params={"scope": GITHUB_SCOPE, "foo": 1}
         )
 
 
@@ -184,6 +185,7 @@ class RegistryHandler(BaseHandler):
             reg_output = reg_template.render(Context=json.dumps({}))
         self.write(reg_output)
 
+
 class DocumentationHandler(BaseHandler):
     def get(self):
         doc_file = "documentation.html"
@@ -191,12 +193,14 @@ class DocumentationHandler(BaseHandler):
         documentation_output = documentation_template.render()
         self.write(documentation_output)
 
+
 class DashboardHandler(BaseHandler):
     def get(self):
         doc_file = "dashboard.html"
         dashboard_template = templateEnv.get_template(doc_file)
         dashboard_output = dashboard_template.render()
         self.write(dashboard_output)
+
 
 class SwaggerUIHandler(BaseHandler):
     def get(self, yourApiID=None):
@@ -209,8 +213,9 @@ class SwaggerUIHandler(BaseHandler):
             return
         swaggerUI_file = "smartapi-ui.html"
         swagger_template = templateEnv.get_template(swaggerUI_file)
-        swagger_output = swagger_template.render(apiID = yourApiID )
+        swagger_output = swagger_template.render(apiID=yourApiID)
         self.write(swagger_output)
+
 
 class BrandingHandler(BaseHandler):
     def get(self):
@@ -219,12 +224,14 @@ class BrandingHandler(BaseHandler):
         branding_output = branding_template.render()
         self.write(branding_output)
 
+
 class GuideHandler(BaseHandler):
     def get(self):
         doc_file = "guide.html"
         guide_template = templateEnv.get_template(doc_file)
         guide_output = guide_template.render()
         self.write(guide_output)
+
 
 class APIEditorHandler(BaseHandler):
     def get(self, yourApiID=None):
@@ -236,13 +243,16 @@ class APIEditorHandler(BaseHandler):
                 # raise tornado.web.HTTPError(404)
                 swaggerEditor_file = "editor.html"
                 swagger_template = templateEnv.get_template(swaggerEditor_file)
-                swagger_output = swagger_template.render(Context=json.dumps({"Id": '', "Data": False}) )
+                swagger_output = swagger_template.render(
+                    Context=json.dumps({"Id": '', "Data": False}))
                 self.write(swagger_output)
             return
         swaggerEditor_file = "editor.html"
         swagger_template = templateEnv.get_template(swaggerEditor_file)
-        swagger_output = swagger_template.render(Context=json.dumps({"Id": yourApiID, "Data": True}) )
+        swagger_output = swagger_template.render(
+            Context=json.dumps({"Id": yourApiID, "Data": True}))
         self.write(swagger_output)
+
 
 class AboutHandler(BaseHandler):
     def get(self):
@@ -263,7 +273,7 @@ APP_LIST = [
     (r"/user/?", UserInfoHandler),
     (r"/add_api/?", AddAPIHandler),
     (r"/login/?", LoginHandler),
-    (config.GITHUB_CALLBACK_PATH, GithubLoginHandler),
+    (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
     (r"/registry/(.+)/?", RegistryHandler),
     (r"/registry/?", RegistryHandler),

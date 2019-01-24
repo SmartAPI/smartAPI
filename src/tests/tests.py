@@ -1,16 +1,4 @@
-import httplib2
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+import requests
 from nose.tools import eq_, ok_
 import json
 import sys
@@ -21,6 +9,7 @@ import unittest
 _d = json.loads    # shorthand for json decode
 _e = json.dumps    # shorthand for json encode
 
+
 class SmartAPITest(unittest.TestCase):
     __test__ = True  # explicitly set this to be a test class
 
@@ -28,26 +17,13 @@ class SmartAPITest(unittest.TestCase):
     # Test functions                                            #
     #############################################################
 
-    host = os.getenv("SMARTAPI_HOST","https://smart-api.info")
+    host = os.getenv("SMARTAPI_HOST", "https://smart-api.info")
     host = host.rstrip('/')
     api = host + '/api'
-    h = httplib2.Http()
 
     ############################################################
     # Helper functions                                          #
     #############################################################
-    def encode_dict(self, d):
-        '''urllib.urlencode (python 2.x) cannot take unicode string.
-           encode as utf-8 first to get it around.
-        '''
-        if PY3:
-            # no need to do anything
-            return d
-        else:
-            def smart_encode(s):
-                return s.encode('utf-8') if isinstance(s, unicode) else s   # noqa
-
-            return dict([(key, smart_encode(val)) for key, val in d.items()])
 
     def truncate(self, s, limit):
         '''truncate a string.'''
@@ -57,47 +33,47 @@ class SmartAPITest(unittest.TestCase):
             return s[:limit] + '...'
 
     def get_ok(self, url):
-        res, con = self.h.request((url))
-        assert res.status == 200, "status {} != 200 for GET to url: {}".format(res.status, url)
-        return con
+        res = requests.get(url)
+        assert res.status_code == 200, "status {} != 200 for GET to url: {}".format(
+            res.status_code, url)
+        return res
 
     def get_status_code(self, url, status_code):
-        res, con = self.h.request((url))
-        assert res.status == status_code, "status {} != {} for GET to url: {}".format(res.status, status_code, url)
+        res = requests.get(url)
+        assert res.status_code == status_code, "status {} != {} for GET to url: {}".format(
+            res.status_code, status_code, url)
+        return res
 
     def post_status_code(self, url, params, status_code):
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        res, con = self.h.request(url, 'POST', urlencode(self.encode_dict(params)), headers=headers)
-        assert res.status == status_code, "status {} != {} for url: {}\nparams: {}".format(res.status, status_code, url, params)
-        #return con
+        res = requests.post(url, data = params, headers=headers)
+        assert res.status_code == status_code, "status {} != {} for url: {}\nparams: {}".format(res.status_code, status_code, url, params)
+        return res
 
     def get_404(self, url):
-        res, con = self.h.request((url))
-        assert res.status == 404, "status {} != 404 for GET to url: {}".format(res.status, url)
+        self.get_status_code(url, 404)
 
     def get_405(self, url):
-        res, con = self.h.request((url))
-        assert res.status == 405, "status {} != 405 for GET to url: {}".format(res.status, url)
+        self.get_status_code(url, 405)
 
     def head_ok(self, url):
-        res, con = self.h.request((url), 'HEAD')
-        assert res.status == 200, "status {} != 200 for HEAD to url: {}".format(res.status, url)
+        res = requests.head(url)
+        assert res.status_code == 200, "status {} != 200 for HEAD to url: {}".format(res.status_code, url)
 
     def post_ok(self, url, params):
-        headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        res, con = self.h.request(url, 'POST', urlencode(self.encode_dict(params)), headers=headers)
-        assert res.status == 200, "status {} != 200 for url: {}\nparams: {}".format(res.status, url, params)
-        return con
+        return self.post_status_code(url, params, 200)
 
     def query_has_hits(self, q, query_endpoint='query'):
-        d = self.json_ok(self.get_ok(self.api + '/' + query_endpoint + '?q=' + q))
+        d = self.json_ok(self.get_ok(
+            self.api + '/' + query_endpoint + '?q=' + q))
         assert d.get('total', 0) > 0 and len(d.get('hits', [])) > 0
         return d
 
     def json_ok(self, s, checkerror=True):
-        d = _d(s.decode('utf-8'))
+        d = _d(s.text)
         if checkerror:
-            assert not (isinstance(d, dict) and 'error' in d), self.truncate(str(d), 100)
+            assert not (isinstance(d, dict)
+                        and 'error' in d), self.truncate(str(d), 100)
         return d
 
     def setUp(self):
@@ -109,17 +85,78 @@ class SmartAPITest(unittest.TestCase):
     ############################################################################################
     # Smart API tests
     ############################################################################################
-    
-    def test_query(self):
+
+    def test_query_all_has_hits(self):
         self.query_has_hits('__all__')
+
+    def test_query_translator_has_hits(self):
         self.query_has_hits('translator')
 
-        # fielded query
+    def test_query_by_tags_name_translator_has_hits(self):
         self.query_has_hits('tags.name:translator')
 
+    def test_query_non_exist_special_char_string(self):
         res = self.json_ok(self.get_ok(self.api +
-                           '/query?q=translat\xef\xbf\xbd\xef\xbf\xbd'))
+                                       '/query?q=translat\xef\xbf\xbd\xef\xbf\xbd'))
         eq_(res['hits'], [])
 
+    def test_query_string_not_provided(self):
+        self.get_status_code(self.api + '/query', 400)
+
+    def test_query_multiple_filters_biothings(self):
+        res = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&filters={"tags.name.raw":["annotation","variant"],"info.contact.name.raw":["Chunlei Wu"]}'))
+        eq_(len(res['hits']), 3)
+
+    def test_query_specified_fields(self):
+        res = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&fields=_id,info'))
+        for h in res['hits']:
+            self.assertTrue('_id' in h and 'info' in h)
+
+    def test_query_return_raw(self):
+        res = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&raw=1'))
+        self.assertTrue('_shards' in res)
+
+    def test_query_return_raw_query_match_all(self):
+        res = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&rawquery=1'))
+        ref_query = {
+            "query": {
+                "bool": {
+                    "must_not": {
+                        "term": {
+                            "_meta._archived": "true"
+                        }
+                    },
+                    "must": {
+                        "match_all": {}
+                    }
+                }
+            }
+        }
+        self.assertTrue(res == ref_query)
+
+    def test_query_specify_size(self):
+        res = self.json_ok(self.get_ok(self.api +
+                                       '/query?size=6&q=__all__'))
+        eq_(len(res['hits']), 6)
+
+    def test_query_invalid_size(self):
+        self.get_status_code(self.api + '/query?q=__all__&size=my', 400)
+
+    def test_query_invalid_from(self): 
+        res_0 = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&fields=_id&size=5'))
+        ids_0 = set([hit['_id'] for hit in res_0['hits']])
+        res_1 = self.json_ok(self.get_ok(self.api +
+                                       '/query?q=__all__&fields=_id&size=5&from=5'))
+        ids_1 = [hit['_id'] for hit in res_1['hits']]
+        for _id in ids_1:
+            if _id in ids_0:
+                self.assertTrue(False)
+
+
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()
