@@ -33,7 +33,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     data.items())
             OrderedDumper.add_representer(OrderedDict, _dict_representer)
             return yaml.dump(data, stream, OrderedDumper, **kwds)
-        
+
         self.set_header("Content-Type", "text/x-yaml; charset=UTF-8")
         self.support_cors()
         self.write(ordered_dump(data=data, Dumper=yaml.SafeDumper, default_flow_style=False))
@@ -207,7 +207,7 @@ class APIMetaDataHandler(BaseHandler):
         slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
-        #api_key = self.get_argument('api_key', None)        
+        #api_key = self.get_argument('api_key', None)
         # must be logged in first
         user = self.get_current_user()
         if not user:
@@ -229,7 +229,7 @@ class APIMetaDataHandler(BaseHandler):
            checks to see if current user matches the creating user.'''
         # must be logged in first
         user = self.get_current_user()
-        api_key = self.get_argument('api_key', None)        
+        api_key = self.get_argument('api_key', None)
         slug_name = self.get_argument('slug', '').lower()
         if not user:
             res = {'success': False, 'error': 'Authenticate first with your github account.'}
@@ -293,7 +293,7 @@ class GitWebhookHandler(BaseHandler):
                 modified_files.add(fi)
         # build query
         _query = {"query": {"bool": {"should": [
-            {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)), 
+            {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)),
             "max_determinized_states": 200000}}} for fi in modified_files]}}}
         # get list of ids that need to be refreshed
         ids_refresh = [x['_id'] for x in self.esq.fetch_all(query=_query)]
