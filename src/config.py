@@ -1,5 +1,5 @@
 from biothings.web.settings.default import *
-from config_key import API_KEY, COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+from config_key import COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 
 from api.handlers import APP_LIST as api_app_list
 from web.handlers import APP_LIST as web_app_list

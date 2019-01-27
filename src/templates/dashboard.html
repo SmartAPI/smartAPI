@@ -405,7 +405,6 @@
         data: function(){
           return {
             userInfo:{},
-            apiKey:'G93U24vcjrZReaRNfZ7qz1Y3Ltd941TL',
             confirmModal:{
               title:'',
               id:''
@@ -473,7 +472,7 @@
             // ID for api to be deleted forever
             var self = this;
             self.showLoading();
-            axios.delete('/api/metadata/'+apiID+'?api_key='+self.apiKey).then(response=>{
+            axios.delete('/api/metadata/'+apiID).then(response=>{
               //sucessful deletion
               self.hideLoading();
               if( response.data.success ){
