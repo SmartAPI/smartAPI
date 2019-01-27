@@ -516,29 +516,37 @@ class ESQuery():
         print("Loading docs from \"{}\"...".format(backupfile), end=" ")
         in_f = open(backupfile)
         doc_li = json.load(in_f)
-        print("Done. [{}]".format(len(doc_li)))
+        print("Done. [{} Documents]".format(len(doc_li)))
 
         print("Creating index...", end=" ")
         create_index(index_name, es=self._es)
         print("Done.")
 
         print("Indexing...", end=" ")
+        no_paths_list = []
         for _doc in doc_li:
             _id = _doc.pop('_id')
-
             # convert saved data to new format
             _paths = []
-            for path in _doc['paths']:
-                if "swagger" in _doc:
-                    _paths.append({
-                        "path": path,
-                        "pathitem": _doc['paths'][path]
-                    })
+            if 'paths' in _doc:
+                for path in _doc['paths']:
+                    if "swagger" in _doc:
+                        _paths.append({
+                            "path": path,
+                            "pathitem": _doc['paths'][path]
+                        })
+            else:
+                no_paths_list.append(_id)
             if _paths:
                 _doc['paths'] = _paths
 
             self._es.index(index=index_name,
                            doc_type=self._doc_type, body=_doc, id=_id)
+        if no_paths_list:
+            print('\n\tWarning: The following APIs restored do not have paths:')
+            for api_id in no_paths_list:
+                print('\t',api_id)
+            print('\t',end='')
         print("Done.")
 
     def _validate_slug_name(self, slug_name):
