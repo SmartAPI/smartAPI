@@ -7,7 +7,7 @@ from shlex import shlex
 
 from elasticsearch import Elasticsearch, RequestError, helpers
 
-from .transform import APIMetadata, decode_raw, get_api_metadata_by_url
+from .transform import APIMetadata, decode_raw, get_api_metadata_by_url, SWAGGER2_INDEXED_ITEMS
 
 ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_oas3'
@@ -508,6 +508,27 @@ class ESQuery():
         """restore all docs from the backup file to a new index.
            must restore to a new index, cannot overwrite an existing one.
         """
+
+        def legacy_backupfile_support_path_str(_doc):
+            _paths = []
+            if 'paths' in _doc:
+                for path in _doc['paths']:
+                    _paths.append({
+                        "path": path,
+                        "pathitem": _doc['paths'][path]
+                    })
+            if _paths:
+                _doc['paths'] = _paths
+            return _doc
+
+        def legacy_backupfile_support_rm_flds(_doc):
+            _d = {"_meta": _doc['_meta']}
+            for key in SWAGGER2_INDEXED_ITEMS:
+                if key in _doc:
+                    _d[key] = _doc[key]
+            _d['~raw'] = _doc['~raw']
+            return _d
+
         if self._es.indices.exists(index_name):
             print(
                 "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
@@ -523,30 +544,20 @@ class ESQuery():
         print("Done.")
 
         print("Indexing...", end=" ")
-        no_paths_list = []
+        swagger_v2_count = 0
+        openapi_v3_count = 0
         for _doc in doc_li:
             _id = _doc.pop('_id')
-            # convert saved data to new format
-            _paths = []
-            if 'paths' in _doc:
-                for path in _doc['paths']:
-                    if "swagger" in _doc:
-                        _paths.append({
-                            "path": path,
-                            "pathitem": _doc['paths'][path]
-                        })
+            if "swagger" in _doc:
+                swagger_v2_count += 1
+                _doc = legacy_backupfile_support_rm_flds(_doc)
+                _doc = legacy_backupfile_support_path_str(_doc)
+            elif "openapi" in _doc:
+                openapi_v3_count += 1
             else:
-                no_paths_list.append(_id)
-            if _paths:
-                _doc['paths'] = _paths
-
-            self._es.index(index=index_name,
-                           doc_type=self._doc_type, body=_doc, id=_id)
-        if no_paths_list:
-            print('\n\tWarning: The following APIs restored do not have paths:')
-            for api_id in no_paths_list:
-                print('\t',api_id)
-            print('\t',end='')
+                print('\n\tWARNING: ',_id, 'No Version.')
+            self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
+        print(swagger_v2_count, ' Swagger Objects and ', openapi_v3_count, ' Openapi Objects. ')
         print("Done.")
 
     def _validate_slug_name(self, slug_name):
