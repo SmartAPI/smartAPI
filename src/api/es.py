@@ -1,3 +1,7 @@
+#pylint: disable=unexpected-keyword-arg
+# non-essential parameters are declared with decorators in es.py
+# https://github.com/elastic/elasticsearch-py/issues/274
+
 import json
 import string
 import requests
@@ -259,6 +263,7 @@ class ESQuery():
             res = res[0]
         return res
 
+    # replaced by Biothings SDK Web Component Query API
     def query_api(self, q, filters=None, fields=None, return_raw=True, size=None, from_=0, raw_query=False):
         # query = {
         #     "query":{
@@ -465,7 +470,7 @@ class ESQuery():
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
-    # used in GitWebhookHandler [POST]
+    # used in GitWebhookHandler [POST] and self.backup_all()
     def fetch_all(self, as_list=False, id_list=[], query={}):
         """return a generator of all docs from the ES index.
             return a list instead if as_list is True.
@@ -490,7 +495,7 @@ class ESQuery():
         else:
             return doc_iter
 
-    def backup_all(self, outfile=None):
+    def backup_all(self, outfile=None, ignore_archives=False):
         """back up all docs into a output file."""
         # get the real index name in case self._index is an alias
         alias_d = self._es.indices.get_alias(self._index)
@@ -499,15 +504,22 @@ class ESQuery():
         outfile = outfile or "{}_backup_{}.json".format(
             index_name, get_datestamp())
         out_f = open(outfile, 'w')
-        doc_li = self.fetch_all(as_list=True)
+        query = None
+        if ignore_archives:
+            query = {
+                "query": {
+                    "bool": {
+                        "must_not": {"term": {"_meta._archived": "true"}}
+                    }
+                }
+            }
+        doc_li = self.fetch_all(as_list=True, query=query)
         json.dump(doc_li, out_f, indent=2)
         out_f.close()
         print("Backed up {} docs in \"{}\".".format(len(doc_li), outfile))
 
-    def restore_all(self, backupfile, index_name):
-        """restore all docs from the backup file to a new index.
-           must restore to a new index, cannot overwrite an existing one.
-        """
+    def restore_all(self, backupfile, index_name, overwrite=False):
+        """restore all docs from the backup file to a new index."""
 
         def legacy_backupfile_support_path_str(_doc):
             _paths = []
@@ -530,9 +542,12 @@ class ESQuery():
             return _d
 
         if self._es.indices.exists(index_name):
-            print(
-                "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
-            return
+            if overwrite and ask("Warning: index \"{}\" exists. Do you want to overwrite it?".format(index_name))=='Y':
+                self._es.indices.delete(index=index_name)
+            else:
+                print(
+                    "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
+                return
 
         print("Loading docs from \"{}\"...".format(backupfile), end=" ")
         in_f = open(backupfile)
@@ -555,9 +570,11 @@ class ESQuery():
             elif "openapi" in _doc:
                 openapi_v3_count += 1
             else:
-                print('\n\tWARNING: ',_id, 'No Version.')
-            self._es.index(index=index_name, doc_type=self._doc_type, body=_doc, id=_id)
-        print(swagger_v2_count, ' Swagger Objects and ', openapi_v3_count, ' Openapi Objects. ')
+                print('\n\tWARNING: ', _id, 'No Version.')
+            self._es.index(index=index_name,
+                           doc_type=self._doc_type, body=_doc, id=_id)
+        print(swagger_v2_count, ' Swagger Objects and ',
+              openapi_v3_count, ' Openapi Objects. ')
         print("Done.")
 
     def _validate_slug_name(self, slug_name):
