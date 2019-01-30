@@ -1,3 +1,7 @@
+#pylint: disable=unexpected-keyword-arg
+# non-essential parameters are declared with decorators in es.py
+# https://github.com/elastic/elasticsearch-py/issues/274
+
 import json
 import string
 import requests
@@ -7,7 +11,7 @@ from shlex import shlex
 
 from elasticsearch import Elasticsearch, RequestError, helpers
 
-from .transform import APIMetadata, decode_raw, get_api_metadata_by_url
+from .transform import APIMetadata, decode_raw, get_api_metadata_by_url, SWAGGER2_INDEXED_ITEMS
 
 ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_oas3'
@@ -259,6 +263,7 @@ class ESQuery():
             res = res[0]
         return res
 
+    # replaced by Biothings SDK Web Component Query API
     def query_api(self, q, filters=None, fields=None, return_raw=True, size=None, from_=0, raw_query=False):
         # query = {
         #     "query":{
@@ -465,7 +470,7 @@ class ESQuery():
 
         return (200, {"success": True, "message": "API '{}' successfully deleted".format(id)})
 
-    # used in GitWebhookHandler [POST]
+    # used in GitWebhookHandler [POST] and self.backup_all()
     def fetch_all(self, as_list=False, id_list=[], query={}):
         """return a generator of all docs from the ES index.
             return a list instead if as_list is True.
@@ -490,7 +495,7 @@ class ESQuery():
         else:
             return doc_iter
 
-    def backup_all(self, outfile=None):
+    def backup_all(self, outfile=None, ignore_archives=False):
         """back up all docs into a output file."""
         # get the real index name in case self._index is an alias
         alias_d = self._es.indices.get_alias(self._index)
@@ -499,46 +504,77 @@ class ESQuery():
         outfile = outfile or "{}_backup_{}.json".format(
             index_name, get_datestamp())
         out_f = open(outfile, 'w')
-        doc_li = self.fetch_all(as_list=True)
+        query = None
+        if ignore_archives:
+            query = {
+                "query": {
+                    "bool": {
+                        "must_not": {"term": {"_meta._archived": "true"}}
+                    }
+                }
+            }
+        doc_li = self.fetch_all(as_list=True, query=query)
         json.dump(doc_li, out_f, indent=2)
         out_f.close()
         print("Backed up {} docs in \"{}\".".format(len(doc_li), outfile))
 
-    def restore_all(self, backupfile, index_name):
-        """restore all docs from the backup file to a new index.
-           must restore to a new index, cannot overwrite an existing one.
-        """
-        if self._es.indices.exists(index_name):
-            print(
-                "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
-            return
+    def restore_all(self, backupfile, index_name, overwrite=False):
+        """restore all docs from the backup file to a new index."""
 
-        print("Loading docs from \"{}\"...".format(backupfile), end=" ")
-        in_f = open(backupfile)
-        doc_li = json.load(in_f)
-        print("Done. [{}]".format(len(doc_li)))
-
-        print("Creating index...", end=" ")
-        create_index(index_name, es=self._es)
-        print("Done.")
-
-        print("Indexing...", end=" ")
-        for _doc in doc_li:
-            _id = _doc.pop('_id')
-
-            # convert saved data to new format
+        def legacy_backupfile_support_path_str(_doc):
             _paths = []
-            for path in _doc['paths']:
-                if "swagger" in _doc:
+            if 'paths' in _doc:
+                for path in _doc['paths']:
                     _paths.append({
                         "path": path,
                         "pathitem": _doc['paths'][path]
                     })
             if _paths:
                 _doc['paths'] = _paths
+            return _doc
 
+        def legacy_backupfile_support_rm_flds(_doc):
+            _d = {"_meta": _doc['_meta']}
+            for key in SWAGGER2_INDEXED_ITEMS:
+                if key in _doc:
+                    _d[key] = _doc[key]
+            _d['~raw'] = _doc['~raw']
+            return _d
+
+        if self._es.indices.exists(index_name):
+            if overwrite and ask("Warning: index \"{}\" exists. Do you want to overwrite it?".format(index_name))=='Y':
+                self._es.indices.delete(index=index_name)
+            else:
+                print(
+                    "Error: index \"{}\" exists. Try a different index_name.".format(index_name))
+                return
+
+        print("Loading docs from \"{}\"...".format(backupfile), end=" ")
+        in_f = open(backupfile)
+        doc_li = json.load(in_f)
+        print("Done. [{} Documents]".format(len(doc_li)))
+
+        print("Creating index...", end=" ")
+        create_index(index_name, es=self._es)
+        print("Done.")
+
+        print("Indexing...", end=" ")
+        swagger_v2_count = 0
+        openapi_v3_count = 0
+        for _doc in doc_li:
+            _id = _doc.pop('_id')
+            if "swagger" in _doc:
+                swagger_v2_count += 1
+                _doc = legacy_backupfile_support_rm_flds(_doc)
+                _doc = legacy_backupfile_support_path_str(_doc)
+            elif "openapi" in _doc:
+                openapi_v3_count += 1
+            else:
+                print('\n\tWARNING: ', _id, 'No Version.')
             self._es.index(index=index_name,
                            doc_type=self._doc_type, body=_doc, id=_id)
+        print(swagger_v2_count, ' Swagger Objects and ',
+              openapi_v3_count, ' Openapi Objects. ')
         print("Done.")
 
     def _validate_slug_name(self, slug_name):
