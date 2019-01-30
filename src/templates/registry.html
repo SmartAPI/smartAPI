@@ -382,8 +382,12 @@
                   if (!value) {
                     value = 1;
                   }
-                  // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-                  ga('send', 'event', category, 'click', label , value );
+                  ga('send', {
+                    'hitType':'event',
+                    'eventCategory': category,
+                    'eventAction':'click',
+                    'eventLabel': label ,
+                    'eventValue':value} );
                 },
                 sortResults(e){
                   console.log(e.target.value)
