@@ -126,10 +126,10 @@
         <div v-if='index === 0' class="center padding20 hide-on-small-only" style="width:100%;">
           <img src="/static/img/scripps.svg" width="400px" alt="logo"/>
         </div>
-        <div v-if='index === 5' class="center padding20 hide-on-small-only" style="width:100%;">
+        <div v-if='index === 6' class="center padding20 hide-on-small-only" style="width:100%;">
           <img src="/static/img/mu.png" width="400px" alt="logo"/>
         </div>
-        <div v-if='index === 7' class="center padding20 hide-on-small-only" style="width:100%;">
+        <div v-if='index === 8' class="center padding20 hide-on-small-only" style="width:100%;">
           <h2 class="blue-text flow-text bold">Additional Team Members</h2>
         </div>
         <div href="#modal1" class="contributor-box contributor modal-trigger" @click='popUpDetails(index)'>
@@ -139,6 +139,14 @@
           <img class="hide-on-med-only hide-on-large-only" :src="person.work_logo" width="100%" alt="logo"/>
         </div>
       </template>
+      <h5 class="flow-text bold blue-text">
+        NIH Data Commons API Interoperability Working Group
+      </h5>
+      <ul>
+        <li v-for="person in otherMembers">
+          <span class="blue-text">{{person.name}}</span>, {{person.organization}}
+        </li>
+      </ul>
     </div>
   </section>
 
@@ -211,6 +219,32 @@
       data: function(){
         return {
           selectedPerson:{},
+          otherMembers:[
+            {
+              'name':'Ruben Verborgh',
+              'organization':'Ghent University'
+            },
+            {
+              'name':'Paul Avillach',
+              'organization':'Harvard University'
+            },
+            {
+              'name':'Gabor Korodi',
+              'organization':'Harvard University'
+            },
+            {
+              'name':'Raymond Terryn',
+              'organization':'University of Miami'
+            },
+            {
+              'name':'Kathleen Jagodnik',
+              'organization':'Mount Sinai'
+            },
+            {
+              'name':'Pedro Assis',
+              'organization':'Standford University'
+            },
+          ],
           contributors:[
             {
               name:'Chunlei',
@@ -291,6 +325,22 @@
                 {title:"github", href:'https://github.com/kevinxin90'},
                 {title:"linkedin", href:'https://www.linkedin.com/in/marco-alvarado-cano'},
               ]
+            },
+            {
+               name:'Xinghua(Jerry)',
+               lastname:'Zhou',
+               title:'Research Programmer',
+               work_logo:'/static/img/scripps.svg',
+               work_website:'https://www.scripps.edu/',
+               bio:'Jerry is a research programmer in the Department of Integrative Structure and Computational Biology at Scripps Research.',
+               education:['B.S., Computer Engineering, University of California San Diego'],
+               image:'/static/img/jerry.jpg',
+               personal_site:'#',
+               links:[
+                   {title:"flickr", href: 'https://www.flickr.com/people/namespacestd/'},
+                   {title:"github", href:'https://github.com/namespacestd0'},
+                   {title:"linkedin", href:'https://www.linkedin.com/in/jerry-zhou-b48b04b1/'},
+               ]
             },
             {
               name:'Michel',
