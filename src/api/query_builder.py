@@ -83,6 +83,8 @@ class SmartAPIQueryBuilder(BiothingsESQueryBuilder):
             _query = self._user_query(q)
         elif self._is_match_all(q):
             _query = self._match_all(q)
+        elif self._is_random_query(q):
+            _query = self._random_query(q)
         else:
             _query = self._extra_query_types(q)
 
