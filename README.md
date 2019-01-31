@@ -18,7 +18,7 @@ Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43
     ````
 3. Install system packages (on Ubuntu, for example)
     ```
-    sudo apt install libcurl4-openssl-dev libssl-dev
+    sudo apt install libcurl4-openssl-dev libssl-dev aws-cli
     ```
 4. Change directory to SmartAPI source files
     ```

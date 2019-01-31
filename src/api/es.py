@@ -4,14 +4,16 @@
 
 import json
 import string
-import requests
 import sys
 from datetime import date, datetime
 from shlex import shlex
 
+import boto3
+import requests
 from elasticsearch import Elasticsearch, RequestError, helpers
 
-from .transform import APIMetadata, decode_raw, get_api_metadata_by_url, SWAGGER2_INDEXED_ITEMS
+from .transform import (SWAGGER2_INDEXED_ITEMS, APIMetadata, decode_raw,
+                        get_api_metadata_by_url)
 
 ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_oas3'
@@ -495,14 +497,14 @@ class ESQuery():
         else:
             return doc_iter
 
-    def backup_all(self, outfile=None, ignore_archives=False):
+    def backup_all(self, outfile=None, ignore_archives=False, aws_s3_bucket=None):
         """back up all docs into a output file."""
         # get the real index name in case self._index is an alias
         alias_d = self._es.indices.get_alias(self._index)
         assert len(alias_d) == 1
         index_name = list(alias_d.keys())[0]
-        outfile = outfile or "{}_backup_{}.json".format(
-            index_name, get_datestamp())
+        default_name = "{}_backup_{}.json".format(index_name, get_datestamp())
+        outfile = outfile or default_name
         out_f = open(outfile, 'w')
         query = None
         if ignore_archives:
@@ -514,9 +516,15 @@ class ESQuery():
                 }
             }
         doc_li = self.fetch_all(as_list=True, query=query)
-        json.dump(doc_li, out_f, indent=2)
-        out_f.close()
-        print("Backed up {} docs in \"{}\".".format(len(doc_li), outfile))
+        if aws_s3_bucket:
+            location_prompt = 'on S3'
+            s3 = boto3.resource('s3')
+            s3.Bucket(aws_s3_bucket).put_object(Key='db_backup/{}'.format(outfile), Body=json.dumps(doc_li, indent=2))
+        else:
+            location_prompt = 'locally'
+            json.dump(doc_li, out_f, indent=2)
+            out_f.close()
+        print("Backed up {} docs in \"{}\" {}.".format(len(doc_li), outfile, location_prompt))
 
     def restore_all(self, backupfile, index_name, overwrite=False):
         """restore all docs from the backup file to a new index."""
