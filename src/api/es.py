@@ -12,6 +12,7 @@ import boto3
 import requests
 from elasticsearch import Elasticsearch, RequestError, helpers
 
+from .mapping import smart_api_mapping
 from .transform import (SWAGGER2_INDEXED_ITEMS, APIMetadata, decode_raw,
                         get_api_metadata_by_url)
 
@@ -74,87 +75,10 @@ def split_ids(q):
 def create_index(index_name=None, es=None):
     index_name = index_name or ES_INDEX_NAME
     body = {}
-    mapping = {
-        "api": {
-            "dynamic_templates": [
-                {
-                    "ignore_example_field": {
-                        "match": "example",
-                        "mapping": {
-                            "index": False
-                        }
-                    }
-                },
-                {
-                    "ignore_ref_field": {
-                        "match": "$ref",
-                        "mapping": {
-                            "index": False
-                        }
-                    }
-                },
-                {
-                    "ignore_schema_field": {
-                        "match": "schema",
-                        "mapping": {
-                            "enabled": False
-                        }
-                    }
-                },
-                {
-                    "ignore_content_field": {
-                        "match": "content",
-                        "mapping": {
-                            "enabled": False
-                        }
-                    }
-                },
-                # this must be the last template
-                {
-                    "template_1": {
-                        "match": "*",
-                        "match_mapping_type": "string",
-                        "mapping": {
-                            "type": "text",
-                            "index": True,
-                            "ignore_malformed": True,
-                            "fields": {
-                                "raw": {
-                                    "type": "keyword"
-                                }
-                            }
-                        }
-                    }
-                }
-            ],
-            "properties": {
-                "components": {
-                    "enabled": False
-                },
-                "definitions": {
-                    "enabled": False
-                },
-                "~raw": {
-                    "type": "binary"
-                }
-            }
-        }
-    }
-    mapping = {"mappings": mapping}
+    mapping = {"mappings": smart_api_mapping}
     body.update(mapping)
     _es = es or get_es()
     print(_es.indices.create(index=index_name, body=body), end=" ")
-
-
-# def _encode_api_object_id(api_doc):
-    # info_d = api_doc.get('info', {})
-    # api_title, api_version = info_d.get('title', ''), info_d.get('version', '')
-    # api_contact = info_d.get('contact', {})
-    # api_contact = api_contact.get('name', '')
-    # if not (api_title and api_version and api_contact):
-    #     raise ValueError("Missing required info fields.")
-    # x = json.dumps((api_title, api_version, api_contact))
-    # return blake2b(x.encode('utf8'), digest_size=16).hexdigest()
 
 
 def _get_hit_object(hit):
@@ -265,131 +189,6 @@ class ESQuery():
             res = res[0]
         return res
 
-    # replaced by Biothings SDK Web Component Query API
-    def query_api(self, q, filters=None, fields=None, return_raw=True, size=None, from_=0, raw_query=False):
-        # query = {
-        #     "query":{
-        #         "match" : {
-        #             attr: {
-        #                 "query": q
-        #             }
-        #         }
-        #     }
-        # }
-        try:
-            query = json.loads(q)
-            assert isinstance(query, dict)
-            is_raw_query = True
-        except (ValueError, AssertionError):
-            is_raw_query = False
-
-        if not is_raw_query:
-            if q == '__all__':
-                query = {
-                    "query": {
-                        "match_all": {}
-                    }
-                }
-            else:
-                query = {
-                    "query": {
-                        "dis_max": {
-                            "queries": [
-                                {
-                                    "term": {
-                                        "info.title": {
-                                            "value": q,
-                                            "boost": 2.0
-                                        }
-                                    }
-                                },
-                                {
-                                    "term": {
-                                        "server.url": {
-                                            "value": q,
-                                            "boost": 1.1
-                                        }
-                                    }
-                                },
-                                {
-                                    "term": {
-                                        "_id": q,
-                                    }
-                                },
-                                {
-                                    "query_string": {
-                                        "query": q
-                                    }
-                                },
-                                {
-                                    "query_string": {
-                                        "query": q + "*",
-                                        "boost": 0.8
-                                    }
-                                },
-                            ]
-                        }
-                    }
-                }
-                # query = {
-                #     "query": {
-                #         "query_string": {
-                #             "query": q
-                #         }
-                #     }
-                # }
-
-        query = {
-            "query": {
-                "bool": {
-                    "must": query["query"],
-                    "must_not": {"term": {"_meta._archived": "true"}}
-                }
-            }
-        }
-
-        if filters:
-            if len(filters) == 1:
-                query["query"]["bool"]["filter"] = {"terms": filters}
-            else:
-                query["query"]["bool"]["filter"] = [
-                    {"terms": {philter[0]:philter[1]}} for philter in filters.items()]
-
-        if not fields or fields == 'all':
-            pass
-        else:
-            try:
-                _fields = split_ids(fields)
-                query['_source'] = _fields
-            except ValueError as e:
-                # should pass errors back to handlers
-                return {'success': False, 'error': 'Could not split "fields" argument due to the following error: "{}"'.format(str(e))}
-        if size and isinstance(size, int):
-            query['size'] = min(size, 100)    # set max size to 100 for now.
-        if from_ and isinstance(from_, int) and from_ > 0:
-            query['from'] = from_
-        # else:
-        #     query['_source'] = ['@id', attr_input, attr_output]
-        # print(query)
-        if raw_query:
-            return query
-
-        res = self._es.search(self._index, self._doc_type, body=query)
-        if not return_raw:
-            _res = res['hits']
-            _res['took'] = res['took']
-            if "aggregations" in res:
-                _res['aggregations'] = res['aggregations']
-            for v in _res['hits']:
-                del v['_type']
-                del v['_index']
-                for attr in ['fields', '_source']:
-                    if attr in v:
-                        v.update(v[attr])
-                        del v[attr]
-                        break
-            res = _res
-        return res
 
     def _do_aggregations(self, _field, agg_name, size):
         query = {

@@ -1,21 +1,21 @@
-import sys
-import os
-
-import tornado.httpserver
-import tornado.httpclient
-import tornado.ioloop
-import tornado.web
-import tornado.gen
-from tornado.httputil import url_concat
-from jinja2 import Environment, FileSystemLoader
-import torngithub
-from api.es import ESQuery
-from torngithub import json_encode, json_decode
-
-from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
-
 import json
 import logging
+import os
+import sys
+
+import tornado.gen
+import tornado.httpclient
+import tornado.httpserver
+import tornado.ioloop
+import tornado.web
+import torngithub
+from jinja2 import Environment, FileSystemLoader
+from tornado.httputil import url_concat
+from torngithub import json_decode, json_encode
+
+from api.es import ESQuery
+from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
+
 log = logging.getLogger("smartapi")
 
 

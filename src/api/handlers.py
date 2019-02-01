@@ -1,23 +1,24 @@
-import json
 import datetime
+import hashlib
+import hmac
+import json
+import re
+from collections import OrderedDict
 
+import tornado.escape
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
 import tornado.web
-import tornado.escape
 import yaml
-import re
-import hashlib
-import hmac
 
-from collections import OrderedDict
-from .es import ESQuery
-from .transform import get_api_metadata_by_url, APIMetadata
-import config
-
+from biothings.web.api.es.handlers import \
+    QueryHandler as BioThingsESQueryHandler
 from biothings.web.api.es.handlers.base_handler import BaseESRequestHandler
-from biothings.web.api.es.handlers import QueryHandler as BioThingsESQueryHandler
+
+from .es import ESQuery
+from .transform import APIMetadata, get_api_metadata_by_url
+
 
 class BaseHandler(BaseESRequestHandler):
 
@@ -206,7 +207,7 @@ class GitWebhookHandler(BaseHandler):
 
     def post(self):
         # do message authentication
-        digest_obj = hmac.new(key=config.API_KEY.encode(
+        digest_obj = hmac.new(key=self.web_settings.API_KEY.encode(
         ), msg=self.request.body, digestmod=hashlib.sha1)
         if not hmac.compare_digest('sha1=' + digest_obj.hexdigest(), self.request.headers.get('X-Hub-Signature', '')):
             self.set_status(405)
