@@ -7,8 +7,6 @@ SmartAPI allows API publishers to annotate their services and input/output param
 
 Presentation: http://bit.ly/smartAPIslides
 
-Repo: https://github.com/WebsmartAPI/smartAPI
-
 Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43D9DSpG_o/edit?usp=sharing
 
 
@@ -20,7 +18,7 @@ Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43
     ````
 3. Install system packages (on Ubuntu, for example)
     ```
-    sudo apt install libcurl4-openssl-dev libssl-dev
+    sudo apt install libcurl4-openssl-dev libssl-dev aws-cli
     ```
 4. Change directory to SmartAPI source files
     ```
@@ -47,7 +45,7 @@ Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43
     ```
     from api import es
     esq = es.ESQuery()
-    esq.restore_all("smartapi_oas3_20180506_backup_20181005.json", es.ES_INDEX_NAME)
+    esq.restore_all("smartapi_oas3_backup_20190128.json", es.ES_INDEX_NAME)
     ```
 8. Run dev server
     ```
