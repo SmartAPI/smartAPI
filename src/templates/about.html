@@ -47,6 +47,12 @@
     max-width: 170px;
   }
 
+  .squarePic{
+    object-fit: cover;
+    width:105px;
+    height:105px;
+  }
+
 
 </style>
 <main id="about-app" class="white" style="width: 100%;">
@@ -133,12 +139,14 @@
           <h2 class="blue-text flow-text bold">Additional Team Members</h2>
         </div>
         <div href="#modal1" class="contributor-box contributor modal-trigger" @click='popUpDetails(index)'>
-          <img class="circle scale-in-center" width="70%"  :src="person.image" :alt="person.name"/>
+          <img class="circle scale-in-center squarePic" width="70%"  :src="person.image" :alt="person.name"/>
           <p class="bold blue-text">{{person.name}} {{person.lastname}}</p>
           <p class="blue-grey-text smallFont">{{person.title}}</p>
           <img class="hide-on-med-only hide-on-large-only" :src="person.work_logo" width="100%" alt="logo"/>
         </div>
       </template>
+    </div>
+    <div class="col-sm-12">
       <h5 class="flow-text bold blue-text">
         NIH Data Commons API Interoperability Working Group
       </h5>
@@ -313,7 +321,7 @@
             {
               name:'Kevin',
               lastname:'Xin',
-              title:'Graduate Student',
+              title:'Staff Scientist',
               work_logo:'/static/img/scripps.svg',
               work_website:'https://www.scripps.edu/',
               bio:"I'm currently working on projects that apply data science methodology and cloud computing technologies to facilitate biomedical discovery, through the large-scale biological data integration.  Current projects include: http://BioThings.io/Explorer and http://SmartAPI.info",
@@ -323,7 +331,7 @@
               links:[
                 {title:"twitter", href:'#'},
                 {title:"github", href:'https://github.com/kevinxin90'},
-                {title:"linkedin", href:'https://www.linkedin.com/in/marco-alvarado-cano'},
+                {title:"linkedin", href:'https://www.linkedin.com/in/jiwen-xin-7a207b29/'},
               ]
             },
             {
