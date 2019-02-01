@@ -15,7 +15,7 @@ import sys
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b
 else:
-    from pyblake2 import blake2b
+    from pyblake2 import blake2b #pylint: disable=import-error
 
 
 # Official oas3 json schema for validation is still in-development.
