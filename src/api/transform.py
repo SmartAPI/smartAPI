@@ -61,10 +61,12 @@ def decode_raw(raw, sorted=True, as_string=False):
     else:
         return d
 
-
-def get_api_metadata_by_url(url, as_string=False):
+def polite_requests(url, head=False):
     try:
-        res = requests.get(url, timeout=5)
+        if head:
+            res = requests.head(url, timeout=5)
+        else:
+            res = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
         return {"success": False, "error": "URL request is timeout."}
     except requests.exceptions.ConnectionError:
@@ -73,7 +75,13 @@ def get_api_metadata_by_url(url, as_string=False):
         return {"success": False, "error": "Failed to make the request to this URL."}
     if res.status_code != 200:
         return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
-    else:
+    return {"success": True, "response": res}
+
+def get_api_metadata_by_url(url, as_string=False):
+
+    _res = polite_requests(url)
+    if _res.get('success'):
+        res = _res.get('response')
         if as_string:
             return res.text
         else:
@@ -88,6 +96,8 @@ def get_api_metadata_by_url(url, as_string=False):
                     return {"success": False,
                             "error": "Not a valid JSON or YAML format."}
             return metadata
+    else:
+        return _res
 
 
 class APIMetadata:
