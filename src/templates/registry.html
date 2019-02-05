@@ -394,12 +394,18 @@
                   if (!value) {
                     value = 1;
                   }
-                  ga('send', {
-                    'hitType':'event',
-                    'eventCategory': category,
-                    'eventAction':'click',
-                    'eventLabel': label ,
-                    'eventValue':value} );
+                  // ga('send', {
+                  //   'hitType':'event',
+                  //   'eventCategory': category,
+                  //   'eventAction':'click',
+                  //   'eventLabel': label ,
+                  //   'eventValue':value} );
+
+                    gtag('event', 'click', {
+                      'event_category': category,
+                      'event_label': label,
+                      'value': value
+                    });
                 },
                 sortResults(e){
                   console.log(e.target.value)
