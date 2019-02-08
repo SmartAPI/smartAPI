@@ -307,6 +307,21 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
     <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-129986551-1', {
+        'custom_map': {
+           'dimension1': 'registryTag',
+           'dimension2': 'registryAuthor',
+           'dimension3': 'registryAPIs',
+           'dimension4': 'registrySearches',
+           'dimension5': 'registrySharedURL',
+           'dimension6': 'value',
+        }
+      });
+
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
 
@@ -394,18 +409,30 @@
                   if (!value) {
                     value = 1;
                   }
-                  // ga('send', {
-                  //   'hitType':'event',
-                  //   'eventCategory': category,
-                  //   'eventAction':'click',
-                  //   'eventLabel': label ,
-                  //   'eventValue':value} );
+                  switch (category) {
+                    case 'Registry_Tag':
+                      gtag('event', 'registryEventTag', {'registryTag': label});
+                      break;
+                    case 'Registry_Author':
+                      gtag('event', 'registryEventAuthor', {'registryAuthor': label});
+                      break;
+                    case 'Registry_APIs':
+                      gtag('event', 'registryEventAPI', {'registryAPIs': label});
+                      break;
+                    case 'Registry_Searches':
+                      gtag('event', 'registryEventSearch', {'registrySearches': label});
+                      break;
+                    case 'Registry_SharedURL':
+                      gtag('event', 'registryEventShared', {'registrySharedURL': label});
+                      break;
+                    default:
+                      gtag('event', 'click', {
+                        'event_category': category,
+                        'event_label': label,
+                        'value': value
+                      });
+                  }
 
-                    gtag('event', 'click', {
-                      'event_category': category,
-                      'event_label': label,
-                      'value': value
-                    });
                 },
                 sortResults(e){
                   console.log(e.target.value)
