@@ -112,7 +112,7 @@
                             </div>
                           </div>
                         </template>
-                        <div class="card context" v-for="(api,index) in paginatedApis">
+                        <div class="card context scale-in-center" v-for="(api,index) in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
                                   <span class="blue-grey-text bold">
@@ -145,11 +145,19 @@
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
-                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event); googleAnalytics('Registry_APIs',api.info.title, 1)}">
+                                <!-- <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event); googleAnalytics('Registry_APIs',api.info.title, 1)}">
                                    show details
+                                </a> -->
+                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent="api.showDetails = !api.showDetails; googleAnalytics('Registry_APIs',api.info.title, 1)">
+                                  <template v-if="!api.showDetails">
+                                    SHOW DETAILS
+                                  </template>
+                                  <template v-else>
+                                    HIDE DETAILS
+                                  </template>
                                 </a>
                             </div>
-                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails == true || apis.length === 1">
+                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails || apis.length === 1">
                                 <div class="row">
                                   <table class="pillTable">
                                     <tbody>
@@ -160,7 +168,6 @@
                                         <td class="white blue-grey-text center" >
                                           <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
                                             <span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q={{api._id}}</span>
-                                            <!-- <span class="tooltiptext"><small>View on registry by itself</small></span> -->
                                           </a>
                                           <button style="margin-left:10px;" class="smallButton copyBtn tooltip" :data-clipboard-target="'#url'+api._id">
                                             Copy
@@ -411,19 +418,24 @@
                   }
                   switch (category) {
                     case 'Registry_Tag':
-                      gtag('event', 'registryEventTag', {'registryTag': label});
+                      // gtag('event', 'registryEventTag', {'registryTag': label});
+                      ga('set', 'dimension1', label);
                       break;
                     case 'Registry_Author':
-                      gtag('event', 'registryEventAuthor', {'registryAuthor': label});
+                      // gtag('event', 'registryEventAuthor', {'registryAuthor': label});
+                      ga('set', 'dimension2', label);
                       break;
                     case 'Registry_APIs':
-                      gtag('event', 'registryEventAPI', {'registryAPIs': label});
+                      // gtag('event', 'registryEventAPI', {'registryAPIs': label});
+                      ga('set', 'dimension5', label);
                       break;
                     case 'Registry_Searches':
-                      gtag('event', 'registryEventSearch', {'registrySearches': label});
+                      // gtag('event', 'registryEventSearch', {'registrySearches': label});
+                      ga('set', 'dimension3', label);
                       break;
                     case 'Registry_SharedURL':
-                      gtag('event', 'registryEventShared', {'registrySharedURL': label});
+                      // gtag('event', 'registryEventShared', {'registrySharedURL': label});
+                      ga('set', 'dimension4', label);
                       break;
                     default:
                       gtag('event', 'click', {
@@ -860,9 +872,6 @@
             updated: function(){
               // Highlight matches in results
               this.getKeywords();
-              if (this.query) {
-                $('.card').addClass('scale-in-center');
-              }
             },
             computed: {
                 paginatedApis: function () {
@@ -889,6 +898,13 @@
                   break;
                   default:
                   self.apis = _.sortBy(self.apis,'info.title');
+                }
+              },
+              apis: function(apis,oldapis){
+                console.log('setting to false')
+                var self = this;
+                for (var i = 0; i < apis.length; i++) {
+                  self.$set(apis[i], 'showDetails', false);
                 }
               }
             }
