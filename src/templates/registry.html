@@ -721,6 +721,7 @@
                             self.apis = response.data.hits;
                             self.handleContext(self.context);
                             self.total = response.data.total;
+                            self.page = 1;
                             self.calculatePages();
                         }).catch(err=>{
                           throw err;
