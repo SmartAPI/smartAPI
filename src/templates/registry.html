@@ -555,7 +555,7 @@
                     }
                     var params = {
                         "params": {
-                            "q": query,
+                            "q": encodeURIComponent(query),
                             // 'fields': 'info,_meta,paths,tags,openapi,swagger,'
                             'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
                         }
@@ -570,6 +570,9 @@
                         self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
+                    }).catch(err=>{
+                      throw err;
+                      self.loading_end();
                     });
                 },
                 loadFilters: function (){
@@ -698,7 +701,7 @@
                     if (query) {
                         var params = {
                             "params": {
-                                "q": query,
+                                "q": encodeURIComponent(query),
                                 // 'fields': 'info,_meta,paths,tags,openapi,swagger'
                                 'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
 
@@ -719,6 +722,10 @@
                             self.handleContext(self.context);
                             self.total = response.data.total;
                             self.calculatePages();
+                        }).catch(err=>{
+                          throw err;
+                          self.loading_end();
+
                         });
                     }
                 },
