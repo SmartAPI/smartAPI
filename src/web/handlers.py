@@ -268,6 +268,13 @@ class PrivacyHandler(BaseHandler):
         privacy_output = privacy_template.render()
         self.write(privacy_output)
 
+class FAQHandler(BaseHandler):
+    def get(self):
+        doc_file = "faq.html"
+        faq_template = templateEnv.get_template(doc_file)
+        faq_output = faq_template.render()
+        self.write(faq_output)
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
@@ -286,5 +293,6 @@ APP_LIST = [
     (r"/editor/(.+)/?", APIEditorHandler),
     (r"/editor/?", APIEditorHandler),
     (r"/about/?", AboutHandler),
+    (r"/faq/?", FAQHandler),
     (r"/privacy/?", PrivacyHandler)
 ]
