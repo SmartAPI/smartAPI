@@ -615,13 +615,6 @@
 
                     return finalFilters;
                 },
-                // clear_form: function(){
-                //     var myURL = window.location.origin+'/registry';
-                //     window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", myURL);
-                //
-                //     this.query = '';
-                //     this.refreshApis();
-                // },
                 searchForTags: function(tagName){
                   var self = this;
                   for (var i = 0; i < self.tags.length; i++) {
@@ -771,27 +764,8 @@
                             }
                         })
                     }
-                    //IF we want to order by method
-                    // operations = _.orderBy(operations,['method']);
                     return operations;
                 },
-                // getOperations: function (api, raw=false) {
-                //     var operations = {};
-                //     if (raw) {
-                //         for(var path in api.paths) {
-                //             for(var method in api.paths[path]) {
-                //                 operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
-                //             }
-                //         }
-                //     }else{
-                //         api.paths.forEach(function(path){
-                //             for(var method in path['pathitem']) {
-                //                 operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
-                //             }
-                //         })
-                //     }
-                //     return operations;
-                // },
                 getUserInfo: function(){
                   var self= this;
                   axios.get('/user').then(response=>{

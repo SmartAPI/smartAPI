@@ -4,10 +4,18 @@
 <style>
   p.blue-grey-text{
     font-size: 1.3em;
-    /* font-weight: lighter; */
   }
+
+  .pRelative{
+    position: relative;
+  }
+
+  .pAbsolute{
+    position: absolute;
+  }
+
 </style>
-<main>
+<main id="index-app">
 <div class="section no-pad-bot light-blue lighten-5 mainBackgroundParticle" id="index-banner" style="overflow: hidden;">
   <div id="particles-js">
     <div class="center-align indexChild" >
@@ -20,8 +28,6 @@
           </div>
         </div> -->
           <div class="hide-on-small-only hide-on-med-only" id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:262px; width: 400px; text-align: center;'>
-            <!-- <span style='display: inline-block; height: 100%; vertical-align: middle;'></span>
-            <img src=/static/js/images/_preloader.gif style='vertical-align: middle; max-height: 100%'/> -->
           </div>
         <h3 class="white-text logoFont lighter hide-on-small-only textShadow" style="margin:5px; font-size: 10vw !important;">Smart<span class="l-blue-text ">API</span></h3>
         <h3 style="font-size: 18vw !important;" class="logoFont white-text lighter show-on-small hide-on-med-and-up margin10 textShadow">SmartAPI</h3>
@@ -36,146 +42,139 @@
 
 <!-- new to SmartAPI-->
 <div class="whiteBack" style="overflow: hidden;">
-  <div class="row coolCont dna-right" style="margin-bottom: 0px;">
-    <div class="col l12 blue-text padding20 center-align coolText1" style="cursor: pointer;">
-      <h5 class="shine hideOnMedium hideOnSmall ">New to <span class="logoFont">SmartAPI</span>?</h5>
-      <h4 class="grey-text hideOnLarge"><i class="fa fa-hand-o-right blue-text hideOnLarge  heartbeat" aria-hidden="true"></i> New to <b class="logoFont">SmartAPI</b>?</h4>
-    </div>
-    <div class="col l12 grey-text padding20 center-align coolText1">
-        <p style="text-transform: uppercase; font-size:1em;" >
-          <!-- <object width="100px"  alt="SmartAPI" data="/static/img/fly.gif" class="hide-on-small-only"></object> -->
-          <br class="hide-on-small-only" />
-          Follow this step-by-step guide to help you contribute to SmartAPI for the first time
-        </p>
-        <a class="clearButtonBlue" href="/guide">Start Here</a>
-    </div>
+  <div class="container-fluid center blue-grey darken-4 white-text padding20">
+    <h5 class="shine">New to <span class="logoFont">SmartAPI</span>?</h5>
+    <p class="lighter">
+      Follow this step-by-step guide to help you contribute to SmartAPI for the first time
+    </p>
+    <br />
+    <a class="clearButton" href="/guide">Start Here</a>
   </div>
 </div>
 
-<div id="intro1" class="section scrollspy grey lighten-5" style="padding-bottom:0px !important;">
+<div id="intro1" class="section grey lighten-5" style="padding-bottom:0px !important;">
     <div class="container">
-        <div class="row">
-            <div class="col l4 m4">
-              <object data="/static/img/network.svg" id="whatIs"></object>
-            </div>
-            <div class="col l8 m8">
-                  <h2 class="center hide-on-small-onlyter header blue-grey-text lighter flow-text hide-on-small-only">What is a <span class="logoFont blue-text">SmartAPI</span>?</h2>
-                  <!-- content for small screen only -->
-                  <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-                      <img width='40%' class="responsive-img" src="/static/img/logo-medium.svg">
-                  </div>
-                  <h3 class="center hide-on-med-and-up show-on-small">What is a <span class="logoFont blue-grey-text">Smart<span class="blue-text">API</span></span>?</h3>
-                  <p class="blue-grey-text">
-                      The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a <a href="http://openapis.org" target="_blank"></a>openAPI-based <a href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" target="_blank"> specification</a> for defining the key API metadata elements and value sets. SmartAPI's leverage the <a href="https://www.openapis.org/" target="_blank">Open API specification v3 </a> and <a href="http://json-ld.org" target="_blank">JSON-LD</a> for providing semantically annotated JSON content that can be treated as <a href="http://linkeddata.org/" target="_blank">Linked Data</a>.
-                  </p>
-            </div>
+      <div class="row">
+        <div class="col l4 m4">
+          <object data="/static/img/network.svg" id="whatIs"></object>
         </div>
-</div>
+        <div class="col l8 m8">
+          <h2 class="center hide-on-small-onlyter header blue-grey-text lighter flow-text hide-on-small-only">What is a <span class="logoFont blue-text">SmartAPI</span>?</h2>
+          <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
+              <img width='40%' class="responsive-img" src="/static/img/logo-medium.svg">
+          </div>
+          <h3 class="center hide-on-med-and-up show-on-small">What is a <span class="logoFont blue-grey-text">SmartAPI</span>?</h3>
+          <p class="blue-grey-text flow-text">
+              The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs). Rich metadata is essential to properly describe your API so that it becomes discoverable, connected, and reusable. We have developed a <a href="http://openapis.org" target="_blank"></a>openAPI-based <a href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" target="_blank"> specification</a> for defining the key API metadata elements and value sets. SmartAPI's leverage the <a href="https://www.openapis.org/" target="_blank">Open API specification v3 </a> and <a href="http://json-ld.org" target="_blank">JSON-LD</a> for providing semantically annotated JSON content that can be treated as <a href="http://linkeddata.org/" target="_blank">Linked Data</a>.
+          </p>
+        </div>
+      </div>
+  </div>
 
 <div style="margin-bottom:0px;" id="topicsBox" class="row blue-grey">
 
     <div class="col s12 m6 l4 center-align padding20 topic" id="registryBox">
         <a href="/registry" >
-            <object class="margin10" width="70px" data="/static/img/search.svg" id="registryIcon"></object>
+            <object alt="icon" class="margin10" width="70px" data="/static/img/search.svg" id="registryIcon"></object>
             <br>
             <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Registry</h4>
             <span class="clearButton hide-on-small-only">Registry</span>
         </a>
-        <p class="l-blue-text" style="font-weight: lighter;">
+        <p class="l-blue-text" >
             Search the registry of SmartAPIs
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="editBox">
         <a href="/editor" >
-              <object class="margin10" width="70px" data="/static/img/edit.svg" id="editIcon"></object>
+              <object alt="icon" class="margin10" width="70px" data="/static/img/edit.svg" id="editIcon"></object>
             <br>
             <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Editor</h4>
             <span class="clearButton hide-on-small-only">Editor</span>
        </a>
-        <p class="l-blue-text" style="font-weight: lighter;">
+        <p class="l-blue-text" >
             Author your own SmartAPI metadata
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="apiBox">
         <a href="/ui/27a5b60716c3a401f2c021a5b718c5b1" >
-            <object class="margin10" width="70px" data="/static/img/api.svg" id="apiIcon"></object>
+            <object alt="icon" class="margin10" width="70px" data="/static/img/api.svg" id="apiIcon"></object>
             <br>
             <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">API</h4>
             <span class="clearButton hide-on-small-only">API</span>
        </a>
-        <p class="l-blue-text" style="font-weight: lighter;">
+        <p class="l-blue-text" >
             Learn about and access the SmartAPI services
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="specBox">
         <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" >
-            <object class="margin10" width="70px" data="/static/img/spec.svg" id="specIcon"></object>
+            <object alt="icon" class="margin10" width="70px" data="/static/img/spec.svg" id="specIcon"></object>
             <br>
             <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Specification</h4>
             <span class="clearButton hide-on-small-only">Specification</span>
        </a>
-        <p class="l-blue-text" style="font-weight: lighter;">
+        <p class="l-blue-text" >
             SmartAPI metadata specification to start your API
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="guideBox">
         <a href="/guide" >
-            <object class="margin10" width="70px" data="/static/img/guide.svg" id="guideIcon"></object>
+            <object alt="icon" class="margin10" width="70px" data="/static/img/guide.svg" id="guideIcon"></object>
             <br>
             <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Guide</h4>
             <span class="clearButton hide-on-small-only">Guide</span>
        </a>
-        <p class="l-blue-text" style="font-weight: lighter;">
+        <p class="l-blue-text" >
             Contribute to SmartAPI for the first time
         </p>
     </div>
     <div class="col s12 m6 l4 center-align padding20 topic" id="groupBox">
         <a href="https://goo.gl/D4e0xL" target="_blank">
-            <object class="margin10" width="70px" data="/static/img/group.svg" id="groupIcon"></object>
+            <object alt="icon" class="margin10" width="70px" data="/static/img/group.svg" id="groupIcon"></object>
             <br>
             <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Working Group</h4>
             <span class="clearButton hide-on-small-only">Working Group</span>
         </a>
-        <p class="l-blue-text" style="font-weight: lighter;">
+        <p class="l-blue-text" >
             Join the API Interoperability working group
         </p>
     </div>
 
 </div>
-<div class="section scrollspy grey lighten-4" id="intro2">
+<div class="section grey lighten-4" id="intro2">
     <div class="container">
         <div class="row">
           <div class="col l8 s12 m8">
             <h2 class="center header blue-grey-text text_h2 flow-text hide-on-small-only">Why do we need <span class="logoFont">SmartAPI</span>s? </h2>
             <!-- content for small screen only -->
             <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-                <img width='70%' class="responsive-img" src="/static/img/graph.png">
+                <img alt="image" width='70%' class="responsive-img" src="/static/img/graph.jpg">
             </div>
-            <h3 class="center hide-on-med-and-up show-on-small">Why do we need <span class="logoFont blue-grey-text">Smart<span class="blue-text">API</span></span>s?</h3>
+            <h3 class="center hide-on-med-and-up show-on-small">Why do we need <span class="logoFont blue-grey-text">SmartAPI</span>s?</h3>
             <p class=" blue-grey-text">
                 Data analysis is increasingly being performed using cloud-based, web-friendly application programming interfaces (APIs). Thousands of tools and APIs are available through web service registries such as <a href="http://www.programmableweb.com/" target="_blank">Programmable Web</a>, <a href="https://www.biocatalogue.org/" target="_blank">BioCatalogue</a> and cloud platforms such as <a href="https://galaxyproject.org/" target="_blank">Galaxy</a>. Searching these and other API repositories to find a set of tools to retrieve or operate on data of interest presents a number of formidable challenges: users must not only supply the right combination of search terms, but must also closely examine the API outputs to determine whether they can be connected together. SmartAPIs tackle this challenge because they contain the rich metadata needed to precisely describe the service and the data that it operates on or provides.
             </p>
           </div>
           <div class="col s12 l4 center-align padding20 hide-on-small-only m4">
-            <img width='100%' class="responsive-img introPic circle" src="/static/img/graph.png">
+            <img width='100%' class="responsive-img introPic circle" src="/static/img/graph.jpg">
           </div>
         </div>
     </div>
 </div>
 
-<div class="section scrollspy" id="intro3">
+<div class="section" id="intro3">
     <div class="container">
       <div class="row">
         <div class="col l4 s12 center-align padding20 hide-on-small-only m4">
-            <img width='100%' class="responsive-img introPic circle" src="/static/img/strand.png">
+            <img alt="image2" width='100%' class="responsive-img introPic circle" src="/static/img/strand.jpg">
         </div>
         <div class="col l8 s12 m8">
           <h2 class="center header blue-grey-text text_h2 flow-text hide-on-small-only"> What does the <span class="logoFont">SmartAPI</span> offer? </h2>
           <!-- content for small screen only -->
           <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-              <img width='70%' class="responsive-img" src="/static/img/strand.png">
+              <img width='70%' class="responsive-img" src="/static/img/strand.jpg">
           </div>
-          <h3 class="center hide-on-med-and-up show-on-small">What does the <span class="logoFont blue-grey-text">Smart<span class="blue-text">API</span></span> offer?</h3>
+          <h3 class="center hide-on-med-and-up show-on-small">What does the <span class="logoFont blue-grey-text">SmartAPI</span> offer?</h3>
           <p class="blue-grey-text">
             Richly annotated APIs will provide the assets by which users will be able to search, browse, query, and reuse APIs. Users and intelligent agents being able to traverse a highly connected network of smartAPIs. Users will be able to automatically find APIs whose outputs are the inputs for other services. Ultimately, we envision the automatic generation of workflows that take users to where they want to go with what they have today.
         </p>
@@ -183,254 +182,258 @@
       </div>
     </div>
 </div>
-<div id="tracker" style="height: 100px; width: 100%;" class="mainBack blue lighten-5 dashboardBack">
-</div>
 </main>
 
 <!-- ScrollFire Animations and Dependencies-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vivus/0.4.3/vivus.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-<script src="/static/js/snap-svg-min.js"></script>
-<script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
-<script src="/static/js/aniTest2.js"></script>
+<!-- <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script> -->
+<!-- <script src="/static/js/aniTest2.js"></script> -->
 <script src="https://unpkg.com/sweetalert2@7.22.0/dist/sweetalert2.all.js"></script>
 <script type="text/javascript">
+    var app = new Vue({
+        el: '#index-app',
+        data: function(){
+          return {
+          }
+        },
+        methods: {
+          animatedIcons(){
+            // Animated Icons SVGs
+            new Vivus('whatIs', {duration: 200, type: 'oneByOne'},);
 
-var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
-function init() {
-  canvas = document.getElementById("canvas");
-  anim_container = document.getElementById("animation_container");
-  dom_overlay_container = document.getElementById("dom_overlay_container");
-  var comp=AdobeAn.getComposition("14AAD37164CF49EE808E1C323E491E37");
-  var lib=comp.getLibrary();
-  handleComplete({},comp);
-}
-function handleComplete(evt,comp) {
-  //This function is always called, irrespective of the content. You can use the variable "stage" after it is created in token create_stage.
-  var lib=comp.getLibrary();
-  var ss=comp.getSpriteSheet();
-  var preloaderDiv = document.getElementById("_preload_div_");
-  preloaderDiv.style.display = 'none';
-  canvas.style.display = 'block';
-  exportRoot = new lib.aniTest2();
-  stage = new lib.Stage(canvas);
-  //Registers the "tick" event listener.
-  fnStartAnimation = function() {
-    stage.addChild(exportRoot);
-    createjs.Ticker.setFPS(lib.properties.fps);
-    createjs.Ticker.addEventListener("tick", stage);
-  }
-  //Code to support hidpi screens and responsive scaling.
-  function makeResponsive(isResp, respDim, isScale, scaleType) {
-    var lastW, lastH, lastS=1;
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-    function resizeCanvas() {
-      var w = lib.properties.width, h = lib.properties.height;
-      var iw = window.innerWidth, ih=window.innerHeight;
-      var pRatio = window.devicePixelRatio || 1, xRatio=iw/w, yRatio=ih/h, sRatio=1;
-      if(isResp) {
-        if((respDim=='width'&&lastW==iw) || (respDim=='height'&&lastH==ih)) {
-          sRatio = lastS;
-        }
-        else if(!isScale) {
-          if(iw<w || ih<h)
-            sRatio = Math.min(xRatio, yRatio);
-        }
-        else if(scaleType==1) {
-          sRatio = Math.min(xRatio, yRatio);
-        }
-        else if(scaleType==2) {
-          sRatio = Math.max(xRatio, yRatio);
-        }
-      }
-      canvas.width = w*pRatio*sRatio;
-      canvas.height = h*pRatio*sRatio;
-      canvas.style.width = anim_container.style.width = dom_overlay_container.style.width = preloaderDiv.style.width = w*sRatio+'px';
-      canvas.style.height = anim_container.style.height = dom_overlay_container.style.height = preloaderDiv.style.height = h*sRatio+'px';
-      stage.scaleX = pRatio*sRatio;
-      stage.scaleY = pRatio*sRatio;
-      lastW = iw; lastH = ih; lastS = sRatio;
-      stage.tickOnUpdate = false;
-      stage.update();
-      stage.tickOnUpdate = true;
-    }
-  }
-  makeResponsive(true,'both',false,1);
-  AdobeAn.compositionLoaded(lib.properties.id);
-  fnStartAnimation();
-}
+            $('#editBox').hover(function(){
+              new Vivus('editIcon', {duration: 50},);
+            });
 
-    /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
-    particlesJS("particles-js",{
-      "particles": {
-        "number": {
-          "value": 80,
-          "density": {
-            "enable": true,
-            "value_area": 800
-          }
-        },
-        "color": {
-          "value": "#ffffff"
-        },
-        "shape": {
-          "type": "circle",
-          "stroke": {
-            "width": 0,
-            "color": "#000000"
+            $('#guideBox').hover(function(){
+              new Vivus('guideIcon', {duration: 50},);
+            });
+
+            $('#registryBox').hover(function(){
+              new Vivus('registryIcon', {duration: 50},);
+            });
+
+            $('#apiBox').hover(function(){
+              new Vivus('apiIcon', {duration: 50},);
+            });
+
+            $('#groupBox').hover(function(){
+              new Vivus('groupIcon', {duration: 50},);
+            });
+
+            $('#specBox').hover(function(){
+              new Vivus('specIcon', {duration: 50},);
+            });
           },
-          "polygon": {
-            "nb_sides": 5
-          },
-          "image": {
-            "src": "img/github.svg",
-            "width": 100,
-            "height": 100
-          }
-        },
-        "opacity": {
-          "value": 0.5,
-          "random": false,
-          "anim": {
-            "enable": false,
-            "speed": 1,
-            "opacity_min": 0.1,
-            "sync": false
-          }
-        },
-        "size": {
-          "value": 3,
-          "random": true,
-          "anim": {
-            "enable": false,
-            "speed": 1,
-            "size_min": 0.1,
-            "sync": false
-          }
-        },
-        "line_linked": {
-          "enable": true,
-          "distance": 300,
-          "color": "#8AC5E5",
-          "opacity": 0.4,
-          "width": 2
-        },
-        "move": {
-          "enable": true,
-          "speed": 1,
-          "direction": "none",
-          "random": false,
-          "straight": false,
-          "out_mode": "out",
-          "bounce": false,
-          "attract": {
-            "enable": false,
-            "rotateX": 600,
-            "rotateY": 1200
-          }
-        }
-      },
-      "interactivity": {
-        "detect_on": "canvas",
-        "events": {
-          "onhover": {
-            "enable": false,
-            "mode": "repulse"
-          },
-          "onclick": {
-            "enable": true,
-            "mode": "repulse"
-          },
-          "resize": true
-        },
-        "modes": {
-          "grab": {
-            "distance": 800,
-            "line_linked": {
-              "opacity": 1
+          checkCookieNotification(){
+
+            if(!localStorage.getItem("DontShowCookies")) {
+              swal({
+                    toast: true,
+                    width: '90vw',
+                    position: 'top',
+                    showConfirmButton: false,
+                    html:'<p>This website uses cookies for analytics purposes. By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
+                  });
             }
+            $(document).on("click", "#cookieButton", function() {
+                localStorage.setItem("DontShowCookies", "true");
+                swal.close();
+            });
           },
-          "bubble": {
-            "distance": 800,
-            "size": 80,
-            "duration": 2,
-            "opacity": 0.8,
-            "speed": 3
+          startParticles(){
+            particlesJS("particles-js",{
+              "particles": {
+                "number": {
+                  "value": 80,
+                  "density": {
+                    "enable": true,
+                    "value_area": 800
+                  }
+                },
+                "color": {
+                  "value": "#ffffff"
+                },
+                "shape": {
+                  "type": "circle",
+                  "stroke": {
+                    "width": 0,
+                    "color": "#000000"
+                  },
+                  "polygon": {
+                    "nb_sides": 5
+                  },
+                  "image": {
+                    "src": "img/github.svg",
+                    "width": 100,
+                    "height": 100
+                  }
+                },
+                "opacity": {
+                  "value": 0.5,
+                  "random": false,
+                  "anim": {
+                    "enable": false,
+                    "speed": 1,
+                    "opacity_min": 0.1,
+                    "sync": false
+                  }
+                },
+                "size": {
+                  "value": 3,
+                  "random": true,
+                  "anim": {
+                    "enable": false,
+                    "speed": 1,
+                    "size_min": 0.1,
+                    "sync": false
+                  }
+                },
+                "line_linked": {
+                  "enable": true,
+                  "distance": 300,
+                  "color": "#8AC5E5",
+                  "opacity": 0.4,
+                  "width": 2
+                },
+                "move": {
+                  "enable": true,
+                  "speed": 1,
+                  "direction": "none",
+                  "random": false,
+                  "straight": false,
+                  "out_mode": "out",
+                  "bounce": false,
+                  "attract": {
+                    "enable": false,
+                    "rotateX": 600,
+                    "rotateY": 1200
+                  }
+                }
+              },
+              "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                  "onhover": {
+                    "enable": false,
+                    "mode": "repulse"
+                  },
+                  "onclick": {
+                    "enable": true,
+                    "mode": "repulse"
+                  },
+                  "resize": true
+                },
+                "modes": {
+                  "grab": {
+                    "distance": 800,
+                    "line_linked": {
+                      "opacity": 1
+                    }
+                  },
+                  "bubble": {
+                    "distance": 800,
+                    "size": 80,
+                    "duration": 2,
+                    "opacity": 0.8,
+                    "speed": 3
+                  },
+                  "repulse": {
+                    "distance": 100,
+                    "duration": .7
+                  },
+                  "push": {
+                    "particles_nb": 4
+                  },
+                  "remove": {
+                    "particles_nb": 2
+                  }
+                }
+              },
+              "retina_detect": true
+            });
           },
-          "repulse": {
-            "distance": 100,
-            "duration": .7
-          },
-          "push": {
-            "particles_nb": 4
-          },
-          "remove": {
-            "particles_nb": 2
+          startAnimation(){
+            var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+            function init() {
+              canvas = document.getElementById("canvas");
+              anim_container = document.getElementById("animation_container");
+              dom_overlay_container = document.getElementById("dom_overlay_container");
+              var comp=AdobeAn.getComposition("14AAD37164CF49EE808E1C323E491E37");
+              var lib=comp.getLibrary();
+              handleComplete({},comp);
+            }
+            function handleComplete(evt,comp) {
+              //This function is always called, irrespective of the content. You can use the variable "stage" after it is created in token create_stage.
+              var lib=comp.getLibrary();
+              var ss=comp.getSpriteSheet();
+              var preloaderDiv = document.getElementById("_preload_div_");
+              preloaderDiv.style.display = 'none';
+              canvas.style.display = 'block';
+              exportRoot = new lib.aniTest2();
+              stage = new lib.Stage(canvas);
+              //Registers the "tick" event listener.
+              fnStartAnimation = function() {
+                stage.addChild(exportRoot);
+                createjs.Ticker.setFPS(lib.properties.fps);
+                createjs.Ticker.addEventListener("tick", stage);
+              }
+              //Code to support hidpi screens and responsive scaling.
+              function makeResponsive(isResp, respDim, isScale, scaleType) {
+                var lastW, lastH, lastS=1;
+                window.addEventListener('resize', resizeCanvas);
+                resizeCanvas();
+                function resizeCanvas() {
+                  var w = lib.properties.width, h = lib.properties.height;
+                  var iw = window.innerWidth, ih=window.innerHeight;
+                  var pRatio = window.devicePixelRatio || 1, xRatio=iw/w, yRatio=ih/h, sRatio=1;
+                  if(isResp) {
+                    if((respDim=='width'&&lastW==iw) || (respDim=='height'&&lastH==ih)) {
+                      sRatio = lastS;
+                    }
+                    else if(!isScale) {
+                      if(iw<w || ih<h)
+                        sRatio = Math.min(xRatio, yRatio);
+                    }
+                    else if(scaleType==1) {
+                      sRatio = Math.min(xRatio, yRatio);
+                    }
+                    else if(scaleType==2) {
+                      sRatio = Math.max(xRatio, yRatio);
+                    }
+                  }
+                  canvas.width = w*pRatio*sRatio;
+                  canvas.height = h*pRatio*sRatio;
+                  canvas.style.width = anim_container.style.width = dom_overlay_container.style.width = preloaderDiv.style.width = w*sRatio+'px';
+                  canvas.style.height = anim_container.style.height = dom_overlay_container.style.height = preloaderDiv.style.height = h*sRatio+'px';
+                  stage.scaleX = pRatio*sRatio;
+                  stage.scaleY = pRatio*sRatio;
+                  lastW = iw; lastH = ih; lastS = sRatio;
+                  stage.tickOnUpdate = false;
+                  stage.update();
+                  stage.tickOnUpdate = true;
+                }
+              }
+              makeResponsive(true,'both',false,1);
+              AdobeAn.compositionLoaded(lib.properties.id);
+              fnStartAnimation();
+            }
+            $( document ).ready(function() {
+                init();
+            });
           }
+        },
+        mounted: function(){
+          this.startParticles();
+          this.animatedIcons();
+          this.checkCookieNotification();
+          // this.startAnimation();
         }
-      },
-      "retina_detect": true
     });
-
-    // Animated Icons SVGs
-    new Vivus('whatIs', {duration: 200, type: 'oneByOne'},);
-
-    $('#editBox').hover(function(){
-      new Vivus('editIcon', {duration: 50},);
-    });
-
-    $('#guideBox').hover(function(){
-      new Vivus('guideIcon', {duration: 50},);
-    });
-
-    $('#registryBox').hover(function(){
-      new Vivus('registryIcon', {duration: 50},);
-    });
-
-    $('#apiBox').hover(function(){
-      new Vivus('apiIcon', {duration: 50},);
-    });
-
-    $('#groupBox').hover(function(){
-      new Vivus('groupIcon', {duration: 50},);
-    });
-
-    $('#specBox').hover(function(){
-      new Vivus('specIcon', {duration: 50},);
-    });
-
-
-
-    $( window ).resize(function() {
-      let $window = $(window).width();
-      if ($window < 500){
-        $('#index-banner').attr('style','min-height:400px;');
-        $('#index-banner').attr('style','background-image: none;');
-      }else{
-        $('#index-banner').attr('style','min-height:682px;');
-      }
-    });
-
-    // Cookie Law Notification
-
-    if(!localStorage.getItem("DontShowCookies")) {
-      swal({
-            toast: true,
-            width: '90vw',
-            position: 'top',
-            showConfirmButton: false,
-            html:'<p>This website uses cookies for analytics purposes. By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
-          });
-    }
-    $(document).on("click", "#cookieButton", function() {
-        localStorage.setItem("DontShowCookies", "true");
-        swal.close();
-    });
-
-
 </script>
 
 {% include "footer.html" %}

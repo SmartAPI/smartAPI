@@ -359,7 +359,7 @@ a.middle-indicator-text{
 }
 
 .topic:hover{
-  background-color: #90a4ae;
+  background-color: var(--blue-dark);
 }
 
 .margin10{
@@ -371,8 +371,9 @@ a.middle-indicator-text{
 }
 
 .topic{
-  background-color: #627D8A;
+  background-color: var(--blue-medium);
   border-radius: 0px;
+  transition: background-color 1s;
 }
 
 .clearButton{
@@ -640,38 +641,6 @@ footer{
 
 .scanParent:hover .scanChild2{
   left: 900px;
-}
-
-.coolCont{
-  min-height: 200px;
-  position: relative;
-  overflow: hidden;
-}
-
-.coolCont div:nth-child(1){
-  position: absolute;
-  width: 100%;
-  top:25%;
-  transition: all 1s ease;
-  opacity: 1;
-}
-
-.coolCont div:nth-child(2){
-  position: absolute;
-  width: 100%;
-  top:-500px;
-  transition: all 1s ease;
-  opacity: 0;
-}
-
-.coolCont:hover div:nth-child(1){
-  top:-500px;
-  opacity: 0;
-}
-
-.coolCont:hover div:nth-child(2){
-  top:20px;
-  opacity: 1;
 }
 
 .tooltip {
@@ -1148,5 +1117,8 @@ mark{
   opacity: 1;
   transition: visibility 0s linear 900ms, opacity 300ms;
 }
+
+
+
 
 /*MARCO CANO end*/
