@@ -488,6 +488,7 @@
                   title: title+' was deleted!'
                 })
                 self.apis=[];
+                self.getApis();
               }else if( !response.data.success ){
                 const toast = swal.mixin({
                   toast: true,
@@ -719,7 +720,7 @@
         },
         watch: {
           // whenever input changes
-          inputApiName: function (input) {
+          inputApiName: function (input,old) {
             if(input.trim() === this.confirmModal.title){
               this.confirmDelete = false;
             }
@@ -728,7 +729,7 @@
               //Materialize.toast(this.inputApiName+' Does Not Match API Name', 4000,'rounded orange white-text');
             }
           },
-          searchQuery: function(query){
+          searchQuery: function(query,old){
             if(!query){
               this.searchResults = [];
             }else{
@@ -736,7 +737,7 @@
               this.searchResults = result;
             }
           },
-          sortASC: function(sort){
+          sortASC: function(sort,old){
             var self = this;
             if (!sort) {
               self.apis = _.sortBy(self.apis,'info.title');
@@ -746,7 +747,7 @@
               $("#sortName").text('Z-A');
             }
           },
-          myShortName: function(shortname){
+          myShortName: function(shortname,old){
             var self = this;
             self.myShortName = self.myShortName.toLowerCase();
             var re = /[^a-zA-Z0-9\-\_\~]/;
