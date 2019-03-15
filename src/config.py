@@ -1,21 +1,28 @@
+''' SmartAPI Configuration '''
+#pylint: disable=wildcard-import, unused-wildcard-import, unused-import
+
 from biothings.web.settings.default import *
 from config_key import COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
-
-from api.handlers import APP_LIST as api_app_list
+from web.api.handlers import APP_LIST as api_app_list
+from web.api.query_builder import SmartAPIQueryBuilder
 from web.handlers import APP_LIST as web_app_list
 
-from api.query_builder import SmartAPIQueryBuilder
+# *****************************************************************************
+# Credentials
+# *****************************************************************************
+# Define in config_key.py:
+#   COOKIE_SECRET = '<Any Random String>'
+#   GITHUB_CLIENT_ID = '<your Github application Client ID>'
+#   GITHUB_CLIENT_SECRET = '<your Github application Client Secret>'
 
 # *****************************************************************************
-# Elasticsearch variables
+# Elasticsearch
 # *****************************************************************************
-# elasticsearch index name
 ES_INDEX = 'smartapi_oas3'
-# elasticsearch document type
 ES_DOC_TYPE = 'api'
 
 # *****************************************************************************
-# App URL Patterns
+# Tornado URL Patterns
 # *****************************************************************************
 def add_apps(prefix='', app_list=None):
     '''
@@ -38,7 +45,7 @@ APP_LIST += add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
 
 # *****************************************************************************
-# Customized Biothings Query Component
+# Biothings Query Settings
 # *****************************************************************************
 # Subclass of biothings.web.api.es.query_builder.ESQueryBuilder
 ES_QUERY_BUILDER = SmartAPIQueryBuilder
@@ -46,5 +53,5 @@ ES_QUERY_BUILDER = SmartAPIQueryBuilder
 QUERY_GET_ESQB_KWARGS.update({'filters': {'default': None, 'type': str}})
 # Header Strings
 ACCESS_CONTROL_ALLOW_METHODS = 'GET,POST,PUT,DELETE,OPTIONS'
-# Only affects API endpoints, Web components are not affected 
+# Only affects API endpoints, Web components are not affected
 DISABLE_CACHING = True

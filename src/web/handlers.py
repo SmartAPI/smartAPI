@@ -13,7 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
-from api.es import ESQuery
+from web.api.es import ESQuery
 from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
 
 log = logging.getLogger("smartapi")

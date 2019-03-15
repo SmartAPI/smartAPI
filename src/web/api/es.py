@@ -325,7 +325,6 @@ class ESQuery():
         index_name = list(alias_d.keys())[0]
         default_name = "{}_backup_{}.json".format(index_name, get_datestamp())
         outfile = outfile or default_name
-        out_f = open(outfile, 'w')
         doc_li = self.fetch_all(as_list=True, ignore_archives=ignore_archives)
         if aws_s3_bucket:
             location_prompt = 'on S3'
@@ -334,6 +333,7 @@ class ESQuery():
                 Key='db_backup/{}'.format(outfile), Body=json.dumps(doc_li, indent=2))
         else:
             location_prompt = 'locally'
+            out_f = open(outfile, 'w')
             json.dump(doc_li, out_f, indent=2)
             out_f.close()
         print("Backed up {} docs in \"{}\" {}.".format(
@@ -512,7 +512,7 @@ class ESQuery():
             return (405, status)
 
     def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True, error_on_identical=False, save_v2=False):
-        ''' refresh an API document based on the saved metadata url  '''
+        ''' refresh the given API document object based on its saved metadata url  '''
         _id = api_doc['_id']
         _meta = api_doc['_meta']
 
@@ -542,16 +542,8 @@ class ESQuery():
         updates = 0
         status_li = []
         print("Refreshing API metadata:")
-        query = None
-        # if ignore_archives:
-        #     query = {
-        #         "query": {
-        #             "bool": {
-        #                 "must_not": {"term": {"_meta._archived": "true"}}
-        #             }
-        #         }
-        #     }
-        for api_doc in self.fetch_all(id_list=id_list, query=query):
+
+        for api_doc in self.fetch_all(id_list=id_list, ignore_archives=ignore_archives):
             
             _id, status = api_doc['_id'], ''
             print("{}... ".format(_id), end='')
