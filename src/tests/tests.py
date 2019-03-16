@@ -1,5 +1,5 @@
 '''
-    Data-safe test for SmartAPI
+    Data-safe Test for SmartAPI
 '''
 
 import json
@@ -96,6 +96,13 @@ class SmartAPIRemoteTest(BiothingsTestCase):
         for _id in ids_1:
             if _id in ids_0:
                 assert False
+    
+    def test_query_random_query(self):
+        res = self.json_ok(self.get_ok(self.api + '/query?q=__any__'))
+        query_1_id = res['hits'][0]['_id']
+        res = self.json_ok(self.get_ok(self.api + '/query?q=__any__'))
+        query_2_id = res['hits'][0]['_id']
+        assert query_1_id != query_2_id
 
 
 class SmartAPILocalTest(TornadoTestServerMixin, SmartAPIRemoteTest):
