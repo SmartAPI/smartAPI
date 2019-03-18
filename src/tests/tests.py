@@ -96,13 +96,16 @@ class SmartAPIRemoteTest(BiothingsTestCase):
         for _id in ids_1:
             if _id in ids_0:
                 assert False
-    
+
     def test_query_random_query(self):
         res = self.json_ok(self.get_ok(self.api + '/query?q=__any__'))
         query_1_id = res['hits'][0]['_id']
         res = self.json_ok(self.get_ok(self.api + '/query?q=__any__'))
         query_2_id = res['hits'][0]['_id']
         assert query_1_id != query_2_id
+
+    def test_query_illegal_string(self):
+        self.get_status_match(self.api + '/query?q=http://example.com/', 400)
 
 
 class SmartAPILocalTest(TornadoTestServerMixin, SmartAPIRemoteTest):

@@ -46,5 +46,7 @@ ES_QUERY_BUILDER = SmartAPIQueryBuilder
 QUERY_GET_ESQB_KWARGS.update({'filters': {'default': None, 'type': str}})
 # Header Strings
 ACCESS_CONTROL_ALLOW_METHODS = 'GET,POST,PUT,DELETE,OPTIONS'
-# Only affects API endpoints, Web components are not affected 
+# Only affect API endpoints
 DISABLE_CACHING = True
+# Heavy operation. Enable on small db only.
+ALLOW_RANDOM_QUERY = True
