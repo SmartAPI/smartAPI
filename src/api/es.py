@@ -505,7 +505,6 @@ class ESQuery():
         index_name = list(alias_d.keys())[0]
         default_name = "{}_backup_{}.json".format(index_name, get_datestamp())
         outfile = outfile or default_name
-        out_f = open(outfile, 'w')
         query = None
         if ignore_archives:
             query = {
@@ -521,6 +520,7 @@ class ESQuery():
             s3 = boto3.resource('s3')
             s3.Bucket(aws_s3_bucket).put_object(Key='db_backup/{}'.format(outfile), Body=json.dumps(doc_li, indent=2))
         else:
+            out_f = open(outfile, 'w')
             location_prompt = 'locally'
             json.dump(doc_li, out_f, indent=2)
             out_f.close()
