@@ -33,7 +33,9 @@ Contact: api-interoperability@googlegroups.com
     GITHUB_CLIENT_ID = '<your Github application Client ID>'
     GITHUB_CLIENT_SECRET = '<your Github application Client Secret>'
     ```
-    Follow [this instruction](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) to create your Github Client ID and Secret.
+    Follow [this instruction](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) to create your Github Client ID and Secret.   
+    Enter any _Application name_, `http://localhost:8000/` for _Homepage 
+    URL_ and `http://localhost:8000/oauth` for _Authorization callback URL_.
 6. Create index in Python shell:
     ```
     from api import es  
