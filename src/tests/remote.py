@@ -48,47 +48,22 @@ class SmartAPIRemoteTest(BiothingsTestCase):
         res = self.query(q='__all__', filters=flt)
         eq_(len(res['hits']), 3)
 
-    # Result Formatting
-
-    def test_201_sources(self):
-        ''' Return specified fields '''
-        res = self.query(q='__all__', fields='_id,info')
-        for hit in res['hits']:
-            assert '_id' in hit and 'info' in hit
-            assert '_meta' not in hit
-
-    def test_202_size(self):
-        ''' Return specified size '''
-        res = self.query(q='__all__', size=6)
-        eq_(len(res['hits']), 6)
-
-    def test_203_raw(self):
-        ''' Return raw ES result '''
-        res = self.query(q='__all__', raw=1)
-        assert '_shards' in res
-
-    def test_204_query(self):
-        ''' Return query sent to ES '''
-        res = self.request('query?q=__all__&rawquery=1').json()
-        assert "query" in res
-        assert "bool" in res["query"]
-
     # Error Handling
 
-    def test_301_special_char(self):
+    def test_201_special_char(self):
         ''' Handle special characters '''
         self.query(q='translat\xef\xbf\xbd\xef\xbf\xbd', expect_hits=False)
         self.request("query?q=http://example.com/", expect_status=400)
 
-    def test_302_missing_term(self):
+    def test_202_missing_term(self):
         ''' Handle empty request '''
         self.request("query", expect_status=400)
 
-    def test_303_bad_size(self):
+    def test_203_bad_size(self):
         ''' Handle type error '''
         self.request("query?q=__all__&size=my", expect_status=400)
 
-    def test_304_bad_index(self):
+    def test_204_bad_index(self):
         ''' Handle index out of bound '''
         res_0 = self.request('query?q=__all__&fields=_id&size=5').json()
         ids_0 = {hit['_id'] for hit in res_0['hits']}
@@ -97,6 +72,31 @@ class SmartAPIRemoteTest(BiothingsTestCase):
         for _id in ids_1:
             if _id in ids_0:
                 assert False
+
+    # Result Formatting
+
+    def test_301_sources(self):
+        ''' Return specified fields '''
+        res = self.query(q='__all__', fields='_id,info')
+        for hit in res['hits']:
+            assert '_id' in hit and 'info' in hit
+            assert '_meta' not in hit
+
+    def test_302_size(self):
+        ''' Return specified size '''
+        res = self.query(q='__all__', size=6)
+        eq_(len(res['hits']), 6)
+
+    def test_303_raw(self):
+        ''' Return raw ES result '''
+        res = self.query(q='__all__', raw=1)
+        assert '_shards' in res
+
+    def test_304_query(self):
+        ''' Return query sent to ES '''
+        res = self.request('query?q=__all__&rawquery=1').json()
+        assert "query" in res
+        assert "bool" in res["query"]
 
 
 if __name__ == '__main__':
