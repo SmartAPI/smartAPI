@@ -1,5 +1,5 @@
 ''' SmartAPI Configuration '''
-#pylint: disable=wildcard-import, unused-wildcard-import, unused-import
+# pylint: disable=wildcard-import, unused-wildcard-import, unused-import
 
 from biothings.web.settings.default import *
 from config_key import COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
@@ -24,6 +24,8 @@ ES_DOC_TYPE = 'api'
 # *****************************************************************************
 # Tornado URL Patterns
 # *****************************************************************************
+
+
 def add_apps(prefix='', app_list=None):
     '''
     Add prefix to each url handler specified in app_list.
@@ -40,6 +42,7 @@ def add_apps(prefix='', app_list=None):
     else:
         return app_list
 
+
 APP_LIST = []
 APP_LIST += add_apps('', web_app_list)
 APP_LIST += add_apps('api', api_app_list)
@@ -53,5 +56,7 @@ ES_QUERY_BUILDER = SmartAPIQueryBuilder
 QUERY_GET_ESQB_KWARGS.update({'filters': {'default': None, 'type': str}})
 # Header Strings
 ACCESS_CONTROL_ALLOW_METHODS = 'GET,POST,PUT,DELETE,OPTIONS'
-# Only affects API endpoints, Web components are not affected
+# Only affect API endpoints
 DISABLE_CACHING = True
+# Heavy operation. Enable on small db only.
+ALLOW_RANDOM_QUERY = True

@@ -5,9 +5,8 @@ A BD2K/Network-of-BioThings project.
 
 SmartAPI allows API publishers to annotate their services and input/output parameters in a structured and identifiable manner, based on a standard JSON-LD format for biomedical APIs and services. By indexing and visualizing these descriptions as Linked Data in a Elasticsearch back-end, researchers can seamlessly identify the services that consume or return desired parameters, and automatically compose services in workflows that yield new insights.
 
-Presentation: http://bit.ly/smartAPIslides
-
-Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43D9DSpG_o/edit?usp=sharing
+Presentation: http://bit.ly/smartAPIslides  
+Contact: api-interoperability@googlegroups.com  
 
 
 # How to run a dev API server locally
@@ -34,7 +33,9 @@ Roadmap: https://docs.google.com/document/d/1mEQs5NuOr23p8iMfNkF01Kxbf8iJz63SE43
     GITHUB_CLIENT_ID = '<your Github application Client ID>'
     GITHUB_CLIENT_SECRET = '<your Github application Client Secret>'
     ```
-    Follow [this instruction](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) to create your Github Client ID and Secret.
+    Follow [this instruction](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) to create your Github Client ID and Secret.   
+    Enter any _Application name_, `http://localhost:8000/` for _Homepage 
+    URL_ and `http://localhost:8000/oauth` for _Authorization callback URL_.
 6. Create index in Python shell:
     ```
     from api import es  

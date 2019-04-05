@@ -52,7 +52,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1)" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -63,7 +63,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1)" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -112,7 +112,7 @@
                             </div>
                           </div>
                         </template>
-                        <div class="card context" v-for="(api,index) in paginatedApis">
+                        <div class="card context scale-in-center" v-for="(api,index) in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
                                   <span class="blue-grey-text bold">
@@ -145,11 +145,19 @@
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
-                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event); googleAnalytics('Registry_APIs',api.info.title, 1)}">
+                                <!-- <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event); googleAnalytics('Registry_APIs',api.info.title, 1)}">
                                    show details
+                                </a> -->
+                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent="api.showDetails = !api.showDetails; googleAnalytics('Registry_APIs',api.info.title, 1)">
+                                  <template v-if="!api.showDetails">
+                                    SHOW DETAILS
+                                  </template>
+                                  <template v-else>
+                                    HIDE DETAILS
+                                  </template>
                                 </a>
                             </div>
-                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails == true || apis.length === 1">
+                            <div class="card-content blue-grey lighten-5" v-if="api.showDetails || apis.length === 1">
                                 <div class="row">
                                   <table class="pillTable">
                                     <tbody>
@@ -160,7 +168,6 @@
                                         <td class="white blue-grey-text center" >
                                           <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
                                             <span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q={{api._id}}</span>
-                                            <!-- <span class="tooltiptext"><small>View on registry by itself</small></span> -->
                                           </a>
                                           <button style="margin-left:10px;" class="smallButton copyBtn tooltip" :data-clipboard-target="'#url'+api._id">
                                             Copy
@@ -307,6 +314,21 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
     <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-129986551-1', {
+        'custom_map': {
+           'dimension1': 'registryTag',
+           'dimension2': 'registryAuthor',
+           'dimension3': 'registryAPIs',
+           'dimension4': 'registrySearches',
+           'dimension5': 'registrySharedURL',
+           'dimension6': 'value',
+        }
+      });
+
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
 
@@ -378,16 +400,51 @@
               }
             },
             methods: {
+                copyConf(){
+                  const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                  });
+                  Toast.fire({
+                    type: 'success',
+                    title: 'Copied to Clipboard'
+                  })
+                },
                 googleAnalytics(category, label, value){
                   if (!value) {
                     value = 1;
                   }
-                  ga('send', {
-                    'hitType':'event',
-                    'eventCategory': category,
-                    'eventAction':'click',
-                    'eventLabel': label ,
-                    'eventValue':value} );
+                  switch (category) {
+                    case 'Registry_Tag':
+                      // gtag('event', 'registryEventTag', {'registryTag': label});
+                      ga('set', 'dimension1', label);
+                      break;
+                    case 'Registry_Author':
+                      // gtag('event', 'registryEventAuthor', {'registryAuthor': label});
+                      ga('set', 'dimension2', label);
+                      break;
+                    case 'Registry_APIs':
+                      // gtag('event', 'registryEventAPI', {'registryAPIs': label});
+                      ga('set', 'dimension5', label);
+                      break;
+                    case 'Registry_Searches':
+                      // gtag('event', 'registryEventSearch', {'registrySearches': label});
+                      ga('set', 'dimension3', label);
+                      break;
+                    case 'Registry_SharedURL':
+                      // gtag('event', 'registryEventShared', {'registrySharedURL': label});
+                      ga('set', 'dimension4', label);
+                      break;
+                    default:
+                      gtag('event', 'click', {
+                        'event_category': category,
+                        'event_label': label,
+                        'value': value
+                      });
+                  }
+
                 },
                 sortResults(e){
                   console.log(e.target.value)
@@ -498,7 +555,7 @@
                     }
                     var params = {
                         "params": {
-                            "q": query,
+                            "q": encodeURIComponent(query),
                             // 'fields': 'info,_meta,paths,tags,openapi,swagger,'
                             'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
                         }
@@ -513,6 +570,9 @@
                         self.apis = response.data.hits;
                         self.total = response.data.total;
                         self.calculatePages();
+                    }).catch(err=>{
+                      throw err;
+                      self.loading_end();
                     });
                 },
                 loadFilters: function (){
@@ -555,13 +615,6 @@
 
                     return finalFilters;
                 },
-                // clear_form: function(){
-                //     var myURL = window.location.origin+'/registry';
-                //     window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", myURL);
-                //
-                //     this.query = '';
-                //     this.refreshApis();
-                // },
                 searchForTags: function(tagName){
                   var self = this;
                   for (var i = 0; i < self.tags.length; i++) {
@@ -641,7 +694,7 @@
                     if (query) {
                         var params = {
                             "params": {
-                                "q": query,
+                                "q": encodeURIComponent(query),
                                 // 'fields': 'info,_meta,paths,tags,openapi,swagger'
                                 'fields': 'info,_meta,paths.path, paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary, tags,openapi,swagger,'
 
@@ -661,7 +714,12 @@
                             self.apis = response.data.hits;
                             self.handleContext(self.context);
                             self.total = response.data.total;
+                            self.page = 1;
                             self.calculatePages();
+                        }).catch(err=>{
+                          throw err;
+                          self.loading_end();
+
                         });
                     }
                 },
@@ -706,27 +764,8 @@
                             }
                         })
                     }
-                    //IF we want to order by method
-                    // operations = _.orderBy(operations,['method']);
                     return operations;
                 },
-                // getOperations: function (api, raw=false) {
-                //     var operations = {};
-                //     if (raw) {
-                //         for(var path in api.paths) {
-                //             for(var method in api.paths[path]) {
-                //                 operations[[method.toUpperCase(), path].join(' ')] = api.paths[path][method].summary;
-                //             }
-                //         }
-                //     }else{
-                //         api.paths.forEach(function(path){
-                //             for(var method in path['pathitem']) {
-                //                 operations[[method.toUpperCase(), path.path].join(' ')] = path['pathitem'][method].summary;
-                //             }
-                //         })
-                //     }
-                //     return operations;
-                // },
                 getUserInfo: function(){
                   var self= this;
                   axios.get('/user').then(response=>{
@@ -815,9 +854,6 @@
             updated: function(){
               // Highlight matches in results
               this.getKeywords();
-              if (this.query) {
-                $('.card').addClass('scale-in-center');
-              }
             },
             computed: {
                 paginatedApis: function () {
@@ -844,6 +880,13 @@
                   break;
                   default:
                   self.apis = _.sortBy(self.apis,'info.title');
+                }
+              },
+              apis: function(apis,oldapis){
+                console.log('setting to false')
+                var self = this;
+                for (var i = 0; i < apis.length; i++) {
+                  self.$set(apis[i], 'showDetails', false);
                 }
               }
             }

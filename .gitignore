@@ -1,10 +1,15 @@
 # Ignore file with github OAuth IDs
 .ghenv
 
-# Python directories
+# Python
 __pycache__
-
-src/config_key.py
 *.pyc
 
+# credentials
+src/config_key.py
+
+# backup files
 smartapi_*.json
+
+# allow customized biothing package
+/biothings
