@@ -1,117 +1,111 @@
-''' SmartAPI Data-Aware Tests
-    nosetests tests:SmartAPITest
-    nosetests tests:SmartAPITestTornadoClient
+'''
+    SmartAPI Read-Only Test
 '''
 
-import json
 import os
-import re
-import sys
-import unittest
-import nose
-import requests
-from nose.tools import eq_, ok_
-from tornado.web import Application
 
-from biothings.tests.test_helper import (BiothingsTestCase,
-                                         TornadoTestServerMixin)
-from biothings.web.settings import BiothingESWebSettings
+from nose.core import runmodule
+from nose.tools import eq_
+
+from biothings.tests import BiothingsTestCase, TornadoTestServerMixin
 
 
-class SmartAPITest(BiothingsTestCase):
+class SmartAPIRemoteTest(BiothingsTestCase):
+
+    ''' Test against server specified in environment variable SMARTAPI_HOST
+        or SmartAPI production server if SMARTAPI_HOST is not specified '''
+
+    __test__ = True  # explicitly set this to be a test class
 
     host = os.getenv("SMARTAPI_HOST", "https://smart-api.info")
-    host = host.rstrip('/')
-    api = host + '/api'
+    api = '/api'
 
-    def test_query_all_has_hits(self):
-        self.query_has_hits('__all__')
+    # Query Functionalities
 
-    def test_query_translator_has_hits(self):
-        self.query_has_hits('translator')
+    def test_101_regular(self):
+        ''' Query regular string '''
+        self.query(q='translator')
 
-    def test_query_by_tags_name_translator_has_hits(self):
-        self.query_has_hits('tags.name:translator')
+    def test_102_named_field(self):
+        ''' Query named field '''
+        self.query(q='tags.name:translator')
 
-    def test_query_non_exist_special_char_string(self):
-        res = self.json_ok(self.get_ok(self.api +
-                                       '/query?q=translat\xef\xbf\xbd\xef\xbf\xbd'))
-        eq_(res['hits'], [])
+    def test_103_match_all(self):
+        ''' Query all documents '''
+        self.query(q='__all__')
 
-    def test_query_string_not_provided(self):
-        self.get_status_match(self.api + '/query', 400)
+    def test_104_random_score(self):
+        ''' Query random documents '''
+        res = self.query(q='__any__')
+        query_1_id = res['hits'][0]['_id']
+        res = self.query(q='__any__')
+        query_2_id = res['hits'][0]['_id']
+        assert query_1_id != query_2_id
 
-    def test_query_multiple_filters_biothings(self):
-        res = self.json_ok(self.get_ok(self.api +
-                                       '/query?q=__all__&filters={"tags.name.raw":["annotation","variant"],"info.contact.name.raw":["Chunlei Wu"]}'))
+    def test_105_filters(self):
+        ''' Query with multiple filters '''
+        flt = '{"tags.name.raw":["annotation","variant"],"info.contact.name.raw":["Chunlei Wu"]}'
+        res = self.query(q='__all__', filters=flt)
         eq_(len(res['hits']), 3)
 
-    def test_query_specified_fields(self):
-        res = self.json_ok(self.get_ok(self.api +
-                                       '/query?q=__all__&fields=_id,info'))
-        for h in res['hits']:
-            self.assertTrue('_id' in h and 'info' in h)
+    # Result Formatting
 
-    def test_query_return_raw(self):
-        res = self.json_ok(self.get_ok(self.api +
-                                       '/query?q=__all__&raw=1'))
-        self.assertTrue('_shards' in res)
+    def test_201_sources(self):
+        ''' Return specified fields '''
+        res = self.query(q='__all__', fields='_id,info')
+        for hit in res['hits']:
+            assert '_id' in hit and 'info' in hit
+            assert '_meta' not in hit
 
-    def test_query_return_raw_query_match_all(self):
-        res = self.json_ok(self.get_ok(self.api +
-                                       '/query?q=__all__&rawquery=1'))
-        ref_query = {
-            "query": {
-                "bool": {
-                    "must_not": {
-                        "term": {
-                            "_meta._archived": "true"
-                        }
-                    },
-                    "must": {
-                        "match_all": {}
-                    }
-                }
-            }
-        }
-        self.assertTrue(res == ref_query)
-
-    def test_query_specify_size(self):
-        res = self.json_ok(self.get_ok(self.api +
-                                       '/query?size=6&q=__all__'))
+    def test_202_size(self):
+        ''' Return specified size '''
+        res = self.query(q='__all__', size=6)
         eq_(len(res['hits']), 6)
 
-    def test_query_invalid_size(self):
-        self.get_status_match(self.api + '/query?q=__all__&size=my', 400)
+    def test_203_raw(self):
+        ''' Return raw ES result '''
+        res = self.query(q='__all__', raw=1)
+        assert '_shards' in res
 
-    def test_query_invalid_from(self):
-        res_0 = self.json_ok(self.get_ok(self.api +
-                                         '/query?q=__all__&fields=_id&size=5'))
-        ids_0 = set([hit['_id'] for hit in res_0['hits']])
-        res_1 = self.json_ok(self.get_ok(self.api +
-                                         '/query?q=__all__&fields=_id&size=5&from=5'))
+    def test_204_query(self):
+        ''' Return query sent to ES '''
+        res = self.request('query?q=__all__&rawquery=1').json()
+        assert "query" in res
+        assert "bool" in res["query"]
+
+    # Error Handling
+
+    def test_301_special_char(self):
+        ''' Handle special characters '''
+        self.query(q='translat\xef\xbf\xbd\xef\xbf\xbd', expect_hits=False)
+        self.request("query?q=http://example.com/", expect_status=400)
+
+    def test_302_missing_term(self):
+        ''' Handle empty request '''
+        self.request("query", expect_status=400)
+
+    def test_303_bad_size(self):
+        ''' Handle type error '''
+        self.request("query?q=__all__&size=my", expect_status=400)
+
+    def test_304_bad_index(self):
+        ''' Handle index out of bound '''
+        res_0 = self.request('query?q=__all__&fields=_id&size=5').json()
+        ids_0 = {hit['_id'] for hit in res_0['hits']}
+        res_1 = self.request('query?q=__all__&fields=_id&size=5&from=5').json()
         ids_1 = [hit['_id'] for hit in res_1['hits']]
         for _id in ids_1:
             if _id in ids_0:
-                self.assertTrue(False)
+                assert False
 
 
-class SmartAPITestTornadoClient(TornadoTestServerMixin, SmartAPITest):
+class SmartAPILocalTest(TornadoTestServerMixin, SmartAPIRemoteTest):
     '''
         Self contained test class
         Starts a Tornado server and perform tests against this server.
     '''
+    __test__ = True  # explicitly set this to be a test class
 
-    @classmethod
-    def setup_class(cls):
-        ''' Reads Tornado Settings from config.py '''
-        cls.WEB_SETTINGS = BiothingESWebSettings(config='config')
-        cls.APP_LIST = cls.WEB_SETTINGS.generate_app_list()
-        cls.STATIC_PATH = cls.WEB_SETTINGS.STATIC_PATH
 
-    def get_app(self):
-        return Application(self.APP_LIST, static_path=self.STATIC_PATH)
-
-# client = SmartAPITestTornadoClient(methodName='test_query_multiple_filters_biothings')
 if __name__ == '__main__':
-    nose.main()
+    runmodule(argv=['', '--logging-level=INFO', '-v'])
