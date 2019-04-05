@@ -7,7 +7,7 @@ import os
 from nose.core import runmodule
 from nose.tools import eq_
 
-from biothings.tests import BiothingsTestCase, TornadoTestServerMixin
+from biothings.tests import BiothingsTestCase
 
 
 class SmartAPIRemoteTest(BiothingsTestCase):
@@ -97,14 +97,6 @@ class SmartAPIRemoteTest(BiothingsTestCase):
         for _id in ids_1:
             if _id in ids_0:
                 assert False
-
-
-class SmartAPILocalTest(TornadoTestServerMixin, SmartAPIRemoteTest):
-    '''
-        Self contained test class
-        Starts a Tornado server and perform tests against this server.
-    '''
-    __test__ = True  # explicitly set this to be a test class
 
 
 if __name__ == '__main__':
