@@ -100,4 +100,7 @@ class SmartAPIRemoteTest(BiothingsTestCase):
 
 
 if __name__ == '__main__':
+    print()
+    print('SmartAPI Remote Test:', SmartAPIRemoteTest.host)
+    print('-'*70 + '\n')
     runmodule(argv=['', '--logging-level=INFO', '-v'])

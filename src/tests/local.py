@@ -18,4 +18,7 @@ class SmartAPILocalTest(TornadoTestServerMixin, SmartAPIRemoteTest):
 
 
 if __name__ == '__main__':
+    print()
+    print('SmartAPI Local Test')
+    print('-'*70 + '\n')
     run(argv=['', '--logging-level=INFO', '-v'], defaultTest='local.SmartAPILocalTest')
