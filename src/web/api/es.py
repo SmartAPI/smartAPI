@@ -332,6 +332,7 @@ class ESQuery():
             s3.Bucket(aws_s3_bucket).put_object(
                 Key='db_backup/{}'.format(outfile), Body=json.dumps(doc_li, indent=2))
         else:
+            out_f = open(outfile, 'w')
             location_prompt = 'locally'
             out_f = open(outfile, 'w')
             json.dump(doc_li, out_f, indent=2)
