@@ -189,7 +189,7 @@ if __name__ == '__main__':
     # call smartapi API to fetch all API metadata in registry
     api_docs = requests.get('https://smart-api.info/api/query?q=__all__&size=100').json()
     # can rename or specify a specific folder to put the file
-    output_file_name = 'smarapi_uptime_robot_new' + datetime.today().strftime('%Y-%m-%d') + '.txt'
+    output_file_name = 'smarapi_uptime_robot' + datetime.today().strftime('%Y-%m-%d') + '.txt'
     with open(output_file_name, 'w') as f:
         for api_doc in api_docs['hits']:
             api = API(api_doc)
