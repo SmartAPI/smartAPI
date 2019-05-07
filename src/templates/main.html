@@ -67,17 +67,18 @@
     <script src="https://unpkg.com/sweetalert2@7.22.0/dist/sweetalert2.all.js"></script>
     <script src="/static/js/smartapi.js"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
     {% block extra_scripts %}
     {% endblock %}
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139873613-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-139873613-1');
+    </script>
     <script type="text/javascript">
-
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-129986551-1');
-        //Google Analytics
-
         $('.collapsible').collapsible();
     </script>
 </html>

@@ -313,12 +313,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
     <script src="/static/js/clipboard.js"></script>
     <script src="/static/js/moment.js"></script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139873613-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+
+      gtag('config', 'UA-139873613-1');
+    </script>
+
+    <script>
+
 
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
@@ -405,7 +410,12 @@
                 },
                 googleAnalytics(category, label){
                   // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-                  ga('send', 'event', category, 'click', label);
+                  // ga('send', 'event', category, 'click', label);
+                  gtag('event', 'click', {
+                    'event_category': category,
+                    'event_label': label,
+                    // 'value': 1
+                  });
 
                 },
                 sortResults(e){
