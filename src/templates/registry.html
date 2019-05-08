@@ -318,8 +318,10 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'UA-139873613-1');
+      gtag('config', 'GA_MEASUREMENT_ID', {
+        'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registrysearch','dimension4':'registryurl'}
+      });
     </script>
 
     <script>
@@ -409,17 +411,27 @@
                   })
                 },
                 googleAnalytics(category, label){
-                  // ga('send', 'event', [eventCategory], [eventAction], [eventLabel], [eventValue], [fieldsObject]);
-                  // ga('send', 'event', category, 'click', label);
-                  gtag('event', 'click', {
-                    'event_category': category,
-                    'event_label': label,
-                    // 'value': 1
-                  });
+                  // Sends custom dimesnions to GA
+                  switch (category) {
+                    case 'Registry_Tag':
+                      gtag('event', 'tag_dimension', {'registrytag': label});
+                      break;
+                    case 'Registry_APIs':
+                      gtag('event', 'api_dimension', {'registryapi': label});
+                      break;
+                    case 'Registry_SharedURL':
+                      gtag('event', 'url_dimension', {'registryurl': label});
+                      break;
+                    case 'Registry_Searches':
+                      gtag('event', 'search_dimension', {'registrysearch': label});
+                      break;
+                    default:
+                      gtag('event', 'default_dimension', {'registrysearch': label});
+                      break;
+                  }
 
                 },
                 sortResults(e){
-                  console.log(e.target.value)
                   this.sort = e.target.value;
                 },
                 getDate(timestamp){
