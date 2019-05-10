@@ -8,6 +8,35 @@
 .apiStatus{
   float: right;
 }
+.apiStatus div:first-child{
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#cccccc+1,eeeeee+53,cccccc+100 */
+background: rgb(204,204,204); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(204,204,204,1) 1%, rgba(238,238,238,1) 53%, rgba(204,204,204,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
+  display: inline;
+  font-weight: bold;
+  padding: 4px;
+  font-size: .5em;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.apiStatus div:nth-child(2){
+  color: white;
+  text-shadow: 0px 1px 2px black;
+  margin-left: -6px !important;
+  display: inline;
+  padding: 4px;
+  font-size: .5em;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.apiStatus div:last-child{
+  display: inline;
+  padding: 4px;
+  font-size: .5em;
+}
 </style>
   {% raw %}
     <main>
@@ -40,6 +69,20 @@
                     </div>
                   </li>
                 </ul>
+                <!-- <ul class="collection">
+                  <li class="collection-item yellow darken-4 white-text lighten-5 blue-grey-text smallFont">
+                    <i class="fa fa-star" aria-hidden="true"></i> Top Tags
+                  </li>
+                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
+                    #Translator
+                  </li>
+                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
+                    #Gene
+                  </li>
+                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
+                    #NCATS
+                  </li>
+                </ul> -->
             </div>
             <div class="col l10 s12 ">
                 <div class="row">
@@ -132,9 +175,48 @@
                                   <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge orange darken-4">
                                     My&nbsp;API
                                   </a>
-                                  <!-- <small class="apiStatus">
-                                    Status <span>PASS</span>
-                                  </small> -->
+                                  <!-- <a style="cursor: pointer !important;" href="/dashboard" class="versionBadge light-blue">
+                                    My&nbsp;API
+                                  </a>
+                                  <a style="cursor: pointer !important;" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
+                                    <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/> BioThings Explorer
+                                  </a>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="blue">INCOMPATIBLE</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="orange">UNKNOWN</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="green">PASS</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="red">FAIL</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div> -->
                                 </span>
                                 <template v-if="api.info.description && api.info.description.length > 500">
                                   <description :text='api.info.description'></description>
@@ -147,6 +229,9 @@
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag" aria-hidden="true"></i> {{tag.name}}
                                   </a>
+                                  <!-- <small class="apiStatus blue-grey-text">
+                                    <i class="fa fa-eye" aria-hidden="true"></i> Seen 104 times
+                                  </small> -->
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
@@ -320,8 +405,10 @@
       gtag('js', new Date());
       gtag('config', 'UA-139873613-1');
       gtag('config', 'GA_MEASUREMENT_ID', {
-        'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registrysearch','dimension4':'registryurl'}
+        'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registryurl','dimension4':'registrysearch'}
       });
+      // var dimensionValue = 'SOME_DIMENSION_VALUE';
+      // ga('set', 'dimension1', dimensionValue);
     </script>
 
     <script>
@@ -411,22 +498,23 @@
                   })
                 },
                 googleAnalytics(category, label){
+                  // console.log(category,label)
                   // Sends custom dimesnions to GA
                   switch (category) {
                     case 'Registry_Tag':
-                      gtag('event', 'tag_dimension', {'registrytag': label});
+                      gtag('event', 'click', {'event_dimension':'registrytag','event_label': label});
                       break;
                     case 'Registry_APIs':
-                      gtag('event', 'api_dimension', {'registryapi': label});
+                      gtag('event', 'click', {'event_dimension':'registryapi','event_label': label});
                       break;
                     case 'Registry_SharedURL':
-                      gtag('event', 'url_dimension', {'registryurl': label});
+                      gtag('event', 'click', {'event_dimension':'registryurl','event_label': label});
                       break;
                     case 'Registry_Searches':
-                      gtag('event', 'search_dimension', {'registrysearch': label});
+                      gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
                       break;
                     default:
-                      gtag('event', 'default_dimension', {'registrysearch': label});
+                      gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
                       break;
                   }
 
