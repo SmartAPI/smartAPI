@@ -172,15 +172,16 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
                                   <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
                                     Swagger2
                                   </span>
-                                  <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge orange darken-4">
+                                  <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge light-blue">
                                     My&nbsp;API
+                                  </a>
+                                  <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
+                                    <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/> BioThings Explorer
                                   </a>
                                   <!-- <a style="cursor: pointer !important;" href="/dashboard" class="versionBadge light-blue">
                                     My&nbsp;API
                                   </a>
-                                  <a style="cursor: pointer !important;" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
-                                    <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/> BioThings Explorer
-                                  </a>
+
                                   <div class="apiStatus">
                                     <div class="blue-grey-text">Status</div>
                                     <div class="blue">INCOMPATIBLE</div>
@@ -481,10 +482,29 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
                   authors: [],
                   shareURL:'',
                   shareURLButtonVisible: false,
-                  sort: 'Relevance'
+                  sort: 'Relevance',
+                  bteapis:[]
               }
             },
             methods: {
+                isUsedByBTE(name){
+                  var self = this;
+                  if (self.bteapis.includes(name) ) {
+                    return true
+                  }else{
+                    return false
+                  }
+                },
+                getBTEapis(){
+                  var self = this;
+                  axios.get('https://biothings.io/explorer_beta/api/v2/metadata/apis').then(res=>{
+                    if (res.data.api) {
+                      self.bteapis = res.data.api
+                    }
+                  }).catch(err=>{
+                    throw err;
+                  });
+                },
                 copyConf(){
                   const Toast = Swal.mixin({
                     toast: true,
@@ -502,19 +522,23 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
                   // Sends custom dimesnions to GA
                   switch (category) {
                     case 'Registry_Tag':
-                      gtag('event', 'click', {'event_dimension':'registrytag','event_label': label});
+                      ga('set', 'dimension1', label);
+                      // gtag('event', 'click', {'event_dimension':'registrytag','event_label': label});
                       break;
                     case 'Registry_APIs':
-                      gtag('event', 'click', {'event_dimension':'registryapi','event_label': label});
+                      ga('set', 'dimension2', label);
+                      // gtag('event', 'click', {'event_dimension':'registryapi','event_label': label});
                       break;
                     case 'Registry_SharedURL':
-                      gtag('event', 'click', {'event_dimension':'registryurl','event_label': label});
+                      ga('set', 'dimension3', label);
+                      // gtag('event', 'click', {'event_dimension':'registryurl','event_label': label});
                       break;
                     case 'Registry_Searches':
-                      gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
+                      ga('set', 'dimension4', label);
+                      // gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
                       break;
                     default:
-                      gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
+                      // gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
                       break;
                   }
 
@@ -917,6 +941,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
             },
             created: function () {
                 this.getUserInfo();
+                this.getBTEapis();
                 $(".button-collapse").sideNav();
                 $('.collapsible').collapsible();
                 this.loadFilters();
