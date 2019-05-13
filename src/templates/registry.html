@@ -404,12 +404,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'UA-139873613-1');
-      gtag('config', 'GA_MEASUREMENT_ID', {
+      gtag('config', 'UA-139873613-1', {
         'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registryurl','dimension4':'registrysearch'}
       });
-      // var dimensionValue = 'SOME_DIMENSION_VALUE';
-      // ga('set', 'dimension1', dimensionValue);
     </script>
 
     <script>
@@ -518,28 +515,25 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
                   })
                 },
                 googleAnalytics(category, label){
-                  // console.log(category,label)
-                  // Sends custom dimesnions to GA
                   switch (category) {
                     case 'Registry_Tag':
-                      ga('set', 'dimension1', label);
-                      // gtag('event', 'click', {'event_dimension':'registrytag','event_label': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registrytag','event_label': label});
+                      gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_APIs':
-                      ga('set', 'dimension2', label);
-                      // gtag('event', 'click', {'event_dimension':'registryapi','event_label': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registryapi','event_label': label});
+                      gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_SharedURL':
-                      ga('set', 'dimension3', label);
-                      // gtag('event', 'click', {'event_dimension':'registryurl','event_label': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registryurl','event_label': label});
+                      gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_Searches':
-                      ga('set', 'dimension4', label);
-                      // gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registrysearch','event_label': label});
+                      gtag('event', 'search', {'value': label});
                       break;
                     default:
-                      // gtag('event', 'click', {'event_dimension':'registrysearch','event_label': label});
-                      break;
+
                   }
 
                 },
