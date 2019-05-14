@@ -405,7 +405,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'UA-139873613-1', {
-        'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registryurl','dimension4':'registrysearch'}
+        'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registryurl','dimension4':'registrysearch','dimension5':'registryResults'}
       });
     </script>
 
@@ -518,19 +518,21 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', end
                   switch (category) {
                     case 'Registry_Tag':
                       gtag('event', 'registryClick', {'event_dimension':'registrytag','event_label': label});
-                      gtag('event', 'search', {'value': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registryResults','event_label': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_APIs':
                       gtag('event', 'registryClick', {'event_dimension':'registryapi','event_label': label});
-                      gtag('event', 'search', {'value': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registryResults','event_label': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_SharedURL':
                       gtag('event', 'registryClick', {'event_dimension':'registryurl','event_label': label});
-                      gtag('event', 'search', {'value': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_Searches':
                       gtag('event', 'registryClick', {'event_dimension':'registrysearch','event_label': label});
-                      gtag('event', 'search', {'value': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     default:
 
