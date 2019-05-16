@@ -1,21 +1,21 @@
 '''
 Validate and transform SmartAPI/OpenAPI v3 metadata for indexing
 '''
-import copy
-import json
 import base64
+import copy
 import gzip
+import json
+import sys
 from collections import OrderedDict
 
+import jsonschema
 import requests
 import yaml
-import jsonschema
 
-import sys
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b
 else:
-    from pyblake2 import blake2b #pylint: disable=import-error
+    from pyblake2 import blake2b  # pylint: disable=import-error
 
 
 # Official oas3 json schema for validation is still in-development.
@@ -31,7 +31,8 @@ SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
 
 # This is a separate schema for SmartAPI extensions only
 SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
-METADATA_KEY_ORDER = ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']
+METADATA_KEY_ORDER = ['openapi', 'info', 'servers',
+                      'externalDocs', 'tags', 'security', 'paths', 'components']
 
 
 def encode_raw(metadata):
@@ -61,6 +62,7 @@ def decode_raw(raw, sorted=True, as_string=False):
     else:
         return d
 
+
 def polite_requests(url, head=False):
     try:
         if head:
@@ -76,6 +78,7 @@ def polite_requests(url, head=False):
     if res.status_code != 200:
         return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
     return {"success": True, "response": res}
+
 
 def get_api_metadata_by_url(url, as_string=False):
 
@@ -118,7 +121,9 @@ class APIMetadata:
         self.metadata = metadata
         self._meta = self.metadata.pop('_meta', {})
         try:
-            self._meta['ETag'] = requests.get(self._meta['url']).headers.get('ETag', 'I').strip('W/"')
+            self._meta['ETag'] = requests.get(
+                self._meta['url']).headers.get(
+                'ETag', 'I').strip('W/"')
         except:
             pass
         if self.schema_version == 'SWAGGER2':
@@ -192,6 +197,6 @@ class APIMetadata:
                 if key in self.metadata:
                     _d[key] = self.metadata[key]
 
-        #include compressed binary raw metadata as "~raw"
+        # include compressed binary raw metadata as "~raw"
         _d["~raw"] = encode_raw(self.metadata)
         return _d
