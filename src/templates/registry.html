@@ -5,7 +5,38 @@
 {% include "header.html" %}
 <style>
 /* Test CSS */
-
+.apiStatus{
+  float: right;
+}
+.apiStatus div:first-child{
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#cccccc+1,eeeeee+53,cccccc+100 */
+background: rgb(204,204,204); /* Old browsers */
+background: -moz-linear-gradient(top, rgba(204,204,204,1) 1%, rgba(238,238,238,1) 53%, rgba(204,204,204,1) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
+  display: inline;
+  font-weight: bold;
+  padding: 4px;
+  font-size: .5em;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.apiStatus div:nth-child(2){
+  color: white;
+  text-shadow: 0px 1px 2px black;
+  margin-left: -6px !important;
+  display: inline;
+  padding: 4px;
+  font-size: .5em;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.apiStatus div:last-child{
+  display: inline;
+  padding: 4px;
+  font-size: .5em;
+}
 </style>
   {% raw %}
     <main>
@@ -25,7 +56,7 @@
                     <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-tag" aria-hidden="true"></i> By Tags</div>
                     <div class="collapsible-body noPadding">
                       <div class="collection">
-                          <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query); googleAnalytics('Registry_Tag', tag.name,1)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
+                          <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="tag.active = !tag.active;search(query); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
                       </div>
                     </div>
                   </li>
@@ -33,11 +64,25 @@
                     <div class="collapsible-header blue-grey lighten-5 blue-grey-text smallFont"><i class="fa fa-user" aria-hidden="true"></i> By Owners</div>
                     <div class="collapsible-body noPadding">
                       <div class="collection">
-                          <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query); googleAnalytics('Registry_Author', author.name,1)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
+                          <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="author.active = !author.active;search(query); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
                       </div>
                     </div>
                   </li>
                 </ul>
+                <!-- <ul class="collection">
+                  <li class="collection-item yellow darken-4 white-text lighten-5 blue-grey-text smallFont">
+                    <i class="fa fa-star" aria-hidden="true"></i> Top Tags
+                  </li>
+                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
+                    #Translator
+                  </li>
+                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
+                    #Gene
+                  </li>
+                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
+                    #NCATS
+                  </li>
+                </ul> -->
             </div>
             <div class="col l10 s12 ">
                 <div class="row">
@@ -52,7 +97,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -63,7 +108,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ,1); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -81,7 +126,7 @@
                             </div>
                         </div>
                         <div class="col s12">
-                            <button type="submit" @click="googleAnalytics('Registry_Searches',query, 1)" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
+                            <button type="submit" @click="googleAnalytics('Registry_Searches',query)" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
                             <a class="blue btn" href="/registry">clear</a>
                         </div>
                     </form>
@@ -127,9 +172,52 @@
                                   <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
                                     Swagger2
                                   </span>
-                                  <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge orange darken-4">
+                                  <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge light-blue">
                                     My&nbsp;API
                                   </a>
+                                  <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
+                                    <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/> BioThings Explorer
+                                  </a>
+                                  <!-- <a style="cursor: pointer !important;" href="/dashboard" class="versionBadge light-blue">
+                                    My&nbsp;API
+                                  </a>
+
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="blue">INCOMPATIBLE</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="orange">UNKNOWN</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="green">PASS</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div>
+                                  <div class="apiStatus">
+                                    <div class="blue-grey-text">Status</div>
+                                    <div class="red">FAIL</div>
+                                    <div>
+                                      <a href="/faq#apistatus" target="_blank">
+                                        <i class="material-icons tiny">info</i>
+                                      </a>
+                                    </div>
+                                  </div> -->
                                 </span>
                                 <template v-if="api.info.description && api.info.description.length > 500">
                                   <description :text='api.info.description'></description>
@@ -142,13 +230,13 @@
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag" aria-hidden="true"></i> {{tag.name}}
                                   </a>
+                                  <!-- <small class="apiStatus blue-grey-text">
+                                    <i class="fa fa-eye" aria-hidden="true"></i> Seen 104 times
+                                  </small> -->
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
-                                <!-- <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent=" ()=>{toggleDetails(api); showHideDetails($event); googleAnalytics('Registry_APIs',api.info.title, 1)}">
-                                   show details
-                                </a> -->
-                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent="api.showDetails = !api.showDetails; googleAnalytics('Registry_APIs',api.info.title, 1)">
+                                <a style="border-radius: 20px;" class="btn blue white-text smallFont" href="#" @click.prevent="api.showDetails = !api.showDetails; googleAnalytics('Registry_APIs',api.info.title)">
                                   <template v-if="!api.showDetails">
                                     SHOW DETAILS
                                   </template>
@@ -311,23 +399,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
     <script src="/static/js/clipboard.js"></script>
     <script src="/static/js/moment.js"></script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129986551-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139873613-1"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
-      gtag('config', 'UA-129986551-1', {
-        'custom_map': {
-           'dimension1': 'registryTag',
-           'dimension2': 'registryAuthor',
-           'dimension3': 'registryAPIs',
-           'dimension4': 'registrySearches',
-           'dimension5': 'registrySharedURL',
-           'dimension6': 'value',
-        }
+      gtag('config', 'UA-139873613-1', {
+        'custom_map': {'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registryurl','dimension4':'registrysearch','dimension5':'registryResults'}
       });
+    </script>
+
+    <script>
+
 
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
@@ -396,10 +479,29 @@
                   authors: [],
                   shareURL:'',
                   shareURLButtonVisible: false,
-                  sort: 'Relevance'
+                  sort: 'Relevance',
+                  bteapis:[]
               }
             },
             methods: {
+                isUsedByBTE(name){
+                  var self = this;
+                  if (self.bteapis.includes(name) ) {
+                    return true
+                  }else{
+                    return false
+                  }
+                },
+                getBTEapis(){
+                  var self = this;
+                  axios.get('https://biothings.io/explorer_beta/api/v2/metadata/apis').then(res=>{
+                    if (res.data.api) {
+                      self.bteapis = res.data.api
+                    }
+                  }).catch(err=>{
+                    throw err;
+                  });
+                },
                 copyConf(){
                   const Toast = Swal.mixin({
                     toast: true,
@@ -412,42 +514,32 @@
                     title: 'Copied to Clipboard'
                   })
                 },
-                googleAnalytics(category, label, value){
-                  if (!value) {
-                    value = 1;
-                  }
+                googleAnalytics(category, label){
                   switch (category) {
                     case 'Registry_Tag':
-                      // gtag('event', 'registryEventTag', {'registryTag': label});
-                      ga('set', 'dimension1', label);
-                      break;
-                    case 'Registry_Author':
-                      // gtag('event', 'registryEventAuthor', {'registryAuthor': label});
-                      ga('set', 'dimension2', label);
+                      gtag('event', 'registryClick', {'event_dimension':'registrytag','event_label': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registryResults','event_label': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_APIs':
-                      // gtag('event', 'registryEventAPI', {'registryAPIs': label});
-                      ga('set', 'dimension5', label);
-                      break;
-                    case 'Registry_Searches':
-                      // gtag('event', 'registryEventSearch', {'registrySearches': label});
-                      ga('set', 'dimension3', label);
+                      gtag('event', 'registryClick', {'event_dimension':'registryapi','event_label': label});
+                      gtag('event', 'registryClick', {'event_dimension':'registryResults','event_label': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     case 'Registry_SharedURL':
-                      // gtag('event', 'registryEventShared', {'registrySharedURL': label});
-                      ga('set', 'dimension4', label);
+                      gtag('event', 'registryClick', {'event_dimension':'registryurl','event_label': label});
+                      // gtag('event', 'search', {'value': label});
+                      break;
+                    case 'Registry_Searches':
+                      gtag('event', 'registryClick', {'event_dimension':'registrysearch','event_label': label});
+                      // gtag('event', 'search', {'value': label});
                       break;
                     default:
-                      gtag('event', 'click', {
-                        'event_category': category,
-                        'event_label': label,
-                        'value': value
-                      });
+
                   }
 
                 },
                 sortResults(e){
-                  console.log(e.target.value)
                   this.sort = e.target.value;
                 },
                 getDate(timestamp){
@@ -845,6 +937,7 @@
             },
             created: function () {
                 this.getUserInfo();
+                this.getBTEapis();
                 $(".button-collapse").sideNav();
                 $('.collapsible').collapsible();
                 this.loadFilters();
@@ -883,7 +976,6 @@
                 }
               },
               apis: function(apis,oldapis){
-                console.log('setting to false')
                 var self = this;
                 for (var i = 0; i < apis.length; i++) {
                   self.$set(apis[i], 'showDetails', false);

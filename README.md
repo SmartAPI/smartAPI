@@ -10,7 +10,7 @@ Contact: api-interoperability@googlegroups.com
 
 
 # How to run a dev API server locally
-1. Install Elasticsearch at localhost:9200 (follow [this instruction](https://www.elastic.co/guide/en/elasticsearch/reference/current/_installation.html))
+1. Install Elasticsearch at localhost:9200 (follow [this instruction](https://www.elastic.co/downloads/elasticsearch)) or install with docker (follow [this instruction](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html))
 2. Clone this repo
     ```
     git clone https://github.com/SmartAPI/smartAPI.git
