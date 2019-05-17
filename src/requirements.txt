@@ -5,6 +5,7 @@ jsonschema>=2.6.0
 PyYAML>=3.12
 
 # web handling
+elasticsearch-dsl==6.4.0
 torngithub==0.2.0 
 Jinja2>=2.9.6
 

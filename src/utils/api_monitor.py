@@ -1,32 +1,41 @@
+import logging
 from datetime import datetime
+
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.connections import connections
+from requests.packages.urllib3.exceptions import \
+    InsecureRequestWarning  # pylint:disable=import-error
+from tornado.ioloop import IOLoop
 
-
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+connections.create_connection(hosts=['localhost'])
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
 
 
 class DictQuery(dict):
     """
     Extract the value from nested json based on path
     """
-    def get(self, path, default = None):
+
+    def get(self, path, default=None):
         keys = path.split("/")
         val = None
 
         for key in keys:
             if val:
                 if isinstance(val, list):
-                    val = [ v.get(key, default) if v else None for v in val]
+                    val = [v.get(key, default) if v else None for v in val]
                 else:
                     val = val.get(key, default)
             else:
                 val = dict.get(self, key, default)
 
             if not val:
-                break;
+                break
 
         return val
+
 
 class API:
     def __init__(self, api_doc):
@@ -57,7 +66,7 @@ class API:
                             'components': self.components}
             if 'get' in _endpoint_info:
                 endpoint_doc['method'] = 'GET'
-                endpoint_doc['params'] = _endpoint_info.get('get').get('parameters')                    
+                endpoint_doc['params'] = _endpoint_info.get('get').get('parameters')
             elif 'post' in _endpoint_info:
                 endpoint_doc['method'] = 'POST'
                 endpoint_doc['params'] = _endpoint_info.get('post').get('parameters')
@@ -144,7 +153,7 @@ class Endpoint:
                         example = schema.get('example')
                         ref = schema.get('$ref')
                         if example:
-                            print(url)
+                            logging.debug(url)
                             try:
                                 response = requests.post(url,
                                                          timeout=3,
@@ -154,20 +163,20 @@ class Endpoint:
                             except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                                 pass
                         elif ref:
-                            print(url)
+                            logging.debug(url)
                             if ref.startswith('#/components/'):
                                 component_path = ref[13:]
                                 component_path += '/example'
-                                print('component path: {}'.format(component_path))
+                                logging.debug('component path: {}'.format(component_path))
                                 example = DictQuery(self.components).get(component_path)
-                                print('example', example)
+                                logging.debug('example %s', example)
                                 if example:
                                     try:
                                         response = requests.post(url,
                                                                  timeout=3,
                                                                  json=example,
                                                                  verify=False)
-                                        print(response)
+                                        logging.debug(response)
                                         return response
                                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                                         pass
@@ -183,6 +192,55 @@ class Endpoint:
 
     def check_response_status(self, response):
         return response.status_code
+
+
+async def update_uptime_status():
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("utils.uptime.es")
+
+    def func():
+
+        count = 0
+
+        search = Search(index='smartapi_oas3').query("match_all")
+        logger.info("Found %s documents", search.count())
+        for hit in list(search.scan()):
+            doc = hit.to_dict()
+            doc['_id'] = hit.meta.id
+            api = API(doc)
+            if api.api_server:
+                try:
+                    api.check_api_status()
+                except Exception as e:
+                    logger.warning("%s : %s", hit.meta.id, e)
+                    continue
+                logger.info("%s : %s", hit.meta.id, api.api_status)
+                es_params = {
+                    "id": hit.meta.id,
+                    "index": 'smartapi_oas3',
+                    "doc_type": 'api'
+                }
+                partial_doc = {
+                    "doc": {
+                        "_meta": {
+                            "uptime_status": api.api_status,
+                            "uptime_ts": datetime.utcnow()
+                        }
+                    }
+                }
+                es_client = Elasticsearch()
+                res = es_client.update(body=partial_doc, **es_params)
+                logger.debug(res)
+                count += 1
+            else:
+                logger.warning("%s : No API Server.", hit.meta.id)
+
+        return count
+
+    logger.info("Start scheduled uptime check...")
+    count = await IOLoop.current().run_in_executor(None, func)
+    logger.info("Uptime updated for %s documents.", count)
 
 
 if __name__ == '__main__':
