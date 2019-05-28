@@ -118,7 +118,9 @@ class ESQuery():
         # validate document schema
         valid = metadata.validate(raise_error_on_v2=not save_v2)
         if not valid['valid']:
-            return {"success": False, "error": '[Validation] ' + valid.get('error')}
+            valid['success'] = False
+            valid['error'] = '[Validation] ' + valid['error']
+            return valid
 
         # avoid unintended overwrite
         api_id = metadata.encode_api_id()
