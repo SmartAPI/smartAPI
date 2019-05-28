@@ -7,7 +7,7 @@
 
 import os.path
 
-from tornado.ioloop import PeriodicCallback
+from tornado.ioloop import IOLoop, PeriodicCallback
 from utils.api_monitor import update_uptime_status
 
 import config
@@ -19,7 +19,8 @@ WEB_SETTINGS = BiothingESWebSettings(config=config)
 if __name__ == '__main__':
     (SRC_PATH, _) = os.path.split(os.path.abspath(__file__))
     STATIC_PATH = os.path.join(SRC_PATH, 'static')
-    PeriodicCallback(update_uptime_status, 6*60*60*1000).start()
+    IOLoop.current().add_callback(update_uptime_status)
+    PeriodicCallback(update_uptime_status, 24*60*60*1000).start()
     main(WEB_SETTINGS.generate_app_list(),
          app_settings={"cookie_secret": config.COOKIE_SECRET},
          debug_settings={"static_path": STATIC_PATH},
