@@ -39,13 +39,13 @@ class API:
             self.api_server = api_doc['servers'][0]['url']
         except KeyError:
             self.api_server = None
-            self.api_status = 'incompatible_smartapi_file'
+            self.api_status = 'incompatible'
         new_path_info = {}
         if 'paths' in api_doc:
             for _path in api_doc['paths']:
                 new_path_info[_path['path']] = _path['pathitem']
         else:
-            self.api_status = 'incompatible_smartapi_file'
+            self.api_status = 'incompatible'
         self.components = api_doc.get('components')
         self.endpoints_info = new_path_info
 
@@ -68,7 +68,7 @@ class API:
                 if response:
                     status = endpoint.check_response_status(response)
                     if status == 200:
-                        self.api_status = 'good'
+                        self.api_status = 'pass'
                     else:
                         self.api_status = 'bad'
 
