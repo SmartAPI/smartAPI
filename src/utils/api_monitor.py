@@ -82,6 +82,9 @@ class Endpoint:
         self.components = endpoint_doc.get('components')
 
     def make_api_call(self):
+        headers = {
+            'User-Agent': 'SmartAPI API status monitor'
+        }
         url = self.endpoint_name
         # handle API endpoint which use GET HTTP method
         if self.method == 'GET':
@@ -102,7 +105,8 @@ class Endpoint:
                         response = requests.get(url,
                                                 params=params,
                                                 verify=False,
-                                                timeout=3)
+                                                timeout=3,
+                                                headers=headers)
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                         pass
@@ -112,7 +116,8 @@ class Endpoint:
                 try:
                     response = requests.get(url,
                                             timeout=3,
-                                            verify=False)
+                                            verify=False,
+                                            headers=headers)
                     return response
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                     pass
@@ -130,7 +135,8 @@ class Endpoint:
                         response = requests.post(url,
                                                  data=data,
                                                  timeout=3,
-                                                 verify=False)
+                                                 verify=False,
+                                                 headers=headers)
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                         pass
@@ -144,30 +150,32 @@ class Endpoint:
                         example = schema.get('example')
                         ref = schema.get('$ref')
                         if example:
-                            print(url)
+                            #print(url)
                             try:
                                 response = requests.post(url,
                                                          timeout=3,
                                                          json=example,
-                                                         verify=False)
+                                                         verify=False,
+                                                         headers=headers)
                                 return response
                             except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                                 pass
                         elif ref:
-                            print(url)
+                            #print(url)
                             if ref.startswith('#/components/'):
                                 component_path = ref[13:]
                                 component_path += '/example'
-                                print('component path: {}'.format(component_path))
+                                #print('component path: {}'.format(component_path))
                                 example = DictQuery(self.components).get(component_path)
-                                print('example', example)
+                                #print('example', example)
                                 if example:
                                     try:
                                         response = requests.post(url,
                                                                  timeout=3,
                                                                  json=example,
-                                                                 verify=False)
-                                        print(response)
+                                                                 verify=False,
+                                                                 headers=headers)
+                                        #print(response)
                                         return response
                                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                                         pass
@@ -176,7 +184,8 @@ class Endpoint:
                 try:
                     response = requests.post(url,
                                              timeout=3,
-                                             verify=False)
+                                             verify=False,
+                                             headers=headers)
                     return response
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                     pass
