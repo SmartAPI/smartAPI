@@ -9,6 +9,13 @@
   background-image: url('static/img/question.jpg');
   background-size: cover;
 }
+code {
+    background-color: rgba(27,31,35,.05);
+    border-radius: 3px;
+    font-size: 85%;
+    margin: 0;
+    padding: .2em .4em;
+}
 </style>
 <main id="faq-app" class="white" style="width: 100%;">
   <div class="container-fluid center">
@@ -115,7 +122,7 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
                         <li>
                           If your API endpoints have required parameter(s), you must provide an example value for each required parameter. Our API monitor will look for the value of the example field under “Parameter” object or “Request Body” object to construct a valid API call. Instructions regarding how to create an example for “Parameter” object or “Request Body” object could be found <a target="_blank" href=' https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject and https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#requestBodyObject'>here</a>.
                           <br />
-                          Here is an example of a “trackable” API with example values provided: <a href='https://smart-api.info/api/metadata/mygene' target="_blank">https://smart-api.info/api/metadata/mygene</a> (search for <code style="border-style:solid;border-width:1px">"example":</code>).
+                          Here is an example of a “trackable” API with example values provided: <a href='https://smart-api.info/api/metadata/mygene' target="_blank">https://smart-api.info/api/metadata/mygene</a> (search for <code>"example":</code>).
                         </li>
                         <li>
                           If your API endpoints don’t have required parameter(s), you’re all set. No example is needed. We will automatically construct an API call with the paths and server information provided.
