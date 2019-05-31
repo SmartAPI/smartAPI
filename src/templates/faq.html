@@ -109,13 +109,13 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
                       'anchor':'api-monitor',
                       'question':"How can I construct my API specification so SmartAPI's API monitor can track my API status",
                       'answer':`<p>
-                        There is an API monitor running in the backend of SmartAPI to track the status of APIs registered in the SmartAPI registry. To make your API “trackable”, here are some guidelines to follow:
+                        There is an API monitor running in the backend of SmartAPI to track daily the status of APIs registered in the SmartAPI registry. To make your API “trackable”, here are some guidelines to follow:
                       </p>
                       <ol>
                         <li>
-                          If your API endpoints have required parameter(s), you must provide an example for each required parameter. Our API monitor will look for the value of the example field under “Parameter” object or “Request Body” object to construct a valid API call. Instructions regarding how to create an example for “Parameter” object or “Request Body” object could be found <a target="_blank" href=' https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject and https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#requestBodyObject'>here</a>.
+                          If your API endpoints have required parameter(s), you must provide an example value for each required parameter. Our API monitor will look for the value of the example field under “Parameter” object or “Request Body” object to construct a valid API call. Instructions regarding how to create an example for “Parameter” object or “Request Body” object could be found <a target="_blank" href=' https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject and https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#requestBodyObject'>here</a>.
                           <br />
-                          Here is an example of a “trackable” API with examples provided: <a href='https://smart-api.info/api/metadata/mygene' target="_blank">https://smart-api.info/api/metadata/mygene</a>.
+                          Here is an example of a “trackable” API with example values provided: <a href='https://smart-api.info/api/metadata/mygene' target="_blank">https://smart-api.info/api/metadata/mygene</a> (search for <code style="border-style:solid;border-width:1px">"example":</code>).
                         </li>
                         <li>
                           If your API endpoints don’t have required parameter(s), you’re all set. No example is needed. We will automatically construct an API call with the paths and server information provided.
