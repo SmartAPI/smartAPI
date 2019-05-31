@@ -20,6 +20,7 @@ WEB_SETTINGS = BiothingESWebSettings(config=config)
 if __name__ == '__main__':
     (SRC_PATH, _) = os.path.split(os.path.abspath(__file__))
     STATIC_PATH = os.path.join(SRC_PATH, 'static')
+    IOLoop.current().add_callback(backup_and_refresh)
     IOLoop.current().add_callback(update_uptime_status)
     PeriodicCallback(backup_and_refresh, 24*60*60*1000).start()
     PeriodicCallback(update_uptime_status, 24*60*60*1000, 0.1).start()
