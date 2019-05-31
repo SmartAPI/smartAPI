@@ -4,47 +4,7 @@
 {% block content %}
 {% include "header.html" %}
 <style>
-  /* Test CSS */
-  .apiStatus{
-    float: right;
-    outline: none !important;
-  }
-  .apiStatus:hover{
-    cursor: pointer !important;
-  }
-  .apiStatus div:first-child{
-    background: rgb(204,204,204); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(204,204,204,1) 1%, rgba(238,238,238,1) 53%, rgba(204,204,204,1) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
-    display: inline;
-    font-weight: bold;
-    padding: 4px;
-    font-size: .5em;
-    border-bottom-left-radius: 5px;
-    border-top-left-radius: 5px;
-  }
-  .apiStatus div:nth-child(2){
-    color: white;
-    text-shadow: 0px 1px 2px black;
-    margin-left: -6px !important;
-    display: inline;
-    padding: 4px;
-    font-size: .5em;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-  }
-  .apiStatus div:last-child{
-    display: inline;
-    padding: 4px;
-    font-size: .5em;
-    font-weight: bold;
-  }
 
-  .tippy-tooltip, .tippy-content, .tippy-backdrop, .tippy-popper{
-    border-radius: 0px !important;
-  }
 </style>
 <link
    rel="stylesheet"
@@ -81,20 +41,6 @@
                     </div>
                   </li>
                 </ul>
-                <!-- <ul class="collection">
-                  <li class="collection-item yellow darken-4 white-text lighten-5 blue-grey-text smallFont">
-                    <i class="fa fa-star" aria-hidden="true"></i> Top Tags
-                  </li>
-                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
-                    #Translator
-                  </li>
-                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
-                    #Gene
-                  </li>
-                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
-                    #NCATS
-                  </li>
-                </ul> -->
             </div>
             <div class="col l10 s12 ">
                 <div class="row">
@@ -190,7 +136,7 @@
                                   <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
                                     <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/>&nbsp;BioThings Explorer
                                   </a>
-                                  <status :api='api'></status>
+                                  <status :api='api' ></status>
                                 </span>
                                 <template v-if="api.info.description && api.info.description.length > 500">
                                   <description :text='api.info.description'></description>
@@ -203,9 +149,6 @@
                                   <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag" aria-hidden="true"></i> {{tag.name}}
                                   </a>
-                                  <!-- <small class="apiStatus blue-grey-text">
-                                    <i class="fa fa-eye" aria-hidden="true"></i> Seen 104 times
-                                  </small> -->
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
@@ -386,7 +329,6 @@
     }
   });
 </script>
-
 <script>
 
 Vue.component('status', {
@@ -407,15 +349,15 @@ Vue.component('status', {
             self.status = 'UNKNOWN';
             self.clss = 'orange';
             break;
-          case 'good'||'pass':
+          case 'good':
             self.status = 'PASS';
             self.clss = 'green';
             break;
-          case 'bad'||'fail':
+          case 'bad':
             self.status = 'FAIL';
             self.clss = 'red';
             break;
-          case 'incomaptible_smartapi_file'||'incompatible':
+          case 'incompatible':
             self.status = 'INCOMPATIBLE';
             self.clss = 'blue';
             break;
@@ -424,58 +366,60 @@ Vue.component('status', {
           self.clss = 'grey';
         }
       }
+    },
+    setTooltip(){
+      tippy( '.apiStatus', {
+        content: `<div>
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td class='green-text center'>
+                            <b>PASS</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your OpenAPI V3 API endpoints provide examples and all return code 200.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='red-text center'>
+                            <b>FAIL</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your OpenAPI V3 API endpoints provide examples but return code other than 200.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='orange-text center'>
+                            <b>UNKNOWN</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            One or more of your OpenAPI V3 API endpoints don't provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='blue-text center'>
+                            <b>INCOMPATIBLE</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>`,
+        placement: 'left',
+        theme:'light',
+        trigger:'click',
+        sticky:true,
+        interactive:true,
+      });
     }
   },
   mounted: function(){
-    let id = '#'+this.api['_id'] || '#'+this.api.info.title;
-    tippy( id, {
-      content: `<div>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td class='green-text'>
-                          <b>PASS</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          Your OpenAPI V3 API operations provide examples and all return code 200.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class='red-text'>
-                          <b>FAIL</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          Your OpenAPI V3 API operations provide examples but return code other than 200.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class='orange-text'>
-                          <b>UNKNOWN</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          One or more of your OpenAPI V3 API operations don't provide examples and cannot be tested.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class='blue-text'>
-                          <b>INCOMPATIBLE</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>`,
-      placement: 'left',
-      theme:'light',
-      trigger:'click',
-      sticky:true,
-      interactive:true,
-    })
+    this.setTooltip();
     this.getStatus(this.api);
   },
-  template: `<div v-show='status' :id='api._id || api.info.title' class="apiStatus" title="Click to learn more">
+  template: `<div v-show='status' class="apiStatus" title="Click to learn more">
               <div class="blue-grey-text">Status</div>
               <div :class="clss" v-text='status'></div>
              </div>`
@@ -585,23 +529,27 @@ Vue.component('status', {
             })
           },
           googleAnalytics(category, label){
-            switch (category) {
-              case 'Registry_Tag':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-                break;
-              case 'Registry_APIs':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-                break;
-              case 'Registry_SharedURL':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-                break;
-              case 'Registry_Searches':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-                break;
-              default:
-
-            }
-
+            gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+            // gtag('event', 'smartapi', {'registryResults':label,'registry-item':1,'event_label':label,'event_value':1});
+            // switch (category) {
+            //   case 'Registry_Tag':
+            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+            //     gtag('event','click',{'event_label':label,'event_value':1})
+            //     break;
+            //   case 'Registry_APIs':
+            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+            //     gtag('event','click',{'event_label':label,'event_value':1})
+            //     break;
+            //   case 'Registry_SharedURL':
+            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+            //     gtag('event','click',{'event_label':label,'event_value':1})
+            //     break;
+            //   case 'Registry_Searches':
+            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+            //     gtag('event','click',{'event_label':label,'event_value':1})
+            //     break;
+            //   default:
+            // }
           },
           sortResults(e){
             this.sort = e.target.value;
