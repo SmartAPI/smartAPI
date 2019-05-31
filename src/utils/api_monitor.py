@@ -239,51 +239,54 @@ async def update_uptime_status():
         Perform Periodic Update to Uptime Status in ES
     '''
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("utils.uptime.es.update")
+    logger = logging.getLogger("utils.uptime.update")
+    logger.info("Start uptime check...")
 
-    def sync_func():
+    def check_status(doc):
 
-        search = Search(index='smartapi_oas3').query("match_all")
+        api = API(doc)
+        api.check_api_status()
 
-        total = search.count()
-        result = {}
+        return api.api_status
 
-        logger.info("Found %s documents", total)
+    search = Search(index='smartapi_oas3') \
+        .query("match_all") \
+        .exclude("term", **{"_meta._archived": "true"})
 
-        for index, hit in enumerate(search.scan()):
+    total = search.count()
+    result = {}
 
-            doc = hit.to_dict()
-            doc['_id'] = hit.meta.id
+    logger.info("Found %s documents", total)
 
-            api = API(doc)
-            api.check_api_status()
+    for index, hit in enumerate(search.scan()):
 
-            logger.info("[%s/%s] %s", index+1, total, api)
+        doc = hit.to_dict()
+        doc['_id'] = hit.meta.id
 
-            doc_params = {
-                "id": hit.meta.id,
-                "index": 'smartapi_oas3',
-                "doc_type": 'api'
-            }
-            partial_update = {
-                "doc": {
-                    "_meta": {
-                        "uptime_status": api.api_status,
-                        "uptime_ts": datetime.utcnow()
-                    }
+        status = await IOLoop.current().run_in_executor(None, lambda: check_status(doc))
+
+        logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
+
+        doc_params = {
+            "id": hit.meta.id,
+            "index": 'smartapi_oas3',
+            "doc_type": 'api'
+        }
+        partial_update = {
+            "doc": {
+                "_meta": {
+                    "uptime_status": status,
+                    "uptime_ts": datetime.utcnow()
                 }
             }
-            es_client = Elasticsearch()
-            res = es_client.update(body=partial_update, **doc_params)
+        }
+        es_client = Elasticsearch()
+        res = es_client.update(body=partial_update, **doc_params)
 
-            logger.debug(res)
+        logger.debug(res)
 
-            result[api.api_status] = result.get(api.api_status, 0) + 1
+        result[status] = result.get(status, 0) + 1
 
-        return result
-
-    logger.info("Start scheduled uptime check...")
-    result = await IOLoop.current().run_in_executor(None, sync_func)
     logger.info("Uptime updated. %s", result)
 
 
