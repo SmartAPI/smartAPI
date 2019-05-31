@@ -23,8 +23,8 @@
       <ul class="collapsible">
         <template v-for="item in section.questions">
           <li>
-            <div class="collapsible-header blue-text bold" :id="item.anchor" :value="window.location+item.anchor" @click.prevent="changeHash(item.anchor)">
-              <i class="fa fa-comment" aria-hidden="true"></i> <span v-text="item.question"></span>
+            <div class="collapsible-header blue-text bold" :id="item.anchor" :value="window.location+item.anchor">
+              <i class="fa fa-comment" aria-hidden="true"></i> <span v-text="item.question"></span> <a :href="'#'+item.anchor" class="secondary-content"><i class="material-icons small">link</i></a>
             </div>
             <div class="collapsible-body blue-grey-text flow-text left-align" v-html="item.answer"></div>
           </li>
@@ -96,6 +96,11 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
                       'answer':`Our system performs checks for changes in your metadata daily and unless any are found that metadata will not be updated.`
                     },
                     {
+                      'anchor':'github-metadata',
+                      'question':'I edited my metadata on Github, but the raw Github URL does not reflect the changes. Why is that?',
+                      'answer':`Github appears to take a little time to update it's raw links due to cache controls. Wait a little while and your changes will appear eventually. GitHub serves "raw" pages with Cache-Control: max-age=300. That's specified in seconds, meaning the pages are intended to be cached for 5 minutes.`
+                    },
+                    {
                       'anchor':'refresh',
                       'question':'How do I manually refresh my API metadata if I just made a change?',
                       'answer':`Our system performs checks for changes in your metadata daily and unless any are found that metadata will not be updated.`
@@ -108,18 +113,35 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
                                 </p>
                                 <ul class="collection>
                                   <li class="collection-item">
-                                    <b class="green-text">PASS</b>: Your OpenAPI V3 API operations provide examples and all return code 200.
+                                    <b class="green-text">PASS</b>: Your OpenAPI V3 API endpoints provide examples and all return code 200.
                                   </li>
                                   <li class="collection-item">
-                                    <b class="red-text">FAIL</b>: Your OpenAPI V3 API operations provide examples but return code other than 200.
+                                    <b class="red-text">FAIL</b>: Your OpenAPI V3 API endpoints provide examples but return code other than 200.
                                   </li>
                                   <li class="collection-item">
-                                    <b class="orange-text">UNKNOWN</b>: One or more of your OpenAPI V3 API operations don't provide examples and cannot be tested.
+                                    <b class="orange-text">UNKNOWN</b>: One or more of your OpenAPI V3 API endpoints don't provide examples and cannot be tested.
                                   </li>
                                   <li class="collection-item">
                                     <b class="blue-text">INCOMPATIBLE</b>: Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide">here</a>.
                                   </li>
                                 </ul>`
+                    },
+                    {
+                      'anchor':'api-specification',
+                      'question':"How can I construct my API specification so SmartAPI's API monitor can track my API status",
+                      'answer':`<p>
+                        There is an API monitor running in the backend of SmartAPI to track the status of APIs registered in the SmartAPI registry. To make your API “trackable”, here are some guidelines to follow:
+                      </p>
+                      <ol>
+                        <li>
+                          If your API endpoints have required parameter(s), you must provide an example for each required parameter. Our API monitor will look for the value of the example field under “Parameter” object or “Request Body” object to construct a valid API call. Instructions regarding how to create an example for “Parameter” object or “Request Body” object could be found <a target="_blank" href=' https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#parameterObject and https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#requestBodyObject'>here</a>.
+                          <br />
+                          Here is an example of a “trackable” API with examples provided: <a href='https://smart-api.info/api/metadata/mygene' target="_blank">https://smart-api.info/api/metadata/mygene</a>.
+                        </li>
+                        <li>
+                          If your API endpoints don’t have required parameter(s), you’re all set. No example is needed. We will automatically construct an API call with the paths and server information provided.
+                        </li>
+                      </ol>`
                     },
                     {
                       'anchor':'transfer',
@@ -167,9 +189,6 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
           }
         },
         methods: {
-          changeHash(yourHash){
-            window.location.hash = "#"+yourHash;
-          },
           readURL(){
             let hash = window.location.hash;
             if (hash) {
