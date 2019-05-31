@@ -106,28 +106,7 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
                       'answer':`Our system performs checks for changes in your metadata daily and unless any are found that metadata will not be updated.`
                     },
                     {
-                      'anchor':'apistatus',
-                      'question':'What does my API status mean?',
-                      'answer':`<p>
-                                  Your API status can indicate one of the following things:
-                                </p>
-                                <ul class="collection>
-                                  <li class="collection-item">
-                                    <b class="green-text">PASS</b>: Your OpenAPI V3 API endpoints provide examples and all return code 200.
-                                  </li>
-                                  <li class="collection-item">
-                                    <b class="red-text">FAIL</b>: Your OpenAPI V3 API endpoints provide examples but return code other than 200.
-                                  </li>
-                                  <li class="collection-item">
-                                    <b class="orange-text">UNKNOWN</b>: One or more of your OpenAPI V3 API endpoints don't provide examples and cannot be tested.
-                                  </li>
-                                  <li class="collection-item">
-                                    <b class="blue-text">INCOMPATIBLE</b>: Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide">here</a>.
-                                  </li>
-                                </ul>`
-                    },
-                    {
-                      'anchor':'api-specification',
+                      'anchor':'api-monitor',
                       'question':"How can I construct my API specification so SmartAPI's API monitor can track my API status",
                       'answer':`<p>
                         There is an API monitor running in the backend of SmartAPI to track the status of APIs registered in the SmartAPI registry. To make your API “trackable”, here are some guidelines to follow:
@@ -142,6 +121,49 @@ The SmartAPI Ecosystem for Making Web APIs FAIR. International Semantic Web Conf
                           If your API endpoints don’t have required parameter(s), you’re all set. No example is needed. We will automatically construct an API call with the paths and server information provided.
                         </li>
                       </ol>`
+                    },
+                    {
+                      'anchor':'api-status',
+                      'question':'What does my API status mean?',
+                      'answer':`<p>
+                                  Your API status can indicate one of the following things:
+                                </p>
+                                <table>
+                                  <tbody>
+                                    <tr>
+                                      <td class='green-text'>
+                                        <b>PASS</b>
+                                      </td>
+                                      <td class="blue-grey-text">
+                                        Your OpenAPI V3 API endpoints provide examples and all return code 200.
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td class='red-text'>
+                                        <b>FAIL</b>
+                                      </td>
+                                      <td class="blue-grey-text">
+                                        Your OpenAPI V3 API endpoints provide examples but return code other than 200.
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td class='orange-text'>
+                                        <b>UNKNOWN</b>
+                                      </td>
+                                      <td class="blue-grey-text">
+                                        One or more of your OpenAPI V3 API endpoints don't provide examples and cannot be tested. <a href='/faq#api-monitor' >Learn more about how to to enable API status check </a>.
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td class='blue-text'>
+                                        <b>INCOMPATIBLE</b>
+                                      </td>
+                                      <td class="blue-grey-text">
+                                        Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>`
                     },
                     {
                       'anchor':'transfer',
