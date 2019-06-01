@@ -3,13 +3,13 @@
 # https://github.com/elastic/elasticsearch-py/issues/274
 
 import json
+import logging
 import string
 import sys
 from datetime import date, datetime
 from shlex import shlex
 
 import boto3
-import requests
 from elasticsearch import Elasticsearch, RequestError, helpers
 
 from .mapping import smart_api_mapping
@@ -101,8 +101,8 @@ class ESQuery():
         return self._es.exists(index=self._index, doc_type=self._doc_type, id=api_id)
 
     # used in APIHandler [POST]
-    def save_api(self, api_doc, save_v2=False, overwrite=False, user_name=None, override_owner=False,
-        warn_on_identical=False, dryrun=False):
+    def save_api(self, api_doc, save_v2=False, overwrite=False, user_name=None,
+                 override_owner=False, warn_on_identical=False, dryrun=False):
         '''Adds or updates a compatible-format API document in the SmartAPI index, making it searchable.
         :param save_v2: allow a swagger v2 document pass validation when set to True
         :param overwrite: allow overwriting an existing document if the user_name provided matches the record
@@ -114,7 +114,7 @@ class ESQuery():
         :param dryrun: only validate the schema and test the overwrite settings, do not actually save.
         '''
         metadata = APIMetadata(api_doc)
-        
+
         # validate document schema
         valid = metadata.validate(raise_error_on_v2=not save_v2)
         if not valid['valid']:
@@ -127,23 +127,34 @@ class ESQuery():
         doc_exists = self.exists(api_id)
         if doc_exists:
             if not overwrite:
-                is_archived = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=[
-                                           "_meta"]).get('_source', {}).get('_meta', {}).get('_archived', False) == 'true'
+                is_archived = self._es.get(
+                    index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get(
+                    '_source', {}).get(
+                    '_meta', {}).get(
+                    '_archived', False) == 'true'
                 if not is_archived:
                     return {"success": False, "error": "[Conflict] API exists. Not saved."}
             elif not override_owner:
-                _owner = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=[
-                                      "_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
+                _owner = self._es.get(
+                    index=self._index, doc_type=self._doc_type, id=api_id, _source=["_meta"]).get(
+                    '_source', {}).get(
+                    '_meta', {}).get(
+                    'github_username', '')
                 if _owner != user_name:
                     return {"success": False, "error": "[Conflict] User mismatch. Not Saved."}
 
         # identical document
-        _doc = metadata.convert_es()       
+        _doc = metadata.convert_es()
         if doc_exists:
-            _raw_stored = self._es.get(index=self._index, doc_type=self._doc_type, id=api_id, _source=["~raw"]).get('_source', {})['~raw']
-            if decode_raw(_raw_stored, as_string=True) == decode_raw(_doc.get('~raw'), as_string=True):
+            _raw_stored = self._es.get(
+                index=self._index, doc_type=self._doc_type, id=api_id, _source=["~raw"]).get(
+                '_source', {})['~raw']
+            if decode_raw(
+                    _raw_stored, as_string=True) == decode_raw(
+                    _doc.get('~raw'),
+                    as_string=True):
                 if warn_on_identical:
-                    return {"success": True, '_id': api_id, "warning":"[Conflict] No change in document."}
+                    return {"success": True, '_id': api_id, "warning": "[Conflict] No change in document."}
                 else:
                     return {"success": True, '_id': api_id}
 
@@ -306,7 +317,7 @@ class ESQuery():
             _query = {"query": {"bool": {"must_not": {"term": {"_meta._archived": "true"}}}}}
         else:
             _query = {"query": {"match_all": {}}}
-        
+
         scan_res = helpers.scan(client=self._es, query=_query,
                                 index=self._index, doc_type=self._doc_type)
 
@@ -322,6 +333,7 @@ class ESQuery():
     def backup_all(self, outfile=None, ignore_archives=False, aws_s3_bucket=None):
         """back up all docs into a output file."""
         # get the real index name in case self._index is an alias
+        logging.info("Backup started.")
         alias_d = self._es.indices.get_alias(self._index)
         assert len(alias_d) == 1
         index_name = list(alias_d.keys())[0]
@@ -339,8 +351,7 @@ class ESQuery():
             out_f = open(outfile, 'w')
             json.dump(doc_li, out_f, indent=2)
             out_f.close()
-        print("Backed up {} docs in \"{}\" {}.".format(
-            len(doc_li), outfile, location_prompt))
+        logging.info("Backed up %s docs in \"%s\" %s.", len(doc_li), outfile, location_prompt)
 
     def restore_all(self, backupfile, index_name, overwrite=False):
         """restore all docs from the backup file to a new index."""
@@ -430,7 +441,10 @@ class ESQuery():
             }
         }
 
-        if len(self._es.search(index=self._index, doc_type=self._doc_type, body=_query, _source=False).get('hits', {}).get('hits', [])) > 0:
+        if len(
+            self._es.search(
+                index=self._index, doc_type=self._doc_type, body=_query, _source=False).get(
+                'hits', {}).get('hits', [])) > 0:
             return (False, {"success": False, "error": "Slug name '{}' already exists, please choose another".format(_slug)})
 
         # good name
@@ -442,8 +456,11 @@ class ESQuery():
         if not self.exists(_id):
             return (404, {"success": False, "error": "Could not retrieve API '{}' to set slug name".format(_id)})
 
-        _user = self._es.get(index=self._index, doc_type=self._doc_type, id=_id, _source=[
-                             "_meta"]).get('_source', {}).get('_meta', {}).get('github_username', '')
+        _user = self._es.get(
+            index=self._index, doc_type=self._doc_type, id=_id, _source=["_meta"]).get(
+            '_source', {}).get(
+            '_meta', {}).get(
+            'github_username', '')
 
         # Make sure this is the correct user
         if user.get('login', None) != _user:
@@ -503,18 +520,19 @@ class ESQuery():
         _user = user.get('login', None)
         if api_doc.get('_source', {}).get('_meta', {}).get('github_username', '') != _user:
             return (405, {"success": False, "error": "User '{user}' is not the owner of API '{id}'".format(user=_user, id=_id)})
-        
+
         status = self._refresh_one(
-            api_doc=api_doc['_source'], user=_user, dryrun=dryrun)        
+            api_doc=api_doc['_source'], user=_user, dryrun=dryrun)
         if not dryrun:
             self._es.indices.refresh(index=self._index)
-        
+
         if status.get('success', False):
             return (200, status)
         else:
             return (405, status)
 
-    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True, error_on_identical=False, save_v2=False):
+    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True,
+                     error_on_identical=False, save_v2=False):
         ''' refresh the given API document object based on its saved metadata url  '''
         _id = api_doc['_id']
         _meta = api_doc['_meta']
@@ -522,19 +540,22 @@ class ESQuery():
         res = get_api_metadata_by_url(_meta['url'])
         if res and isinstance(res, dict):
             if res.get('success', None) is False:
-                res['error'] = '[Request] '+res.get('error','')
+                res['error'] = '[Request] '+res.get('error', '')
                 status = res
             else:
                 _meta['timestamp'] = datetime.now().isoformat()
                 res['_meta'] = _meta
-                status = self.save_api(res, user_name=user, override_owner=override_owner, overwrite=True,
-                                       dryrun=dryrun, warn_on_identical=error_on_identical, save_v2=True)
+                status = self.save_api(
+                    res, user_name=user, override_owner=override_owner, overwrite=True,
+                    dryrun=dryrun, warn_on_identical=error_on_identical, save_v2=True)
         else:
             status = {'success': False, 'error': 'Invalid input data.'}
 
         return status
 
-    def refresh_all(self, id_list=[], dryrun=True, return_status=False, use_etag=True, ignore_archives=True):
+    def refresh_all(
+            self, id_list=[],
+            dryrun=True, return_status=False, use_etag=True, ignore_archives=True):
         '''refresh saved API documents based on their metadata urls.
 
         :param id_list: the list of API documents to perform the refresh operation
@@ -544,12 +565,11 @@ class ESQuery():
         '''
         updates = 0
         status_li = []
-        print("Refreshing API metadata:")
+        logging.info("Refreshing API metadata:")
 
         for api_doc in self.fetch_all(id_list=id_list, ignore_archives=ignore_archives):
-            
+
             _id, status = api_doc['_id'], ''
-            print("{}... ".format(_id), end='')
 
             if use_etag:
                 _res = polite_requests(api_doc.get('_meta', {}).get('url', ''), head=True)
@@ -560,8 +580,10 @@ class ESQuery():
                     if etag_local == etag_server:
                         status = "OK (Via Etag)"
 
-            if not status:                        
-                res = self._refresh_one(api_doc, dryrun=dryrun, override_owner=True, error_on_identical=True, save_v2=True)
+            if not status:
+                res = self._refresh_one(
+                    api_doc, dryrun=dryrun, override_owner=True, error_on_identical=True,
+                    save_v2=True)
                 if res.get('success'):
                     if res.get('warning'):
                         status = 'OK'
@@ -570,16 +592,14 @@ class ESQuery():
                         updates += 1
                 else:
                     status = "ERR " + res.get('error')[:60]
-            
+
             status_li.append((_id, status))
-            print(status)
-        
-        print("="*75)
-        print("{}: {} APIs refreshed. {} Updates.".format(get_datestamp(),len(status_li), updates))
-        print("="*75)
-        
+            logging.info("%s: %s", _id, status)
+
+        logging.info("%s: %s APIs refreshed. %s Updates.", get_datestamp(), len(status_li), updates)
+
         if dryrun:
-            print("This is a dryrun! No actual changes have been made.")
-            print("When ready, run it again with \"dryrun=False\" to apply changes.")
-        
+            logging.warning("This is a dryrun! No actual changes have been made.")
+            logging.warning("When ready, run it again with \"dryrun=False\" to apply changes.")
+
         return status_li
