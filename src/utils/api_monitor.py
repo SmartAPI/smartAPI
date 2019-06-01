@@ -8,6 +8,7 @@
 
 import logging
 from datetime import datetime
+from functools import partial
 
 import requests
 from elasticsearch import Elasticsearch
@@ -263,7 +264,7 @@ async def update_uptime_status():
         doc = hit.to_dict()
         doc['_id'] = hit.meta.id
 
-        status = await IOLoop.current().run_in_executor(None, lambda: check_status(doc))
+        status = await IOLoop.current().run_in_executor(None, partial(check_status, doc))
 
         logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
 
