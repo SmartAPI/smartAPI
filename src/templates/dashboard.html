@@ -67,14 +67,13 @@
         </ul>
       </div>
     <div class="col s12 m8 l9 xl9 center-align" >
-        <!-- <h5 class="text_h3 white-text tracking-in-expand textShadow">MY DASHBOARD</h5> -->
         <div class="row">
           <!-- Search API -->
           <div class="col s12 nextBox" style="padding: 0px !important; border-top-left-radius: 10px; border-top-right-radius: 10px;">
             <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-light) 2px solid;"/>
             <table class="bordered noPadding grey lighten-5" style="table-layout: fixed;">
               <thead v-if="searchQuery">
-                <th class="lighter smallFont center-align">Name</th>
+                <th class="lighter smallFont center-align">Name/V/Status</th>
                 <th class="center-align lighter smallFont">Last Updated</th>
                 <th class="center-align lighter smallFont">Refresh</th>
                 <th class="center-align lighter smallFont">Delete</th>
@@ -82,7 +81,7 @@
               <tbody >
                 <tr v-for="(api,index) in searchResults">
                   <td >
-                     <!-- <a href="#modal2" class="modal-trigger smallFont" @click="getDetails(api.info, api._meta)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a> -->
+                    <status :api='api'></status>
                      <a href="#modal2" class="modal-trigger smallFont" @click="getDetailsSearch(api)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span> <i class="material-icons tiny blue-text">info_outline</i></a>
                      <span v-if=" api.hasOwnProperty('openapi') " class="smallFont green-text hide-on-med-and-down ">
                        - OAS3
@@ -95,7 +94,6 @@
                     <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
                   </td>
                   <td  class="center-align">
-                    <!-- refresh button global component -->
                     <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
                   </td>
                   <td class="center-align">
@@ -107,7 +105,6 @@
               </tbody>
             </table>
           </div>
-          <!-- Search END -->
           <div class="col s12">
             <ul class="tabs transparent">
               <li class="tab col s3 transparent">
@@ -123,18 +120,18 @@
               <table id="dashboardTable" class="bordered" style="table-layout: fixed;">
                 <thead>
                   <tr class="blue-grey-text grey lighten-5">
-                      <th class="lighter smallFont center-align">Name <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></th>
+                      <th class="lighter smallFont center-align">Name/V/Status <a id="sortName" @click.prevent="sortApisByName()" class="smallButton">A-Z</a></th>
                       <th class="center-align lighter smallFont">Last Updated</th>
                       <th class="center-align lighter smallFont">Refresh</th>
                       <th class="center-align lighter smallFont">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- For each API -->
                   <tr v-for="(api,index) in apis">
                     <td style="overflow: hidden;">
+                      <status :api='api'></status>
                        <a href="#modal2" class="modal-trigger smallFont hide-on-large-only" @click="getDetails(index)"><span class="hide-on-small-only">{{index+1 }}-</span> <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
-                       <a href="#modal2" class="modal-trigger hide-on-med-and-down" @click="getDetails(index)">{{index+1 }}- <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
+                       <a href="#modal2" class="modal-trigger hide-on-med-and-down" @click="getDetails(index)"><b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                        <span v-if=" api.hasOwnProperty('openapi') " class="smallFont green-text hide-on-med-and-down ">
                          - OAS3
                        </span>
@@ -147,7 +144,6 @@
                       <span style="font-weight: bold" class="green-text hide-on-med-and-down"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ convertDate(api._meta.timestamp) }}</span>
                     </td>
                     <td class="center-align">
-                      <!-- refresh button global component -->
                       <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
                     </td>
                     <td class="center-align">
@@ -156,7 +152,6 @@
                       </a>
                     </td>
                   </tr>
-                  <!-- IF nor apis present -->
                   <tr v-if="apis.length === 0">
                     <td colspan="4"  class="center-align grey lighten-3">
                       <span class="grey-text smallFont">No Contributions Yet</span><br>
@@ -347,11 +342,102 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-
-<!-- Moment.js -->
+<script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
 <script src="/static/js/moment.js"></script>
 
 <script>
+
+Vue.component('status', {
+  data: function(){
+    return{
+      status:'',
+      clss:'',
+    }
+  },
+  props: ['api'],
+  methods:{
+    getStatus(api){
+      let self = this;
+      if (api['_meta'].hasOwnProperty('uptime_status')) {
+        let stat = api['_meta']['uptime_status'];
+        switch (stat) {
+          case 'unknown':
+            self.status = 'UNKNOWN';
+            self.clss = 'orange-text';
+            break;
+          case 'good':
+            self.status = 'PASS';
+            self.clss = 'green-text';
+            break;
+          case 'bad':
+            self.status = 'FAIL';
+            self.clss = 'red-text';
+            break;
+          case 'incompatible':
+            self.status = 'INCOMPATIBLE';
+            self.clss = 'blue-text';
+            break;
+          default:
+          self.status = '';
+          self.clss = 'grey-text';
+        }
+      }
+    },
+    setTooltip(){
+      tippy( '.apiStatus', {
+        content: `<div>
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td class='green-text center'>
+                            <b>PASS</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your OpenAPI V3 API endpoints provide examples and all return code 200.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='red-text center'>
+                            <b>FAIL</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your OpenAPI V3 API endpoints provide examples but return code other than 200.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='orange-text center'>
+                            <b>UNKNOWN</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='blue-text center'>
+                            <b>INCOMPATIBLE</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>`,
+        placement: 'left',
+        theme:'light',
+        trigger:'click',
+        sticky:true,
+        interactive:true,
+      });
+    }
+  },
+  mounted: function(){
+    this.setTooltip();
+    this.getStatus(this.api);
+  },
+  template: `<i v-if='!status' class="material-icons apiStatus tiny" :class='clss'>brightness_1</i>`
+});
+
 
   // Refresh Button Component
   Vue.component('refresh', {
@@ -397,7 +483,7 @@
     template: `<a @mouseenter="$event.target.classList.add('pulse')" @mouseleave="$event.target.classList.remove('pulse')" :disabled='currentlyRefreshing' @click="refresh(title,id); countDown()" :class="currentlyRefreshing ? 'btn grey' : 'green btn scale-in-center' " style="cursor: pointer; font-size:12px;">
                 <i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>
               </a>`
-  })
+  });
 
   // Main Dashboard Component
     var app = new Vue({
@@ -437,11 +523,13 @@
           getApis: function(){
             var self=this;
             self.apis=[];
-
-            axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login).then(function(response){
-                  //console.log(response.data.hits);
+            var params = {
+                "params": {
+                    'fields': 'info,_meta,tags,openapi,swagger,'
+                }
+            };
+            axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login,params).then(function(response){
                   self.apis = response.data.hits;
-                  //self.sortApisByName();
                   self.total = response.data.total;
                   self.hideLoading();
               }).catch(err=>{
@@ -451,6 +539,7 @@
                   showConfirmButton: false,
                   timer: 2000
                 });
+                self.hideLoading();
 
                 toast({
                   type: 'error',
@@ -458,6 +547,7 @@
                 })
                 throw err;
               });
+
           },
           compiledMarkdown: function (mdtext) {
               return marked(mdtext, { sanitize: true })
@@ -515,7 +605,6 @@
             axios.put('/api/metadata/'+id).then(res=>{
               self.hideLoading();
               if( res.data.success ){
-                // Materialize.toast(title+' was refreshed!', 4000,'rounded green white-text');
                 const toast = swal.mixin({
                   toast: true,
                   position: 'top',
