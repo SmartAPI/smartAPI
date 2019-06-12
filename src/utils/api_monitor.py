@@ -8,6 +8,7 @@
 
 import logging
 from datetime import datetime
+from functools import partial
 
 import requests
 from elasticsearch import Elasticsearch
@@ -61,13 +62,13 @@ class API:
             self.api_server = api_doc['servers'][0]['url']
         except KeyError:
             self.api_server = None
-            self.api_status = 'incompatible_smartapi_file'
+            self.api_status = 'incompatible'
         new_path_info = {}
         if 'paths' in api_doc:
             for _path in api_doc['paths']:
                 new_path_info[_path['path']] = _path['pathitem']
         else:
-            self.api_status = 'incompatible_smartapi_file'
+            self.api_status = 'incompatible'
         self.components = api_doc.get('components')
         self.endpoints_info = new_path_info
 
@@ -121,6 +122,9 @@ class Endpoint:
         self.components = endpoint_doc.get('components')
 
     def make_api_call(self):
+        headers = {
+            'User-Agent': 'SmartAPI API status monitor'
+        }
         url = self.endpoint_name
         logger = logging.getLogger("utils.uptime.endpoint.make_api_call")
         # handle API endpoint which use GET HTTP method
@@ -142,7 +146,8 @@ class Endpoint:
                         response = requests.get(url,
                                                 params=params,
                                                 verify=False,
-                                                timeout=3)
+                                                timeout=3,
+                                                headers=headers)
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                         pass
@@ -152,7 +157,8 @@ class Endpoint:
                 try:
                     response = requests.get(url,
                                             timeout=3,
-                                            verify=False)
+                                            verify=False,
+                                            headers=headers)
                     return response
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                     pass
@@ -170,7 +176,8 @@ class Endpoint:
                         response = requests.post(url,
                                                  data=data,
                                                  timeout=3,
-                                                 verify=False)
+                                                 verify=False,
+                                                 headers=headers)
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                         pass
@@ -189,7 +196,8 @@ class Endpoint:
                                 response = requests.post(url,
                                                          timeout=3,
                                                          json=example,
-                                                         verify=False)
+                                                         verify=False,
+                                                         headers=headers)
                                 return response
                             except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                                 pass
@@ -206,7 +214,8 @@ class Endpoint:
                                         response = requests.post(url,
                                                                  timeout=3,
                                                                  json=example,
-                                                                 verify=False)
+                                                                 verify=False,
+                                                                 headers=headers)
                                         logger.debug(response)
                                         return response
                                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
@@ -216,7 +225,8 @@ class Endpoint:
                 try:
                     response = requests.post(url,
                                              timeout=3,
-                                             verify=False)
+                                             verify=False,
+                                             headers=headers)
                     return response
                 except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                     pass
@@ -230,51 +240,54 @@ async def update_uptime_status():
         Perform Periodic Update to Uptime Status in ES
     '''
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("utils.uptime.es.update")
+    logger = logging.getLogger("utils.uptime.update")
+    logger.info("Start uptime check...")
 
-    def sync_func():
+    def check_status(doc):
 
-        search = Search(index='smartapi_oas3').query("match_all")
+        api = API(doc)
+        api.check_api_status()
 
-        total = search.count()
-        result = {}
+        return api.api_status
 
-        logger.info("Found %s documents", total)
+    search = Search(index='smartapi_oas3') \
+        .query("match_all") \
+        .exclude("term", **{"_meta._archived": "true"})
 
-        for index, hit in enumerate(search.scan()):
+    total = search.count()
+    result = {}
 
-            doc = hit.to_dict()
-            doc['_id'] = hit.meta.id
+    logger.info("Found %s documents", total)
 
-            api = API(doc)
-            api.check_api_status()
+    for index, hit in enumerate(search.scan()):
 
-            logger.info("[%s/%s] %s", index+1, total, api)
+        doc = hit.to_dict()
+        doc['_id'] = hit.meta.id
 
-            doc_params = {
-                "id": hit.meta.id,
-                "index": 'smartapi_oas3',
-                "doc_type": 'api'
-            }
-            partial_update = {
-                "doc": {
-                    "_meta": {
-                        "uptime_status": api.api_status,
-                        "uptime_ts": datetime.utcnow()
-                    }
+        status = await IOLoop.current().run_in_executor(None, partial(check_status, doc))
+
+        logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
+
+        doc_params = {
+            "id": hit.meta.id,
+            "index": 'smartapi_oas3',
+            "doc_type": 'api'
+        }
+        partial_update = {
+            "doc": {
+                "_meta": {
+                    "uptime_status": status,
+                    "uptime_ts": datetime.utcnow()
                 }
             }
-            es_client = Elasticsearch()
-            res = es_client.update(body=partial_update, **doc_params)
+        }
+        es_client = Elasticsearch()
+        res = es_client.update(body=partial_update, **doc_params)
 
-            logger.debug(res)
+        logger.debug(res)
 
-            result[api.api_status] = result.get(api.api_status, 0) + 1
+        result[status] = result.get(status, 0) + 1
 
-        return result
-
-    logger.info("Start scheduled uptime check...")
-    result = await IOLoop.current().run_in_executor(None, sync_func)
     logger.info("Uptime updated. %s", result)
 
 

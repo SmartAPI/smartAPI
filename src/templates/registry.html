@@ -4,52 +4,8 @@
 {% block content %}
 {% include "header.html" %}
 <style>
-  /* Test CSS */
-  .apiStatus{
-    float: right;
-    outline: none !important;
-  }
-  .apiStatus:hover{
-    cursor: pointer !important;
-  }
-  .apiStatus div:first-child{
-    background: rgb(204,204,204); /* Old browsers */
-    background: -moz-linear-gradient(top, rgba(204,204,204,1) 1%, rgba(238,238,238,1) 53%, rgba(204,204,204,1) 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom, rgba(204,204,204,1) 1%,rgba(238,238,238,1) 53%,rgba(204,204,204,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cccccc', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
-    display: inline;
-    font-weight: bold;
-    padding: 4px;
-    font-size: .5em;
-    border-bottom-left-radius: 5px;
-    border-top-left-radius: 5px;
-  }
-  .apiStatus div:nth-child(2){
-    color: white;
-    text-shadow: 0px 1px 2px black;
-    margin-left: -6px !important;
-    display: inline;
-    padding: 4px;
-    font-size: .5em;
-    border-bottom-right-radius: 5px;
-    border-top-right-radius: 5px;
-  }
-  .apiStatus div:last-child{
-    display: inline;
-    padding: 4px;
-    font-size: .5em;
-    font-weight: bold;
-  }
 
-  .tippy-tooltip, .tippy-content, .tippy-backdrop, .tippy-popper{
-    border-radius: 0px !important;
-  }
 </style>
-<link
-   rel="stylesheet"
-   href="https://unpkg.com/tippy.js@4/themes/light.css"
- />
   {% raw %}
     <main>
       <!-- Loading Screen -->
@@ -81,20 +37,6 @@
                     </div>
                   </li>
                 </ul>
-                <!-- <ul class="collection">
-                  <li class="collection-item yellow darken-4 white-text lighten-5 blue-grey-text smallFont">
-                    <i class="fa fa-star" aria-hidden="true"></i> Top Tags
-                  </li>
-                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
-                    #Translator
-                  </li>
-                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
-                    #Gene
-                  </li>
-                  <li class="collection-item blue-grey lighten-5 blue-grey-text smallFont">
-                    #NCATS
-                  </li>
-                </ul> -->
             </div>
             <div class="col l10 s12 ">
                 <div class="row">
@@ -109,7 +51,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search ); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn" data-clipboard-target="#shareButton">
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -120,7 +62,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn" data-clipboard-target="#shareButton" >
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -128,11 +70,11 @@
                       </template>
 
                         <div class="col s12 selected-tags">
-                            <div class="chip scale-in-center" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
+                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
                                 <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
                                 <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
-                            <div class="chip scale-in-center" v-for="author in authors" v-if="author.active">
+                            <div class="chip" v-for="author in authors" v-if="author.active">
                                 <i class="fa fa-user" aria-hidden="true"></i>  {{author.name}}
                                 <i class="close material-icons" @click="author.active = false;search(query)">close</i>
                             </div>
@@ -144,7 +86,7 @@
                     </form>
                 </div>
                 <div class="row search-results">
-                    <div class="col s12">
+                    <div class="col s12" id="tippyParent">
                         <div class="blue-grey-text">
                            <div class="row">
                              <div class="col s5 m10">
@@ -169,7 +111,7 @@
                             </div>
                           </div>
                         </template>
-                        <div class="card context scale-in-center" v-for="(api,index) in paginatedApis">
+                        <div class="card context" v-for="(api,index) in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
                                   <span class="blue-grey-text bold">
@@ -190,7 +132,10 @@
                                   <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
                                     <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/>&nbsp;BioThings Explorer
                                   </a>
-                                  <status :api='api'></status>
+                                  <!-- <span class='popularity' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
+                                    <i class="fa fa-bar-chart red-text" aria-hidden="true"></i>
+                                  </span> -->
+                                  <status :api='api' ></status>
                                 </span>
                                 <template v-if="api.info.description && api.info.description.length > 500">
                                   <description :text='api.info.description'></description>
@@ -200,12 +145,9 @@
                                 </template>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
-                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);googleAnalytics('Registry_Tag', tag.name)" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag" aria-hidden="true"></i> {{tag.name}}
                                   </a>
-                                  <!-- <small class="apiStatus blue-grey-text">
-                                    <i class="fa fa-eye" aria-hidden="true"></i> Seen 104 times
-                                  </small> -->
                                 </div>
                             </div>
                             <div class="card-action grey lighten-3" v-if="apis.length > 1">
@@ -303,11 +245,11 @@
                                       </tr>
                                       <tr class="tablePillRow">
                                         <td colspan="2">
-                                          <a class="btn green smallFont scale-in-center"
-                                             v-bind:href='"/ui/"+api._id' >
+                                          <a class="btn green smallFont"
+                                             v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
                                              View API Documentation
                                           </a>
-                                          <a class="btn blue smallFont scale-in-center"
+                                          <a class="btn blue smallFont"
                                              v-bind:href='"/editor/"+api._id'>
                                              Edit <i class="fa fa-pencil" aria-hidden="true"></i>
                                           </a>
@@ -386,7 +328,6 @@
     }
   });
 </script>
-
 <script>
 
 Vue.component('status', {
@@ -407,15 +348,15 @@ Vue.component('status', {
             self.status = 'UNKNOWN';
             self.clss = 'orange';
             break;
-          case 'good'||'pass':
+          case 'good':
             self.status = 'PASS';
             self.clss = 'green';
             break;
-          case 'bad'||'fail':
+          case 'bad':
             self.status = 'FAIL';
             self.clss = 'red';
             break;
-          case 'incomaptible_smartapi_file'||'incompatible':
+          case 'incompatible':
             self.status = 'INCOMPATIBLE';
             self.clss = 'blue';
             break;
@@ -424,58 +365,60 @@ Vue.component('status', {
           self.clss = 'grey';
         }
       }
+    },
+    setTooltip(){
+      tippy( '.apiStatus', {
+        content: `<div>
+                    <table>
+                      <tbody>
+                        <tr>
+                          <td class='green-text center'>
+                            <b>PASS</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your OpenAPI V3 API endpoints provide examples and all return code 200.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='red-text center'>
+                            <b>FAIL</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your OpenAPI V3 API endpoints provide examples but return code other than 200.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='orange-text center'>
+                            <b>UNKNOWN</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='blue-text center'>
+                            <b>INCOMPATIBLE</b>
+                          </td>
+                          <td class="blue-grey-text">
+                            Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>`,
+        placement: 'left',
+        theme:'light',
+        trigger:'click',
+        sticky:true,
+        interactive:true,
+      });
     }
   },
   mounted: function(){
-    let id = '#'+this.api['_id'] || '#'+this.api.info.title;
-    tippy( id, {
-      content: `<div>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td class='green-text'>
-                          <b>PASS</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          Your OpenAPI V3 API operations provide examples and all return code 200.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class='red-text'>
-                          <b>FAIL</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          Your OpenAPI V3 API operations provide examples but return code other than 200.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class='orange-text'>
-                          <b>UNKNOWN</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          One or more of your OpenAPI V3 API operations don't provide examples and cannot be tested.
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class='blue-text'>
-                          <b>INCOMPATIBLE</b>
-                        </td>
-                        <td class="blue-grey-text">
-                          Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>`,
-      placement: 'left',
-      theme:'light',
-      trigger:'click',
-      sticky:true,
-      interactive:true,
-    })
+    this.setTooltip();
     this.getStatus(this.api);
   },
-  template: `<div v-show='status' :id='api._id || api.info.title' class="apiStatus" title="Click to learn more">
+  template: `<div v-show='status' class="apiStatus" title="Click to learn more">
               <div class="blue-grey-text">Status</div>
               <div :class="clss" v-text='status'></div>
              </div>`
@@ -526,6 +469,7 @@ Vue.component('status', {
                 </div>
               </div>`
   });
+
 
   var app = new Vue({
       el: '#app',
@@ -585,23 +529,31 @@ Vue.component('status', {
             })
           },
           googleAnalytics(category, label){
+            // console.log('category',category,label)
+            // gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+
             switch (category) {
               case 'Registry_Tag':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+                gtag('event','click',{'event_category':'tag','event_label':label,'event_value':1})
+                break;
+              case 'Registry_Author':
+                gtag('event','click',{'event_category':'author','event_label':label,'event_value':1})
                 break;
               case 'Registry_APIs':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+                gtag('event','click',{'event_category':'expanded','event_label':label,'event_value':1})
                 break;
               case 'Registry_SharedURL':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+                gtag('event','click',{'event_category':'shared','event_label':label,'event_value':1})
                 break;
               case 'Registry_Searches':
-                gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
+                gtag('event','click',{'event_category':'searched','event_label':label,'event_value':1})
+                break;
+              case 'Registry_Documentation':
+                gtag('event','click',{'event_category':'documentation','event_label':label,'event_value':1})
                 break;
               default:
-
+              gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
             }
-
           },
           sortResults(e){
             this.sort = e.target.value;
@@ -995,7 +947,8 @@ Vue.component('status', {
             if (q) {
               this.query = q;
             }
-          }
+          },
+
       },
       created: function () {
           this.getUserInfo();
@@ -1004,6 +957,43 @@ Vue.component('status', {
           $('.collapsible').collapsible();
           this.loadFilters();
           this.context = {{Context}};
+
+      },
+      mounted:function(){
+
+        tippy( '#tippyParent', {
+          target:'.popularity',
+          content: 'Loading...',
+          animateFill: false,
+          animation: 'fade',
+          theme:'light',
+          trigger:'mouseenter',
+          onShow(instance) {
+            // console.log(instance.reference.dataset.tippyName)
+            let name = instance.reference.dataset.tippyName;
+            let mostSearched =[];
+            let viewed =0;
+            axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
+              if (res.data.rows) {
+                mostSearched = res.data.rows
+                for (var i = 0; i < mostSearched.length; i++) {
+                  if(mostSearched[i][0]===name){
+                    viewed=mostSearched[i][1];
+                  }
+                  if (viewed>0) {
+                    viewed = viewed.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    instance.setContent("<div class='container'>"+name+" has been viewed <b class='green-text'>"+viewed+"</b> times</div>")
+                  }else{
+                    instance.setContent("<div class='container'>No results for "+name+"</div>")
+                  }
+
+                }
+              }
+            }).catch(err=>{
+              throw err;
+            });
+          }
+        });
 
       },
       updated: function(){
