@@ -154,7 +154,7 @@ class APIMetadata:
             err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
             return {"valid": False, "error": "[{}] ".format(self.schema_version) + err_msg}
         except Exception as e:
-            return {"valid": False, "error": "Unexpected Validation Error: {} - {}".format(type(e).__name__, e)}
+            return {"valid": False, "error": "Unexpected Validation Error: {}".format(e)}
 
         if self.schema_version == 'OAS3':
             try:
