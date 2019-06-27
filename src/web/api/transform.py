@@ -93,7 +93,7 @@ def get_api_metadata_by_url(url, as_string=False):
             # except json.JSONDecodeError:   # for py>=3.5
             except ValueError:               # for py<3.5
                 try:
-                    metadata = yaml.load(res.text)
+                    metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
                 except (yaml.scanner.ScannerError,
                         yaml.parser.ParserError):
                     return {"success": False,
@@ -124,7 +124,7 @@ class APIMetadata:
             self._meta['ETag'] = requests.get(
                 self._meta['url']).headers.get(
                 'ETag', 'I').strip('W/"')
-        except:
+        except BaseException:
             pass
         if self.schema_version == 'SWAGGER2':
             self._meta['swagger_v2'] = True
@@ -145,7 +145,8 @@ class APIMetadata:
     def validate(self, raise_error_on_v2=True):
         '''Validate API metadata against JSON Schema.'''
         if not self.schema_version or self.schema_version not in SUPPORTED_SCHEMA_VERSIONS:
-            return {"valid": False, "error": "Unsupported schema version '{}'.  Supported versions are: '{}'.".format(self.schema_version, SUPPORTED_SCHEMA_VERSIONS)}
+            return {"valid": False, "error": "Unsupported schema version '{}'.  Supported versions are: '{}'.".format(
+                self.schema_version, SUPPORTED_SCHEMA_VERSIONS)}
         if raise_error_on_v2 and self.schema_version == 'SWAGGER2':
             return {"valid": False, "error": "Found a v2 swagger schema, please convert to v3 for fullest functionality or click the checkbox to proceed with v2 anyway.", "swagger_v2": True}
         try:
