@@ -6,10 +6,6 @@
 <style>
 
 </style>
-<link
-   rel="stylesheet"
-   href="https://unpkg.com/tippy.js@4/themes/light.css"
- />
   {% raw %}
     <main>
       <!-- Loading Screen -->
@@ -55,7 +51,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href ); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton">
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search ); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn" data-clipboard-target="#shareButton">
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -66,7 +62,7 @@
                             <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 50%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                             <input style="width:5px; opacity:0 !important;"  class="swatch" style="background-color: #E4F2FC;" id="shareButton" :value="shareURL">
                             </input>
-                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn scale-in-center" data-clipboard-target="#shareButton" >
+                            <button @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search); copyConf()" v-if="shareURLButtonVisible" style="cursor: pointer;" class="smallButton tooltip grey lighten-2 grey-text copyBtn" data-clipboard-target="#shareButton" >
                               Share Search
                               <span class="tooltiptext">Click to copy search URL</span>
                             </button>
@@ -74,11 +70,11 @@
                       </template>
 
                         <div class="col s12 selected-tags">
-                            <div class="chip scale-in-center" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
+                            <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
                                 <i class="fa fa-tag" aria-hidden="true"></i>  {{tag.name}}
                                 <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="tag.active = false;search(query)">close</i>
                             </div>
-                            <div class="chip scale-in-center" v-for="author in authors" v-if="author.active">
+                            <div class="chip" v-for="author in authors" v-if="author.active">
                                 <i class="fa fa-user" aria-hidden="true"></i>  {{author.name}}
                                 <i class="close material-icons" @click="author.active = false;search(query)">close</i>
                             </div>
@@ -90,7 +86,7 @@
                     </form>
                 </div>
                 <div class="row search-results">
-                    <div class="col s12">
+                    <div class="col s12" id="tippyParent">
                         <div class="blue-grey-text">
                            <div class="row">
                              <div class="col s5 m10">
@@ -115,7 +111,7 @@
                             </div>
                           </div>
                         </template>
-                        <div class="card context scale-in-center" v-for="(api,index) in paginatedApis">
+                        <div class="card context" v-for="(api,index) in paginatedApis">
                             <div class="card-content ">
                                 <span class="card-title">
                                   <span class="blue-grey-text bold">
@@ -136,6 +132,9 @@
                                   <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer" class="versionBadge orange darken-4">
                                     <img height="18px;" src="http://biothings.io/static/img/biothings-explorer-64.png"/>&nbsp;BioThings Explorer
                                   </a>
+                                  <!-- <span class='popularity' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
+                                    <i class="fa fa-bar-chart red-text" aria-hidden="true"></i>
+                                  </span> -->
                                   <status :api='api' ></status>
                                 </span>
                                 <template v-if="api.info.description && api.info.description.length > 500">
@@ -146,7 +145,7 @@
                                 </template>
                                 <hr style="border: dotted 1px #e8e8e8 !important;"/>
                                 <div class="full-width">
-                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
+                                  <a v-for="tag in api.tags" href="#!" @click.prevent="matchTagAndSearch(tag.name);search(query);googleAnalytics('Registry_Tag', tag.name)" class="grey-text link" style="font-size: 12px; margin:3px; cursor: pointer;">
                                     <i class="fa fa-tag" aria-hidden="true"></i> {{tag.name}}
                                   </a>
                                 </div>
@@ -246,11 +245,11 @@
                                       </tr>
                                       <tr class="tablePillRow">
                                         <td colspan="2">
-                                          <a class="btn green smallFont scale-in-center"
-                                             v-bind:href='"/ui/"+api._id' >
+                                          <a class="btn green smallFont"
+                                             v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
                                              View API Documentation
                                           </a>
-                                          <a class="btn blue smallFont scale-in-center"
+                                          <a class="btn blue smallFont"
                                              v-bind:href='"/editor/"+api._id'>
                                              Edit <i class="fa fa-pencil" aria-hidden="true"></i>
                                           </a>
@@ -393,7 +392,7 @@ Vue.component('status', {
                             <b>UNKNOWN</b>
                           </td>
                           <td class="blue-grey-text">
-                            One or more of your OpenAPI V3 API endpoints don't provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
+                            None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
                           </td>
                         </tr>
                         <tr>
@@ -401,7 +400,7 @@ Vue.component('status', {
                             <b>INCOMPATIBLE</b>
                           </td>
                           <td class="blue-grey-text">
-                            Your API is Swagger V2, only OpenAPI V3 APIs will be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
+                            Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
                           </td>
                         </tr>
                       </tbody>
@@ -471,6 +470,7 @@ Vue.component('status', {
               </div>`
   });
 
+
   var app = new Vue({
       el: '#app',
       data: function(){
@@ -529,27 +529,31 @@ Vue.component('status', {
             })
           },
           googleAnalytics(category, label){
-            gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
-            // gtag('event', 'smartapi', {'registryResults':label,'registry-item':1,'event_label':label,'event_value':1});
-            // switch (category) {
-            //   case 'Registry_Tag':
-            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-            //     gtag('event','click',{'event_label':label,'event_value':1})
-            //     break;
-            //   case 'Registry_APIs':
-            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-            //     gtag('event','click',{'event_label':label,'event_value':1})
-            //     break;
-            //   case 'Registry_SharedURL':
-            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-            //     gtag('event','click',{'event_label':label,'event_value':1})
-            //     break;
-            //   case 'Registry_Searches':
-            //     gtag('event', 'smartapi', {'registryResults':label,'registry-item':1});
-            //     gtag('event','click',{'event_label':label,'event_value':1})
-            //     break;
-            //   default:
-            // }
+            // console.log('category',category,label)
+            // gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+
+            switch (category) {
+              case 'Registry_Tag':
+                gtag('event','click',{'event_category':'tag','event_label':label,'event_value':1})
+                break;
+              case 'Registry_Author':
+                gtag('event','click',{'event_category':'author','event_label':label,'event_value':1})
+                break;
+              case 'Registry_APIs':
+                gtag('event','click',{'event_category':'expanded','event_label':label,'event_value':1})
+                break;
+              case 'Registry_SharedURL':
+                gtag('event','click',{'event_category':'shared','event_label':label,'event_value':1})
+                break;
+              case 'Registry_Searches':
+                gtag('event','click',{'event_category':'searched','event_label':label,'event_value':1})
+                break;
+              case 'Registry_Documentation':
+                gtag('event','click',{'event_category':'documentation','event_label':label,'event_value':1})
+                break;
+              default:
+              gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+            }
           },
           sortResults(e){
             this.sort = e.target.value;
@@ -943,7 +947,8 @@ Vue.component('status', {
             if (q) {
               this.query = q;
             }
-          }
+          },
+
       },
       created: function () {
           this.getUserInfo();
@@ -952,6 +957,43 @@ Vue.component('status', {
           $('.collapsible').collapsible();
           this.loadFilters();
           this.context = {{Context}};
+
+      },
+      mounted:function(){
+
+        tippy( '#tippyParent', {
+          target:'.popularity',
+          content: 'Loading...',
+          animateFill: false,
+          animation: 'fade',
+          theme:'light',
+          trigger:'mouseenter',
+          onShow(instance) {
+            // console.log(instance.reference.dataset.tippyName)
+            let name = instance.reference.dataset.tippyName;
+            let mostSearched =[];
+            let viewed =0;
+            axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
+              if (res.data.rows) {
+                mostSearched = res.data.rows
+                for (var i = 0; i < mostSearched.length; i++) {
+                  if(mostSearched[i][0]===name){
+                    viewed=mostSearched[i][1];
+                  }
+                  if (viewed>0) {
+                    viewed = viewed.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    instance.setContent("<div class='container'>"+name+" has been viewed <b class='green-text'>"+viewed+"</b> times</div>")
+                  }else{
+                    instance.setContent("<div class='container'>No results for "+name+"</div>")
+                  }
+
+                }
+              }
+            }).catch(err=>{
+              throw err;
+            });
+          }
+        });
 
       },
       updated: function(){
