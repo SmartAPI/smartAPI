@@ -18,7 +18,7 @@ from .transform import (SWAGGER2_INDEXED_ITEMS, APIMetadata, decode_raw,
 
 ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_oas3'
-ES_DOC_TYPE = 'api'
+ES_DOC_TYPE = '_doc'
 
 
 def ask(prompt, options='YN'):
