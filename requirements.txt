@@ -7,6 +7,7 @@ jsonschema>=2.6.0
 elasticsearch-dsl==6.4.0
 torngithub==0.2.0 
 Jinja2>=2.9.6
+pycurl==7.43.0.3
 
 # s3 backup
 boto3>=1.9.86,<2.0
