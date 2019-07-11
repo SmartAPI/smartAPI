@@ -19,7 +19,7 @@ from web.handlers import APP_LIST as web_app_list
 # Elasticsearch
 # *****************************************************************************
 ES_INDEX = 'smartapi_oas3'
-ES_DOC_TYPE = '_doc'
+ES_DOC_TYPE = 'api'
 
 # *****************************************************************************
 # Tornado URL Patterns
@@ -38,7 +38,7 @@ def add_apps(prefix='', app_list=None):
     if not app_list:
         app_list = []
     if prefix:
-        return [('/' + prefix + url, handler) for url, handler in app_list]
+        return [('/'+prefix+url, handler) for url, handler in app_list]
     else:
         return app_list
 

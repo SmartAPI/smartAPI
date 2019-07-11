@@ -1,5 +1,5 @@
 smart_api_mapping = {
-    "_doc": {
+    "api": {
         "dynamic_templates": [
             {
                 "ignore_example_field": {
