@@ -56,7 +56,7 @@ class ValidateHandler(BaseHandler):
                 data = tornado.escape.json_decode(self.request.body)
             except ValueError:
                 try:
-                    data = yaml.load(self.request.body)
+                    data = yaml.load(self.request.body, Loader=yaml.SafeLoader)
                 except (yaml.scanner.ScannerError,
                         yaml.parser.ParserError):
                     return self.return_json({"valid": False, "error": "The input request body does not contain valid API metadata."})
