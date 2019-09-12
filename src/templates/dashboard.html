@@ -7,7 +7,7 @@
   background: var(--blue-medium);
 }
 </style>
-<main id="dashApp" style="padding-top:20px;" class="blue-grey darken-3 dashboardBack">
+<main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3 dashboardBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
   <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
     <h5 class="text_h3 blue-grey-text-text">
@@ -26,7 +26,7 @@
   </div>
   <!-- Loading END -->
   <!-- IF USERINFO DISPLAY DASHBOARD -->
-  <div v-if="userInfo.login" class="row" style="margin-bottom: 0; width: 100%;">
+  <div id="tippyParent" v-if="userInfo.login" class="row" style="margin-bottom: 0; width: 100%;">
       <div class="col s12 m4 l3 xl3 transparent">
         <ul class="collection" style="border: none;">
           <li class="collection-item center-align transparent" style="border-bottom: none;">
@@ -130,6 +130,12 @@
                   <tr v-for="(api,index) in apis">
                     <td style="overflow: hidden;">
                       <status :api='api'></status>
+                      <span class='popularity pointer blue-text hide-on-med-and-down' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
+                        <span class="fa-stack fa-lg">
+                          <i class="fa fa-circle fa-stack-2x"></i>
+                          <i class="fa fa-bar-chart fa-stack-1x fa-inverse"></i>
+                        </span>
+                      </span>
                        <a href="#modal2" class="modal-trigger smallFont hide-on-large-only" @click="getDetails(index)"><span class="hide-on-small-only">{{index+1 }}-</span> <b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                        <a href="#modal2" class="modal-trigger hide-on-med-and-down" @click="getDetails(index)"><b>{{ api.info.title }}</b> <span class="grey-text smallFont">V.{{api.info.version}}</span></a>
                        <span v-if=" api.hasOwnProperty('openapi') " class="smallFont green-text hide-on-med-and-down ">
@@ -138,6 +144,7 @@
                        <span v-else-if=" api.hasOwnProperty('swagger') " class="smallFont blue-text hide-on-med-and-down show-on-large-only">
                          - Swagger2
                        </span>
+
                     </td>
                     <td  class="center-align">
                       <span style="font-weight: bold" class="green-text smallFont hide-on-large-only ">{{ convertDate(api._meta.timestamp) }}</span>
@@ -339,13 +346,60 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="https://unpkg.com/vuex"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 <script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script src="/static/js/moment.js"></script>
 
+
 <script>
+
+const store = new Vuex.Store({
+    state: {
+      'analytics':Object,
+      'tags':Array
+    },
+    strict: true,
+    mutations: {
+      saveAnalytics(state,payload){
+        state.analytics = payload['analytics'];
+      },
+    },
+    getters:{
+      // exposed as store.getters.nameOfGetter
+      getHitsFor: (state) => (apiname) => {
+        let data={'labels':[],'datasets':[]};
+        let label = '';
+        let dataArray=[];
+
+        for (var i = 0; i < state.analytics.length; i++) {
+          if (state.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
+            label = state.analytics[i][0].toUpperCase();
+            data.labels.push(label);
+            let number = state.analytics[i][2];
+            dataArray.push(number)
+          }
+
+        }
+        data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
+        // console.log('user interactions...',data)
+        return data
+      },
+      getTags:(state)=>{
+        let pop = []
+        for (var i = 0; i < state.analytics.length; i++) {
+          if (state.analytics[i][0] ==='tag') {
+            pop.push({'name':state.analytics[i][1],'active':false,'count':state.analytics[i][2]})
+          }
+        }
+        return pop;
+      }
+
+    }
+  });
 
 Vue.component('status', {
   data: function(){
@@ -384,7 +438,8 @@ Vue.component('status', {
       }
     },
     setTooltip(){
-      tippy( '.apiStatus', {
+      tippy( '#tippyParent', {
+        target:'.apiStatus',
         content: `<div>
                     <table>
                       <tbody>
@@ -435,7 +490,7 @@ Vue.component('status', {
     this.setTooltip();
     this.getStatus(this.api);
   },
-  template: `<i v-if='!status' class="material-icons apiStatus tiny" :class='clss'>brightness_1</i>`
+  template: `<i v-if='status' class="material-icons apiStatus tiny" :class='clss'>brightness_1</i>`
 });
 
 
@@ -789,11 +844,26 @@ Vue.component('status', {
             }).catch(err=>{
               throw err;
             })
+          },
+          getAnalytics(){
+            var self = this;
+            axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
+              if (res.data.rows) {
+                var payload = {};
+                payload["analytics"] = res.data.rows;
+                store.commit('saveAnalytics',payload);
+              }
+               // self.popularTags = _.orderBy(store.getters.getTags, ['name'],['desc'])
+
+            }).catch(err=>{
+              throw err;
+            });
           }
         },
         mounted: function(){
            // JQuery Initializations
            this.showLoading();
+           this.getAnalytics();
            this.getUserInfo();
            // tabs
            $('ul.tabs').tabs();
@@ -804,6 +874,36 @@ Vue.component('status', {
            $('.tooltipped').tooltip({delay: 50});
 
            $('.collapsible').collapsible();
+
+           tippy( '#dashApp', {
+             target:'.popularity',
+             content: 'Loading...',
+             animateFill: false,
+             animation: 'fade',
+             theme:'light',
+             trigger:'click',
+             onShow(instance) {
+               let name = instance.reference.dataset.tippyName;
+               instance.setContent('<h6 class="blue-text">'+name+'</h6><canvas id="myChart" width="400" height="400"></canvas>')
+             },
+             onShown(instance){
+               let name = instance.reference.dataset.tippyName;
+               let data = store.getters.getHitsFor(name);
+               var ctx = document.getElementById('myChart');
+
+               new Chart(ctx, {
+                   'type': 'bar',
+                   'data': data,
+                   'options': {
+                     'legend': { display: false },
+                     'title': {
+                       display: true,
+                       text: 'User Interactions'
+                     }
+                   }
+               });
+             }
+           });
 
 
         },

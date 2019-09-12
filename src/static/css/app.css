@@ -838,7 +838,7 @@ footer{
 
 .versionBadge{
   color: white !important;
-  padding: 6px;
+  padding: 4px 6px;
   border:none;
   color: #424242;
   font-size:10px;
@@ -847,8 +847,21 @@ footer{
   margin-right:3px;
   vertical-align: top;
   border: solid 1.5px lightgrey;
-  text-shadow:0px 1px 1px black;
   white-space: nowrap !important;
+  cursor: default;
+  -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+
+.unselectable{
+  -moz-user-select: none;
+       -khtml-user-select: none;
+       -webkit-user-select: none;
+       -ms-user-select: none;
+       user-select: none;
 }
 
 html,
@@ -1151,7 +1164,6 @@ mark{
 }
 .apiStatus div:nth-child(2){
   color: white;
-  text-shadow: 0px 1px 2px black;
   margin-left: -6px !important;
   display: inline;
   padding: 4px;
@@ -1178,6 +1190,32 @@ mark{
 
 .tippy-tooltip, .tippy-content, .tippy-backdrop, .tippy-popper{
   border-radius: 0px !important;
+}
+
+.blueGradient{
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#257bc4+0,eceff1+29 */
+background: rgb(37,123,196); /* Old browsers */
+background: -moz-linear-gradient(top,  rgba(37,123,196,1) 0%, rgba(236,239,241,1) 29%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  rgba(37,123,196,1) 0%,rgba(236,239,241,1) 29%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  rgba(37,123,196,1) 0%,rgba(236,239,241,1) 29%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#257bc4', endColorstr='#eceff1',GradientType=0 ); /* IE6-9 */
+}
+.pointer{
+  cursor: pointer !important;
+}
+.action-show:hover{
+  background: #258dc8;
+  background: -moz-linear-gradient(top,rgba(37,141,200,1) 0,rgba(37,122,196,1) 100%);
+  background: -webkit-linear-gradient(top,rgba(37,141,200,1) 0,rgba(37,122,196,1) 100%);
+  background: linear-gradient(to bottom,rgba(37,141,200,1) 0,rgba(37,122,196,1) 100%);
+}
+
+.detailsBack{
+  background: rgb(160,216,239); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(160,216,239,1) 0%, rgba(221,241,249,1) 65%, rgba(254,255,255,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  rgba(160,216,239,1) 0%,rgba(221,241,249,1) 65%,rgba(254,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  rgba(160,216,239,1) 0%,rgba(221,241,249,1) 65%,rgba(254,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a0d8ef', endColorstr='#feffff',GradientType=0 ); /* IE6-9 */
 }
 
 
