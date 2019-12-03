@@ -20,7 +20,7 @@ else:
 
 # Official oas3 json schema for validation is still in-development.
 # For now we us this updated oas3-schema from swagger-editor
-OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/oas3-schema.js'
+OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.7.1/src/plugins/json-schema-validator/oas3-schema.yaml'
 SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
 
 # List of root keys that should be indexed in version 2 schema
@@ -133,7 +133,10 @@ class APIMetadata:
         schema = requests.get(self.schema_url).text
         if schema.startswith("export default "):
             schema = schema[len("export default "):]
-        self.oas_schema = json.loads(schema)
+        try:
+            self.oas_schema = json.loads(schema)
+        except:
+            self.oas_schema = yaml.load(schema, Loader=yaml.SafeLoader)
         self.smartapi_schema = requests.get(SMARTAPI_SCHEMA_URL).json()
 
     def encode_api_id(self):
