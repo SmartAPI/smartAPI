@@ -884,7 +884,7 @@ Vue.component('status', {
              trigger:'click',
              onShow(instance) {
                let name = instance.reference.dataset.tippyName;
-               instance.setContent('<h6 class="blue-text">'+name+'</h6><canvas id="myChart" width="400" height="400"></canvas>')
+               instance.setContent('<h6 class="blue-text">'+name+'</h6><canvas id="myChart" width="400" height="400"></canvas><div><small>Expanded = Viewed API details, Docmentation = Viewed API documentation, Searched = Searched API by name</small></div>')
              },
              onShown(instance){
                let name = instance.reference.dataset.tippyName;
@@ -899,7 +899,14 @@ Vue.component('status', {
                      'title': {
                        display: true,
                        text: 'User Interactions'
-                     }
+                     },
+                     'scales': {
+                        yAxes: [{
+                            ticks: {
+                                precision:0
+                            }
+                        }],
+                    },
                    }
                });
              }
