@@ -152,7 +152,7 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
 
 class RegistryHandler(BaseHandler):
     def get(self, tag=None):
-        template_file = "registry.html"
+        template_file = "smart-registry.html"
         reg_template = templateEnv.get_template(template_file)
         # author filter parsing
         if self.get_argument('owners', False):
