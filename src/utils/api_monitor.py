@@ -146,7 +146,7 @@ class Endpoint:
                         response = requests.get(url,
                                                 params=params,
                                                 verify=False,
-                                                timeout=3,
+                                                timeout=10,
                                                 headers=headers)
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
@@ -156,7 +156,7 @@ class Endpoint:
             if not example:
                 try:
                     response = requests.get(url,
-                                            timeout=3,
+                                            timeout=10,
                                             verify=False,
                                             headers=headers)
                     return response
@@ -175,7 +175,7 @@ class Endpoint:
                     try:
                         response = requests.post(url,
                                                  data=data,
-                                                 timeout=3,
+                                                 timeout=10,
                                                  verify=False,
                                                  headers=headers)
                         return response
@@ -194,7 +194,7 @@ class Endpoint:
                             logger.debug(url)
                             try:
                                 response = requests.post(url,
-                                                         timeout=3,
+                                                         timeout=10,
                                                          json=example,
                                                          verify=False,
                                                          headers=headers)
@@ -212,7 +212,7 @@ class Endpoint:
                                 if example:
                                     try:
                                         response = requests.post(url,
-                                                                 timeout=3,
+                                                                 timeout=10,
                                                                  json=example,
                                                                  verify=False,
                                                                  headers=headers)
@@ -224,7 +224,7 @@ class Endpoint:
             if not example:
                 try:
                     response = requests.post(url,
-                                             timeout=3,
+                                             timeout=10,
                                              verify=False,
                                              headers=headers)
                     return response
