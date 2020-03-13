@@ -9,16 +9,18 @@ from tornado.ioloop import IOLoop
 from web.api.es import ESQuery
 
 
-async def backup_and_refresh():
+def backup_and_refresh():
     '''
     Run periodically in the main event loop
     '''
-    def sync_func():
-        esq = ESQuery()
-        try:
-            esq.backup_all(aws_s3_bucket='smartapi')
-        except:
-            logging.exception("Backup failed.")
+    esq = ESQuery()
+    try:
+        esq.backup_all(aws_s3_bucket='smartapi')
+    except:
+        logging.exception("Backup failed.")
+    try:
         esq.refresh_all(dryrun=False)
+    except:
+        logging.exception("Refresh failed.")
 
-    await IOLoop.current().run_in_executor(None, sync_func)
+

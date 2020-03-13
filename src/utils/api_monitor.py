@@ -235,19 +235,16 @@ class Endpoint:
         return response.status_code
 
 
-async def update_uptime_status():
-    '''
-        Perform Periodic Update to Uptime Status in ES
-    '''
-    logging.basicConfig(level=logging.INFO)
+def update_uptime_status():
+    """
+    Perform Periodic Update to Uptime Status in ES
+    """
     logger = logging.getLogger("utils.uptime.update")
     logger.info("Start uptime check...")
 
     def check_status(doc):
-
         api = API(doc)
         api.check_api_status()
-
         return api.api_status
 
     search = Search(index='smartapi_oas3') \
@@ -264,7 +261,7 @@ async def update_uptime_status():
         doc = hit.to_dict()
         doc['_id'] = hit.meta.id
 
-        status = await IOLoop.current().run_in_executor(None, partial(check_status, doc))
+        status = check_status(doc)
 
         logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
 
@@ -292,13 +289,13 @@ async def update_uptime_status():
 
 
 def main():
-    '''
-        Check Production Server API Status
+    """
+    Check Production Server API Status
 
-            - Output result to screen and file
+    - Output result to screen and file
+    - Do not make changes to es index
 
-            - Do not make changes to es index
-    '''
+    """
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger("utils.uptime.main")
     logger.info("Start checking API status.")
@@ -321,4 +318,5 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()
