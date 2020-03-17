@@ -43,10 +43,10 @@
               <!-- Popular tags -->
               <ul class="collection" style="margin-top:100px;" v-show="popularTags && popularTags.length > 5">
                 <div class="collection-header orange-text center padding20">
-                  Most Active <br /><small>(Last 30 days)</small>
+                  <small>Most Active <br />(Last 30 days)</small>
                 </div>
                 <template v-for="pop in popularTags">
-                  <a :class="{ active: pop.active, blue: pop.active }" @click.prevent="toggleTag(pop.name,'tag');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" >
+                  <a :class="{ active: pop.active, blue: pop.active }" @click.prevent="toggleTag(pop,'tag');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" >
                     <small v-text="'#'+pop.name"></small>
                   </a>
                 </template>
@@ -698,6 +698,7 @@ Vue.component('status', {
           store.commit('toggleAuthor',payload);
             break;
             case 'tag':
+            console.log(tag)
             var payload = {};
             payload["tag"] = tag;
             store.commit('toggleTag',payload);
@@ -879,11 +880,11 @@ Vue.component('status', {
             </button>
           </div>
           <div class="col s12 center" style="padding:20px;">
-            <a class="btn green getBTEApis"
+            <a class="btn green getBTEApis" style="margin:5px;"
                v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
                View API Documentation
             </a>
-            <a class="btn blue getBTEApis"
+            <a class="btn blue getBTEApis" style="margin:5px;"
                v-bind:href='"/editor/"+api._id'>
                Edit <i class="fa fa-pencil" aria-hidden="true"></i>
             </a>
@@ -1321,12 +1322,51 @@ Vue.component('status', {
               }
           },
           checkforQuery: function(){
+            var self = this;
             var url_string = window.location.href
             var url = new URL(url_string);
+
             var q = url.searchParams.get("q");
             if (q) {
               this.query = q;
             }
+
+            var tags = url.searchParams.get("tags");
+            if (tags) {
+              if (tags.includes(',')) {
+                tags = tags.split(',')
+              }else {
+                tags = [tags]
+              }
+              for (var i = 0; i < tags.length; i++) {
+                for (var x = 0; x < self.tags.length; x++) {
+                  if (self.tags[x].name === tags[i]) {
+                    var payload = {};
+                    payload["tag"] = self.tags[x];
+                    store.commit('toggleTag',payload);
+                  }
+                }
+              }
+            }
+
+            var owners = url.searchParams.get("owners");
+            if (owners) {
+              if (owners.includes(',')) {
+                owners = owners.split(',')
+              }else {
+                owners = [owners]
+              }
+              for (var i = 0; i < owners.length; i++) {
+                for (var x = 0; x < self.authors.length; x++) {
+                  if (self.authors[x].name === owners[i]) {
+                    var payload = {};
+                    payload["author"] = self.authors[x];
+                    store.commit('toggleAuthor',payload);
+                  }
+                }
+              }
+            }
+
           },
           getAnalytics(){
             var self = this;
@@ -1370,7 +1410,7 @@ Vue.component('status', {
       },
       created: function () {
           this.getUserInfo();
-          this.getBTEapis();
+          // this.getBTEapis();
           $(".button-collapse").sideNav();
           $('.collapsible').collapsible();
           this.loadFilters();
