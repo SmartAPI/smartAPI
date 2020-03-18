@@ -3,9 +3,10 @@ smart_api_mapping = {
         "dynamic_templates": [
             {
                 "ignore_example_field": {
-                    "match": "example",
+                    "path_match": "*.example",
                     "mapping": {
-                        "index": False
+                        "index": False,
+                        "type": "text"
                     }
                 }
             },
