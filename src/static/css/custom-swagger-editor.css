@@ -18,6 +18,10 @@ body {
   margin: 0px;
 }
 
+.swagger-ui .info .title small{
+  line-height: normal;
+}
+
 #swagger-editor {
   font-size: 1.3em;
 }

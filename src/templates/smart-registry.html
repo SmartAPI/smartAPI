@@ -8,7 +8,7 @@
 </style>
 {% raw %}
 <main class="white">
-    <div id="app" style="height: 100%;" class="white container" v-cloak>
+    <div id="app" style="height: 100%;" class="white container-fluid" v-cloak>
       <!-- Loading Screen -->
       <div v-show="loading" class="center-align">
         <div class="center-align">
@@ -21,33 +21,92 @@
               <ul class="collapsible">
                 <li>
                   <div class="collapsible-header blue-grey white-text">
-                    <small>Tags</small>
+                    <small>Tags ({{tags.length}})</small>
                   </div>
                   <div class="collapsible-body noPadding">
                     <div class="collection">
-                        <a :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" v-for="tag in tags" href="#!" class="collection-item smallFont" @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
+                        <!-- Search Box -->
+                        <div class="input-field collection-item">
+                          <input v-model="tagsearch" placeholder="Search" id="fs" type="text">
+                          <button @click.prevent="listAll = !listAll" class="smallButton grey copyBtn" >
+                            <small v-if="!listAll">Show All ({{tags.length - listCap}} more)</small>
+                            <small v-if="listAll">Show Less (Only 20)</small>
+                          </button>
+                        </div>
+                        <!-- If searching - Results -->
+                        <template v-for="tag in tagSearchResults" >
+                          <a  v-if="tagsearch.length" class="collection-item"
+                              style="padding:2px;"
+                              :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
+                              href="#!"
+                              @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
+                          </a>
+                        </template>
+                        <!-- no search - ALL -->
+                        <template v-if="!tagsearch.length" v-for="(tag,index) in tags">
+                          <a  v-if="index < listCap"
+                              class="collection-item"
+                              style="padding:2px;"
+                              :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
+                              href="#!"
+                              @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
+                          </a>
+                        </template>
+
                     </div>
                   </div>
                 </li>
+
                 <li>
-                  <div class="collapsible-header blue-grey white-text center-align">
-                    <small>Owners</small>
+                  <div class="collapsible-header blue-grey white-text">
+                    <small>Owners ({{authors.length}})</small>
                   </div>
                   <div class="collapsible-body noPadding">
                     <div class="collection">
-                        <a :class="{ active: author.active, blue: author.active }" v-for="author in authors" href="#!" class="collection-item smallFont " @click.prevent="toggleTag(author,'author');search(query); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
+                        <!-- Search Box -->
+                        <div class="input-field collection-item">
+                          <input v-model="ownersearch" placeholder="Search" id="os" type="text">
+                          <button @click.prevent="listAll = !listAll" class="smallButton grey copyBtn" >
+                            <small v-if="!listAll">Show All ({{authors.length - listCap}} more)</small>
+                            <small v-if="listAll">Show Less (Only 20)</small>
+                          </button>
+                        </div>
+                        <!-- If searching - Results -->
+                        <template v-if="ownersearch.length" v-for="tag in ownerSearchResults" >
+                          <a  class="collection-item"
+                              style="padding:2px;"
+                              :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
+                              href="#!"
+                              @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
+                          </a>
+                        </template>
+                        <!-- no search - ALL -->
+                        <template v-if="!ownersearch.length" v-for="(tag,index) in authors">
+                          <a  v-if="index < listCap"
+                              class="collection-item"
+                              style="padding:2px;"
+                              :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
+                              href="#!"
+                              @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
+                          </a>
+                        </template>
+
                     </div>
                   </div>
                 </li>
               </ul>
-              <!-- Popular tags -->
+
               <ul class="collection" style="margin-top:100px;" v-show="popularTags && popularTags.length > 5">
-                <div class="collection-header orange-text center padding20">
-                  <small>Most Active <br />(Last 30 days)</small>
+                <div class="collection-header orange-text center">
+                  <small>Tags Most Active <br />(Last 30 days)</small>
                 </div>
-                <template v-for="pop in popularTags">
-                  <a :class="{ active: pop.active, blue: pop.active }" @click.prevent="toggleTag(pop,'tag');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" >
-                    <small v-text="'#'+pop.name"></small>
+                <template v-for="(pop,index) in popularTags">
+                  <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" @click.prevent="toggleTag(pop,'tag');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" >
+                    {{index+1}} <small v-text="'#'+pop.name"></small>
                   </a>
                 </template>
               </ul>
@@ -934,7 +993,13 @@ Vue.component('status', {
             shareURL:'',
             shareURLButtonVisible: false,
             sort: 'Relevance',
-            loading: false
+            loading: false,
+            tagsearch:'',
+            tagSearchResults:[],
+            ownersearch:'',
+            ownerSearchResults:[],
+            listAll:false,
+            listCap:20
         }
       },
       methods: {
@@ -1477,6 +1542,44 @@ Vue.component('status', {
             store.commit('sort',payload)
           }
         },
+        tagsearch:function(q){
+          var self = this;
+
+          if (q.length) {
+            let result = _.filter(self.tags, function(o) {
+                if (o['name'].toLowerCase().includes(q.toLowerCase())) {
+                  return o;
+                }
+            });
+            self.tagSearchResults = result;
+          }else {
+            this.tagSearchResults = [];
+          }
+
+        },
+        ownersearch:function(q){
+          var self = this;
+
+          if (q.length) {
+            let result = _.filter(self.authors, function(o) {
+                if (o['name'].toLowerCase().includes(q.toLowerCase())) {
+                  return o;
+                }
+            });
+            self.ownerSearchResults = result;
+          }else {
+            this.ownerSearchResults = [];
+          }
+
+        },
+        listAll:function(b){
+          var self = this;
+          if (b) {
+            self.listCap = 1000;
+          }else {
+            self.listCap = 20;
+          }
+        }
       }
   });
 </script>
