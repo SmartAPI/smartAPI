@@ -1130,7 +1130,7 @@ Vue.component('status', {
           },
           loadFilters: function (){
               var self = this;
-              axios.get('/api/suggestion?field=tags.name').then(function(response){
+              axios.get('/api/suggestion?field=tags.name&size=1000').then(function(response){
                   let tags = _.map(response.data.field_values.buckets, function(item){
                       return {'name':item.key, 'count': item.doc_count, 'active': false};
                   });
@@ -1138,7 +1138,7 @@ Vue.component('status', {
                   payload["tags"] = tags;
                   store.commit('saveTags',payload);
 
-                  axios.get('/api/suggestion?field=info.contact.name').then(function(response){
+                  axios.get('/api/suggestion?field=info.contact.name&size=1000').then(function(response){
                       let authors = _.map(response.data.field_values.buckets, function(item){
                           return {'name':item.key, 'count': item.doc_count, 'active': false};
                       });
