@@ -402,101 +402,6 @@ const store = new Vuex.Store({
     }
   });
 
-Vue.component('status', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-    }
-  },
-  props: ['api'],
-  methods:{
-    getStatus(api){
-      let self = this;
-      if (api) {
-        // let stat = api['_meta']['uptime_status'];
-        switch (api) {
-          case 'unknown':
-            self.status = 'UNKNOWN';
-            self.clss = 'orange';
-            break;
-          case 'good':
-            self.status = 'PASS';
-            self.clss = 'green';
-            break;
-          case 'bad':
-            self.status = 'FAIL';
-            self.clss = 'red';
-            break;
-          case 'incompatible':
-            self.status = 'INCOMPATIBLE';
-            self.clss = 'blue';
-            break;
-          default:
-          self.status = '';
-          self.clss = 'grey';
-        }
-      }
-    },
-    setTooltip(){
-      tippy( '.apiStatus', {
-        content: `<div>
-                    <table>
-                      <tbody>
-                        <tr>
-                          <td class='green-text center'>
-                            <b>PASS</b>
-                          </td>
-                          <td class="blue-grey-text">
-                            Your OpenAPI V3 API endpoints provide examples and all return code 200.
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='red-text center'>
-                            <b>FAIL</b>
-                          </td>
-                          <td class="blue-grey-text">
-                            Your OpenAPI V3 API endpoints provide examples but return code other than 200.
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='orange-text center'>
-                            <b>UNKNOWN</b>
-                          </td>
-                          <td class="blue-grey-text">
-                            None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='blue-text center'>
-                            <b>INCOMPATIBLE</b>
-                          </td>
-                          <td class="blue-grey-text">
-                            Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>`,
-        placement: 'left',
-        theme:'light',
-        trigger:'click',
-        sticky:true,
-        interactive:true,
-      });
-    }
-  },
-  mounted: function(){
-    this.setTooltip();
-    this.getStatus(this.api);
-  },
-  template: `<div v-show='status' class="apiStatus" title="Click to learn more">
-              <div class="blue-grey-text">Status</div>
-              <div :class="clss" v-text='status'></div>
-             </div>`
-});
-
-
   new ClipboardJS('.copyBtn');
       ClipboardJS.isSupported();
 
@@ -866,7 +771,32 @@ Vue.component('status', {
             <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
-            <status :api="api['_meta']['uptime_status']" ></status>
+
+            <div class="apiStatus" title="Click to learn more">
+              <div class="blue-grey-text">Status</div>
+              <template v-if="api['_meta']['uptime_status'] ==='bad'">
+                <div class="red">
+                  FAIL
+                </div>
+              </template>
+              <template v-if="api['_meta']['uptime_status'] ==='good'">
+              <div class="green">
+                PASS
+              </div>
+              </template>
+              <template v-if="api['_meta']['uptime_status'] ==='unknown'">
+              <div class="orange">
+                UNKNOWN
+              </div>
+              </template>
+              <template v-if="api['_meta']['uptime_status'] ==='incompatible'">
+              <div class="blue">
+                INCOMPATIBLE
+              </div>
+              </template>
+            </div>
+
+
           </span>
           <template v-if="api.info.description && api.info.description.length > 500">
             <description :text='api.info.description'></description>
@@ -1499,6 +1429,53 @@ Vue.component('status', {
           animation: 'fade',
           theme:'light',
           trigger:'click'});
+
+          tippy( '#app', {
+            target: '.apiStatus',
+            content: `<div>
+                        <table>
+                          <tbody>
+                            <tr>
+                              <td class='green-text center'>
+                                <b>PASS</b>
+                              </td>
+                              <td class="blue-grey-text">
+                                Your OpenAPI V3 API endpoints provide examples and all return code 200.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class='red-text center'>
+                                <b>FAIL</b>
+                              </td>
+                              <td class="blue-grey-text">
+                                Your OpenAPI V3 API endpoints provide examples but return code other than 200.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class='orange-text center'>
+                                <b>UNKNOWN</b>
+                              </td>
+                              <td class="blue-grey-text">
+                                None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class='blue-text center'>
+                                <b>INCOMPATIBLE</b>
+                              </td>
+                              <td class="blue-grey-text">
+                                Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>`,
+            placement: 'left',
+            theme:'light',
+            trigger:'click',
+            sticky:true,
+            interactive:true,
+          });
 
       },
       updated: function(){
