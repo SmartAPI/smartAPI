@@ -413,9 +413,9 @@ Vue.component('status', {
   methods:{
     getStatus(api){
       let self = this;
-      if (api['_meta'].hasOwnProperty('uptime_status')) {
-        let stat = api['_meta']['uptime_status'];
-        switch (stat) {
+      if (api) {
+        // let stat = api['_meta']['uptime_status'];
+        switch (api) {
           case 'unknown':
             self.status = 'UNKNOWN';
             self.clss = 'orange';
@@ -866,7 +866,7 @@ Vue.component('status', {
             <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
-            <status :api='api' ></status>
+            <status :api="api['_meta']['uptime_status']" ></status>
           </span>
           <template v-if="api.info.description && api.info.description.length > 500">
             <description :text='api.info.description'></description>
