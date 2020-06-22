@@ -1,0 +1,899 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+<style>
+#portals{
+  width: 100%;
+  min-height:90vh;
+}
+.descBox h1,h2,h3,h4{
+  font-size: 2em;
+}
+#portals section div{
+  margin-bottom:5px;
+}
+
+.meta_kg_form{
+  border: 3px var(--blue-medium) solid;
+  border-radius: 10px;
+  box-shadow: 0px 5px 10px;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#f6f8f9+0,e5ebee+50,d7dee3+51,f5f7f9+100;White+Gloss */
+background: #f6f8f9; /* Old browsers */
+background: -moz-linear-gradient(top,  #f6f8f9 0%, #e5ebee 50%, #d7dee3 51%, #f5f7f9 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(top,  #f6f8f9 0%,#e5ebee 50%,#d7dee3 51%,#f5f7f9 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to bottom,  #f6f8f9 0%,#e5ebee 50%,#d7dee3 51%,#f5f7f9 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f6f8f9', endColorstr='#f5f7f9',GradientType=0 ); /* IE6-9 */
+
+}
+.codeBox pre{
+  border-style: inset;
+  border: 4px #c9c9c9 solid;
+  box-shadow: inset 0 0 10px #000000;
+  padding: 5px;
+  margin: 5px;
+  background: white;
+  max-height: 500px;
+  overflow: scroll;
+}
+[v-cloak] > * { display:none; }
+[v-cloak]::before { content: "Please wait..."; }
+
+.d-flex{
+  display: flex;
+}
+.flex-wrap{
+  flex-wrap: wrap;
+}
+.justify-content-center{
+  justify-content: center;
+}
+.align-items-stretch{
+  align-items: stretch;
+}
+.flex{
+  flex: 1;
+}
+
+#cy {
+  width: 80vw;
+  height: 600px;
+  /* position: absolute; */
+  display: block;
+}
+.pointer{
+  cursor: pointer;
+}
+.resBox{
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.option{
+  background: var(--blue-light);
+  cursor: pointer;
+  font-size: .7em;
+  color: grey;
+  padding: 2px;
+  display: block;
+  text-align: left;
+}
+
+.option:hover{
+  background: var(--blue-medium);
+  color: white;
+}
+
+.input-text{
+  width: 70%;
+  outline: none;
+  padding: 10px;
+  border-radius: 5px;
+  border:var(--blue-medium) 2px solid;
+  margin: 10px 10px 0px 10px
+}
+
+.pill-input{
+  border: none !important;
+  outline: none !important;
+}
+
+.pill{
+  display: inline;
+  margin: 4px;
+  padding: 3px;
+  font-size: .8em;
+  background: var(--blue-medium);
+  color: white;
+  border: grey solid 2px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.api-pill{
+  display: inline;
+  margin: 3px;
+  padding: 1px;
+  font-size: .8em;
+  color: white;
+  background: grey;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.api-pill:hover{
+  background: var(--blue-medium);
+}
+
+.pill:hover{
+  background: #f9483d;
+}
+
+.pill:hover::after{
+  content: " x";
+}
+
+.pillBox{
+  padding: 10px;
+  border-radius: 5px;
+  border: grey 2px solid;
+  background: white;
+}
+
+.suggestion{
+  color: var(--blue-medium);
+  background: white;
+  cursor: pointer;
+  font-size: .8em;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: navajowhite;
+  padding: 2px !important;
+}
+
+.suggestion:hover{
+  background: lightblue;
+}
+
+</style>
+
+<main id="portals" class="white" v-cloak>
+  <!-- MAIN SECTIONS -->
+  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+    <div class="center-align" style="padding-top: 300px;">
+      <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
+      <h3 class="white-text logoFont">Loading...</h3>
+    </div>
+  </div>
+
+  <section class="center light-blue lighten-4 dashboardBack padding20">
+    <h1 class="blue-text bold flow-text">
+      <span v-if="name == 'translator'"><img src="/static/img/ncats-logo-1.png" aria-label="NCATS" width="100px"/>  NCATS BioMedical Data Translator</span>
+      <span v-else v-text="name"></span>
+    </h1>
+  </section>
+
+
+
+
+  <template v-if="name == 'translator'">
+    {% include "portal-translator.html" %}
+  </template>
+
+
+</main>
+
+{% include "footer.html" %}
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://unpkg.com/vuex"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@1.0.16/bundle.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.15.1/cytoscape.min.js" integrity="sha256-oYPiLQ2sL4jlYuCJE3rDZFD0OUy8t1fL6U0wIWyqUf8=" crossorigin="anonymous"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
+  <script>
+
+  const store = new Vuex.Store({
+      state: {
+        'name': Object,
+        "meta_kg" : null,
+        "results": [],
+        "output_autocomplete":[],
+        "input_autocomplete":[],
+        "predicate_autocomplete":[],
+        "cyto_data":[],
+        "output_type":[],
+        "input_id":[],
+        "predicate":[],
+        "apis":[],
+        'cy':null,
+      },
+      strict: true,
+      mutations: {
+        saveInput(state,payload){
+          console.log("test",payload)
+
+          let name = payload['name'];
+
+          switch (name) {
+            case 'output_type':
+              state.output_type = payload["q"]
+              break;
+              case 'input_id':
+                state.input_id = payload["q"]
+                break;
+                case 'predicate':
+                  state.predicate = payload["q"]
+                  break;
+            default:
+              console.log('no match')
+          }
+        },
+        drawGraph(state,payload){
+
+          this.cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: state.cyto_data,
+            layout: {
+              name: "concentric",
+              minNodeSpacing: 300,
+              nestingFactor: 1.2,
+              initialTemp: 1000,
+              coolingFactor: 0.99,
+              minTemp: 1.0,
+              gravity: 1.4
+            },
+            style: cytoscape.stylesheet()
+            .selector('node')
+              .css({
+                'content': 'data(name)',
+                'text-valign': 'center',
+                'color': 'black',
+                // 'shape':'star',
+                'width': '100',
+                'height':'100',
+                'font-size': '2.5em',
+                'text-outline-width': 4,
+                'text-outline-color': 'white',
+                'background-color': '#ff9800'
+              })
+            .selector(':selected')
+              .css({
+                'background-color': '#257FC5',
+                'line-color': '#257FC5',
+                'target-arrow-color': '#257FC5',
+                'source-arrow-color': '#257FC5',
+                'text-outline-color': '#ffeb67'
+              })
+            .selector('edge').css({
+              'curve-style': 'bezier',
+              'line-color': 'lightblue',
+              'target-arrow-shape': 'triangle',
+              'target-arrow-color': '#257FC5',
+              'width': 2
+            })
+            .selector('edge:selected').css({
+              'content': 'data(name)',
+              'z-index':1000,
+              'color': '#2f2f2f',
+              'font-size': '2.5em',
+              'width': 8,
+              'line-color': '#9c27b0',
+              'target-arrow-color': 'red',
+            }),
+          });
+
+          this.cy.$('node').on('grab', function (e) {
+              var ele = e.target;
+              ele.connectedEdges().style({ 'line-color': '#9c27b0' });
+          });
+
+
+          this.cy.$('node').on('free', function (e) {
+              var ele = e.target;
+              ele.connectedEdges().style({ 'line-color': 'lightblue' });
+          });
+
+          // cy.$('edge[type="MyGene.info API"]').style({ 'line-color': 'blue' });
+
+        },
+        saveContext(state,payload){
+          state.name= payload['context']['portal'];
+        },
+        saveCytoData(state,payload){
+          state.cyto_data= payload['data'];
+        },
+        saveOperations(state,payload){
+          state.operations= payload['ops'];
+          console.log(state.operations)
+        },
+        loadMetaKG(state,payload){
+          state.meta_kg = payload['graph']
+          // console.log("OPS", state.meta_kg.ops)
+          let data = []
+
+          function cleanUpName(name){
+            if (name.indexOf(':') !== -1) {
+              //split and get
+              return name.split(':')[1];
+            }else{
+              return name
+            }
+          }
+
+          let nodeList =[]
+
+          for (var i = 0; i < state.meta_kg.ops.length; i++) {
+
+            // NODE LIST CHECK
+            // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))) {
+            //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))
+            // }
+            //
+            // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
+            //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
+            // }
+
+            let node1 ={ //a
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.meta_kg.ops[i]['association']['input_type']),
+                name: cleanUpName(state.meta_kg.ops[i]['association']['input_type'])
+              }
+            };
+            data.push(node1)
+
+            let node2 ={ //b
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
+                name : cleanUpName(state.meta_kg.ops[i]['association']['output_type'])
+              }
+            };
+            data.push(node2)
+
+            let edgeName = state.meta_kg.ops[i]['association']['api_name']+' : '+state.meta_kg.ops[i]['association']['predicate']
+
+            let edge = { // edge ab
+              group: 'edges',
+              data: {
+                id: edgeName+i,
+                name: edgeName,
+                type:state.meta_kg.ops[i]['association']['api_name'],
+                source: cleanUpName(state.meta_kg.ops[i]['association']['input_type']) ,
+                target: cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
+              }
+            };
+            data.push(edge)
+
+
+          }
+          // console.log('data',data)
+          // console.log('nodeList',nodeList)
+
+          state.cyto_data = data
+
+
+          // FILTERS AUTOCOMPLETE & APIS
+
+          for (var i = 0; i < state.meta_kg.ops.length; i++) {
+
+            // AC
+
+            if (!state.output_autocomplete.includes(state.meta_kg.ops[i]['association']['output_type'])) {
+              state.output_autocomplete.push(state.meta_kg.ops[i]['association']['output_type'])
+            }
+            if (!state.input_autocomplete.includes(state.meta_kg.ops[i]['association']['input_id'])) {
+              state.input_autocomplete.push(state.meta_kg.ops[i]['association']['input_id'])
+            }
+
+            if (!state.predicate_autocomplete.includes(state.meta_kg.ops[i]['association']['predicate'])) {
+              state.predicate_autocomplete.push(state.meta_kg.ops[i]['association']['predicate'])
+            }
+
+            // API
+            if (!state.apis.includes(state.meta_kg.ops[i]['association']['api_name'])) {
+              state.apis.push(state.meta_kg.ops[i]['association']['api_name'])
+            }
+          }
+
+          // console.log('APIS',apis)
+          // console.log("AC I",state.input_autocomplete)
+          // console.log("AC O",state.output_autocomplete)
+          // console.log("AC Pred",state.predicate_autocomplete)
+
+          $('#loading-overlay').hide();
+
+        },
+        saveResults(state,payload){
+          state.results = payload['res']
+          console.log('results',state.results)
+
+          function cleanUpName(name){
+            if (name.indexOf(':') !== -1) {
+              return name.split(':')[1];
+            }else{
+              return name
+            }
+          }
+          let data = []
+          for (var i = 0; i < state.results.length; i++) {
+
+            let node1 ={ //a
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.results[i]['association']['input_type']),
+                name: cleanUpName(state.results[i]['association']['input_type'])
+              }
+            };
+            data.push(node1)
+
+            let node2 ={ //b
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.results[i]['association']['output_type']),
+                name : cleanUpName(state.results[i]['association']['output_type'])
+              }
+            };
+            data.push(node2)
+
+            let edgeName = state.results[i]['association']['api_name']+' : '+state.results[i]['association']['predicate']
+
+            let edge = { // edge ab
+              group: 'edges',
+              data: {
+                id: edgeName+i,
+                name: edgeName,
+                source: cleanUpName(state.results[i]['association']['input_type']) ,
+                target: cleanUpName(state.results[i]['association']['output_type']),
+              }
+            };
+            data.push(edge)
+
+          }
+          state.cyto_data = data
+
+        }
+      },
+      getters:{
+        getAPIS:(state)=>{
+          return state.apis
+        },
+        getName:(state)=>{
+          return state.name
+        },
+        getI_AC:(state)=>{
+          return state.input_autocomplete
+        },
+        getP_AC:(state)=>{
+          return state.predicate_autocomplete
+        },
+        getO_AC:(state)=>{
+          return state.output_autocomplete
+        },
+        getHtml:(state)=>{
+          for (var name in state.portals) {
+            if (name == state.name) {
+              return state.portals[name]
+            }
+          }
+        },
+        getResults:(state)=>{
+          return state.results
+        },
+        getCytoData:(state)=>{
+          return state.cyto_data
+        },
+      },
+      actions:{
+        handle_metaKG_Query ({ commit, state }, q){
+          if (!q.predicate[0].length) {
+            document.getElementById('callResults').innerHTML= '<h4 class="red-text">You must enter something first</h4>';
+          }else{
+            console.log(q)
+
+            var payload = {};
+            payload["res"] = state.meta_kg.filter(q);
+            commit('saveResults',payload);
+
+            commit('drawGraph');
+          }
+
+        },
+        highlightThis({ commit, state }, payload){
+          let name = payload['highlight']
+          switch (name) {
+            case "MyGene.info API":
+              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#2A7FE2','width': 8 });
+              break;
+              case "MyVariant.info API":
+                this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#40B307','width': 8 });
+                break;
+                case "MyChem.info API":
+                  this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#FD7400','width': 8 });
+                  break;
+            default:
+              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#9e005d','width': 8 });
+          }
+
+
+        },
+        unhighlightThis({ commit, state }, payload){
+          let name = payload['unhighlight']
+          this.cy.$('edge[type="'+name+'"]').style({ 'line-color': 'lightblue','width': 2 });
+        },
+        handle_metaKG_Query_New ({ commit, state }){
+          console.log(state)
+          let q ={}
+          if (state.output_type.length) {
+            q['output_type']= state.output_type
+          }
+          if (state.predicate.length) {
+            q['predicate']= state.predicate
+          }
+          if (state.input_id.length) {
+            q['input_id']= state.input_id
+          }
+
+          console.log("Q",q)
+
+          var payload = {};
+          payload["res"] = state.meta_kg.filter(q);
+          commit('saveResults',payload);
+
+          commit('drawGraph');
+
+          // Swal.fire({type:'success',
+          // toast:true,
+          // title: 'Updated',
+          // showConfirmButton:false,
+          // timer:2000});
+        }
+      }
+    });
+
+    Vue.component('pill-box', {
+      data: function(){
+        return{
+          'q':'',
+          'lookupResults':[],
+          'selected':[]
+        }
+      },
+      props: ['type'],
+      methods:{
+        handlePillSubmit(){
+          var self = this;
+
+          if (self.q.includes(',')) {
+            let array = self.q.split(',')
+            for (var i = 0; i < array.length; i++) {
+              let item = array[i]
+              self.selected.push(item)
+            }
+          }else{
+            self.selected.push(self.q)
+          }
+
+          var payload = {};
+          payload["name"] = self.type;
+          payload["q"] = self.selected;
+
+          store.commit('saveInput',payload);
+          self.q = ''
+        },
+        remove(item){
+          var index = this.selected.indexOf(item);
+          if (index !== -1) this.selected.splice(index, 1);
+          }
+      },
+      watch:{
+        q:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.options, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log('matches: ',res)
+            self.lookupResults = res;
+          }else {
+            self.lookupResults =[];
+          }
+        }
+      },
+      mounted: function(){
+
+      },
+      computed: {
+        options:function(){
+          var self = this;
+          switch (self.type) {
+            case 'predicate':
+              return store.getters.getP_AC
+              break;
+              case 'input_id':
+                return store.getters.getI_AC
+                break;
+                case 'output_type':
+                  return store.getters.getO_AC
+                  break;
+            default:
+              console.log('NO AUTOCOMPLETE')
+          }
+
+        }
+      },
+      template:
+      `<div class="pillBox">
+        <template v-for="pill in selected" :key="pill">
+          <div class="pill" v-text="pill" @click="remove(pill)"> </div>
+        </template>
+        <form @submit.prevent="handlePillSubmit" style="display:inline;">
+          <input autocomplete='off' placeholder="Enter Text Here" :id='type' list="predicate" type='text' v-model='q' class="browser-default pill-input"/>
+          <ul class="collection" style="border:none;">
+            <template v-for="elem in lookupResults" :key="elem">
+              <li class='collection-item left suggestion' :value="elem" @click="q = elem; handlePillSubmit();" v-text='elem'></li>
+            </template>
+          </ul>
+        </form>
+
+      </div>`
+    });
+
+
+  var app = new Vue({
+      el: '#portals',
+      data: function(){
+        return {
+          'queryPred':'',
+          'queryID':'',
+          'outputID':'',
+          'inputLookup':[],
+          'outputLookup':[],
+          'predicateLookup':[],
+          'cy' : null,
+          'showAPIS': false
+        }
+      },
+      computed: {
+        name : function(){
+          return store.getters.getName
+        },
+        apis : function(){
+          return store.getters.getAPIS
+        },
+        portal_info: function(){
+          return store.getters.getHtml
+        },
+        results : function(){
+          return store.getters.getResults
+        },
+        i_ac:function(){
+          return store.getters.getI_AC
+        },
+        o_ac:function(){
+          return store.getters.getO_AC
+        },
+        p_ac:function(){
+          return store.getters.getP_AC
+        },
+        cyto_data:function(){
+          return store.getters.getCytoData
+        }
+      },
+      watch:{
+        queryID:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.i_ac, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log(res)
+            self.inputLookup = res;
+          }else {
+            self.inputLookup =[];
+          }
+
+        },
+        outputID:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.o_ac, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log(res)
+            self.outputLookup = res;
+          }else {
+            self.outputLookup =[];
+          }
+
+        },
+        queryPred:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.p_ac, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log(res)
+            self.predicateLookup = res;
+          }else {
+            self.predicateLookup =[];
+          }
+
+        },
+      },
+      methods: {
+        popUpDetails: function(index){
+          this.selectedPerson = this.contributors[index];
+        },
+        compiledMarkdown: function (mdtext,url) {
+          if (url){
+            fetch(mdtext)
+            .then(response => response.text())
+            .then(function(result){
+              return marked(result, { sanitize: true })
+            })
+          }else{
+            return marked(mdtext, { sanitize: true })
+          }
+        },
+        handleME: function(name){
+          var payload = {};
+          payload["highlight"] = name
+          store.dispatch('highlightThis',payload)
+
+          // cy.$('edge[type='+name+']').style({ 'line-color': 'orange' });
+        },
+        handleML: function(name){
+
+          var payload = {};
+          payload["unhighlight"] = name
+          store.dispatch('unhighlightThis',payload)
+
+          // cy.$('edge[type='+name+']').style({ 'line-color': 'lightblue' });
+        },
+        convertMarkdownToHtml: function(url,target){
+            // covert markdown from raw data url to html, and dump html in target
+            axios.get(url).then(response=>{
+
+                var md = new Remarkable({
+                  html:         true,        // Enable HTML tags in source
+                  xhtmlOut:     false,        // Use '/' to close single tags (<br />)
+                  breaks:       false,        // Convert '\n' in paragraphs into <br>
+                  langPrefix:   'language-',  // CSS language prefix for fenced blocks
+                  linkify:      true,        // Autoconvert URL-like text to links
+
+                  // Enable some language-neutral replacement + quotes beautification
+                  typographer:  false,
+
+                  // Double + single quotes replacement pairs, when typographer enabled,
+                  // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+                  quotes: '“”‘’',
+
+                  // Highlighter function. Should return escaped HTML,
+                  // or '' if the source string is not changed
+                  highlight: function (/*str, lang*/) { return ''; }
+                });
+                var targetDump = document.getElementById(target);
+                var html = md.render(response.data);
+                targetDump.innerHTML = html;
+
+            }).catch(err=>{
+                throw err;
+            });
+
+
+        },
+        async loadKG(){
+          var self = this;
+
+          let meta_kg = new kg()
+
+          await meta_kg.constructMetaKG(source='remote')
+
+          var payload = {};
+          payload["graph"] = meta_kg;
+          store.commit('loadMetaKG',payload)
+
+          self.drawCytoscape();
+        },
+        handleKGSearch(){
+          var self = this;
+          let q = self.queryPred.split(',');
+          let i = self.queryID;
+          let o = self.outputID.split(',');
+          // var payload = {};
+          // payload["predicate"] = q
+          // payload["input_id"] = i
+          // payload["output_id"] = o
+          // store.dispatch('handle_metaKG_Query',payload)
+
+          store.dispatch('handle_metaKG_Query_New')
+        },
+        drawCytoscape(){
+          store.commit('drawGraph');
+        },
+        handleSelection(val,type){
+          store.commit
+        },
+        parseKGData(){
+          var self = this;
+          let data = [];
+
+          if (self.ops) {
+            for (var i = 0; i < self.ops.length; i++) {
+              let node1 ={ //a
+                data:{
+                  id : self.ops[i]['association']['input_type']
+                }
+              };
+              data.push(node1)
+
+              let node2 ={ //b
+                data:{
+                  id : self.ops[i]['association']['output_type']
+                }
+              };
+              data.push(node2)
+
+              let edgeName = self.ops[i]['association']['api_name']+':'+self.ops[i]['association']['predicate']
+
+              let edge = { // edge ab
+                data: {
+                  id: edgeName+i,
+                  source: self.ops[i]['association']['input_type'] ,
+                  target: self.ops[i]['association']['output_type']
+                }
+              };
+              data.push(edge)
+
+
+            }
+            console.log('data',data)
+          }
+        },
+        reset(){
+          var self = this;
+
+          self.queryID = '';
+          self.queryPred = '';
+          self.outputID = '';
+          self.loadKG();
+        },
+        getClass(name){
+          switch (name) {
+            case "MyGene.info API":
+              return 'blue'
+              break;
+              case "MyChem.info API":
+                return 'orange'
+                break;
+                case "MyVariant.info API":
+                  return 'green'
+                  break;
+            default:
+              return ''
+          }
+        }
+      },
+      created: function(){
+        if ({{Context}}) {
+          console.log({{Context}})
+          var payload = {};
+          payload["context"] = {{Context}};
+          store.commit('saveContext',payload);
+        }
+
+      },mounted:function(){
+        var self = this;
+        if (self.name == 'translator') {
+          self.loadKG();
+          $('#loading-overlay').show();
+        }
+      }
+  });
+  </script>
+{% endblock %}

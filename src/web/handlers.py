@@ -153,6 +153,7 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
 class RegistryHandler(BaseHandler):
     def get(self, tag=None):
         template_file = "smart-registry.html"
+        # template_file = "/smartapi/dist/index.html"
         reg_template = templateEnv.get_template(template_file)
         # author filter parsing
         if self.get_argument('owners', False):
@@ -275,6 +276,36 @@ class FAQHandler(BaseHandler):
         faq_output = faq_template.render()
         self.write(faq_output)
 
+class TemplateHandler(BaseHandler):
+
+    def initialize(self, filename, status_code=200, env=None):
+
+        self.filename = filename
+        self.status = status_code
+
+    def get(self, **kwargs):
+
+        template = self.env.get_template(self.filename)
+        output = template.render(Context=json.dumps(kwargs))
+
+        self.set_status(self.status)
+        self.write(output)
+
+class PortalHandler(BaseHandler):
+
+    def get(self, portal=None):
+        portals = ['translator']
+
+        template_file = "portal.html"
+        reg_template = templateEnv.get_template(template_file)
+
+        if portal in portals:
+            reg_output = reg_template.render(Context=json.dumps(
+                {"portal": portal}))
+        else:
+            raise tornado.web.HTTPError(404)
+        self.write(reg_output)
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
@@ -294,5 +325,7 @@ APP_LIST = [
     (r"/editor/?", APIEditorHandler),
     (r"/about/?", AboutHandler),
     (r"/faq/?", FAQHandler),
-    (r"/privacy/?", PrivacyHandler)
+    (r"/privacy/?", PrivacyHandler),
+    # (r"/portal/?", TemplateHandler, {"filename": "registry.html"}),
+    (r"/portal/(.+)/?", PortalHandler),
 ]
