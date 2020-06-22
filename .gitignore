@@ -1,5 +1,6 @@
 # Ignore file with github OAuth IDs
 .ghenv
+/src/templates/smartapi
 
 # Python
 __pycache__
