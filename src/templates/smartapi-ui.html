@@ -28,6 +28,9 @@ text-decoration: underline;
     max-width: 100%;
     display: block;
 }
+.swagger-ui svg:not(:root){
+  display: none;
+}
 </style>
 <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
   <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
@@ -79,11 +82,68 @@ text-decoration: underline;
               ],
             })
             window.ui = ui;
+        },
+        getMetadata(url){
+          axios.get(url).then(res=>{
+            // console.log('res',res.data)
+            let data = res.data
+            if (data) {
+              let meta = null;
+              document.getElementsByTagName('title')[0].innerHTML = "SmartApi / "+data.info.title
+              // Open graph and Meta
+              meta = document.createElement('meta');
+              meta.setAttribute('property',"og:title");
+              meta.setAttribute('content',data.info.title);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              meta = document.createElement('meta');
+              meta.setAttribute('name',"description");
+              meta.setAttribute('content',data.info.description);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              meta = document.createElement('meta');
+              meta.setAttribute('property',"og:description");
+              meta.setAttribute('content',data.info.description);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              meta = document.createElement('meta');
+              meta.setAttribute('property',"og:url");
+              meta.setAttribute('content',window.location.href);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              meta = document.createElement('meta');
+              meta.setAttribute('property',"og:locale");
+              meta.setAttribute('content',"en_US");
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              // Twitter
+              meta = document.createElement('meta');
+              meta.setAttribute('name',"twitter:title");
+              meta.setAttribute('content',data.info.title);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              meta = document.createElement('meta');
+              meta.setAttribute('name',"twitter:url");
+              meta.setAttribute('content',window.location.href);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+              meta = document.createElement('meta');
+              meta.setAttribute('name',"twitter:description");
+              meta.setAttribute('content',data.info.description);
+              document.getElementsByTagName('head')[0].appendChild(meta);
+
+            }
+
+          }).catch(err=>{
+            throw err;
+          });
         }
       },
       mounted: function(){
         this.apiID = '{{apiID}}';
         this.loadSwaggerUI('/api/metadata/'+this.apiID+'?format=yaml');
+        this.getMetadata('/api/metadata/'+this.apiID);
+
       }
   });
   </script>

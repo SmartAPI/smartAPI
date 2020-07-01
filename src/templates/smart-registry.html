@@ -1,4 +1,5 @@
 {% extends "main.html" %}
+{% include "smartapi-head.html" %}
 {% block extra_head %}
 {% endblock %}
 {% block content %}
@@ -152,6 +153,14 @@
                   <a class='tooltipped' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
                     <img v-if="specialTagsUI" width="auto" style="max-height: 40px; max-width:100%;" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
                   </a>
+                  <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">
+                    <a class="blue-text d-block" href="/portal/translator">
+                      Go to portal <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="purple-text d-block" href="/portal/translator/metakg">
+                      <i class="fa fa-connectdevelop" aria-hidden="true"></i>Search MetaKG Graph <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </a>
+                  </div>
                 </div>
                 <div class="input-field col s12 l6">
                     <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">

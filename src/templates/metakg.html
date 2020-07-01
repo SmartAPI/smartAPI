@@ -1,0 +1,1090 @@
+{% extends "main.html" %}
+{% include "smartapi-head.html" %}
+{% block content %}
+{% include "header.html" %}
+{% raw %}
+<style>
+
+</style>
+<main id="meta-app" class="white" style="width: 100%;" v-cloak>
+  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+    <div class="center-align" style="padding-top: 300px;">
+      <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
+      <h3 class="white-text logoFont">Loading...</h3>
+    </div>
+  </div>
+  <section class="center light-blue lighten-4 dashboardBack padding20">
+    <h1 class="blue-text bold flow-text">
+      Meta KG
+    </h1>
+  </section>
+  <div class="padding20 grey lighten-3">
+    <p>
+      Search for SmartAPI API operations given a combination of input, output(s), and/or predicates.
+    </p>
+    <hr />
+    <!-- META KG SEARCH -->
+    <div class="row">
+      <div class="col s12">
+        <form @submit.prevent="handleKGSearch" class="meta_kg_form">
+          <div class="row">
+            <div class="col s12 m4 input-field center">
+              <h5 class="white-text"><i class="fa fa-sign-in black-text" aria-hidden="true"></i> INPUT TYPE</h5>
+              <div class="center white-text">
+                <small>(1)</small>
+              </div>
+              <pill-box type="input_type"></pill-box>
+            </div>
+            <div class="col s12 m4 input-field center">
+              <h5 class="white-text"><i class="fa fa-connectdevelop purple-text" aria-hidden="true"></i> RELATIONSHIP</h5>
+              <div class="center white-text">
+                <small>(1 or Many)</small>
+              </div>
+              <pill-box type="predicate"></pill-box>
+            </div>
+            <div class="col s12 m4 input-field center">
+              <h5 class="white-text"><i class="fa fa-circle orange-text" aria-hidden="true"></i> OUTPUT TYPE</h5>
+              <div class="center white-text">
+                <small>(1 or Many)</small>
+              </div>
+              <pill-box type="output_type"></pill-box>
+            </div>
+            <div class="col s12 center padding20 d-flex" style="justify-content: space-evenly;">
+              <button class="btn blue" type="submit" name="search">
+                Search
+              </button>
+              <button class="btn red" type="button" @click.prevent="reset()">
+                Reset
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col s12 m4">
+        <div v-show="results && results.length" class="collection-item red-text" style="padding:1px;">
+          <small v-text="results.length+' results'"></small>
+        </div>
+        <div class="white padding20 resBox collection">
+          <template v-show="results && results.length">
+            <div class="collection-item row" style="padding:2px;">
+              <div class="col s3">
+                <small>API</small>
+              </div>
+              <div class="col s9">
+                <small>Relationship</small>
+              </div>
+            </div>
+          </template>
+          <template v-for="item in results">
+            <div class="collection-item resultRow row" @mouseenter="highlightRow(item)" @mouseleave="unhighlightRow(item)" style="padding:3px;">
+              <div class="col s12 left">
+                <small class="d-block">
+                  <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
+                    <span v-text="item.association.api_name"></span>
+                  </a>
+                </small>
+                <small class=" s-badge lighten-4 black-text" v-text="item.association.input_type"></small>
+                <i class="fa fa-arrow-circle-right grey-text" aria-hidden="true"></i>
+                <small class=" s-badge lighten-5 purple-text" v-text="item.association.predicate"></small>
+                <i class="fa fa-arrow-circle-right grey-text" aria-hidden="true"></i>
+                <small class=" s-badge lighten-5 orange-text" v-text="item.association.output_type"></small>
+              </div>
+            </div>
+          </template>
+          <template v-if="results.length == 0">
+            <small class="grey-text">No Results</small>
+          </template>
+        </div>
+      </div>
+      <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
+        <p>
+          <small class="pointer blue-text" @click="showAPIS = !showAPIS">Show/Hide APIS</small>
+        </p>
+        <div v-show="showAPIS" class="apisCont">
+          <template v-for="api in apis" :key="api">
+            <span class="pointer api-pill" :class="getClass(api)" v-text="api" @mouseenter="handleME(api)" @mouseleave="handleML(api)"></span>
+          </template>
+        </div>
+        <div id="cy">
+
+        </div>
+        <div class="text-right container d-flex justify-content-around">
+          <small class="pointer grey-text" @click="download">
+            <i class="fa fa-download" aria-hidden="true"></i> Download Image
+          </small>
+          <small class="pointer grey-text" @click="toggleSpread()">
+            Switch Layout <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> <span v-text="spread?'Spread (Better for more resutls)':'Compact (Better for less results)'"></span>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endraw %}
+{% include "footer.html" %}
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://unpkg.com/vuex"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@1.0.16/bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.15.1/cytoscape.min.js" integrity="sha256-oYPiLQ2sL4jlYuCJE3rDZFD0OUy8t1fL6U0wIWyqUf8=" crossorigin="anonymous"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
+
+  <script>
+  const store = new Vuex.Store({
+      state: {
+        'name': Object,
+        "meta_kg" : null,
+        "results": [],
+        "output_autocomplete":[],
+        "input_autocomplete":[],
+        "predicate_autocomplete":[],
+        "cyto_data":[],
+        "output_type":[],
+        "input_type":[],
+        "predicate":[],
+        "apis":[],
+        'cy':null,
+        "predicate_selected":[],
+        "input_selected":[],
+        "output_selected":[],
+        "spread":false
+      },
+      strict: true,
+      mutations: {
+        toggleSpread(state){
+
+          state.spread = !state.spread
+
+          if (state.spread) {
+            let l= this.cy.layout({
+              name: 'cose',
+              idealEdgeLength: 100,
+              nodeOverlap: 20,
+              refresh: 20,
+              fit: true,
+              padding: 30,
+              randomize: false,
+              componentSpacing: 100,
+              nodeRepulsion: 400000,
+              edgeElasticity: 100,
+              nestingFactor: 5,
+              gravity: 80,
+              numIter: 1000,
+              initialTemp: 200,
+              coolingFactor: 0.95,
+              minTemp: 1.0
+            });
+            this.cy.$('edge').css({
+              'curve-style': 'straight',
+              'font-size': '1em',
+            })
+            this.cy.$('node').css({
+              'width': '40',
+              'height':'40',
+              'font-size': '1em',
+            })
+
+            l.run();
+          }else {
+            let l= this.cy.layout({
+              name: 'concentric',
+              minNodeSpacing: 300,
+              nestingFactor: 1.2,
+              initialTemp: 1000,
+              coolingFactor: 0.99,
+              minTemp: 1.0,
+              gravity: 1.4
+            });
+            this.cy.$('edge').css({
+              'curve-style': 'bezier',
+              'font-size': '2.5em',
+            })
+            this.cy.$('node').css({
+              'width': '100',
+              'height':'100',
+              'font-size': '3em',
+            })
+            l.run();
+          }
+        },
+        saveInput(state,payload){
+
+          let name = payload['name'];
+
+          switch (name) {
+            case 'output_type':
+              state.output_type = payload["q"]
+              break;
+              case 'input_type':
+                state.input_type = payload["q"]
+                break;
+                case 'predicate':
+                  state.predicate = payload["q"]
+                  break;
+            default:
+              console.log('no match')
+          }
+        },
+        drawGraph(state,payload){
+
+          this.cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: state.cyto_data,
+            layout: {
+              name: "concentric",
+              minNodeSpacing: 300,
+              nestingFactor: 1.2,
+              initialTemp: 1000,
+              coolingFactor: 0.99,
+              minTemp: 1.0,
+              gravity: 1.4
+            },
+            style: cytoscape.stylesheet()
+            .selector('node')
+              .css({
+                'content': 'data(name)',
+                "text-valign": "bottom",
+                "text-halign": "center",
+                'color': 'black',
+                'width': '100',
+                'height':'100',
+                'background-fit': 'cover',
+                'border-color': '#000',
+                'border-width': 3,
+                'border-opacity': 0.5,
+                'font-size': '3em',
+                'text-outline-width': 4,
+                'text-outline-color': 'white',
+                'background-color': '#ff9800'
+              })
+            .selector(':selected')
+              .css({
+                'background-color': '#257FC5',
+                'line-color': '#257FC5',
+                'target-arrow-color': '#257FC5',
+                'source-arrow-color': '#257FC5',
+                'text-outline-color': '#ffeb67'
+              })
+            .selector('edge').css({
+              'curve-style': 'bezier',
+              'line-color': 'lightblue',
+              'target-arrow-shape': 'triangle',
+              'target-arrow-color': '#257FC5',
+              'width': 2
+            })
+            .selector('edge:selected').css({
+              'content': 'data(name)',
+              'z-index':1000,
+              'color': '#2f2f2f',
+              'font-size': '2.5em',
+              'width': 8,
+              'line-color': '#9c27b0',
+              'target-arrow-color': 'red',
+            })
+            .selector('#Gene').css({
+              'background-image': '/static/img/graph/Gene.png',
+            })
+            .selector('#Cell').css({
+              'background-image': '/static/img/graph/Cell.png',
+            })
+            .selector('#SequenceVariant').css({
+              'background-image': '/static/img/graph/SequenceVariant.png',
+            })
+            .selector('#Protein').css({
+              'background-image': '/static/img/graph/Protein.png',
+            })
+            .selector('#CellularComponent').css({
+              'background-image': '/static/img/graph/CellularComponent.png',
+            })
+            .selector('#ChemicalSubstance').css({
+              'background-image': '/static/img/graph/ChemicalSubstance.png',
+            })
+            .selector('#AnatomicalEntity').css({
+              'background-image': '/static/img/graph/AnatomicalEntity.png',
+            })
+            .selector('#PhenotypicFeature').css({
+              'background-image': '/static/img/graph/PhenotypicFeature.png',
+            })
+            .selector('#Transcript').css({
+              'background-image': '/static/img/graph/Transcript.png',
+            })
+            .selector('#Disease').css({
+              'background-image': '/static/img/graph/Disease.png',
+            })
+            .selector('#Pathway').css({
+              'background-image': '/static/img/graph/Pathway.png',
+            })
+            .selector('#BiologicalProcess').css({
+              'background-image': '/static/img/graph/BiologicalProcess.png',
+            })
+            .selector('#MolecularActivity').css({
+              'background-image': '/static/img/graph/MolecularActivity.png',
+            })
+            .selector('#GenomicEntity').css({
+              'background-image': '/static/img/graph/GenomicEntity.png',
+            })
+            .selector('.highlighted')
+            .css({
+              'background-color': 'red',
+              'line-color': 'red',
+              'target-arrow-color': 'red',
+              'width':5,
+            })
+          });
+
+          this.cy.$('node').on('grab', function (e) {
+              var ele = e.target;
+              ele.connectedEdges().select()
+          });
+
+
+          this.cy.$('node').on('free', function (e) {
+              var ele = e.target;
+              ele.connectedEdges().unselect()
+          });
+
+          // cy.$('edge[type="MyGene.info API"]').style({ 'line-color': 'blue' });
+
+        },
+        saveContext(state,payload){
+          state.name= payload['context']['portal'];
+        },
+        saveCytoData(state,payload){
+          state.cyto_data= payload['data'];
+        },
+        saveOperations(state,payload){
+          state.operations= payload['ops'];
+          // console.log(state.operations)
+        },
+        loadMetaKG(state,payload){
+          state.meta_kg = payload['graph']
+          // console.log("OPS", state.meta_kg.ops)
+          let data = []
+
+          function cleanUpName(name){
+            if (name.indexOf(':') !== -1) {
+              //split and get
+              return name.split(':')[1];
+            }else{
+              return name
+            }
+          }
+
+          let nodeList =[]
+
+          for (var i = 0; i < state.meta_kg.ops.length; i++) {
+
+            // NODE LIST CHECK
+            // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))) {
+            //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))
+            // }
+            //
+            // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
+            //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
+            // }
+
+            let node1 ={ //a
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.meta_kg.ops[i]['association']['input_type']),
+                name: cleanUpName(state.meta_kg.ops[i]['association']['input_type'])
+              }
+            };
+            data.push(node1)
+
+            let node2 ={ //b
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
+                name : cleanUpName(state.meta_kg.ops[i]['association']['output_type'])
+              }
+            };
+            data.push(node2)
+
+            let edgeName = state.meta_kg.ops[i]['association']['api_name']+' : '+state.meta_kg.ops[i]['association']['predicate']
+
+            let edge = { // edge ab
+              group: 'edges',
+              data: {
+                id: edgeName+i,
+                name: edgeName,
+                type:state.meta_kg.ops[i]['association']['api_name'],
+                source: cleanUpName(state.meta_kg.ops[i]['association']['input_type']) ,
+                target: cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
+              }
+            };
+            data.push(edge)
+
+
+          }
+          // console.log('data',data)
+          // console.log('nodeList',nodeList)
+
+          state.cyto_data = data
+
+
+          // FILTERS AUTOCOMPLETE & APIS
+
+          for (var i = 0; i < state.meta_kg.ops.length; i++) {
+
+            // AC
+
+            if (!state.output_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
+              state.output_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
+            }
+            if (!state.input_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))) {
+              state.input_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))
+            }
+
+            if (!state.predicate_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['predicate']))) {
+              state.predicate_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['predicate']))
+            }
+
+            // API
+            if (!state.apis.includes(state.meta_kg.ops[i]['association']['api_name'])) {
+              state.apis.push(state.meta_kg.ops[i]['association']['api_name'])
+            }
+          }
+
+          // console.log('APIS',apis)
+          // console.log("AC I",state.input_autocomplete)
+          // console.log("AC O",state.output_autocomplete)
+          // console.log("AC Pred",state.predicate_autocomplete)
+
+          $('#loading-overlay').hide();
+
+        },
+        saveResults(state,payload){
+          state.results = payload['res']
+          // console.log('results',state.results)
+
+          function cleanUpName(name){
+            if (name.indexOf(':') !== -1) {
+              return name.split(':')[1];
+            }else{
+              return name
+            }
+          }
+          let data = []
+          for (var i = 0; i < state.results.length; i++) {
+
+            let node1 ={ //a
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.results[i]['association']['input_type']),
+                name: cleanUpName(state.results[i]['association']['input_type'])
+              }
+            };
+            data.push(node1)
+
+            let node2 ={ //b
+              group: 'nodes',
+              data:{
+                id : cleanUpName(state.results[i]['association']['output_type']),
+                name : cleanUpName(state.results[i]['association']['output_type'])
+              }
+            };
+            data.push(node2)
+
+            let edgeName = state.results[i]['association']['api_name']+' : '+state.results[i]['association']['predicate']
+
+            let edge = { // edge ab
+              group: 'edges',
+              data: {
+                id: edgeName+i,
+                name: edgeName,
+                source: cleanUpName(state.results[i]['association']['input_type']) ,
+                target: cleanUpName(state.results[i]['association']['output_type']),
+              }
+            };
+
+            data.push(edge)
+
+
+          }
+          state.cyto_data = data
+
+        },
+        pushPill(state,payload){
+          let type = payload["type"]
+          let q = payload["q"]
+
+          switch (type) {
+            case 'predicate':
+              state.predicate_selected.push(q)
+              break;
+              case 'input_type':
+                state.input_selected.push(q)
+                break;
+                case 'output_type':
+                  state.output_selected.push(q)
+                  break;
+            default:
+              console.log('NO option pushPill')
+          }
+        },
+        removePill(state,payload){
+          let type = payload["type"]
+          let q = payload["q"]
+
+          switch (type) {
+            case 'predicate':
+              state.predicate_selected.pop(q)
+              break;
+              case 'input_type':
+                state.input_selected.pop(q)
+                break;
+                case 'output_type':
+                  state.output_selected.pop(q)
+                  break;
+            default:
+              console.log('NO option removePill')
+          }
+        }
+      },
+      getters:{
+        getAPIS:(state)=>{
+          return state.apis
+        },
+        getName:(state)=>{
+          return state.name
+        },
+        getI_AC:(state)=>{
+          return state.input_autocomplete
+        },
+        getP_AC:(state)=>{
+          return state.predicate_autocomplete
+        },
+        getO_AC:(state)=>{
+          return state.output_autocomplete
+        },
+        getI_Selected:(state)=>{
+          return state.input_selected
+        },
+        getP_Selected:(state)=>{
+          return state.predicate_selected
+        },
+        getO_Selected:(state)=>{
+          return state.output_selected
+        },
+        getHtml:(state)=>{
+          for (var name in state.portals) {
+            if (name == state.name) {
+              return state.portals[name]
+            }
+          }
+        },
+        getResults:(state)=>{
+          return state.results
+        },
+        getCytoData:(state)=>{
+          return state.cyto_data
+        },
+        getSpread:(state)=>{
+          return state.spread
+        }
+      },
+      actions:{
+        handle_metaKG_Query ({ commit, state }, q){
+          if (!q.predicate[0].length) {
+            document.getElementById('callResults').innerHTML= '<h4 class="red-text">You must enter something first</h4>';
+          }else{
+            // console.log(q)
+
+            var payload = {};
+            payload["res"] = state.meta_kg.filter(q);
+            commit('saveResults',payload);
+
+            commit('drawGraph');
+          }
+
+        },
+        highlightThis({ commit, state }, payload){
+          let name = payload['highlight']
+          switch (name) {
+            case "MyGene.info API":
+              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#2A7FE2','width': 5, 'z-index':1000 });
+              break;
+            case "MyVariant.info API":
+              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#40B307','width': 5, 'z-index':1000 });
+              break;
+            case "MyChem.info API":
+              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#FD7400','width': 5, 'z-index':1000 });
+              break;
+            default:
+              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#9e005d','width': 5, 'z-index':1000 });
+          }
+
+
+        },
+        unhighlightThis({ commit, state }, payload){
+          let name = payload['unhighlight']
+          this.cy.$('edge[type="'+name+'"]').style({ 'line-color': 'lightblue','width': 2 });
+        },
+        highlightRow({ commit, state }, payload){
+          let name = payload['highlight']
+          let s = payload['source']
+          let t = payload['target']
+
+          let found = this.cy.filter(function(element, i){
+            if (element.isEdge() && element.data('name') == name) {
+                if (element.source().data('name') == s && element.target().data('name') == t) {
+                  return element;
+                }
+            }
+          });
+          found.select()
+        },
+        unhighlightRow({ commit, state }, payload){
+          let name = payload['unhighlight']
+          this.cy.elements().unselect()
+        },
+        handle_metaKG_Query_New ({ commit, state }){
+          // console.log(state)
+          let q ={}
+          if (state.output_type.length) {
+            q['output_type']= state.output_type
+          }
+          if (state.predicate.length) {
+            q['predicate']= state.predicate
+          }
+          if (state.input_type.length) {
+            q['input_type']= state.input_type
+          }
+
+          // console.log("Q",q)
+
+          var payload = {};
+          payload["res"] = state.meta_kg.filter(q);
+          commit('saveResults',payload);
+
+          commit('drawGraph');
+
+          // Swal.fire({type:'success',
+          // toast:true,
+          // title: 'Updated',
+          // showConfirmButton:false,
+          // timer:2000});
+        },
+        download({ commit, state }){
+
+          let options={
+            "bg":"white",
+            "quality":1,
+            "output":'blob'
+          }
+
+          let pic = this.cy.png(options)
+
+          var a = document.createElement("a");
+          var file = new Blob( [pic], {type:'image/png'} );
+          a.href = URL.createObjectURL(file);
+          a.download = 'meta-kg-graph';
+          a.click();
+
+          Swal.fire({type:'success',
+          toast:true,
+          title: 'Success',
+          showConfirmButton:false,
+          timer:2000});
+
+        }
+      }
+    });
+
+    Vue.component('pill-box', {
+      data: function(){
+        return{
+          'q':'',
+          'lookupResults':[],
+          // 'selected':[],
+        }
+      },
+      props: ['type'],
+      methods:{
+        handlePillSubmit(){
+          var self = this;
+
+          if (self.q.includes(',')) {
+            let array = self.q.split(',')
+            for (var i = 0; i < array.length; i++) {
+              let item = array[i]
+              self.selected.push(item)
+            }
+          }else{
+            // self.selected.push(self.q)
+
+            var payload = {};
+            payload["type"] = self.type;
+            payload["q"] = self.q;
+
+            store.commit('pushPill',payload);
+          }
+
+          var payload = {};
+          payload["name"] = self.type;
+          payload["q"] = self.selected;
+
+          store.commit('saveInput',payload);
+          self.q = ''
+        },
+        remove(item){
+          var self = this;
+
+          var payload = {};
+          payload["type"] = self.type;
+          payload["q"] = item;
+
+          store.commit('removePill',payload);
+          // var index = this.selected.indexOf(item);
+          // if (index !== -1) this.selected.splice(index, 1);
+        },
+        getBackClass(){
+          var self = this;
+
+          switch (self.type) {
+            case 'predicate':
+              return "purple";
+              break;
+              case 'input_type':
+                return "grey";
+                break;
+                case 'output_type':
+                  return "orange";
+                  break;
+            default:
+              return 'white'
+          }
+        }
+      },
+      watch:{
+        q:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.options, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log('matches: ',res)
+            self.lookupResults = res;
+          }else {
+            self.lookupResults =[];
+          }
+        }
+      },
+      mounted: function(){
+
+      },
+      computed: {
+        options:function(){
+          var self = this;
+          switch (self.type) {
+            case 'predicate':
+              return store.getters.getP_AC
+              break;
+              case 'input_type':
+                return store.getters.getI_AC
+                break;
+                case 'output_type':
+                  return store.getters.getO_AC
+                  break;
+            default:
+              console.log('NO AUTOCOMPLETE')
+          }
+
+        },
+        selected:function(){
+          var self = this;
+          switch (self.type) {
+            case 'predicate':
+              return store.getters.getP_Selected
+              break;
+              case 'input_type':
+                return store.getters.getI_Selected
+                break;
+                case 'output_type':
+                  return store.getters.getO_Selected
+                  break;
+            default:
+              console.log('NO SELECTED OPTIONS')
+          }
+
+        }
+      },
+      template:
+      `<div class="pillBox lighten-4" :class="getBackClass()">
+        <template v-for="pill in selected" :key="pill">
+          <div class="pill" :class="getBackClass()" v-text="pill" @click="remove(pill)"> </div>
+        </template>
+        <form @submit.prevent="handlePillSubmit" style="display:inline;">
+          <input autocomplete='off' placeholder="Enter Text Here" :id='type' list="predicate" type='text' v-model='q' class="browser-default pill-input lighten-4" :class="getBackClass()"/>
+          <ul class="collection" style="border:none;position:absolute;z-index:100;">
+            <template v-for="elem in lookupResults" :key="elem">
+              <li class='collection-item left suggestion' :value="elem" @click="q = elem; handlePillSubmit();" v-text='elem'></li>
+            </template>
+          </ul>
+        </form>
+
+      </div>`
+    });
+
+
+  var app = new Vue({
+      el: '#meta-app',
+      data: function(){
+        return {
+          'queryPred':'',
+          'queryID':'',
+          'outputID':'',
+          'inputLookup':[],
+          'outputLookup':[],
+          'predicateLookup':[],
+          'cy' : null,
+          'showAPIS': false
+        }
+      },
+      computed: {
+        name : function(){
+          return store.getters.getName
+        },
+        apis : function(){
+          return store.getters.getAPIS
+        },
+        portal_info: function(){
+          return store.getters.getHtml
+        },
+        results : function(){
+          return store.getters.getResults
+        },
+        i_ac:function(){
+          return store.getters.getI_AC
+        },
+        o_ac:function(){
+          return store.getters.getO_AC
+        },
+        p_ac:function(){
+          return store.getters.getP_AC
+        },
+        cyto_data:function(){
+          return store.getters.getCytoData
+        },
+        spread:function(){
+          return store.getters.getSpread
+        },
+      },
+      watch:{
+        queryID:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.i_ac, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log(res)
+            self.inputLookup = res;
+          }else {
+            self.inputLookup =[];
+          }
+
+        },
+        outputID:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.o_ac, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log(res)
+            self.outputLookup = res;
+          }else {
+            self.outputLookup =[];
+          }
+
+        },
+        queryPred:function(q){
+          var self = this;
+          if (q) {
+            let res = _.filter(self.p_ac, function(name) {
+                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+            });
+            // console.log(res)
+            self.predicateLookup = res;
+          }else {
+            self.predicateLookup =[];
+          }
+
+        },
+      },
+      methods: {
+        handleME: function(name){
+          var payload = {};
+          payload["highlight"] = name
+          store.dispatch('highlightThis',payload)
+        },
+        handleML: function(name){
+
+          var payload = {};
+          payload["unhighlight"] = name
+          store.dispatch('unhighlightThis',payload)
+        },
+        convertMarkdownToHtml: function(url,target){
+            // covert markdown from raw data url to html, and dump html in target
+            axios.get(url).then(response=>{
+
+                var md = new Remarkable({
+                  html:         true,        // Enable HTML tags in source
+                  xhtmlOut:     false,        // Use '/' to close single tags (<br />)
+                  breaks:       false,        // Convert '\n' in paragraphs into <br>
+                  langPrefix:   'language-',  // CSS language prefix for fenced blocks
+                  linkify:      true,        // Autoconvert URL-like text to links
+
+                  // Enable some language-neutral replacement + quotes beautification
+                  typographer:  false,
+
+                  // Double + single quotes replacement pairs, when typographer enabled,
+                  // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+                  quotes: '“”‘’',
+
+                  // Highlighter function. Should return escaped HTML,
+                  // or '' if the source string is not changed
+                  highlight: function (/*str, lang*/) { return ''; }
+                });
+                var targetDump = document.getElementById(target);
+                var html = md.render(response.data);
+                targetDump.innerHTML = html;
+
+            }).catch(err=>{
+                throw err;
+            });
+
+
+        },
+        async loadKG(){
+          var self = this;
+
+          let meta_kg = new kg()
+
+          await meta_kg.constructMetaKG(source='remote')
+
+          var payload = {};
+          payload["graph"] = meta_kg;
+          store.commit('loadMetaKG',payload)
+
+          self.drawCytoscape();
+        },
+        handleKGSearch(){
+          var self = this;
+          let q = self.queryPred.split(',');
+          let i = self.queryID;
+          let o = self.outputID.split(',');
+
+          store.dispatch('handle_metaKG_Query_New')
+        },
+        drawCytoscape(){
+          store.commit('drawGraph');
+        },
+        handleSelection(val,type){
+          store.commit
+        },
+        parseKGData(){
+          var self = this;
+          let data = [];
+
+          if (self.ops) {
+            for (var i = 0; i < self.ops.length; i++) {
+              let node1 ={ //a
+                data:{
+                  id : self.ops[i]['association']['input_type']
+                }
+              };
+              data.push(node1)
+
+              let node2 ={ //b
+                data:{
+                  id : self.ops[i]['association']['output_type']
+                }
+              };
+              data.push(node2)
+
+              let edgeName = self.ops[i]['association']['api_name']+':'+self.ops[i]['association']['predicate']
+
+              let edge = { // edge ab
+                data: {
+                  id: edgeName+i,
+                  source: self.ops[i]['association']['input_type'] ,
+                  target: self.ops[i]['association']['output_type']
+                }
+              };
+              data.push(edge)
+
+
+            }
+            console.log('data',data)
+          }
+        },
+        reset(){
+          var self = this;
+
+          self.queryID = '';
+          self.queryPred = '';
+          self.outputID = '';
+          self.loadKG();
+          $('#loading-overlay').show();
+        },
+        getClass(name){
+          switch (name) {
+            case "MyGene.info API":
+              return 'blue'
+              break;
+              case "MyChem.info API":
+                return 'orange'
+                break;
+                case "MyVariant.info API":
+                  return 'green'
+                  break;
+            default:
+              return ''
+          }
+        },
+        download(){
+          store.dispatch('download');
+        },
+        highlightRow: function(item){
+
+          var payload = {};
+          let edgeName = item['association']['api_name']+' : '+item['association']['predicate']
+          payload["highlight"] = edgeName
+          payload["source"] = item['association']['input_type']
+          payload["target"] = item['association']['output_type']
+          store.dispatch('highlightRow',payload)
+        },
+        unhighlightRow: function(item){
+
+          var payload = {};
+          let edgeName = item['association']['api_name']+' : '+item['association']['predicate']
+          payload["unhighlight"] = edgeName
+          store.dispatch('unhighlightRow',payload)
+        },
+        toggleSpread(){
+          store.commit('toggleSpread')
+        }
+      },
+      created: function(){
+        if ({{Context}}) {
+          // console.log({{Context}})
+          var payload = {};
+          payload["context"] = {{Context}};
+          store.commit('saveContext',payload);
+        }
+
+      },mounted:function(){
+        var self = this;
+        if (self.name == 'translator') {
+          self.loadKG();
+          $('#loading-overlay').show();
+        }
+      }
+  });
+  </script>
+{% endblock %}

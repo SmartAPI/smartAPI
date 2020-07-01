@@ -12,13 +12,13 @@
             In this section you will learn how to:
             <ul>
               <li>
-                Create a KP API using a GUI and wither from scratch or based on an example.
+                <i class="material-icons">done</i> Create a KP API using a GUI either from scratch or based on an example.
               </li>
               <li>
-                Add your API to the SmartAPI <a href="/registry/translator">registy</a> of APIs.
+                <i class="material-icons">done</i> Add your API to the SmartAPI <a href="/registry/translator">registy</a> of APIs.
               </li>
               <li>
-                Add additional support for gzip, CORS, and HTTP/HTTPS.
+                <i class="material-icons">done</i> Add additional support for gzip, CORS, and HTTP/HTTPS.
               </li>
             </ul>
           </p>
@@ -37,19 +37,19 @@
               In this section you will learn about:
               <ul>
                 <li>
-                  Expected OpenAPI v3 API specification
+                  <i class="material-icons">done</i> Expected OpenAPI v3 API specification
                 </li>
                 <li>
-                  Tools needed for metadata creation
+                  <i class="material-icons">done</i> Tools needed for metadata creation
                 </li>
                 <li>
-                  Semantic API I/O specification using the <b>_x-smartapi_</b> extension
+                  <i class="material-icons">done</i> Semantic API I/O specification using the <b>_x-smartapi_</b> extension
                 </li>
               </ul>
             </p>
-            <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md','desc_meta')">See Docs</button>
+            <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc_meta')">See Docs</button>
             <p>
-              <small>Issues? Open on <a href="https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
+              <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/API_METADATA.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
             </p>
             <div class="descBox padding20" id="desc_meta"></div>
         </div>
@@ -64,180 +64,33 @@
       <div class="padding20 grey lighten-3">
         <h5 class="bold">API Registry</h5>
         <p>
-          Once you <a href="/add_api">register</a> an API it will be listed on the API <a href="/registry/translator">registy</a> and
+          Once you <a href="/add_api">register</a> an API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
           your API will be visible to other users and provide useful information and operation documentation as well as API status and other neat features.
         </p>
       </div>
       <div class="padding20 grey lighten-3">
         <h5 class="bold">META KG</h5>
-        <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md','desc_kg')">See Docs</button>
         <p>
-          <small>Issues? Open on <a href="https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/METAKG.md','desc_kg')">See Docs</button>
+        <p>
+          <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/METAKG.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
         </p>
         <div class="descBox padding20" id="desc_kg"></div>
-        <div style="overflow:hidden;border:white solid 2px;width:80vw;margin:auto;background:#f2f2f2;">
-          <div id="cy">
-
-          </div>
-        </div>
-        <p>
-          <small class="pointer blue-text" @click="showAPIS = !showAPIS">Show/Hide APIS</small>
-        </p>
-        <div v-show="showAPIS" style="overflow:hidden;border:white solid 2px;width:80vw;margin:auto;background:#f2f2f2;">
-          <template v-for="api in apis" :key="api">
-            <span class="pointer api-pill" :class="getClass(api)" v-text="api" @mouseenter="handleME(api)" @mouseleave="handleML(api)"></span>
-          </template>
-        </div>
-        <h5 class="bold">Search APIs based on meta-kg operations</h5>
-        <p>
-          An example would be all meta-kg operations having "predicate" as EITHER "treats" OR "physically_interacts_with" and using "CHEMBL.COMPOUND" as its "input_id".
-        </p>
-        <hr />
-        <form @submit.prevent="handleKGSearch" class="meta_kg_form">
-          <div class="row">
-            <div class="col s12 m4 input-field center padding20">
-              <h4><i class="fa fa-sign-in" aria-hidden="true"></i> INPUT ID TYPE</h4>
-              <p class="center">
-                <small>(1)</small>
-              </p>
-              <pill-box type="input_id"></pill-box>
-            </div>
-            <div class="col s12 m4 input-field center padding20">
-              <h4><i class="fa fa-connectdevelop purple-text" aria-hidden="true"></i> PREDICATE</h4>
-              <p class="center">
-                <small>(1 or Many)</small>
-              </p>
-              <pill-box type="predicate"></pill-box>
-            </div>
-            <div class="col s12 m4 input-field center padding20">
-              <h4><i class="fa fa-circle orange-text" aria-hidden="true"></i> OUTPUT CLASS</h4>
-              <p class="center">
-                <small>(1 or Many)</small>
-              </p>
-              <pill-box type="output_type"></pill-box>
-            </div>
-            <div class="col s12 center padding20 d-flex" style="justify-content: space-evenly;">
-              <button class="btn blue" type="submit" name="search">Search
-                <i class="material-icons right">send</i>
-              </button>
-              <button class="btn red" type="button" @click.prevent="reset()">
-                Reset
-              </button>
-            </div>
-          </div>
-        </form>
-        <div>
-          <code>
-            <pre id="callResults" class="padding20 text-dark codeBox" style="font-weight: bold; font-size:.8em;">
-
-  			    </pre>
-          </code>
-        </div>
-        <div class="white container padding20 resBox collection">
-          <template v-if="results && results.length">
-            <div class="collection-item red-text" style="padding:1px;">
-              <small v-text="results.length+' results'"></small>
-            </div>
-            <div class="collection-item row" style="padding:2px;">
-              <div class="col s3">
-                <small>API</small>
-              </div>
-              <div class="col s9">
-                <small>Relationship</small>
-              </div>
-            </div>
-          </template>
-          <template v-for="item in results">
-            <div class="collection-item row" style="padding:3px;">
-              <div class="col s3">
-                <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
-                  <span v-text="item.association.api_name"></span>
-                  <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
-                </a>
-              </div>
-              <div class="col s9">
-                <h6>
-                  <b v-text="item.association.input_type"></b>
-                  <span class="purple-text" v-text="item.association.predicate"></span>
-                  <b class="orange-text" v-text="item.association.output_type"></b>
-                </h6>
-              </div>
-            </div>
-          </template>
-          <template v-if="results.length == 0">
-            <small class="grey-text">No Results</small>
-          </template>
+        <div class="center blue-grey darken-3 padding20 white-text dashboardBack">
+          <h2 class="bold">META KG</h2>
+          <h5 class="bold">Search APIs based on meta-kg operations</h5>
+          <p>
+            An example would be all meta-kg operations having "predicate" as "affects" and using "Gene" as its "output_type".
+          </p>
+          <img src="/static/img/graph_example.jpg" width="100%" alt="graph example"/>
+          <p>
+            <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
+          </p>
         </div>
 
       </div>
     </section>
   </div>
-{% endblock %}
-{% block extra_scripts %}
-  <script src="https://unpkg.com/vuex"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
-  <script>
-
-  var app = new Vue({
-      el: '#portal',
-      data: function(){
-        return {
-
-        }
-      },
-      computed: {
-
-      },
-      methods: {
-        compiledMarkdown: function (mdtext,url) {
-          if (url){
-            fetch(mdtext)
-            .then(response => response.text())
-            .then(function(result){
-              return marked(result, { sanitize: true })
-            })
-          }else{
-            return marked(mdtext, { sanitize: true })
-          }
-        },
-        convertMarkdownToHtml: function(url,target){
-            // covert markdown from raw data url to html, and dump html in target
-            axios.get(url).then(response=>{
-
-                var md = new Remarkable({
-                  html:         true,        // Enable HTML tags in source
-                  xhtmlOut:     false,        // Use '/' to close single tags (<br />)
-                  breaks:       false,        // Convert '\n' in paragraphs into <br>
-                  langPrefix:   'language-',  // CSS language prefix for fenced blocks
-                  linkify:      true,        // Autoconvert URL-like text to links
-
-                  // Enable some language-neutral replacement + quotes beautification
-                  typographer:  false,
-
-                  // Double + single quotes replacement pairs, when typographer enabled,
-                  // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
-                  quotes: '“”‘’',
-
-                  // Highlighter function. Should return escaped HTML,
-                  // or '' if the source string is not changed
-                  highlight: function (/*str, lang*/) { return ''; }
-                });
-                var targetDump = document.getElementById(target);
-                var html = md.render(response.data);
-                targetDump.innerHTML = html;
-
-            }).catch(err=>{
-                throw err;
-            });
-
-
-        },
-      },
-      created: function(){
-      },
-  });
-  </script>
 {% endblock %}

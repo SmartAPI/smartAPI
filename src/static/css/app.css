@@ -1214,6 +1214,191 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#257bc4', end
   background: var(--blue-dark)
 }
 
+#portals{
+  width: 100%;
+  min-height:90vh;
+}
+.descBox h1,h2,h3,h4{
+  font-size: 2em;
+}
+#portals section div{
+  margin-bottom:5px;
+}
+
+
+.meta_kg_form{
+  border: 2px var(--blue-medium) solid;
+  border-radius: 5px;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#23538a+0,a7cfdf+100 */
+  background: #23538a; /* Old browsers */
+  background: -moz-linear-gradient(top,  #23538a 0%, #a7cfdf 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  #23538a 0%,#a7cfdf 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  #23538a 0%,#a7cfdf 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#23538a', endColorstr='#a7cfdf',GradientType=0 ); /* IE6-9 */
+
+}
+.codeBox pre{
+  border-style: inset;
+  border: 4px #c9c9c9 solid;
+  box-shadow: inset 0 0 10px #000000;
+  padding: 5px;
+  margin: 5px;
+  background: white;
+  max-height: 500px;
+  overflow: scroll;
+}
+[v-cloak] > * { display:none; }
+[v-cloak]::before { content: "Please wait..."; }
+
+.d-flex{
+  display: flex;
+}
+.flex-wrap{
+  flex-wrap: wrap;
+}
+.justify-content-center{
+  justify-content: center;
+}
+.justify-content-around{
+  justify-content: space-around;
+}
+.align-items-stretch{
+  align-items: stretch;
+}
+.flex{
+  flex: 1;
+}
+
+#cy {
+  width: 65vw;
+  height: 600px;
+  /* position: absolute; */
+  display: block;
+}
+.pointer{
+  cursor: pointer;
+}
+.resBox{
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.option{
+  background: var(--blue-light);
+  cursor: pointer;
+  font-size: .7em;
+  color: grey;
+  padding: 2px;
+  display: block;
+  text-align: left;
+}
+
+.option:hover{
+  background: var(--blue-medium);
+  color: white;
+}
+
+.input-text{
+  width: 70%;
+  outline: none;
+  padding: 10px;
+  border-radius: 5px;
+  border:var(--blue-medium) 2px solid;
+  margin: 10px 10px 0px 10px
+}
+
+.pill-input{
+  border: none !important;
+  outline: none !important;
+}
+
+.pill{
+  display: inline;
+  margin: 4px;
+  padding: 3px;
+  font-size: .8em;
+  background: var(--blue-medium);
+  color: white;
+  border: grey solid 2px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.api-pill{
+  display: inline;
+  margin: 3px;
+  padding: 3px;
+  font-size: .8em;
+  color: white;
+  background: grey;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.api-pill:hover{
+  background: var(--blue-medium);
+}
+
+.pill:hover{
+  background: #f9483d;
+}
+
+.pill:hover::after{
+  content: " x";
+}
+
+.pillBox{
+  padding: 10px;
+  border-radius: 5px;
+  border: grey 2px solid;
+  background: white;
+}
+
+.suggestion{
+  color: var(--blue-dark);
+  background: var(--blue-light) !important;
+  cursor: pointer;
+  font-size: .8em;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: navajowhite;
+  padding: 2px !important;
+}
+
+.suggestion:hover{
+  background: var(--blue-medium) !important;
+  color: white;
+}
+
+.resultRow:hover{
+  background: var(--blue-light);
+}
+
+.edgeHighlight{
+  line-color: orange;
+}
+
+.d-block{
+  display: block;
+}
+.s-badge{
+  border-radius: 3px;
+  margin: 0px;
+  padding: 2px;
+}
+
+.apisCont{
+  padding: 5px;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#000000+0,000000+100&0.23+0,0+100 */
+  background: -moz-linear-gradient(top,  rgba(0,0,0,0.23) 0%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  rgba(0,0,0,0.23) 0%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  rgba(0,0,0,0.23) 0%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3b000000', endColorstr='#00000000',GradientType=0 ); /* IE6-9 */
+  display: flex;
+  flex-wrap: wrap;
+}
+
 
 
 /*MARCO CANO end*/

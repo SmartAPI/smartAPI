@@ -306,6 +306,16 @@ class PortalHandler(BaseHandler):
             raise tornado.web.HTTPError(404)
         self.write(reg_output)
 
+class MetaKGHandler(BaseHandler):
+
+    def get(self):
+        print('META KG')
+        doc_file = "metakg.html"
+        template = templateEnv.get_template(doc_file)
+        output = template.render(Context=json.dumps(
+            {"portal": 'translator'}))
+        self.write(output)
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
@@ -327,5 +337,7 @@ APP_LIST = [
     (r"/faq/?", FAQHandler),
     (r"/privacy/?", PrivacyHandler),
     # (r"/portal/?", TemplateHandler, {"filename": "registry.html"}),
+    (r"/portal/translator/metakg/?", MetaKGHandler),
     (r"/portal/(.+)/?", PortalHandler),
+
 ]
