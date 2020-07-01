@@ -89,11 +89,10 @@ text-decoration: underline;
             let data = res.data
             if (data) {
               let meta = null;
-              document.getElementsByTagName('title')[0].innerHTML = "SmartApi / "+data.info.title
               // Open graph and Meta
               meta = document.createElement('meta');
               meta.setAttribute('property',"og:title");
-              meta.setAttribute('content',data.info.title);
+              meta.setAttribute('content',"SmartAPI | "+data.info.title);
               document.getElementsByTagName('head')[0].appendChild(meta);
 
               meta = document.createElement('meta');
@@ -119,7 +118,7 @@ text-decoration: underline;
               // Twitter
               meta = document.createElement('meta');
               meta.setAttribute('name',"twitter:title");
-              meta.setAttribute('content',data.info.title);
+              meta.setAttribute('content',"SmartAPI | "+data.info.title);
               document.getElementsByTagName('head')[0].appendChild(meta);
 
               meta = document.createElement('meta');
