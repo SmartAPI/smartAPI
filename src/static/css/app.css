@@ -1229,12 +1229,12 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#257bc4', end
 .meta_kg_form{
   border: 2px var(--blue-medium) solid;
   border-radius: 5px;
-  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#23538a+0,a7cfdf+100 */
-  background: #23538a; /* Old browsers */
-  background: -moz-linear-gradient(top,  #23538a 0%, #a7cfdf 100%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(top,  #23538a 0%,#a7cfdf 100%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(to bottom,  #23538a 0%,#a7cfdf 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#23538a', endColorstr='#a7cfdf',GradientType=0 ); /* IE6-9 */
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#304586+0,693682+100 */
+  background: rgb(48,69,134); /* Old browsers */
+  background: -moz-linear-gradient(top,  rgba(48,69,134,1) 0%, rgba(105,54,130,1) 100%); /* FF3.6-15 */
+  background: -webkit-linear-gradient(top,  rgba(48,69,134,1) 0%,rgba(105,54,130,1) 100%); /* Chrome10-25,Safari5.1-6 */
+  background: linear-gradient(to bottom,  rgba(48,69,134,1) 0%,rgba(105,54,130,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#304586', endColorstr='#693682',GradientType=0 ); /* IE6-9 */
 
 }
 .codeBox pre{
