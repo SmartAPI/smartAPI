@@ -338,6 +338,6 @@ APP_LIST = [
     (r"/privacy/?", PrivacyHandler),
     # (r"/portal/?", TemplateHandler, {"filename": "registry.html"}),
     (r"/portal/translator/metakg/?", MetaKGHandler),
-    (r"/portal/(.+)/?", PortalHandler),
+    (r"/portal/([^/]+)/?", PortalHandler),
 
 ]

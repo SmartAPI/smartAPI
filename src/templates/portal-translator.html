@@ -71,14 +71,14 @@
       <div class="padding20 grey lighten-3">
         <h5 class="bold">META KG</h5>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          The SmartAPI Meta Knowledge Graph (Meta-KG) represents how biomedical concepts can be connected through APIs. Each node in the meta-KG represents a biolink entity type, e.g. Gene, SequenceVariant, ChemicalSubstance. Each edge in the meta-KG represents a unique combination of a biolink predicate, e.g. targets, treats, and an API which delivers the association.
         </p>
-        <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/METAKG.md','desc_kg')">See Docs</button>
         <p>
-          <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/METAKG.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
+          The Meta-KG is constructed using the collection of SmartAPI specifications currently registered in SmartAPI. All APIs registered with x-smartapi field will be integrated into the meta-KG. In addition, all ReasonerStdAPIs registered in SmartAPI and implemented the /predicate endpoint will also be integrated.
         </p>
         <div class="descBox padding20" id="desc_kg"></div>
         <div class="center blue-grey darken-3 padding20 white-text dashboardBack">
+          <img src="/static/img/metakg-01.png" aria-label="NCATS" width="150px"/>
           <h2 class="bold">META KG</h2>
           <h5 class="bold">Search APIs based on meta-kg operations</h5>
           <p>

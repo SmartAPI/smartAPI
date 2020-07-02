@@ -8,8 +8,14 @@
 <main id="portals" class="white" v-cloak>
   <!-- MAIN SECTIONS -->
   <section class="center light-blue lighten-4 dashboardBack padding20">
+    <span v-if="name == 'translator'">
+      <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="50px"/>
+      <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="50px"/>
+    </span>
     <h1 class="blue-text bold flow-text">
-      <span v-if="name == 'translator'"><img src="/static/img/ncats-logo-1.png" aria-label="NCATS" width="100px"/>  NCATS BioMedical Data Translator</span>
+      <span v-if="name == 'translator'">
+        NCATS BioMedical Data Translator
+      </span>
       <span v-else v-text="name"></span>
     </h1>
   </section>

@@ -13,15 +13,17 @@
       <h3 class="white-text logoFont">Loading...</h3>
     </div>
   </div>
-  <section class="center light-blue lighten-4 dashboardBack padding20">
-    <h1 class="blue-text bold flow-text">
-      Meta KG
-    </h1>
-  </section>
   <div class="padding20 grey lighten-3">
-    <p>
-      Search for SmartAPI API operations given a combination of input, output(s), and/or predicates.
-    </p>
+    <div class="center">
+      <img src="/static/img/metakg-01.png" aria-label="NCATS" width="150px"/>
+      <h3>Meta KG</h3>
+      <p>
+        Search for API operations given a combination of input, output(s), and/or predicates.
+      </p>
+      <p>
+        An <a href="#" @click.prevent="loadExample()">example</a> would be: all operations where the predicate is "treats" and its output is a "Disease".
+      </p>
+    </div>
     <hr />
     <!-- META KG SEARCH -->
     <div class="row">
@@ -80,10 +82,15 @@
               <div class="col s12 left">
                 <small class="d-block">
                   <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
-                    <span v-text="item.association.api_name"></span>
+                    <b v-text="item.association.api_name"></b>
                   </a>
+                  <template v-for="tag in item.tags">
+                    <small class="s-badge blue white-text" v-if="tag =='translator'" :key='tag' v-text="tag"></small>
+                    <small class="s-badge orange white-text" v-if="tag =='biothings'" :key='tag' v-text="tag"></small>
+                    <small class="s-badge purple white-text" v-if="tag =='reasoner'" :key='tag' v-text="tag"></small>
+                  </template>
                 </small>
-                <small class=" s-badge lighten-4 black-text" v-text="item.association.input_type"></small>
+                <small class=" s-badge lighten-4 grey-text" v-text="item.association.input_type"></small>
                 <i class="fa fa-arrow-circle-right grey-text" aria-hidden="true"></i>
                 <small class=" s-badge lighten-5 purple-text" v-text="item.association.predicate"></small>
                 <i class="fa fa-arrow-circle-right grey-text" aria-hidden="true"></i>
@@ -108,6 +115,11 @@
         <div id="cy">
 
         </div>
+        <div id="tags" class="padding20 d-flex flex-wrap">
+          <template v-for="tag in tagList" :key="tag">
+            <small style="margin:1px;" class="pointer s-badge grey-text" v-text="'#'+tag" @mouseenter="allWithTag(tag)" @mouseleave="allWithTagUndo(tag)"></small>
+          </template>
+        </div>
         <div class="text-right container d-flex justify-content-around">
           <small class="pointer grey-text" @click="download">
             <i class="fa fa-download" aria-hidden="true"></i> Download Image
@@ -128,7 +140,7 @@
   <script src="https://unpkg.com/vuex"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-  <script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@1.0.16/bundle.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@1.1.4/bundle.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.15.1/cytoscape.min.js" integrity="sha256-oYPiLQ2sL4jlYuCJE3rDZFD0OUy8t1fL6U0wIWyqUf8=" crossorigin="anonymous"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
@@ -151,10 +163,27 @@
         "predicate_selected":[],
         "input_selected":[],
         "output_selected":[],
-        "spread":false
+        "spread":false,
+        "tagList":[]
       },
       strict: true,
       mutations: {
+        reset(state){
+          state.predicate_selected = [];
+          state.input_selected = [];
+          state.output_selected = [];
+
+          state.predicate = [];
+          state.input_type = [];
+          state.output_type = [];
+        },
+        loadExample(state){
+          state.predicate_selected.push('treats');
+          state.output_selected.push('Disease')
+
+          state.predicate.push('treats');
+          state.output_type.push('Disease')
+        },
         toggleSpread(state){
 
           state.spread = !state.spread
@@ -284,6 +313,7 @@
               'width': 8,
               'line-color': '#9c27b0',
               'target-arrow-color': 'red',
+              'arrow-scale':2
             })
             .selector('#Gene').css({
               'background-image': '/static/img/graph/Gene.png',
@@ -327,12 +357,20 @@
             .selector('#GenomicEntity').css({
               'background-image': '/static/img/graph/GenomicEntity.png',
             })
-            .selector('.highlighted')
+            .selector('#Phenotype').css({
+              'background-image': '/static/img/graph/Phenotype.png',
+            })
+            .selector('.highlightedTag')
             .css({
-              'background-color': 'red',
+              'line-color': '#673782',
+              'target-arrow-color': 'red',
+              'width':2,
+            })
+            .selector('.highlightedAPI')
+            .css({
               'line-color': 'red',
               'target-arrow-color': 'red',
-              'width':5,
+              'width':3,
             })
           });
 
@@ -358,11 +396,10 @@
         },
         saveOperations(state,payload){
           state.operations= payload['ops'];
-          // console.log(state.operations)
         },
         loadMetaKG(state,payload){
           state.meta_kg = payload['graph']
-          // console.log("OPS", state.meta_kg.ops)
+          // console.log("OPS", state.meta_kg.ops.length)
           let data = []
 
           function cleanUpName(name){
@@ -375,6 +412,7 @@
           }
 
           let nodeList =[]
+          let tagList =[]
 
           for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
@@ -386,6 +424,14 @@
             // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
             //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
             // }
+
+            if (state.meta_kg.ops[i].hasOwnProperty('tags')) {
+              for (var x = 0; x < state.meta_kg.ops[i]['tags'].length; x++) {
+                if (!tagList.includes(state.meta_kg.ops[i]['tags'][x])) {
+                  tagList.push(state.meta_kg.ops[i]['tags'][x])
+                }
+              }
+            }
 
             let node1 ={ //a
               group: 'nodes',
@@ -412,6 +458,7 @@
               data: {
                 id: edgeName+i,
                 name: edgeName,
+                tags: state.meta_kg.ops[i]['tags'],
                 type:state.meta_kg.ops[i]['association']['api_name'],
                 source: cleanUpName(state.meta_kg.ops[i]['association']['input_type']) ,
                 target: cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
@@ -423,6 +470,9 @@
           }
           // console.log('data',data)
           // console.log('nodeList',nodeList)
+          // console.log('tagList',tagList)
+
+          state.tagList = tagList
 
           state.cyto_data = data
 
@@ -497,6 +547,7 @@
               data: {
                 id: edgeName+i,
                 name: edgeName,
+                tags: state.meta_kg.ops[i]['tags'],
                 source: cleanUpName(state.results[i]['association']['input_type']) ,
                 target: cleanUpName(state.results[i]['association']['output_type']),
               }
@@ -586,6 +637,9 @@
         },
         getSpread:(state)=>{
           return state.spread
+        },
+        getTagList:(state)=>{
+          return state.tagList
         }
       },
       actions:{
@@ -605,25 +659,48 @@
         },
         highlightThis({ commit, state }, payload){
           let name = payload['highlight']
-          switch (name) {
-            case "MyGene.info API":
-              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#2A7FE2','width': 5, 'z-index':1000 });
-              break;
-            case "MyVariant.info API":
-              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#40B307','width': 5, 'z-index':1000 });
-              break;
-            case "MyChem.info API":
-              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#FD7400','width': 5, 'z-index':1000 });
-              break;
-            default:
-              this.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#9e005d','width': 5, 'z-index':1000 });
-          }
+          let self = this;
+          let found = this.cy.filter(function(element, i){
+            if (element.isEdge() && element.data('name').includes(name)) {
+                return element;
+            }
+          });
+          found.addClass('highlightedAPI')
+          // switch (name) {
+          //   case "MyGene.info API":
+          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#2A7FE2','width': 5, 'z-index':1000 });
+          //     break;
+          //   case "MyVariant.info API":
+          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#40B307','width': 5, 'z-index':1000 });
+          //     break;
+          //   case "MyChem.info API":
+          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#FD7400','width': 5, 'z-index':1000 });
+          //     break;
+          //   default:
+          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#9e005d','width': 5, 'z-index':1000 });
+          // }
 
 
         },
         unhighlightThis({ commit, state }, payload){
           let name = payload['unhighlight']
-          this.cy.$('edge[type="'+name+'"]').style({ 'line-color': 'lightblue','width': 2 });
+          this.cy.elements().removeClass('highlightedAPI')
+          // this.cy.$('edge[type="'+name+'"]').style({ 'line-color': 'lightblue','width': 2 });
+        },
+        allWithTag({ commit, state }, payload){
+          let name = payload['highlight']
+          let self = this;
+
+          let found = this.cy.filter(function(element, i){
+            if (element.isEdge() && element.data('tags').includes(name)) {
+                return element;
+            }
+          });
+          found.addClass('highlightedTag')
+
+        },
+        allWithTagUndo({ commit, state }, payload){
+          this.cy.elements().removeClass('highlightedTag')
         },
         highlightRow({ commit, state }, payload){
           let name = payload['highlight']
@@ -660,6 +737,7 @@
 
           var payload = {};
           payload["res"] = state.meta_kg.filter(q);
+          // console.log(state.meta_kg.filter(q))
           commit('saveResults',payload);
 
           commit('drawGraph');
@@ -708,21 +786,20 @@
       methods:{
         handlePillSubmit(){
           var self = this;
+          console.log('handlePillSubmit')
 
-          if (self.q.includes(',')) {
-            let array = self.q.split(',')
-            for (var i = 0; i < array.length; i++) {
-              let item = array[i]
-              self.selected.push(item)
-            }
-          }else{
-            // self.selected.push(self.q)
-
+          if (self.options.includes(self.q)) {
             var payload = {};
             payload["type"] = self.type;
             payload["q"] = self.q;
 
             store.commit('pushPill',payload);
+          }else{
+            Swal.fire({type:'error',
+            toast:true,
+            title: 'Not an option',
+            showConfirmButton:false,
+            timer:1000});
           }
 
           var payload = {};
@@ -740,8 +817,6 @@
           payload["q"] = item;
 
           store.commit('removePill',payload);
-          // var index = this.selected.indexOf(item);
-          // if (index !== -1) this.selected.splice(index, 1);
         },
         getBackClass(){
           var self = this;
@@ -762,20 +837,36 @@
         }
       },
       watch:{
-        q:function(q){
+        // q:function(q){
+        //   var self = this;
+        //   if (q) {
+        //     let res = _.filter(self.options, function(name) {
+        //         return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
+        //     });
+        //     // console.log('matches: ',res)
+        //     self.lookupResults = res;
+        //   }else {
+        //     self.lookupResults =[];
+        //   }
+        // },
+        options:function(o){
           var self = this;
-          if (q) {
-            let res = _.filter(self.options, function(name) {
-                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
-            });
-            // console.log('matches: ',res)
-            self.lookupResults = res;
-          }else {
-            self.lookupResults =[];
+          let html = '';
+          if (o.length) {
+
+            var dataList = $("#"+self.type+'list');
+            dataList.empty();
+            for(var i=0, len=o.length; i<len; i++) {
+              let item = o[i]
+    					 html+=`<option @click="handlePillSubmit()" value="`+item+`">`;
+    				}
+            $("#"+self.type+'list').append(html);
           }
         }
       },
       mounted: function(){
+        var self = this;
+
 
       },
       computed: {
@@ -820,16 +911,19 @@
           <div class="pill" :class="getBackClass()" v-text="pill" @click="remove(pill)"> </div>
         </template>
         <form @submit.prevent="handlePillSubmit" style="display:inline;">
-          <input autocomplete='off' placeholder="Enter Text Here" :id='type' list="predicate" type='text' v-model='q' class="browser-default pill-input lighten-4" :class="getBackClass()"/>
-          <ul class="collection" style="border:none;position:absolute;z-index:100;">
-            <template v-for="elem in lookupResults" :key="elem">
-              <li class='collection-item left suggestion' :value="elem" @click="q = elem; handlePillSubmit();" v-text='elem'></li>
-            </template>
-          </ul>
+          <input v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" placeholder="Search" :list="type+'list'" autocomplete="off">
+          <datalist :id="type+'list'"></datalist>
         </form>
 
       </div>`
     });
+
+    // <input autocomplete='off' placeholder="Search" :id='type' list="predicate" type='text' v-model='q' class="browser-default pill-input lighten-4" :class="getBackClass()"/>
+    // <ul class="collection" style="border:none;position:absolute;z-index:100;">
+    //   <template v-for="elem in lookupResults" :key="elem">
+    //     <li class='collection-item left suggestion' :value="elem" @click="q = elem; handlePillSubmit();" v-text='elem'></li>
+    //   </template>
+    // </ul>
 
 
   var app = new Vue({
@@ -874,6 +968,9 @@
         spread:function(){
           return store.getters.getSpread
         },
+        tagList: function(){
+          return store.getters.getTagList
+        }
       },
       watch:{
         queryID:function(q){
@@ -917,6 +1014,14 @@
         },
       },
       methods: {
+        allWithTag: function(name){
+          var payload = {};
+          payload["highlight"] = name
+          store.dispatch('allWithTag',payload)
+        },
+        allWithTagUndo: function(name){
+          store.dispatch('allWithTagUndo')
+        },
         handleME: function(name){
           var payload = {};
           payload["highlight"] = name
@@ -965,13 +1070,14 @@
 
           let meta_kg = new kg()
 
-          await meta_kg.constructMetaKG(source='remote')
+          await meta_kg.constructMetaKG(includeReasoner=true)
 
           var payload = {};
           payload["graph"] = meta_kg;
           store.commit('loadMetaKG',payload)
 
           self.drawCytoscape();
+          store.dispatch('handle_metaKG_Query_New')
         },
         handleKGSearch(){
           var self = this;
@@ -992,6 +1098,7 @@
           let data = [];
 
           if (self.ops) {
+
             for (var i = 0; i < self.ops.length; i++) {
               let node1 ={ //a
                 data:{
@@ -1030,6 +1137,7 @@
           self.queryPred = '';
           self.outputID = '';
           self.loadKG();
+          store.commit('reset');
           $('#loading-overlay').show();
         },
         getClass(name){
@@ -1067,7 +1175,12 @@
           store.dispatch('unhighlightRow',payload)
         },
         toggleSpread(){
-          store.commit('toggleSpread')
+          store.commit('toggleSpread');
+        },
+        loadExample(){
+          store.commit('loadExample');
+          store.dispatch('handle_metaKG_Query_New')
+
         }
       },
       created: function(){
