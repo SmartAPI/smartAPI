@@ -7,23 +7,24 @@
       <h2 class="bold center blue-grey-text">BUILD A TRANSLATOR KP (Knowledge Provider) API</h2>
       <div class="row d-flex align-items-stretch">
         <div class="padding20 col s12 m6 grey lighten-3">
-          <h2 class="blue-text bold">1. Create Your API</h3>
+          <h2 class="blue-text bold">1. Create a KP API</h3>
           <p>
-            In this section you will learn how to:
+            To create a KP API ready to be integrated into the Translator ecosystem, you can
             <ul>
               <li>
-                <i class="material-icons">done</i> Create a KP API using a GUI either from scratch or based on an example.
+                <i class="material-icons">done</i> 1. Build a REST API with JSON output (use your own preferred structure).
               </li>
               <li>
-                <i class="material-icons">done</i> Add your API to the SmartAPI <a href="/registry/translator">registy</a> of APIs.
+                <i class="material-icons">done</i> 2. Build a ReasonerStdAPI, follow the instruction <a href="https://github.com/NCATS-Tangerine/NCATS-ReasonerStdAPI">here</a>.
               </li>
-              <li>
+              <!--<li>
                 <i class="material-icons">done</i> Add additional support for gzip, CORS, and HTTP/HTTPS.
-              </li>
+              </li>-->
             </ul>
+            Regardless the type of APIs you are implementing, we recommend to follow these API best-practices (link to a md file).
           </p>
           <p>
-            <b>Tip: </b>If you create your API using <a href="https://docs.biothings.io/en/latest/" target="_blank" rel="noreferrer">Biothings SDK</a> all these settings will be included by default.
+            <b>Tip: </b>You may consider using <a href="https://docs.biothings.io/en/latest/" target="_blank" rel="noreferrer">BioThings SDK</a> to build your KP APIs. It will create a high-quality API following all these best-practics by default. If you need the help, please contact BioThings team (aka "Service Provider" KP team in Translator). 
           </p>
           <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md','desc')">See Docs</button>
           <p>
@@ -34,17 +35,17 @@
         <div class="padding20 col s12 m6 grey lighten-3">
           <h2 class="blue-text bold">2. Document your API with metadata</h3>
             <p>
-              In this section you will learn about:
+              Once a KP API is live, register it in <a href="https://smart-api.info/add_api">SmartAPI registry, so that it will be visible to the Translator community.
               <ul>
                 <li>
-                  <i class="material-icons">done</i> Expected OpenAPI v3 API specification
+                  <i class="material-icons">done</i> 1. Create your API metadata following the latest <a href="http://spec.openapis.org/oas/v3.0.3">OpenAPI v3 API specification</a>
                 </li>
                 <li>
-                  <i class="material-icons">done</i> Tools needed for metadata creation
+                  <i class="material-icons">done</i> 2. Describe the semantics of your API's input and output.
                 </li>
-                <li>
+                <!--<li>
                   <i class="material-icons">done</i> Semantic API I/O specification using the <b>_x-smartapi_</b> extension
-                </li>
+                </li>-->
               </ul>
             </p>
             <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc_meta')">See Docs</button>
