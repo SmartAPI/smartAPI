@@ -1,4 +1,4 @@
-# KP API best practices
+# General API implementation best practices
 Regardless the type of APIs you are implementing, we recommend to follow these API best-practices.
 
 
