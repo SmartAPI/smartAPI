@@ -4,7 +4,6 @@
 {% include "header.html" %}
 {% raw %}
 <style>
-
 </style>
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
   <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
@@ -15,7 +14,6 @@
   </div>
   <div class="padding20 grey lighten-3">
     <div class="center">
-      <img src="/static/img/metakg-01.png" aria-label="NCATS" width="150px"/>
       <h3>Meta KG</h3>
       <p>
         Search for API operations given a combination of input, output(s), and/or predicates.
@@ -55,6 +53,7 @@
               <button class="btn blue" type="submit" name="search">
                 Search
               </button>
+              <img src="/static/img/metakg-01.png" aria-label="NCATS" width="50px"/>
               <button class="btn red" type="button" @click.prevent="reset()">
                 Reset
               </button>
@@ -85,9 +84,9 @@
                     <b v-text="item.association.api_name"></b>
                   </a>
                   <template v-for="tag in item.tags">
-                    <small class="s-badge blue white-text" v-if="tag =='translator'" :key='tag' v-text="tag"></small>
-                    <small class="s-badge orange white-text" v-if="tag =='biothings'" :key='tag' v-text="tag"></small>
-                    <small class="s-badge purple white-text" v-if="tag =='reasoner'" :key='tag' v-text="tag"></small>
+                    <small class="s-badge blue darken-2 white-text" v-if="tag =='translator'" :key='tag' v-text="tag"></small>
+                    <small class="s-badge orange darken-2 white-text" v-if="tag =='biothings'" :key='tag' v-text="tag"></small>
+                    <small class="s-badge purple darken-2 white-text" v-if="tag =='reasoner'" :key='tag' v-text="tag"></small>
                   </template>
                 </small>
                 <small class=" s-badge lighten-4 grey-text" v-text="item.association.input_type"></small>
@@ -115,9 +114,14 @@
         <div id="cy">
 
         </div>
-        <div id="tags" class="padding20 d-flex flex-wrap">
+        <p>
+          <small class="pointer blue-text" @click="showTags = !showTags">Show/Hide Tags</small>
+        </p>
+        <div v-show="showTags" id="tags" class="padding20 d-flex flex-wrap">
           <template v-for="tag in tagList" :key="tag">
-            <small style="margin:1px;" class="pointer s-badge grey-text" v-text="'#'+tag" @mouseenter="allWithTag(tag)" @mouseleave="allWithTagUndo(tag)"></small>
+            <small style="margin:1px;" class="pointer s-badge grey-text" @mouseenter="allWithTag(tag)" @mouseleave="allWithTagUndo(tag)">
+              <i class="fa fa-tag" aria-hidden="true"></i> <span v-text="tag"></span>
+            </small>
           </template>
         </div>
         <div class="text-right container d-flex justify-content-around">
@@ -178,11 +182,47 @@
           state.output_type = [];
         },
         loadExample(state){
-          state.predicate_selected.push('treats');
-          state.output_selected.push('Disease')
 
-          state.predicate.push('treats');
-          state.output_type.push('Disease')
+          if (!state.predicate_selected.includes('treats')) {
+            state.predicate_selected.push('treats');
+          }else {
+            Swal.fire({type:'error',
+            toast:true,
+            title: 'Already Selected',
+            showConfirmButton:false,
+            timer:1000});
+          }
+
+          if (!state.output_selected.includes('Disease')) {
+            state.output_selected.push('Disease');
+          }else {
+            Swal.fire({type:'error',
+            toast:true,
+            title: 'Already Selected',
+            showConfirmButton:false,
+            timer:1000});
+          }
+
+          if (!state.predicate.includes('treats')) {
+            state.predicate.push('treats');
+          }else {
+            Swal.fire({type:'error',
+            toast:true,
+            title: 'Already Selected',
+            showConfirmButton:false,
+            timer:1000});
+          }
+
+          if (!state.output_type.includes('Disease')) {
+            state.output_type.push('Disease');
+          }else {
+            Swal.fire({type:'error',
+            toast:true,
+            title: 'Already Selected',
+            showConfirmButton:false,
+            timer:1000});
+          }
+
         },
         toggleSpread(state){
 
@@ -364,13 +404,13 @@
             .css({
               'line-color': '#673782',
               'target-arrow-color': 'red',
-              'width':2,
+              'width':4,
             })
             .selector('.highlightedAPI')
             .css({
               'line-color': 'red',
               'target-arrow-color': 'red',
-              'width':3,
+              'width':4,
             })
           });
 
@@ -566,13 +606,40 @@
 
           switch (type) {
             case 'predicate':
-              state.predicate_selected.push(q)
+              if (!state.predicate_selected.includes(q)){
+                state.predicate_selected.push(q)
+              }else {
+                Swal.fire({type:'error',
+                toast:true,
+                title: 'Already Selected',
+                showConfirmButton:false,
+                timer:1000});
+              }
+
               break;
               case 'input_type':
-                state.input_selected.push(q)
+                if (!state.input_selected.includes(q)){
+                  state.input_selected.push(q)
+                }else {
+                  Swal.fire({type:'error',
+                  toast:true,
+                  title: 'Already Selected',
+                  showConfirmButton:false,
+                  timer:1000});
+                }
+
                 break;
                 case 'output_type':
-                  state.output_selected.push(q)
+                  if (!state.output_selected.includes(q)){
+                    state.output_selected.push(q)
+                  }else {
+                    Swal.fire({type:'error',
+                    toast:true,
+                    title: 'Already Selected',
+                    showConfirmButton:false,
+                    timer:1000});
+                  }
+
                   break;
             default:
               console.log('NO option pushPill')
@@ -786,7 +853,6 @@
       methods:{
         handlePillSubmit(){
           var self = this;
-          console.log('handlePillSubmit')
 
           if (self.options.includes(self.q)) {
             var payload = {};
@@ -837,18 +903,14 @@
         }
       },
       watch:{
-        // q:function(q){
-        //   var self = this;
-        //   if (q) {
-        //     let res = _.filter(self.options, function(name) {
-        //         return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
-        //     });
-        //     // console.log('matches: ',res)
-        //     self.lookupResults = res;
-        //   }else {
-        //     self.lookupResults =[];
-        //   }
-        // },
+        q:function(q){
+          //after selecting from datalist automatically send selection
+          //if selection exists
+          var self = this;
+          if (q && self.options.includes(q)) {
+            self.handlePillSubmit();
+          }
+        },
         options:function(o){
           var self = this;
           let html = '';
@@ -858,7 +920,7 @@
             dataList.empty();
             for(var i=0, len=o.length; i<len; i++) {
               let item = o[i]
-    					 html+=`<option @click="handlePillSubmit()" value="`+item+`">`;
+    					 html+=`<option value="`+item+`">`;
     				}
             $("#"+self.type+'list').append(html);
           }
@@ -866,7 +928,6 @@
       },
       mounted: function(){
         var self = this;
-
 
       },
       computed: {
@@ -937,7 +998,8 @@
           'outputLookup':[],
           'predicateLookup':[],
           'cy' : null,
-          'showAPIS': false
+          'showAPIS': false,
+          'showTags': false,
         }
       },
       computed: {
