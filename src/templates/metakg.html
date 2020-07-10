@@ -52,9 +52,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
               <pill-box type="output_type"></pill-box>
             </div>
             <div class="col s12 center padding20 d-flex" style="justify-content: space-evenly;">
-              <button class="btn blue" type="submit" name="search">
+              <!-- <button class="btn blue" type="submit" name="search">
                 Search
-              </button>
+              </button> -->
               <!--  -->
               <template v-if="loading">
                 <h5 class="white-text">
@@ -70,9 +70,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
               </template>
               <img class="scale-in-center"  v-else src="/static/img/metakg-01.png" aria-label="NCATS" width="50px"/>
               <!--  -->
-              <button class="btn red" type="button" @click.prevent="reset()">
+              <!-- <button class="btn red" type="button" @click.prevent="reset()">
                 Reset
-              </button>
+              </button> -->
             </div>
           </div>
         </form>
@@ -683,16 +683,20 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
         removePill(state,payload){
           let type = payload["type"]
           let q = payload["q"]
+          let i = ''
 
           switch (type) {
             case 'predicate':
-              state.predicate_selected.pop(q)
+              i = state.predicate_selected.indexOf(q);
+              state.predicate_selected.splice(i, 1);
               break;
               case 'input_type':
-                state.input_selected.pop(q)
+                i = state.input_selected.indexOf(q);
+                state.input_selected.splice(i, 1);
                 break;
                 case 'output_type':
-                  state.output_selected.pop(q)
+                  i = state.output_selected.indexOf(q);
+                  state.output_selected.splice(i, 1);
                   break;
             default:
               console.log('NO option removePill')
@@ -918,6 +922,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
 
           store.commit('saveInput',payload);
           self.q = ''
+          store.dispatch('handle_metaKG_Query_New')
         },
         remove(item){
           var self = this;
@@ -927,6 +932,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
           payload["q"] = item;
 
           store.commit('removePill',payload);
+          store.dispatch('handle_metaKG_Query_New')
         },
         getBackClass(){
           var self = this;
@@ -1015,8 +1021,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
       },
       template:
       `<div class="pillBox lighten-4" :class="getBackClass()">
-        <template v-for="pill in selected" :key="pill">
-          <div class="pill" :class="getBackClass()" v-text="pill" @click="remove(pill)"> </div>
+        <template v-for="pill in selected">
+          <div class="pill" :class="getBackClass()" v-text="pill" @click="remove(pill)" :key="pill"> </div>
         </template>
         <form @submit.prevent="handlePillSubmit" style="display:inline;">
           <input :disabled="loading" v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" :placeholder="loading?'Please wait':'Search'" :list="type+'list'" autocomplete="off">
