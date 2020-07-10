@@ -25,9 +25,9 @@
           <p>
             <b>Tip: </b>If you create your API using <a href="https://docs.biothings.io/en/latest/" target="_blank" rel="noreferrer">Biothings SDK</a> all these settings will be included by default.
           </p>
-          <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md','desc')">See Docs</button>
+          <button class="smallButton grey white-text" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md','desc')">Show/Hide Details</button>
           <p>
-            <small>Issues? Open on <a href="https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/README.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
+            <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/CREATE_API.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
           </p>
           <div class="descBox padding20" id="desc"></div>
         </div>
@@ -47,7 +47,7 @@
                 </li>
               </ul>
             </p>
-            <button class="btn blue" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc_meta')">See Docs</button>
+            <button class="smallButton grey white-text" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc_meta')">Show/Hide Details</button>
             <p>
               <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/API_METADATA.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
             </p>
@@ -62,32 +62,43 @@
       </div>
       <h2 class="bold center blue-grey-text">NAVIGATE YOUR TRANSLATOR KP API</h2>
       <div class="padding20 grey lighten-3">
-        <h5 class="bold">API Registry</h5>
-        <p>
-          Once you <a href="/add_api">register</a> an API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
-          your API will be visible to other users and provide useful information and operation documentation as well as API status and other neat features.
-        </p>
+        <h5 class="bold center blue-text">API Registry</h5>
+        <div class="container">
+          <p>
+            Once you <a href="/add_api">register</a> an API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
+            your API will be visible to other users and provide useful information and operation documentation, API status, editing tools and many other neat features.
+          </p>
+          <img alt="registry pluses" src="/static/img/registry_plus-01.png"/>
+        </div>
       </div>
       <div class="padding20 grey lighten-3">
-        <h5 class="bold">META KG</h5>
-        <p>
-          The SmartAPI Meta Knowledge Graph (Meta-KG) represents how biomedical concepts can be connected through APIs. Each node in the meta-KG represents a biolink entity type, e.g. Gene, SequenceVariant, ChemicalSubstance. Each edge in the meta-KG represents a unique combination of a biolink predicate, e.g. targets, treats, and an API which delivers the association.
-        </p>
-        <p>
-          The Meta-KG is constructed using the collection of SmartAPI specifications currently registered in SmartAPI. All APIs registered with x-smartapi field will be integrated into the meta-KG. In addition, all ReasonerStdAPIs registered in SmartAPI and implemented the /predicate endpoint will also be integrated.
-        </p>
+        <h5 class="bold center blue-text">META KG</h5>
+        <div class="container">
+          <p>
+            The SmartAPI Meta Knowledge Graph (Meta-KG) represents how biomedical concepts can be connected through APIs. Each node in the meta-KG represents a biolink entity type, e.g. Gene, SequenceVariant, ChemicalSubstance. Each edge in the meta-KG represents a unique combination of a biolink predicate, e.g. targets, treats, and an API which delivers the association.
+          </p>
+          <div class="center">
+            <img src="/static/img/metaex.png" width="200px" alt="query example"/>
+            <hr />
+            <small>Disease affets Gene</small>
+          </div>
+          <p>
+            The Meta-KG is constructed using the collection of SmartAPI specifications currently registered in SmartAPI. All APIs registered with x-smartapi field will be integrated into the meta-KG. In addition, all ReasonerStdAPIs registered in SmartAPI and implemented the /predicate endpoint will also be integrated.
+          </p>
+        </div>
         <div class="descBox padding20" id="desc_kg"></div>
-        <div class="center blue-grey darken-3 padding20 white-text dashboardBack">
+        <div class="center padding20 white-text meta_kg_form">
           <img src="/static/img/metakg-01.png" aria-label="NCATS" width="150px"/>
           <h2 class="bold">META KG</h2>
           <h5 class="bold">Search APIs based on meta-kg operations</h5>
           <p>
             An example would be all meta-kg operations having "predicate" as "affects" and using "Gene" as its "output_type".
           </p>
-          <img src="/static/img/graph_example.jpg" width="100%" alt="graph example"/>
           <p>
             <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
           </p>
+          <img src="/static/img/graph_example.jpg" width="100%" alt="graph example"/>
+
         </div>
 
       </div>

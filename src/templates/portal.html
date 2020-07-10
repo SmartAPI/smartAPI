@@ -7,10 +7,10 @@
 </style>
 <main id="portals" class="white" v-cloak>
   <!-- MAIN SECTIONS -->
-  <section class="center light-blue lighten-4 dashboardBack padding20">
+  <section class="center grey lighten-3 padding20">
     <span v-if="name == 'translator'">
-      <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="50px"/>
-      <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="50px"/>
+      <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="77px" style="margin-right:20px;"/>
+      <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="77px"/>
     </span>
     <h1 class="blue-text bold flow-text">
       <span v-if="name == 'translator'">
@@ -19,6 +19,8 @@
       <span v-else v-text="name"></span>
     </h1>
   </section>
+
+
 
   <template v-if="name == 'translator'">
     {% include "portal-translator.html" %}
@@ -88,34 +90,42 @@
           }
         },
         convertMarkdownToHtml: function(url,target){
-            // covert markdown from raw data url to html, and dump html in target
-            axios.get(url).then(response=>{
+            var targetDump = document.getElementById(target);
+            if (targetDump.innerHTML) {
+              targetDump.innerHTML = "";
+              targetDump.classList.remove('white');
+            }else{
+              targetDump.classList.add('white');
+              // covert markdown from raw data url to html, and dump html in target
+              axios.get(url).then(response=>{
 
-                var md = new Remarkable({
-                  html:         true,        // Enable HTML tags in source
-                  xhtmlOut:     false,        // Use '/' to close single tags (<br />)
-                  breaks:       false,        // Convert '\n' in paragraphs into <br>
-                  langPrefix:   'language-',  // CSS language prefix for fenced blocks
-                  linkify:      true,        // Autoconvert URL-like text to links
+                  var md = new Remarkable({
+                    html:         true,        // Enable HTML tags in source
+                    xhtmlOut:     false,        // Use '/' to close single tags (<br />)
+                    breaks:       false,        // Convert '\n' in paragraphs into <br>
+                    langPrefix:   'language-',  // CSS language prefix for fenced blocks
+                    linkify:      true,        // Autoconvert URL-like text to links
 
-                  // Enable some language-neutral replacement + quotes beautification
-                  typographer:  false,
+                    // Enable some language-neutral replacement + quotes beautification
+                    typographer:  false,
 
-                  // Double + single quotes replacement pairs, when typographer enabled,
-                  // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
-                  quotes: '“”‘’',
+                    // Double + single quotes replacement pairs, when typographer enabled,
+                    // and smartquotes on. Set doubles to '«»' for Russian, '„“' for German.
+                    quotes: '“”‘’',
 
-                  // Highlighter function. Should return escaped HTML,
-                  // or '' if the source string is not changed
-                  highlight: function (/*str, lang*/) { return ''; }
-                });
-                var targetDump = document.getElementById(target);
-                var html = md.render(response.data);
-                targetDump.innerHTML = html;
+                    // Highlighter function. Should return escaped HTML,
+                    // or '' if the source string is not changed
+                    highlight: function (/*str, lang*/) { return ''; }
+                  });
+                  var targetDump = document.getElementById(target);
+                  var html = md.render(response.data);
+                  targetDump.innerHTML = html;
 
-            }).catch(err=>{
-                throw err;
-            });
+              }).catch(err=>{
+                  throw err;
+              });
+            }
+
 
 
         },
