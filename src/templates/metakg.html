@@ -4,14 +4,16 @@
 {% include "header.html" %}
 {% raw %}
 <style>
+.gradientMiddle{
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+100&0+0,0.65+48,0.65+54,0+100 */
+background: -moz-linear-gradient(left,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 48%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.65) 54%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
+background: -webkit-linear-gradient(left,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 48%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0.65) 54%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
+background: linear-gradient(to right,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 48%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0.65) 54%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#00000000',GradientType=1 ); /* IE6-9 */
+
+}
 </style>
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
-  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
-    <div class="center-align" style="padding-top: 300px;">
-      <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
-      <h3 class="white-text logoFont">Loading...</h3>
-    </div>
-  </div>
   <div class="padding20 grey lighten-3">
     <div class="center">
       <h3>Meta KG</h3>
@@ -31,7 +33,7 @@
             <div class="col s12 m4 input-field center">
               <h5 class="white-text"><i class="fa fa-sign-in black-text" aria-hidden="true"></i> INPUT TYPE</h5>
               <div class="center white-text">
-                <small>(1)</small>
+                <small>(1 or Many)</small>
               </div>
               <pill-box type="input_type"></pill-box>
             </div>
@@ -53,7 +55,21 @@
               <button class="btn blue" type="submit" name="search">
                 Search
               </button>
-              <img src="/static/img/metakg-01.png" aria-label="NCATS" width="50px"/>
+              <!--  -->
+              <template v-if="loading">
+                <h5 class="white-text">
+                    <template v-if="!apisLoaded">
+                      <i class="fa fa-cog fa-spin fa-fw"></i>
+                      loading APIs...
+                    </template>
+                    <template v-else>
+                      <i class="fa fa-check green-text" aria-hidden="true"></i>
+                      loaded <span v-text="apiTotal"></span> APIs
+                    </template>
+                </h5>
+              </template>
+              <img class="scale-in-center"  v-else src="/static/img/metakg-01.png" aria-label="NCATS" width="50px"/>
+              <!--  -->
               <button class="btn red" type="button" @click.prevent="reset()">
                 Reset
               </button>
@@ -97,15 +113,16 @@
               </div>
             </div>
           </template>
-          <template v-if="results.length == 0">
+          <template v-if="results.length == 0 && !loading">
             <small class="grey-text">No Results</small>
           </template>
         </div>
       </div>
       <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
-        <p>
+        <div v-show="!loading" class="d-flex justify-content-around">
           <small class="pointer blue-text" @click="showAPIS = !showAPIS">Show/Hide APIS</small>
-        </p>
+          <small class="pointer blue-text " @click="recenterGraph()"><i class="fa fa-dot-circle-o" aria-hidden="true"></i> Reset Zoom</small>
+        </div>
         <div v-show="showAPIS" class="apisCont">
           <template v-for="api in apis" :key="api">
             <span class="pointer api-pill" :class="getClass(api)" v-text="api" @mouseenter="handleME(api)" @mouseleave="handleML(api)"></span>
@@ -114,9 +131,6 @@
         <div id="cy">
 
         </div>
-        <p>
-          <small class="pointer blue-text" @click="showTags = !showTags">Show/Hide Tags</small>
-        </p>
         <div v-show="showTags" id="tags" class="padding20 d-flex flex-wrap">
           <template v-for="tag in tagList" :key="tag">
             <small style="margin:1px;" class="pointer s-badge grey-text" @mouseenter="allWithTag(tag)" @mouseleave="allWithTagUndo(tag)">
@@ -124,7 +138,8 @@
             </small>
           </template>
         </div>
-        <div class="text-right container d-flex justify-content-around">
+        <div v-show="!loading" class="text-right container d-flex justify-content-around">
+          <small class="pointer blue-text" @click="showTags = !showTags">Show/Hide Tags</small>
           <small class="pointer grey-text" @click="download">
             <i class="fa fa-download" aria-hidden="true"></i> Download Image
           </small>
@@ -168,10 +183,16 @@
         "input_selected":[],
         "output_selected":[],
         "spread":false,
-        "tagList":[]
+        "tagList":[],
+        "apiTotal":0,
+        "loading":false
+
       },
       strict: true,
       mutations: {
+        toggleLoading(state,payload){
+          state.loading = payload['loading'];
+        },
         reset(state){
           state.predicate_selected = [];
           state.input_selected = [];
@@ -182,6 +203,13 @@
           state.output_type = [];
         },
         loadExample(state){
+          state.predicate_selected = [];
+          state.input_selected = [];
+          state.output_selected = [];
+
+          state.predicate = [];
+          state.input_type = [];
+          state.output_type = [];
 
           if (!state.predicate_selected.includes('treats')) {
             state.predicate_selected.push('treats');
@@ -454,6 +482,8 @@
           let nodeList =[]
           let tagList =[]
 
+          state.apiTotal = state.meta_kg.ops.length
+
           for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
             // NODE LIST CHECK
@@ -545,7 +575,12 @@
           // console.log("AC O",state.output_autocomplete)
           // console.log("AC Pred",state.predicate_autocomplete)
 
-          $('#loading-overlay').hide();
+
+          setTimeout(function(){
+            let payload = {}
+            payload['loading'] = false;
+            store.commit('toggleLoading',payload)
+          }, 3000);
 
         },
         saveResults(state,payload){
@@ -707,9 +742,18 @@
         },
         getTagList:(state)=>{
           return state.tagList
+        },
+        getAPITotal:(state)=>{
+          return state.apiTotal
+        },
+        getLoading:(state)=>{
+          return state.loading
         }
       },
       actions:{
+        recenterGraph ({ commit, state }){
+          this.cy.fit();
+        },
         handle_metaKG_Query ({ commit, state }, q){
           if (!q.predicate[0].length) {
             document.getElementById('callResults').innerHTML= '<h4 class="red-text">You must enter something first</h4>';
@@ -964,7 +1008,10 @@
               console.log('NO SELECTED OPTIONS')
           }
 
-        }
+        },
+        loading: function(){
+          return store.getters.getLoading
+        },
       },
       template:
       `<div class="pillBox lighten-4" :class="getBackClass()">
@@ -972,19 +1019,11 @@
           <div class="pill" :class="getBackClass()" v-text="pill" @click="remove(pill)"> </div>
         </template>
         <form @submit.prevent="handlePillSubmit" style="display:inline;">
-          <input v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" placeholder="Search" :list="type+'list'" autocomplete="off">
+          <input :disabled="loading" v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" :placeholder="loading?'Please wait':'Search'" :list="type+'list'" autocomplete="off">
           <datalist :id="type+'list'"></datalist>
         </form>
-
       </div>`
     });
-
-    // <input autocomplete='off' placeholder="Search" :id='type' list="predicate" type='text' v-model='q' class="browser-default pill-input lighten-4" :class="getBackClass()"/>
-    // <ul class="collection" style="border:none;position:absolute;z-index:100;">
-    //   <template v-for="elem in lookupResults" :key="elem">
-    //     <li class='collection-item left suggestion' :value="elem" @click="q = elem; handlePillSubmit();" v-text='elem'></li>
-    //   </template>
-    // </ul>
 
 
   var app = new Vue({
@@ -999,15 +1038,22 @@
           'predicateLookup':[],
           'cy' : null,
           'showAPIS': false,
-          'showTags': false,
+          'showTags':false,
+          'apisLoaded':false
         }
       },
       computed: {
         name : function(){
           return store.getters.getName
         },
+        loading: function(){
+          return store.getters.getLoading
+        },
         apis : function(){
           return store.getters.getAPIS
+        },
+        apiTotal : function(){
+          return store.getters.getAPITotal
         },
         portal_info: function(){
           return store.getters.getHtml
@@ -1035,6 +1081,12 @@
         }
       },
       watch:{
+        apis:function(a){
+          var self = this;
+          if (a.length) {
+            self.apisLoaded = true;
+          }
+        },
         queryID:function(q){
           var self = this;
           if (q) {
@@ -1198,9 +1250,9 @@
           self.queryID = '';
           self.queryPred = '';
           self.outputID = '';
-          self.loadKG();
+
           store.commit('reset');
-          $('#loading-overlay').show();
+          store.dispatch('handle_metaKG_Query_New')
         },
         getClass(name){
           switch (name) {
@@ -1243,11 +1295,13 @@
           store.commit('loadExample');
           store.dispatch('handle_metaKG_Query_New')
 
+        },
+        recenterGraph(){
+          store.dispatch('recenterGraph')
         }
       },
       created: function(){
         if ({{Context}}) {
-          // console.log({{Context}})
           var payload = {};
           payload["context"] = {{Context}};
           store.commit('saveContext',payload);
@@ -1257,7 +1311,11 @@
         var self = this;
         if (self.name == 'translator') {
           self.loadKG();
-          $('#loading-overlay').show();
+
+          let payload = {}
+          payload['loading'] = true;
+          store.commit('toggleLoading',payload)
+
         }
       }
   });
