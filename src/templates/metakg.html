@@ -4,16 +4,30 @@
 {% include "header.html" %}
 {% raw %}
 <style>
-.gradientMiddle{
-  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#000000+0,000000+50,000000+100&0+0,0.65+48,0.65+54,0+100 */
-background: -moz-linear-gradient(left,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 48%, rgba(0,0,0,0.65) 50%, rgba(0,0,0,0.65) 54%, rgba(0,0,0,0) 100%); /* FF3.6-15 */
-background: -webkit-linear-gradient(left,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 48%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0.65) 54%,rgba(0,0,0,0) 100%); /* Chrome10-25,Safari5.1-6 */
-background: linear-gradient(to right,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 48%,rgba(0,0,0,0.65) 50%,rgba(0,0,0,0.65) 54%,rgba(0,0,0,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#00000000',GradientType=1 ); /* IE6-9 */
-
+.loadBlock{
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+  background: black;
+  color:white;
+  z-index: 1000;
 }
 </style>
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
+  <!-- <div class="loadBlock" v-if="loading">
+    <h5 class="white-text">
+        <template v-if="!apisLoaded">
+          <i class="fa fa-cog fa-spin fa-fw"></i>
+          loading APIs...
+        </template>
+        <template v-else>
+          <i class="fa fa-check green-text" aria-hidden="true"></i>
+          loaded <span v-text="apiTotal"></span> APIs
+        </template>
+    </h5>
+  </div> -->
   <div class="padding20 grey lighten-3">
     <div class="center">
       <h3>Meta KG</h3>
@@ -68,7 +82,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
                     </template>
                 </h5>
               </template>
-              <img class="scale-in-center"  v-else src="/static/img/metakg-01.png" aria-label="NCATS" width="50px"/>
+              <img v-else class="scale-in-center" src="/static/img/metakg-01.png" aria-label="NCATS" width="50px" style="max-width:50px;max-height:50px;"/>
               <!--  -->
               <!-- <button class="btn red" type="button" @click.prevent="reset()">
                 Reset
@@ -120,8 +134,8 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
       </div>
       <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
         <div v-show="!loading" class="d-flex justify-content-around">
-          <small class="pointer blue-text" @click="showAPIS = !showAPIS">Show/Hide APIS</small>
-          <small class="pointer blue-text " @click="recenterGraph()"><i class="fa fa-dot-circle-o" aria-hidden="true"></i> Reset Zoom</small>
+          <small class="pointer grey-text" @click="showAPIS = !showAPIS">Show/Hide APIS</small>
+          <small class="pointer grey-text " @click="recenterGraph()"><i class="fa fa-dot-circle-o" aria-hidden="true"></i> Reset Zoom</small>
         </div>
         <div v-show="showAPIS" class="apisCont">
           <template v-for="api in apis" :key="api">
@@ -139,7 +153,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
           </template>
         </div>
         <div v-show="!loading" class="text-right container d-flex justify-content-around">
-          <small class="pointer blue-text" @click="showTags = !showTags">Show/Hide Tags</small>
+          <small class="pointer grey-text" @click="showTags = !showTags">Show/Hide Tags</small>
           <small class="pointer grey-text" @click="download">
             <i class="fa fa-download" aria-hidden="true"></i> Download Image
           </small>
@@ -1020,14 +1034,21 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', e
         },
       },
       template:
-      `<div class="pillBox lighten-4" :class="getBackClass()">
-        <template v-for="pill in selected">
-          <div class="pill" :class="getBackClass()" v-text="pill" @click="remove(pill)" :key="pill"> </div>
-        </template>
-        <form @submit.prevent="handlePillSubmit" style="display:inline;">
-          <input :disabled="loading" v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" :placeholder="loading?'Please wait':'Search'" :list="type+'list'" autocomplete="off">
-          <datalist :id="type+'list'"></datalist>
-        </form>
+      `<div>
+        <div class="pillBox lighten-4" :class="getBackClass()">
+          <form @submit.prevent="handlePillSubmit" style="display:inline;">
+            <input style="width: 100%;" :disabled="loading" v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" :placeholder="loading?'Please wait':'Search'" :list="type+'list'" autocomplete="off">
+            <datalist :id="type+'list'"></datalist>
+          </form>
+        </div>
+        <div class="padding20">
+          <template v-for="pill in selected">
+            <div class="pill" :class="getBackClass()" @click="remove(pill)" :key="pill">
+            <span v-text="pill"></span>
+            <span class="red-text">&times;</span>
+            </div>
+          </template>
+        </div>
       </div>`
     });
 
