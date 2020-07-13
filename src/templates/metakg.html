@@ -18,13 +18,13 @@
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
   <!-- <div class="loadBlock" v-if="loading">
     <h5 class="white-text">
-        <template v-if="!apisLoaded">
+        <template v-if="!apisProcessed">
           <i class="fa fa-cog fa-spin fa-fw"></i>
           loading APIs...
         </template>
         <template v-else>
           <i class="fa fa-check green-text" aria-hidden="true"></i>
-          loaded <span v-text="apiTotal"></span> APIs
+          loaded <span v-text="operationsTotal"></span> APIs
         </template>
     </h5>
   </div> -->
@@ -70,30 +70,40 @@
                 Search
               </button> -->
               <!--  -->
-              <template v-if="loading">
-                <h5 class="white-text">
+              <div v-if="loading">
+                <h6 class="white-text">
                     <template v-if="!apisLoaded">
                       <i class="fa fa-cog fa-spin fa-fw"></i>
-                      loading APIs...
+                      Getting API metadata..
                     </template>
                     <template v-else>
                       <i class="fa fa-check green-text" aria-hidden="true"></i>
-                      loaded <span v-text="apiTotal"></span> APIs
+                      API metadata loaded
                     </template>
-                </h5>
-              </template>
+                </h6>
+                <h6 class="white-text">
+                    <template v-if="!apisProcessed && apisLoaded">
+                      <i class="fa fa-cog fa-spin fa-fw"></i>
+                      Processing operations from metadata...
+                    </template>
+                    <template v-if="apisProcessed && apisLoaded">
+                      <i class="fa fa-check green-text" aria-hidden="true"></i>
+                      Processed <span v-text="operationsTotal"></span> operations
+                    </template>
+                </h6>
+              </div>
               <img v-else class="scale-in-center" src="/static/img/metakg-01.png" aria-label="NCATS" width="50px" style="max-width:50px;max-height:50px;"/>
               <!--  -->
-              <!-- <button class="btn red" type="button" @click.prevent="reset()">
-                Reset
-              </button> -->
+              <button class="btn red" type="button" @click.prevent="reset()">
+                Clear
+              </button>
             </div>
           </div>
         </form>
       </div>
       <div class="col s12 m4">
         <div v-show="results && results.length" class="collection-item red-text" style="padding:1px;">
-          <small v-text="results.length+' results'"></small>
+          <small v-text="results.length+' operations'"></small>
         </div>
         <div class="white padding20 resBox collection">
           <template v-show="results && results.length">
@@ -134,13 +144,20 @@
       </div>
       <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
         <div v-show="!loading" class="d-flex justify-content-around">
-          <small class="pointer grey-text" @click="showAPIS = !showAPIS">Show/Hide APIS</small>
+          <small class="pointer grey-text" @click="showAPIS = !showAPIS">
+            <span v-text="showAPIS?'Hide':'Show'"></span> APIs
+          </small>
           <small class="pointer grey-text " @click="recenterGraph()"><i class="fa fa-dot-circle-o" aria-hidden="true"></i> Reset Zoom</small>
         </div>
-        <div v-show="showAPIS" class="apisCont">
-          <template v-for="api in apis" :key="api">
-            <span class="pointer api-pill" :class="getClass(api)" v-text="api" @mouseenter="handleME(api)" @mouseleave="handleML(api)"></span>
-          </template>
+        <div v-show="showAPIS">
+          <canvas id="myChart" width="100%" height="200" style="margin:auto;"></canvas>
+          <div class="apisCont">
+            <template v-for="(num,api) in apis" :key="api">
+              <span class="pointer api-pill" :class="getClass(api)" @mouseenter="handleME(api)" @mouseleave="handleML(api)">
+                <span v-text="api"></span>&nbsp;<span class="yellow-text" v-text="'('+num+')'"></span>
+              </span>
+            </template>
+          </div>
         </div>
         <div id="cy">
 
@@ -153,7 +170,9 @@
           </template>
         </div>
         <div v-show="!loading" class="text-right container d-flex justify-content-around">
-          <small class="pointer grey-text" @click="showTags = !showTags">Show/Hide Tags</small>
+          <small class="pointer grey-text" @click="showTags = !showTags">
+            <span v-text="showTags?'Hide':'Show'"></span> Tags
+          </small>
           <small class="pointer grey-text" @click="download">
             <i class="fa fa-download" aria-hidden="true"></i> Download Image
           </small>
@@ -177,6 +196,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.15.1/cytoscape.min.js" integrity="sha256-oYPiLQ2sL4jlYuCJE3rDZFD0OUy8t1fL6U0wIWyqUf8=" crossorigin="anonymous"></script>  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
 
   <script>
   const store = new Vuex.Store({
@@ -191,14 +211,14 @@
         "output_type":[],
         "input_type":[],
         "predicate":[],
-        "apis":[],
+        "apis":{},
         'cy':null,
         "predicate_selected":[],
         "input_selected":[],
         "output_selected":[],
         "spread":false,
         "tagList":[],
-        "apiTotal":0,
+        "operationsTotal":0,
         "loading":false
 
       },
@@ -496,7 +516,7 @@
           let nodeList =[]
           let tagList =[]
 
-          state.apiTotal = state.meta_kg.ops.length
+          state.operationsTotal = state.meta_kg.ops.length
 
           for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
@@ -563,6 +583,7 @@
 
           // FILTERS AUTOCOMPLETE & APIS
 
+
           for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
             // AC
@@ -579,10 +600,17 @@
             }
 
             // API
-            if (!state.apis.includes(state.meta_kg.ops[i]['association']['api_name'])) {
-              state.apis.push(state.meta_kg.ops[i]['association']['api_name'])
+            // if (!state.apis.includes(state.meta_kg.ops[i]['association']['api_name'])) {
+            //   state.apis.push(state.meta_kg.ops[i]['association']['api_name'])
+            // }
+
+            if (state.meta_kg.ops[i]['association']['api_name'] in state.apis) {
+              state.apis[state.meta_kg.ops[i]['association']['api_name']]++
+            }else{
+              state.apis[state.meta_kg.ops[i]['association']['api_name']] = 1
             }
           }
+
 
           // console.log('APIS',apis)
           // console.log("AC I",state.input_autocomplete)
@@ -762,7 +790,7 @@
           return state.tagList
         },
         getAPITotal:(state)=>{
-          return state.apiTotal
+          return state.operationsTotal
         },
         getLoading:(state)=>{
           return state.loading
@@ -1066,7 +1094,9 @@
           'cy' : null,
           'showAPIS': false,
           'showTags':false,
-          'apisLoaded':false
+          'apisProcessed':false,
+          'apisLoaded':false,
+          'totalApis':0
         }
       },
       computed: {
@@ -1079,7 +1109,7 @@
         apis : function(){
           return store.getters.getAPIS
         },
-        apiTotal : function(){
+        operationsTotal : function(){
           return store.getters.getAPITotal
         },
         portal_info: function(){
@@ -1111,7 +1141,7 @@
         apis:function(a){
           var self = this;
           if (a.length) {
-            self.apisLoaded = true;
+            self.apisProcessed = true;
           }
         },
         queryID:function(q){
@@ -1153,8 +1183,59 @@
           }
 
         },
+        showAPIS: function(s){
+          if (s) {
+            var self = this;
+            self.drawPie();
+          }
+        }
       },
       methods: {
+        drawPie(){
+          var self = this;
+
+          let = sorted = _(self.apis)
+          .toPairs()
+          .orderBy([1], ['desc'])
+          .fromPairs()
+          .value()
+
+          let labels = Object.keys(sorted);
+          let data = Object.values(sorted);
+
+
+
+          var ctx = document.getElementById('myChart').getContext('2d');
+          var myChart = new Chart(ctx, {
+              type: 'pie',
+              data: {
+                  labels: labels,
+                  datasets: [{
+                      // label: '# of Votes',
+                      data: data,
+                      backgroundColor:["#17202A", "#1B2631", "#212F3C", "#283747", "#2E4053", "#34495E", "#5D6D7E",
+                       "#85929E", "#AEB6BF", "#D6DBDF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF",
+                        "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF",
+                        "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF",
+                        "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF"],
+                      borderWidth:1,
+                  }],
+
+              },
+              options: {
+                legend: {
+                  display: false
+               },
+               responsive: true,
+               maintainAspectRatio: false,
+               title: {
+                    display: true,
+                    text: 'Operations per API'
+                }
+              }
+          });
+
+        },
         allWithTag: function(name){
           var payload = {};
           payload["highlight"] = name
@@ -1210,6 +1291,9 @@
           var self = this;
 
           let meta_kg = new kg()
+
+          self.apisLoaded = true;
+          // TODO: load metadata locally
 
           await meta_kg.constructMetaKG(includeReasoner=true)
 
