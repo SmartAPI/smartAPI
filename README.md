@@ -58,7 +58,7 @@ Contact: api-interoperability@googlegroups.com
     
 7. Create index in Python (version 3.x) shell:
     ```
-    from api import es  
+    from web.api import es  
     es.create_index()
     ```
    Or import some API data from a saved dump file. Contact us for the dump file.  
