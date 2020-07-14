@@ -5,7 +5,7 @@
 {% raw %}
 <style>
 .loadBlock{
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 100%;
   padding: 20px;
@@ -16,18 +16,28 @@
 }
 </style>
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
-  <!-- <div class="loadBlock" v-if="loading">
-    <h5 class="white-text">
-        <template v-if="!apisProcessed">
+  <div class="loadBlock" v-if="loading && !apisProcessed">
+    <h6 class="white-text">
+        <template v-if="!apisLoaded">
           <i class="fa fa-cog fa-spin fa-fw"></i>
-          loading APIs...
+          Getting API metadata..
         </template>
         <template v-else>
           <i class="fa fa-check green-text" aria-hidden="true"></i>
-          loaded <span v-text="operationsTotal"></span> APIs
+          API metadata loaded
         </template>
-    </h5>
-  </div> -->
+    </h6>
+    <h6 class="white-text">
+        <template v-if="!apisProcessed">
+          <i class="fa fa-cog fa-spin fa-fw"></i>
+          Processing operations from metadata...
+        </template>
+        <template v-else>
+          <i class="fa fa-check green-text" aria-hidden="true"></i>
+          Processed <span v-text="operationsTotal"></span> operations
+        </template>
+    </h6>
+  </div>
   <div class="padding20 grey lighten-3">
     <div class="center">
       <h3>Meta KG</h3>
@@ -70,31 +80,9 @@
                 Search
               </button> -->
               <!--  -->
-              <div v-if="loading">
-                <h6 class="white-text">
-                    <template v-if="!apisLoaded">
-                      <i class="fa fa-cog fa-spin fa-fw"></i>
-                      Getting API metadata..
-                    </template>
-                    <template v-else>
-                      <i class="fa fa-check green-text" aria-hidden="true"></i>
-                      API metadata loaded
-                    </template>
-                </h6>
-                <h6 class="white-text">
-                    <template v-if="!apisProcessed && apisLoaded">
-                      <i class="fa fa-cog fa-spin fa-fw"></i>
-                      Processing operations from metadata...
-                    </template>
-                    <template v-if="apisProcessed && apisLoaded">
-                      <i class="fa fa-check green-text" aria-hidden="true"></i>
-                      Processed <span v-text="operationsTotal"></span> operations
-                    </template>
-                </h6>
-              </div>
-              <img v-else class="scale-in-center" src="/static/img/metakg-01.png" aria-label="NCATS" width="50px" style="max-width:50px;max-height:50px;"/>
+              <img v-if="!loading" class="scale-in-center" src="/static/img/metakg-01.png" aria-label="NCATS" width="50px" style="max-width:50px;max-height:50px;"/>
               <!--  -->
-              <button class="btn red" type="button" @click.prevent="reset()">
+              <button v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
                 Clear
               </button>
             </div>
@@ -143,6 +131,9 @@
         </div>
       </div>
       <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
+        <div v-if="loading" class="purple lighten-4 purple-text">
+          <h6>Please wait...</h6>
+        </div>
         <div v-show="!loading" class="d-flex justify-content-around">
           <small class="pointer grey-text" @click="showAPIS = !showAPIS">
             <span v-text="showAPIS?'Hide':'Show'"></span> APIs
@@ -235,56 +226,6 @@
           state.predicate = [];
           state.input_type = [];
           state.output_type = [];
-        },
-        loadExample(state){
-          state.predicate_selected = [];
-          state.input_selected = [];
-          state.output_selected = [];
-
-          state.predicate = [];
-          state.input_type = [];
-          state.output_type = [];
-
-          if (!state.predicate_selected.includes('treats')) {
-            state.predicate_selected.push('treats');
-          }else {
-            Swal.fire({type:'error',
-            toast:true,
-            title: 'Already Selected',
-            showConfirmButton:false,
-            timer:1000});
-          }
-
-          if (!state.output_selected.includes('Disease')) {
-            state.output_selected.push('Disease');
-          }else {
-            Swal.fire({type:'error',
-            toast:true,
-            title: 'Already Selected',
-            showConfirmButton:false,
-            timer:1000});
-          }
-
-          if (!state.predicate.includes('treats')) {
-            state.predicate.push('treats');
-          }else {
-            Swal.fire({type:'error',
-            toast:true,
-            title: 'Already Selected',
-            showConfirmButton:false,
-            timer:1000});
-          }
-
-          if (!state.output_type.includes('Disease')) {
-            state.output_type.push('Disease');
-          }else {
-            Swal.fire({type:'error',
-            toast:true,
-            title: 'Already Selected',
-            showConfirmButton:false,
-            timer:1000});
-          }
-
         },
         toggleSpread(state){
 
@@ -622,7 +563,7 @@
             let payload = {}
             payload['loading'] = false;
             store.commit('toggleLoading',payload)
-          }, 3000);
+          }, 500);
 
         },
         saveResults(state,payload){
@@ -1016,6 +957,19 @@
     				}
             $("#"+self.type+'list').append(html);
           }
+        },
+        selected:function(s){
+          var self = this;
+
+          // load example by watching selected
+
+          var payload = {};
+          payload["name"] = self.type;
+          payload["q"] = s;
+
+          store.commit('saveInput',payload);
+
+          store.dispatch('handle_metaKG_Query_New')
         }
       },
       mounted: function(){
@@ -1403,8 +1357,19 @@
           store.commit('toggleSpread');
         },
         loadExample(){
-          store.commit('loadExample');
-          store.dispatch('handle_metaKG_Query_New')
+          store.commit('reset');
+
+          var payload = {};
+          payload["type"] = 'predicate';
+          payload["q"] = 'treats';
+
+          store.commit('pushPill',payload);
+
+          var payload = {};
+          payload["type"] = 'output_type';
+          payload["q"] = "Disease";
+
+          store.commit('pushPill',payload);
 
         },
         recenterGraph(){
