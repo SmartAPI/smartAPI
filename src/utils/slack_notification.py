@@ -1,6 +1,6 @@
 import json
 import requests
-from config_key import SLACK_WEBHOOKS
+from config import SLACK_WEBHOOKS
 
 def GetTags(data):
 	'''
@@ -22,7 +22,7 @@ def GenerateSlackParams(data, res, user):
 	API_Description = data["info"]["description"]
 	API_id = res["_id"]
 	API_URL =  "http://smart-api.info/registry?q=" + API_id
-	block_markdown = "A new API has been registered on smartAPI.info:  \n\n\t *API Title:* " + API_title + "\n\n\t*API Description:* " + API_Description + "\n\n\t*SmartAPI Registry URL:* " + API_URL + "\n\n\t*By User:* " + user
+	block_markdown = "A new API has been registered on SmartAPI.info:  \n\t*API Title:* " + API_title + "\n\t*API Description:* " + API_Description + "\n\t*SmartAPI Registry URL:* " + API_URL + "\n\t*By User:* " + user
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",

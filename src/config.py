@@ -2,7 +2,7 @@
 # pylint: disable=wildcard-import, unused-wildcard-import, unused-import
 
 from biothings.web.settings.default import *
-from config_key import COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
+from config_key import COOKIE_SECRET, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, SLACK_WEBHOOKS
 from web.api.handlers import APP_LIST as api_app_list
 from web.api.query_builder import SmartAPIQueryBuilder
 from web.handlers import APP_LIST as web_app_list
