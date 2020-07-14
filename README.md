@@ -26,7 +26,7 @@ Contact: api-interoperability@googlegroups.com
     ```
 5. Navigate to SmartAPI source files and create a *config_key.py* under *src*
     ```
-    cd source
+    cd src
     touch config_key.py
     ```
 6. Update *config_key.py* with
