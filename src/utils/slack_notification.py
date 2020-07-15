@@ -2,27 +2,26 @@ import json
 import requests
 from config import SLACK_WEBHOOKS
 
-def GetTags(data):
-	'''
-	Generate array of all the tags listed in the newly registered API
-	'''
+def get_tags(data):
+	"""Generate array of all the tags listed in the newly registered 
+	API
+	"""
 	tags = []
 	if('tags' in data):
 		for item in data['tags']:
 			tags.append(item['name'])
 	return tags
 
-def GenerateSlackParams(data, res, user):
-	'''
-	Generate parameters that will be used in slack post request. 
+def generate_slack_params(data, res, user):
+	"""Generate parameters that will be used in slack post request. 
 	In this case, markdown is used to generate formatting that 
 	will show in Slack message
-	'''
-	API_title = data["info"]["title"]
-	API_Description = data["info"]["description"]
-	API_id = res["_id"]
-	API_URL =  "http://smart-api.info/registry?q=" + API_id
-	block_markdown = "A new API has been registered on SmartAPI.info:  \n\t*API Title:* " + API_title + "\n\t*API Description:* " + API_Description + "\n\t*SmartAPI Registry URL:* " + API_URL + "\n\t*By User:* " + user
+	"""
+	api_title = data["info"]["title"]
+	api_description = data["info"]["description"]
+	api_id = res["_id"]
+	api_url =  "http://smart-api.info/registry?q=" + api_id
+	block_markdown = "A new API has been registered on SmartAPI.info:  \n\t*API Title:* " + api_title + "\n\t*API Description:* " + api_description + "\n\t*SmartAPI Registry URL:* " + api_url + "\n\t*By User:* " + user
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",
@@ -37,16 +36,16 @@ def GenerateSlackParams(data, res, user):
     }
 	return params
 
-def AddToSlack(data, res, user):
-	'''
-	Make requests to slack to post information about newly registered
-	API. Notifications will be sent to every channel/webhook that is
-	not tag specific, or will be sent to slack if the registered API
-	contains a tag that is also specific a channel/webhook. 
-	'''
+def send_slack_msg(data, res, user):
+	"""Make requests to slack to post information about newly 
+	registered API. Notifications will be sent to every 
+	channel/webhook that is not tag specific, or will be sent to
+	slack if the registered API contains a tag that is also specific
+	a channel/webhook. 
+	"""
 	headers = {'content-type': 'application/json'}
-	data_tags = GetTags(data)
-	params = GenerateSlackParams(data, res, user)
+	data_tags = get_tags(data)
+	params = generate_slack_params(data, res, user)
 	for x in SLACK_WEBHOOKS:
 		if(x['tag_specific']):
 			if(x['tag'] in data_tags):

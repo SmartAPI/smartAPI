@@ -19,7 +19,7 @@ from biothings.web.api.es.handlers.base_handler import BaseESRequestHandler
 from .es import ESQuery
 from .transform import APIMetadata, get_api_metadata_by_url
 
-from utils.slack_notification import AddToSlack
+from utils.slack_notification import send_slack_msg
 
 class BaseHandler(BaseESRequestHandler):
 
@@ -107,7 +107,7 @@ class APIHandler(BaseHandler):
                         self.return_json(res)
                         ## send notification to slack 
                         if(res["success"] == True):
-                            AddToSlack(data,res,user['login'])      
+                            send_slack_msg(data,res,user['login'])      
 
                 else:
                     self.return_json(
