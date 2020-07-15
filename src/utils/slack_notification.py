@@ -18,12 +18,15 @@ def generate_slack_params(data, res, user):
 	will show in Slack message
 	"""
 	api_title = data["info"]["title"]
-	api_description = data["info"]["description"]
+	# limit API description to 150 characters
+	api_description = ((data["info"]["description"][:150] + '...') 
+						if len(data["info"]["description"]) > 150 
+						else data["info"]["description"])
 	api_id = res["_id"]
 	api_url =  "http://smart-api.info/registry?q=" + api_id
-	block_markdown = ("A new API has been registered on SmartAPI.info:  \n\t*API Title:* " 
-					+ api_title + "\n\t*API Description:* " + api_description + "\n\t*SmartAPI Registry URL:* " 
-					+ api_url + "\n\t*By User:* " + user)
+	block_markdown = ("A new API has been registered on SmartAPI.info:  \n\n*API Title:* " 
+					+ api_title + "\n*API Description:* " + api_description + "\n*SmartAPI Registry URL:* " 
+					+ api_url + "\n*By User:* " + user)
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",
@@ -60,11 +63,3 @@ def send_slack_msg(data, res, user):
 			req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
 			http_client = AsyncHTTPClient()
 			http_client.fetch(req)
-
-
-# res = requests.post(x['webhook'], json.dumps(params), headers=headers)
-# res.raise_for_status()
-
-
-# http_client = AsyncHTTPClient()
-# http_client.fetch(req)
