@@ -3,9 +3,7 @@ import requests
 from config import SLACK_WEBHOOKS
 
 def get_tags(data):
-	"""Generate array of all the tags listed in the newly registered 
-	API
-	"""
+	"""Generate array of all the tags listed in the newly registered API"""
 	tags = []
 	if('tags' in data):
 		for item in data['tags']:
@@ -14,6 +12,7 @@ def get_tags(data):
 
 def generate_slack_params(data, res, user):
 	"""Generate parameters that will be used in slack post request. 
+	
 	In this case, markdown is used to generate formatting that 
 	will show in Slack message
 	"""
@@ -21,7 +20,9 @@ def generate_slack_params(data, res, user):
 	api_description = data["info"]["description"]
 	api_id = res["_id"]
 	api_url =  "http://smart-api.info/registry?q=" + api_id
-	block_markdown = "A new API has been registered on SmartAPI.info:  \n\t*API Title:* " + api_title + "\n\t*API Description:* " + api_description + "\n\t*SmartAPI Registry URL:* " + api_url + "\n\t*By User:* " + user
+	block_markdown = ("A new API has been registered on SmartAPI.info:  \n\t*API Title:* " 
+					+ api_title + "\n\t*API Description:* " + api_description + "\n\t*SmartAPI Registry URL:* " 
+					+ api_url + "\n\t*By User:* " + user)
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",
@@ -37,8 +38,9 @@ def generate_slack_params(data, res, user):
 	return params
 
 def send_slack_msg(data, res, user):
-	"""Make requests to slack to post information about newly 
-	registered API. Notifications will be sent to every 
+	"""Make requests to slack to post information about newly registered API. 
+	
+	Notifications will be sent to every 
 	channel/webhook that is not tag specific, or will be sent to
 	slack if the registered API contains a tag that is also specific
 	a channel/webhook. 
