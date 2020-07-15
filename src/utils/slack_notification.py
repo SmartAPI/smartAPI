@@ -1,6 +1,7 @@
 import json
 import requests
 from config import SLACK_WEBHOOKS
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 
 def get_tags(data):
 	"""Generate array of all the tags listed in the newly registered API"""
@@ -48,11 +49,22 @@ def send_slack_msg(data, res, user):
 	headers = {'content-type': 'application/json'}
 	data_tags = get_tags(data)
 	params = generate_slack_params(data, res, user)
+	http_client = AsyncHTTPClient()
 	for x in SLACK_WEBHOOKS:
 		if(x['tag_specific']):
 			if(x['tag'] in data_tags):
-				res = requests.post(x['webhook'], json.dumps(params), headers=headers)
-				res.raise_for_status()
+				req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
+				http_client = AsyncHTTPClient()
+				http_client.fetch(req)
 		else:
-			res = requests.post(x['webhook'], json.dumps(params), headers=headers)
-			res.raise_for_status()
+			req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
+			http_client = AsyncHTTPClient()
+			http_client.fetch(req)
+
+
+# res = requests.post(x['webhook'], json.dumps(params), headers=headers)
+# res.raise_for_status()
+
+
+# http_client = AsyncHTTPClient()
+# http_client.fetch(req)
