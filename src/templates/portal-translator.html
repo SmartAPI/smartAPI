@@ -1,110 +1,120 @@
 {% block content %}
-  <div id="portal">
-    <section class="container-fluid padding20">
-      <div class="center">
-        <img alt="build api" src="/static/img/build_api-01.svg" width="150px"/>
-      </div>
-      <h2 class="bold center blue-grey-text">BUILD A TRANSLATOR KP (Knowledge Provider) API</h2>
-      <div class="row d-flex align-items-stretch">
-        <div class="padding20 col s12 m6 grey lighten-3">
-          <h2 class="blue-text bold">1. Create a KP API</h3>
+  <main id="portal">
+    <div class="d-flex align-items-stretch row flex-wrap m-0">
+      <!-- Left -->
+      <div class="col s12 m6 padding20">
+        <h3 class="center blue-text bold">BUILD A TRANSLATOR KP (Knowledge Provider) API</h3>
+        <section>
+          <div class="d-flex">
+            <h5 class="meta_grad" style="margin-right:5px;padding:2px;"></h5>
+            <h5 class="meta_grad" style="margin-right:5px;padding:4px;"></h5>
+            <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_1</i> Create a KP API</h5>
+          </div>
+          <p class="center">
+            <img src="/static/img/build_api-01.svg" width="100px" alt="create api"/>
+          </p>
           <p>
-            To create a KP API ready to be integrated into the Translator ecosystem, you can
+            To create a KP API that's ready to be integrated into the Translator ecosystem, you can:
             <ul>
               <li>
-                <i class="material-icons">done</i> 1. Build a REST API with JSON output (use your own preferred structure).
+                <i class="material-icons green-text">done</i> Build a REST API with JSON output (use your own preferred structure).
               </li>
               <li>
-                <i class="material-icons">done</i> 2. Build a ReasonerStdAPI, follow the instruction <a href="https://github.com/NCATS-Tangerine/NCATS-ReasonerStdAPI">here</a>.
+                <i class="material-icons green-text">done</i> Build a ReasonerStdAPI, follow the instructions <a target="_blank" rel="noreferrer" href="https://github.com/NCATS-Tangerine/NCATS-ReasonerStdAPI">here <i class="fa fa-external-link-square" aria-hidden="true"></i></a>.
               </li>
-              <!--<li>
-                <i class="material-icons">done</i> Add additional support for gzip, CORS, and HTTP/HTTPS.
-              </li>-->
             </ul>
-            Regardless the type of APIs you are implementing, we recommend to follow these API best-practices (link to a md file).
+            Regardless the type of APIs you are implementing, we recommend to follow these <a class="modal-trigger green-text" href="#modal" @click="handleModal('best-practices')">API best-practices</a>.
           </p>
           <p>
-            <b>Tip: </b>You may consider using <a href="https://docs.biothings.io/en/latest/" target="_blank" rel="noreferrer">BioThings SDK</a> to build your KP APIs. It will create a high-quality API following all these best-practics by default. If you need the help, please contact BioThings team (aka "Service Provider" KP team in Translator). 
+            <b>Tip: </b>You may consider using <a href="https://docs.biothings.io/en/latest/" target="_blank" rel="noreferrer">BioThings SDK <i class="fa fa-external-link-square" aria-hidden="true"></i></a> to build your KP APIs. BioThings SDK will create a high-quality APIs following all these best-practices by default. If you need the help, please <a href="mailto:biothings@googlegroups.com">contact</a> BioThings team (aka "Service Provider" KP team in Translator).
           </p>
-          <button class="smallButton grey white-text" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md','desc')">Show/Hide Details</button>
+        </section>
+        <section>
+          <div class=" d-flex">
+            <h5 class="meta_grad" style="margin-right:5px;padding:2px;"></h5>
+            <h5 class="meta_grad" style="margin-right:5px;padding:4px;"></h5>
+            <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_2</i> Document your API with metadata</h5>
+          </div>
+          <p class="center">
+            <img src="/static/img/navigate_api-01.svg" width="100px" alt="document api"/>
+          </p>
           <p>
-            <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/CREATE_API.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
+            To take full advantage of SmartAPI and make your KP API compatible with Meta-KG you will need to:
           </p>
-          <div class="descBox padding20" id="desc"></div>
-        </div>
-        <div class="padding20 col s12 m6 grey lighten-3">
-          <h2 class="blue-text bold">2. Document your API with metadata</h3>
-            <p>
-              Once a KP API is live, register it in <a href="https://smart-api.info/add_api">SmartAPI registry</a>, so that it will be visible to the Translator community.
-              <ul>
-                <li>
-                  <i class="material-icons">done</i> 1. Create your API metadata following the latest <a href="http://spec.openapis.org/oas/v3.0.3">OpenAPI v3 API specification</a>
-                </li>
-                <li>
-                  <i class="material-icons">done</i> 2. Describe the semantics of your API's input and output.
-                </li>
-                <!--<li>
-                  <i class="material-icons">done</i> Semantic API I/O specification using the <b>_x-smartapi_</b> extension
-                </li>-->
-              </ul>
-            </p>
-            <button class="smallButton grey white-text" @click="convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc_meta')">Show/Hide Details</button>
-            <p>
-              <small>Issues? Open on <a href="https://github.com/SmartAPI/smartAPI/blob/master/docs/API_METADATA.md" target="_blank" rel="noreferrer">GitHub</a>.</small>
-            </p>
-            <div class="descBox padding20" id="desc_meta"></div>
-        </div>
-      </div>
-    </section>
+          <ul>
+            <li>
+              <i class="material-icons green-text">done</i> 1. Create your API metadata following the latest <a href="http://spec.openapis.org/oas/v3.0.3" target="_blank" rel="noreferrer">OpenAPI v3 API specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+            </li>
+            <li>
+              <i class="material-icons green-text">done</i> 2. Describe the semantics of your API's input and output. <a class="modal-trigger green-text" href="#modal" @click="handleModal('sematic-io')">Learn more</a>.
+            </li>
+          </ul>
+          <p>
+            You can use this <a href="/editor">editor</a> build to write/edit your API metadata. You can start with an existing metadata example from <a target="_blank" rel="noreferrer" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml">mygene.info</a> API. The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
+          </p>
+          <p>
+            This guide can also <a href="/guide">guide</a> through the process/tools on how to create your OpenAPI v3 API metadata or how to upgrade an existing Swagger v2 API metadata to OpenAPI v3.
+          </p>
 
-    <section class="container-fluid padding20">
-      <div class="center">
-        <img alt="build api" src="/static/img/navigate_api-01.svg" width="150px"/>
-      </div>
-      <h2 class="bold center blue-grey-text">NAVIGATE YOUR TRANSLATOR KP API</h2>
-      <div class="padding20 grey lighten-3">
-        <h5 class="bold center blue-text">API Registry</h5>
-        <div class="container">
-          <p>
-            Once you <a href="/add_api">register</a> an API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
-            your API will be visible to other users and provide useful information and operation documentation, API status, editing tools and many other neat features.
-          </p>
-          <div class="center">
-            <img alt="registry pluses" src="/static/img/registry_plus-01.png"/>
-          </div>
-        </div>
-      </div>
-      <div class="padding20 grey lighten-3">
-        <h5 class="bold center blue-text">META KG</h5>
-        <div class="container">
-          <p>
-            The SmartAPI Meta Knowledge Graph (Meta-KG) represents how biomedical concepts can be connected through APIs. Each node in the meta-KG represents a biolink entity type, e.g. Gene, SequenceVariant, ChemicalSubstance. Each edge in the meta-KG represents a unique combination of a biolink predicate, e.g. targets, treats, and an API which delivers the association.
-          </p>
-          <div class="center">
-            <img src="/static/img/metaex.png" width="200px" alt="query example"/>
-            <hr />
-            <small>Disease affets Gene</small>
+        </section>
+        <section>
+          <div class=" d-flex">
+            <h5 class="meta_grad" style="margin-right:5px;padding:2px;"></h5>
+            <h5 class="meta_grad" style="margin-right:5px;padding:4px;"></h5>
+            <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_3</i> Register your API</h5>
           </div>
           <p>
-            The Meta-KG is constructed using the collection of SmartAPI specifications currently registered in SmartAPI. All APIs registered with x-smartapi field will be integrated into the meta-KG. In addition, all ReasonerStdAPIs registered in SmartAPI and implemented the /predicate endpoint will also be integrated.
+            Once you are ready and <a href="/add_api">register</a> your KP API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
+            your API will be visible to other users.
           </p>
-        </div>
-        <div class="descBox padding20" id="desc_kg"></div>
-        <div class="center padding20 white-text meta_kg_form">
+          <p>
+            The registry provides useful information and operation documentation, API status, editing tools and many other neat features!
+          </p>
+          <div class="center">
+            <img alt="registry pluses" src="/static/img/registry_plus-01.png" width="90%"/>
+          </div>
+        </section>
+      </div>
+      <!-- Right -->
+      <div class="col s12 m6 padding20 meta_grad white-text container">
+        <div class="center">
+          <h3 class="center cyan-text bold">NAVIGATE YOUR TRANSLATOR KP API</h3>
           <img src="/static/img/metakg-01.png" aria-label="NCATS" width="150px"/>
-          <h2 class="bold">META KG</h2>
-          <h5 class="bold">Search APIs based on meta-kg operations</h5>
-          <p>
-            An example would be all meta-kg operations having "predicate" as "affects" and using "Gene" as its "output_type".
-          </p>
-          <p>
-            <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
-          </p>
-          <img src="/static/img/graph_example.jpg" width="100%" alt="graph example"/>
-
+          <h1>META-KG</h1>
         </div>
-
+        <p>
+          The SmartAPI Meta Knowledge Graph (Meta-KG) represents how biomedical concepts can be connected through APIs. Each node in the meta-KG represents a biolink entity type, e.g. Gene, SequenceVariant, ChemicalSubstance. Each edge in the meta-KG represents a unique combination of a biolink predicate, e.g. targets, treats, and an API which delivers the association.
+        </p>
+        <div class="center">
+          <img src="/static/img/metaex.png" width="200px" alt="query example"/>
+          <hr />
+          <small>Disease affets Gene</small>
+        </div>
+        <p>
+          The Meta-KG is constructed using the collection of SmartAPI specifications currently registered in SmartAPI. All APIs registered with x-smartapi field will be integrated into the meta-KG. In addition, all ReasonerStdAPIs registered in SmartAPI and implemented the /predicate endpoint will also be integrated.
+        </p>
+        <h5 class="bold center">Search APIs based on meta-kg operations</h5>
+        <p class="center">
+          <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
+        </p>
+        <h4 class="cyan-text center">Example</h4>
+        <div class="white grey-text rounded center p-1">
+          <p>
+            I want to find all API operations in which a biological concept <b>AFFECTS</b> a <b>GENE</b>…
+          </p>
+        </div>
+        <p>
+          Meta-KG would then find all connections with <i>predicate</i> “affects” and <i>output_type</i> “Gene” and give you a list of APIs which can give you type of results.
+        </p>
+        <img src="/static/img/graph_example.jpg" width="100%" alt="graph example" class="rounded"/>
       </div>
-    </section>
-  </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <div id="desc"></div>
+      </div>
+    </div>
+  </main>
 {% endblock %}

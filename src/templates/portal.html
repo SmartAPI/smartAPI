@@ -3,14 +3,31 @@
 {% block content %}
 {% include "header.html" %}
 <style>
-
+.rounded{
+  border-radius: 10px;
+}
+.rounded-right{
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+.meta_grad{
+  background: #304586;
+  background: -moz-linear-gradient(top,rgba(48,69,134,1) 0,rgba(105,54,130,1) 100%);
+  background: -webkit-linear-gradient(top,rgba(48,69,134,1) 0,rgba(105,54,130,1) 100%);
+  background: linear-gradient(to bottom,rgba(48,69,134,1) 0,rgba(105,54,130,1) 100%);
+}
+.p-1{
+  padding: .25rem;
+}
+.m-0{
+  margin: 0px;
+}
 </style>
 <main id="portals" class="white" v-cloak>
   <!-- MAIN SECTIONS -->
-  <section class="center grey lighten-3 padding20">
+  <section class="center grey lighten-3 d-flex justify-content-around padding20 flex-wrap">
     <span v-if="name == 'translator'">
-      <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="77px" style="margin-right:20px;"/>
-      <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="77px"/>
+      <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="77px"/>
     </span>
     <h1 class="blue-text bold flow-text">
       <span v-if="name == 'translator'">
@@ -18,6 +35,9 @@
       </span>
       <span v-else v-text="name"></span>
     </h1>
+    <span v-if="name == 'translator'">
+      <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="77px"/>
+    </span>
   </section>
 
 
@@ -125,10 +145,30 @@
                   throw err;
               });
             }
-
-
-
         },
+        handleModal(anchor){
+          var self = this;
+
+          var targetDump = document.getElementById('desc');
+
+          if (targetDump) {
+            console.log('yes desc')
+          }else{
+            console.log('no desc')
+          }
+
+          switch (anchor) {
+            case 'best-practices':
+                self.convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md','desc')
+              break;
+            case 'sematic-io':
+              self.convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc')
+              break;
+            default:
+              console.log('no match')
+          }
+
+        }
       },
       created: function(){
         if ({{Context}}) {
@@ -140,6 +180,29 @@
 
       },mounted:function(){
         var self = this;
+
+
+
+
+        // $(document).ready(function(){
+        //   var self = this;
+        //   let anchor = location.hash.slice(1);
+        //
+        //   if (anchor) {
+        //     console.log('anchor',anchor)
+        //     try {
+        //       console.log('exists',"#"+anchor)
+        //       $("#"+anchor).modal('open');
+        //
+        //     } catch (e) {
+        //       console.log("no modal exists")
+        //     }
+        //   }
+        //
+        //
+        //
+        // });
+
 
       }
   });
