@@ -51,6 +51,7 @@ def generate_slack_params(data, res, github_user, webhook_dict):
 						f"	*Registered By:* <https://github.com/{github_user}|{github_user}>\n\n"
 						f"	<{registry_url}|View on SmartAPI Registry>  -  <{docs_url}|View API Documentation>"
 						)
+	# Assemble params to be sent to slack 
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",

@@ -8,6 +8,8 @@ elasticsearch-dsl==6.4.0
 torngithub==0.2.0 
 Jinja2>=2.9.6
 pycurl==7.43.0.3
+
+# gitdb version specified because gitdb.utils.compat not available in newest version
 gitdb==0.6.4
 
 # s3 backup
