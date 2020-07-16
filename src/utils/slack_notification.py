@@ -1,7 +1,11 @@
 import json
 import requests
-from config import SLACK_WEBHOOKS
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+
+try:
+	from config import SLACK_WEBHOOKS
+except ImportError: 
+	SLACK_WEBHOOKS = []
 
 def get_tags(data):
 	"""Generate array of all the tags listed in the newly registered API"""
