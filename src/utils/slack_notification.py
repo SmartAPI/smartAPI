@@ -15,7 +15,7 @@ def get_tags(data):
 			tags.append(item['name'])
 	return tags
 
-def generate_slack_params(data, res, user):
+def generate_slack_params(data, res, github_user, webhook_dict):
 	"""Generate parameters that will be used in slack post request. 
 	
 	In this case, markdown is used to generate formatting that 
@@ -27,10 +27,30 @@ def generate_slack_params(data, res, user):
 						if len(data["info"]["description"]) > 150 
 						else data["info"]["description"])
 	api_id = res["_id"]
-	api_url =  "http://smart-api.info/registry?q=" + api_id
-	block_markdown = ("A new API has been registered on SmartAPI.info:  \n\n*API Title:* " 
-					+ api_title + "\n*API Description:* " + api_description + "\n*SmartAPI Registry URL:* " 
-					+ api_url + "\n*By User:* " + user)
+	registry_url =  f"http://smart-api.info/registry?q={api_id}" 
+	docs_url = f"http://smart-api.info/ui/{api_id}"
+	if("template" in webhook_dict):
+		# update custom template with actual variables. Unable to use inline updates
+		# for fixed template set as string
+		block_markdown = (webhook_dict['template']
+						.replace("{ ","")
+						.replace(" }","")
+						.replace("{","")
+						.replace("}","")
+						.replace("api_title", api_title)
+						.replace("api_description", api_description)
+						.replace("registry_url", registry_url)
+						.replace("docs_url", docs_url)
+						.replace("github_user", github_user)
+						)
+	else:
+		# default markdown
+		block_markdown = (f"A new API has been registered on SmartAPI.info:\n\n"
+						f"	*Title:* {api_title}\n"
+						f"	*Description:* {api_description}\n"
+						f"	*Registered By:* <https://github.com/{github_user}|{github_user}>\n\n"
+						f"	<{registry_url}|View on SmartAPI Registry>  -  <{docs_url}|View API Documentation>"
+						)
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",
@@ -45,7 +65,7 @@ def generate_slack_params(data, res, user):
     }
 	return params
 
-def send_slack_msg(data, res, user):
+def send_slack_msg(data, res, github_user):
 	"""Make requests to slack to post information about newly registered API. 
 	
 	Notifications will be sent to every 
@@ -55,21 +75,20 @@ def send_slack_msg(data, res, user):
 	"""
 	headers = {'content-type': 'application/json'}
 	data_tags = get_tags(data)
-	params = generate_slack_params(data, res, user)
 	http_client = AsyncHTTPClient()
 	for x in SLACK_WEBHOOKS:
+		send_request = False
 		if('tags' in x):
 			if(isinstance(x['tags'], str)):
 				if(x['tags'] in data_tags):
-					req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
-					http_client = AsyncHTTPClient()
-					http_client.fetch(req)
+					send_request = True
 			elif(isinstance(x['tags'], list)):
 				if(bool(set(x['tags']) & set(data_tags))):
-					req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
-					http_client = AsyncHTTPClient()
-					http_client.fetch(req)
+					send_request = True
 		else:
+			send_request = True
+		if(send_request):
+			params = generate_slack_params(data, res, github_user, x)
 			req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
 			http_client = AsyncHTTPClient()
 			http_client.fetch(req)

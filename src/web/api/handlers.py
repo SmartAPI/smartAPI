@@ -107,7 +107,7 @@ class APIHandler(BaseHandler):
                         self.return_json(res)
                         ## send notification to slack 
                         if(res["success"] == True):
-                            send_slack_msg(data,res,user['login'])      
+                            send_slack_msg(data, res, user['login'])      
 
                 else:
                     self.return_json(
