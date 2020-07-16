@@ -54,11 +54,17 @@ def send_slack_msg(data, res, user):
 	params = generate_slack_params(data, res, user)
 	http_client = AsyncHTTPClient()
 	for x in SLACK_WEBHOOKS:
-		if(x['tag_specific']):
-			if(x['tag'] in data_tags):
-				req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
-				http_client = AsyncHTTPClient()
-				http_client.fetch(req)
+		if('tags' in x):
+			if(isinstance(x['tags'], str)):
+				if(x['tags'] in data_tags):
+					req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
+					http_client = AsyncHTTPClient()
+					http_client.fetch(req)
+			elif(isinstance(x['tags'], list)):
+				if(bool(set(x['tags']) & set(data_tags))):
+					req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
+					http_client = AsyncHTTPClient()
+					http_client.fetch(req)
 		else:
 			req = HTTPRequest(url=x['webhook'], method='POST', body=json.dumps(params), headers=headers)
 			http_client = AsyncHTTPClient()
