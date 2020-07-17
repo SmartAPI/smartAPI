@@ -34,27 +34,46 @@ Contact: api-interoperability@googlegroups.com
     COOKIE_SECRET = '<Any Random String>'
     GITHUB_CLIENT_ID = '<your Github application Client ID>'
     GITHUB_CLIENT_SECRET = '<your Github application Client Secret>'
-    SLACK_WEBHOOKS = [
+    SLACK_WEBHOOKS = [ 
 	    {
-		    "tag_specific": <Boolean>, 
-		    "tag": <string if tag_specific is True> <None if tag_specific is False>,
-		    "webhook": <insert webhook URL> 
+		    "tag": '<string>' or '<list of strings>', # (optional)
+		    "webhook": '<insert webhook URL>', 
+		    "template": '<slack markdown string with variables included as {variable_name}>' # (optional)
 	    }
-    ]
+    ] # (optional) 
     ```
     For Github incorporation, follow [this instruction](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/) to create your Github Client ID and Secret.   
     Enter any _Application name_, `http://localhost:8000/` for _Homepage 
     URL_ and `http://localhost:8000/oauth` for _Authorization callback URL_.
     
-    For SLACK_WEBHOOKS (optional), the list may be left empty if one does not want Slack notifications pushed every time a new API is added to the smartAPI registry, such that: 
-    ```
-    SLACK_WEBHOOKS = []
-    ```
+    For SLACK_WEBHOOKS (optional), the list may not be included if one does not want Slack notifications pushed every time a new API is added to the smartAPI registry.  
+    
     Alternatively, if one wants slack notifications sent to more than one channel, one may list more than one dict in the ```SLACK_WEBHOOKS``` list.
     
     Follow [this instruction](https://slack.com/help/articles/115005265063-Incoming-Webhooks-for-Slack) to create Slack webhooks and obtain webhook URLs. 
     
-    Finally, if one would like a Slack notification pushed if the newly registered API contains a specific tag, one should set ```tag_specific``` to ```True```, and the ```tag``` key should have the value of the specific tag (case sensitive). 
+    If one would like a Slack notification pushed only if the newly registered API contains a specific tag or tags, one should include the ```tag``` key, which should have the value of the specific tag(s) (case sensitive).
+    
+    For example:
+    ```
+    "tags": ['translator','biothings'] # will send every time an API is registered with a 'translator' and/or 'biothings' tag 
+    ```
+    or
+    ```
+    "tags": 'translator' # will send every time an API is registered with a 'translator' tag 
+    ```
+    Finally, to supply your own template instead of using the default Slack Markdown template, please supply the template as a string, with optional variables to be included in a ```{variable}``` format. For example: 
+    ```
+    "template": "A new API has been registered on SmartAPI.info:\n\n*Title:* {api_title}\n*Description:* {api_description}"
+    ```
+    The variables that can be supplied include: 
+    ```
+    api_title  # title of registered API 
+    api_description # listed describtion of API
+    registry_url # url that the API is listed in the SmartAPI registry
+    docs_url # url for the API's documentation on SmartAPI.info
+    github_user # the github username of the individual that registered the API
+    ```
     
 7. Create index in Python (version 3.x) shell:
     ```
