@@ -1,5 +1,6 @@
 import json
 import requests
+import re
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 
 try:
@@ -15,6 +16,20 @@ def get_tags(data):
 			tags.append(item['name'])
 	return tags
 
+def change_link_markdown(description):
+	"""Change markdown styling of links to match fit Slack Markdown styling
+	
+	Description text links formatted as [link name](URL), we want <URL|link name>
+	"""
+	description = description.split(" ")
+	# check each word in string
+	for i in range(len(description)): 
+		if((description[i][0] == '[') and (description[i][-1] == ")") and ("](" in description[i])):
+			description[i] = description[i].replace("[","").replace(")","")
+			temp_list = description[i].split("](")
+			description[i] = "<" + temp_list[1] + "|" + temp_list[0] + ">"
+	return " ".join(str(x) for x in description)
+
 def generate_slack_params(data, res, github_user, webhook_dict):
 	"""Generate parameters that will be used in slack post request. 
 	
@@ -22,10 +37,11 @@ def generate_slack_params(data, res, github_user, webhook_dict):
 	will show in Slack message
 	"""
 	api_title = data["info"]["title"]
-	# limit API description to 150 characters
-	api_description = ((data["info"]["description"][:150] + '...') 
-						if len(data["info"]["description"]) > 150 
+	# limit API description to 120 characters
+	api_description = ((data["info"]["description"][:120] + '...') 
+						if len(data["info"]["description"]) > 120 
 						else data["info"]["description"])
+	api_description = change_link_markdown(api_description)
 	api_id = res["_id"]
 	registry_url =  f"http://smart-api.info/registry?q={api_id}" 
 	docs_url = f"http://smart-api.info/ui/{api_id}"
