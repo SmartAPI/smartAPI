@@ -26,18 +26,30 @@
 <main id="portals" class="white" v-cloak>
   <!-- MAIN SECTIONS -->
   <section class="center grey lighten-3 d-flex justify-content-around padding20 flex-wrap">
-    <span v-if="name == 'translator'">
-      <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="77px"/>
-    </span>
-    <h1 class="blue-text bold flow-text">
-      <span v-if="name == 'translator'">
-        NCATS BioMedical Data Translator
-      </span>
-      <span v-else v-text="name"></span>
-    </h1>
-    <span v-if="name == 'translator'">
-      <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="77px"/>
-    </span>
+    <div v-if="name == 'translator'" class="row">
+      <div class="col s12 m4">
+        <img src="/static/img/TranslatorLogo.JPG" aria-label="NCATS" height="77px"/>
+      </div>
+      <div class="col s12 m4">
+        <h1 class="blue-text bold flow-text">
+          <span v-if="name == 'translator'">
+            A SmartAPI Portal for NCATS Biomedical Data Translator
+          </span>
+          <span v-else v-text="name"></span>
+        </h1>
+        <p class="blue-grey-text" v-if="name == 'translator'">
+          This program focuses on building tools for massive knowledge integration in support of biomedical and translational science. <a target="_blank" rel="noreferrer" href="https://ncats.nih.gov/translator">Learn more</a>
+        </p>
+      </div>
+      <div class="col s12 m4">
+        <img src="/static/img/ncats-logo-1.png" aria-label="NCATS" height="77px"/>
+      </div>
+    </div>
+    <div v-else>
+      <h1 class="blue-text bold flow-text">
+        <span v-text="name"></span>
+      </h1>
+    </div>
   </section>
 
 

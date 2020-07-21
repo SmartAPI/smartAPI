@@ -3,18 +3,18 @@
     <div class="d-flex align-items-stretch row flex-wrap m-0">
       <!-- Left -->
       <div class="col s12 m6 padding20">
-        <h3 class="center blue-text bold">BUILD A TRANSLATOR KP (Knowledge Provider) API</h3>
+        <h3 class="center blue-text bold">BUILD A TRANSLATOR KNOWLEDGE PROVIDER API</h3>
         <section>
           <div class="d-flex">
             <h5 class="meta_grad" style="margin-right:5px;padding:2px;"></h5>
             <h5 class="meta_grad" style="margin-right:5px;padding:4px;"></h5>
-            <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_1</i> Create a KP API</h5>
+            <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_1</i> Create a Knowledge Provider API</h5>
           </div>
           <p class="center">
             <img src="/static/img/build_api-01.svg" width="100px" alt="create api"/>
           </p>
           <p>
-            To create a KP API that's ready to be integrated into the Translator ecosystem, you can:
+            To create a Knowledge Provider (KP) API that's ready to be integrated into the Translator ecosystem, you can:
             <ul>
               <li>
                 <i class="material-icons green-text">done</i> Build a REST API with JSON output (use your own preferred structure).
@@ -46,7 +46,7 @@
               <i class="material-icons green-text">done</i> 1. Create your API metadata following the latest <a href="http://spec.openapis.org/oas/v3.0.3" target="_blank" rel="noreferrer">OpenAPI v3 API specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
             </li>
             <li>
-              <i class="material-icons green-text">done</i> 2. Describe the semantics of your API's input and output. <a class="modal-trigger green-text" href="#modal" @click="handleModal('sematic-io')">Learn more</a>.
+              <i class="material-icons green-text">done</i> 2. Add semantics of your API's inputs and outputs using the SmartAPI extensions. <a class="modal-trigger green-text" href="#modal" @click="handleModal('sematic-io')">Learn more</a>.
             </li>
           </ul>
           <p>
@@ -65,7 +65,7 @@
           </div>
           <p>
             Once you are ready and <a href="/add_api">register</a> your KP API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
-            your API will be visible to other users.
+            your API will be visible to other users. Eg. <a href="/registry?q=59dce17363dce279d389100834e43648">MyGene.info API</a>
           </p>
           <p>
             The registry provides useful information and operation documentation, API status, editing tools and many other neat features!
@@ -78,9 +78,12 @@
       <!-- Right -->
       <div class="col s12 m6 padding20 meta_grad white-text container">
         <div class="center">
-          <h3 class="center cyan-text bold">NAVIGATE YOUR TRANSLATOR KP API</h3>
+          <h3 class="center cyan-text bold">EXPLORE THE TRANSLATOR API META KNOWLEDGE GRAPH</h3>
           <img src="/static/img/metakg-01.png" aria-label="NCATS" width="150px"/>
           <h1>META-KG</h1>
+          <p class="center">
+            <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
+          </p>
         </div>
         <p>
           The SmartAPI Meta Knowledge Graph (Meta-KG) represents how biomedical concepts can be connected through APIs. Each node in the meta-KG represents a biolink entity type, e.g. Gene, SequenceVariant, ChemicalSubstance. Each edge in the meta-KG represents a unique combination of a biolink predicate, e.g. targets, treats, and an API which delivers the association.
@@ -93,18 +96,16 @@
         <p>
           The Meta-KG is constructed using the collection of SmartAPI specifications currently registered in SmartAPI. All APIs registered with x-smartapi field will be integrated into the meta-KG. In addition, all ReasonerStdAPIs registered in SmartAPI and implemented the /predicate endpoint will also be integrated.
         </p>
-        <h5 class="bold center">Search APIs based on meta-kg operations</h5>
-        <p class="center">
-          <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
-        </p>
+        <h5 class="bold center">What can you do with Meta-KG?</h5>
+        <p>Traverse a complex network of connected KP APIS and search APIs based on meta-kg operations (API endpoints that fetch results given a desired output, input, predicate or any combination of them ).</p>
         <h4 class="cyan-text center">Example</h4>
         <div class="white grey-text rounded center p-1">
           <p>
-            I want to find all API operations in which a biological concept <b>AFFECTS</b> a <b>GENE</b>…
+            Find APIs that report entities that <b>AFFECT</b> <b>GENES</b>...
           </p>
         </div>
         <p>
-          Meta-KG would then find all connections with <i>predicate</i> “affects” and <i>output_type</i> “Gene” and give you a list of APIs which can give you type of results.
+          Meta-KG would then find all connections with <i>predicate</i> “affects” and <i>output_type</i> “Gene” and give you a list of APIs which can give you that type of results.
         </p>
         <img src="/static/img/graph_example.jpg" width="100%" alt="graph example" class="rounded"/>
       </div>
