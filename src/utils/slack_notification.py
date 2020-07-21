@@ -21,14 +21,7 @@ def change_link_markdown(description):
 	
 	Description text links formatted as [link name](URL), we want <URL|link name>
 	"""
-	description = description.split(" ")
-	# check each word in string
-	for i in range(len(description)): 
-		if((description[i][0] == '[') and (description[i][-1] == ")") and ("](" in description[i])):
-			description[i] = description[i].replace("[","").replace(")","")
-			temp_list = description[i].split("](")
-			description[i] = "<" + temp_list[1] + "|" + temp_list[0] + ">"
-	return " ".join(str(x) for x in description)
+	return re.sub('\[(?P<label>[^\[\]]+)\]\((?P<url>[^()]+)\)', '<\g<url>|\g<label>>', description)
 
 def generate_slack_params(data, res, github_user, webhook_dict):
 	"""Generate parameters that will be used in slack post request. 
@@ -45,29 +38,23 @@ def generate_slack_params(data, res, github_user, webhook_dict):
 	api_id = res["_id"]
 	registry_url =  f"http://smart-api.info/registry?q={api_id}" 
 	docs_url = f"http://smart-api.info/ui/{api_id}"
-	if("template" in webhook_dict):
-		# update custom template with actual variables. Unable to use inline updates
-		# for fixed template set as string
-		block_markdown = (webhook_dict['template']
-						.replace("{ ","")
-						.replace(" }","")
-						.replace("{","")
-						.replace("}","")
-						.replace("api_title", api_title)
-						.replace("api_description", api_description)
-						.replace("registry_url", registry_url)
-						.replace("docs_url", docs_url)
-						.replace("github_user", github_user)
-						)
-	else:
-		# default markdown
-		block_markdown = (f"A new API has been registered on SmartAPI.info:\n\n"
-						f"	*Title:* {api_title}\n"
-						f"	*Description:* {api_description}\n"
-						f"	*Registered By:* <https://github.com/{github_user}|{github_user}>\n\n"
-						f"	<{registry_url}|View on SmartAPI Registry>  -  <{docs_url}|View API Documentation>"
-						)
-	# Assemble params to be sent to slack 
+	api_data = {
+		"api_title": api_title, 
+		"api_description": api_description,
+		"registry_url": registry_url,
+		"docs_url": docs_url,
+		"github_user": github_user
+	}
+	# default markdown
+	default_block_markdown_template = ("A new API has been registered on SmartAPI.info:\n\n"
+						"*Title:* {api_title}\n"
+						"*Description:* {api_description}\n"
+						"*Registered By:* <https://github.com/{github_user}|{github_user}>\n\n"
+						"<{registry_url}|View on SmartAPI Registry>  -  <{docs_url}|View API Documentation>")
+	# get template - use default if one not provided
+	block_markdown_tpl = webhook_dict.get("template", default_block_markdown_template)
+	# fill template with variable values
+	block_markdown = block_markdown_tpl.format(**api_data)
 	params = {
         "attachments": [{
         	"color": "#b0e3f9",
