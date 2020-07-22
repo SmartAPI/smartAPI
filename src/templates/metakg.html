@@ -146,7 +146,7 @@
           <small class="pointer grey-text " @click="recenterGraph()"><i class="fa fa-dot-circle-o" aria-hidden="true"></i> Reset Zoom</small>
         </div>
         <div v-show="showAPIS">
-          <canvas id="myChart" width="100%" height="200" style="margin:auto;"></canvas>
+          <canvas class="col s12" id="myChart" width="100%" height="150" style="margin:auto;"></canvas>
           <div class="apisCont">
             <template v-for="(num,api) in apis" :key="api">
               <span class="pointer api-pill" :class="getClass(api)" @mouseenter="handleME(api)" @mouseleave="handleML(api)">
@@ -456,20 +456,20 @@
             }
           }
 
-          state.output_autocomplete = []
-          state.input_autocomplete = []
+          // state.output_autocomplete = []
+          // state.input_autocomplete = []
           state.predicate_autocomplete = []
 
           for (var i = 0; i < filteredOptions.length; i++) {
 
             // AC
 
-            if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
-              state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
-            }
-            if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
-              state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
-            }
+            // if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
+            //   state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
+            // }
+            // if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
+            //   state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
+            // }
 
             if (!state.predicate_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['predicate']))) {
               state.predicate_autocomplete.push(cleanUpName(filteredOptions[i]['association']['predicate']))
