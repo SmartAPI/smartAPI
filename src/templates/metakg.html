@@ -445,6 +445,38 @@
         saveOperations(state,payload){
           state.operations= payload['ops'];
         },
+        getNewOptions(state,payload){
+          let filteredOptions = payload['res'];
+          // helper func
+          function cleanUpName(name){
+            if (name.indexOf(':') !== -1) {
+              return name.split(':')[1];
+            }else{
+              return name
+            }
+          }
+
+          state.output_autocomplete = []
+          state.input_autocomplete = []
+          state.predicate_autocomplete = []
+
+          for (var i = 0; i < filteredOptions.length; i++) {
+
+            // AC
+
+            if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
+              state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
+            }
+            if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
+              state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
+            }
+
+            if (!state.predicate_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['predicate']))) {
+              state.predicate_autocomplete.push(cleanUpName(filteredOptions[i]['association']['predicate']))
+            }
+
+          }
+        },
         loadMetaKG(state,payload){
           state.meta_kg = payload['graph']
           // console.log("OPS", state.meta_kg.ops.length)
@@ -836,10 +868,15 @@
 
           // console.log("Q",q)
 
+          let g = state.meta_kg.filter(q);
+
           var payload = {};
-          payload["res"] = state.meta_kg.filter(q);
-          // console.log(state.meta_kg.filter(q))
+          payload["res"] = g;
           commit('saveResults',payload);
+
+          var payload = {};
+          payload["res"] = g;
+          commit('getNewOptions',payload);
 
           commit('drawGraph');
 
@@ -871,7 +908,56 @@
           showConfirmButton:false,
           timer:2000});
 
-        }
+        },
+        buildURL({ commit, state }){
+
+          let base = window.location.origin+window.location.pathname
+          let finalURL = window.location.href
+
+          // console.log('finalURL START',finalURL)
+
+          let url = new URL(finalURL);
+
+          let params = new URLSearchParams(url.search.slice(1));
+
+          if (state.predicate_selected.length) {
+            //something is selected
+            params.set('predicate', state.predicate_selected.toString());
+          }else {
+            //nothing selected
+            if (params.get('predicate')) {
+              params.delete('predicate');
+            }
+          }
+
+          if (state.input_selected.length) {
+            //something is selected
+            params.set('input_type', state.input_selected.toString());
+          }else {
+            //nothing selected
+            if (params.get('input_type')) {
+              params.delete('input_type');
+            }
+          }
+
+          if (state.output_selected.length) {
+            //something is selected
+            params.set('output_type', state.output_selected.toString());
+          }else {
+            //nothing selected
+            if (params.get('output_type')) {
+              params.delete('output_type');
+            }
+          }
+
+
+          finalURL = base+"?"+params
+
+          // console.log('finalURL END',finalURL)
+
+          //HTML5 change url history
+          window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"MetaKG", finalURL);
+        },
       }
     });
 
@@ -973,6 +1059,41 @@
           store.commit('saveInput',payload);
 
           store.dispatch('handle_metaKG_Query_New')
+          store.dispatch('buildURL');
+        },
+        loading:function(isLoading){
+          var self = this;
+          if (!isLoading) {
+
+            //when done loading check URL for existing extra_params
+
+            let base = window.location.origin+window.location.pathname
+            let finalURL = window.location.href
+
+            // console.log('finalURL START',finalURL)
+
+            let url = new URL(finalURL);
+
+            let params = new URLSearchParams(url.search.slice(1));
+
+            let type = params.get(self.type);
+            if (type) {
+              let selections = type.split(',');
+
+              for (var i = 0; i < selections.length; i++) {
+                var payload = {};
+                payload["type"] = self.type;
+                payload["q"] = selections[i];
+                store.commit('pushPill',payload);
+
+                var payload2 = {};
+                payload2["name"] = self.type;
+                payload2["q"] = self.selected;
+
+                store.commit('saveInput',payload2);
+              }
+            }
+          }
         }
       },
       mounted: function(){
@@ -1377,7 +1498,55 @@
         },
         recenterGraph(){
           store.dispatch('recenterGraph')
-        }
+        },
+        checkforQuery: function(){
+          var self = this;
+          var url_string = window.location.href
+          var url = new URL(url_string);
+
+          var q = url.searchParams.get("q");
+          if (q) {
+            this.query = q;
+          }
+
+          var tags = url.searchParams.get("tags");
+          if (tags) {
+            if (tags.includes(',')) {
+              tags = tags.split(',')
+            }else {
+              tags = [tags]
+            }
+            for (var i = 0; i < tags.length; i++) {
+              for (var x = 0; x < self.tags.length; x++) {
+                if (self.tags[x].name === tags[i]) {
+                  var payload = {};
+                  payload["tag"] = self.tags[x];
+                  store.commit('toggleTag',payload);
+                }
+              }
+            }
+          }
+
+          var owners = url.searchParams.get("owners");
+          if (owners) {
+            if (owners.includes(',')) {
+              owners = owners.split(',')
+            }else {
+              owners = [owners]
+            }
+            for (var i = 0; i < owners.length; i++) {
+              for (var x = 0; x < self.authors.length; x++) {
+                if (self.authors[x].name === owners[i]) {
+                  var payload = {};
+                  payload["author"] = self.authors[x];
+                  store.commit('toggleAuthor',payload);
+                }
+              }
+            }
+          }
+
+        },
+
       },
       created: function(){
         if ({{Context}}) {
