@@ -162,12 +162,7 @@
           var self = this;
 
           var targetDump = document.getElementById('desc');
-
-          if (targetDump) {
-            console.log('yes desc')
-          }else{
-            console.log('no desc')
-          }
+          targetDump.innerHTML = "";
 
           switch (anchor) {
             case 'best-practices':
@@ -192,30 +187,6 @@
 
       },mounted:function(){
         var self = this;
-
-
-
-
-        // $(document).ready(function(){
-        //   var self = this;
-        //   let anchor = location.hash.slice(1);
-        //
-        //   if (anchor) {
-        //     console.log('anchor',anchor)
-        //     try {
-        //       console.log('exists',"#"+anchor)
-        //       $("#"+anchor).modal('open');
-        //
-        //     } catch (e) {
-        //       console.log("no modal exists")
-        //     }
-        //   }
-        //
-        //
-        //
-        // });
-
-
       }
   });
   </script>
