@@ -139,7 +139,7 @@
         </div>
       </div>
       <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
-        <div v-if="loading" class="purple lighten-4 purple-text">
+        <div v-if="loading" class="purple lighten-4 purple-text padding20">
           <h6>Please wait...</h6>
         </div>
         <div v-show="!loading" class="d-flex justify-content-around">
@@ -330,7 +330,7 @@
                 'content': 'data(name)',
                 "text-valign": "bottom",
                 "text-halign": "center",
-                'color': 'black',
+                'color': '#3c5f99',
                 'width': '100',
                 'height':'100',
                 'background-fit': 'cover',
@@ -342,13 +342,12 @@
                 'text-outline-color': 'white',
                 'background-color': '#ff9800'
               })
-            .selector(':selected')
+            .selector('node:selected')
               .css({
-                'background-color': '#257FC5',
-                'line-color': '#257FC5',
-                'target-arrow-color': '#257FC5',
-                'source-arrow-color': '#257FC5',
-                'text-outline-color': '#ffeb67'
+                'color': 'red',
+                'border-color': 'red',
+                'border-width': 3,
+                'border-opacity': 0.7,
               })
             .selector('edge').css({
               'curve-style': 'bezier',
@@ -358,13 +357,18 @@
               'width': 2
             })
             .selector('edge:selected').css({
-              'content': 'data(name)',
+              'content': 'data(displayName)',
+              'target-label':'data(api)',
+              'text-wrap': 'wrap',
+              'edge-text-rotation': 'autorotate',
+              'text-outline-width': 3,
+              'text-outline-color': 'white',
               'z-index':1000,
               'color': '#2f2f2f',
               'font-size': '2.5em',
               'width': 8,
               'line-color': '#9c27b0',
-              'target-arrow-color': 'red',
+              'target-arrow-color': '#f24141',
               'arrow-scale':2
             })
             .selector('#Gene').css({
@@ -544,6 +548,8 @@
               data: {
                 id: edgeName+i,
                 name: edgeName,
+                displayName : state.meta_kg.ops[i]['association']['predicate'],
+                api: "API > "+state.meta_kg.ops[i]['association']['api_name'],
                 tags: state.meta_kg.ops[i]['tags'],
                 type:state.meta_kg.ops[i]['association']['api_name'],
                 source: cleanUpName(state.meta_kg.ops[i]['association']['input_type']) ,
@@ -644,6 +650,8 @@
               data: {
                 id: edgeName+i,
                 name: edgeName,
+                displayName : state.results[i]['association']['predicate'],
+                api : "API > "+state.results[i]['association']['api_name'],
                 tags: state.meta_kg.ops[i]['tags'],
                 source: cleanUpName(state.results[i]['association']['input_type']) ,
                 target: cleanUpName(state.results[i]['association']['output_type']),
