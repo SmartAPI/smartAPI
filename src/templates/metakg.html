@@ -45,7 +45,7 @@
   </div>
   <div class="padding20 grey lighten-3">
     <div class="center">
-      <h3>Meta-KG</h3>
+      <h3><img class="scale-in-center" src="/static/img/metakg-01.png" aria-label="NCATS" width="50px" style="max-width:50px;max-height:50px;"/> Meta-KG</h3>
       <p>
         Search for API operations given a combination of input, output(s), and/or predicates.
       </p>
@@ -80,13 +80,10 @@
               </div>
               <pill-box type="output_type"></pill-box>
             </div>
-            <div class="col s12 center padding20 d-flex" style="justify-content: space-evenly;">
+            <div class="col s12 center">
               <!-- <button class="btn blue" type="submit" name="search">
                 Search
               </button> -->
-              <!--  -->
-              <img v-if="!loading" class="scale-in-center" src="/static/img/metakg-01.png" aria-label="NCATS" width="50px" style="max-width:50px;max-height:50px;"/>
-              <!--  -->
               <button v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
                 Clear
               </button>
@@ -139,8 +136,8 @@
         </div>
       </div>
       <div class="col s12 m8" style="overflow:hidden;border:white solid 2px;margin:auto;background:#f2f2f2;margin-top:10px;">
-        <div v-if="loading" class="purple lighten-4 purple-text padding20">
-          <h6>Please wait...</h6>
+        <div v-if="loading" class="purple-text padding20 center">
+          <h4>Loading...</h4>
         </div>
         <div v-show="!loading" class="d-flex justify-content-around">
           <small class="pointer grey-text" @click="showAPIS = !showAPIS">
@@ -157,6 +154,10 @@
               </span>
             </template>
           </div>
+        </div>
+        <div v-if="!loading && results.length == 0" class="deep-orange-text padding20 center">
+          <img src="/static/img/api-error.svg" width="150px" alt="oh no.." />
+          <h4>No Results, Please Refine Your Query</h4>
         </div>
         <div id="cy">
 
@@ -219,8 +220,7 @@
         "spread":false,
         "tagList":[],
         "operationsTotal":0,
-        "loading":false
-
+        "loading":false,
       },
       strict: true,
       mutations: {
@@ -364,10 +364,10 @@
               'text-outline-width': 3,
               'text-outline-color': 'white',
               'z-index':1000,
-              'color': '#2f2f2f',
+              'color': '#9c27b0',
               'font-size': '2.5em',
               'width': 8,
-              'line-color': '#9c27b0',
+              'line-color': '#257FC5',
               'target-arrow-color': '#f24141',
               'arrow-scale':2
             })
@@ -623,6 +623,7 @@
             }
           }
           let data = []
+          let edges =[]
           for (var i = 0; i < state.results.length; i++) {
 
             let node1 ={ //a
@@ -658,11 +659,10 @@
               }
             };
 
-            data.push(edge)
-
+            edges.push(edge)
 
           }
-          state.cyto_data = data
+          state.cyto_data = data.concat(edges)
 
         },
         pushPill(state,payload){
@@ -812,26 +812,26 @@
         },
         getLoading:(state)=>{
           return state.loading
-        }
+        },
       },
       actions:{
         recenterGraph ({ commit, state }){
           this.cy.fit();
         },
-        handle_metaKG_Query ({ commit, state }, q){
-          if (!q.predicate[0].length) {
-            document.getElementById('callResults').innerHTML= '<h4 class="red-text">You must enter something first</h4>';
-          }else{
-            // console.log(q)
-
-            var payload = {};
-            payload["res"] = state.meta_kg.filter(q);
-            commit('saveResults',payload);
-
-            commit('drawGraph');
-          }
-
-        },
+        // handle_metaKG_Query ({ commit, state }, q){
+        //   if (!q.predicate[0].length) {
+        //     document.getElementById('callResults').innerHTML= '<h4 class="red-text">You must enter something first</h4>';
+        //   }else{
+        //     // console.log(q)
+        //
+        //     var payload = {};
+        //     payload["res"] = state.meta_kg.filter(q);
+        //     commit('saveResults',payload);
+        //
+        //     commit('drawGraph');
+        //   }
+        //
+        // },
         highlightThis({ commit, state }, payload){
           let name = payload['highlight']
           let self = this;
@@ -840,22 +840,7 @@
                 return element;
             }
           });
-          found.addClass('highlightedAPI')
-          // switch (name) {
-          //   case "MyGene.info API":
-          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#2A7FE2','width': 5, 'z-index':1000 });
-          //     break;
-          //   case "MyVariant.info API":
-          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#40B307','width': 5, 'z-index':1000 });
-          //     break;
-          //   case "MyChem.info API":
-          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#FD7400','width': 5, 'z-index':1000 });
-          //     break;
-          //   default:
-          //     self.cy.$('edge[type="'+name+'"]').style({ 'line-color': '#9e005d','width': 5, 'z-index':1000 });
-          // }
-
-
+          found.addClass('highlightedAPI');
         },
         unhighlightThis({ commit, state }, payload){
           let name = payload['unhighlight']
@@ -889,11 +874,13 @@
                 }
             }
           });
+          let found2 = this.cy.filter('node').style({'opacity':.5})
           found.select()
         },
         unhighlightRow({ commit, state }, payload){
           let name = payload['unhighlight']
           this.cy.elements().unselect()
+          this.cy.filter('node').style({'opacity':1})
         },
         handle_metaKG_Query_New ({ commit, state }){
           // console.log(state)
@@ -908,25 +895,21 @@
             q['input_type']= state.input_type
           }
 
-          // console.log("Q",q)
+          // console.log("Q",JSON.stringify(q,null,2))
 
           let g = state.meta_kg.filter(q);
 
-          var payload = {};
-          payload["res"] = g;
-          commit('saveResults',payload);
+          if (g) {
+            var payload = {};
+            payload["res"] = g;
+            commit('saveResults',payload);
 
-          var payload = {};
-          payload["res"] = g;
-          commit('getNewOptions',payload);
+            var pay = {};
+            pay["res"] = g;
+            commit('getNewOptions',pay);
 
-          commit('drawGraph');
-
-          // Swal.fire({type:'success',
-          // toast:true,
-          // title: 'Updated',
-          // showConfirmButton:false,
-          // timer:2000});
+            commit('drawGraph');
+          }
         },
         download({ commit, state }){
 
@@ -1008,7 +991,6 @@
         return{
           'q':'',
           'lookupResults':[],
-          // 'selected':[],
         }
       },
       props: ['type'],
@@ -1036,7 +1018,7 @@
 
           store.commit('saveInput',payload);
           self.q = ''
-          store.dispatch('handle_metaKG_Query_New')
+          // store.dispatch('handle_metaKG_Query_New')
         },
         remove(item){
           var self = this;
@@ -1046,7 +1028,7 @@
           payload["q"] = item;
 
           store.commit('removePill',payload);
-          store.dispatch('handle_metaKG_Query_New')
+          // store.dispatch('handle_metaKG_Query_New')
         },
         getBackClass(){
           var self = this;
@@ -1091,7 +1073,6 @@
         },
         selected:function(s){
           var self = this;
-
           // load example by watching selected
 
           var payload = {};
@@ -1102,6 +1083,7 @@
 
           store.dispatch('handle_metaKG_Query_New')
           store.dispatch('buildURL');
+
         },
       },
       mounted: function(){
@@ -1221,7 +1203,7 @@
         },
         tagList: function(){
           return store.getters.getTagList
-        }
+        },
       },
       watch:{
         apis:function(a){
@@ -1306,7 +1288,7 @@
             //   }
             // }
           }
-        }
+        },
       },
       methods: {
         drawPie(){
