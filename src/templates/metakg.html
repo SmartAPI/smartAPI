@@ -242,7 +242,7 @@
 
           if (state.spread) {
             let l= this.cy.layout({
-              name: 'cose',
+              name: 'grid',
               idealEdgeLength: 100,
               nodeOverlap: 20,
               refresh: 20,
@@ -260,8 +260,11 @@
               minTemp: 1.0
             });
             this.cy.$('edge').css({
-              'curve-style': 'straight',
+              'curve-style': 'taxi',
               'font-size': '1em',
+            })
+            this.cy.$('edge:selected').css({
+              "z-index":1000,
             })
             this.cy.$('node').css({
               'width': '40',
