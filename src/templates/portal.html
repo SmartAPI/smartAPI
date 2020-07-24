@@ -99,6 +99,7 @@
       el: '#portals',
       data: function(){
         return {
+          editLink:''
         }
       },
       computed: {
@@ -167,9 +168,11 @@
           switch (anchor) {
             case 'best-practices':
                 self.convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md','desc')
+                self.editLink ='https://github.com/SmartAPI/smartAPI/edit/master/docs/CREATE_API.md'
               break;
             case 'sematic-io':
               self.convertMarkdownToHtml('https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md','desc')
+              self.editLink ='https://github.com/SmartAPI/smartAPI/edit/master/docs/API_METADATA.md'
               break;
             default:
               console.log('no match')

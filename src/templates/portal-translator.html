@@ -114,8 +114,19 @@
     <!-- Modal Structure -->
     <div id="modal" class="modal">
       <div class="modal-content">
+        <div class="modal-header">
+          <a href="#!" class="modal-close btn-flat grey">Close</a>
+          <a class="right" :href="editLink" target="_blank" rel="noreferrer">
+            <small><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit These Docs</small>
+          </a>
+        </div>
         <div id="desc"></div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-close btn-flat grey">Close</a>
+        </div>
+
       </div>
+
     </div>
   </main>
 {% endblock %}
