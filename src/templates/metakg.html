@@ -1630,6 +1630,7 @@
           theme:'light',
           onShow(instance) {
             if (self.hoverInfo) {
+              // hover item info saved to state
               let info = self.hoverInfo
               instance.setContent(`<div>
                 <h6>API: <a target="_blank" href="/registry?q=`+info.association.smartapi.id+`">`+info.association.api_name+`</a></h6>
