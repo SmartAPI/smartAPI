@@ -116,6 +116,9 @@
                   <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
                     <b v-text="item.association.api_name"></b>
                   </a>
+                  <i class="fa fa-info-circle resultInfo pointer green-text" aria-hidden="true" style="float: right;"></i>
+                </small>
+                <small class="d-block">
                   <template v-for="tag in item.tags">
                     <small class="s-badge blue darken-2 white-text" v-if="tag =='translator'" :key='tag' v-text="tag"></small>
                     <small class="s-badge orange darken-2 white-text" v-if="tag =='biothings'" :key='tag' v-text="tag"></small>
@@ -198,6 +201,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+  <script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
 
   <script>
   const store = new Vuex.Store({
@@ -551,6 +555,8 @@
               data: {
                 id: edgeName+i,
                 name: edgeName,
+                predicate : state.meta_kg.ops[i]['association']['predicate'],
+                output_id : state.meta_kg.ops[i]['association']['output_id'],
                 displayName : state.meta_kg.ops[i]['association']['predicate'],
                 api: "API > "+state.meta_kg.ops[i]['association']['api_name'],
                 tags: state.meta_kg.ops[i]['tags'],
@@ -654,6 +660,8 @@
               data: {
                 id: edgeName+i,
                 name: edgeName,
+                predicate : state.results[i]['association']['predicate'],
+                output_id : state.results[i]['association']['output_id'],
                 displayName : state.results[i]['association']['predicate'],
                 api : "API > "+state.results[i]['association']['api_name'],
                 tags: state.meta_kg.ops[i]['tags'],
@@ -866,14 +874,21 @@
           this.cy.elements().removeClass('highlightedTag')
         },
         highlightRow({ commit, state }, payload){
-          let name = payload['highlight']
-          let s = payload['source']
-          let t = payload['target']
+
+          let item = payload['item']
+          let p = item['association']['predicate']
+          let s = item['association']["input_type"]
+          let t = item['association']["output_type"]
+          let o = item['association']["output_id"]
+
+
 
           let found = this.cy.filter(function(element, i){
-            if (element.isEdge() && element.data('name') == name) {
+            if (element.isEdge() && element.data('predicate') == p ) {
                 if (element.source().data('name') == s && element.target().data('name') == t) {
-                  return element;
+                  if (element.data('output_id') == o){
+                    return element;
+                  }
                 }
             }
           });
@@ -1167,7 +1182,8 @@
           'showTags':false,
           'apisProcessed':false,
           'apisLoaded':false,
-          'totalApis':0
+          'totalApis':0,
+          'hoverInfo':{}
         }
       },
       computed: {
@@ -1488,11 +1504,12 @@
         },
         highlightRow: function(item){
 
+          var self = this;
+
+          self.hoverInfo = item
+
           var payload = {};
-          let edgeName = item['association']['api_name']+' : '+item['association']['predicate']
-          payload["highlight"] = edgeName
-          payload["source"] = item['association']['input_type']
-          payload["target"] = item['association']['output_type']
+          payload['item'] = item
           store.dispatch('highlightRow',payload)
         },
         unhighlightRow: function(item){
@@ -1600,6 +1617,58 @@
 
         new ClipboardJS('.copyBtn');
             ClipboardJS.isSupported();
+
+        tippy( '#meta-app', {
+          target:'.resultInfo',
+          trigger: 'click',
+          content: 'Loading...',
+          placement:'right',
+          interactive: true,
+          animation: 'fade',
+          theme:'light',
+          onShow(instance) {
+            if (self.hoverInfo) {
+              let info = self.hoverInfo
+              instance.setContent(`<div>
+                <h6>API: <a target="_blank" href="/registry?q=`+info.association.smartapi.id+`">`+info.association.api_name+`</a></h6>
+                <table>
+                  <thead>
+                    <tr>
+                      <th colspan="2">ID Types</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="grey lighten-4">
+                      <td>
+                        <small class="grey-text">INPUT/ID TYPE</small>
+                      </td>
+                      <td>
+                        <small>`+info.association.input_type+`/`+info.association.input_id+`</small>
+                      </td>
+                    </tr>
+                    <tr class="purple lighten-4">
+                      <td>
+                        <small class="purple-text">RELATIONSHIP</small>
+                      </td>
+                      <td>
+                        <small>`+info.association.predicate+`</small>
+                      </td>
+                    </tr>
+                    <tr class="orange lighten-4">
+                      <td>
+                        <small class="orange-text">OUTPUT/ID TYPE</small>
+                      </td>
+                      <td>
+                        <small>`+info.association.output_type+`/`+info.association.output_id+`</small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                </div>`)
+            }
+          }
+        });
       }
   });
   </script>
