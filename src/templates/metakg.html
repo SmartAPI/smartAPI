@@ -471,25 +471,45 @@
             }
           }
 
-          // state.output_autocomplete = []
-          // state.input_autocomplete = []
+          // PREDICATES
           state.predicate_autocomplete = []
-
           for (var i = 0; i < filteredOptions.length; i++) {
-
             // AC
-
-            // if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
-            //   state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
-            // }
-            // if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
-            //   state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
-            // }
-
+            //
             if (!state.predicate_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['predicate']))) {
               state.predicate_autocomplete.push(cleanUpName(filteredOptions[i]['association']['predicate']))
             }
-
+          }
+          // INPUT
+          if (state.output_selected.length && !state.input_selected.length) {
+            // console.log('only output')
+            state.input_autocomplete = []
+            for (var i = 0; i < filteredOptions.length; i++) {
+              if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
+                state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
+              }
+            }
+          }else if (state.input_selected.length && !state.output_selected.length) {
+            //OUTPUT
+            // console.log('only input')
+            state.output_autocomplete = []
+            for (var i = 0; i < filteredOptions.length; i++) {
+              if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
+                state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
+              }
+            }
+          }else {
+            // console.log('both')
+            state.output_autocomplete = []
+            state.input_autocomplete = []
+            for (var i = 0; i < filteredOptions.length; i++) {
+              if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
+                state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
+              }
+              if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
+                state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
+              }
+            }
           }
         },
         loadMetaKG(state,payload){
