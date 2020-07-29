@@ -225,6 +225,7 @@
         "tagList":[],
         "operationsTotal":0,
         "loading":false,
+        "predicate_autocomplete_all":[]
       },
       strict: true,
       mutations: {
@@ -472,14 +473,19 @@
           }
 
           // PREDICATES
-          state.predicate_autocomplete = []
-          for (var i = 0; i < filteredOptions.length; i++) {
-            // AC
-            //
-            if (!state.predicate_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['predicate']))) {
-              state.predicate_autocomplete.push(cleanUpName(filteredOptions[i]['association']['predicate']))
+          if (!state.output_selected.length && !state.input_selected.length) {
+            // restore all options from backup
+            state.predicate_autocomplete = state.predicate_autocomplete_all
+          }else {
+            state.predicate_autocomplete = []
+            for (var i = 0; i < filteredOptions.length; i++) {
+              // if IO only show what's available
+              if (!state.predicate_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['predicate']))) {
+                state.predicate_autocomplete.push(cleanUpName(filteredOptions[i]['association']['predicate']))
+              }
             }
           }
+
           // INPUT
           if (state.output_selected.length && !state.input_selected.length) {
             // console.log('only output')
@@ -628,6 +634,9 @@
               state.apis[state.meta_kg.ops[i]['association']['api_name']] = 1
             }
           }
+
+          //save backup of all options for getNewOptions
+          state.predicate_autocomplete_all = state.predicate_autocomplete
 
           // console.log('APIS',apis)
           // console.log("AC I",state.input_autocomplete)
