@@ -117,7 +117,7 @@
               <div class="col s12 left">
                 <small class="d-block">
                   <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
-                    <b v-text="item.association.api_name"></b>
+                    <b v-text="item.association.api_name"></b> <i @mouseenter="highlightRowAndZoom(item)" @mouseleave="recenterGraph()" class="fa fa-search-plus pointer blue-grey-text" aria-hidden="true"></i>
                   </a>
                   <i class="fa fa-info-circle resultInfo pointer green-text" aria-hidden="true" style="float: right;"></i>
                 </small>
@@ -327,6 +327,7 @@
           }
         },
         drawGraph(state,payload){
+          const t0 = performance.now();
 
           this.cy = cytoscape({
             container: document.getElementById('cy'),
@@ -374,11 +375,14 @@
             })
             .selector('edge:selected').css({
               'content': 'data(displayName)',
-              'target-label':'data(api)',
+              'source-label':'data(api)',
+              'source-text-offset':150,
+              'text-background-color': '#f0f0f0',
+              'text-background-padding': 10,
+              'text-background-opacity': 1,
+              'text-background-shape': 'roundrectangle',
               'text-wrap': 'wrap',
               'edge-text-rotation': 'autorotate',
-              'text-outline-width': 3,
-              'text-outline-color': 'white',
               'z-index':1000,
               'color': '#9c27b0',
               'font-size': '2.5em',
@@ -389,6 +393,9 @@
             })
             .selector('#Gene').css({
               'background-image': '/static/img/graph/Gene.png',
+            })
+            .selector('#BiolinkGene').css({
+              'background-image': '/static/img/graph/BiolinkGene.png',
             })
             .selector('#Cell').css({
               'background-image': '/static/img/graph/Cell.png',
@@ -404,6 +411,9 @@
             })
             .selector('#ChemicalSubstance').css({
               'background-image': '/static/img/graph/ChemicalSubstance.png',
+            })
+            .selector('#BiolinkChemicalSubstance').css({
+              'background-image': '/static/img/graph/BiolinkChemicalSubstance.png',
             })
             .selector('#AnatomicalEntity').css({
               'background-image': '/static/img/graph/AnatomicalEntity.png',
@@ -435,13 +445,13 @@
             .selector('.highlightedTag')
             .css({
               'line-color': '#673782',
-              'target-arrow-color': 'red',
+              'target-arrow-color': '#f24141',
               'width':4,
             })
             .selector('.highlightedAPI')
             .css({
               'line-color': 'red',
-              'target-arrow-color': 'red',
+              'target-arrow-color': '#f24141',
               'width':4,
             })
           });
@@ -457,7 +467,9 @@
               ele.connectedEdges().unselect()
           });
 
-          // cy.$('edge[type="MyGene.info API"]').style({ 'line-color': 'blue' });
+          const t1 = performance.now();
+          var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+          console.log(`%c Rendering graph took ${seconds} seconds.`,'color:yellow');
 
         },
         saveContext(state,payload){
@@ -471,6 +483,7 @@
         },
         getNewOptions(state,payload){
           let filteredOptions = payload['res'];
+          const t0 = performance.now();
           // helper func
           function cleanUpName(name){
             if (name.indexOf(':') !== -1) {
@@ -525,10 +538,16 @@
               }
             }
           }
+
+          const t1 = performance.now();
+          var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+          console.log(`%c Calculating input options took ${seconds} seconds.`,'color:cyan');
+
         },
         loadMetaKG(state,payload){
           state.meta_kg = payload['graph']
           // console.log("OPS", state.meta_kg.ops.length)
+          const t0 = performance.now();
           let data = []
 
           function cleanUpName(name){
@@ -540,27 +559,15 @@
             }
           }
 
-          let nodeList =[]
-          let tagList =[]
+          let tagList = new Set()
 
           state.operationsTotal = state.meta_kg.ops.length
 
           for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
-            // NODE LIST CHECK
-            // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))) {
-            //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))
-            // }
-            //
-            // if (!nodeList.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
-            //   nodeList.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
-            // }
-
             if (state.meta_kg.ops[i].hasOwnProperty('tags')) {
               for (var x = 0; x < state.meta_kg.ops[i]['tags'].length; x++) {
-                if (!tagList.includes(state.meta_kg.ops[i]['tags'][x])) {
-                  tagList.push(state.meta_kg.ops[i]['tags'][x])
-                }
+                tagList.add(state.meta_kg.ops[i]['tags'][x])
               }
             }
 
@@ -604,29 +611,21 @@
 
 
           }
-          // console.log('data',data)
-          // console.log('nodeList',nodeList)
-          // console.log('tagList',tagList)
 
-          state.tagList = tagList
-
+          state.tagList = [...tagList]
           state.cyto_data = data
 
 
           // FILTERS AUTOCOMPLETE & APIS
-
-
           for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
             // AC
-
             if (!state.output_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
               state.output_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
             }
             if (!state.input_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))) {
               state.input_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))
             }
-
             if (!state.predicate_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['predicate']))) {
               state.predicate_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['predicate']))
             }
@@ -646,21 +645,19 @@
           //save backup of all options for getNewOptions
           state.predicate_autocomplete_all = state.predicate_autocomplete
 
-          // console.log('APIS',apis)
-          // console.log("AC I",state.input_autocomplete)
-          // console.log("AC O",state.output_autocomplete)
-          // console.log("AC Pred",state.predicate_autocomplete)
+          let p = {}
+          p['loading'] = false;
+          store.commit('toggleLoading',p)
 
-          setTimeout(function(){
-            let payload = {}
-            payload['loading'] = false;
-            store.commit('toggleLoading',payload)
-          }, 500);
+          const t1 = performance.now();
+          var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+          console.log(`%c (loadMetaKG) Parsing initial data took ${seconds} seconds.`,'color:pink');
+
 
         },
         saveResults(state,payload){
           state.results = payload['res']
-          // console.log('results',state.results)
+          const t0 = performance.now();
 
           function cleanUpName(name){
             if (name.indexOf(':') !== -1) {
@@ -713,6 +710,10 @@
 
           }
           state.cyto_data = data.concat(edges)
+
+          const t1 = performance.now();
+          var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+          console.log(`(saveResults) Creating new nodes from search took ${seconds} seconds.`);
 
         },
         pushPill(state,payload){
@@ -912,6 +913,32 @@
         allWithTagUndo({ commit, state }, payload){
           this.cy.elements().removeClass('highlightedTag')
         },
+        highlightRowAndZoom({ commit, state }, payload){
+
+          let item = payload['item']
+          let p = item['association']['predicate']
+          let s = item['association']["input_type"]
+          let t = item['association']["output_type"]
+          let o = item['association']["output_id"]
+          let a = item['association']["api_name"]
+
+
+
+          let found = this.cy.filter(function(element, i){
+            if (element.isEdge() && element.data('predicate') == p ) {
+                if (element.source().data('name') == s && element.target().data('name') == t) {
+                  if (element.data('output_id') == o && element.data('api_name') == a){
+                    return element;
+                  }
+                }
+            }
+          });
+          let found2 = this.cy.filter('node').style({'opacity':.3})
+          found.select()
+          found.connectedNodes().style({'opacity':1})
+
+          this.cy.fit(found,75)
+        },
         highlightRow({ commit, state }, payload){
 
           let item = payload['item']
@@ -932,9 +959,9 @@
                 }
             }
           });
-          let found2 = this.cy.filter('node').style({'opacity':.5})
+          let found2 = this.cy.filter('node').style({'opacity':.3})
           found.select()
-
+          found.connectedNodes().style({'opacity':1})
           // this.cy.filter(function(element, i){
           //   makePopper(element);
           // })
@@ -992,7 +1019,7 @@
             q['input_type']= state.input_type
           }
 
-          // console.log("Q",JSON.stringify(q,null,2))
+          console.log("Executing new query...",JSON.stringify(q,null,2))
 
           let g = state.meta_kg.filter(q);
 
@@ -1012,6 +1039,7 @@
 
           let options={
             "bg":"white",
+            "full":true,
             "quality":1,
             "output":'blob'
           }
@@ -1491,16 +1519,21 @@
           let meta_kg = new kg()
 
           self.apisLoaded = true;
-          // TODO: load metadata locally
+
+          const t0 = performance.now();
 
           await meta_kg.constructMetaKG(includeReasoner=true)
+
+          const t1 = performance.now();
+          var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+          console.log(`%c Getting Meta-KG graph took ${seconds} seconds.`,'color:limegreen');
 
           var payload = {};
           payload["graph"] = meta_kg;
           store.commit('loadMetaKG',payload)
 
           self.drawCytoscape();
-          store.dispatch('handle_metaKG_Query_New')
+          store.dispatch('handle_metaKG_Query_New');
         },
         handleKGSearch(){
           var self = this;
@@ -1508,13 +1541,10 @@
           let i = self.queryID;
           let o = self.outputID.split(',');
 
-          store.dispatch('handle_metaKG_Query_New')
+          store.dispatch('handle_metaKG_Query_New');
         },
         drawCytoscape(){
           store.commit('drawGraph');
-        },
-        handleSelection(val,type){
-          store.commit
         },
         parseKGData(){
           var self = this;
@@ -1590,6 +1620,16 @@
           var payload = {};
           payload['item'] = item
           store.dispatch('highlightRow',payload)
+        },
+        highlightRowAndZoom: function(item){
+
+          var self = this;
+
+          self.hoverInfo = item
+
+          var payload = {};
+          payload['item'] = item
+          store.dispatch('highlightRowAndZoom',payload)
         },
         unhighlightRow: function(item){
 
@@ -1711,11 +1751,6 @@
               instance.setContent(`<div>
                 <h6>API: <a target="_blank" href="/registry?q=`+info.association.smartapi.id+`">`+info.association.api_name+`</a></h6>
                 <table>
-                  <thead>
-                    <tr>
-                      <th colspan="2">ID Types</th>
-                    </tr>
-                  </thead>
                   <tbody>
                     <tr class="grey lighten-4">
                       <td>
