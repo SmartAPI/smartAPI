@@ -31,6 +31,11 @@
             API metadata loaded
           </template>
       </h6>
+      <ul>
+        <li v-for="(p,i) in processes" :key="i">
+          <i class="fa fa-check green-text" aria-hidden="true"></i> <small v-text='p'></small>
+        </li>
+      </ul>
       <h6 class="white-text">
           <template v-if="!apisProcessed">
             <i class="fa fa-cog fa-spin fa-fw"></i>
@@ -183,7 +188,7 @@
             <i class="fa fa-download" aria-hidden="true"></i> Download Image
           </small>
           <small class="pointer grey-text" @click="toggleSpread()">
-            Switch Layout <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> <span v-text="spread?'Spread (Better for more resutls)':'Compact (Better for less results)'"></span>
+            Switch Layout <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> <span v-text="spread?'Spread (Better for more results)':'Compact (Better for less results)'"></span>
           </small>
         </div>
       </div>
@@ -233,12 +238,17 @@
         "tagList":[],
         "operationsTotal":0,
         "loading":false,
-        "predicate_autocomplete_all":[]
+        "predicate_autocomplete_all":[],
+        "processes": []
       },
       strict: true,
       mutations: {
         toggleLoading(state,payload){
           state.loading = payload['loading'];
+        },
+        addProcess(state,payload){
+          let process = payload['p'];
+          state.processes.push(process)
         },
         reset(state){
           state.predicate_selected = [];
@@ -471,6 +481,7 @@
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
           console.log(`%c Rendering graph took ${seconds} seconds.`,'color:yellow');
 
+          state.processes.push(`Rendered graph in ${seconds} seconds.`)
         },
         saveContext(state,payload){
           state.name= payload['context']['portal'];
@@ -541,7 +552,9 @@
 
           const t1 = performance.now();
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-          console.log(`%c Calculating input options took ${seconds} seconds.`,'color:cyan');
+          console.log(`%c (getNewOptions) Calculating input options took ${seconds} seconds.`,'color:cyan');
+
+          state.processes.push(`Calculated input options in ${seconds} seconds.`)
 
         },
         loadMetaKG(state,payload){
@@ -578,6 +591,7 @@
                 name: cleanUpName(state.meta_kg.ops[i]['association']['input_type'])
               }
             };
+
             data.push(node1)
 
             let node2 ={ //b
@@ -587,6 +601,7 @@
                 name : cleanUpName(state.meta_kg.ops[i]['association']['output_type'])
               }
             };
+
             data.push(node2)
 
             let edgeName = state.meta_kg.ops[i]['association']['api_name']+' : '+state.meta_kg.ops[i]['association']['predicate']
@@ -607,17 +622,10 @@
                 target: cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
               }
             };
+
             data.push(edge)
 
-
-          }
-
-          state.tagList = [...tagList]
-          state.cyto_data = data
-
-
-          // FILTERS AUTOCOMPLETE & APIS
-          for (var i = 0; i < state.meta_kg.ops.length; i++) {
+            // FILTERS AUTOCOMPLETE & APIS
 
             // AC
             if (!state.output_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
@@ -631,16 +639,17 @@
             }
 
             // API
-            // if (!state.apis.includes(state.meta_kg.ops[i]['association']['api_name'])) {
-            //   state.apis.push(state.meta_kg.ops[i]['association']['api_name'])
-            // }
-
             if (state.meta_kg.ops[i]['association']['api_name'] in state.apis) {
               state.apis[state.meta_kg.ops[i]['association']['api_name']]++
             }else{
               state.apis[state.meta_kg.ops[i]['association']['api_name']] = 1
             }
+
+
           }
+
+          state.tagList = [...tagList]
+          state.cyto_data = data
 
           //save backup of all options for getNewOptions
           state.predicate_autocomplete_all = state.predicate_autocomplete
@@ -649,11 +658,14 @@
           p['loading'] = false;
           store.commit('toggleLoading',p)
 
+          // starting results on left panel
+          state.results = state.meta_kg.ops
+
           const t1 = performance.now();
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
           console.log(`%c (loadMetaKG) Parsing initial data took ${seconds} seconds.`,'color:pink');
 
-
+          state.processes.push(`Processed initial data in ${seconds} seconds.`)
         },
         saveResults(state,payload){
           state.results = payload['res']
@@ -863,6 +875,9 @@
         },
         getLoading:(state)=>{
           return state.loading
+        },
+        getProcesses:(state)=>{
+          return state.processes
         },
       },
       actions:{
@@ -1100,10 +1115,7 @@
             }
           }
 
-
           finalURL = base+"?"+params
-
-          // console.log('finalURL END',finalURL)
 
           //HTML5 change url history
           window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"MetaKG", finalURL);
@@ -1330,6 +1342,9 @@
         tagList: function(){
           return store.getters.getTagList
         },
+        processes: function(){
+          return store.getters.getProcesses
+        },
       },
       watch:{
         apis:function(a){
@@ -1528,12 +1543,16 @@
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
           console.log(`%c Getting Meta-KG graph took ${seconds} seconds.`,'color:limegreen');
 
+          var payl = {};
+          payl["p"] = `Got Meta-KG graph in ${seconds} seconds.`;
+          store.commit('addProcess',payl)
+
           var payload = {};
           payload["graph"] = meta_kg;
           store.commit('loadMetaKG',payload)
 
           self.drawCytoscape();
-          store.dispatch('handle_metaKG_Query_New');
+          // store.dispatch('handle_metaKG_Query_New');
         },
         handleKGSearch(){
           var self = this;
