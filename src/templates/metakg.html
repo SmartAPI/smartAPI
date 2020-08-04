@@ -65,7 +65,7 @@
     <!-- META KG SEARCH -->
     <div class="row">
       <div class="col s12">
-        <form @submit.prevent="handleKGSearch" class="meta_kg_form">
+        <form class="meta_kg_form">
           <div class="row">
             <div class="col s12 m4 input-field center">
               <h5 class="white-text"><i class="fa fa-sign-in black-text" aria-hidden="true"></i> INPUT TYPE</h5>
@@ -251,9 +251,28 @@
           state.processes.push(process)
         },
         reset(state){
-          state.predicate_selected = [];
-          state.input_selected = [];
-          state.output_selected = [];
+          let changes = false
+          // only clear if it has something or it will trigger a search unnecessailty on other components
+          if (state.predicate_selected.length) {
+            state.predicate_selected = [];
+            changes = true
+          }
+          if (state.input_selected.length) {
+            state.input_selected = [];
+            changes = true
+          }
+          if (state.output_selected.length) {
+            state.output_selected = [];
+            changes = true
+          }
+          if (!changes) {
+            Swal.fire({type:'warning',
+            toast:true,
+            title: 'Nothing to clear',
+            showConfirmButton:false,
+            timer:2000});
+          }
+          changes = false
 
           state.predicate = [];
           state.input_type = [];
@@ -476,6 +495,8 @@
               var ele = e.target;
               ele.connectedEdges().unselect()
           });
+
+          this.cy.maxZoom(2)
 
           const t1 = performance.now();
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
@@ -1034,7 +1055,8 @@
             q['input_type']= state.input_type
           }
 
-          console.log("Executing new query...",JSON.stringify(q,null,2))
+          console.log("%c Executing new query...","color:lightblue")
+          console.log(JSON.stringify(q,null,2))
 
           let g = state.meta_kg.filter(q);
 
@@ -1290,12 +1312,6 @@
       el: '#meta-app',
       data: function(){
         return {
-          'queryPred':'',
-          'queryID':'',
-          'outputID':'',
-          'inputLookup':[],
-          'outputLookup':[],
-          'predicateLookup':[],
           'cy' : null,
           'showAPIS': false,
           'showTags':false,
@@ -1353,45 +1369,6 @@
             self.apisProcessed = true;
           }
         },
-        queryID:function(q){
-          var self = this;
-          if (q) {
-            let res = _.filter(self.i_ac, function(name) {
-                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
-            });
-            // console.log(res)
-            self.inputLookup = res;
-          }else {
-            self.inputLookup =[];
-          }
-
-        },
-        outputID:function(q){
-          var self = this;
-          if (q) {
-            let res = _.filter(self.o_ac, function(name) {
-                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
-            });
-            // console.log(res)
-            self.outputLookup = res;
-          }else {
-            self.outputLookup =[];
-          }
-
-        },
-        queryPred:function(q){
-          var self = this;
-          if (q) {
-            let res = _.filter(self.p_ac, function(name) {
-                return name.toLowerCase().indexOf(q.toLowerCase()) >= 0;
-            });
-            // console.log(res)
-            self.predicateLookup = res;
-          }else {
-            self.predicateLookup =[];
-          }
-
-        },
         showAPIS: function(s){
           if (s) {
             var self = this;
@@ -1401,7 +1378,6 @@
         loading:function(isLoading){
           var self = this;
           if (!isLoading) {
-
             //when done loading check URL for existing extra_params
             let base = window.location.origin+window.location.pathname
             let finalURL = window.location.href
@@ -1411,23 +1387,6 @@
             var payload = {};
             payload["params"] = url.search.slice(1);
             store.commit('handleParams',payload);
-
-            // let type = params.get(self.type);
-            // if (type) {
-            //   let selections = type.split(',');
-            //
-            //   for (var i = 0; i < selections.length; i++) {
-            //     var payload = {};
-            //     payload["type"] = self.type;
-            //     payload["q"] = selections[i];
-            //     store.commit('pushPill',payload);
-            //
-            //     var payload2 = {};
-            //     payload2["name"] = self.type;
-            //     payload2["q"] = self.selected;
-            //     store.commit('saveInput',payload2);
-            //   }
-            // }
           }
         },
       },
@@ -1554,14 +1513,6 @@
           self.drawCytoscape();
           // store.dispatch('handle_metaKG_Query_New');
         },
-        handleKGSearch(){
-          var self = this;
-          let q = self.queryPred.split(',');
-          let i = self.queryID;
-          let o = self.outputID.split(',');
-
-          store.dispatch('handle_metaKG_Query_New');
-        },
         drawCytoscape(){
           store.commit('drawGraph');
         },
@@ -1603,14 +1554,7 @@
           }
         },
         reset(){
-          var self = this;
-
-          self.queryID = '';
-          self.queryPred = '';
-          self.outputID = '';
-
           store.commit('reset');
-          store.dispatch('handle_metaKG_Query_New')
         },
         getClass(name){
           switch (name) {
@@ -1797,7 +1741,6 @@
                     </tr>
                   </tbody>
                 </table>
-
                 </div>`)
             }
           }
