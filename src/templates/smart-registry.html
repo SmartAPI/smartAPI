@@ -548,6 +548,20 @@ const store = new Vuex.Store({
                   break;
         }
       },
+      buildEditURL: function (raw_url) {
+        // build edit github url from raw.githubusercontent type source:
+        if(raw_url.includes("raw.githubusercontent")){
+          var new_url = raw_url.replace("/raw.githubusercontent.com/","").split("/")
+          new_url.splice(3, 0, "edit")
+          new_url.splice(1, 0, "/github.com");
+          new_url = new_url.join("/")
+          return new_url
+        }
+        // build edit github url from github type source:
+        else{
+          return raw_url.replace("/raw/","/edit/")
+        }
+      },
       getOperations: function (api, raw=false) {
         var self= this;
           var operations = [];
@@ -871,6 +885,10 @@ const store = new Vuex.Store({
             <button class="smallButton grey copyBtn" :data-clipboard-text="api._meta.url">
                 <i class="fa fa-clipboard" aria-hidden="true"></i>
             </button>
+            <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="userInfo && api._meta.github_username === userInfo.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
+              target="_blank">
+                <i class="fa fa-pencil" aria-hidden="true"></i>
+            </a>
           </div>
           <div class="col s12 center">
             <small class="white-text">SmartAPI Registry URL</small>
