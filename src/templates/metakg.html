@@ -210,13 +210,10 @@
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
   <script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
-  <!-- Popper -->
-  <!-- <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/cytoscape-popper@1.0.5/cytoscape-popper.min.js"></script>
-  <script src="https://unpkg.com/tippy.js@5/dist/tippy-bundle.iife.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/tippy.js@5/dist/backdrop.css"> -->
-
   <script>
+  // vue dev tools on inspector 
+  Vue.config.devtools = true
+
   const store = new Vuex.Store({
       state: {
         'name': Object,
@@ -516,14 +513,6 @@
         getNewOptions(state,payload){
           let filteredOptions = payload['res'];
           const t0 = performance.now();
-          // helper func
-          function cleanUpName(name){
-            if (name.indexOf(':') !== -1) {
-              return name.split(':')[1];
-            }else{
-              return name
-            }
-          }
 
           // PREDICATES
           if (!state.output_selected.length && !state.input_selected.length) {
@@ -533,8 +522,8 @@
             state.predicate_autocomplete = []
             for (var i = 0; i < filteredOptions.length; i++) {
               // if IO only show what's available
-              if (!state.predicate_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['predicate']))) {
-                state.predicate_autocomplete.push(cleanUpName(filteredOptions[i]['association']['predicate']))
+              if (!state.predicate_autocomplete.includes(filteredOptions[i]['association']['predicate'])) {
+                state.predicate_autocomplete.push(filteredOptions[i]['association']['predicate'])
               }
             }
           }
@@ -544,8 +533,8 @@
             // console.log('only output')
             state.input_autocomplete = []
             for (var i = 0; i < filteredOptions.length; i++) {
-              if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
-                state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
+              if (!state.input_autocomplete.includes(filteredOptions[i]['association']['input_type'])) {
+                state.input_autocomplete.push(filteredOptions[i]['association']['input_type'])
               }
             }
           }else if (state.input_selected.length && !state.output_selected.length) {
@@ -553,8 +542,8 @@
             // console.log('only input')
             state.output_autocomplete = []
             for (var i = 0; i < filteredOptions.length; i++) {
-              if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
-                state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
+              if (!state.output_autocomplete.includes(filteredOptions[i]['association']['output_type'])) {
+                state.output_autocomplete.push(filteredOptions[i]['association']['output_type'])
               }
             }
           }else {
@@ -562,11 +551,11 @@
             state.output_autocomplete = []
             state.input_autocomplete = []
             for (var i = 0; i < filteredOptions.length; i++) {
-              if (!state.output_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['output_type']))) {
-                state.output_autocomplete.push(cleanUpName(filteredOptions[i]['association']['output_type']))
+              if (!state.output_autocomplete.includes(filteredOptions[i]['association']['output_type'])) {
+                state.output_autocomplete.push(filteredOptions[i]['association']['output_type'])
               }
-              if (!state.input_autocomplete.includes(cleanUpName(filteredOptions[i]['association']['input_type']))) {
-                state.input_autocomplete.push(cleanUpName(filteredOptions[i]['association']['input_type']))
+              if (!state.input_autocomplete.includes(filteredOptions[i]['association']['input_type'])) {
+                state.input_autocomplete.push(filteredOptions[i]['association']['input_type'])
               }
             }
           }
@@ -580,19 +569,13 @@
         },
         loadMetaKG(state,payload){
           state.meta_kg = payload['graph']
-          // console.log("OPS", state.meta_kg.ops.length)
+          //Initial data Processing
+          //Create Edges and Nodes
+           //
           const t0 = performance.now();
+          //all nodes and edges
           let data = []
-
-          function cleanUpName(name){
-            if (name.indexOf(':') !== -1) {
-              //split and get
-              return name.split(':')[1];
-            }else{
-              return name
-            }
-          }
-
+          //tags found in APIs
           let tagList = new Set()
 
           state.operationsTotal = state.meta_kg.ops.length
@@ -608,8 +591,8 @@
             let node1 ={ //a
               group: 'nodes',
               data:{
-                id : cleanUpName(state.meta_kg.ops[i]['association']['input_type']),
-                name: cleanUpName(state.meta_kg.ops[i]['association']['input_type'])
+                id : state.meta_kg.ops[i]['association']['input_type'],
+                name: state.meta_kg.ops[i]['association']['input_type']
               }
             };
 
@@ -618,8 +601,8 @@
             let node2 ={ //b
               group: 'nodes',
               data:{
-                id : cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
-                name : cleanUpName(state.meta_kg.ops[i]['association']['output_type'])
+                id : state.meta_kg.ops[i]['association']['output_type'],
+                name : state.meta_kg.ops[i]['association']['output_type']
               }
             };
 
@@ -639,36 +622,33 @@
                 api_name : state.meta_kg.ops[i]['association']['api_name'],
                 tags: state.meta_kg.ops[i]['tags'],
                 type:state.meta_kg.ops[i]['association']['api_name'],
-                source: cleanUpName(state.meta_kg.ops[i]['association']['input_type']) ,
-                target: cleanUpName(state.meta_kg.ops[i]['association']['output_type']),
+                source: state.meta_kg.ops[i]['association']['input_type'],
+                target: state.meta_kg.ops[i]['association']['output_type'],
               }
             };
 
             data.push(edge)
 
-            // FILTERS AUTOCOMPLETE & APIS
-
-            // AC
-            if (!state.output_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))) {
-              state.output_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['output_type']))
+            // Autocomplete
+            if (!state.output_autocomplete.includes(state.meta_kg.ops[i]['association']['output_type'])) {
+              state.output_autocomplete.push(state.meta_kg.ops[i]['association']['output_type'])
             }
-            if (!state.input_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))) {
-              state.input_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['input_type']))
+            if (!state.input_autocomplete.includes(state.meta_kg.ops[i]['association']['input_type'])) {
+              state.input_autocomplete.push(state.meta_kg.ops[i]['association']['input_type'])
             }
-            if (!state.predicate_autocomplete.includes(cleanUpName(state.meta_kg.ops[i]['association']['predicate']))) {
-              state.predicate_autocomplete.push(cleanUpName(state.meta_kg.ops[i]['association']['predicate']))
+            if (!state.predicate_autocomplete.includes(state.meta_kg.ops[i]['association']['predicate'])) {
+              state.predicate_autocomplete.push(state.meta_kg.ops[i]['association']['predicate'])
             }
 
-            // API
+            // APIs
             if (state.meta_kg.ops[i]['association']['api_name'] in state.apis) {
               state.apis[state.meta_kg.ops[i]['association']['api_name']]++
             }else{
               state.apis[state.meta_kg.ops[i]['association']['api_name']] = 1
             }
 
-
           }
-
+          //array-ify tag list
           state.tagList = [...tagList]
           state.cyto_data = data
 
@@ -684,7 +664,7 @@
 
           const t1 = performance.now();
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-          console.log(`%c (loadMetaKG) Parsing initial data took ${seconds} seconds.`,'color:pink');
+          console.log(`%c Parsing initial data took ${seconds} seconds.`,'color:pink');
 
           state.processes.push(`Processed initial data in ${seconds} seconds.`)
         },
@@ -692,13 +672,6 @@
           state.results = payload['res']
           const t0 = performance.now();
 
-          function cleanUpName(name){
-            if (name.indexOf(':') !== -1) {
-              return name.split(':')[1];
-            }else{
-              return name
-            }
-          }
           let data = []
           let edges =[]
           for (var i = 0; i < state.results.length; i++) {
@@ -706,8 +679,8 @@
             let node1 ={ //a
               group: 'nodes',
               data:{
-                id : cleanUpName(state.results[i]['association']['input_type']),
-                name: cleanUpName(state.results[i]['association']['input_type'])
+                id : state.results[i]['association']['input_type'],
+                name: state.results[i]['association']['input_type']
               }
             };
             data.push(node1)
@@ -715,8 +688,8 @@
             let node2 ={ //b
               group: 'nodes',
               data:{
-                id : cleanUpName(state.results[i]['association']['output_type']),
-                name : cleanUpName(state.results[i]['association']['output_type'])
+                id : state.results[i]['association']['output_type'],
+                name : state.results[i]['association']['output_type']
               }
             };
             data.push(node2)
@@ -734,8 +707,8 @@
                 api : "API > "+state.results[i]['association']['api_name'],
                 api_name : state.results[i]['association']['api_name'],
                 tags: state.meta_kg.ops[i]['tags'],
-                source: cleanUpName(state.results[i]['association']['input_type']) ,
-                target: cleanUpName(state.results[i]['association']['output_type']),
+                source: state.results[i]['association']['input_type'],
+                target: state.results[i]['association']['output_type'],
               }
             };
 
@@ -998,44 +971,6 @@
           let found2 = this.cy.filter('node').style({'opacity':.3})
           found.select()
           found.connectedNodes().style({'opacity':1})
-          // this.cy.filter(function(element, i){
-          //   makePopper(element);
-          // })
-          //
-          // function makePopper(ele) {
-          //   let ref = ele.popperRef();
-          //   ele.tippy = tippy(document.createElement('div'), {
-          //     // popperInstance will be available onCreate
-          //     lazy: false,
-          //     followCursor: 'true',
-          //     hideOnClick: false,
-          //     flipOnUpdate: true,
-          //     onShow(instance) {
-          //       instance.popperInstance.reference = ref
-          //     },
-          //   });
-          //   ele.tippy.setContent('Node ' + ele.id());
-          // }
-          //
-          // makePopper(found);
-          //
-          // this.cy.elements().unbind('mouseover');
-          // this.cy.elements().bind('mouseover', (event) => event.target.tippy.show());
-          //
-          // this.cy.elements().unbind('mouseout');
-          // this.cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
-          //
-          // this.cy.elements().unbind('drag');
-          // this.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
-          //
-          // this.cy.elements().unbind('mouseover');
-          // this.cy.elements().bind('mouseover', (event) => event.target.tippy.show());
-          //
-          // this.cy.elements().unbind('mouseout');
-          // this.cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
-          //
-          // this.cy.elements().unbind('drag');
-          // this.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
         },
         unhighlightRow({ commit, state }, payload){
           let name = payload['unhighlight']
@@ -1100,9 +1035,7 @@
 
           let base = window.location.origin+window.location.pathname
           let finalURL = window.location.href
-
           // console.log('finalURL START',finalURL)
-
           let url = new URL(finalURL);
 
           let params = new URLSearchParams(url.search.slice(1));
@@ -1220,7 +1153,6 @@
           var self = this;
           let html = '';
           if (o.length) {
-
             var dataList = $("#"+self.type+'list');
             dataList.empty();
             for(var i=0, len=o.length; i<len; i++) {
@@ -1233,7 +1165,6 @@
         selected:function(s){
           var self = this;
           // load example by watching selected
-
           var payload = {};
           payload["name"] = self.type;
           payload["q"] = s;
@@ -1491,29 +1422,27 @@
           var self = this;
 
           let meta_kg = new kg()
-
-          self.apisLoaded = true;
-
+          //load meta-kg API graph with reasoner APIs
           const t0 = performance.now();
-
           await meta_kg.constructMetaKG(includeReasoner=true)
-
           const t1 = performance.now();
+          self.apisLoaded = true;
+          //performance check
           var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
           console.log(`%c Getting Meta-KG graph took ${seconds} seconds.`,'color:limegreen');
 
           var payl = {};
           payl["p"] = `Got Meta-KG graph in ${seconds} seconds.`;
           store.commit('addProcess',payl)
-
+          //send graph data to store for processing
           var payload = {};
           payload["graph"] = meta_kg;
           store.commit('loadMetaKG',payload)
 
           self.drawCytoscape();
-          // store.dispatch('handle_metaKG_Query_New');
         },
         drawCytoscape(){
+          //
           store.commit('drawGraph');
         },
         parseKGData(){
