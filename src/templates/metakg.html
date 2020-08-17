@@ -1817,7 +1817,7 @@
               let desc = ""
               let status = "N/A"
 
-              axios.get("http://smart-api.info/api/query?size=1&q=_id:"+info.association.smartapi.id+"&fields=info.description,_meta.uptime_status").then(res=>{
+              axios.get("/api/query?size=1&q=_id:"+info.association.smartapi.id+"&fields=info.description,_meta.uptime_status").then(res=>{
                 console.log(res.data);
 
                 desc = res.data.hits[0]['info']['description'].substring(0,400)+'...';
