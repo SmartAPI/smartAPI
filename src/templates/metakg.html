@@ -444,8 +444,6 @@
               'width': 2
             })
             .selector('edge:selected').css({
-              // 'content': 'data(displayName)',
-              // 'source-label': 'data(api)',
               'source-text-offset': 150,
               'text-background-color': '#f0f0f0',
               'text-background-padding': 10,
@@ -543,6 +541,7 @@
             content: ele.id(),
             hideOnClick: false,
             flipOnUpdate: true,
+            placement:'top-start',
             sticky: true,
             theme:'light',
             onShow(instance) {
@@ -554,12 +553,13 @@
         function makePopperEdge(ele) {
           let ref = ele.popperRef();
           ele.tippy = tippy(document.createElement('div'), {
-            content:`<div><b class="grey-text">`+ele.data('source')+
-              `</b> > <span class="purple-text">`+ele.data('displayName')+
+            content:`<div><h6>`+ele.data('api_name')+`</h6><b class="grey-text">`+ele.data('source')+
+              `</b> > <span class="purple-text">`+ele.data('predicate')+
               `</span> > <b class="orange-text">`+ele.data('target')+
               `</b></div>`,
             hideOnClick: false,
             flipOnUpdate: true,
+            placement:'top-start',
             sticky: true,
             theme:'light',
             onShow(instance) {
@@ -587,45 +587,6 @@
 
         this.cy.elements().unbind('drag');
         this.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
-
-        // this.cy.$('edge').on('click', function (e) {
-        //     console.log('on click',e)
-        //     var dummyDomEle = document.createElement('div');
-
-        //     var tip = tippy("#cy", {
-        //       onShow(instance) {
-        //         console.log("lifecycle ",instance)
-        //       },
-        //       lazy: false, // mandatory
-        //       trigger: 'manual', // mandatory
-        //       // dom element inside the tippy:
-        //       content: function(){ // function can be better for performance
-        //         var div = document.createElement('div');
-
-        //         div.innerHTML = "TEST";
-
-        //         return div;
-        //       },
-
-        //       // your own preferences:
-        //       arrow: true,
-        //       placement: 'bottom',
-        //       hideOnClick: false,
-        //       multiple: true,
-        //       sticky: true,
-
-        //       // if interactive:
-        //       interactive: true,
-        //       appendTo: document.body,
-
-
-        //     });
-
-        //     tip.instances[0].show()
-
-        // });
-
-
 
         this.cy.maxZoom(2)
 
@@ -709,10 +670,13 @@
         const t0 = performance.now();
         //all nodes and edges
         let data = []
+        let nodes = new Set()
         //tags found in APIs
         let tagList = new Set()
 
         state.operationsTotal = state.meta_kg.ops.length
+
+        // console.log(state.meta_kg.ops)
 
         for (var i = 0; i < state.meta_kg.ops.length; i++) {
 
@@ -721,26 +685,8 @@
               tagList.add(state.meta_kg.ops[i]['tags'][x])
             }
           }
-
-          let node1 = { //a
-            group: 'nodes',
-            data: {
-              id: state.meta_kg.ops[i]['association']['input_type'],
-              name: state.meta_kg.ops[i]['association']['input_type']
-            }
-          };
-
-          data.push(node1)
-
-          let node2 = { //b
-            group: 'nodes',
-            data: {
-              id: state.meta_kg.ops[i]['association']['output_type'],
-              name: state.meta_kg.ops[i]['association']['output_type']
-            }
-          };
-
-          data.push(node2)
+          nodes.add(state.meta_kg.ops[i]['association']['input_type'])
+          nodes.add(state.meta_kg.ops[i]['association']['output_type'])
 
           let edgeName = state.meta_kg.ops[i]['association']['api_name'] + ' : ' + state.meta_kg.ops[i][
             'association'
@@ -753,8 +699,6 @@
               name: edgeName,
               predicate: state.meta_kg.ops[i]['association']['predicate'],
               output_id: state.meta_kg.ops[i]['association']['output_id'],
-              displayName: state.meta_kg.ops[i]['association']['predicate'],
-              api: "API > " + state.meta_kg.ops[i]['association']['api_name'],
               api_name: state.meta_kg.ops[i]['association']['api_name'],
               tags: state.meta_kg.ops[i]['tags'],
               type: state.meta_kg.ops[i]['association']['api_name'],
@@ -784,9 +728,27 @@
           }
 
         }
+
+        let nodesFinal = []
+
+        nodes = [...nodes]
+
+        for (let index = 0; index < nodes.length; index++) {
+          const element = nodes[index];
+          let node = { 
+            group: 'nodes',
+            data: {
+              id: element,
+              name: element
+            }
+          };
+          nodesFinal.push(node)
+          
+        }
+
         //array-ify tag list
         state.tagList = [...tagList]
-        state.cyto_data = data
+        state.cyto_data = data.concat(nodesFinal)
 
         //save backup of all options for getNewOptions
         state.predicate_autocomplete_all = state.predicate_autocomplete
@@ -810,25 +772,11 @@
 
         let data = []
         let edges = []
+        let nodes = new Set()
         for (var i = 0; i < state.results.length; i++) {
 
-          let node1 = { //a
-            group: 'nodes',
-            data: {
-              id: state.results[i]['association']['input_type'],
-              name: state.results[i]['association']['input_type']
-            }
-          };
-          data.push(node1)
-
-          let node2 = { //b
-            group: 'nodes',
-            data: {
-              id: state.results[i]['association']['output_type'],
-              name: state.results[i]['association']['output_type']
-            }
-          };
-          data.push(node2)
+          nodes.add(state.results[i]['association']['input_type'])
+          nodes.add(state.results[i]['association']['output_type'])
 
           let edgeName = state.results[i]['association']['api_name'] + ' : ' + state.results[i]['association'][
             'predicate'
@@ -841,8 +789,6 @@
               name: edgeName,
               predicate: state.results[i]['association']['predicate'],
               output_id: state.results[i]['association']['output_id'],
-              displayName: state.results[i]['association']['predicate'],
-              api: "API > " + state.results[i]['association']['api_name'],
               api_name: state.results[i]['association']['api_name'],
               tags: state.meta_kg.ops[i]['tags'],
               source: state.results[i]['association']['input_type'],
@@ -853,7 +799,25 @@
           edges.push(edge)
 
         }
-        state.cyto_data = data.concat(edges)
+        
+        let nodesFinal = []
+
+        nodes = [...nodes]
+
+        for (let index = 0; index < nodes.length; index++) {
+          const element = nodes[index];
+          let node = { 
+            group: 'nodes',
+            data: {
+              id: element,
+              name: element
+            }
+          };
+          nodesFinal.push(node)
+          
+        }
+
+        state.cyto_data = data.concat(edges).concat(nodesFinal)
 
         const t1 = performance.now();
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
@@ -1842,7 +1806,7 @@
 
         tippy(".resultInfo", {
           trigger: 'click',
-          placement: 'right',
+          placement: 'top-start',
           interactive: true,
           animation: 'fade',
           theme: 'light',
@@ -1850,9 +1814,20 @@
             if (self.hoverInfo) {
               // hover item info saved to state
               let info = self.hoverInfo
-              instance.setContent(`<div>
+              let desc = ""
+              let status = "N/A"
+
+              axios.get("http://smart-api.info/api/query?size=1&q=_id:"+info.association.smartapi.id+"&fields=info.description,_meta.uptime_status").then(res=>{
+                console.log(res.data);
+
+                desc = res.data.hits[0]['info']['description'].substring(0,400)+'...';
+                status = res.data.hits[0]['_meta']['uptime_status']
+
+                instance.setContent(`<div>
                 <h6>API: <a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">` + info
                 .association.api_name + `</a></h6>
+                <p><small>`+desc+`<a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">Learn More</a></small></p>
+                <b><small>API Status: `+status+`</small></b>
                 <table>
                   <tbody>
                     <tr class="grey lighten-4">
@@ -1882,6 +1857,44 @@
                   </tbody>
                 </table>
                 </div>`)
+
+              }).catch(err=>{
+                throw err;
+                instance.setContent(`<div>
+                <h6>API: <a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">` + info
+                .association.api_name + `</a></h6>
+                <p><small>`+desc+`</small></p>
+                <table>
+                  <tbody>
+                    <tr class="grey lighten-4">
+                      <td>
+                        <small class="grey-text">INPUT/ID TYPE</small>
+                      </td>
+                      <td>
+                        <small>` + info.association.input_type + `/` + info.association.input_id + `</small>
+                      </td>
+                    </tr>
+                    <tr class="purple lighten-4">
+                      <td>
+                        <small class="purple-text">RELATIONSHIP</small>
+                      </td>
+                      <td>
+                        <small>` + info.association.predicate + `</small>
+                      </td>
+                    </tr>
+                    <tr class="orange lighten-4">
+                      <td>
+                        <small class="orange-text">OUTPUT/ID TYPE</small>
+                      </td>
+                      <td>
+                        <small>` + info.association.output_type + `/` + info.association.output_id + `</small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                </div>`)
+              });
+              
             }
           }
         });
