@@ -11,6 +11,12 @@
     color: white;
     z-index: 1000;
   }
+  .badgepill{
+    border-radius: 5px;
+    padding: 2px;
+    color: white;
+    display: inline;
+  }
 </style>
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
   <div class="loadBlock row" v-if="loading && !apisProcessed">
@@ -150,7 +156,7 @@
                   <template v-for="tag in item.tags">
                     <small class="s-badge blue darken-2 white-text" v-if="tag =='translator'" :key="tag"
                       v-text="tag"></small>
-                    <small class="s-badge orange darken-2 white-text" v-if="tag =='biothings'" :key="tag"
+                    <small class="s-badge cyan darken-2 white-text" v-if="tag =='biothings'" :key="tag"
                       v-text="tag"></small>
                     <small class="s-badge purple darken-2 white-text" v-if="tag =='reasoner'" :key="tag"
                       v-text="tag"></small>
@@ -303,15 +309,15 @@
           state.output_selected = [];
           changes = true
         }
-        if (!changes) {
-          Swal.fire({
-            type: 'warning',
-            toast: true,
-            title: 'Nothing to clear',
-            showConfirmButton: false,
-            timer: 2000
-          });
-        }
+        // if (!changes) {
+        //   Swal.fire({
+        //     type: 'warning',
+        //     toast: true,
+        //     title: 'Nothing to clear',
+        //     showConfirmButton: false,
+        //     timer: 2000
+        //   });
+        // }
         changes = false
 
         state.predicate = [];
@@ -553,9 +559,9 @@
         function makePopperEdge(ele) {
           let ref = ele.popperRef();
           ele.tippy = tippy(document.createElement('div'), {
-            content:`<div><h6>`+ele.data('api_name')+`</h6><b class="grey-text">`+ele.data('source')+
-              `</b> > <span class="purple-text">`+ele.data('predicate')+
-              `</span> > <b class="orange-text">`+ele.data('target')+
+            content:`<div><h6 class="center">`+ele.data('api_name')+`</h6><b class="grey darken-2 badgepill">`+ele.data('source')+
+              `</b> <span class="purple darken-2 badgepill">`+ele.data('predicate')+
+              `</span> <b class="orange darken-2 badgepill">`+ele.data('target')+
               `</b></div>`,
             hideOnClick: false,
             flipOnUpdate: true,
