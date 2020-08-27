@@ -21,6 +21,8 @@ from .transform import APIMetadata, get_api_metadata_by_url
 
 from utils.slack_notification import send_slack_msg
 
+from .controllers.controller import APIDocController
+
 class BaseHandler(BaseESRequestHandler):
 
     def get_current_user(self):
@@ -101,14 +103,17 @@ class APIHandler(BaseHandler):
                             'timestamp': datetime.datetime.now().isoformat()
                         }
                         data['_meta'] = _meta
-                        esq = ESQuery()
-                        res = esq.save_api(
-                            data, overwrite=overwrite, dryrun=dryrun, user_name=user['login'], save_v2=save_v2)
-                        self.return_json(res)
-                        ## send notification to slack 
-                        if(res["success"] == True):
-                            send_slack_msg(data, res, user['login'])      
 
+                        res = APIDocController.add(api_doc=data, overwrite=overwrite, dryrun=dryrun, user_name=user['login'], save_v2=save_v2)
+                        # esq = ESQuery()
+                        # res = esq.save_api(
+                        #     data, overwrite=overwrite, dryrun=dryrun, user_name=user['login'], save_v2=save_v2)
+                        ## send notification to slack 
+                        if(res):
+                            self.return_json({'success': True})
+                            send_slack_msg(data, res, user['login']) 
+                        else:     
+                            self.return_json({'success': False, 'error': 'Something went wrong.'})
                 else:
                     self.return_json(
                         {'success': False, 'error': 'Invalid input data.'})
@@ -142,8 +147,9 @@ class APIMetaDataHandler(BaseHandler):
             from_ = 0
         if fields:
             fields = fields.split(',')
-        res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta,
-                               return_raw=return_raw, size=size, from_=from_)
+        res = APIDocController.get_all(api_name)
+        # res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta,
+        #                        return_raw=return_raw, size=size, from_=from_)
         if out_format == 'yaml':
             self.return_yaml(res)
         else:
@@ -192,20 +198,22 @@ class APIMetaDataHandler(BaseHandler):
 
 
 class ValueSuggestionHandler(BaseHandler):
-    esq = ESQuery()
 
     def get(self):
+        '''
+            Updated to use ES-DSL
+        '''
         field = self.get_argument('field', None)
         try:
             size = int(self.get_argument('size', 100))
         except:
             size = 100
         if field:
-            res = self.esq.value_suggestion(field, size=size)
+            docs = APIDocController()
+            res = docs.get_tags(field= field, size= size)
         else:
             res = {'error': 'missing required "field" parameter'}
         self.return_json(res)
-
 
 class GitWebhookHandler(BaseHandler):
     esq = ESQuery()

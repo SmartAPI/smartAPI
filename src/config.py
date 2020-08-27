@@ -19,7 +19,7 @@ from web.handlers import APP_LIST as web_app_list
 # Elasticsearch
 # *****************************************************************************
 ES_INDEX = 'smartapi_oas3'
-ES_DOC_TYPE = 'api'
+ES_DOC_TYPE = '_doc'
 
 # *****************************************************************************
 # Tornado URL Patterns

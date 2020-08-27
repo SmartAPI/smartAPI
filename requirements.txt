@@ -4,7 +4,8 @@ biothings[web_extra]==0.5.0
 jsonschema>=2.6.0
 
 # web handling
-elasticsearch-dsl==6.4.0
+elasticsearch>=7, <8
+elasticsearch-dsl>=7, <8
 torngithub==0.2.0 
 Jinja2>=2.9.6
 pycurl==7.43.0.3

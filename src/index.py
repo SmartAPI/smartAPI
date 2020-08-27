@@ -17,6 +17,8 @@ import config
 from biothings.web.index_base import main
 from biothings.web.settings import BiothingESWebSettings
 
+from web.api.controllers.indices import setup_data
+
 WEB_SETTINGS = BiothingESWebSettings(config=config)
 
 
@@ -35,7 +37,8 @@ def daily_job():
 if __name__ == '__main__':
     (SRC_PATH, _) = os.path.split(os.path.abspath(__file__))
     STATIC_PATH = os.path.join(SRC_PATH, 'static')
-    # IOLoop.current().add_callback(daily_job) # run upon start
+    # set up ES DSL upon start
+    IOLoop.current().add_callback(setup_data)
     schedule_daily_job()
     main(WEB_SETTINGS.generate_app_list(),
          app_settings={"cookie_secret": config.COOKIE_SECRET},
