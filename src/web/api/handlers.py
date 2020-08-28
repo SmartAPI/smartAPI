@@ -246,8 +246,7 @@ class ValueSuggestionHandler(BaseHandler):
         except:
             size = 100
         if field:
-            docs = APIDocController()
-            res = docs.get_tags(field= field, size= size)
+            res = APIDocController.get_tags(field= field, size= size)
         else:
             res = {'error': 'missing required "field" parameter'}
         self.return_json(res)

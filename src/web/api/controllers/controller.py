@@ -111,7 +111,7 @@ class APIDocController:
 
         return search
     
-    def get_tags(self, field=None, size=100):
+    def get_tags(field=None, size=100):
         """
             return a list of existing values for the given field.
         """
