@@ -8,7 +8,7 @@ ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_oas3'
 
 client = Elasticsearch()
-_search = Search(using=client)
+
 
 class Document_Meta(InnerDoc):
     '''
@@ -123,24 +123,24 @@ class API_Doc(Document):
         search = super(API_Doc, self).search().query('match', _id=_id)
         return bool(search.source(False).execute().hits)
 
-    def get(self, _id):
-        return super(API_Doc, self).search().query('match', _id=_id)
-
     def get_api_from_slug(self, slug):
         # double _ for dot notation fields
         search = super(API_Doc, self).search().query('match', _meta__slug=slug, size= 1)
         return search
 
-    def delete(self, _id):
-        s = _search.query('match', _id=_id)
-        response = s.delete()
-        # refresh database
-        Index(API_Doc.Index.name).refresh()
-        return response
+    # def delete(self, _id):
+    #     s = Search(using=client)
+    #     s = s.query('match', _id=_id)
+    #     response = s.delete()
+    #     # refresh database
+    #     Index(API_Doc.Index.name).refresh()
+    #     return response
 
     def search(self, **kwargs):
-        res = _search.query('match', ** kwargs)
-        return res
+        s = Search(using=client)
+        res = s.query('match', ** kwargs)
+        res = res.execute()
+        return res.to_dict()
 
     def aggregate(self, agg_name: str, field: str, size: int):
         s = Search()
@@ -148,6 +148,24 @@ class API_Doc(Document):
         s.aggs.bucket(agg_name, a)
         response = s.execute()
         return response
+    
+    def slug_exists(self, slug):
+        s = Search(using=client)
+        _query = {
+            "query": {
+                "bool": {
+                    "should": [
+                        {"term": {"_meta.slug.raw": slug}},
+                        {"ids": {"values": [slug]}}
+                    ]
+                }
+            }
+        }
+        s = s.from_dict(_query)
+        res = s.execute().to_dict()
+        r = bool(res['hits']['total']['value'])
+        print(f"\033[93m"+" Slug Check > Exists: "+"\033[0m", r)        
+        return r
 
     def to_json(self, *args, **kwargs):
         assert self._id

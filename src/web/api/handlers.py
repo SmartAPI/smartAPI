@@ -155,31 +155,56 @@ class APIMetaDataHandler(BaseHandler):
         else:
             self.return_json(res)
 
-    def put(self, api_name):
-        ''' refresh API metadata for a matched api_name,
-            checks to see if current user matches the creating user.'''
+    # def put(self, api_name):
+    #     ''' refresh API metadata for a matched api_name,
+    #         checks to see if current user matches the creating user.'''
+    #     slug_name = self.get_argument('slug', None)
+    #     dryrun = self.get_argument('dryrun', '').lower()
+    #     dryrun = dryrun in ['on', '1', 'true']
+    #     # must be logged in first
+    #     user = self.get_current_user()
+    #     if not user:
+    #         res = {'success': False,
+    #                'error': 'Authenticate first with your github account.'}
+    #         self.set_status(401)
+    #     else:
+    #         if slug_name:
+    #             (status, res) = self.esq.set_slug_name(
+    #                 _id=api_name, user=user, slug_name=slug_name)
+    #         else:
+    #             (status, res) = self.esq.refresh_one_api(
+    #                 _id=api_name, user=user, dryrun=dryrun)
+    #         self.set_status(status)
+    #     self.return_json(res)
+
+    def put(self, _id):
+        ''' 
+            refresh API metadata for a matched api_name,
+            checks to see if current user matches the creating user.
+        '''
         slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
         # must be logged in first
-        user = self.get_current_user()
+        user = self.get_current_user() 
         if not user:
             res = {'success': False,
                    'error': 'Authenticate first with your github account.'}
             self.set_status(401)
         else:
             if slug_name:
-                (status, res) = self.esq.set_slug_name(
-                    _id=api_name, user=user, slug_name=slug_name)
+                doc = APIDocController(_id=_id)
+                (status, res) = doc.update(_id=_id, user=user, slug_name=slug_name)
             else:
-                (status, res) = self.esq.refresh_one_api(
-                    _id=api_name, user=user, dryrun=dryrun)
+                (status, res) = doc.refresh_api(_id=_id, user=user, dryrun=dryrun)
             self.set_status(status)
-        self.return_json(res)
+        self.return_json(res)  
 
-    def delete(self, api_name):
-        '''delete API metadata for a matched api_name,
-           checks to see if current user matches the creating user.'''
+    def delete(self, _id):
+        '''
+            delete API metadata for a matched api_name,
+           checks to see if current user matches the creating user.
+        '''
         # must be logged in first
         user = self.get_current_user()
         slug_name = self.get_argument('slug', '').lower()
@@ -187,12 +212,19 @@ class APIMetaDataHandler(BaseHandler):
             res = {'success': False,
                    'error': 'Authenticate first with your github account.'}
             self.set_status(401)
-        elif slug_name:
-            (status, res) = self.esq.delete_slug(
-                _id=api_name, user=user, slug_name=slug_name)
+        
+        # if slug delete
+        elif slug_name:    
+            #prepare doc    
+            doc = APIDocController(_id=_id)        
+            (status, res) = doc.delete_slug(
+                _id=_id, user=user, slug_name=slug_name)
             self.set_status(status)
+        # if api delete
         else:
-            (status, res) = self.esq.archive_api(api_name, user)
+            #prepare doc    
+            doc = APIDocController(_id=_id)
+            (status, res) = doc.delete(_id=_id, user=user)
             self.set_status(status)
         self.return_json(res)
 
