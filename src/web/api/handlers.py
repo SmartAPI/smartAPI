@@ -124,7 +124,7 @@ class APIHandler(BaseHandler):
 
 
 class APIMetaDataHandler(BaseHandler):
-    esq = ESQuery()
+    # esq = ESQuery()
 
     def get(self, api_name):    
         ''' 
@@ -149,9 +149,9 @@ class APIMetaDataHandler(BaseHandler):
             from_ = 0
         if fields:
             fields = fields.split(',')
-        res = APIDocController.get_all(api_name)
-        # res = self.esq.get_api(api_name, fields=fields, with_meta=with_meta,
-        #                        return_raw=return_raw, size=size, from_=from_)
+
+        res = APIDocController.get_api(api_name= api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
+
         if out_format == 'yaml':
             self.return_yaml(res)
         else:

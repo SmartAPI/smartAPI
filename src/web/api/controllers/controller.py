@@ -58,6 +58,7 @@ class APIDocController:
     def slug(self):
         return self._doc._meta.slug
 
+    @staticmethod
     def add(api_doc, save_v2=False, overwrite=False, user_name=None, override_owner=False, warn_on_identical=False, dryrun=False):
         metadata = APIMetadata(api_doc)
 
@@ -99,17 +100,69 @@ class APIDocController:
         return {"success": True, "dryrun": False}
 
     @staticmethod
-    def get_all(api_name=None):
+    def get_api(api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
 
-        search = API_Doc.search()
-        search.params(rest_total_hits_as_int=True)
+        def _get_hit_object(hit):
+            obj = hit.get('fields', hit.get('_source', {}))
+            if '_id' in hit:
+                obj['_id'] = hit['_id']
+            return obj
 
-        if user:
-            search = search.query("term", ** {"info.title": api_name})
+        def _get_api_doc(api_doc, with_meta=True):
+            doc = decode_raw(api_doc.get('~raw', ''))
+            if with_meta:
+                doc["_meta"] = api_doc.get('_meta', {})
+                doc["_id"] = api_doc["_id"]
+            return doc
+
+        if api_name == 'all':
+            query = {'query': {"bool": {"must_not": {
+                "term": {"_meta._archived": "true"}}}}}
         else:
-            search = search.query("match_all")
+            query = {
+                "query": {
+                    "bool": {
+                        "should": [
+                            {
+                                "match": {
+                                    "_id": {
+                                        "query": api_name
+                                    }
+                                }
+                            },
+                            {
+                                "term": {
+                                    "_meta.slug": api_name
+                                }
+                            }
+                        ],
+                        "must_not": {"term": {"_meta._archived": "true"}}
+                    }
+                }
+            }
+        if fields and fields not in ["all", ["all"]]:
+            query["_source"] = fields
+        if size and isinstance(size, int):
+            query['size'] = min(size, 100)    # set max size to 100 for now.
+        if from_ and isinstance(from_, int) and from_ > 0:
+            query['from'] = from_
+        # res = self._es.search(self._index, query)
+        client = Elasticsearch()
+        s = Search(using=client)
+        s = s.from_dict(query)
+        res = s.execute().to_dict()
 
-        return search
+        if return_raw == '2':
+            return res
+        res = [_get_hit_object(d) for d in res['hits']['hits']]
+        if not return_raw:
+            try:
+                res = [_get_api_doc(x, with_meta=with_meta) for x in res]
+            except ValueError as e:
+                res = {'success': False, 'error': str(e)}
+        if len(res) == 1:
+            res = res[0]
+        return res
     
     def get_tags(field=None, size=100):
         """
@@ -249,3 +302,4 @@ class APIDocController:
         self._doc.update(id=_id, refresh=True, _meta={"slug":""} )
 
         return (200, {"success": True, "{}".format(_id): "slug '{}' deleted".format(slug_name)})
+    

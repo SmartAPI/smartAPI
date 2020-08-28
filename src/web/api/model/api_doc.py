@@ -128,14 +128,6 @@ class API_Doc(Document):
         search = super(API_Doc, self).search().query('match', _meta__slug=slug, size= 1)
         return search
 
-    # @classmethod
-    # def load(cls, doc, user, private, class_id):
-    #     dataset = cls(**doc)
-    #     dataset._meta.username = user
-    #     dataset._meta.private = private
-    #     dataset._meta.class_id = class_id
-    #     return dataset
-
     def search(self, **kwargs):
         s = Search(using=client)
         res = s.query('match', ** kwargs)
@@ -166,12 +158,6 @@ class API_Doc(Document):
         r = bool(res['hits']['total']['value'])
         print(f"\033[93m"+" Slug Check > Exists: "+"\033[0m", r)        
         return r
-
-    def to_json(self, *args, **kwargs):
-        assert self._id
-        result = dict()
-        result.update(self.to_dict(*args, **kwargs))
-        return result
 
     def save(self, **kwargs):
         return super(API_Doc, self).save(** kwargs)

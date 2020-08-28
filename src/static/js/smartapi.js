@@ -55,7 +55,7 @@ function save_api(form, overwrite, savev2){
                   swal({
                     imageUrl: '/static/img/api-sucess.svg',
                     imageWidth: 300,
-                    title: 'Good Job!',
+                    title: 'Great! You are done!',
                     html: "You can see your API documentation <b><a href='/registry?q="+response._id+"'>HERE</a></b>",
                   })
                 }
