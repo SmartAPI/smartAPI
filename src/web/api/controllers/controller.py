@@ -58,12 +58,45 @@ class APIDocController:
     def slug(self):
         return self._doc._meta.slug
 
-    @staticmethod
     def add(api_doc, save_v2=False, overwrite=False, user_name=None, override_owner=False, warn_on_identical=False, dryrun=False):
         metadata = APIMetadata(api_doc)
-        doc = API_Doc(** metadata.convert_es())
+
+        # validate document schema
+        valid = metadata.validate(raise_error_on_v2=not save_v2)
+        if not valid['valid']:
+            valid['success'] = False
+            valid['error'] = '[Validation] ' + valid['error']
+            return valid
+
+        # avoid unintended overwrite
+        # generates an id based on source url
+        api_id = metadata.encode_api_id()
+        doc_exists = APIDocController.exists(api_id)
+        print(f"\033[93m"+"API EXISTS: "+"\033[0m", doc_exists)
+        print(f"\033[93m"+"OVERWRITE: "+"\033[0m", overwrite)
+        print(f"\033[93m"+"OVERWRITE OWNER: "+"\033[0m", override_owner)
+        if doc_exists:
+            if not overwrite:
+                print(f"\033[93m"+"NOT!!! OVERWRITE: "+"\033[0m", overwrite)
+                return {"success": False, "error": "[Conflict] API exists. Not saved."}
+            elif not override_owner:
+                # Check user is owner
+                i = API_Doc.get(id=api_id).to_dict()
+                _owner = i.get('_meta', {}).get('github_username', '')               
+                if _owner != user_name:
+                    return {"success": False, "error": "[Conflict] User mismatch. Not Saved."}
+                print(f"\033[93m"+"API EXISTS AND OWNER IS: "+"\033[0m", _owner)     
+
+        # save to es index
+        if dryrun:
+            print(f"\033[93m"+"IS DRYRUN: "+"\033[0m", dryrun)
+            return {"success": True, '_id': "[Dryrun] this is a dryrun. API is not saved.", "dryrun": True}
+
+        print(f"\033[93m"+"SAVE NEW: "+"\033[0m")
+        # save doc with generated id
+        doc = API_Doc(meta={'id':api_id}, ** metadata.convert_es())
         doc.save()      
-        return doc
+        return {"success": True, "dryrun": False}
 
     @staticmethod
     def get_all(api_name=None):
@@ -164,13 +197,19 @@ class APIDocController:
         # good name
         return (True, {})
     
-    def refresh_api(self, api_doc, user=None, override_owner=False, dryrun=True,
-                     error_on_identical=False, save_v2=False):
+    # def refresh_api(self, api_doc, user=None, override_owner=False, dryrun=True,
+    #                  error_on_identical=False, save_v2=False):
+    def refresh_api(self, _id, user):
         ''' refresh the given API document object based on its saved metadata url  '''
-        _id = api_doc['_id']
-        _meta = api_doc['_meta']
+
+        doc = API_Doc(id=_id)
+        api_doc = doc.get(id=_id).to_dict()
+        print(f"\033[93m"+"DOC TO UPDATE "+"\033[0m", api_doc)
+
+        _meta = api_doc.get('_meta', {})
 
         res = get_api_metadata_by_url(_meta['url'])
+        
         if res and isinstance(res, dict):
             if res.get('success', None) is False:
                 res['error'] = '[Request] '+res.get('error', '')
@@ -178,11 +217,12 @@ class APIDocController:
             else:
                 _meta['timestamp'] = datetime.now().isoformat()
                 res['_meta'] = _meta
-                status = self.save_api(
-                    res, user_name=user, override_owner=override_owner, overwrite=True,
-                    dryrun=dryrun, warn_on_identical=error_on_identical, save_v2=True)
+                print(f"\033[93m"+"UPDATING DOC WITH ID "+"\033[0m",_id)
+                print(f"\033[93m"+"NEW META "+"\033[0m",res['_meta'])
+                self._doc.update(id=_id, refresh=True, _meta=res['_meta'] )
+                status = (200,{'success': True, 'error': 'None'})
         else:
-            status = {'success': False, 'error': 'Invalid input data.'}
+            status = (400,{'success': False, 'error': 'Invalid input data.'})
 
         return status
 

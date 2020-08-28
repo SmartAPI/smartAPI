@@ -71,6 +71,9 @@ class ValidateHandler(BaseHandler):
 
 class APIHandler(BaseHandler):
     def post(self):
+        '''
+            UPDATED FOR DSL
+        '''
         # check if a logged in user
         user = self.get_current_user()
         if not user:
@@ -105,15 +108,12 @@ class APIHandler(BaseHandler):
                         data['_meta'] = _meta
 
                         res = APIDocController.add(api_doc=data, overwrite=overwrite, dryrun=dryrun, user_name=user['login'], save_v2=save_v2)
-                        # esq = ESQuery()
-                        # res = esq.save_api(
-                        #     data, overwrite=overwrite, dryrun=dryrun, user_name=user['login'], save_v2=save_v2)
-                        ## send notification to slack 
-                        if(res):
+
+                        if(res['success'] and not res['dryrun']):
                             self.return_json({'success': True})
                             send_slack_msg(data, res, user['login']) 
                         else:     
-                            self.return_json({'success': False, 'error': 'Something went wrong.'})
+                            self.return_json(res)
                 else:
                     self.return_json(
                         {'success': False, 'error': 'Invalid input data.'})
@@ -126,10 +126,12 @@ class APIHandler(BaseHandler):
 class APIMetaDataHandler(BaseHandler):
     esq = ESQuery()
 
-    def get(self, api_name):
-        '''return API metadata for a matched api_name,
-           if api_name is "all", return a list of all APIs
+    def get(self, api_name):    
+        ''' 
+            UPDATED FOR DSL
         '''
+        # return API metadata for a matched api_name,
+        # if api_name is "all", return a list of all APIs
         fields = self.get_argument('fields', None)
         out_format = self.get_argument('format', 'json').lower()
         return_raw = self.get_argument('raw', False)
@@ -179,9 +181,10 @@ class APIMetaDataHandler(BaseHandler):
 
     def put(self, _id):
         ''' 
-            refresh API metadata for a matched api_name,
-            checks to see if current user matches the creating user.
+            UPDATED FOR DSL
         '''
+        # refresh API metadata for a matched api_name,
+        # checks to see if current user matches the creating user.
         slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
@@ -196,15 +199,17 @@ class APIMetaDataHandler(BaseHandler):
                 doc = APIDocController(_id=_id)
                 (status, res) = doc.update(_id=_id, user=user, slug_name=slug_name)
             else:
-                (status, res) = doc.refresh_api(_id=_id, user=user, dryrun=dryrun)
+                doc = APIDocController(_id=_id)
+                (status, res) = doc.refresh_api(_id=_id, user=user)
             self.set_status(status)
         self.return_json(res)  
 
     def delete(self, _id):
+        '''            
+           UPDATED FOR DSL
         '''
-            delete API metadata for a matched api_name,
-           checks to see if current user matches the creating user.
-        '''
+        # delete API metadata for a matched api_name,
+        # checks to see if current user matches the creating user.
         # must be logged in first
         user = self.get_current_user()
         slug_name = self.get_argument('slug', '').lower()

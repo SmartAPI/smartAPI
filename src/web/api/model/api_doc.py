@@ -128,13 +128,13 @@ class API_Doc(Document):
         search = super(API_Doc, self).search().query('match', _meta__slug=slug, size= 1)
         return search
 
-    # def delete(self, _id):
-    #     s = Search(using=client)
-    #     s = s.query('match', _id=_id)
-    #     response = s.delete()
-    #     # refresh database
-    #     Index(API_Doc.Index.name).refresh()
-    #     return response
+    # @classmethod
+    # def load(cls, doc, user, private, class_id):
+    #     dataset = cls(**doc)
+    #     dataset._meta.username = user
+    #     dataset._meta.private = private
+    #     dataset._meta.class_id = class_id
+    #     return dataset
 
     def search(self, **kwargs):
         s = Search(using=client)
