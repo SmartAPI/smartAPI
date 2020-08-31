@@ -92,10 +92,7 @@ class APIHandler(BaseHandler):
             url = self.get_argument('url', None)
             if url:
                 data = get_api_metadata_by_url(url)
-                # try:
-                #     data = tornado.escape.json_decode(data)
-                # except ValueError:
-                #     data = None
+                
                 if data and isinstance(data, dict):
                     if data.get('success', None) is False:
                         self.return_json(data)
@@ -156,28 +153,6 @@ class APIMetaDataHandler(BaseHandler):
             self.return_yaml(res)
         else:
             self.return_json(res)
-
-    # def put(self, api_name):
-    #     ''' refresh API metadata for a matched api_name,
-    #         checks to see if current user matches the creating user.'''
-    #     slug_name = self.get_argument('slug', None)
-    #     dryrun = self.get_argument('dryrun', '').lower()
-    #     dryrun = dryrun in ['on', '1', 'true']
-    #     # must be logged in first
-    #     user = self.get_current_user()
-    #     if not user:
-    #         res = {'success': False,
-    #                'error': 'Authenticate first with your github account.'}
-    #         self.set_status(401)
-    #     else:
-    #         if slug_name:
-    #             (status, res) = self.esq.set_slug_name(
-    #                 _id=api_name, user=user, slug_name=slug_name)
-    #         else:
-    #             (status, res) = self.esq.refresh_one_api(
-    #                 _id=api_name, user=user, dryrun=dryrun)
-    #         self.set_status(status)
-    #     self.return_json(res)
 
     def put(self, _id):
         ''' 
