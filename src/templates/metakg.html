@@ -249,7 +249,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-
 <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-popper@1.0.5/cytoscape-popper.min.js"></script>
 <script src="https://unpkg.com/tippy.js@5/dist/tippy-bundle.iife.js"></script>
@@ -330,7 +329,7 @@
 
         if (state.spread) {
           let l = this.cy.layout({
-            name: 'grid',
+            name: 'circle',
             idealEdgeLength: 100,
             nodeOverlap: 20,
             refresh: 20,
@@ -347,23 +346,16 @@
             coolingFactor: 0.95,
             minTemp: 1.0
           });
-          this.cy.$('edge').css({
-            'curve-style': 'taxi',
-            'font-size': '1em',
-          })
           this.cy.$('edge:selected').css({
             "z-index": 1000,
-          })
-          this.cy.$('node').css({
-            'width': '40',
-            'height': '40',
-            'font-size': '1em',
           })
 
           l.run();
         } else {
           let l = this.cy.layout({
-            name: 'concentric',
+            name: 'grid',
+            avoidOverlap: true,
+            avoidOverlapPadding: 300,
             minNodeSpacing: 300,
             nestingFactor: 1.2,
             initialTemp: 1000,
@@ -371,15 +363,6 @@
             minTemp: 1.0,
             gravity: 1.4
           });
-          this.cy.$('edge').css({
-            'curve-style': 'bezier',
-            'font-size': '2.5em',
-          })
-          this.cy.$('node').css({
-            'width': '100',
-            'height': '100',
-            'font-size': '3em',
-          })
           l.run();
         }
       },
@@ -409,13 +392,15 @@
           container: document.getElementById('cy'),
           elements: state.cyto_data,
           layout: {
-            name: "concentric",
+            name: "grid",
+            avoidOverlap: true,
+            avoidOverlapPadding: 300,
             minNodeSpacing: 300,
             nestingFactor: 1.2,
             initialTemp: 1000,
             coolingFactor: 0.99,
             minTemp: 1.0,
-            gravity: 1.4
+            gravity: 1.4,
           },
           style: cytoscape.stylesheet()
             .selector('node')
@@ -433,7 +418,8 @@
               'font-size': '3em',
               'text-outline-width': 4,
               'text-outline-color': 'white',
-              'background-color': '#ff9800'
+              'background-color': '#f2f2f2',
+              'z-index': 1000
             })
             .selector('node:selected')
             .css({
@@ -442,12 +428,24 @@
               'border-width': 3,
               'border-opacity': 0.7,
             })
+            .selector(':parent')
+            .css({
+              'text-valign': 'top',
+              'text-halign': 'center',
+              'color': '#9c27b0',
+              'border-color': '#9c27b0',
+              'border-style': 'dotted',
+              'border-width': 4,
+              'background-opacity': 0,
+              'z-compound-depth': 'orphan'
+            })
             .selector('edge').css({
               'curve-style': 'bezier',
               'line-color': 'lightblue',
               'target-arrow-shape': 'triangle',
               'target-arrow-color': '#257FC5',
-              'width': 2
+              'width': 2,
+              'z-index': 1,
             })
             .selector('edge:selected').css({
               'source-text-offset': 150,
@@ -457,7 +455,7 @@
               'text-background-shape': 'roundrectangle',
               'text-wrap': 'wrap',
               'edge-text-rotation': 'autorotate',
-              'z-index': 1000,
+              // 'z-index': 1000,
               'color': '#9c27b0',
               'font-size': '2.5em',
               'width': 8,
@@ -560,8 +558,8 @@
           let ref = ele.popperRef();
           ele.tippy = tippy(document.createElement('div'), {
             content:`<div><h6 class="center">`+ele.data('api_name')+`</h6><b class="grey darken-2 badgepill">`+ele.data('source')+
-              `</b> <span class="purple darken-2 badgepill">`+ele.data('predicate')+
-              `</span> <b class="orange darken-2 badgepill">`+ele.data('target')+
+              `</b> <b class="purple-text">`+ele.data('predicate')+
+              `</b> <b class="orange darken-2 badgepill">`+ele.data('target')+
               `</b></div>`,
             hideOnClick: false,
             flipOnUpdate: true,
@@ -735,22 +733,69 @@
 
         }
 
+        function getData(name){
+          let data = {
+            name : name,
+            id : name,
+            parent : '',
+          }
+          let res = 'other'
+          if(['AnatomicalEntity','Cell','CellularComponent'].includes(name)){
+            res =  "Space/Location"
+          }
+          else if(['Gene', 'GenomicEntity', 'Transcript', 'Protein', 'SequenceVariant'].includes(name)){
+            res =  "Macromolecules/Sequence Related"
+          }
+          else if(['MolecularActivity', 'Pathway'].includes(name)){
+            res = "Protein Activity"
+          }
+          else if(['ChemicalSubstance'].includes(name)){
+            res = "Chemical Substances"
+          }
+          else if(['Disease', 'PhenotypicFeature', 'Phenotype', 'BiologicalProcess'].includes(name)){
+            res = "Body System Activities"
+          }
+          data['parent'] = res
+          return data;
+        }
+
         let nodesFinal = []
 
         nodes = [...nodes]
 
         for (let index = 0; index < nodes.length; index++) {
           const element = nodes[index];
+          res = getData(element);
           let node = { 
-            group: 'nodes',
+            group: 'nodes',          
+            data: res
+          };
+          nodesFinal.push(node) 
+        }
+
+        nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
+        
+
+        let parentNodes = [
+        "Space/Location",
+        "Macromolecules/Sequence Related",
+        "Protein Activity",
+        "Chemical Substances",
+        "Body System Activities",
+        ]
+
+        for (let index = 0; index < parentNodes.length; index++) {
+          const element = parentNodes[index];
+          let node = { 
+            group: 'nodes',          
             data: {
               id: element,
               name: element
             }
           };
-          nodesFinal.push(node)
-          
+          nodesFinal.push(node) 
         }
+
 
         //array-ify tag list
         state.tagList = [...tagList]
@@ -809,18 +854,67 @@
         let nodesFinal = []
 
         nodes = [...nodes]
+        let parentNodesSet = new Set()
+
+        function getData(name){
+          let data = {
+            name : name,
+            id : name,
+            parent : '',
+          }
+          let res = 'other'
+          if(['AnatomicalEntity','Cell','CellularComponent'].includes(name)){
+            res =  "Space/Location"           
+          }
+          else if(['Gene', 'GenomicEntity', 'Transcript', 'Protein', 'SequenceVariant'].includes(name)){
+            res =  "Macromolecules/Sequence Related"
+          }
+          else if(['MolecularActivity', 'Pathway'].includes(name)){
+            res = "Protein Activity"
+          }
+          else if(['ChemicalSubstance'].includes(name)){
+            res = "Chemical Substances"
+          }
+          else if(['Disease', 'PhenotypicFeature', 'Phenotype', 'BiologicalProcess'].includes(name)){
+            res = "Body System Activities"
+          }
+          data['parent'] = res
+          parentNodesSet.add(res)
+          return data;
+        }
 
         for (let index = 0; index < nodes.length; index++) {
           const element = nodes[index];
           let node = { 
             group: 'nodes',
+            data: getData(element)
+          };
+          nodesFinal.push(node)         
+        }
+
+        nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
+        
+
+        // let parentNodes = [
+        // "Space/Location",
+        // "Macromolecules/Sequence Related",
+        // "Protein Activity",
+        // "Chemical Substances",
+        // "Body System Activities",
+        // ]
+
+        let parentNodes = [...parentNodesSet]
+
+        for (let index = 0; index < parentNodes.length; index++) {
+          const element = parentNodes[index];
+          let node = { 
+            group: 'nodes',          
             data: {
               id: element,
               name: element
             }
           };
-          nodesFinal.push(node)
-          
+          nodesFinal.push(node) 
         }
 
         state.cyto_data = data.concat(edges).concat(nodesFinal)
@@ -1074,9 +1168,9 @@
             }
           }
         });
-        let found2 = this.cy.filter('node').style({
-          'opacity': .3
-        })
+        // let found2 = this.cy.filter('node').style({
+        //   'opacity': .3
+        // })
         found.select()
         found.connectedNodes().style({
           'opacity': 1
@@ -1107,9 +1201,9 @@
             }
           }
         });
-        let found2 = this.cy.filter('node').style({
-          'opacity': .3
-        })
+        // let found2 = this.cy.filter('node').style({
+        //   'opacity': .3
+        // })
         found.select()
         found[0].tippy.show()
         found.connectedNodes().style({
