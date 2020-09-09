@@ -109,7 +109,8 @@
                   <small>Tags Most Active <br />(Last 30 days)</small>
                 </div>
                 <template v-for="(pop,index) in popularTags">
-                  <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" @click.prevent="toggleTag(pop,'tag');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" >
+                  <!-- <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click.prevent="toggleTag(pop,'tag');toggleTag(pop,'author');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" > -->
+                    <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" :href="'/registry?tags='+pop.name" class="collection-item" style="padding:4px;" >
                     {{index+1}} <small v-text="'#'+pop.name"></small>
                   </a>
                 </template>
@@ -321,9 +322,11 @@ const store = new Vuex.Store({
       },
       saveTags(state,payload){
         state.tags= payload['tags'];
+        // console.log('tags',state.tags)
       },
       saveAuthors(state,payload){
         state.authors= payload['authors'];
+        // console.log('authors',state.authors)
       },
       saveContext(state,payload){
         state.context= payload['context'];
@@ -629,6 +632,7 @@ const store = new Vuex.Store({
               self.buildShareURL(query);
 
               $(".context").unmark();
+              self.total = 0;
               axios.get('/api/query?size=100', params).then(function (response) {
                   // self.loading_end();
                   $(".context").unmark();
@@ -638,7 +642,7 @@ const store = new Vuex.Store({
                   store.commit('saveApis',payload);
 
                   // self.handleContext(self.context);
-                  // self.total = response.data.total;
+                  self.total = response.data.total;
                   // self.page = 1;
                   // self.calculatePages();
               }).catch(err=>{
@@ -834,7 +838,7 @@ const store = new Vuex.Store({
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags">
-              <a  href="#!" @click.prevent="toggleTag(tag,'tag');search();googleAnalytics('Registry_Tag', tag.name)" class="link">
+              <a  :href="'registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -1081,6 +1085,8 @@ const store = new Vuex.Store({
                   payload["apis"] = response.data.hits;
                   store.commit('saveApis',payload);
 
+                  history.pushState(null, "SmartAPI", window.location.href)
+
                   // self.apis = response.data.hits;
                   self.total = response.data.total;
                   self.calculatePages();
@@ -1239,6 +1245,7 @@ const store = new Vuex.Store({
                   self.buildShareURL(query);
 
                   $(".context").unmark();
+                  self.total = 0;
                   axios.get('/api/query?size=100', params).then(function (response) {
                       self.loading_end();
                       $(".context").unmark();
@@ -1246,6 +1253,8 @@ const store = new Vuex.Store({
                       var payload = {};
                       payload["apis"] = response.data.hits;
                       store.commit('saveApis',payload);
+
+                      history.pushState(null, "SmartAPI", window.location.href)
 
                       self.handleContext(self.context);
                       self.total = response.data.total;
@@ -1450,6 +1459,12 @@ const store = new Vuex.Store({
 
       },
       mounted:function(){
+        var self = this;
+
+        window.onpopstate = function(event) {
+          console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+          self.refreshApis();
+        };
 
         this.getAnalytics();
 
