@@ -83,7 +83,7 @@
                               style="padding:2px;"
                               :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
                               href="#!"
-                              @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                              @click.prevent="toggleTag(tag,'author');search(query); googleAnalytics('Registry_Tag', tag.name)">
                             <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                           </a>
                         </template>
@@ -94,7 +94,7 @@
                               style="padding:2px;"
                               :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
                               href="#!"
-                              @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                              @click.prevent="toggleTag(tag,'author');search(query); googleAnalytics('Registry_Tag', tag.name)">
                             <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                           </a>
                         </template>
@@ -110,7 +110,7 @@
                 </div>
                 <template v-for="(pop,index) in popularTags">
                   <!-- <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click.prevent="toggleTag(pop,'tag');toggleTag(pop,'author');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" > -->
-                    <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" :href="'/registry?tags='+pop.name" class="collection-item" style="padding:4px;" >
+                    <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
                     {{index+1}} <small v-text="'#'+pop.name"></small>
                   </a>
                 </template>
@@ -304,7 +304,12 @@ const store = new Vuex.Store({
         let pop = []
         for (var i = 0; i < state.analytics.length; i++) {
           if (state.analytics[i][0] ==='tag') {
-            pop.push({'name':state.analytics[i][1],'active':false,'count':state.analytics[i][2]})
+            let name = state.analytics[i][1];
+            if(!name.includes(' ')){
+              pop.push({'name':name,'active':false,'count':state.analytics[i][2],'type':'tags'})
+            }else{
+              pop.push({'name':name,'active':false,'count':state.analytics[i][2],'type':'owners'})
+            }
           }
         }
         state.popularTags = pop;
