@@ -170,11 +170,11 @@
 
               <ul class="collection" style="margin-top:100px;" v-show="popularTags && popularTags.length > 5">
                 <div class="collection-header orange-text center">
-                  <small>Tags Most Active <br />(Last 30 days)</small>
+                  <small>Filters Most Active <br />(Last 30 days)</small>
                 </div>
                 <template v-for="(pop,index) in popularTags">
                   <!-- <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click.prevent="toggleTag(pop,'tag');toggleTag(pop,'author');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" > -->
-                    <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
+                    <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="pushHistory();googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
                     {{index+1}} <small v-text="'#'+pop.name"></small>
                   </a>
                 </template>
@@ -377,6 +377,14 @@ const store = new Vuex.Store({
           }
         }
         state.popularTags = pop;
+      },
+      resetTags(state){
+        for (let index = 0; index < state.tags.length; index++) {
+          state.tags[index]['active'] = false 
+        }
+        for (let index = 0; index < state.authors.length; index++) {
+          state.authors[index]['active'] = false 
+        }
       },
       saveUserInfo(state,payload){
         state.userInfo = payload['user'];
@@ -907,7 +915,7 @@ const store = new Vuex.Store({
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags">
-              <a  :href="'registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
+              <a  :href="'registry?tags='+tag.name" @click="pushHistory();googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -1154,7 +1162,7 @@ const store = new Vuex.Store({
                   payload["apis"] = response.data.hits;
                   store.commit('saveApis',payload);
 
-                  history.pushState(null, "SmartAPI", window.location.href)
+                  // history.pushState(null, "SmartAPI", window.location.href)
 
                   // self.apis = response.data.hits;
                   self.total = response.data.total;
@@ -1323,7 +1331,7 @@ const store = new Vuex.Store({
                       payload["apis"] = response.data.hits;
                       store.commit('saveApis',payload);
 
-                      history.pushState(null, "SmartAPI", window.location.href)
+                      // history.pushState(null, "SmartAPI", window.location.href)
 
                       self.handleContext(self.context);
                       self.total = response.data.total;
@@ -1430,12 +1438,15 @@ const store = new Vuex.Store({
             var url_string = window.location.href
             var url = new URL(url_string);
 
+            store.commit('resetTags');
+
             var q = url.searchParams.get("q");
             if (q) {
               this.query = q;
             }
 
             var tags = url.searchParams.get("tags");
+            // console.log('TAGS FOUND',tags)
             if (tags) {
               if (tags.includes(',')) {
                 tags = tags.split(',')
@@ -1511,6 +1522,9 @@ const store = new Vuex.Store({
               }
             }
           },
+          pushHistory(){
+            // window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
+          }
       },
       created: function () {
           this.getUserInfo();
@@ -1531,7 +1545,8 @@ const store = new Vuex.Store({
         var self = this;
 
         window.onpopstate = function(event) {
-          console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+          // console.log("%c State "+JSON.stringify(event.state),'color:limegreen')
+          // console.log("%c Current Location "+document.location,'color:lightyellow')
           self.refreshApis();
         };
 
