@@ -329,7 +329,21 @@
 
         if (state.spread) {
           let l = this.cy.layout({
-            name: 'circle',
+            name: 'grid',
+            avoidOverlap: true,
+            avoidOverlapPadding: 300,
+            minNodeSpacing: 300,
+            nestingFactor: 1.2,
+            initialTemp: 1000,
+            coolingFactor: 0.99,
+            minTemp: 1.0,
+            gravity: 1.4
+          });
+
+          l.run();
+        } else {
+          let l = this.cy.layout({
+            name: 'concentric',
             idealEdgeLength: 100,
             nodeOverlap: 20,
             refresh: 20,
@@ -349,20 +363,6 @@
           this.cy.$('edge:selected').css({
             "z-index": 1000,
           })
-
-          l.run();
-        } else {
-          let l = this.cy.layout({
-            name: 'grid',
-            avoidOverlap: true,
-            avoidOverlapPadding: 300,
-            minNodeSpacing: 300,
-            nestingFactor: 1.2,
-            initialTemp: 1000,
-            coolingFactor: 0.99,
-            minTemp: 1.0,
-            gravity: 1.4
-          });
           l.run();
         }
       },
@@ -392,7 +392,7 @@
           container: document.getElementById('cy'),
           elements: state.cyto_data,
           layout: {
-            name: "grid",
+            name: "concentric",
             avoidOverlap: true,
             avoidOverlapPadding: 300,
             minNodeSpacing: 300,
@@ -733,31 +733,31 @@
 
         }
 
-        function getData(name){
-          let data = {
-            name : name,
-            id : name,
-            parent : '',
-          }
-          let res = 'other'
-          if(['AnatomicalEntity','Cell','CellularComponent'].includes(name)){
-            res =  "Space/Location"
-          }
-          else if(['Gene', 'GenomicEntity', 'Transcript', 'Protein', 'SequenceVariant'].includes(name)){
-            res =  "Macromolecules/Sequence Related"
-          }
-          else if(['MolecularActivity', 'Pathway'].includes(name)){
-            res = "Protein Activity"
-          }
-          else if(['ChemicalSubstance'].includes(name)){
-            res = "Chemical Substances"
-          }
-          else if(['Disease', 'PhenotypicFeature', 'Phenotype', 'BiologicalProcess'].includes(name)){
-            res = "Body System Activities"
-          }
-          data['parent'] = res
-          return data;
-        }
+        // function getData(name){
+        //   let data = {
+        //     name : name,
+        //     id : name,
+        //     parent : '',
+        //   }
+        //   let res = 'other'
+        //   if(['AnatomicalEntity','Cell','CellularComponent'].includes(name)){
+        //     res =  "Space/Location"
+        //   }
+        //   else if(['Gene', 'GenomicEntity', 'Transcript', 'Protein', 'SequenceVariant'].includes(name)){
+        //     res =  "Macromolecules/Sequence Related"
+        //   }
+        //   else if(['MolecularActivity', 'Pathway'].includes(name)){
+        //     res = "Protein Activity"
+        //   }
+        //   else if(['ChemicalSubstance'].includes(name)){
+        //     res = "Chemical Substances"
+        //   }
+        //   else if(['Disease', 'PhenotypicFeature', 'Phenotype', 'BiologicalProcess'].includes(name)){
+        //     res = "Body System Activities"
+        //   }
+        //   data['parent'] = res
+        //   return data;
+        // }
 
         let nodesFinal = []
 
@@ -765,36 +765,40 @@
 
         for (let index = 0; index < nodes.length; index++) {
           const element = nodes[index];
-          res = getData(element);
+          // res = getData(element);
           let node = { 
             group: 'nodes',          
-            data: res
-          };
-          nodesFinal.push(node) 
-        }
-
-        nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
-        
-
-        let parentNodes = [
-        "Space/Location",
-        "Macromolecules/Sequence Related",
-        "Protein Activity",
-        "Chemical Substances",
-        "Body System Activities",
-        ]
-
-        for (let index = 0; index < parentNodes.length; index++) {
-          const element = parentNodes[index];
-          let node = { 
-            group: 'nodes',          
-            data: {
-              id: element,
-              name: element
+            // data: res
+            data:{
+              name : element,
+              id : element,
             }
           };
           nodesFinal.push(node) 
         }
+
+        // nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
+        
+
+        // let parentNodes = [
+        // "Space/Location",
+        // "Macromolecules/Sequence Related",
+        // "Protein Activity",
+        // "Chemical Substances",
+        // "Body System Activities",
+        // ]
+
+        // for (let index = 0; index < parentNodes.length; index++) {
+        //   const element = parentNodes[index];
+        //   let node = { 
+        //     group: 'nodes',          
+        //     data: {
+        //       id: element,
+        //       name: element
+        //     }
+        //   };
+        //   nodesFinal.push(node) 
+        // }
 
 
         //array-ify tag list
@@ -854,45 +858,49 @@
         let nodesFinal = []
 
         nodes = [...nodes]
-        let parentNodesSet = new Set()
+        // let parentNodesSet = new Set()
 
-        function getData(name){
-          let data = {
-            name : name,
-            id : name,
-            parent : '',
-          }
-          let res = 'other'
-          if(['AnatomicalEntity','Cell','CellularComponent'].includes(name)){
-            res =  "Space/Location"           
-          }
-          else if(['Gene', 'GenomicEntity', 'Transcript', 'Protein', 'SequenceVariant'].includes(name)){
-            res =  "Macromolecules/Sequence Related"
-          }
-          else if(['MolecularActivity', 'Pathway'].includes(name)){
-            res = "Protein Activity"
-          }
-          else if(['ChemicalSubstance'].includes(name)){
-            res = "Chemical Substances"
-          }
-          else if(['Disease', 'PhenotypicFeature', 'Phenotype', 'BiologicalProcess'].includes(name)){
-            res = "Body System Activities"
-          }
-          data['parent'] = res
-          parentNodesSet.add(res)
-          return data;
-        }
+        // function getData(name){
+        //   let data = {
+        //     name : name,
+        //     id : name,
+        //     parent : '',
+        //   }
+        //   let res = 'other'
+        //   if(['AnatomicalEntity','Cell','CellularComponent'].includes(name)){
+        //     res =  "Space/Location"           
+        //   }
+        //   else if(['Gene', 'GenomicEntity', 'Transcript', 'Protein', 'SequenceVariant'].includes(name)){
+        //     res =  "Macromolecules/Sequence Related"
+        //   }
+        //   else if(['MolecularActivity', 'Pathway'].includes(name)){
+        //     res = "Protein Activity"
+        //   }
+        //   else if(['ChemicalSubstance'].includes(name)){
+        //     res = "Chemical Substances"
+        //   }
+        //   else if(['Disease', 'PhenotypicFeature', 'Phenotype', 'BiologicalProcess'].includes(name)){
+        //     res = "Body System Activities"
+        //   }
+        //   data['parent'] = res
+        //   parentNodesSet.add(res)
+        //   return data;
+        // }
 
         for (let index = 0; index < nodes.length; index++) {
           const element = nodes[index];
           let node = { 
             group: 'nodes',
-            data: getData(element)
+            // data: getData(element)
+            data:{
+              name : element,
+              id : element,
+            }
           };
           nodesFinal.push(node)         
         }
 
-        nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
+        // nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
         
 
         // let parentNodes = [
@@ -903,19 +911,19 @@
         // "Body System Activities",
         // ]
 
-        let parentNodes = [...parentNodesSet]
+        // let parentNodes = [...parentNodesSet]
 
-        for (let index = 0; index < parentNodes.length; index++) {
-          const element = parentNodes[index];
-          let node = { 
-            group: 'nodes',          
-            data: {
-              id: element,
-              name: element
-            }
-          };
-          nodesFinal.push(node) 
-        }
+        // for (let index = 0; index < parentNodes.length; index++) {
+        //   const element = parentNodes[index];
+        //   let node = { 
+        //     group: 'nodes',          
+        //     data: {
+        //       id: element,
+        //       name: element
+        //     }
+        //   };
+        //   nodesFinal.push(node) 
+        // }
 
         state.cyto_data = data.concat(edges).concat(nodesFinal)
 
