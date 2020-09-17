@@ -1,8 +1,6 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor
 
 from elasticsearch_dsl import Index
-
 from ..model.api_doc import API_Doc
 
 
@@ -24,3 +22,4 @@ def reset_data():
         index_1.delete()
 
     API_Doc.init()
+    

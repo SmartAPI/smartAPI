@@ -3,7 +3,7 @@
 
 from biothings.web.settings.default import *
 from config_key import *
-from web.api.handlers import APP_LIST as api_app_list
+from web.api.api_handlers.handlers import APP_LIST as api_app_list
 from web.api.query_builder import SmartAPIQueryBuilder
 from web.handlers import APP_LIST as web_app_list
 
