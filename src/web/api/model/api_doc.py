@@ -1,6 +1,4 @@
 
-import hashlib
-
 from elasticsearch_dsl import *
 from elasticsearch import Elasticsearch
 
@@ -23,12 +21,12 @@ class Document_Meta(InnerDoc):
     '''
     github_username = Keyword(required=True)
     timestamp = Date(default_timezone='UTC')
-    url = Text(required=True) 
+    url = Text(required=True)
     uptime_ts = Date(default_timezone='UTC')
     ETag = Text()
     # Generated after registration
-    slug = Text() 
-    uptime_status = Text() 
+    slug = Text()
+    uptime_status = Text()
 
 class Contact(InnerDoc):
     '''
@@ -38,9 +36,9 @@ class Contact(InnerDoc):
     x-id: "LINCS DCIC - University of Cincinnati"
     x-role: "responsible organization"
     '''
-    email = Text() 
+    email = Text()
     name = Keyword()
-    url = Text() 
+    url = Text()
 
 class Document_Info(InnerDoc):
     '''
@@ -52,14 +50,14 @@ class Document_Info(InnerDoc):
     '''
     contact = Object(Contact)
     description = Text(required=True)
-    termsOfService = Text() 
-    title = Text(required=True) 
-    version = Text() 
+    termsOfService = Text()
+    title = Text(required=True)
+    version = Text()
 
 class API_Doc(Document):
 
     '''
-    Defined by:
+    get, delete and update methods are included by default by elasticsearch_dsl
 
 
     OPENAI v3:
@@ -85,7 +83,7 @@ class API_Doc(Document):
     }
     '''
     _meta = Object(Document_Meta, required=True)
-    info = Object(Document_Info, required= True)
+    info = Object(Document_Info, required=True)
     paths = Nested(
         multi=True,
         properties={
@@ -94,11 +92,7 @@ class API_Doc(Document):
                 # not sure here changes with method type
             })
         })
-    tags = Object(multi= True,
-        properties = {
-            "name": Keyword()
-        } 
-    )
+    tags = Object(multi=True, properties={"name": Keyword()})
     # only one can exist
     swagger = Text()
     openapi = Text()
@@ -117,15 +111,12 @@ class API_Doc(Document):
         }
 
     def exists(self, _id):
-        '''
-        Check if an api doc exists by _id.
-        '''
         search = super(API_Doc, self).search().query('match', _id=_id)
         return bool(search.source(False).execute().hits)
 
     def get_api_from_slug(self, slug):
         # double _ for dot notation fields
-        search = super(API_Doc, self).search().query('match', _meta__slug=slug, size= 1)
+        search = super(API_Doc, self).search().query('match', _meta__slug=slug, size=1)
         return search
 
     def search(self, **kwargs):
@@ -140,24 +131,23 @@ class API_Doc(Document):
         s.aggs.bucket(agg_name, a)
         response = s.execute()
         return response
-    
+
     def slug_exists(self, slug):
         s = Search(using=client)
-        _query = {
-            "query": {
-                "bool": {
-                    "should": [
-                        {"term": {"_meta.slug.raw": slug}},
-                        {"ids": {"values": [slug]}}
-                    ]
-                }
-            }
-        }
-        s = s.from_dict(_query)
+        # _query = {
+        #     "query": {
+        #         "bool": {
+        #             "should": [
+        #                 {"term": {"_meta.slug.raw": slug}},
+        #                 {"ids": {"values": [slug]}}
+        #             ]
+        #         }
+        #     }
+        # }
+        s.query = Q('bool', should=[Q('match', _meta__slug=slug)])
+        # s = s.from_dict(_query)
         res = s.execute().to_dict()
-        r = bool(res['hits']['total']['value'])
-        print(f"\033[93m"+" Slug Check > Exists: "+"\033[0m", r)        
-        return r
+        return bool(res['hits']['total']['value'])
 
     def save(self, **kwargs):
         return super(API_Doc, self).save(** kwargs)

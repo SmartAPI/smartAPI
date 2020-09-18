@@ -6,58 +6,15 @@ Used by web.handlers
 
 import logging
 import string
-import datetime
+from datetime import datetime as dt
 
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import *
+from elasticsearch_dsl import Search
 from ..model.api_doc import API_Doc
 from ..transform import (APIMetadata, decode_raw, get_api_metadata_by_url)
-from tornado.httpclient import HTTPError, HTTPResponse
+from tornado.httpclient import HTTPError
 
 logger = logging.getLogger(__name__)
-
-ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi_oas3'
-
-
-def get_es(es_host=None):
-
-    es_host = es_host or ES_HOST
-    es = Elasticsearch(es_host, timeout=120)
-    return es
-
-class RegistrationError(Exception):
-
-    fields = ('message', 'path', 'schema_path', 'cause',
-              'validator', 'validator_value', 'parent')
-
-    def __init__(self, error):
-        self.error = error
-
-    def to_dict(self):
-        error = {
-            key: self._json_serialize(getattr(self.error, key))
-            for key in self.fields
-        }
-        error['reason'] = error.pop('message')
-        return error
-
-    def _json_serialize(self, obj):
-
-        if obj is None:
-            return obj
-        if isinstance(obj, (str, int, float)):
-            return obj
-        if isinstance(obj, dict):
-            return {key: self._json_serialize(obj[key]) for key in obj}
-        if isinstance(obj, (list, deque)):
-            return [self._json_serialize(val) for val in obj]
-        if isinstance(obj, ValidationError):
-            return APIDocValidationError(obj).to_dict()
-        raise TypeError(str(type(obj)))
-
-    def __str__(self):
-        return self.error.message
 
 
 class ValidationError(Exception):
@@ -70,16 +27,18 @@ class APIMetadataRegistrationError(Exception):
 
 class APIDocController:
 
-    def __init__(self, index=None, doc_type=None, es_host=None, _id=None):
-        self._es = get_es(es_host)
-        self._index = index or ES_INDEX_NAME
+    def __init__(self, _id=None):
         doc = API_Doc()
         self._doc = doc.get(id=_id)
 
     @staticmethod
     def exists(_id):
         """
-        schema: schema namespace
+        Args:
+            _id : id of metadata doc
+
+        Returns:
+            Bool = existance
         """
         doc = API_Doc()
         return doc.exists(_id=_id)
@@ -119,7 +78,7 @@ class APIDocController:
             HTTPResponse: [network related issues]
 
         Returns:
-            Returns True if this operations resulted in new document being created.
+            Returns True if this operation resulted in a new document being created.
         """
         metadata = APIMetadata(api_doc)
         # validate document schema
@@ -128,49 +87,44 @@ class APIDocController:
             validation['success'] = False
             validation['error'] = '[Validation] ' + validation['error']
             # return valid
-            raise ValidationError(validation)
+            return validation
 
         # generates an id based on source url
         api_id = metadata.encode_api_id()
-        doc_exists = APIDocController.exists(api_id)
+        doc_exists = self.exists(api_id)
         # print("\033[93m"+"API EXISTS: "+"\033[0m", doc_exists)
         if doc_exists:
             if not overwrite:
                 # print("\033[93m"+"NOT!!! OVERWRITE: "+"\033[0m", overwrite)
-                raise APIMetadataRegistrationError({"success": False, "error": "[Conflict] API exists. Not saved."})
+                return {"success": False, "error": "[Conflict] API exists. Not saved."}
             elif not override_owner:
                 # Check user is owner
                 i = API_Doc.get(id=api_id).to_dict()
-                _owner = i.get('_meta', {}).get('github_username', '')            
+                _owner = i.get('_meta', {}).get('github_username', '')        
                 if _owner != user_name:
-                    raise APIMetadataRegistrationError({"success": False, "error": "[Conflict] User mismatch. Not Saved."})
-                # print("\033[93m"+"API EXISTS AND OWNER IS: "+"\033[0m", _owner)   
+                    return {"success": False, '_id': api_id, "error": "[Conflict] User mismatch. Not Saved."}
 
         # save to es index
         if dryrun:
             print("\033[93m"+"IS DRYRUN: "+"\033[0m", dryrun)
-            logger.info(msg= f"Dryrun for metadata registration at {datetime.today().strftime('%Y-%m-%d')}")
-            return False
+            return {"success": True, '_id': "[Dryrun] this is a dryrun. API is not saved.", "dryrun": True}
 
-        # print("\033[93m"+"SAVE NEW: "+"\033[0m")
-        # save doc with generated id
-        doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
-        saved = doc.save()
-        if saved:
-            return True
+        try:
+            doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
+            doc.save()
+        except RequestError as e:
+            return {"success": False, "error": "[ES]" + str(e)}
         else:
-            raise RegistrationError('Registration failed')
+            return {"success": True, '_id': api_id}
 
     @staticmethod
     def get_api(api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
-
 
         def _get_hit_object(hit):
             obj = hit.get('fields', hit.get('_source', {}))
             if '_id' in hit:
                 obj['_id'] = hit['_id']
             return obj
-
 
         def _get_api_doc(api_doc, with_meta=True):
             doc = decode_raw(api_doc.get('~raw', ''))
@@ -228,20 +182,20 @@ class APIDocController:
             res = res[0]
         return res
     
-
     def get_tags(field=None, size=100):
         """
             return a list of existing values for the given field.
         """
-        use_raw = True
-        _field = field + ".raw" if use_raw else field
+        # use_raw = True
+        # _field = field + ".raw" if use_raw else field
         agg_name = 'field_values'
         doc = API_Doc()
         res = doc.aggregate(field=field, size=size, agg_name=agg_name)
-        print(res.to_dict())
-        return res.to_dict()
+        if res:
+            return res.to_dict()
+        else:
+            return False
 
-        
     def delete(self, _id, user):
         '''
             delete api from index
@@ -259,63 +213,83 @@ class APIDocController:
         return (200, {"success": True})
 
     def update(self, _id, user, slug_name):
-        ''' 
-            set the slug name of API _id to slug_name. 
-             UPDATED TO DSL
-        '''
+        """[summary]
+
+        Args:
+            _id ([type]): [description]
+            user ([type]): [description]
+            slug_name ([type]): [description]
+
+        Returns:
+            [type]: [description]
+        """
         if not self.exists(_id):
-            return (404, {"success": False, "error": "Could not retrieve API '{}' to set slug name".format(_id)})
+            raise HTTPError(code=404,
+                            response={'success': False,
+                                      'error': "Could not retrieve API '{}' to set slug name".format(_id)})
 
         i = API_Doc.get(id=_id).to_dict()
         _user = i.get('_meta', {}).get('github_username', '')
 
         # Make sure this is the correct user
         if user.get('login', None) != _user:
-            return (405, {"success": False, "error": "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)})
+            raise HTTPError(code=405,
+                            response={'success': False,
+                                      'error': "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)})
 
-        print("\033[93m"+" User matches: "+"\033[0m", _user)
         # validate the slug name
-        _valid, _resp = self._validate_slug_name(slug_name=slug_name)
+        valid = self._validate_slug_name(slug_name=slug_name)
 
-        if not _valid:
-            return (405, _resp)
-
-        # doc = API_Doc()
-        # doc = doc.get(id=_id)
-        self._doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
-
-        return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
+        if valid:
+            try:
+                doc = API_Doc()
+                doc = doc.get(id=_id)
+                doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
+            except Exception as exc:
+                raise HTTPError(500, reason=str(exc))
+            else:
+                return (200, {"success": True, "{}._meta.slug".format(_id): slug_name.lower()})
 
     def _validate_slug_name(self, slug_name):
-        ''' 
-            Function that determines whether slug_name is a valid slug name 
-            UPDATED TO DSL
-        '''
+        """
+        Function that determines whether slug_name is a valid slug name 
+
+        Args:
+            slug_name ([string]): new slug name
+
+        Raises:
+            HTTPError: 405 Not available for a specific reason
+
+        Returns:
+            True if available
+        """
         _valid_chars = string.ascii_letters + string.digits + "-_~"
         _slug = slug_name.lower()
-
         # reserved for dev node, normal web functioning
         if _slug in ['www', 'dev', 'smart-api']:
-            return (False, {"success": False, "error": "Slug name '{}' is reserved, please choose another".format(_slug)})
-
+            raise HTTPError(code=405,
+                            response={'success': False,
+                                      'error': "Slug name '{}' is reserved, please choose another".format(_slug)})
         # length requirements
         if len(_slug) < 4 or len(_slug) > 50:
-            return (False, {"success": False, "error": "Slug name must be between 4 and 50 chars"})
-
+            # return (False, {"success": False, "error": "Slug name must be between 4 and 50 chars"})
+            raise HTTPError(code=405,
+                            response={'success': False,
+                                      'error': "Slug name must be between 4 and 50 chars"})
         # character requirements
         if not all([x in _valid_chars for x in _slug]):
-            return (False, {"success": False, "error": "Slug name contains invalid characters.  Valid characters: '{}'".format(_valid_chars)})
-
+            raise HTTPError(code=405,
+                            response={'success': False,
+                                      'error': "Slug name contains invalid characters.  Valid characters: '{}'".format(_valid_chars)})
         # does it exist already?
         doc = API_Doc()
         if doc.slug_exists(slug=_slug):
-            return (False, {"success": False, "error": "Slug name '{}' already exists, please choose another".format(_slug)})
-
+            raise HTTPError(code=405,
+                            response={'success': False,
+                                      'error': "Slug name '{}' already exists, please choose another".format(_slug)})
         # good name
-        return (True, {})
+        return True
     
-    # def refresh_api(self, api_doc, user=None, override_owner=False, dryrun=True,
-    #                  error_on_identical=False, save_v2=False):
     def refresh_api(self, _id, user):
         ''' refresh the given API document object based on its saved metadata url  '''
 
@@ -332,7 +306,7 @@ class APIDocController:
                 res['error'] = '[Request] '+res.get('error', '')
                 status = res
             else:
-                _meta['timestamp'] = datetime.now().isoformat()
+                _meta['timestamp'] = dt.now().isoformat()
                 res['_meta'] = _meta
                 print("\033[93m"+"UPDATING DOC WITH ID "+"\033[0m", _id)
                 print("\033[93m"+"NEW META "+"\033[0m", res['_meta'])
