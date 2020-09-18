@@ -17,6 +17,8 @@ smartapi_*.json
 
 # ignore .DS_Store on Mac
 .DS_Store
+/.vscode
 
 #env
 /env
+/env-dsl
