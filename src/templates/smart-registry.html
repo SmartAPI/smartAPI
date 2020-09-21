@@ -85,7 +85,7 @@
       </div>
         <div class="row full-height">
           <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
-              <h5 style="padding-top:100px" class="blue-text center"> Filters</h5>
+              <h5 class="blue-text center"> Filters</h5>
               <ul class="collapsible">
                 <li>
                   <div class="collapsible-header blue-grey white-text">
@@ -239,15 +239,15 @@
 
                 <div class="col s12 selected-tags">
                     <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
-                      #{{tag.name}}
+                      {{tag.name}}
                         <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="toggleTag(tag,'tag');search(query)">close</i>
                     </div>
                     <div class="chip" v-for="author in authors" v-if="author.active">
-                        #{{author.name}}
+                        {{author.name}}
                         <i class="close material-icons" @click="toggleTag(author,'author');search(query)">close</i>
                     </div>
                     <div class="chip" v-for="pop in popularTags" v-if="pop.active">
-                        #{{pop.name}}
+                        {{pop.name}}
                         <i class="close material-icons" @click="pop.active = false;search(query)">close</i>
                     </div>
                 </div>
@@ -1429,16 +1429,20 @@ const store = new Vuex.Store({
               }
               for (var i = 0; i < self.tags.length; i++) {
                 if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-                  self.tags[i].active = true;
-                }
-              }
+                  // Do not mutate outside Vuex
+                  // self.tags[i].active = true;                
+                  var payload = {};
+                  payload["tag"] = self.tags[i]
+                  store.commit('toggleTag',payload);
+                 }
+              }            
           },
           checkforQuery: function(){
             var self = this;
             var url_string = window.location.href
             var url = new URL(url_string);
 
-            store.commit('resetTags');
+            // store.commit('resetTags');
 
             var q = url.searchParams.get("q");
             if (q) {
