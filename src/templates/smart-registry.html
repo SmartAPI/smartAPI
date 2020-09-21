@@ -948,6 +948,14 @@ const store = new Vuex.Store({
             </template>
           </div>
           <div class="col s12 center">
+            <template v-if="api._meta && api._meta.github_username">
+              <small class="blue-grey-text">registered by</small>
+                <small class="white-text">
+                  <a :href="'https://github.com/'+api._meta.github_username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.github_username"></span></a>
+                </small>
+            </template>
+          </div>
+          <div class="col s12 center">
             <small class="white-text">SmartAPI ID</small>
             <a class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>
               <small>
