@@ -1,5 +1,5 @@
 
-from elasticsearch_dsl import *
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Date, Text, Document, MetaField, Nested, Search, A, Q
 from elasticsearch import Elasticsearch
 
 ES_HOST = 'localhost:9200'
@@ -127,25 +127,14 @@ class API_Doc(Document):
 
     def aggregate(self, agg_name: str, field: str, size: int):
         s = Search()
-        a = A('terms', field=field)
+        a = A('terms', field=field, size=size)
         s.aggs.bucket(agg_name, a)
         response = s.execute()
         return response
 
     def slug_exists(self, slug):
         s = Search(using=client)
-        # _query = {
-        #     "query": {
-        #         "bool": {
-        #             "should": [
-        #                 {"term": {"_meta.slug.raw": slug}},
-        #                 {"ids": {"values": [slug]}}
-        #             ]
-        #         }
-        #     }
-        # }
         s.query = Q('bool', should=[Q('match', _meta__slug=slug)])
-        # s = s.from_dict(_query)
         res = s.execute().to_dict()
         return bool(res['hits']['total']['value'])
 

@@ -1,7 +1,6 @@
 """
-Controller Classes for
-- model.api_doc
-Used by web.handlers
+Controller for API docs
+Used by web.api.api_handlers
 """
 
 import logging
@@ -9,7 +8,7 @@ import string
 from datetime import datetime as dt
 
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Q
 from ..model.api_doc import API_Doc
 from ..transform import (APIMetadata, decode_raw, get_api_metadata_by_url)
 from tornado.httpclient import HTTPError
@@ -35,25 +34,13 @@ class APIDocController:
     def exists(_id):
         """
         Args:
-            _id : id of metadata doc
+            _id : id of metadata doc to be potentialy added
 
         Returns:
-            Bool = existance
+            Bool = exists?
         """
         doc = API_Doc()
         return doc.exists(_id=_id)
-
-    @property
-    def user(self):
-        return self._doc._meta.github_username
-
-    @property
-    def url(self):
-        return self._doc._meta.url
-
-    @property
-    def slug(self):
-        return self._doc._meta.slug
 
     @staticmethod
     def add(api_doc, save_v2=False, overwrite=False, user_name=None,
@@ -100,7 +87,7 @@ class APIDocController:
             elif not override_owner:
                 # Check user is owner
                 i = API_Doc.get(id=api_id).to_dict()
-                _owner = i.get('_meta', {}).get('github_username', '')        
+                _owner = i.get('_meta', {}).get('github_username', '')
                 if _owner != user_name:
                     return {"success": False, '_id': api_id, "error": "[Conflict] User mismatch. Not Saved."}
 
@@ -119,6 +106,18 @@ class APIDocController:
 
     @staticmethod
     def get_api(api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
+        """
+        Used by Swagger UI to get doc metadata
+        Ssed to get one specific doc by id/name/slug or get all
+
+        Args:
+            api_name ([type]): id,name, or slug
+            fields ([type], optional): fields to return if not all
+            with_meta (bool, optional): Return _meta field. Defaults to True.
+            return_raw (bool, optional): return raw. Defaults to False.
+            size ([type], optional): size of results. Defaults to None. No longer used.
+            from_ (int, optional): start of returned results. Defaults to 0.
+        """
 
         def _get_hit_object(hit):
             obj = hit.get('fields', hit.get('_source', {}))
@@ -133,43 +132,26 @@ class APIDocController:
                 doc["_id"] = api_doc["_id"]
             return doc
 
-        if api_name == 'all':
-            query = {'query': {"bool": {"must_not": {
-                "term": {"_meta._archived": "true"}}}}}
-        else:
-            query = {
-                "query": {
-                    "bool": {
-                        "should": [
-                            {
-                                "match": {
-                                    "_id": {
-                                        "query": api_name
-                                    }
-                                }
-                            },
-                            {
-                                "term": {
-                                    "_meta.slug": api_name
-                                }
-                            }
-                        ],
-                        "must_not": {"term": {"_meta._archived": "true"}}
-                    }
-                }
-            }
-        if fields and fields not in ["all", ["all"]]:
-            query["_source"] = fields
-        if size and isinstance(size, int):
-            query['size'] = min(size, 100)    # set max size to 100 for now.
-        if from_ and isinstance(from_, int) and from_ > 0:
-            query['from'] = from_
-        # res = self._es.search(self._index, query)
         client = Elasticsearch()
         s = Search(using=client)
-        s = s.from_dict(query)
-        res = s.execute().to_dict()
+        if not fields:
+            fields = ['_all']
 
+        if api_name == 'all':
+            total = s.count()
+            start = 0
+            if from_:
+                start = from_
+            s = s[start:total]
+            # TODO fix specific fields in response 
+            s.source(includes=fields)
+        else:
+            # TODO fix specific fields in response 
+            s.source(includes=fields)
+            s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)],
+                        minimum_should_match=1)
+            
+        res = s.execute().to_dict()
         if return_raw == '2':
             return res
         res = [_get_hit_object(d) for d in res['hits']['hits']]
@@ -181,13 +163,11 @@ class APIDocController:
         if len(res) == 1:
             res = res[0]
         return res
-    
+
     def get_tags(field=None, size=100):
         """
             return a list of existing values for the given field.
         """
-        # use_raw = True
-        # _field = field + ".raw" if use_raw else field
         agg_name = 'field_values'
         doc = API_Doc()
         res = doc.aggregate(field=field, size=size, agg_name=agg_name)
@@ -252,7 +232,7 @@ class APIDocController:
 
     def _validate_slug_name(self, slug_name):
         """
-        Function that determines whether slug_name is a valid slug name 
+        Function that determines whether slug_name is a valid slug name
 
         Args:
             slug_name ([string]): new slug name
@@ -289,7 +269,7 @@ class APIDocController:
                                       'error': "Slug name '{}' already exists, please choose another".format(_slug)})
         # good name
         return True
-    
+
     def refresh_api(self, _id, user):
         ''' refresh the given API document object based on its saved metadata url  '''
 
@@ -300,7 +280,7 @@ class APIDocController:
         _meta = api_doc.get('_meta', {})
 
         res = get_api_metadata_by_url(_meta['url'])
-        
+
         if res and isinstance(res, dict):
             if res.get('success', None) is False:
                 res['error'] = '[Request] '+res.get('error', '')
@@ -319,8 +299,8 @@ class APIDocController:
 
     # used in APIMetaDataHandler [DELETE]
     def delete_slug(self, _id, user, slug_name):
-        ''' 
-            delete the slug of API _id. 
+        '''
+            delete the slug of API _id.
             UPDATED TO DSL
         '''
         if not self.exists(_id):

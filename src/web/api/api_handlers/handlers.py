@@ -226,7 +226,7 @@ class APIMetaDataHandler(BaseHandler):
         # if slug delete
         elif slug_name:
             #prepare doc
-            doc = APIDocController(_id=_id) 
+            doc = APIDocController(_id=_id)
             (status, res) = doc.delete_slug(
                 _id=_id, user=user, slug_name=slug_name)
             self.set_status(status)
@@ -305,10 +305,10 @@ class GitWebhookHandler(BaseHandler):
         _query = {"query": {"bool": {"should": [
             {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)),
                                           "max_determinized_states": 200000}}} for fi in modified_files]}}}
-        
-        s = Search()
-        s.query = Q('bool', should=[Q('regexp', _meta__url__raw='.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi))),
-                                    Q()])
+        # s = Search()
+        # s.query = Q('bool', should=[Q('regexp', _meta__url__raw='.*{owner}/{repo}/.*/{fi}'
+        # .format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi))),
+        #                             Q()])
         # res = s.execute().to_dict()
 
         # get list of ids that need to be refreshed
