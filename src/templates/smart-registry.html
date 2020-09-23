@@ -1348,6 +1348,12 @@ const store = new Vuex.Store({
                       var payload = {};
                       payload["apis"] = response.data.hits;
                       store.commit('saveApis',payload);
+                      // preserve sorting with search
+                      if (self.sort !== "Search Relevance") {
+                        var payload = {};
+                        payload["type"] = self.sort
+                        store.commit('sort',payload)
+                      }
 
                       // history.pushState(null, "SmartAPI", window.location.href)
 
