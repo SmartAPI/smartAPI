@@ -271,8 +271,8 @@
                                <select class="browser-default" @change='sortResults($event)'>
                                  <option value="" disabled selected>Sort By</option>
                                  <option value="Search Relevance">Relevance</option>
-                                 <option value="Alpabethically A-Z">Alpabethically A-Z</option>
-                                 <option value="Alpabethically Z-A">Alpabethically Z-A</option>
+                                 <option value="Alphabetically A-Z">Alphabetically A-Z</option>
+                                 <option value="Alphabetically Z-A">Alphabetically Z-A</option>
                                  <option value="Recently Updated">Recently Updated</option>
                                </select>
                              </div>
@@ -427,10 +427,10 @@ const store = new Vuex.Store({
       sort(state,payload){
         let type = payload['type'];
         switch (type) {
-          case 'Alpabethically A-Z':
+          case 'Alphabetically A-Z':
             state.apis = _.sortBy(state.apis,'info.title');
             break;
-          case 'Alpabethically Z-A':
+          case 'Alphabetically Z-A':
             state.apis = _.sortBy(state.apis,'info.title').reverse();
             break;
           case 'Recently Updated':
