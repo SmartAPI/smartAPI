@@ -1,6 +1,18 @@
 """
 Controller for API docs
-Used by web.api.api_handlers
+
+[APIHandler]
+add - save doc
+
+[APIMetaDataHandler]
+get_api - get doc by name/slug
+refresh_api - refresh api metadata
+delete_slug - delete registered slug
+update - save new slug
+    _validate_slug_name - check slugname
+
+[ValueSuggestionHandler]
+get_tags - get list of tags/authors
 """
 
 import logging
@@ -8,7 +20,7 @@ import string
 from datetime import datetime as dt
 
 from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl import Search, Q, Index
 from ..model.api_doc import API_Doc
 from ..transform import (APIMetadata, decode_raw, get_api_metadata_by_url)
 from tornado.httpclient import HTTPError
@@ -56,13 +68,13 @@ class APIDocController:
             api_doc (dict): [API metadata]
             save_v2 (bool, optional): [save outdated version]. Defaults to False.
             overwrite (bool, optional): [overwrite existing doc]. Defaults to False.
-            user_name ([type], optional): [user.login]. Defaults to None.
+            user_name (str, optional): [user.login]. Defaults to None.
             override_owner (bool, optional): [overwite owner]. Defaults to False.
             warn_on_identical (bool, optional): [warn on exact match found]. Defaults to False.
             dryrun (bool, optional): [test registration]. Defaults to False.
 
         Raises:
-            HTTPResponse: [network related issues]
+            RequestError: ES error while parsing request
 
         Returns:
             Returns True if this operation resulted in a new document being created.
@@ -78,7 +90,8 @@ class APIDocController:
 
         # generates an id based on source url
         api_id = metadata.encode_api_id()
-        doc_exists = self.exists(api_id)
+        doc = API_Doc()
+        doc_exists = doc.exists(api_id)
         # print("\033[93m"+"API EXISTS: "+"\033[0m", doc_exists)
         if doc_exists:
             if not overwrite:
@@ -111,15 +124,28 @@ class APIDocController:
         Ssed to get one specific doc by id/name/slug or get all
 
         Args:
-            api_name ([type]): id,name, or slug
-            fields ([type], optional): fields to return if not all
+            api_name (str): id,name, or slug
+            fields (list, optional): fields to return if not all
             with_meta (bool, optional): Return _meta field. Defaults to True.
             return_raw (bool, optional): return raw. Defaults to False.
-            size ([type], optional): size of results. Defaults to None. No longer used.
+            size (int, optional): size of results. Defaults to None. No longer used.
             from_ (int, optional): start of returned results. Defaults to 0.
+        Raises:
+            ValueError: invalid input
+
+        Returns:
+            One API doc with metadata by default.
         """
 
         def _get_hit_object(hit):
+            """[summary]
+
+            Args:
+                hit (list): ES reponse, list of hits
+
+            Returns:
+                dict: extracted doc dict
+            """
             obj = hit.get('fields', hit.get('_source', {}))
             if '_id' in hit:
                 obj['_id'] = hit['_id']
@@ -143,14 +169,12 @@ class APIDocController:
             if from_:
                 start = from_
             s = s[start:total]
-            # TODO fix specific fields in response 
+            # TODO fix specific fields in response
             s.source(includes=fields)
         else:
-            # TODO fix specific fields in response 
+            # TODO fix specific fields in response
             s.source(includes=fields)
-            s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)],
-                        minimum_should_match=1)
-            
+            s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
         res = s.execute().to_dict()
         if return_raw == '2':
             return res
@@ -166,7 +190,15 @@ class APIDocController:
 
     def get_tags(field=None, size=100):
         """
-            return a list of existing values for the given field.
+        perform aggregations on given field
+        Used to generate list of tags and authors
+
+        Args:
+            field (str, optional): field name of doc. Defaults to None.
+            size (int, optional): size returned. Defaults to 100.
+
+        Returns:
+            list of tags/authors name:occurrence or false
         """
         agg_name = 'field_values'
         doc = API_Doc()
@@ -177,12 +209,18 @@ class APIDocController:
             return False
 
     def delete(self, _id, user):
-        '''
-            delete api from index
-            UPDATED TO DSL
-        '''
-        i = API_Doc.get(id=_id).to_dict()
-        _user = i.get('_meta', {}).get('github_username', '')
+        """
+        delete api from index
+
+        Args:
+            _id (str): ID of doc
+            user (str): user info of requester
+
+        Returns:
+            Success res if successful
+        """
+        doc = API_Doc.get(id=_id).to_dict()
+        _user = doc.get('_meta', {}).get('github_username', '')
 
         # Make sure this is the correct user
         if user.get('login', None) != _user:
@@ -193,15 +231,21 @@ class APIDocController:
         return (200, {"success": True})
 
     def update(self, _id, user, slug_name):
-        """[summary]
+        """
+        Update API doc slug name
 
         Args:
-            _id ([type]): [description]
-            user ([type]): [description]
-            slug_name ([type]): [description]
+            _id (str): doc ID to be updated
+            user (dict): user info of requester
+            slug_name (str): new slug name
+
+        Raises:
+            HTTPError: Doc does not exist
+            HTTPError: User is not owner of doc
+            HTTPError: General error parsing request
 
         Returns:
-            [type]: [description]
+            Success res if updated
         """
         if not self.exists(_id):
             raise HTTPError(code=404,
@@ -235,10 +279,12 @@ class APIDocController:
         Function that determines whether slug_name is a valid slug name
 
         Args:
-            slug_name ([string]): new slug name
+            slug_name (str): new slug name
 
         Raises:
-            HTTPError: 405 Not available for a specific reason
+            HTTPError: slug is a reserved word
+            HTTPError: slug is not correct length
+            HTTPError: slug has invalid characters
 
         Returns:
             True if available
@@ -271,11 +317,18 @@ class APIDocController:
         return True
 
     def refresh_api(self, _id, user):
-        ''' refresh the given API document object based on its saved metadata url  '''
+        """
+        refresh the given API document object based on its saved metadata url
 
-        doc = API_Doc(id=_id)
-        api_doc = doc.get(id=_id).to_dict()
-        print("\033[93m"+"DOC TO UPDATE "+"\033[0m", api_doc)
+        Args:
+            _id (str): ID of API doc
+            user (dict): user info
+
+        Returns:
+            Bool = updated?
+        """
+
+        api_doc = self._doc.to_dict()
 
         _meta = api_doc.get('_meta', {})
 
@@ -297,12 +350,19 @@ class APIDocController:
 
         return status
 
-    # used in APIMetaDataHandler [DELETE]
     def delete_slug(self, _id, user, slug_name):
-        '''
-            delete the slug of API _id.
-            UPDATED TO DSL
-        '''
+        """
+        delete the slug of API _id.
+        used in APIMetaDataHandler [DELETE]
+
+        Args:
+            _id (str): ID of doc
+            user (dict): user info of requester
+            slug_name (str): slug name registered
+
+        Returns:
+            Bool = deleted?
+        """
         if not self.exists(_id):
             return (404, {"success": False, "error": "Could not retrieve API '{}' to delete slug name".format(_id)})
 

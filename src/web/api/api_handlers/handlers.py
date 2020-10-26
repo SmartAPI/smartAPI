@@ -79,14 +79,11 @@ class APIHandler(BaseHandler):
         Add an API doc /api
 
         Raises:
-            HTTPError: url not working
-            BadRequest: failed validation
-            HTTPError: server error
+            HTTPError: invalid format, missing required param
 
         Returns:
-            Success: Bool
+            Success: True if doc created and doc ID
         """
-        # check if a logged in user
         user = self.get_current_user()
         if not user:
             raise HTTPError(code=401,
@@ -149,11 +146,17 @@ class APIMetaDataHandler(BaseHandler):
     # esq = ESQuery()
 
     def get(self, api_name):
-        '''
-            UPDATED FOR DSL
-        '''
-        # return API metadata for a matched api_name,
-        # if api_name is "all", return a list of all APIs
+        """
+        Get API doc by name
+        if api_name is "all", return a list of all APIs
+        size capped to 100 for now by get_api method below.
+
+        Args:
+            api_name (str): name of API doc requested
+
+        Returns:
+            JSON or YAML of doc requested
+        """
         fields = self.get_argument('fields', None)
         out_format = self.get_argument('format', 'json').lower()
         return_raw = self.get_argument('raw', False)
@@ -161,7 +164,6 @@ class APIMetaDataHandler(BaseHandler):
         size = self.get_argument('size', None)
         from_ = self.get_argument('from', 0)
         try:
-            # size capped to 100 for now by get_api method below.
             size = int(size)
         except (TypeError, ValueError):
             size = None
@@ -181,19 +183,18 @@ class APIMetaDataHandler(BaseHandler):
 
     def put(self, _id):
         """
+        Must be logged in first
         Updated a slug for a specific API owned by user
+        Refresh API metadata for a matched api_name
         OR
         If no slug just refresh document
 
         Args:
             _id: API id to be changed
         """
-        # refresh API metadata for a matched api_name,
-        # checks to see if current user matches the creating user.
         slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
-        # must be logged in first
         user = self.get_current_user()
         if not user:
             raise HTTPError(code=400,
@@ -245,7 +246,7 @@ class ValueSuggestionHandler(BaseHandler):
         """
         /api/suggestion?field=
         Returns aggregations for any field provided
-        Used for tag/count retrieval
+        Used for tag:count on registry
 
         Raises:
             HTTPError: required fields not provided
