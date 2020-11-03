@@ -23,7 +23,6 @@ from elasticsearch import Elasticsearch, RequestError
 from elasticsearch_dsl import Search, Q, Index
 from ..model.api_doc import API_Doc
 from ..transform import (APIMetadata, decode_raw, get_api_metadata_by_url)
-from tornado.httpclient import HTTPError
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +74,6 @@ class APIDocController:
             return {'because': 'API is valid but this was only a test'}
         try:
             doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
-            print('DOC', doc)
             doc.save()
         except RequestError as e:
             return {"because": "[ES]" + str(e)}
@@ -106,7 +104,7 @@ class APIDocController:
             """[summary]
 
             Args:
-                hit (list): ES reponse, list of hits
+                hit (list): ES response, list of hits
 
             Returns:
                 dict: extracted doc dict

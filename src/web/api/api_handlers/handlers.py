@@ -247,7 +247,7 @@ class ValueSuggestionHandler(BaseHandler):
 
         Raises:
             HTTPError: required fields not provided
-            ValueError: No resutls or bad query
+            ValueError: No results or bad query
         """
         field = self.get_argument('field', None)
         size = int(self.get_argument('size', 100))
