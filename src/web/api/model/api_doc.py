@@ -1,5 +1,5 @@
 
-from elasticsearch_dsl import InnerDoc, Keyword, Object, Date, Text, Document, MetaField, Nested, Search, A, Q
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Date, Text, Document, MetaField, Nested, A, Q
 from elasticsearch import Elasticsearch
 
 ES_HOST = 'localhost:9200'
@@ -110,33 +110,29 @@ class API_Doc(Document):
             "number_of_replicas": 0
         }
 
-    def exists(self, _id):
-        search = super(API_Doc, self).search().query('match', _id=_id)
+    @classmethod
+    def exists(cls, _id):
+        search = cls.search().query('match', _id=_id)
         return bool(search.source(False).execute().hits)
 
-    def get_api_from_slug(self, slug):
-        # double _ for dot notation fields
-        search = super(API_Doc, self).search().query('match', _meta__slug=slug, size=1)
-        return search
+    @classmethod
+    def get_api_from_slug(cls, slug):
+        s = cls.search()
+        s.query = Q('bool', should=[Q('match', _meta__slug=slug, size=1)])
+        res = s.execute().to_dict()
+        return res
 
-    def search(self, **kwargs):
-        s = Search(using=client)
-        res = s.query('match', ** kwargs)
-        res = res.execute()
-        return res.to_dict()
-
-    def aggregate(self, agg_name: str, field: str, size: int):
-        s = Search()
+    @classmethod
+    def aggregate(cls, agg_name: str, field: str, size: int):
+        s = cls.search()
         a = A('terms', field=field, size=size)
         s.aggs.bucket(agg_name, a)
         response = s.execute()
         return response
-
-    def slug_exists(self, slug):
-        s = Search(using=client)
+   
+    @classmethod
+    def slug_exists(cls, slug):
+        s = cls.search()
         s.query = Q('bool', should=[Q('match', _meta__slug=slug)])
         res = s.execute().to_dict()
         return bool(res['hits']['total']['value'])
-
-    def save(self, **kwargs):
-        return super(API_Doc, self).save(** kwargs)

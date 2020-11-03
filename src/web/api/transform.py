@@ -70,35 +70,38 @@ def polite_requests(url, head=False):
         else:
             res = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
-        return {"success": False, "error": "URL request is timeout."}
+        return {"because": "URL request is timeout."}
+        # return {"success": False, "error": "URL request is timeout."}
     except requests.exceptions.ConnectionError:
-        return {"success": False, "error": "URL request had a connection error."}
+        return {"because": "URL request had a connection error."}
+        # return {"success": False, "error": "URL request had a connection error."}
     except requests.exceptions.RequestException:
-        return {"success": False, "error": "Failed to make the request to this URL."}
+        return {"because": "Failed to make the request to this URL."}
+        # return {"success": False, "error": "Failed to make the request to this URL."}
     if res.status_code != 200:
-        return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
+        return {"because": "URL request returned {}.".format(res.status_code)}
+        # return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
     return {"success": True, "response": res}
 
 
 def get_api_metadata_by_url(url, as_string=False):
 
     _res = polite_requests(url)
-    if _res.get('success'):
+    if 'success' in _res:
         res = _res.get('response')
         if as_string:
             return res.text
         else:
             try:
                 metadata = res.json()
-            # except json.JSONDecodeError:   # for py>=3.5
             except ValueError:               # for py<3.5
                 try:
                     metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
-                except (yaml.scanner.ScannerError,
-                        yaml.parser.ParserError):
-                    return {"success": False,
-                            "error": "Not a valid JSON or YAML format."}
-            return metadata
+                except (yaml.scanner.ScannerError, yaml.parser.ParserError):
+                    return {"because": "Not a valid JSON or YAML format."}
+                    # return {"success": False,
+                    #         "error": "Not a valid JSON or YAML format."}
+            return {'metadata': metadata}
     else:
         return _res
 
@@ -145,33 +148,27 @@ class APIMetadata:
             raise ValueError("Missing required _meta.url field.")
         return blake2b(x.encode('utf8'), digest_size=16).hexdigest()
 
-    def validate(self, raise_error_on_v2=True):
+    def validate(self):
         '''Validate API metadata against JSON Schema.'''
         if not self.schema_version or self.schema_version not in SUPPORTED_SCHEMA_VERSIONS:
-            return {"valid": False, "error": "Unsupported schema version '{}'.  Supported versions are: '{}'.".format(
-                self.schema_version, SUPPORTED_SCHEMA_VERSIONS)}
-        if raise_error_on_v2 and self.schema_version == 'SWAGGER2':
-            return {"valid": False, "error": "Found a v2 swagger schema, please convert to v3 for fullest functionality or click the checkbox to proceed with v2 anyway.", "swagger_v2": True}
+            return {'because': 'Version unknown or unsupported'}
         try:
             jsonschema.validate(self.metadata, self.oas_schema)
         except jsonschema.ValidationError as e:
             err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
-            return {"valid": False, "error": "[{}] ".format(self.schema_version) + err_msg}
+            return {'because': err_msg}
         except Exception as e:
-            return {"valid": False, "error": "Unexpected Validation Error: {} - {}".format(type(e).__name__, e)}
+            return {"because": "Unexpected Validation Error: {} - {}".format(type(e).__name__, e)}
 
         if self.schema_version == 'OAS3':
             try:
                 jsonschema.validate(self.metadata, self.smartapi_schema)
             except jsonschema.ValidationError as e:
                 err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
-                return {"valid": False, "error": "[SmartAPI] " + err_msg}
-            _warning = ""
-            _ret = {"valid": True}
+                return {'because': err_msg}
+            return {"valid": True}
         else:
-            _warning = "No SmartAPI extensions supported on Swagger/OpenAPI version 2"
-            _ret = {"valid": True, "_warning": _warning, "swagger_v2": True}
-        return _ret
+            return {"valid": True, "v2": True}
 
     def _encode_raw(self):
         '''return encoded and compressed metadata'''

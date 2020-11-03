@@ -125,12 +125,13 @@ class APIHandler(BaseHandler):
                         except Exception as err:  # unexpected
                             raise HTTPError(500, response=str(err))
                         else:
-                            if(res['success'] and not dryrun):
-                                self.return_json({'success': True, 'dryrun': False})
+                            if('because' not in res):
+                                # Successful Save
+                                self.return_json({'success': True, 'details': res})
                                 send_slack_msg(data, res, user['login'])
                             else:
-                                # Success but Dryrun
-                                self.return_json(res)
+                                # Any Errors/Tests
+                                self.return_json({"success": False, 'details': res})
                 else:
                     raise HTTPError(code=400,
                                     response={'success': False,
@@ -183,40 +184,38 @@ class APIMetaDataHandler(BaseHandler):
 
     def put(self, _id):
         """
-        Must be logged in first
-        Updated a slug for a specific API owned by user
-        Refresh API metadata for a matched api_name
+        Update a slug for a specific API
         OR
-        If no slug just refresh document
+        If no slug just refresh document using url
 
         Args:
-            _id: API id to be changed
+            _id: API id to be updated
         """
         slug_name = self.get_argument('slug', None)
         dryrun = self.get_argument('dryrun', '').lower()
         dryrun = dryrun in ['on', '1', 'true']
         user = self.get_current_user()
         if not user:
-            raise HTTPError(code=400,
-                            response={'success': False,
-                                      'error': 'Must be logged in to perform updates'})
+            raise HTTPError(code=400, response={'success': False, 'error': 'Must be logged in to perform updates'})
         else:
             if slug_name:
                 doc = APIDocController(_id=_id)
-                (status, res) = doc.update(_id=_id, user=user, slug_name=slug_name)
+                res = doc.update(_id=_id, user=user, slug_name=slug_name)
             else:
                 doc = APIDocController(_id=_id)
-                (status, res) = doc.refresh_api(_id=_id, user=user)
-            self.set_status(status)
-        self.return_json(res)
+                res = doc.refresh_api(_id=_id, user=user)
+        if 'because' in res:
+            self.return_json({'success': False, 'details': res})
+        else:
+            self.return_json({'success': True, 'details': res})
 
     def delete(self, _id):
         """
-        Delete API metadata
-        must be logged in first
+        Delete API or slug only if provided
 
         Args:
             _id: API id to be deleted permanently
+            slug: API slug
         """
         user = self.get_current_user()
         slug_name = self.get_argument('slug', '').lower()
@@ -224,20 +223,17 @@ class APIMetaDataHandler(BaseHandler):
             res = {'success': False,
                    'error': 'Authenticate first with your github account.'}
             self.set_status(401)
-        # if slug delete
         elif slug_name:
-            #prepare doc
             doc = APIDocController(_id=_id)
-            (status, res) = doc.delete_slug(
-                _id=_id, user=user, slug_name=slug_name)
-            self.set_status(status)
-        # if api delete
+            res = doc.delete_slug(_id=_id, user=user, slug_name=slug_name)
         else:
-            #prepare doc
             doc = APIDocController(_id=_id)
-            (status, res) = doc.delete(_id=_id, user=user)
-            self.set_status(status)
-        self.return_json(res)
+            res = doc.delete(_id=_id, user=user)
+
+        if 'because' in res:
+            self.return_json({'success': False, 'details': res})
+        else:
+            self.return_json({'success': True, 'details': res})
 
 
 class ValueSuggestionHandler(BaseHandler):
