@@ -101,6 +101,7 @@ class APIHandler(BaseHandler):
             url = self.get_argument('url', None)
             if url:
                 data = get_api_metadata_by_url(url)
+                data = data.get('metadata', None)
                 if data and isinstance(data, dict):
                     if data.get('success', None) is False:
                         self.return_json(data)

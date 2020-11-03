@@ -71,16 +71,12 @@ def polite_requests(url, head=False):
             res = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
         return {"because": "URL request is timeout."}
-        # return {"success": False, "error": "URL request is timeout."}
     except requests.exceptions.ConnectionError:
         return {"because": "URL request had a connection error."}
-        # return {"success": False, "error": "URL request had a connection error."}
     except requests.exceptions.RequestException:
         return {"because": "Failed to make the request to this URL."}
-        # return {"success": False, "error": "Failed to make the request to this URL."}
     if res.status_code != 200:
         return {"because": "URL request returned {}.".format(res.status_code)}
-        # return {"success": False, "error": "URL request returned {}.".format(res.status_code)}
     return {"success": True, "response": res}
 
 
@@ -94,13 +90,11 @@ def get_api_metadata_by_url(url, as_string=False):
         else:
             try:
                 metadata = res.json()
-            except ValueError:               # for py<3.5
+            except ValueError:
                 try:
                     metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
                 except (yaml.scanner.ScannerError, yaml.parser.ParserError):
                     return {"because": "Not a valid JSON or YAML format."}
-                    # return {"success": False,
-                    #         "error": "Not a valid JSON or YAML format."}
             return {'metadata': metadata}
     else:
         return _res

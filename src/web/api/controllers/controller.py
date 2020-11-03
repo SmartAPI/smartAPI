@@ -19,7 +19,7 @@ import logging
 import string
 from datetime import datetime as dt
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestError
 from elasticsearch_dsl import Search, Q, Index
 from ..model.api_doc import API_Doc
 from ..transform import (APIMetadata, decode_raw, get_api_metadata_by_url)
@@ -63,9 +63,9 @@ class APIDocController:
         """
         metadata = APIMetadata(api_doc)
         validation = metadata.validate()
-        if not validation['valid']:
+        if validation.get('valid') is False:
             return validation
-        if validation['v2'] and not save_v2:
+        if validation.get('v2') is True and not save_v2:
             return {'because': 'API is Swagger V2 which is not fully suppported'}
         api_id = metadata.encode_api_id()
         doc_exists = API_Doc.exists(api_id)
@@ -75,6 +75,7 @@ class APIDocController:
             return {'because': 'API is valid but this was only a test'}
         try:
             doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
+            print('DOC', doc)
             doc.save()
         except RequestError as e:
             return {"because": "[ES]" + str(e)}
