@@ -10,19 +10,16 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import yaml
+import requests
 
 from biothings.web.handlers import QueryHandler as BioThingsESQueryHandler
 from biothings.web.handlers import BaseAPIHandler
 from tornado.httpclient import HTTPError
 
-# from .es import ESQuery
-from web.api.transform import APIMetadata, get_api_metadata_by_url
-
 from utils.slack_notification import send_slack_msg
 
-from web.api.controllers.controller import APIDocController
-from web.api.controllers.controller import APIMetadataRegistrationError
-from web.api.es import ESQuery
+from ..controllers.controller import (APIMetadata, APIDocController, APIMetadataRegistrationError, ESIndexingError, get_api_metadata_by_url, APIRequestError)
+from ..old_api_files.es import ESQuery
 
 
 class BaseHandler(BaseAPIHandler):
@@ -35,6 +32,14 @@ class BaseHandler(BaseAPIHandler):
 
 
 class ValidateHandler(BaseHandler):
+
+    kwargs = {
+        'GET': {
+            'url': {'type': str, 'default': None},
+        },
+    }
+    name = "validator"
+
     def _validate(self, data):
         if data and isinstance(data, dict):
             metadata = APIMetadata(data)
@@ -44,9 +49,8 @@ class ValidateHandler(BaseHandler):
             return self.finish({"valid": False, "error": "The input url does not contain valid API metadata."})
 
     def get(self):
-        url = self.get_argument('url', None)
-        if url:
-            data = get_api_metadata_by_url(url)
+        if self.args.url:
+            data = get_api_metadata_by_url(self.args.url)
             if data.get('success', None) is False:
                 self.finish(data)
             else:
@@ -82,12 +86,13 @@ class APIHandler(BaseHandler):
             'save_v2': {'type': bool, 'default': False},
         },
     }
+    name = "api_handler"
 
     def post(self):
         """
         Add an API metadata doc
 
-        transform.polite_request within transform.get_api_metadata_by_url requests provided url to get openAPI document
+        transform.polite_request called within transform.get_api_metadata_by_url requests provided url to get openAPI document
         transform.get_api_metadata_by_url will return json or yaml format data
         data is sent to controller where additional metadata will be included then validated and added to index 
         if dryrun requested only steps up to validation will be taken
@@ -97,38 +102,23 @@ class APIHandler(BaseHandler):
             HTTPError: 401 unauthorized
             HTTPError: 400 missing parameter
             HTTPError: 422 unidentified entity
-            HTTPError: 400 validation error 
+            HTTPError: 400 validation error
         Returns:
             Success: True if doc created and doc ID
         """
         user = self.get_current_user()
-        # # front-end input options
-        # possible_options = ['on', '1', 'true']
-
-        # overwrite = self.get_argument('overwrite', '').lower()
-        # overwrite = overwrite in possible_options
-        # dryrun = self.get_argument('dryrun', '').lower()
-        # dryrun = dryrun in possible_options
-        # save_v2 = self.get_argument('save_v2', '').lower()
-        # save_v2 = save_v2 in possible_options
-        # url = self.get_argument('url', None)
-        print('ARGS', self.args)
-        print('ARGS JSON', self.args_json)
-
         url = self.args.url
-        print('url', url)
+        
         if not user:
-            raise HTTPError(401)
+            raise HTTPError(401, response='Login required')
         if not url:
-            raise HTTPError(400)
+            raise HTTPError(400, response='URL is required')
 
         data = get_api_metadata_by_url(url)
         data = data.get('metadata', None)
 
         if not data:
-            raise HTTPError(
-                code=422,
-                response={'success': False, 'error': 'API metadata is not in a valid format'})
+            raise HTTPError(422, response='Invalid format')
 
         if data.get('success', None) is False:
             self.finish(data)
@@ -139,27 +129,22 @@ class APIHandler(BaseHandler):
                     user_name=user['login'],
                     **self.args)
 
-                # res = APIDocController.add(api_doc=data,
-                #                            overwrite=overwrite,
-                #                            dryrun=dryrun,
-                #                            user_name=user['login'],
-                #                            save_v2=save_v2,
-                #                            url=url)
             except (KeyError, ValueError) as err:
                 raise HTTPError(code=400, response=str(err))
             except APIMetadataRegistrationError as err:
-                raise HTTPError(400, response=str(err)) from None
-            except Exception as err:  # unexpected
+                self.finish({"success": False, 'details': str(err)})
+            except APIRequestError as err:
+                self.finish({"success": False, 'details': str(err)})
+            except ESIndexingError as err:
+                self.finish({"success": False, 'details': str(err)})
+            except Exception as err:
                 raise HTTPError(500, response=str(err))
             else:
                 if('because' not in res):
-                    # Successful Save
                     self.finish({'success': True, 'details': res})
                     send_slack_msg(data, res, user['login'])
                 else:
-                    # Any Errors/Tests
                     self.finish({"success": False, 'details': res})
-
 
 
 class APIMetaDataHandler(BaseHandler):
@@ -180,6 +165,7 @@ class APIMetaDataHandler(BaseHandler):
             'slug': {'type': str, 'default': ''}
         },
     }
+    name = "api_meta_handler"
 
     def get(self, api_name):
         """
@@ -209,7 +195,6 @@ class APIMetaDataHandler(BaseHandler):
             from_ = 0
         if fields:
             fields = fields.split(',')
-
         res = APIDocController.get_api(api_name=api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
 
         if out_format == 'yaml':
@@ -231,14 +216,13 @@ class APIMetaDataHandler(BaseHandler):
         dryrun = dryrun in ['on', '1', 'true']
         user = self.get_current_user()
         if not user:
-            raise HTTPError(code=400, response={'success': False, 'error': 'Must be logged in to perform updates'})
+            raise HTTPError(code=401, response={'success': False, 'error': 'Must be logged in to perform updates'})
+        if slug_name:
+            doc = APIDocController(_id=_id)
+            res = doc.update(_id=_id, user=user, slug_name=slug_name)
         else:
-            if slug_name:
-                doc = APIDocController(_id=_id)
-                res = doc.update(_id=_id, user=user, slug_name=slug_name)
-            else:
-                doc = APIDocController(_id=_id)
-                res = doc.refresh_api(_id=_id, user=user)
+            doc = APIDocController(_id=_id)
+            res = doc.refresh_api(_id=_id, user=user)
         if 'because' in res:
             self.finish({'success': False, 'details': res})
         else:

@@ -13,7 +13,8 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
-from web.api.es import ESQuery
+# from web.api.es import ESQuery
+from .api.controllers.controller import APIDocController
 from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
 
 log = logging.getLogger("smartapi")
@@ -50,8 +51,9 @@ class MainHandler(BaseHandler):
         # print("Host: {} - Slug: {}".format(self.request.host, slug))
         if slug.lower() not in ['www', 'dev', 'smart-api']:
             # try to get a registered subdomain/tag
-            esq = ESQuery()
-            api_id = esq.get_api_id_from_slug(slug)
+            # esq = ESQuery()
+            # api_id = esq.get_api_id_from_slug(slug)
+            api_id = APIDocController.get_api(slug)
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)
@@ -87,11 +89,7 @@ class LoginHandler(BaseHandler):
 
 
 class AddAPIHandler(BaseHandler, torngithub.GithubMixin):
-    # def get(self):
-        # self.write("Hello, world")
-        # self.write(html_output)
-        # template.render(list=movie_list,
-        #                 title="Here is my favorite movie list")
+
     def get(self):
         if self.current_user:
             # self.write('Login User: ' +  self.current_user["name"]
@@ -278,14 +276,14 @@ class FAQHandler(BaseHandler):
 
 class TemplateHandler(BaseHandler):
 
-    def initialize(self, filename, status_code=200, env=None):
+    def initialize(self, filename, status_code=200):
 
         self.filename = filename
         self.status = status_code
 
     def get(self, **kwargs):
 
-        template = self.env.get_template(self.filename)
+        template = templateEnv.get_template(self.filename)
         output = template.render(Context=json.dumps(kwargs))
 
         self.set_status(self.status)
@@ -316,10 +314,12 @@ class MetaKGHandler(BaseHandler):
             {"portal": 'translator'}))
         self.write(output)
 
+
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
-    (r"/add_api/?", AddAPIHandler),
+    # (r"/add_api/?", AddAPIHandler),
+    (r"/add_api/?", TemplateHandler, {"filename": "reg_form.html"}),
     (r"/login/?", LoginHandler),
     (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
@@ -336,7 +336,6 @@ APP_LIST = [
     (r"/about/?", AboutHandler),
     (r"/faq/?", FAQHandler),
     (r"/privacy/?", PrivacyHandler),
-    # (r"/portal/?", TemplateHandler, {"filename": "registry.html"}),
     (r"/portal/translator/metakg/?", MetaKGHandler),
     (r"/portal/([^/]+)/?", PortalHandler),
 

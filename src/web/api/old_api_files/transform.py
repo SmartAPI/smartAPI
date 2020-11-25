@@ -34,7 +34,6 @@ SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Speci
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers',
                       'externalDocs', 'tags', 'security', 'paths', 'components']
 
-
 def encode_raw(metadata):
     '''return encoded and compressed metadata'''
     _raw = json.dumps(metadata).encode('utf-8')
@@ -61,6 +60,7 @@ def decode_raw(raw, sorted=True, as_string=False):
         return d2
     else:
         return d
+
 
 
 def polite_requests(url, head=False):
