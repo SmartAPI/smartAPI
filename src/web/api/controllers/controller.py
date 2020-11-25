@@ -19,8 +19,8 @@ import logging
 import string
 from datetime import datetime as dt
 
-from elasticsearch import Elasticsearch, RequestError
-from elasticsearch_dsl import Search, Q, Index
+from elasticsearch import RequestError
+from elasticsearch_dsl import Search, Q
 from ..model.api_doc import API_Doc
 from ..transform import (APIMetadata, decode_raw, get_api_metadata_by_url)
 
@@ -42,7 +42,7 @@ class APIDocController:
         self._doc = doc.get(id=_id)
 
     @staticmethod
-    def add(api_doc, save_v2=False, overwrite=False, user_name=None, dryrun=False):
+    def add(api_doc, save_v2=False, overwrite=False, user_name=None, dryrun=False, url=None):
         """
         APIMetadata Class validates doc for supported OAS3 or V2 (warning)
         and generates an id based on source url
@@ -60,6 +60,11 @@ class APIDocController:
         Returns:
             Returns generated API ID if this operation resulted in a new document being saved.
         """
+        api_doc['_meta'] = {
+            "github_username": user_name,
+            'url': url,
+            'timestamp': dt.now().isoformat()
+        }
         metadata = APIMetadata(api_doc)
         validation = metadata.validate()
         if validation.get('valid') is False:
@@ -69,7 +74,8 @@ class APIDocController:
         api_id = metadata.encode_api_id()
         doc_exists = API_Doc.exists(api_id)
         if doc_exists and not overwrite:
-            return {'because': 'API exists'}
+            raise APIMetadataRegistrationError('API Exists')
+            # return {'because': 'API Exists'}
         if dryrun:
             return {'because': 'API is valid but this was only a test'}
         try:
@@ -121,8 +127,10 @@ class APIDocController:
                 doc["_id"] = api_doc["_id"]
             return doc
 
-        client = Elasticsearch()
-        s = Search(using=client)
+        # client = Elasticsearch()
+        # s = Search(using=client)
+        s = API_Doc.search()
+        # change to higher level client
         if not fields:
             fields = ['_all']
 
@@ -171,6 +179,7 @@ class APIDocController:
     def delete(self, _id, user):
         """
         delete api by current user
+        refresh index after deletion and return true
 
         Args:
             _id (str): ID of doc
@@ -186,7 +195,6 @@ class APIDocController:
             return {"because": "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)}
 
         self._doc.delete(id=_id)
-        Index(API_Doc.Index.name).refresh()
         return {"deleted": True}
 
     def update(self, _id, user, slug_name):

@@ -1,4 +1,4 @@
-from biothings.web.api.es.query_builder import ESQueryBuilder as BiothingsESQueryBuilder
+from biothings.web.pipeline import ESQueryBuilder as BiothingsESQueryBuilder
 
 import json
 

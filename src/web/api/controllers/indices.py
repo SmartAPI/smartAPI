@@ -22,4 +22,9 @@ def reset_data():
         index_1.delete()
 
     API_Doc.init()
+
+def refresh():
+
+    index_1 = Index(API_Doc.Index.name)
+    index_1.refresh()
     
