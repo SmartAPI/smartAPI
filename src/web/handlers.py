@@ -14,7 +14,7 @@ from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
 from web.api.es import ESQuery
-from biothings.web.api.helper import BaseHandler as BioThingsBaseHandler
+from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
 
 log = logging.getLogger("smartapi")
 
@@ -70,7 +70,7 @@ class UserInfoHandler(BaseHandler):
         for key in ['access_token', 'id']:
             if key in current_user:
                 del current_user[key]
-        self.return_json(current_user)
+        self.finish(current_user)
 
 
 class LoginHandler(BaseHandler):

@@ -12,9 +12,8 @@ import tornado.options
 import tornado.web
 import yaml
 
-from biothings.web.api.es.handlers import \
-    QueryHandler as BioThingsESQueryHandler
-from biothings.web.api.es.handlers.base_handler import BaseESRequestHandler
+from biothings.web.handlers import QueryHandler as BioThingsESQueryHandler
+from biothings.web.handlers import BaseESRequestHandler
 
 from .es import ESQuery
 from .transform import APIMetadata, get_api_metadata_by_url

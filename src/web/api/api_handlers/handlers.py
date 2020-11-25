@@ -1,5 +1,4 @@
 
-import datetime
 import hashlib
 import hmac
 import json
@@ -12,9 +11,8 @@ import tornado.options
 import tornado.web
 import yaml
 
-from biothings.web.api.es.handlers import \
-    QueryHandler as BioThingsESQueryHandler
-from biothings.web.api.es.handlers.base_handler import BaseESRequestHandler
+from biothings.web.handlers import QueryHandler as BioThingsESQueryHandler
+from biothings.web.handlers import BaseAPIHandler
 from tornado.httpclient import HTTPError
 
 # from .es import ESQuery
@@ -27,7 +25,7 @@ from web.api.controllers.controller import APIMetadataRegistrationError
 from web.api.es import ESQuery
 
 
-class BaseHandler(BaseESRequestHandler):
+class BaseHandler(BaseAPIHandler):
 
     def get_current_user(self):
         user_json = self.get_secure_cookie("user")
@@ -41,20 +39,20 @@ class ValidateHandler(BaseHandler):
         if data and isinstance(data, dict):
             metadata = APIMetadata(data)
             valid = metadata.validate()
-            return self.return_json(valid)
+            return self.finish(valid)
         else:
-            return self.return_json({"valid": False, "error": "The input url does not contain valid API metadata."})
+            return self.finish({"valid": False, "error": "The input url does not contain valid API metadata."})
 
     def get(self):
         url = self.get_argument('url', None)
         if url:
             data = get_api_metadata_by_url(url)
             if data.get('success', None) is False:
-                self.return_json(data)
+                self.finish(data)
             else:
                 self._validate(data)
         else:
-            self.return_json(
+            self.finish(
                 {"valid": False, "error": "Need to provide an input url first."})
 
     def post(self):
@@ -66,86 +64,122 @@ class ValidateHandler(BaseHandler):
                     data = yaml.load(self.request.body, Loader=yaml.SafeLoader)
                 except (yaml.scanner.ScannerError,
                         yaml.parser.ParserError):
-                    return self.return_json({"valid": False, "error": "The input request body does not contain valid API metadata."})
+                    return self.finish({"valid": False, "error": "The input request body does not contain valid API metadata."})
             self._validate(data)
         else:
-            self.return_json(
+            self.finish(
                 {"valid": False, "error": "Need to provide data in the request body first."})
 
 
 class APIHandler(BaseHandler):
+
+    kwargs = {
+        'POST': {
+            'url': {'type': str, 'default': None},
+            # optional
+            'overwrite': {'type': bool, 'default': False},
+            'dryrun': {'type': bool, 'default': False},
+            'save_v2': {'type': bool, 'default': False},
+        },
+    }
+
     def post(self):
         """
-        Add an API doc /api
+        Add an API metadata doc
+
+        transform.polite_request within transform.get_api_metadata_by_url requests provided url to get openAPI document
+        transform.get_api_metadata_by_url will return json or yaml format data
+        data is sent to controller where additional metadata will be included then validated and added to index 
+        if dryrun requested only steps up to validation will be taken
+        else added API doc ID is returned
 
         Raises:
-            HTTPError: invalid format, missing required param
-
+            HTTPError: 401 unauthorized
+            HTTPError: 400 missing parameter
+            HTTPError: 422 unidentified entity
+            HTTPError: 400 validation error 
         Returns:
             Success: True if doc created and doc ID
         """
         user = self.get_current_user()
+        # # front-end input options
+        # possible_options = ['on', '1', 'true']
+
+        # overwrite = self.get_argument('overwrite', '').lower()
+        # overwrite = overwrite in possible_options
+        # dryrun = self.get_argument('dryrun', '').lower()
+        # dryrun = dryrun in possible_options
+        # save_v2 = self.get_argument('save_v2', '').lower()
+        # save_v2 = save_v2 in possible_options
+        # url = self.get_argument('url', None)
+        print('ARGS', self.args)
+        print('ARGS JSON', self.args_json)
+
+        url = self.args.url
+        print('url', url)
         if not user:
-            raise HTTPError(code=401,
-                            response={'success': False, 'error': 'Authenticate first with your github account.'})
+            raise HTTPError(401)
+        if not url:
+            raise HTTPError(400)
+
+        data = get_api_metadata_by_url(url)
+        data = data.get('metadata', None)
+
+        if not data:
+            raise HTTPError(
+                code=422,
+                response={'success': False, 'error': 'API metadata is not in a valid format'})
+
+        if data.get('success', None) is False:
+            self.finish(data)
         else:
-            # front-end input options
-            possible_options = ['on', '1', 'true']
-            # save an API metadata
-            overwrite = self.get_argument('overwrite', '').lower()
-            overwrite = overwrite in possible_options
-            dryrun = self.get_argument('dryrun', '').lower()
-            dryrun = dryrun in possible_options
-            save_v2 = self.get_argument('save_v2', '').lower()
-            save_v2 = save_v2 in possible_options
-            url = self.get_argument('url', None)
-            if url:
-                data = get_api_metadata_by_url(url)
-                data = data.get('metadata', None)
-                if data and isinstance(data, dict):
-                    if data.get('success', None) is False:
-                        self.return_json(data)
-                    else:
-                        _meta = {
-                            "github_username": user['login'],
-                            'url': url,
-                            'timestamp': datetime.datetime.now().isoformat()
-                        }
-                        data['_meta'] = _meta
+            try:
+                res = APIDocController.add(
+                    api_doc=data,
+                    user_name=user['login'],
+                    **self.args)
 
-                        try:
-                            res = APIDocController.add(api_doc=data,
-                                                       overwrite=overwrite,
-                                                       dryrun=dryrun,
-                                                       user_name=user['login'],
-                                                       save_v2=save_v2)
-                        except (KeyError, ValueError) as err:
-                            raise HTTPError(code=400, response=str(err))
-                        except APIMetadataRegistrationError as err:
-                            raise APIMetadataRegistrationError(err)
-                        except Exception as err:  # unexpected
-                            raise HTTPError(500, response=str(err))
-                        else:
-                            if('because' not in res):
-                                # Successful Save
-                                self.return_json({'success': True, 'details': res})
-                                send_slack_msg(data, res, user['login'])
-                            else:
-                                # Any Errors/Tests
-                                self.return_json({"success": False, 'details': res})
-                else:
-                    raise HTTPError(code=400,
-                                    response={'success': False,
-                                              'error': 'API metadata is not in a valid format'})
-
+                # res = APIDocController.add(api_doc=data,
+                #                            overwrite=overwrite,
+                #                            dryrun=dryrun,
+                #                            user_name=user['login'],
+                #                            save_v2=save_v2,
+                #                            url=url)
+            except (KeyError, ValueError) as err:
+                raise HTTPError(code=400, response=str(err))
+            except APIMetadataRegistrationError as err:
+                raise HTTPError(400, response=str(err)) from None
+            except Exception as err:  # unexpected
+                raise HTTPError(500, response=str(err))
             else:
-                raise HTTPError(code=400,
-                                response={'success': False,
-                                          'error': 'Request is missing a required parameter: url'})
+                if('because' not in res):
+                    # Successful Save
+                    self.finish({'success': True, 'details': res})
+                    send_slack_msg(data, res, user['login'])
+                else:
+                    # Any Errors/Tests
+                    self.finish({"success": False, 'details': res})
+
 
 
 class APIMetaDataHandler(BaseHandler):
-    # esq = ESQuery()
+
+    kwargs = {
+        'GET': {
+            'fields': {'type': str, 'default': None},
+            'format': {'type': str, 'default': 'json'},
+            'raw': {'type': bool, 'default': False},
+            'meta': {'type': bool, 'default': False},
+            'from': {'type': int, 'default': 0},
+        },
+        'PUT': {
+            'slug': {'type': str, 'default': ''},
+            'dryrun': {'type': str, 'default': ''}
+        },
+        'DELETE': {
+            'slug': {'type': str, 'default': ''}
+        },
+    }
 
     def get(self, api_name):
         """
@@ -181,7 +215,7 @@ class APIMetaDataHandler(BaseHandler):
         if out_format == 'yaml':
             self.return_yaml(res)
         else:
-            self.return_json(res)
+            self.finish(res)
 
     def put(self, _id):
         """
@@ -206,9 +240,9 @@ class APIMetaDataHandler(BaseHandler):
                 doc = APIDocController(_id=_id)
                 res = doc.refresh_api(_id=_id, user=user)
         if 'because' in res:
-            self.return_json({'success': False, 'details': res})
+            self.finish({'success': False, 'details': res})
         else:
-            self.return_json({'success': True, 'details': res})
+            self.finish({'success': True, 'details': res})
 
     def delete(self, _id):
         """
@@ -232,9 +266,9 @@ class APIMetaDataHandler(BaseHandler):
             res = doc.delete(_id=_id, user=user)
 
         if 'because' in res:
-            self.return_json({'success': False, 'details': res})
+            self.finish({'success': False, 'details': res})
         else:
-            self.return_json({'success': True, 'details': res})
+            self.finish({'success': True, 'details': res})
 
 
 class ValueSuggestionHandler(BaseHandler):
@@ -259,7 +293,7 @@ class ValueSuggestionHandler(BaseHandler):
 
         res = APIDocController.get_tags(field=field, size=size)
         if res:
-            self.return_json(res)
+            self.finish(res)
         else:
             raise ValueError(f'Suggestion not possible for {field}')
 
@@ -273,7 +307,7 @@ class GitWebhookHandler(BaseHandler):
         ), msg=self.request.body, digestmod=hashlib.sha1)
         if not hmac.compare_digest('sha1=' + digest_obj.hexdigest(), self.request.headers.get('X-Hub-Signature', '')):
             self.set_status(405)
-            self.return_json(
+            self.finish(
                 {'success': False, 'error': 'Invalid authentication'})
             return
         data = tornado.escape.json_decode(self.request.body)
@@ -282,14 +316,14 @@ class GitWebhookHandler(BaseHandler):
             'owner', {}).get('name', None)
         if not repo_owner:
             self.set_status(405)
-            self.return_json(
+            self.finish(
                 {'success': False, 'error': 'Cannot get repository owner'})
             return
         # get repo name
         repo_name = data.get('repository', {}).get('name', None)
         if not repo_name:
             self.set_status(405)
-            self.return_json(
+            self.finish(
                 {'success': False, 'error': 'Cannot get repository name'})
             return
         # find all modified files in all commits
