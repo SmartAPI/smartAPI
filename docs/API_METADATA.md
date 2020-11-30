@@ -120,7 +120,7 @@ This [guide](/guide) can also guide through the process/tools on how to create y
 
 #### Provide semantics for API input and output
 
-###### _x-smartapi_ extension
+###### _x-bte_ extension
 
 ###### Introduction:
 
@@ -128,4 +128,4 @@ The goal of this extension is to facilitate the automatic retrieval of single-ho
 
 ###### Documentation:
 
-[Click here](https://x-bte-extension.readthedocs.io/en/latest/index.html) to learn more about the **x-smartapi** extension.
+[Click here](https://x-bte-extension.readthedocs.io/en/latest/index.html) to learn more about the **x-bte** extension.
