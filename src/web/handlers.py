@@ -307,7 +307,6 @@ class PortalHandler(BaseHandler):
 class MetaKGHandler(BaseHandler):
 
     def get(self):
-        print('META KG')
         doc_file = "metakg.html"
         template = templateEnv.get_template(doc_file)
         output = template.render(Context=json.dumps(

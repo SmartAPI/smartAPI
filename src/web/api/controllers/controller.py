@@ -25,6 +25,7 @@ import jsonschema
 import requests
 import yaml
 import sys
+from collections import OrderedDict
 
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b

@@ -15,7 +15,7 @@ from config_key import *
 # Elasticsearch
 # *****************************************************************************
 ES_INDICES = {
-    'doc': 'smartapi_oas3'
+    'api_doc': 'smartapi_oas3'
 }
 
 # *****************************************************************************
@@ -23,7 +23,7 @@ ES_INDICES = {
 # *****************************************************************************
 APP_LIST = [
     (r'/api/?', 'web.api.handlers.handlers.APIHandler'),
-    (r'/api/query/?', 'web.api.handlers.handlers.BioThingsESQueryHandler'),
+    (r'/api/query/?', 'web.api.handlers.handlers.BioThingsESQueryHandler', {"biothing_type": "api_doc"}),
     (r'/api/validate/?', 'web.api.handlers.handlers.ValidateHandler'),
     (r'/api/metadata/(.+)/?', 'web.api.handlers.handlers.APIMetaDataHandler'),
     (r'/api/suggestion/?', 'web.api.handlers.handlers.ValueSuggestionHandler'),
@@ -38,5 +38,5 @@ API_PREFIX = 'api'
 # Biothings SDK Settings
 # *****************************************************************************
 ACCESS_CONTROL_ALLOW_METHODS = 'HEAD,GET,POST,DELETE,PUT,OPTIONS'
-# ES_QUERY_BUILDER = "discovery.pipeline.DiscoveryQueryBuilder"
+ES_QUERY_BUILDER = "web.api.q_builder.SmartAPIQueryBuilder"
 DISABLE_CACHING = True
