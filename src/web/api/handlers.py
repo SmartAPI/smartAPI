@@ -10,7 +10,6 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 import yaml
-import requests
 
 from biothings.web.handlers import QueryHandler as BioThingsESQueryHandler
 from biothings.web.handlers import BaseAPIHandler
@@ -18,8 +17,8 @@ from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
 
-from ..controllers.controller import (APIMetadata, APIDocController, APIMetadataRegistrationError, ESIndexingError, get_api_metadata_by_url, APIRequestError)
-from ..old_api_files.es import ESQuery
+from .controllers.controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError, ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
+from .old_api_files.es import ESQuery
 
 
 class BaseHandler(BaseAPIHandler):
@@ -133,6 +132,8 @@ class APIHandler(BaseHandler):
                 raise HTTPError(code=400, response=str(err))
             except APIMetadataRegistrationError as err:
                 self.finish({"success": False, 'details': str(err)})
+            except ValidationError as err:
+                self.finish({"success": False, 'details': str(err)})
             except APIRequestError as err:
                 self.finish({"success": False, 'details': str(err)})
             except ESIndexingError as err:
@@ -155,7 +156,8 @@ class APIMetaDataHandler(BaseHandler):
             'format': {'type': str, 'default': 'json'},
             'raw': {'type': bool, 'default': False},
             'meta': {'type': bool, 'default': False},
-            'from': {'type': int, 'default': 0},
+            '_from': {'type': int, 'default': 0},
+            'size': {'type': int, 'default': 0},
         },
         'PUT': {
             'slug': {'type': str, 'default': ''},
@@ -179,12 +181,12 @@ class APIMetaDataHandler(BaseHandler):
         Returns:
             JSON or YAML of doc requested
         """
-        fields = self.get_argument('fields', None)
-        out_format = self.get_argument('format', 'json').lower()
-        return_raw = self.get_argument('raw', False)
-        with_meta = self.get_argument('meta', False)
-        size = self.get_argument('size', None)
-        from_ = self.get_argument('from', 0)
+        fields = self.args.fields
+        out_format = self.args.format
+        return_raw = self.args.raw
+        with_meta = self.args.meta
+        size = self.args.size
+        from_ = self.args._from
         try:
             size = int(size)
         except (TypeError, ValueError):
@@ -196,11 +198,9 @@ class APIMetaDataHandler(BaseHandler):
         if fields:
             fields = fields.split(',')
         res = APIDocController.get_api(api_name=api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
-
         if out_format == 'yaml':
-            self.return_yaml(res)
-        else:
-            self.finish(res)
+            self.format = 'yaml'
+        self.finish(res)
 
     def put(self, _id):
         """
@@ -218,15 +218,19 @@ class APIMetaDataHandler(BaseHandler):
         if not user:
             raise HTTPError(code=401, response={'success': False, 'error': 'Must be logged in to perform updates'})
         if slug_name:
-            doc = APIDocController(_id=_id)
-            res = doc.update(_id=_id, user=user, slug_name=slug_name)
-        else:
-            doc = APIDocController(_id=_id)
-            res = doc.refresh_api(_id=_id, user=user)
-        if 'because' in res:
-            self.finish({'success': False, 'details': res})
-        else:
-            self.finish({'success': True, 'details': res})
+            try:
+                doc = APIDocController(_id=_id)
+                res = doc.update(_id=_id, user=user, slug_name=slug_name)
+            except (KeyError, ValueError) as err:
+                raise HTTPError(code=400, response=str(err))
+            except SlugRegistrationError as err:
+                self.finish({"success": False, 'details': str(err)})
+            except Exception as err:
+                raise HTTPError(500, response=str(err))
+            else:
+                doc = APIDocController(_id=_id)
+                res = doc.refresh_api(_id=_id, user=user, test=False)
+                self.finish({'success': True, 'details': res})
 
     def delete(self, _id):
         """
@@ -239,20 +243,23 @@ class APIMetaDataHandler(BaseHandler):
         user = self.get_current_user()
         slug_name = self.get_argument('slug', '').lower()
         if not user:
-            res = {'success': False,
-                   'error': 'Authenticate first with your github account.'}
-            self.set_status(401)
-        elif slug_name:
-            doc = APIDocController(_id=_id)
-            res = doc.delete_slug(_id=_id, user=user, slug_name=slug_name)
+            raise HTTPError(401, response='Login required')
+
+        doc = APIDocController(_id=_id)
+
+        if slug_name:          
+            try:
+                res = doc.delete_slug(_id=_id, user=user, slug_name=slug_name)
+            except (KeyError, ValueError) as err:
+                raise HTTPError(code=400, response=str(err))
+            except APIRequestError as err:
+                self.finish({"success": False, 'details': str(err)})
+            except Exception as err:
+                raise HTTPError(500, response=str(err))
         else:
-            doc = APIDocController(_id=_id)
             res = doc.delete(_id=_id, user=user)
 
-        if 'because' in res:
-            self.finish({'success': False, 'details': res})
-        else:
-            self.finish({'success': True, 'details': res})
+        self.finish({'success': True, 'details': res})
 
 
 class ValueSuggestionHandler(BaseHandler):

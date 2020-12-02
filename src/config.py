@@ -22,12 +22,12 @@ ES_INDICES = {
 # Tornado URL Patterns
 # *****************************************************************************
 APP_LIST = [
-    (r'/api/?', 'web.api.handlers.handlers.APIHandler'),
-    (r'/api/query/?', 'web.api.handlers.handlers.BioThingsESQueryHandler', {"biothing_type": "api_doc"}),
-    (r'/api/validate/?', 'web.api.handlers.handlers.ValidateHandler'),
-    (r'/api/metadata/(.+)/?', 'web.api.handlers.handlers.APIMetaDataHandler'),
-    (r'/api/suggestion/?', 'web.api.handlers.handlers.ValueSuggestionHandler'),
-    (r'/api/webhook_payload/?', 'web.api.handlers.handlers.GitWebhookHandler'),
+    (r'/api/?', 'web.api.handlers.APIHandler'),
+    (r'/api/query/?', 'web.api.handlers.BioThingsESQueryHandler', {"biothing_type": "api_doc"}),
+    (r'/api/validate/?', 'web.api.handlers.ValidateHandler'),
+    (r'/api/metadata/(.+)/?', 'web.api.handlers.APIMetaDataHandler'),
+    (r'/api/suggestion/?', 'web.api.handlers.ValueSuggestionHandler'),
+    (r'/api/webhook_payload/?', 'web.api.handlers.GitWebhookHandler'),
 ]
 
 # biothings web tester will read this
