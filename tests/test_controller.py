@@ -8,7 +8,7 @@ from src.web.api.controllers.controller import APIDocController
 from src.web.api.controllers.controller import SlugRegistrationError
 
 
-class TestAPIMetadata:
+class TestController:
 
     _doc_id = '3912601003e25befedfb480a5687ab07'
 
@@ -109,14 +109,14 @@ class TestAPIMetadata:
     # CONTROLLER TESTS
     # *****************************************************************************
 
-    def test_controller_get_all(self):
+    def test_get_all(self):
         """
         Get ALL docs, since one doc expect dict not list
         """
         docs = APIDocController.get_api(api_name='all')
         assert isinstance(docs, dict)
 
-    def test_controller_get_api(self):
+    def test__get_api(self):
         """
         Get one doc by ID
         """
@@ -125,7 +125,7 @@ class TestAPIMetadata:
         doc = APIDocController.get_api(api_name=_id)
         assert isinstance(doc, dict)
 
-    def test_controller_get_tags(self):
+    def test__get_tags(self):
         """
         Get tag aggregations for field
         """
@@ -135,7 +135,7 @@ class TestAPIMetadata:
         res = APIDocController.get_tags(field=field, size=size)
         assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1 
 
-    def test_controller_validate_slug(self):
+    def test_validate_slug(self):
         """
         Update registered slug name for ID
         """
@@ -146,7 +146,7 @@ class TestAPIMetadata:
         valid = doc._validate_slug_name(slug_name=slug)
         assert valid is True
 
-    def test_controller_validate_slug_invalid(self):
+    def test_validate_slug_invalid(self):
         """
         Update registered slug name for ID
         """
@@ -161,7 +161,7 @@ class TestAPIMetadata:
             failed = True
         assert failed
 
-    def test_controller_update_slug(self):
+    def test_update_slug(self):
         """
         Update registered slug name for ID
         """
@@ -181,7 +181,7 @@ class TestAPIMetadata:
         slug_exists = API_Doc.slug_exists(slug=self._test_slug)
         assert slug_exists is True
 
-    def test_controller_delete_slug(self):
+    def test_delete_slug(self):
         """
         Delete slug for ID
         """
@@ -193,7 +193,7 @@ class TestAPIMetadata:
         res = doc.delete_slug(_id=api_id, user=user, slug_name=slug)
         assert res == f"slug '{slug}' for {api_id} was deleted"
 
-    def test_controller_refresh_api(self):
+    def test_refresh_api(self):
         """
         Refresh single api with id
         """
@@ -203,50 +203,6 @@ class TestAPIMetadata:
         doc = APIDocController(api_id)
         res = doc.refresh_api(_id=api_id, user=user, test=True)
         assert res.get('test-updated', '') == f"API with ID {api_id} was refreshed"
-
-    # *****************************************************************************
-    # MODEL TESTS
-    # *****************************************************************************
-
-    def test_model_doc_exists(self):
-        """
-        Existing ID exists
-        """
-        exists = API_Doc.exists(_id=self._doc_id)
-        assert exists
-
-    def test_model_doc_doesnt_exist(self):
-        """
-        Fake ID does not exists
-        """
-        exists = API_Doc.exists(_id='id123779328749279')
-        assert not exists
-
-    def test_model_slug_available(self):
-        """
-        Slug name is available
-        """
-        slug_exists = API_Doc.slug_exists(slug='new_slug')
-        assert slug_exists is False
-
-    def test_model_tag_aggregation(self):
-        """
-        Confirm aggregations exists for field, eg. tags
-        """
-        field = 'info.contact.name'
-        agg_name = 'field_values'
-
-        res = API_Doc.aggregate(field=field, size=100, agg_name=agg_name).to_dict()
-        assert len(res.get('aggregations', {}).get(agg_name, {}).get('buckets', [])) >= 1 
-    
-    # def test_delete_doc(self):
-    #     """
-    #     delete doc
-    #     """
-    #     doc = API_Doc()
-    #     doc = doc.get(id=self._doc_id)
-    #     res = doc.delete(id=self._doc_id)
-    #     assert res.get('success') == True
 
     # *****************************************************************************
     # TEARDOWN
