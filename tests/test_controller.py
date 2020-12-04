@@ -173,12 +173,20 @@ class TestController:
         res = doc.update(_id=api_id, user=user, slug_name=slug)
         assert res.get(f'{api_id}._meta.slug', False) == slug
 
-    # model has to test is taken first
+    def test__get_api_from_slug(self):
+        """
+        Get ID of doc with slug
+        """
+        slug = self._test_slug
+
+        _id = APIDocController.get_api_id_from_slug(slug=slug)
+        assert isinstance(_id, str)
+
     def test_model_slug_taken(self):
         """
         Slug name already exists
         """
-        slug_exists = API_Doc.slug_exists(slug=self._test_slug)
+        slug_exists = APIDocController.slug_is_available(slug=self._test_slug)
         assert slug_exists is True
 
     def test_delete_slug(self):

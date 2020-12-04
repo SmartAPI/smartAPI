@@ -384,6 +384,30 @@ class APIDocController:
             res = res[0]
         return res
 
+    @staticmethod
+    def get_api_id_from_slug(slug=None):
+
+        if not slug:
+            raise RequestError('slug is required')
+        s = API_Doc.search()       
+        s.query('match', _meta__slug=slug)
+        res = s.execute().to_dict()
+        try:
+            hits = res['hits']['hits']
+            if len(hits) > 1:
+                raise RequestError(f'slug {slug} returns multiple results')
+            doc = hits[0]
+        except Exception:
+            raise RequestError(f'cannot get ID from slug {slug}')
+        return doc["_id"]
+
+    @staticmethod
+    def slug_is_available(slug=None):
+        if not slug:
+            raise RequestError('slug is required')
+        res = API_Doc.slug_exists(slug)
+        return res
+
     def get_tags(field=None, size=100):
         """
         perform aggregations on given field
