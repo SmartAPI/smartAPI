@@ -216,22 +216,6 @@ class SwaggerUIHandler(BaseHandler):
         self.write(swagger_output)
 
 
-class BrandingHandler(BaseHandler):
-    def get(self):
-        doc_file = "brand.html"
-        branding_template = templateEnv.get_template(doc_file)
-        branding_output = branding_template.render()
-        self.write(branding_output)
-
-
-class GuideHandler(BaseHandler):
-    def get(self):
-        doc_file = "guide.html"
-        guide_template = templateEnv.get_template(doc_file)
-        guide_output = guide_template.render()
-        self.write(guide_output)
-
-
 class APIEditorHandler(BaseHandler):
     def get(self, yourApiID=None):
         if not yourApiID:
@@ -251,43 +235,6 @@ class APIEditorHandler(BaseHandler):
         swagger_output = swagger_template.render(
             Context=json.dumps({"Id": yourApiID, "Data": True}))
         self.write(swagger_output)
-
-
-class AboutHandler(BaseHandler):
-    def get(self):
-        doc_file = "about.html"
-        about_template = templateEnv.get_template(doc_file)
-        about_output = about_template.render()
-        self.write(about_output)
-
-class PrivacyHandler(BaseHandler):
-    def get(self):
-        doc_file = "privacy.html"
-        privacy_template = templateEnv.get_template(doc_file)
-        privacy_output = privacy_template.render()
-        self.write(privacy_output)
-
-class FAQHandler(BaseHandler):
-    def get(self):
-        doc_file = "faq.html"
-        faq_template = templateEnv.get_template(doc_file)
-        faq_output = faq_template.render()
-        self.write(faq_output)
-
-class TemplateHandler(BaseHandler):
-
-    def initialize(self, filename, status_code=200):
-
-        self.filename = filename
-        self.status = status_code
-
-    def get(self, **kwargs):
-
-        template = templateEnv.get_template(self.filename)
-        output = template.render(Context=json.dumps(kwargs))
-
-        self.set_status(self.status)
-        self.write(output)
 
 class PortalHandler(BaseHandler):
 
@@ -313,29 +260,41 @@ class MetaKGHandler(BaseHandler):
             {"portal": 'translator'}))
         self.write(output)
 
+class TemplateHandler(BaseHandler):
+
+    def initialize(self, filename, status_code=200):
+
+        self.filename = filename
+        self.status = status_code
+
+    def get(self, **kwargs):
+
+        template = templateEnv.get_template(self.filename)
+        output = template.render(Context=json.dumps(kwargs))
+
+        self.set_status(self.status)
+        self.write(output)
 
 APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
-    # (r"/add_api/?", AddAPIHandler),
-    (r"/add_api/?", TemplateHandler, {"filename": "reg_form.html"}),
     (r"/login/?", LoginHandler),
-    (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
     (r"/registry/(.+)/?", RegistryHandler),
     (r"/registry/?", RegistryHandler),
-    (r"/documentation/?", DocumentationHandler),
-    (r"/dashboard/?", DashboardHandler),
     (r"/ui/(.+)/?", SwaggerUIHandler),
     (r"/ui/?", SwaggerUIHandler),
-    (r"/branding/?", BrandingHandler),
-    (r"/guide/?", GuideHandler),
     (r"/editor/(.+)/?", APIEditorHandler),
     (r"/editor/?", APIEditorHandler),
-    (r"/about/?", AboutHandler),
-    (r"/faq/?", FAQHandler),
-    (r"/privacy/?", PrivacyHandler),
     (r"/portal/translator/metakg/?", MetaKGHandler),
     (r"/portal/([^/]+)/?", PortalHandler),
-
+    (r"/add_api/?", TemplateHandler, {"filename": "reg_form.html"}),
+    (r"/documentation/?", TemplateHandler, {"filename": "documentation.html"}),
+    (r"/dashboard/?", TemplateHandler, {"filename": "dashboard.html"}),
+    (r"/about/?", TemplateHandler, {"filename": "about.html"}),
+    (r"/faq/?", TemplateHandler, {"filename": "faq.html"}),
+    (r"/privacy/?", TemplateHandler, {"filename": "privacy.html"}),
+    (r"/branding/?", TemplateHandler, {"filename": "guide.html"}),
+    (r"/guide/?", TemplateHandler, {"filename": "brand.html"}),
+    (GITHUB_CALLBACK_PATH, GithubLoginHandler),
 ]

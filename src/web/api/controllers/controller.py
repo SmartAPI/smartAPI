@@ -1,18 +1,23 @@
 """
-Controller for API docs
+Controllers for API doc addition 
+and API metadata operations
 
-[APIHandler]
+[APIHandler] (C)
 add - save doc
 
-[APIMetaDataHandler]
+[APIMetaDataHandler] (R.U.D)
 get_api - get doc by name/slug
 refresh_api - refresh api metadata
 delete_slug - delete registered slug
 update - save new slug
-    _validate_slug_name - check slugname
+_validate_slug_name - check slugname
 
-[ValueSuggestionHandler]
-get_tags - get list of tags/authors
+Raises:
+    ValidationError: any schema validation error
+    APIMetadataRegistrationError: error during POST
+    ESIndexingError: any ES related errors
+    SlugRegistrationError: error during slug setup
+    APIRequestError: metadata url request error
 """
 import base64
 import copy
