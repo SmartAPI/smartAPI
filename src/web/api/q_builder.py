@@ -24,3 +24,16 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         search = search.update_from_dict(query)
         search = search.params(rest_total_hits_as_int=True)
         return search
+
+    def _extra_query_options(self, search, options):
+
+        search = AsyncSearch().query(
+            "function_score",
+            query=search.query,
+            score_mode="first")
+
+        if options.filters:
+            if 'all' not in options.filters:
+                search = search.filter('terms', _meta__slug=options.filters)
+
+        return search

@@ -1,5 +1,6 @@
 ''' SmartAPI Configuration '''
 
+from biothings.web.settings.default import QUERY_KWARGS
 
 from config_key import *
 
@@ -10,6 +11,17 @@ from config_key import *
 #   COOKIE_SECRET = '<Any Random String>'
 #   GITHUB_CLIENT_ID = '<your Github application Client ID>'
 #   GITHUB_CLIENT_SECRET = '<your Github application Client Secret>'
+
+# *****************************************************************************
+# User Input Control
+# *****************************************************************************
+
+FIELD_FILTERS = {
+    # 'slug_exists': {'type': bool, 'default': False, 'group':'esqb'},
+    'filters': {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
+}
+
+QUERY_KWARGS['*'].update(FIELD_FILTERS)
 
 # *****************************************************************************
 # Elasticsearch

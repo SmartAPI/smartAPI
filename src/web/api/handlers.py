@@ -18,7 +18,7 @@ from tornado.httpclient import HTTPError
 from utils.slack_notification import send_slack_msg
 
 from .controllers.controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError, ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
-from .old_api_files.es import ESQuery
+from .data import SmartAPIData
 
 
 class BaseHandler(BaseAPIHandler):
@@ -216,10 +216,12 @@ class APIMetaDataHandler(BaseHandler):
         dryrun = dryrun in ['on', '1', 'true']
         user = self.get_current_user()
         if not user:
-            raise HTTPError(code=401, response={'success': False, 'error': 'Must be logged in to perform updates'})
+            raise HTTPError(401, response='Login required')
+
+        doc = APIDocController(_id=_id)
+
         if slug_name:
             try:
-                doc = APIDocController(_id=_id)
                 res = doc.update(_id=_id, user=user, slug_name=slug_name)
             except (KeyError, ValueError) as err:
                 raise HTTPError(code=400, response=str(err))
@@ -227,10 +229,19 @@ class APIMetaDataHandler(BaseHandler):
                 self.finish({"success": False, 'details': str(err)})
             except Exception as err:
                 raise HTTPError(500, response=str(err))
-            else:
-                doc = APIDocController(_id=_id)
+        else:
+            try:
                 res = doc.refresh_api(_id=_id, user=user, test=False)
-                self.finish({'success': True, 'details': res})
+            except (KeyError, ValueError) as err:
+                raise HTTPError(code=400, response=str(err))
+            except SlugRegistrationError as err:
+                self.finish({"success": False, 'details': str(err)})
+            except APIRequestError as err:
+                self.finish({"success": False, 'details': str(err)})
+            except Exception as err:
+                raise HTTPError(500, response=str(err))
+        
+        self.finish({'success': True, 'details': res})
 
     def delete(self, _id):
         """
@@ -290,7 +301,8 @@ class ValueSuggestionHandler(BaseHandler):
 
 
 class GitWebhookHandler(BaseHandler):
-    esq = ESQuery()
+
+    data_handler = SmartAPIData()
 
     def post(self):
         # do message authentication
@@ -298,8 +310,7 @@ class GitWebhookHandler(BaseHandler):
         ), msg=self.request.body, digestmod=hashlib.sha1)
         if not hmac.compare_digest('sha1=' + digest_obj.hexdigest(), self.request.headers.get('X-Hub-Signature', '')):
             self.set_status(405)
-            self.finish(
-                {'success': False, 'error': 'Invalid authentication'})
+            self.finish({'success': False, 'error': 'Invalid authentication'})
             return
         data = tornado.escape.json_decode(self.request.body)
         # get repository owner name
@@ -307,15 +318,13 @@ class GitWebhookHandler(BaseHandler):
             'owner', {}).get('name', None)
         if not repo_owner:
             self.set_status(405)
-            self.finish(
-                {'success': False, 'error': 'Cannot get repository owner'})
+            self.finish({'success': False, 'error': 'Cannot get repository owner'})
             return
         # get repo name
         repo_name = data.get('repository', {}).get('name', None)
         if not repo_name:
             self.set_status(405)
-            self.finish(
-                {'success': False, 'error': 'Cannot get repository name'})
+            self.finish({'success': False, 'error': 'Cannot get repository name'})
             return
         # find all modified files in all commits
         modified_files = set()
@@ -328,17 +337,12 @@ class GitWebhookHandler(BaseHandler):
         _query = {"query": {"bool": {"should": [
             {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)),
                                           "max_determinized_states": 200000}}} for fi in modified_files]}}}
-        # s = Search()
-        # s.query = Q('bool', should=[Q('regexp', _meta__url__raw='.*{owner}/{repo}/.*/{fi}'
-        # .format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi))),
-        #                             Q()])
-        # res = s.execute().to_dict()
 
         # get list of ids that need to be refreshed
-        ids_refresh = [x['_id'] for x in self.esq.fetch_all(query=_query)]
+        ids_refresh = [x['_id'] for x in self.data_handler.fetch_all(query=_query)]
         # if there are any ids to refresh, do it
         if ids_refresh:
-            self.esq.refresh_all(id_list=ids_refresh, dryrun=False)
+            self.data_handler.refresh_all(id_list=ids_refresh, dryrun=False)
 
 
 APP_LIST = [

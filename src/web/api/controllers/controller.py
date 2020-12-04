@@ -508,7 +508,7 @@ class APIDocController:
             self._doc.update(id=_id, refresh=True, **res['metadata'])
             return {'updated': f"API with ID {_id} was refreshed"}
         else:
-            return {'because': 'Invalid input data.'}
+            raise APIRequestError('Invalid input data.')
 
     def delete_slug(self, _id, user, slug_name):
         """
