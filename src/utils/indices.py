@@ -1,7 +1,8 @@
 import logging
 
 from elasticsearch_dsl import Index
-from ..model import API_Doc
+
+from web.api.model import API_Doc
 
 
 def setup_data():

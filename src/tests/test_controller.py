@@ -2,15 +2,17 @@
 import pytest
 import random
 
-from src.web.api.model import API_Doc
-from src.web.api.controllers.controller import APIDocController
+from web.api.model import API_Doc
+from web.api.controller import APIDocController
 
-from src.web.api.controllers.controller import SlugRegistrationError
+from web.api.controller import SlugRegistrationError
 
 
 class TestController:
 
     _doc_id = '3912601003e25befedfb480a5687ab07'
+
+    _doc_id_two = '8f08d1446e0bb9c2b323713ce83e2bd3'
 
     _test_slug = 'test_slug_'+str(random.randint(1, 21))
 
@@ -92,6 +94,85 @@ class TestController:
         },
     }
 
+    test_doc_two = {
+        "openapi": "3.0.0",
+        "info": {
+            "contact": {
+                "email": "help@mygene.info",
+                "name": "Marco Cano",
+                "x-id": "https://github.com/newgene",
+                "x-role": "responsible developer"
+            },
+            "description": "Documentation of the MyGene.info Gene Query web services. Learn more about [MyGene.info](http://mygene.info/)",
+            "termsOfService": "http://mygene.info/terms/",
+            "title": "SECOND API",
+            "version": "3.0"
+        },
+        "servers": [
+            {
+                "description": "Encrypted Production server",
+                "url": "https://mygene.info/v3"
+            },
+            {
+                "description": "Production server",
+                "url": "http://mygene.info/v3"
+            }
+        ],
+        "tags": [
+            {
+                "name": "gene"
+            },
+            {
+                "name": "annotation"
+            },
+            {
+                "name": "query"
+            },
+            {
+                "name": "translator"
+            },
+            {
+                "name": "biothings"
+            }
+        ],
+        "paths": [
+            {
+                "path": "/metadata",
+                "pathitem": {
+                    "get": {
+                        "parameters": [
+                            {
+                                "$ref": "#/components/parameters/callback",
+                                "name": "callback"
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "MyGene.info metadata object"
+                            }
+                        },
+                        "summary": "Get metadata about the data available from MyGene.info."
+                    }
+                }
+            },
+        ],
+        "components": {
+            "parameters": {},
+            "schemas": {},
+            "x-bte-kgs-operations": {},
+            "x-bte-response-mapping": {}
+        },
+        "_meta": {
+            "github_username": "marcodarko",
+            "url": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mychem.info/openapi_full.yml",
+            "timestamp": "2020-12-01T15:17:45.862906+00:00",
+            "ETag": "d178b8f1976d3aadd8bed151614445e5fc17cc9548e174dcebbc42a60eb086cf",
+            "uptime_status": "good",
+            "uptime_ts": "2020-12-07T00:09:26.341296",
+            "slug": "mygene"
+        },
+    }
+
     # *****************************************************************************
     # SETUP
     # *****************************************************************************
@@ -103,6 +184,9 @@ class TestController:
         and _meta field with test user
         """
         doc = API_Doc(meta={'id': cls._doc_id}, ** cls.test_doc)
+        doc.save()
+
+        doc = API_Doc(meta={'id': cls._doc_id_two}, ** cls.test_doc_two)
         doc.save()
 
     # *****************************************************************************

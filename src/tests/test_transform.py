@@ -1,6 +1,6 @@
 import pytest
 
-from src.web.api.controllers.controller import APIMetadata, ValidationError
+from web.api.controller import APIMetadata, ValidationError
 
 transform_test_doc = {
     "openapi": "3.0.0",

@@ -17,11 +17,20 @@ from config_key import *
 # *****************************************************************************
 
 FIELD_FILTERS = {
-    # 'slug_exists': {'type': bool, 'default': False, 'group':'esqb'},
-    'filters': {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
+    'filters': {'type': str, 'default': None, 'max': 1000, 'group': 'esqb'}
+}
+
+AUTHOR_FILTERS = {
+    'authors': {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
+}
+
+TAG_FILTERS = {
+    'tags': {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
 }
 
 QUERY_KWARGS['*'].update(FIELD_FILTERS)
+QUERY_KWARGS['*'].update(AUTHOR_FILTERS)
+QUERY_KWARGS['*'].update(TAG_FILTERS)
 
 # *****************************************************************************
 # Elasticsearch

@@ -1,6 +1,6 @@
 import pytest
 
-from src.web.api.model import API_Doc
+from web.api.model import API_Doc
     
 class TestDocModel:
 

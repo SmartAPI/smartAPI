@@ -39,7 +39,7 @@ else:
 
 from elasticsearch import RequestError
 from elasticsearch_dsl import Q
-from ..model import API_Doc
+from .model import API_Doc
 
 logger = logging.getLogger(__name__)
 

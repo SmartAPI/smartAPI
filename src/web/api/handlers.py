@@ -17,7 +17,8 @@ from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
 
-from .controllers.controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError, ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
+from .controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError,
+                                     ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
 from .data import SmartAPIData
 
 

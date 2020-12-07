@@ -13,8 +13,7 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
-# from web.api.es import ESQuery
-from .api.controllers.controller import APIDocController
+from .api.controller import APIDocController
 from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
 
 log = logging.getLogger("smartapi")
@@ -48,7 +47,7 @@ class BaseHandler(BioThingsBaseHandler):
 class MainHandler(BaseHandler):
     def get(self):
         slug = self.request.host.split(".")[0]
-        if slug.lower() not in ['www', 'dev', 'smart-api']:
+        if slug and slug.lower() not in ['www', 'dev', 'smart-api', 'localhost:8000']:
             api_id = APIDocController.get_api_id_from_slug(slug)
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
@@ -275,6 +274,7 @@ APP_LIST = [
     (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
     (r"/login/?", LoginHandler),
+    (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
     (r"/registry/(.+)/?", RegistryHandler),
     (r"/registry/?", RegistryHandler),
@@ -292,5 +292,5 @@ APP_LIST = [
     (r"/privacy/?", TemplateHandler, {"filename": "privacy.html"}),
     (r"/branding/?", TemplateHandler, {"filename": "guide.html"}),
     (r"/guide/?", TemplateHandler, {"filename": "brand.html"}),
-    (GITHUB_CALLBACK_PATH, GithubLoginHandler),
+    
 ]

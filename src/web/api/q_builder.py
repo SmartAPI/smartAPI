@@ -1,6 +1,7 @@
+import json
+
 from biothings.utils.web.es_dsl import AsyncSearch
 from biothings.web.pipeline import ESQueryBuilder
-
 
 class SmartAPIQueryBuilder(ESQueryBuilder):
 
@@ -25,15 +26,18 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         search = search.params(rest_total_hits_as_int=True)
         return search
 
-    def _extra_query_options(self, search, options):
+    def build_string_query(self, q, options):
 
-        search = AsyncSearch().query(
-            "function_score",
-            query=search.query,
-            score_mode="first")
+        search = super().build_string_query(q, options)
+        # for future consideration of filter param filters
+        if options.authors:
+            search = search.filter('terms', info__contact__name=options.authors)
+        # for future consideration of filter param filters
+        if options.tags:
+            search = search.filter('terms', tags=options.tags)
 
         if options.filters:
-            if 'all' not in options.filters:
-                search = search.filter('terms', _meta__slug=options.filters)
+            field_mapping = json.loads(options.filters)
+            search = search.filter('terms', **field_mapping)
 
         return search
