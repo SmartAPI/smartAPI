@@ -10,7 +10,7 @@ get_api - get doc by name/slug
 refresh_api - refresh api metadata
 delete_slug - delete registered slug
 update - save new slug
-_validate_slug_name - check slugname
+validate_slug_name - check slugname
 
 Raises:
     ValidationError: any schema validation error
@@ -68,18 +68,23 @@ METADATA_KEY_ORDER = ['openapi', 'info', 'servers',
 # *****************************************************************************
 
 class ValidationError(Exception):
+    """Error from metadata validation"""
     pass
 
 class APIMetadataRegistrationError(Exception):
+    """Error from failed doc addition"""
     pass
 
 class ESIndexingError(Exception):
+    """Error from elasticsearch requests"""
     pass
 
 class APIRequestError(Exception):
+    """Error from network requests"""
     pass
 
 class SlugRegistrationError(Exception):
+    """Error from failed slug update"""
     pass
 
 # *****************************************************************************
@@ -125,7 +130,7 @@ def polite_requests(url, head=False):
         else:
             res = requests.get(url, timeout=5)
     except requests.exceptions.Timeout:
-        raise APIRequestError('URL request is timeout')
+        raise APIRequestError('URL request timed out')
     except requests.exceptions.ConnectionError:
         raise APIRequestError('URL request connection error')
     except requests.exceptions.RequestException:
@@ -150,7 +155,7 @@ def get_api_metadata_by_url(url, as_string=False):
                     metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
                 except (yaml.scanner.ScannerError, yaml.parser.ParserError):
                     raise APIRequestError('Not a valid JSON or YAML format')
-            return {'metadata': metadata}
+            return metadata
     else:
         return _res
 
@@ -266,12 +271,10 @@ class APIDocController:
 
     @staticmethod
     def add(api_doc, user_name=None, **options):
-        # def add(api_doc, save_v2=False, overwrite=False, user_name=None, dryrun=False, url=None):
         """
         APIMetadata Class validates doc for supported OAS3 or V2 (warning)
         and generates an id based on source url
         Check if document exists then
-        Error details will be returned in 'because' field
         Save Doc if passes all checks
 
         Args:
@@ -320,15 +323,14 @@ class APIDocController:
     @staticmethod
     def get_api(api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
         """
-        Used by Swagger UI to get doc metadata
-        Used to get one specific doc by id/name/slug or get all
+        Get one doc by id/slug
 
         Args:
             api_name (str): id,name, or slug
             fields (list, optional): fields to return if not all
             with_meta (bool, optional): Return _meta field. Defaults to True.
             return_raw (bool, optional): return raw. Defaults to False.
-            size (int, optional): size of results. Defaults to None. No longer used.
+            size (int, optional): size of results. Defaults to None.
             from_ (int, optional): start of returned results. Defaults to 0.
         Raises:
             ValueError: invalid input
@@ -361,18 +363,12 @@ class APIDocController:
         s = API_Doc.search()
         if not fields:
             fields = ['_all']
-        if api_name == 'all':
-            total = s.count()
-            start = 0
-            if from_:
-                start = from_
-            s = s[start:total]
-            s.source(includes=fields)
-        else:
-            s.source(includes=fields)
-            s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
+        
+        s.source(includes=fields)
+        s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
+            
         res = s.execute().to_dict()
-        if return_raw == '2':
+        if return_raw:
             return res
         res = [_get_hit_object(d) for d in res['hits']['hits']]
         if not return_raw:
@@ -385,16 +381,59 @@ class APIDocController:
         return res
 
     @staticmethod
-    def get_api_id_from_slug(slug=None):
+    def get_all(fields=None, from_=0):
+
+        def _get_hit_object(hit):
+            """[summary]
+
+            Args:
+                hit (list): ES response, list of hits
+
+            Returns:
+                dict: extracted doc dict
+            """
+            obj = hit.get('fields', hit.get('_source', {}))
+            if '_id' in hit:
+                obj['_id'] = hit['_id']
+            return obj
+
+        s = API_Doc.search()
+        total = s.count()
+        start = 0
+        if from_:
+            start = from_
+        s = s[start:total]
+        s.source(includes=fields)
+
+        res = s.execute().to_dict()
+        res = [_get_hit_object(d) for d in res['hits']['hits']]
+        return res
+
+    @staticmethod
+    def get_api_id_from_slug(slug):
+        """
+        Return ID of doc with exact match for slug provided
+
+        Args:
+            slug (str): slug name
+
+        Raises:
+            RequestError: multiple hits or error fetching
+
+        Returns:
+            [str]: doc ID for exact match
+        """
 
         if not slug:
             raise RequestError('slug is required')
-        s = API_Doc.search()       
-        s.query('match', _meta__slug=slug)
+        s = API_Doc.search()
+        # TODO returns multiple idk why
+        s.query('term', _meta__slug=slug, size=1)
         res = s.execute().to_dict()
         try:
             hits = res['hits']['hits']
             if len(hits) > 1:
+                # TODO will be caught below? 
                 raise RequestError(f'slug {slug} returns multiple results')
             doc = hits[0]
         except Exception:
@@ -402,12 +441,50 @@ class APIDocController:
         return doc["_id"]
 
     @staticmethod
-    def slug_is_available(slug=None):
+    def slug_is_available(slug):
+        """
+        Check if a slug is available
+
+        Args:
+            slug (str): slug name to be checked
+
+        Raises:
+            RequestError: slug was not provided
+
+        Returns:
+            Bool = exists
+        """
         if not slug:
             raise RequestError('slug is required')
         res = API_Doc.slug_exists(slug)
         return res
+    
+    @staticmethod
+    def validate_slug_name(slug_name):
+        """
+        Function that determines whether slug_name is a valid slug name
 
+        Args:
+            slug_name (str): new slug name
+
+        Raises:
+            SlugRegistrationError: detail slug registration msg
+
+        Returns:
+            True if available
+        """
+        _valid_chars = string.ascii_letters + string.digits + "-_~"
+        _slug = slug_name.lower()
+        if _slug in ('www', 'dev', 'smart-api'):
+            raise SlugRegistrationError(f"Slug name {slug_name} is reserved, please choose another")
+        if len(_slug) < 4 or len(_slug) > 50:
+            raise SlugRegistrationError(f"Slug name {slug_name} must be between 4 and 50 chars")
+        if not all([x in _valid_chars for x in _slug]):
+            raise SlugRegistrationError(f"Slug name {slug_name} contains invalid characters")
+        if API_Doc.slug_exists(slug=_slug):
+            raise SlugRegistrationError(f"Slug name {slug_name} already exists")
+
+    @staticmethod
     def get_tags(field=None, size=100):
         """
         perform aggregations on given field
@@ -418,37 +495,33 @@ class APIDocController:
             size (int, optional): size returned. Defaults to 100.
 
         Returns:
-            list of tags/authors name:occurrence or false
+            list of tags/authors name:occurrence
         """
         agg_name = 'field_values'
         res = API_Doc.aggregate(field=field, size=size, agg_name=agg_name)
-        if res:
-            return res.to_dict()
-        else:
-            return False
+        return res.to_dict()
 
     def delete(self, _id, user):
         """
-        delete api by current user
-        refresh index after deletion and return true
+        delete api with ID
 
         Args:
             _id (str): ID of doc
             user (str): user info of requester
 
         Returns:
-            Success res if successful
+            Dict deleted = True
         """
         doc = API_Doc.get(id=_id).to_dict()
         _user = doc.get('_meta', {}).get('github_username', '')
 
         if user.get('login', None) != _user:
-            return {"because": "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)}
+            raise APIRequestError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
 
         self._doc.delete(id=_id)
         return {"deleted": True}
 
-    def update(self, _id, user, slug_name):
+    def update_slug(self, _id, user, slug_name):
         """
         Update API doc slug name
 
@@ -464,50 +537,18 @@ class APIDocController:
             msg with id._meta.slug and updated slug name
         """
         if not API_Doc.exists(_id):
-            return {'because': "Could not retrieve API '{}' to set slug name".format(_id)}
+            raise APIRequestError("Could not retrieve API '{}' to set slug name".format(_id))
 
-        i = API_Doc.get(id=_id).to_dict()
+        i = self._doc.to_dict()
         _user = i.get('_meta', {}).get('github_username', '')
 
         if user.get('login', None) != _user:
-            return {'because': "User '{}' is not the owner of API '{}'".format(user.get('login', None), _id)}
+            raise APIRequestError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
 
-        validation_passed = self._validate_slug_name(slug_name=slug_name)
+        self.validate_slug_name(slug_name=slug_name)
 
-        if validation_passed:
-            try:
-                doc = API_Doc()
-                doc = doc.get(id=_id)
-                doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
-            except Exception as exc:
-                raise SlugRegistrationError(str(exc))
-            else:
-                return {"{}._meta.slug".format(_id): slug_name.lower()}
-
-    def _validate_slug_name(self, slug_name):
-        """
-        Function that determines whether slug_name is a valid slug name
-
-        Args:
-            slug_name (str): new slug name
-
-        Raises:
-            SlugRegistrationError: detail slug registration msg
-
-        Returns:
-            True if available
-        """
-        _valid_chars = string.ascii_letters + string.digits + "-_~"
-        _slug = slug_name.lower()
-        if _slug in ['www', 'dev', 'smart-api']:
-            raise SlugRegistrationError(f"Slug name {slug_name} is reserved, please choose another")
-        if len(_slug) < 4 or len(_slug) > 50:
-            raise SlugRegistrationError(f"Slug name {slug_name} must be between 4 and 50 chars")
-        if not all([x in _valid_chars for x in _slug]):
-            raise SlugRegistrationError(f"Slug name {slug_name} contains invalid characters")
-        if API_Doc.slug_exists(slug=_slug):
-            raise SlugRegistrationError(f"Slug name {slug_name} already exists")
-        return True
+        self._doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
+        return {"{}._meta.slug".format(_id): slug_name.lower()}
 
     def refresh_api(self, _id, user, test=False):
         """
@@ -519,7 +560,7 @@ class APIDocController:
             test : if test doc will not update to avoid conflict with unit test
 
         Returns:
-            Bool = updated?
+            Dict with ID updated message
         """
 
         api_doc = self._doc.to_dict()
@@ -528,10 +569,9 @@ class APIDocController:
 
         res = get_api_metadata_by_url(_meta['url'])
 
-        if res['metadata'] and isinstance(res['metadata'], dict):
+        if res and isinstance(res, dict):
             _meta['timestamp'] = dt.now().isoformat()
-            res['metadata']['_meta'] = _meta
-            # self._doc.update(id=_id, refresh=True, _meta=res['metadata']['_meta'])
+            res['_meta'] = _meta
             if test:
                 return {'test-updated': f"API with ID {_id} was refreshed"}
             self._doc.update(id=_id, refresh=True, **res['metadata'])
@@ -551,13 +591,6 @@ class APIDocController:
         """
         if not API_Doc.exists(_id):
             raise APIRequestError(f"Could not retrieve API '{_id}' to delete slug name")
-
-        i = API_Doc.get(id=_id).to_dict()
-        _user = i.get('_meta', {}).get('github_username', '')
-
-        # Make sure this is the correct user
-        if user.get('login', None) != _user:
-            raise APIRequestError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
 
         self._doc.update(id=_id, refresh=True, _meta={'slug': ''})
 

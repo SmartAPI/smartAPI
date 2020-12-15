@@ -15,22 +15,9 @@ from config_key import *
 # *****************************************************************************
 # User Input Control
 # *****************************************************************************
-
-FIELD_FILTERS = {
-    'filters': {'type': str, 'default': None, 'max': 1000, 'group': 'esqb'}
-}
-
-AUTHOR_FILTERS = {
-    'authors': {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
-}
-
-TAG_FILTERS = {
-    'tags': {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
-}
-
-QUERY_KWARGS['*'].update(FIELD_FILTERS)
-QUERY_KWARGS['*'].update(AUTHOR_FILTERS)
-QUERY_KWARGS['*'].update(TAG_FILTERS)
+QUERY_KWARGS['*']['filters'] = {'type': str, 'default': None, 'max': 1000, 'group': 'esqb'}
+QUERY_KWARGS['*']['authors'] = {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
+QUERY_KWARGS['*']['tags'] = {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
 
 # *****************************************************************************
 # Elasticsearch
@@ -59,5 +46,5 @@ API_PREFIX = 'api'
 # Biothings SDK Settings
 # *****************************************************************************
 ACCESS_CONTROL_ALLOW_METHODS = 'HEAD,GET,POST,DELETE,PUT,OPTIONS'
-ES_QUERY_BUILDER = "web.api.q_builder.SmartAPIQueryBuilder"
+ES_QUERY_BUILDER = "web.api.pipeline.SmartAPIQueryBuilder"
 DISABLE_CACHING = True

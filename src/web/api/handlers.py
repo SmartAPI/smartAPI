@@ -18,7 +18,7 @@ from tornado.httpclient import HTTPError
 from utils.slack_notification import send_slack_msg
 
 from .controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError,
-                                     ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
+                         ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
 from .data import SmartAPIData
 
 
@@ -41,23 +41,25 @@ class ValidateHandler(BaseHandler):
     name = "validator"
 
     def _validate(self, data):
-        if data and isinstance(data, dict):
+        if not isinstance(data, dict):
+            return self.finish({"valid": False, "error": "Metadata is not in the right format"})
+        try:
             metadata = APIMetadata(data)
             valid = metadata.validate()
-            return self.finish(valid)
+        except ValidationError as err:
+            self.finish({"valid": False, "error": err})
         else:
-            return self.finish({"valid": False, "error": "The input url does not contain valid API metadata."})
+            return self.finish(valid)            
 
     def get(self):
         if self.args.url:
             data = get_api_metadata_by_url(self.args.url)
-            if data.get('success', None) is False:
-                self.finish(data)
+            if data:
+                self.finish({"valid": True})
             else:
                 self._validate(data)
         else:
-            self.finish(
-                {"valid": False, "error": "Need to provide an input url first."})
+            raise HTTPError(400, response='URL is required')
 
     def post(self):
         if self.request.body:
@@ -79,8 +81,7 @@ class APIHandler(BaseHandler):
 
     kwargs = {
         'POST': {
-            'url': {'type': str, 'default': None},
-            # optional
+            'url': {'type': str, 'default': None, 'required': True},
             'overwrite': {'type': bool, 'default': False},
             'dryrun': {'type': bool, 'default': False},
             'save_v2': {'type': bool, 'default': False},
@@ -94,7 +95,7 @@ class APIHandler(BaseHandler):
 
         transform.polite_request called within transform.get_api_metadata_by_url requests provided url to get openAPI document
         transform.get_api_metadata_by_url will return json or yaml format data
-        data is sent to controller where additional metadata will be included then validated and added to index 
+        data is sent to controller where additional metadata will be included then validated and added to index
         if dryrun requested only steps up to validation will be taken
         else added API doc ID is returned
 
@@ -108,45 +109,37 @@ class APIHandler(BaseHandler):
         """
         user = self.get_current_user()
         url = self.args.url
-        
         if not user:
             raise HTTPError(401, response='Login required')
         if not url:
             raise HTTPError(400, response='URL is required')
 
-        data = get_api_metadata_by_url(url)
-        data = data.get('metadata', None)
+        try:
+            data = get_api_metadata_by_url(url)
+        except APIRequestError as err:
+            self.finish({"success": False, 'details': str(err)})
+        except Exception as err:
+            raise HTTPError(500, response=str(err))
 
         if not data:
             raise HTTPError(422, response='Invalid format')
 
         if data.get('success', None) is False:
             self.finish(data)
-        else:
-            try:
-                res = APIDocController.add(
-                    api_doc=data,
-                    user_name=user['login'],
-                    **self.args)
 
-            except (KeyError, ValueError) as err:
-                raise HTTPError(code=400, response=str(err))
-            except APIMetadataRegistrationError as err:
-                self.finish({"success": False, 'details': str(err)})
-            except ValidationError as err:
-                self.finish({"success": False, 'details': str(err)})
-            except APIRequestError as err:
-                self.finish({"success": False, 'details': str(err)})
-            except ESIndexingError as err:
-                self.finish({"success": False, 'details': str(err)})
-            except Exception as err:
-                raise HTTPError(500, response=str(err))
-            else:
-                if('because' not in res):
-                    self.finish({'success': True, 'details': res})
-                    send_slack_msg(data, res, user['login'])
-                else:
-                    self.finish({"success": False, 'details': res})
+        try:
+            res = APIDocController.add(
+                api_doc=data,
+                user_name=user['login'],
+                **self.args)
+
+        except (APIMetadataRegistrationError, ValidationError, APIRequestError, ESIndexingError) as err:
+            self.finish({"success": False, 'details': str(err)})
+        except Exception as err:
+            raise HTTPError(500, response=str(err))
+        else:
+            self.finish({'success': True, 'details': res})
+            send_slack_msg(data, res, user['login'])
 
 
 class APIMetaDataHandler(BaseHandler):
@@ -198,7 +191,10 @@ class APIMetaDataHandler(BaseHandler):
             from_ = 0
         if fields:
             fields = fields.split(',')
-        res = APIDocController.get_api(api_name=api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
+        if api_name == 'all':
+            res = APIDocController.get_all(fields=fields, from_=from_)
+        else:
+            res = APIDocController.get_api(api_name=api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
         if out_format == 'yaml':
             self.format = 'yaml'
         self.finish(res)
@@ -223,7 +219,7 @@ class APIMetaDataHandler(BaseHandler):
 
         if slug_name:
             try:
-                res = doc.update(_id=_id, user=user, slug_name=slug_name)
+                res = doc.update_slug(_id=_id, user=user, slug_name=slug_name)
             except (KeyError, ValueError) as err:
                 raise HTTPError(code=400, response=str(err))
             except SlugRegistrationError as err:
@@ -345,12 +341,3 @@ class GitWebhookHandler(BaseHandler):
         if ids_refresh:
             self.data_handler.refresh_all(id_list=ids_refresh, dryrun=False)
 
-
-APP_LIST = [
-    (r'/?', APIHandler),
-    (r'/query/?', BioThingsESQueryHandler),
-    (r'/validate/?', ValidateHandler),
-    (r'/metadata/(.+)/?', APIMetaDataHandler),
-    (r'/suggestion/?', ValueSuggestionHandler),
-    (r'/webhook_payload/?', GitWebhookHandler),
-]

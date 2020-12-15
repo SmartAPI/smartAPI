@@ -25,7 +25,7 @@ class Document_Meta(InnerDoc):
     uptime_ts = Date(default_timezone='UTC')
     ETag = Text()
     # Generated after registration
-    slug = Text()
+    slug = Keyword()
     uptime_status = Text()
 
 class Contact(InnerDoc):
@@ -98,7 +98,7 @@ class API_Doc(Document):
     openapi = Text()
 
     class Meta:
-        dynamic = MetaField(False)
+        dynamic = MetaField(True)
 
     class Index:
         '''

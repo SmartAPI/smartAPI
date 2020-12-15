@@ -31,7 +31,7 @@ class SmartAPIData():
 
         res = get_api_metadata_by_url(_meta['url'])
         if res and isinstance(res, dict):
-            if res.get('success', None) is False:
+            if not res:
                 res['error'] = '[Request] '+res.get('error', '')
                 status = res
             else:

@@ -1,0 +1,336 @@
+{
+    "_id": "59dce17363dce279d389100834e43648",
+    "_meta": {
+        "ETag": "7896a8ffb8ec4c0ba55ef30ca7755cae5eb14d217ec38a2026fa3f6501a03f89",
+        "github_username": "marcodarko",
+        "timestamp": "2020-08-15T00:00:12.798307",
+        "uptime_status": "good",
+        "uptime_ts": "2020-12-14T00:08:18.078994",
+        "url": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml"
+    },
+    "components": {
+        "parameters": {
+            "callback": {
+                "description": "you can pass a \"callback\" parameter to make a JSONP call.",
+                "in": "query",
+                "name": "callback",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "Gene": {
+                "properties": {
+                    "AnimalQTLdb": {
+                        "type": "string"
+                    },
+                    "FLYBASE": {
+                        "type": "string"
+                    },
+                    "HGNC": {
+                        "type": "string"
+                    },
+                    "HPRD": {
+                        "type": "string"
+                    },
+                    "MGI": {
+                        "type": "string"
+                    },
+                    "MIM": {
+                        "type": "string"
+                    },
+                    "RATMAP": {
+                        "type": "string"
+                    },
+                    "RGD": {
+                        "type": "string"
+                    },
+                    "TAIR": {
+                        "type": "string"
+                    },
+                    "Vega": {
+                        "type": "string"
+                    },
+                    "WormBase": {
+                        "type": "string"
+                    },
+                    "Xenbase": {
+                        "type": "string"
+                    },
+                    "ZFIN": {
+                        "type": "string"
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "accession": {
+                        "type": "object"
+                    },
+                    "aliase": {
+                        "type": "string"
+                    },
+                    "ec": {
+                        "type": "string"
+                    },
+                    "ensembl": {
+                        "type": "object"
+                    },
+                    "entrezgene": {
+                        "format": "int64",
+                        "type": "integer"
+                    },
+                    "generif": {
+                        "properties": {
+                            "pubmed": {
+                                "$ref": "#/components/schemas/int64_or_array"
+                            },
+                            "text": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "genomic_pos": {
+                        "type": "object"
+                    },
+                    "go": {
+                        "type": "object"
+                    },
+                    "homologene": {
+                        "type": "object"
+                    },
+                    "interpro": {
+                        "type": "object"
+                    },
+                    "locus_tag": {
+                        "type": "string"
+                    },
+                    "map_location": {
+                        "type": "string"
+                    },
+                    "miRBase": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "other_names": {
+                        "$ref": "#/components/schemas/string_or_array"
+                    },
+                    "pathway": {
+                        "type": "object"
+                    },
+                    "pdb": {
+                        "$ref": "#/components/schemas/string_or_array"
+                    },
+                    "pfam": {
+                        "type": "string"
+                    },
+                    "pharmgkb": {
+                        "type": "string"
+                    },
+                    "pid": {
+                        "type": "string"
+                    },
+                    "pir": {
+                        "type": "string"
+                    },
+                    "prosite": {
+                        "type": "string"
+                    },
+                    "reagent": {
+                        "type": "object"
+                    },
+                    "refseq": {
+                        "type": "object"
+                    },
+                    "reporter": {
+                        "type": "object"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "symbol": {
+                        "type": "string"
+                    },
+                    "taxid": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "type_of_gene": {
+                        "type": "string"
+                    },
+                    "umls": {
+                        "type": "object"
+                    },
+                    "unigene": {
+                        "type": "string"
+                    },
+                    "uniprot": {
+                        "properties": {
+                            "Swiss-Prot": {
+                                "$ref": "#/components/schemas/string_or_array"
+                            },
+                            "TrEMBL": {
+                                "$ref": "#/components/schemas/string_or_array"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "wikipedia": {
+                        "properties": {
+                            "url_stub": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "_id",
+                    "taxid"
+                ],
+                "type": "object"
+            }
+        },
+        "x-bte-kgs-operations": {
+            "enablesMF": [
+                {
+                    "inputSeparator": ",",
+                    "inputs": [
+                        {
+                            "id": "NCBIGene",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "GO",
+                            "semantic": "MolecularActivity"
+                        }
+                    ],
+                    "parameters": {
+                        "fields": "go.MF"
+                    },
+                    "predicate": "functional_association",
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "entrezgene"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/functional_association_mf"
+                    },
+                    "source": "entrez",
+                    "supportBatch": true
+                }
+            ]
+        },
+        "x-bte-response-mapping": {
+            "ENSEMBL": "ensembl.gene"
+        }
+    },
+    "info": {
+        "contact": {
+            "email": "help@mygene.info",
+            "name": "Chunlei Wu",
+            "x-id": "https://github.com/newgene",
+            "x-role": "responsible developer"
+        },
+        "description": "Documentation of the MyGene.info Gene Query web services. Learn more about [MyGene.info](http://mygene.info/)",
+        "termsOfService": "http://mygene.info/terms/",
+        "title": "MyGene.info API TEST",
+        "version": "3.0"
+    },
+    "openapi": "3.0.0",
+    "paths": [
+        {
+            "path": "/gene",
+            "pathitem": {
+                "post": {
+                    "parameters": [
+                        {
+                            "$ref": "#/components/parameters/fields",
+                            "name": "fields"
+                        },
+                        {
+                            "$ref": "#/components/parameters/species",
+                            "name": "species"
+                        },
+                        {
+                            "$ref": "#/components/parameters/dotfield",
+                            "name": "dotfield"
+                        },
+                        {
+                            "$ref": "#/components/parameters/email",
+                            "name": "email"
+                        }
+                    ],
+                    "requestBody": {
+                        "content": {
+                            "application/x-www-form-urlencoded": {
+                                "schema": {
+                                    "properties": {
+                                        "ids": {
+                                            "description": "multiple geneids seperated by comma, e.g., \"ids=1017,1018\" or \"ids=695,ENSG00000123374\". Note that currently we only take the input ids up to 1000 maximum, the rest will be omitted.",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "ids"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "items": {
+                                            "$ref": "#/components/schemas/Gene"
+                                        },
+                                        "type": "array"
+                                    }
+                                }
+                            },
+                            "description": "a list of matching gene objects"
+                        }
+                    },
+                    "summary": "For a list of gene ids, return the matching gene objects",
+                    "tags": [
+                        "annotation"
+                    ]
+                }
+            }
+        }
+    ],
+    "servers": [
+        {
+            "description": "Encrypted Production server",
+            "url": "https://mygene.info/v3"
+        }
+    ],
+    "tags": [
+        {
+            "name": "gene"
+        },
+        {
+            "name": "annotation"
+        },
+        {
+            "name": "query"
+        },
+        {
+            "name": "translator"
+        },
+        {
+            "name": "biothings"
+        }
+    ],
+    "~raw": "H4sIAI0lN18C_-0ca1MbOfKvqLz3IakzwyvZbFKVqgOSsNwG8AJ7e3uBcslj2dZmZjTRaCDeFP_9utWal60ZGwK7V5XLB7ClltTvl0S-9FQqEp7K3ivW2w22gq1en_VkMlEw8KUXqsTw0NjPIuYyQrCZiNJ_xPOpSERgIWFFwmOBcwezPImEZL_mOPp5Q47tCmPS7NXm5lSaWT4KQhVvJuIGNyAorSK7WossVUkmR5FgY3EtIkBO924BZiyyUMvUSJUg4BsV5rEA3HCAqQkzM8GO54cFSgw_sZ9zoefsRoxYJvS1DEUWsPeC64TFSgvGRyo37ENt2dUTxBQQrVG3-RRxNELH2enknPYpaFqAtECbFlwaoqiO097gCOeuhc4cGcBwSx2iB6Mw9OHLIqlvk1DPUyPGbKDVOA8txbQAd8t1VOdwHZ3rXdx8acNV23h2uUKS-NQhWMjays-eUIzwJFEkk-b4JxREc8honmQRN0o3x0dSmZlM4Cx7asrNLLPqt2mPw0-pykgjU65hlSk59zctJrjHd5ugYaBIoCDZZgW0OZEiGmd1dXUjFoNVq7NUhFI0lhdDa60fK2OPq29Qjq21A1lgbTkNWEZpAUzOzL4az0vLhfX2M0_TSIZWLpufN25ubjYmSscbIHORhGosxhYqC2ewHzFWo-EZJA2_yjH9XlCkOI-MTMFUUTIAA-oEqziq6mjOgISY95kIpkGfXeIer7e3tl_04ccPlz2mtBv8_uXz_tuT88Mt_Le9s7v74tllL2Anygiwam5YmGsNlERoyUwl8Nvwj8JavExSsGA8Ok-ZUWwbtmAx_yzjPO5bCPAoht3IKGIjWBxLA9gF1kLnKYnQaNC23u2t46HUlh0fLNFXt7duwvolx46dra1OFv-eWf40OCqNiGm1V8gEmW0eOpMq0eNac7CcW48P5CySQBw4v5ibEG3GCoKp0e8iNBmRlOUgBY0q0XsHLK_WWFCgsQ8sMjm4ROSWf6Oa8dct_MoeYM1y8wupwK2lcCr85rnk2IwWf6AivAXWxqOowKlQGqsurNKNF1s7z34I2B5ijGJibodDWsZulP6YgRooJidMgl5kAJlGPCSF5AxiDiiQKPbfefb8xctnSJ74zOOUHDYeSiEQv6H7qRsckdlr6orRuUBWV9L2KNdje6ev9y4hj6IRDz_WdyjHHsA_fa0JrWE4PjPZ82r1knWcCZAVpBwEVKm5g2cjnoEawfcOtc3yNFXasH-en54MYI8xOzg9O2c8A88VRcEKQwIm8jE3vNOGvk6I7YJYYFo9bSnwauPcoTAVDOVU6Evo6zUoAMd0bqJVXM_Qgl6T6kL97-BABjzLwKozyOjCGcPkC2PAREbw0aJQO91uToYPcYeWvA4jmVxzDeGmsnhKVeox3sL21jBwP3opSEx-ZgS5LoK06DX8zMSnbvwItPcADugxdYfou48KuZWrNYk4cwf9ofKAWBSwtxQDMuD-wZufdi57mLWcHA-3nu_8sPOCvu5sPft-9-WQG_oazvT2q-3n2_2tF7v9refPNvDz7g-7_ZcvvieI2XT7ZVCAAZQDAhgLErALJBMolxF4l0-E0Bzqms8s5AnmLBOVgx-xNKtcsw9jFWZlmYJfgnqyLpJNyKkh58Ep4sjQ1T7BzMTR02Ah3CGpHcr16X8x1H1tIp7JP0RjMX5fD28QQwNr_L7emRAXGmfid5_XAH8GfCw8AoYZm0hvQG7NKbd2BgGexGVuE8hwDPgOSOqZEy3qHg2_Bl2SY9LG-kgfBTdUkyEqT7eHoWX38IBaROKaJ5CAz4RDE30gFp4kL_ZEBgLLg3xnaztsIIwjY8ahTE_Bj4rx04AdGTv6ErJ9jMXAAJwq93J-9UaaGTqQcMaTqXW5YGJZCAUNpr0FEhCsFZUXVCUgI5G3OA0cz0F8kE8mdKDbTICTgM3hjOJI5BCKCFBWiYrnmIU6u0UU--z3HLLtSEK5QiS6hY66Uj864w8tGVrUhkTkPWRhRUCsxISE0LkAc3a4YD1mx7ZpgMon8kjEnswVXzA8k8ge4AW75pEsE_GipgjYGzHhUB2-Yu94lIku8oRdiju3EDVSKhI8-UuoauR3dyTLrl2brsdPzh-7_fCo6b0N1WciA-a3ZfmFUAmPIm234oQ4DKK97DHX15gvJSDH2FGwcqZtMHd33rVZPWD5HLDzOyT6pBpXeOD_G1d_cuPqU2fbikRtm7ae1hV7Ajauyprusvd36lrdgC5BQEnBHT_tsxFEmkRhh2kccj2u-l2flrtdn15jtvX3_YufLnu-FpT1E4C_t9l2jhKbzLF_gbvZBrbLBJ5UuUGB_FPURRv4qDi6dDtjHlBgSCOvyQFTFuAd7jtf5hIFm7JW2filU0Ug0kU-544hPFenVqHOhnS0IgD5ALFUeHvu_uz1u_LYDTr0ac0lr8C875pGgMsTQVG8tZLPnq7XIvz0gA3C1e5vcHp-0eUCf_Y5wOzuHnCEDm-VH8TtfG7OXueMjNj4OM02lLUpQK_LzfnAoY5BKWfH7zr8i3chFPQquhbjo2R_cP-1Bwf3XzvgZnbD53fdYMazC7wSsRK9x2Ish93Nzj1W_6hiFSnQ8StSrWrJcrz6UiUeHj81V7l1BCl1Py5L4IYTAOcQo8JxF0IRqCudqqc_3YlvFZk8yKFBahVZz4iRhJvi7rCqAMin1hPLmourKLA3oxLSRziPFa28sn9DC1z_JtAJR8d5NIEZm5y6gLCNHrdxeq3PVp1QloSXvfqGhGqfKXRmNxJM_sllzyamxf5blz0IUUvLi6XkGmA6H224ahMxdNiWjhUx7pJNPT1YkeeWd8hLkgHeoOZgcNBimkdcYwWlM0QJ-x7FBW4fL4Ew-OeaT4Vdg3WgVtdyjEUXeCxmD6kKPFhAkclYzdOgRpbpeYY7AKMmKorUDV4hWYbAnp2ZfZHLrNDDWj9zqcRvL-kjGUuqSd1YpZjYAlq-pEFHTDHZZSrFdrY4zTxtJJ7M651wCIeos96bX7rcwUTmaf1GDjB0hzXVv0iAixyj4QuayuuswdkJWDeaAvxaaomWl3cFI5ohfx6PVNRHUvvU1mjNW7oaHGV6vUqm2O_xSBTFkuTxCPRr6TrOVpUg2eyjTEEpDde2CWJFsRWwAxWPZIIjLlBjN6ruadBDyKzWVpjkkW31pHxqG5clO7Y6aXStKw-FErKUKb6zsCkBNsNaSHQ3qytJdRnDE-dfQp4irL2cdQ2XWOHrjXr6tt2JfdGyW4k9ttVasG83OlwFiXXABtSrd5LYQEcJjMa9RDK2rSs9RolULlei0jdmazTZfSElL7kEGSrkZ7hoLJqLumh3rcMVulmUdL6wV7Wkmj6mkppVx6m8FmVvLmC_OfOFdRjHgX1g4tarOMaA2hJb6x29WR5zCISxgmV9Bqzuw-a5NJNo3mcJUGCgcOuzP8RI84nMZqjfHDL6EDiDTUytpjbtTOUU9GMPjF_Ve241r-KcPszKRgsOUD8uarwCrWZtkmNEdGUepzskqxWqLj0ihOiAuTV6dKukdFvOk5gOyxctzbJ1L5Exj36-eD8eeTeCbd69_21_7_xt2_SPhycHrXODszdtc8eHR61TR8dtU2d7F8d7g9bZw9bjLvaOztrm_iWmvG3uV8jd9nkm2ub_LZJRx_R_3h2dtM0N5bhtioeQgLinWxVAcaWFAJHsOFWErTMUqNq2rUKahaDE1bm-75_VK9XSF_bpqYKWE59-pfkodr2TzrLT7j9Ueuheodh3cJ9Nqwvy4A5YqFiGw1RlbeRNVdvMjKqSgnAPBBKsgbq2-UiFeTaEIrWN9TFPhwDEzaJY6zDyrEvZnBPwzlnXNbQ-czW7aV2T36mrJlvoS52HuPu-Ex63IZ3OuI6nH1t9T9puIqnUrVNaZdK0ckoLyMYT00Yo5Y7tszbz1W3zVZ_DezZlkW2zNq9ctrzdnTbLq9-stW2ax1GrQeSJ7FyaSOCl8Rn2OeQk2cagmL2zVlzot8f77--xtsX6byQkvWIsvc3ZXEfDzOSjtd3JUv9tSE-xSEBXfhSOpQ2mbaG2w93fz-12eYOH1LN7MWOxj9h8mQjl1-mko1NXSL_OUttqWuSpTXMXKJlEips6JVREWLSqlxvrqMGV531kQVuNrgWkbMPyAV5i2pjx-c4kGqU--ssWO2l41F7U-ONePTLjUsC_kF5F4ppKu0TjeiutJBZ9QSsuPpVfPncRih7HtfSUv_SqRjGdhg-Cz4tkHvfpU9oOw64JTX-RcHKwf3To_v4Aki-eGBnSSyQUO5qPys3iosPTRfBjFYkQu1V7oZHXEvvqV7YMzXVYu97u2fgHjhASDarG88S-wOfRECoSFUpKQGzAb7Rayy4SpEkBtcOXbsxGxQeMj70vROyHravbXv1Gqe7PbHIl-NhGzDVu2SiG2o7PPtay1Uug4rphCIlUigJ71d16LuA3HPymnxPDeAK6j6xcaG1XUm5I5u3JuY1cd5HmLydHg7PTi5_2F1dh_BRQ6dEfINTFBsjYqD5MHTpdAnNxOqgF5a-Snq0RgnvLr8U0HkmsS5yiZw4PI7mWNQ8kt4LTabHdtyw0Z4LF_VCL-d3Lm2KvoRW-KT46XWEppzpll8JWUHGNRwGwZ0ZXWn-Zx_yThddgUim52qXiA_rOljX1G8yrdWzMNK48m1K3mmjUsIIZahFR7J_JtPfNmOUqRpCsGzffD2mny1nPvkRNAzZF4HKxJ_aoWQ9d5H8TNtySDI2WZXxw8MgyPhBRhIntQYH0o8qYHlx8yzIOwyUZD8re3z0FDdyeKQtrXx76Rf_r0U9Hg72LH3_d--18KaMq3rI0RX8weLP_EIJ3zc3Atonoc_at60GTFy1J8wOJ_uzt3sFFp8zXlLBHNVbJXAseGhUTCeXVZc9eun3rOlDy5pZaLP7VvpveotFdNSI_0IeFuwiU7Snd6NmLPfg6-HHv7PgQquFXtRsAN356TqKbaZUFhuupMK7deP7b8f7pe3s0NTdh7Jfj9xYee9xBmEscKxLGxeyrX1PmpvSqW0z6bYVzgbe89kLftjn7ntIOueI5rajm-vXCv71Kb2bTltMyNHN3D-SpM4JqvkmuB9Q9N0XAd1HXnsVsjRceKA97PFAlx-iO1wfiKrLB6bG7W_YBDVRc4EQ3uz4gnEHtaAU4JwB3AeyDsFPVZa0PxE4Vd51dGXKLTixUH-t45Fe1_6rCF76CwtoaYbUNWI67Di7dgO_QYrI8kJy5D6L7lJCupQW-pUjIiduELChH-jY_LMdJi8o7ZDfqvrv_KqUat986jh-lvuP3B_7jYdxzPIx6j4fxVcfHE9_xx-_8x8O453gY9R4P43Q8_PsvcNaSMmhHAAA="
+}

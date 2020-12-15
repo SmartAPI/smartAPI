@@ -1,181 +1,20 @@
+import os
 
+import json
 import pytest
-import random
 
 from web.api.model import API_Doc
-from web.api.controller import APIDocController
-
-from web.api.controller import SlugRegistrationError
-
+from web.api.controller import APIDocController, SlugRegistrationError
 
 class TestController:
 
-    _doc_id = '3912601003e25befedfb480a5687ab07'
+    _doc_id = 'f307760715d91908d0ae6de7f0810b22'
 
-    _doc_id_two = '8f08d1446e0bb9c2b323713ce83e2bd3'
+    _doc_id_two = '59dce17363dce279d389100834e43648'
 
-    _test_slug = 'test_slug_'+str(random.randint(1, 21))
+    _test_slug = 'myslug'
 
     _user = {"login": "marcodarko"}
-
-    test_doc = {
-        "openapi": "3.0.0",
-        "info": {
-            "contact": {
-                "email": "help@mygene.info",
-                "name": "Marco Cano",
-                "x-id": "https://github.com/newgene",
-                "x-role": "responsible developer"
-            },
-            "description": "Documentation of the MyGene.info Gene Query web services. Learn more about [MyGene.info](http://mygene.info/)",
-            "termsOfService": "http://mygene.info/terms/",
-            "title": "TEST API",
-            "version": "3.0"
-        },
-        "servers": [
-            {
-                "description": "Encrypted Production server",
-                "url": "https://mygene.info/v3"
-            },
-            {
-                "description": "Production server",
-                "url": "http://mygene.info/v3"
-            }
-        ],
-        "tags": [
-            {
-                "name": "gene"
-            },
-            {
-                "name": "annotation"
-            },
-            {
-                "name": "query"
-            },
-            {
-                "name": "translator"
-            },
-            {
-                "name": "biothings"
-            }
-        ],
-        "paths": [
-            {
-                "path": "/metadata",
-                "pathitem": {
-                    "get": {
-                        "parameters": [
-                            {
-                                "$ref": "#/components/parameters/callback",
-                                "name": "callback"
-                            }
-                        ],
-                        "responses": {
-                            "200": {
-                                "description": "MyGene.info metadata object"
-                            }
-                        },
-                        "summary": "Get metadata about the data available from MyGene.info."
-                    }
-                }
-            },
-        ],
-        "components": {
-            "parameters": {},
-            "schemas": {},
-            "x-bte-kgs-operations": {},
-            "x-bte-response-mapping": {}
-        },
-        "_meta": {
-            "github_username": "marcodarko",
-            "url": "https://raw.githubusercontent.com/marcodarko/api_exmaple/master/api.yml",
-            "timestamp": "2020-12-01T15:17:45.862906+00:00",
-            "ETag": "d178b8f1976d3aadd8bed151614445e5fc17cc9548e174dcebbc42a60eb086cf"
-        },
-    }
-
-    test_doc_two = {
-        "openapi": "3.0.0",
-        "info": {
-            "contact": {
-                "email": "help@mygene.info",
-                "name": "Marco Cano",
-                "x-id": "https://github.com/newgene",
-                "x-role": "responsible developer"
-            },
-            "description": "Documentation of the MyGene.info Gene Query web services. Learn more about [MyGene.info](http://mygene.info/)",
-            "termsOfService": "http://mygene.info/terms/",
-            "title": "SECOND API",
-            "version": "3.0"
-        },
-        "servers": [
-            {
-                "description": "Encrypted Production server",
-                "url": "https://mygene.info/v3"
-            },
-            {
-                "description": "Production server",
-                "url": "http://mygene.info/v3"
-            }
-        ],
-        "tags": [
-            {
-                "name": "gene"
-            },
-            {
-                "name": "annotation"
-            },
-            {
-                "name": "query"
-            },
-            {
-                "name": "translator"
-            },
-            {
-                "name": "biothings"
-            }
-        ],
-        "paths": [
-            {
-                "path": "/metadata",
-                "pathitem": {
-                    "get": {
-                        "parameters": [
-                            {
-                                "$ref": "#/components/parameters/callback",
-                                "name": "callback"
-                            }
-                        ],
-                        "responses": {
-                            "200": {
-                                "description": "MyGene.info metadata object"
-                            }
-                        },
-                        "summary": "Get metadata about the data available from MyGene.info."
-                    }
-                }
-            },
-        ],
-        "components": {
-            "parameters": {},
-            "schemas": {},
-            "x-bte-kgs-operations": {},
-            "x-bte-response-mapping": {}
-        },
-        "_meta": {
-            "github_username": "marcodarko",
-            "url": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mychem.info/openapi_full.yml",
-            "timestamp": "2020-12-01T15:17:45.862906+00:00",
-            "ETag": "d178b8f1976d3aadd8bed151614445e5fc17cc9548e174dcebbc42a60eb086cf",
-            "uptime_status": "good",
-            "uptime_ts": "2020-12-07T00:09:26.341296",
-            "slug": "mygene"
-        },
-    }
-
-    # *****************************************************************************
-    # SETUP
-    # *****************************************************************************
 
     @classmethod
     def setup_class(cls):
@@ -183,10 +22,18 @@ class TestController:
         Model is given an already transformed doc with an already encoded ID 
         and _meta field with test user
         """
-        doc = API_Doc(meta={'id': cls._doc_id}, ** cls.test_doc)
+        with open(os.path.join(os.path.dirname(__file__), "data/mygene.json")) as f:
+            my_gene = json.load(f)
+            print(my_gene)
+
+        with open(os.path.join(os.path.dirname(__file__), "data/mydisease.json")) as f:
+            my_disease = json.load(f)
+            print(my_disease)
+
+        doc = API_Doc(meta={'id': cls._doc_id}, ** my_disease)
         doc.save()
 
-        doc = API_Doc(meta={'id': cls._doc_id_two}, ** cls.test_doc_two)
+        doc = API_Doc(meta={'id': cls._doc_id_two}, ** my_gene)
         doc.save()
 
     # *****************************************************************************
@@ -195,12 +42,12 @@ class TestController:
 
     def test_get_all(self):
         """
-        Get ALL docs, since one doc expect dict not list
+        Get ALL docs
         """
-        docs = APIDocController.get_api(api_name='all')
-        assert isinstance(docs, dict)
+        docs = APIDocController.get_all()
+        assert isinstance(docs, list)
 
-    def test__get_api(self):
+    def test_get_one(self):
         """
         Get one doc by ID
         """
@@ -223,27 +70,21 @@ class TestController:
         """
         Update registered slug name for ID
         """
-        api_id = self._doc_id
         slug = self._test_slug
-
-        doc = APIDocController(api_id)
-        valid = doc._validate_slug_name(slug_name=slug)
-        assert valid is True
+        APIDocController.validate_slug_name(slug_name=slug)
+        assert True
 
     def test_validate_slug_invalid(self):
         """
         Update registered slug name for ID
         """
-        api_id = self._doc_id
         invalid_slug = 'smart-api'
-
-        failed = False
         try:
-            doc = APIDocController(api_id)
-            doc._validate_slug_name(slug_name=invalid_slug)
+            APIDocController.validate_slug_name(slug_name=invalid_slug)
         except SlugRegistrationError:
-            failed = True
-        assert failed
+            pass
+        else:
+            assert False
 
     def test_update_slug(self):
         """
@@ -254,7 +95,7 @@ class TestController:
         user = self._user
 
         doc = APIDocController(api_id)
-        res = doc.update(_id=api_id, user=user, slug_name=slug)
+        res = doc.update_slug(_id=api_id, user=user, slug_name=slug)
         assert res.get(f'{api_id}._meta.slug', False) == slug
 
     def test__get_api_from_slug(self):
@@ -270,8 +111,7 @@ class TestController:
         """
         Slug name already exists
         """
-        slug_exists = APIDocController.slug_is_available(slug=self._test_slug)
-        assert slug_exists is True
+        APIDocController.slug_is_available(slug=self._test_slug)
 
     def test_delete_slug(self):
         """
@@ -296,12 +136,9 @@ class TestController:
         res = doc.refresh_api(_id=api_id, user=user, test=True)
         assert res.get('test-updated', '') == f"API with ID {api_id} was refreshed"
 
-    # *****************************************************************************
-    # TEARDOWN
-    # *****************************************************************************
     @classmethod
     def teardown_class(cls):
         """ teardown any state that was previously setup.
         """
         print("teardown")
-        # make sure its deleted 
+        # TODO make sure its deleted 
