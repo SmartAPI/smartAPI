@@ -99,7 +99,6 @@ def encode_raw(metadata):
     _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
     return _raw
 
-
 def decode_raw(raw, sorted=True, as_string=False):
     '''
         if sorted is True, the keys in the decoded dictionary will follow a defined order.
@@ -139,7 +138,6 @@ def polite_requests(url, head=False):
         raise APIRequestError(f'URL request returned {res.status_code}')
     return {"success": True, "response": res}
 
-
 def get_api_metadata_by_url(url, as_string=False):
 
     _res = polite_requests(url)
@@ -153,8 +151,8 @@ def get_api_metadata_by_url(url, as_string=False):
             except ValueError:
                 try:
                     metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
-                except (yaml.scanner.ScannerError, yaml.parser.ParserError):
-                    raise APIRequestError('Not a valid JSON or YAML format')
+                except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
+                    raise APIRequestError(f'Invalid Format: {str(err)}')
             return metadata
     else:
         return _res
@@ -498,6 +496,7 @@ class APIDocController:
             list of tags/authors name:occurrence
         """
         agg_name = 'field_values'
+
         res = API_Doc.aggregate(field=field, size=size, agg_name=agg_name)
         return res.to_dict()
 
@@ -579,7 +578,7 @@ class APIDocController:
         else:
             raise APIRequestError('Invalid input data.')
 
-    def delete_slug(self, _id, user, slug_name):
+    def delete_slug(self, _id):
         """
         delete the slug of API _id.
         used in APIMetaDataHandler [DELETE]

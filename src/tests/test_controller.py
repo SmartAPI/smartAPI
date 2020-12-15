@@ -3,18 +3,31 @@ import os
 import json
 import pytest
 
-from web.api.model import API_Doc
-from web.api.controller import APIDocController, SlugRegistrationError
+from web.api.controller import APIDocController, SlugRegistrationError, get_api_metadata_by_url
 
 class TestController:
 
-    _doc_id = 'f307760715d91908d0ae6de7f0810b22'
+    # my_gene
+    # _doc_id = 'f307760715d91908d0ae6de7f0810b22'
 
-    _doc_id_two = '59dce17363dce279d389100834e43648'
+    _my_gene_id = ''
+
+    _my_disease_id = ''
+
+    # my_disease
+    # _doc_id_two = '59dce17363dce279d389100834e43648'
 
     _test_slug = 'myslug'
 
     _user = {"login": "marcodarko"}
+
+    _my_gene = {}
+
+    _my_disease = {}
+
+    _my_gene_url = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
+
+    _my_disease_url = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mydisease.info/smartapi.yaml'
 
     @classmethod
     def setup_class(cls):
@@ -22,23 +35,39 @@ class TestController:
         Model is given an already transformed doc with an already encoded ID 
         and _meta field with test user
         """
-        with open(os.path.join(os.path.dirname(__file__), "data/mygene.json")) as f:
-            my_gene = json.load(f)
-            print(my_gene)
+        cls._my_gene = get_api_metadata_by_url(cls._my_gene_url)
 
-        with open(os.path.join(os.path.dirname(__file__), "data/mydisease.json")) as f:
-            my_disease = json.load(f)
-            print(my_disease)
+        cls._my_disease = get_api_metadata_by_url(cls._my_disease_url)
 
-        doc = API_Doc(meta={'id': cls._doc_id}, ** my_disease)
-        doc.save()
+        # with open(os.path.join(os.path.dirname(__file__), "data/mygene.json")) as f:
+        #     cls.my_gene = json.load(f)
 
-        doc = API_Doc(meta={'id': cls._doc_id_two}, ** my_gene)
-        doc.save()
+        # with open(os.path.join(os.path.dirname(__file__), "data/mydisease.json")) as f:
+        #     cls.my_disease = json.load(f)
 
-    # *****************************************************************************
-    # CONTROLLER TESTS
-    # *****************************************************************************
+    def test_add_doc_1(self):
+        """
+        Add test My Gene API to index, return new doc ID
+        """
+        res = APIDocController.add(self.my_gene,
+                                   user_name=self._user['login'],
+                                   url=self._my_gene_url)
+
+        self._my_gene_id = res.get('_id', None)
+
+        assert isinstance(self._my_gene_id, str)
+
+    def test_add_doc_2(self):
+        """
+        Add test My Disease API to index, return new doc ID
+        """
+        res = APIDocController.add(self.my_disease,
+                                   user_name=self._user['login'],
+                                   url=self._my_disease_url)
+
+        self._my_disease_id = res.get('_id', None)
+
+        assert isinstance(self._my_disease_id, str)
 
     def test_get_all(self):
         """
@@ -51,7 +80,7 @@ class TestController:
         """
         Get one doc by ID
         """
-        _id = self._doc_id
+        _id = self._my_gene_id
 
         doc = APIDocController.get_api(api_name=_id)
         assert isinstance(doc, dict)
@@ -79,18 +108,21 @@ class TestController:
         Update registered slug name for ID
         """
         invalid_slug = 'smart-api'
-        try:
+        with pytest.raises(SlugRegistrationError):
             APIDocController.validate_slug_name(slug_name=invalid_slug)
-        except SlugRegistrationError:
-            pass
-        else:
-            assert False
+        
+        # try:
+        #     APIDocController.validate_slug_name(slug_name=invalid_slug)
+        # except SlugRegistrationError:
+        #     pass
+        # else:
+        #     assert False
 
     def test_update_slug(self):
         """
         Update registered slug name for ID
         """
-        api_id = self._doc_id
+        api_id = self._my_gene_id
         slug = self._test_slug
         user = self._user
 
@@ -117,7 +149,7 @@ class TestController:
         """
         Delete slug for ID
         """
-        api_id = self._doc_id
+        api_id = self._my_gene_id
         slug = self._test_slug
         user = self._user
 
@@ -129,7 +161,7 @@ class TestController:
         """
         Refresh single api with id
         """
-        api_id = self._doc_id
+        api_id = self._my_gene_id
         user = self._user
 
         doc = APIDocController(api_id)

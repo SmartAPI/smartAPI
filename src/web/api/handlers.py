@@ -107,13 +107,14 @@ class APIHandler(BaseHandler):
         Returns:
             Success: True if doc created and doc ID
         """
-        user = self.get_current_user()
+        user = self.current_user
         url = self.args.url
         if not user:
             raise HTTPError(401, response='Login required')
         if not url:
             raise HTTPError(400, response='URL is required')
 
+        data = None
         try:
             data = get_api_metadata_by_url(url)
         except APIRequestError as err:
@@ -195,8 +196,8 @@ class APIMetaDataHandler(BaseHandler):
             res = APIDocController.get_all(fields=fields, from_=from_)
         else:
             res = APIDocController.get_api(api_name=api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
-        if out_format == 'yaml':
-            self.format = 'yaml'
+
+        self.format = self.args.out_format
         self.finish(res)
 
     def put(self, _id):
@@ -208,10 +209,10 @@ class APIMetaDataHandler(BaseHandler):
         Args:
             _id: API id to be updated
         """
-        slug_name = self.get_argument('slug', None)
-        dryrun = self.get_argument('dryrun', '').lower()
+        slug_name = self.args.slug
+        dryrun = self.args.dryrun.lower()
         dryrun = dryrun in ['on', '1', 'true']
-        user = self.get_current_user()
+        user = self.current_user
         if not user:
             raise HTTPError(401, response='Login required')
 
@@ -248,8 +249,8 @@ class APIMetaDataHandler(BaseHandler):
             _id: API id to be deleted permanently
             slug: API slug
         """
-        user = self.get_current_user()
-        slug_name = self.get_argument('slug', '').lower()
+        user = self.current_user
+        slug_name = self.args.slug.lower()
         if not user:
             raise HTTPError(401, response='Login required')
 
@@ -257,9 +258,7 @@ class APIMetaDataHandler(BaseHandler):
 
         if slug_name:          
             try:
-                res = doc.delete_slug(_id=_id, user=user, slug_name=slug_name)
-            except (KeyError, ValueError) as err:
-                raise HTTPError(code=400, response=str(err))
+                res = doc.delete_slug(_id=_id)
             except APIRequestError as err:
                 self.finish({"success": False, 'details': str(err)})
             except Exception as err:
@@ -290,7 +289,7 @@ class ValueSuggestionHandler(BaseHandler):
                             response={'success': False,
                                       'error': 'Request is missing a required parameter: field'})
 
-        res = APIDocController.get_tags(field=field, size=size)
+        res = APIDocController.get_tags(field, size)
         if res:
             self.finish(res)
         else:
