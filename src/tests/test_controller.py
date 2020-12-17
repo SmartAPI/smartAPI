@@ -1,21 +1,13 @@
-import os
-
-import json
 import pytest
 
 from web.api.controller import APIDocController, SlugRegistrationError, get_api_metadata_by_url
+from web.api.model import API_Doc
 
 class TestController:
 
-    # my_gene
-    # _doc_id = 'f307760715d91908d0ae6de7f0810b22'
+    _my_gene_id = '59dce17363dce279d389100834e43648'
 
-    _my_gene_id = ''
-
-    _my_disease_id = ''
-
-    # my_disease
-    # _doc_id_two = '59dce17363dce279d389100834e43648'
+    _my_disease_id = '671b45c0301c8624abbd26ae78449ca2'
 
     _test_slug = 'myslug'
 
@@ -35,39 +27,40 @@ class TestController:
         Model is given an already transformed doc with an already encoded ID 
         and _meta field with test user
         """
+        # mygene
+        if API_Doc.exists(cls._my_gene_id):
+            doc = API_Doc()
+            doc = doc.get(id=cls._my_gene_id)
+            doc.delete(id=cls._my_gene_id)
+        # mydisease
+        if API_Doc.exists(cls._my_disease_id):
+            doc = API_Doc()
+            doc = doc.get(id=cls._my_disease_id)
+            doc.delete(id=cls._my_disease_id)
+        
         cls._my_gene = get_api_metadata_by_url(cls._my_gene_url)
 
         cls._my_disease = get_api_metadata_by_url(cls._my_disease_url)
-
-        # with open(os.path.join(os.path.dirname(__file__), "data/mygene.json")) as f:
-        #     cls.my_gene = json.load(f)
-
-        # with open(os.path.join(os.path.dirname(__file__), "data/mydisease.json")) as f:
-        #     cls.my_disease = json.load(f)
 
     def test_add_doc_1(self):
         """
         Add test My Gene API to index, return new doc ID
         """
-        res = APIDocController.add(self.my_gene,
+        res = APIDocController.add(self._my_gene,
                                    user_name=self._user['login'],
                                    url=self._my_gene_url)
 
-        self._my_gene_id = res.get('_id', None)
-
-        assert isinstance(self._my_gene_id, str)
+        assert res.get('_id') == self._my_gene_id
 
     def test_add_doc_2(self):
         """
         Add test My Disease API to index, return new doc ID
         """
-        res = APIDocController.add(self.my_disease,
+        res = APIDocController.add(self._my_disease,
                                    user_name=self._user['login'],
                                    url=self._my_disease_url)
 
-        self._my_disease_id = res.get('_id', None)
-
-        assert isinstance(self._my_disease_id, str)
+        assert res.get('_id') == self._my_disease_id
 
     def test_get_all(self):
         """
@@ -110,13 +103,6 @@ class TestController:
         invalid_slug = 'smart-api'
         with pytest.raises(SlugRegistrationError):
             APIDocController.validate_slug_name(slug_name=invalid_slug)
-        
-        # try:
-        #     APIDocController.validate_slug_name(slug_name=invalid_slug)
-        # except SlugRegistrationError:
-        #     pass
-        # else:
-        #     assert False
 
     def test_update_slug(self):
         """
@@ -150,12 +136,11 @@ class TestController:
         Delete slug for ID
         """
         api_id = self._my_gene_id
-        slug = self._test_slug
         user = self._user
 
         doc = APIDocController(api_id)
-        res = doc.delete_slug(_id=api_id, user=user, slug_name=slug)
-        assert res == f"slug '{slug}' for {api_id} was deleted"
+        res = doc.update_slug(_id=api_id, user=user, slug_name='')
+        assert res.get(f'{api_id}._meta.slug', False) == ''
 
     def test_refresh_api(self):
         """

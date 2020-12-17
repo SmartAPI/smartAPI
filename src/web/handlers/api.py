@@ -17,9 +17,9 @@ from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
 
-from .controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError,
-                         ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
-from .data import SmartAPIData
+from ..api.controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError,
+                              ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
+from utils.data import SmartAPIData
 
 
 class BaseHandler(BaseAPIHandler):
@@ -156,11 +156,9 @@ class APIMetaDataHandler(BaseHandler):
         },
         'PUT': {
             'slug': {'type': str, 'default': ''},
-            'dryrun': {'type': str, 'default': ''}
-        },
-        'DELETE': {
-            'slug': {'type': str, 'default': ''}
-        },
+            'dryrun': {'type': str, 'default': ''},
+            'refresh': {'type': bool, 'default': False},
+        }
     }
     name = "api_meta_handler"
 
@@ -202,12 +200,13 @@ class APIMetaDataHandler(BaseHandler):
 
     def put(self, _id):
         """
-        Update a slug for a specific API
+        Update a slug 
         OR
-        If no slug just refresh document using url
+        refresh document using url
 
         Args:
-            _id: API id to be updated
+            slug: update with value or empty if 'deleting'
+            refresh: determine operation / update doc by url
         """
         slug_name = self.args.slug
         dryrun = self.args.dryrun.lower()
@@ -218,11 +217,9 @@ class APIMetaDataHandler(BaseHandler):
 
         doc = APIDocController(_id=_id)
 
-        if slug_name:
+        if refresh is False:
             try:
                 res = doc.update_slug(_id=_id, user=user, slug_name=slug_name)
-            except (KeyError, ValueError) as err:
-                raise HTTPError(code=400, response=str(err))
             except SlugRegistrationError as err:
                 self.finish({"success": False, 'details': str(err)})
             except Exception as err:
@@ -230,11 +227,7 @@ class APIMetaDataHandler(BaseHandler):
         else:
             try:
                 res = doc.refresh_api(_id=_id, user=user, test=False)
-            except (KeyError, ValueError) as err:
-                raise HTTPError(code=400, response=str(err))
-            except SlugRegistrationError as err:
-                self.finish({"success": False, 'details': str(err)})
-            except APIRequestError as err:
+            except (SlugRegistrationError, APIRequestError) as err:
                 self.finish({"success": False, 'details': str(err)})
             except Exception as err:
                 raise HTTPError(500, response=str(err))
@@ -250,21 +243,11 @@ class APIMetaDataHandler(BaseHandler):
             slug: API slug
         """
         user = self.current_user
-        slug_name = self.args.slug.lower()
         if not user:
             raise HTTPError(401, response='Login required')
 
         doc = APIDocController(_id=_id)
-
-        if slug_name:          
-            try:
-                res = doc.delete_slug(_id=_id)
-            except APIRequestError as err:
-                self.finish({"success": False, 'details': str(err)})
-            except Exception as err:
-                raise HTTPError(500, response=str(err))
-        else:
-            res = doc.delete(_id=_id, user=user)
+        res = doc.delete(_id=_id, user=user)
 
         self.finish({'success': True, 'details': res})
 

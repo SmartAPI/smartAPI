@@ -475,8 +475,6 @@ class APIDocController:
         _slug = slug_name.lower()
         if _slug in ('www', 'dev', 'smart-api'):
             raise SlugRegistrationError(f"Slug name {slug_name} is reserved, please choose another")
-        if len(_slug) < 4 or len(_slug) > 50:
-            raise SlugRegistrationError(f"Slug name {slug_name} must be between 4 and 50 chars")
         if not all([x in _valid_chars for x in _slug]):
             raise SlugRegistrationError(f"Slug name {slug_name} contains invalid characters")
         if API_Doc.slug_exists(slug=_slug):
@@ -544,7 +542,7 @@ class APIDocController:
         if user.get('login', None) != _user:
             raise APIRequestError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
 
-        self.validate_slug_name(slug_name=slug_name)
+        self.validate_slug_name(slug_name)
 
         self._doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
         return {"{}._meta.slug".format(_id): slug_name.lower()}
@@ -585,12 +583,10 @@ class APIDocController:
 
         Args:
             _id (str): ID of doc
-            user (dict): user info of requester
-            slug_name (str): slug name registered
         """
         if not API_Doc.exists(_id):
             raise APIRequestError(f"Could not retrieve API '{_id}' to delete slug name")
 
         self._doc.update(id=_id, refresh=True, _meta={'slug': ''})
 
-        return f"slug '{slug_name}' for {_id} was deleted"
+        return f"slug deleted for {_id} was deleted"
