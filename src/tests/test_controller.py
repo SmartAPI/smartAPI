@@ -23,8 +23,8 @@ class TestController:
 
     @classmethod
     def setup_class(cls):
-        """ 
-        Model is given an already transformed doc with an already encoded ID 
+        """
+        Model is given an already transformed doc with an already encoded ID
         and _meta field with test user
         """
         # mygene
@@ -37,9 +37,7 @@ class TestController:
             doc = API_Doc()
             doc = doc.get(id=cls._my_disease_id)
             doc.delete(id=cls._my_disease_id)
-        
         cls._my_gene = get_api_metadata_by_url(cls._my_gene_url)
-
         cls._my_disease = get_api_metadata_by_url(cls._my_disease_url)
 
     def test_add_doc_1(self):
@@ -86,7 +84,7 @@ class TestController:
         size = 100
 
         res = APIDocController.get_tags(field=field, size=size)
-        assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1 
+        assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
 
     def test_validate_slug(self):
         """
@@ -158,4 +156,4 @@ class TestController:
         """ teardown any state that was previously setup.
         """
         print("teardown")
-        # TODO make sure its deleted 
+        # TODO make sure its deleted

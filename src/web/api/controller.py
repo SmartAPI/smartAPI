@@ -1,5 +1,5 @@
 """
-Controllers for API doc addition 
+Controllers for API doc addition
 and API metadata operations
 
 [APIHandler] (C)
@@ -297,15 +297,15 @@ class APIDocController:
         }
         metadata = APIMetadata(api_doc)
         validation = metadata.validate()
-        
+
         if validation.get('valid') is False:
             return validation
         if validation.get('v2') is True and not save_v2:
             raise APIMetadataRegistrationError('API is Swagger V2 which is not fully suppported')
-        
+
         api_id = metadata.encode_api_id()
         doc_exists = API_Doc.exists(api_id)
-        
+
         if doc_exists and not overwrite:
             raise APIMetadataRegistrationError('API Exists')
         if dryrun:
@@ -361,10 +361,10 @@ class APIDocController:
         s = API_Doc.search()
         if not fields:
             fields = ['_all']
-        
+
         s.source(includes=fields)
         s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
-            
+
         res = s.execute().to_dict()
         if return_raw:
             return res
@@ -425,18 +425,14 @@ class APIDocController:
         if not slug:
             raise RequestError('slug is required')
         s = API_Doc.search()
-        # TODO returns multiple idk why
-        s.query('term', _meta__slug=slug, size=1)
-        res = s.execute().to_dict()
-        try:
-            hits = res['hits']['hits']
-            if len(hits) > 1:
-                # TODO will be caught below? 
-                raise RequestError(f'slug {slug} returns multiple results')
-            doc = hits[0]
-        except Exception:
-            raise RequestError(f'cannot get ID from slug {slug}')
-        return doc["_id"]
+        s = s.query('term', _meta__slug=slug)
+        response = s.execute()
+
+        if not response.hits.total.value == 1:
+            raise APIRequestError(f'Query for "{slug}" has {response.hits.total.value} results')
+
+        doc = response.hits[0]
+        return doc.id
 
     @staticmethod
     def slug_is_available(slug):
@@ -456,7 +452,7 @@ class APIDocController:
             raise RequestError('slug is required')
         res = API_Doc.slug_exists(slug)
         return res
-    
+
     @staticmethod
     def validate_slug_name(slug_name):
         """
