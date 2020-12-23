@@ -15,9 +15,9 @@ from config_key import *
 # *****************************************************************************
 # User Input Control
 # *****************************************************************************
-QUERY_KWARGS['*']['filters'] = {'type': str, 'default': None, 'max': 1000, 'group': 'esqb'}
-QUERY_KWARGS['*']['authors'] = {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
-QUERY_KWARGS['*']['tags'] = {'type': list, 'default': None, 'max': 1000, 'group': 'esqb'}
+QUERY_KWARGS['*']['filters'] = {'type': str, 'max': 1000, 'group': 'esqb'}
+QUERY_KWARGS['*']['authors'] = {'type': list, 'max': 1000, 'group': 'esqb'}
+QUERY_KWARGS['*']['tags'] = {'type': list, 'max': 1000, 'group': 'esqb'}
 
 # *****************************************************************************
 # Elasticsearch
@@ -33,7 +33,8 @@ APP_LIST = [
     (r'/api/?', 'web.handlers.api.APIHandler'),
     (r'/api/query/?', 'web.handlers.api.BioThingsESQueryHandler', {"biothing_type": "api_doc"}),
     (r'/api/validate/?', 'web.handlers.api.ValidateHandler'),
-    (r'/api/metadata/(.+)/?', 'web.handlers.api.APIMetaDataHandler'),
+    (r'/api/metadata/?', 'web.handlers.api.APIHandler'),
+    (r'/api/metadata/(.+)/?', 'web.handlers.api.APIHandler'),
     (r'/api/suggestion/?', 'web.handlers.api.ValueSuggestionHandler'),
     (r'/api/webhook_payload/?', 'web.handlers.api.GitWebhookHandler'),
 ]

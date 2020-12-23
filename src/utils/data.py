@@ -5,7 +5,7 @@ import logging
 from elasticsearch_dsl import Index, Search
 
 from web.api.model import API_Doc
-from web.api.controller import SWAGGER2_INDEXED_ITEMS, APIDocController, polite_requests, get_api_metadata_by_url, APIRequestError
+from web.api.controller import SWAGGER2_INDEXED_ITEMS, APIDocController, get_api_metadata_by_url, APIRequestError
 
 
 class SmartAPIData():
@@ -69,14 +69,14 @@ class SmartAPIData():
 
             _id, status = api_doc['_id'], ''
 
-            if use_etag:
-                _res = polite_requests(api_doc.get('_meta', {}).get('url', ''), head=True)
-                if _res.get('success'):
-                    res = _res.get('response')
-                    etag_local = api_doc.get('_meta', {}).get('ETag', '')
-                    etag_server = res.headers.get('ETag', 'N').strip('W/"')
-                    if etag_local == etag_server:
-                        status = "OK (Via Etag)"
+            # if use_etag:
+            #     _res = polite_requests(api_doc.get('_meta', {}).get('url', ''), head=True)
+            #     if _res.get('success'):
+            #         res = _res.get('response')
+            #         etag_local = api_doc.get('_meta', {}).get('ETag', '')
+            #         etag_server = res.headers.get('ETag', 'N').strip('W/"')
+            #         if etag_local == etag_server:
+            #             status = "OK (Via Etag)"
 
             if not status:
                 res = self._refresh_one(

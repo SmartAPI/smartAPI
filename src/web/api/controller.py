@@ -15,7 +15,6 @@ validate_slug_name - check slugname
 Raises:
     ValidationError: any schema validation error
     APIMetadataRegistrationError: error during POST
-    ESIndexingError: any ES related errors
     SlugRegistrationError: error during slug setup
     APIRequestError: metadata url request error
 """
@@ -75,16 +74,16 @@ class APIMetadataRegistrationError(Exception):
     """Error from failed doc addition"""
     pass
 
-class ESIndexingError(Exception):
-    """Error from elasticsearch requests"""
-    pass
-
 class APIRequestError(Exception):
     """Error from network requests"""
     pass
 
 class SlugRegistrationError(Exception):
     """Error from failed slug update"""
+    pass
+
+class RegistryError(ValidationError, APIMetadataRegistrationError, APIRequestError, SlugRegistrationError):
+    """General API error"""
     pass
 
 # *****************************************************************************
@@ -119,43 +118,26 @@ def decode_raw(raw, sorted=True, as_string=False):
     else:
         return d
 
-def polite_requests(url, head=False):
-    """
-        Return requested data from url as json/yaml
-    """
+def get_api_metadata_by_url(url):
+
     try:
-        if head:
-            res = requests.head(url, timeout=5)
-        else:
-            res = requests.get(url, timeout=5)
-    except requests.exceptions.Timeout:
-        raise APIRequestError('URL request timed out')
-    except requests.exceptions.ConnectionError:
-        raise APIRequestError('URL request connection error')
-    except requests.exceptions.RequestException:
-        raise APIRequestError('Failed to make the request to this URL')
+        _res = requests.get(url, timeout=5)
+    except requests.exceptions.RequestException as err:
+        raise APIRequestError(f'Failed URL request: {str(err)}')
     if res.status_code != 200:
-        raise APIRequestError(f'URL request returned {res.status_code}')
-    return {"success": True, "response": res}
+        raise APIRequestError(f'Failed URL request with status: {res.status_code}')
 
-def get_api_metadata_by_url(url, as_string=False):
+    res = _res.get('response')
 
-    _res = polite_requests(url)
-    if 'success' in _res:
-        res = _res.get('response')
-        if as_string:
-            return res.text
-        else:
-            try:
-                metadata = res.json()
-            except ValueError:
-                try:
-                    metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
-                except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
-                    raise APIRequestError(f'Invalid Format: {str(err)}')
-            return metadata
-    else:
-        return _res
+    try:
+        metadata = res.json()
+    except ValueError:
+        try:
+            metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
+        except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
+            raise APIRequestError(f'Invalid Format: {str(err)}')
+
+    return metadata
 
 # *****************************************************************************
 # Validation Controller
@@ -310,13 +292,10 @@ class APIDocController:
             raise APIMetadataRegistrationError('API Exists')
         if dryrun:
             raise APIMetadataRegistrationError('API is valid but this was only a test')
-        try:
-            doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
-            doc.save()
-        except RequestError as e:
-            raise ESIndexingError(str(e))
-        else:
-            return {'_id': api_id}
+
+        doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
+        doc.save()
+        return {'_id': api_id}
 
     @staticmethod
     def get_api(api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
@@ -497,22 +476,18 @@ class APIDocController:
     def delete(self, _id, user):
         """
         delete api with ID
-
-        Args:
-            _id (str): ID of doc
-            user (str): user info of requester
-
-        Returns:
-            Dict deleted = True
         """
-        doc = API_Doc.get(id=_id).to_dict()
+        if not self._doc.exists(_id):
+            raise APIRequestError("API with id '{}' does not exist".format(_id))
+
+        doc = self._doc.get(id=_id).to_dict()
         _user = doc.get('_meta', {}).get('github_username', '')
 
         if user.get('login', None) != _user:
             raise APIRequestError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
 
         self._doc.delete(id=_id)
-        return {"deleted": True}
+        return _id
 
     def update_slug(self, _id, user, slug_name):
         """
@@ -529,7 +504,7 @@ class APIDocController:
         Returns:
             msg with id._meta.slug and updated slug name
         """
-        if not API_Doc.exists(_id):
+        if not self._doc.exists(_id):
             raise APIRequestError("Could not retrieve API '{}' to set slug name".format(_id))
 
         i = self._doc.to_dict()

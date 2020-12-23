@@ -13,12 +13,13 @@ import yaml
 
 from biothings.web.handlers import QueryHandler as BioThingsESQueryHandler
 from biothings.web.handlers import BaseAPIHandler
+from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
 
 from ..api.controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError,
-                              ESIndexingError, get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
+                              get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
 from utils.data import SmartAPIData
 
 
@@ -40,26 +41,19 @@ class ValidateHandler(BaseHandler):
     }
     name = "validator"
 
-    def _validate(self, data):
-        if not isinstance(data, dict):
-            return self.finish({"valid": False, "error": "Metadata is not in the right format"})
+    def get(self):
+        if not self.args.url:
+            raise HTTPError(400, response='URL is required')
+
+        data = get_api_metadata_by_url(self.args.url)
+
         try:
             metadata = APIMetadata(data)
             valid = metadata.validate()
-        except ValidationError as err:
-            self.finish({"valid": False, "error": err})
+        except (ValidationError, APIRequestError) as err:
+            raise BadRequest(details=str(err))
         else:
-            return self.finish(valid)            
-
-    def get(self):
-        if self.args.url:
-            data = get_api_metadata_by_url(self.args.url)
-            if data:
-                self.finish({"valid": True})
-            else:
-                self._validate(data)
-        else:
-            raise HTTPError(400, response='URL is required')
+            self.finish(valid)
 
     def post(self):
         if self.request.body:
@@ -80,6 +74,18 @@ class ValidateHandler(BaseHandler):
 class APIHandler(BaseHandler):
 
     kwargs = {
+        'GET': {
+            'fields': {'type': list, 'default': None},
+            'format': {'type': str, 'default': 'json'},
+            'raw': {'type': bool, 'default': False},
+            'meta': {'type': bool, 'default': False},
+            '_from': {'type': int, 'default': 0},
+            'size': {'type': int, 'default': 0},
+        },
+        'PUT': {
+            'slug': {'type': str, 'default': ''},
+            'refresh': {'type': bool, 'default': False},
+        },
         'POST': {
             'url': {'type': str, 'default': None, 'required': True},
             'overwrite': {'type': bool, 'default': False},
@@ -87,25 +93,36 @@ class APIHandler(BaseHandler):
             'save_v2': {'type': bool, 'default': False},
         },
     }
+
     name = "api_handler"
+
+    def get(self, api_name):
+        """
+        Get one API by ID or all
+
+        Args:
+            api_name (str): name of API doc requested
+
+        Returns:
+            JSON or YAML of doc requested
+        """
+        if api_name == 'all':
+            res = APIDocController.get_all(fields=self.args.fields,
+                                           from_=self.args._from)
+        else:
+            res = APIDocController.get_api(api_name=api_name,
+                                           fields=self.args.fields,
+                                           with_meta=self.args.meta,
+                                           return_raw=self.args.raw,
+                                           size=self.args.size,
+                                           from_=self.args._from)
+
+        self.format = self.args.out_format
+        self.finish(res)
 
     def post(self):
         """
         Add an API metadata doc
-
-        transform.polite_request called within transform.get_api_metadata_by_url requests provided url to get openAPI document
-        transform.get_api_metadata_by_url will return json or yaml format data
-        data is sent to controller where additional metadata will be included then validated and added to index
-        if dryrun requested only steps up to validation will be taken
-        else added API doc ID is returned
-
-        Raises:
-            HTTPError: 401 unauthorized
-            HTTPError: 400 missing parameter
-            HTTPError: 422 unidentified entity
-            HTTPError: 400 validation error
-        Returns:
-            Success: True if doc created and doc ID
         """
         user = self.current_user
         url = self.args.url
@@ -118,15 +135,9 @@ class APIHandler(BaseHandler):
         try:
             data = get_api_metadata_by_url(url)
         except APIRequestError as err:
-            self.finish({"success": False, 'details': str(err)})
+            raise BadRequest(details=str(err))
         except Exception as err:
             raise HTTPError(500, response=str(err))
-
-        if not data:
-            raise HTTPError(422, response='Invalid format')
-
-        if data.get('success', None) is False:
-            self.finish(data)
 
         try:
             res = APIDocController.add(
@@ -134,73 +145,17 @@ class APIHandler(BaseHandler):
                 user_name=user['login'],
                 **self.args)
 
-        except (APIMetadataRegistrationError, ValidationError, APIRequestError, ESIndexingError) as err:
-            self.finish({"success": False, 'details': str(err)})
+        except (APIMetadataRegistrationError, ValidationError, APIRequestError) as err:
+            raise BadRequest(details=str(err))
         except Exception as err:
             raise HTTPError(500, response=str(err))
         else:
             self.finish({'success': True, 'details': res})
             send_slack_msg(data, res, user['login'])
 
-
-class APIMetaDataHandler(BaseHandler):
-
-    kwargs = {
-        'GET': {
-            'fields': {'type': str, 'default': None},
-            'format': {'type': str, 'default': 'json'},
-            'raw': {'type': bool, 'default': False},
-            'meta': {'type': bool, 'default': False},
-            '_from': {'type': int, 'default': 0},
-            'size': {'type': int, 'default': 0},
-        },
-        'PUT': {
-            'slug': {'type': str, 'default': ''},
-            'dryrun': {'type': str, 'default': ''},
-            'refresh': {'type': bool, 'default': False},
-        }
-    }
-    name = "api_meta_handler"
-
-    def get(self, api_name):
-        """
-        Get API doc by name
-        if api_name is "all", return a list of all APIs
-        size capped to 100 for now by get_api method below.
-
-        Args:
-            api_name (str): name of API doc requested
-
-        Returns:
-            JSON or YAML of doc requested
-        """
-        fields = self.args.fields
-        out_format = self.args.format
-        return_raw = self.args.raw
-        with_meta = self.args.meta
-        size = self.args.size
-        from_ = self.args._from
-        try:
-            size = int(size)
-        except (TypeError, ValueError):
-            size = None
-        try:
-            from_ = int(from_)
-        except (TypeError, ValueError):
-            from_ = 0
-        if fields:
-            fields = fields.split(',')
-        if api_name == 'all':
-            res = APIDocController.get_all(fields=fields, from_=from_)
-        else:
-            res = APIDocController.get_api(api_name=api_name, fields=fields, with_meta=with_meta, return_raw=return_raw, size=size, from_=from_)
-
-        self.format = self.args.out_format
-        self.finish(res)
-
     def put(self, _id):
         """
-        Update a slug 
+        Update a slug
         OR
         refresh document using url
 
@@ -208,75 +163,70 @@ class APIMetaDataHandler(BaseHandler):
             slug: update with value or empty if 'deleting'
             refresh: determine operation / update doc by url
         """
-        slug_name = self.args.slug
-        dryrun = self.args.dryrun.lower()
-        dryrun = dryrun in ['on', '1', 'true']
-        user = self.current_user
-        if not user:
+        if not self.current_user:
             raise HTTPError(401, response='Login required')
 
         doc = APIDocController(_id=_id)
 
         if refresh is False:
             try:
-                res = doc.update_slug(_id=_id, user=user, slug_name=slug_name)
+                res = doc.update_slug(_id=_id, user=self.current_user, slug_name=self.args.slug)
             except SlugRegistrationError as err:
-                self.finish({"success": False, 'details': str(err)})
+                raise BadRequest(details=str(err))
             except Exception as err:
                 raise HTTPError(500, response=str(err))
         else:
             try:
-                res = doc.refresh_api(_id=_id, user=user, test=False)
+                res = doc.refresh_api(_id=_id, user=self.current_user, test=False)
             except (SlugRegistrationError, APIRequestError) as err:
-                self.finish({"success": False, 'details': str(err)})
+                raise BadRequest(details=str(err))
             except Exception as err:
                 raise HTTPError(500, response=str(err))
-        
+
         self.finish({'success': True, 'details': res})
 
     def delete(self, _id):
         """
-        Delete API or slug only if provided
+        Delete API
 
         Args:
             _id: API id to be deleted permanently
-            slug: API slug
         """
         user = self.current_user
         if not user:
             raise HTTPError(401, response='Login required')
 
         doc = APIDocController(_id=_id)
-        res = doc.delete(_id=_id, user=user)
+        try:
+            res = doc.delete(_id=_id, user=user)
+        except APIRequestError as err:
+            raise BadRequest(details=str(err))
 
         self.finish({'success': True, 'details': res})
 
 
 class ValueSuggestionHandler(BaseHandler):
 
+    kwargs = {
+        'GET': {
+            'field': {'type': str, 'default': None},
+            'size': {'type': int, 'default': 100},
+        },
+    }
+
+    name = 'value_suggestion'
+
     def get(self):
         """
         /api/suggestion?field=
         Returns aggregations for any field provided
         Used for tag:count on registry
-
-        Raises:
-            HTTPError: required fields not provided
-            ValueError: No results or bad query
         """
-        field = self.get_argument('field', None)
-        size = int(self.get_argument('size', 100))
+        if not self.args.field:
+            raise HTTPError(code=400, response='Request is missing a required parameter: field')
 
-        if not field:
-            raise HTTPError(code=400,
-                            response={'success': False,
-                                      'error': 'Request is missing a required parameter: field'})
-
-        res = APIDocController.get_tags(field, size)
-        if res:
-            self.finish(res)
-        else:
-            raise ValueError(f'Suggestion not possible for {field}')
+        res = APIDocController.get_tags(self.args.field, self.args.size)
+        self.finish(res)
 
 
 class GitWebhookHandler(BaseHandler):
