@@ -242,9 +242,8 @@ class APIMetadata:
 
 class APIDocController:
 
-    def __init__(self, _id=None):
-        doc = API_Doc()
-        self._doc = doc.get(id=_id)
+    def __init__(self, _id):
+        self._doc = API_Doc.get(id=_id)
 
     @staticmethod
     def add(api_doc, user_name=None, **options):
