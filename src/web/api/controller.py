@@ -66,25 +66,22 @@ METADATA_KEY_ORDER = ['openapi', 'info', 'servers',
 # Custom Exceptions
 # *****************************************************************************
 
-class ValidationError(Exception):
-    """Error from metadata validation"""
-    pass
-
-class APIMetadataRegistrationError(Exception):
-    """Error from failed doc addition"""
-    pass
-
-class APIRequestError(Exception):
-    """Error from network requests"""
-    pass
-
-class SlugRegistrationError(Exception):
-    """Error from failed slug update"""
-    pass
-
-class RegistryError(ValidationError, APIMetadataRegistrationError, APIRequestError, SlugRegistrationError):
+class RegistryError(Exception):
     """General API error"""
-    pass
+
+class ValidationError(RegistryError):
+    """Error from metadata validation"""
+
+class APIMetadataRegistrationError(RegistryError):
+    """Error from failed doc addition"""
+
+class APIRequestError(RegistryError):
+    """Error from network requests"""
+
+class SlugRegistrationError(RegistryError):
+    """Error from failed slug update"""
+
+
 
 # *****************************************************************************
 # Helper Functions
