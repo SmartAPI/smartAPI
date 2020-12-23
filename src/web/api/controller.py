@@ -244,7 +244,12 @@ class APIDocController:
 
     def __init__(self, _id):
         self._doc = API_Doc.get(id=_id)
-
+        
+    @staticmethod
+    def exists(_id):
+        # TODO
+        return True
+    
     @staticmethod
     def add(api_doc, user_name=None, **options):
         """
