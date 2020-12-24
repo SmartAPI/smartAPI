@@ -244,12 +244,21 @@ class APIDocController:
 
     def __init__(self, _id):
         self._doc = API_Doc.get(id=_id)
-        
+
     @staticmethod
     def exists(_id):
-        # TODO
-        return True
-    
+        return API_Doc.exists(_id)
+
+    @staticmethod
+    def validate(data):
+        try:
+            metadata = APIMetadata(data)
+            valid = metadata.validate()
+        except RegistryError as err:
+            raise BadRequest(details=str(err))
+        else:
+            return valid
+
     @staticmethod
     def add(api_doc, user_name=None, **options):
         """
@@ -299,7 +308,7 @@ class APIDocController:
         return {'_id': api_id}
 
     @staticmethod
-    def get_api(api_name, fields=None, with_meta=True, return_raw=False, size=None, from_=0):
+    def get_api(api_name, fields=None, with_meta=True, return_raw=False, from_=0):
         """
         Get one doc by id/slug
 
@@ -359,7 +368,7 @@ class APIDocController:
         return res
 
     @staticmethod
-    def get_all(fields=None, from_=0):
+    def get_all(fields=None, from_=0, size=None):
 
         def _get_hit_object(hit):
             """[summary]
@@ -375,16 +384,16 @@ class APIDocController:
                 obj['_id'] = hit['_id']
             return obj
 
-        s = API_Doc.search()
-        total = s.count()
+        search = API_Doc.search()
+        total = size if size is not None else search.count()
         start = 0
         if from_:
             start = from_
-        s = s[start:total]
-        s.source(includes=fields)
+        search = search[start:total]
+        if fields:
+            search.source(includes=fields)
 
-        res = s.execute().to_dict()
-        res = [_get_hit_object(d) for d in res['hits']['hits']]
+        res = [_get_hit_object(d) for d in search]
         return res
 
     @staticmethod
@@ -443,9 +452,6 @@ class APIDocController:
 
         Raises:
             SlugRegistrationError: detail slug registration msg
-
-        Returns:
-            True if available
         """
         _valid_chars = string.ascii_letters + string.digits + "-_~"
         _slug = slug_name.lower()
@@ -478,8 +484,8 @@ class APIDocController:
         """
         delete api with ID
         """
-        if not self._doc.exists(_id):
-            raise APIRequestError("API with id '{}' does not exist".format(_id))
+        if not self.exists(_id):
+            raise APIRequestError(f"API with id '{_id}' does not exist")
 
         doc = self._doc.get(id=_id).to_dict()
         _user = doc.get('_meta', {}).get('github_username', '')
@@ -505,8 +511,8 @@ class APIDocController:
         Returns:
             msg with id._meta.slug and updated slug name
         """
-        if not self._doc.exists(_id):
-            raise APIRequestError("Could not retrieve API '{}' to set slug name".format(_id))
+        if not self.exists(_id):
+            raise APIRequestError(f"API with id '{_id}' does not exist")
 
         i = self._doc.to_dict()
         _user = i.get('_meta', {}).get('github_username', '')
@@ -531,6 +537,8 @@ class APIDocController:
         Returns:
             Dict with ID updated message
         """
+        if not self.exists(_id):
+            raise APIRequestError(f"API with id '{_id}' does not exist")
 
         api_doc = self._doc.to_dict()
 
@@ -556,8 +564,8 @@ class APIDocController:
         Args:
             _id (str): ID of doc
         """
-        if not API_Doc.exists(_id):
-            raise APIRequestError(f"Could not retrieve API '{_id}' to delete slug name")
+        if not self.exists(_id):
+            raise APIRequestError(f"API with id '{_id}' does not exist")
 
         self._doc.update(id=_id, refresh=True, _meta={'slug': ''})
 

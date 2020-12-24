@@ -18,8 +18,7 @@ from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
 
-from ..api.controller import (APIMetadata, ValidationError, APIDocController, APIMetadataRegistrationError,
-                              get_api_metadata_by_url, APIRequestError, SlugRegistrationError)
+from ..api.controller import (APIDocController, get_api_metadata_by_url, RegistryError)
 from utils.data import SmartAPIData
 
 
@@ -35,40 +34,43 @@ class BaseHandler(BaseAPIHandler):
 class ValidateHandler(BaseHandler):
 
     kwargs = {
-        'GET': {
+        'POST': {
             'url': {'type': str, 'default': None},
         },
     }
     name = "validator"
 
-    def get(self):
-        if not self.args.url:
-            raise HTTPError(400, response='URL is required')
+    def post(self):
 
-        data = get_api_metadata_by_url(self.args.url)
+        url = self.get_argument('url', None)
+        data = None
+
+        if url:
+            try:
+                data = get_api_metadata_by_url(url)
+            except RegistryError as err:
+                raise BadRequest(details=str(err))
+
+        elif self.request.headers.get('Content-Type', '').startswith('application/json'):
+            try:
+                data = self.args_json
+            except json.JSONDecodeError:
+                raise BadRequest(details="Invalid JSON body")
+
+        elif self.request.headers.get('Content-Type', '').startswith('application/yaml'):
+            try:
+                data = yaml.load(self.request.body, Loader=yaml.SafeLoader)
+            except (yaml.scanner.ScannerError, yaml.parser.ParserError):
+                raise BadRequest(details="The input request body does not contain valid API metadata")
+        else:
+            raise BadRequest(details="Need to provide data in the request body first")
 
         try:
-            metadata = APIMetadata(data)
-            valid = metadata.validate()
-        except (ValidationError, APIRequestError) as err:
+            valid = APIDocController.validate(data)
+        except RegistryError as err:
             raise BadRequest(details=str(err))
         else:
             self.finish(valid)
-
-    def post(self):
-        if self.request.body:
-            try:
-                data = tornado.escape.json_decode(self.request.body)
-            except ValueError:
-                try:
-                    data = yaml.load(self.request.body, Loader=yaml.SafeLoader)
-                except (yaml.scanner.ScannerError,
-                        yaml.parser.ParserError):
-                    return self.finish({"valid": False, "error": "The input request body does not contain valid API metadata."})
-            self._validate(data)
-        else:
-            self.finish(
-                {"valid": False, "error": "Need to provide data in the request body first."})
 
 
 class APIHandler(BaseHandler):
@@ -96,7 +98,7 @@ class APIHandler(BaseHandler):
 
     name = "api_handler"
 
-    def get(self, api_name):
+    def get(self, api_name=None):
         """
         Get one API by ID or all
 
@@ -106,16 +108,18 @@ class APIHandler(BaseHandler):
         Returns:
             JSON or YAML of doc requested
         """
-        if api_name == 'all':
-            res = APIDocController.get_all(fields=self.args.fields,
-                                           from_=self.args._from)
+        if api_name is None:
+            res = APIDocController.get_all(
+                fields=self.args.fields,
+                from_=self.args._from,
+                size=self.args.size)
         else:
-            res = APIDocController.get_api(api_name=api_name,
-                                           fields=self.args.fields,
-                                           with_meta=self.args.meta,
-                                           return_raw=self.args.raw,
-                                           size=self.args.size,
-                                           from_=self.args._from)
+            res = APIDocController.get_api(
+                api_name=api_name,
+                fields=self.args.fields,
+                with_meta=self.args.meta,
+                return_raw=self.args.raw,
+                from_=self.args._from)
 
         self.format = self.args.out_format
         self.finish(res)
@@ -134,10 +138,8 @@ class APIHandler(BaseHandler):
         data = None
         try:
             data = get_api_metadata_by_url(url)
-        except APIRequestError as err:
+        except RegistryError  as err:
             raise BadRequest(details=str(err))
-        except Exception as err:
-            raise HTTPError(500, response=str(err))
 
         try:
             res = APIDocController.add(
@@ -145,10 +147,8 @@ class APIHandler(BaseHandler):
                 user_name=user['login'],
                 **self.args)
 
-        except (APIMetadataRegistrationError, ValidationError, APIRequestError) as err:
+        except RegistryError  as err:
             raise BadRequest(details=str(err))
-        except Exception as err:
-            raise HTTPError(500, response=str(err))
         else:
             self.finish({'success': True, 'details': res})
             send_slack_msg(data, res, user['login'])
@@ -166,22 +166,21 @@ class APIHandler(BaseHandler):
         if not self.current_user:
             raise HTTPError(401, response='Login required')
 
+        if not APIDocController.exists(_id):
+            raise HTTPError(404, response='API does not exist')
+
         doc = APIDocController(_id=_id)
 
         if refresh is False:
             try:
                 res = doc.update_slug(_id=_id, user=self.current_user, slug_name=self.args.slug)
-            except SlugRegistrationError as err:
+            except RegistryError as err:
                 raise BadRequest(details=str(err))
-            except Exception as err:
-                raise HTTPError(500, response=str(err))
         else:
             try:
                 res = doc.refresh_api(_id=_id, user=self.current_user, test=False)
-            except (SlugRegistrationError, APIRequestError) as err:
+            except RegistryError  as err:
                 raise BadRequest(details=str(err))
-            except Exception as err:
-                raise HTTPError(500, response=str(err))
 
         self.finish({'success': True, 'details': res})
 
@@ -196,10 +195,13 @@ class APIHandler(BaseHandler):
         if not user:
             raise HTTPError(401, response='Login required')
 
+        if not APIDocController.exists(_id):
+            raise HTTPError(404, response='API does not exist')
+
         doc = APIDocController(_id=_id)
         try:
             res = doc.delete(_id=_id, user=user)
-        except APIRequestError as err:
+        except RegistryError  as err:
             raise BadRequest(details=str(err))
 
         self.finish({'success': True, 'details': res})
@@ -209,7 +211,7 @@ class ValueSuggestionHandler(BaseHandler):
 
     kwargs = {
         'GET': {
-            'field': {'type': str, 'default': None},
+            'field': {'type': str, 'default': None, 'required': True},
             'size': {'type': int, 'default': 100},
         },
     }
@@ -222,9 +224,6 @@ class ValueSuggestionHandler(BaseHandler):
         Returns aggregations for any field provided
         Used for tag:count on registry
         """
-        if not self.args.field:
-            raise HTTPError(code=400, response='Request is missing a required parameter: field')
-
         res = APIDocController.get_tags(self.args.field, self.args.size)
         self.finish(res)
 
