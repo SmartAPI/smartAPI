@@ -1,22 +1,6 @@
 """
 Controllers for API doc addition
 and API metadata operations
-
-[APIHandler] (C)
-add - save doc
-
-[APIMetaDataHandler] (R.U.D)
-get_api - get doc by name/slug
-refresh_api - refresh api metadata
-delete_slug - delete registered slug
-update - save new slug
-validate_slug_name - check slugname
-
-Raises:
-    ValidationError: any schema validation error
-    APIMetadataRegistrationError: error during POST
-    SlugRegistrationError: error during slug setup
-    APIRequestError: metadata url request error
 """
 import base64
 import copy
@@ -81,8 +65,6 @@ class APIRequestError(RegistryError):
 class SlugRegistrationError(RegistryError):
     """Error from failed slug update"""
 
-
-
 # *****************************************************************************
 # Helper Functions
 # *****************************************************************************
@@ -118,13 +100,11 @@ def decode_raw(raw, sorted=True, as_string=False):
 def get_api_metadata_by_url(url):
 
     try:
-        _res = requests.get(url, timeout=5)
+        res = requests.get(url, timeout=5)
     except requests.exceptions.RequestException as err:
         raise APIRequestError(f'Failed URL request: {str(err)}')
     if res.status_code != 200:
         raise APIRequestError(f'Failed URL request with status: {res.status_code}')
-
-    res = _res.get('response')
 
     try:
         metadata = res.json()
@@ -137,7 +117,7 @@ def get_api_metadata_by_url(url):
     return metadata
 
 # *****************************************************************************
-# Validation Controller
+# Metadata Validation
 # *****************************************************************************
 
 class APIMetadata:
@@ -237,7 +217,7 @@ class APIMetadata:
         return _d
 
 # *****************************************************************************
-# API Metadata Controller
+# API Doc Controller
 # *****************************************************************************
 
 class APIDocController:
@@ -259,8 +239,8 @@ class APIDocController:
         else:
             return valid
 
-    @staticmethod
-    def add(api_doc, user_name=None, **options):
+    @classmethod
+    def add(cls, api_doc, user_name=None, **options):
         """
         APIMetadata Class validates doc for supported OAS3 or V2 (warning)
         and generates an id based on source url
@@ -296,7 +276,7 @@ class APIDocController:
             raise APIMetadataRegistrationError('API is Swagger V2 which is not fully suppported')
 
         api_id = metadata.encode_api_id()
-        doc_exists = API_Doc.exists(api_id)
+        doc_exists = cls.exists(api_id)
 
         if doc_exists and not overwrite:
             raise APIMetadataRegistrationError('API Exists')
@@ -308,22 +288,9 @@ class APIDocController:
         return {'_id': api_id}
 
     @staticmethod
-    def get_api(api_name, fields=None, with_meta=True, return_raw=False, from_=0):
+    def get_api(api_name, fields=[], with_meta=True, return_raw=False, from_=0):
         """
         Get one doc by id/slug
-
-        Args:
-            api_name (str): id,name, or slug
-            fields (list, optional): fields to return if not all
-            with_meta (bool, optional): Return _meta field. Defaults to True.
-            return_raw (bool, optional): return raw. Defaults to False.
-            size (int, optional): size of results. Defaults to None.
-            from_ (int, optional): start of returned results. Defaults to 0.
-        Raises:
-            ValueError: invalid input
-
-        Returns:
-            One API doc with metadata by default.
         """
 
         def _get_hit_object(hit):
@@ -348,7 +315,7 @@ class APIDocController:
             return doc
 
         s = API_Doc.search()
-        if not fields:
+        if not len(fields):
             fields = ['_all']
 
         s.source(includes=fields)
@@ -368,7 +335,10 @@ class APIDocController:
         return res
 
     @staticmethod
-    def get_all(fields=None, from_=0, size=None):
+    def get_all(fields=[], from_=0, size=0):
+        """
+        Get all docs
+        """
 
         def _get_hit_object(hit):
             """[summary]
@@ -379,18 +349,19 @@ class APIDocController:
             Returns:
                 dict: extracted doc dict
             """
+            print('hit', hit)
             obj = hit.get('fields', hit.get('_source', {}))
             if '_id' in hit:
                 obj['_id'] = hit['_id']
             return obj
 
         search = API_Doc.search()
-        total = size if size is not None else search.count()
+        total = size if size != 0 else search.count()
         start = 0
         if from_:
             start = from_
         search = search[start:total]
-        if fields:
+        if len(fields):
             search.source(includes=fields)
 
         res = [_get_hit_object(d) for d in search]

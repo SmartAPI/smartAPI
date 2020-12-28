@@ -31,12 +31,11 @@ ES_INDICES = {
 # *****************************************************************************
 APP_LIST = [
     (r'/api/?', 'web.handlers.api.APIHandler'),
-    (r'/api/query/?', 'web.handlers.api.BioThingsESQueryHandler', {"biothing_type": "api_doc"}),
+    (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "api_doc"}),
     (r'/api/validate/?', 'web.handlers.api.ValidateHandler'),
+    (r'/api/metadata/?', 'web.handlers.api.APIHandler'),
     (r'/api/metadata/(.+)/?', 'web.handlers.api.APIHandler'),
-    # (r'/api/metadata/?', "tornado.web.RedirectHandler", {"url": "what url goes here?"}),
     (r'/api/suggestion/?', 'web.handlers.api.ValueSuggestionHandler'),
-    (r'/api/webhook_payload/?', 'web.handlers.api.GitWebhookHandler'),
 ]
 
 # biothings web tester will read this

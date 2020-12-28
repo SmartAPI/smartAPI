@@ -1,26 +1,29 @@
 
-import hashlib
-import hmac
 import json
-import re
-
-import tornado.escape
-import tornado.httpserver
-import tornado.ioloop
-import tornado.options
-import tornado.web
 import yaml
 
-from biothings.web.handlers import QueryHandler as BioThingsESQueryHandler
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
-
 from ..api.controller import (APIDocController, get_api_metadata_by_url, RegistryError)
-from utils.data import SmartAPIData
 
+def github_authenticated(func):
+    '''
+    RegistryHandler Decorator
+    '''
+
+    def _(self, *args, **kwargs):
+
+        if not self.current_user:
+            self.send_error(
+                message='You must log in first.',
+                status_code=401)
+            return
+        return func(self, *args, **kwargs)
+
+    return _
 
 class BaseHandler(BaseAPIHandler):
 
@@ -42,7 +45,7 @@ class ValidateHandler(BaseHandler):
 
     def post(self):
 
-        url = self.get_argument('url', None)
+        url = self.get_body_argument('url', None)
         data = None
 
         if url:
@@ -77,7 +80,7 @@ class APIHandler(BaseHandler):
 
     kwargs = {
         'GET': {
-            'fields': {'type': list, 'default': None},
+            'fields': {'type': list, 'default': []},
             'format': {'type': str, 'default': 'json'},
             'raw': {'type': bool, 'default': False},
             'meta': {'type': bool, 'default': False},
@@ -124,21 +127,18 @@ class APIHandler(BaseHandler):
         self.format = self.args.out_format
         self.finish(res)
 
+    @github_authenticated
     def post(self):
         """
         Add an API metadata doc
         """
         user = self.current_user
         url = self.args.url
-        if not user:
-            raise HTTPError(401, response='Login required')
-        if not url:
-            raise HTTPError(400, response='URL is required')
-
         data = None
+
         try:
             data = get_api_metadata_by_url(url)
-        except RegistryError  as err:
+        except RegistryError as err:
             raise BadRequest(details=str(err))
 
         try:
@@ -147,15 +147,16 @@ class APIHandler(BaseHandler):
                 user_name=user['login'],
                 **self.args)
 
-        except RegistryError  as err:
+        except RegistryError as err:
             raise BadRequest(details=str(err))
         else:
             self.finish({'success': True, 'details': res})
             send_slack_msg(data, res, user['login'])
 
+    @github_authenticated
     def put(self, _id):
         """
-        Update a slug
+        Update/remove a slug if empty
         OR
         refresh document using url
 
@@ -163,15 +164,12 @@ class APIHandler(BaseHandler):
             slug: update with value or empty if 'deleting'
             refresh: determine operation / update doc by url
         """
-        if not self.current_user:
-            raise HTTPError(401, response='Login required')
-
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
         doc = APIDocController(_id=_id)
 
-        if refresh is False:
+        if self.args.refresh is False:
             try:
                 res = doc.update_slug(_id=_id, user=self.current_user, slug_name=self.args.slug)
             except RegistryError as err:
@@ -179,11 +177,12 @@ class APIHandler(BaseHandler):
         else:
             try:
                 res = doc.refresh_api(_id=_id, user=self.current_user, test=False)
-            except RegistryError  as err:
+            except RegistryError as err:
                 raise BadRequest(details=str(err))
 
         self.finish({'success': True, 'details': res})
 
+    @github_authenticated
     def delete(self, _id):
         """
         Delete API
@@ -191,17 +190,13 @@ class APIHandler(BaseHandler):
         Args:
             _id: API id to be deleted permanently
         """
-        user = self.current_user
-        if not user:
-            raise HTTPError(401, response='Login required')
-
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
         doc = APIDocController(_id=_id)
         try:
-            res = doc.delete(_id=_id, user=user)
-        except RegistryError  as err:
+            res = doc.delete(_id=_id, user=self.current_user)
+        except RegistryError as err:
             raise BadRequest(details=str(err))
 
         self.finish({'success': True, 'details': res})
@@ -226,49 +221,3 @@ class ValueSuggestionHandler(BaseHandler):
         """
         res = APIDocController.get_tags(self.args.field, self.args.size)
         self.finish(res)
-
-
-class GitWebhookHandler(BaseHandler):
-
-    data_handler = SmartAPIData()
-
-    def post(self):
-        # do message authentication
-        digest_obj = hmac.new(key=self.web_settings.API_KEY.encode(
-        ), msg=self.request.body, digestmod=hashlib.sha1)
-        if not hmac.compare_digest('sha1=' + digest_obj.hexdigest(), self.request.headers.get('X-Hub-Signature', '')):
-            self.set_status(405)
-            self.finish({'success': False, 'error': 'Invalid authentication'})
-            return
-        data = tornado.escape.json_decode(self.request.body)
-        # get repository owner name
-        repo_owner = data.get('repository', {}).get(
-            'owner', {}).get('name', None)
-        if not repo_owner:
-            self.set_status(405)
-            self.finish({'success': False, 'error': 'Cannot get repository owner'})
-            return
-        # get repo name
-        repo_name = data.get('repository', {}).get('name', None)
-        if not repo_name:
-            self.set_status(405)
-            self.finish({'success': False, 'error': 'Cannot get repository name'})
-            return
-        # find all modified files in all commits
-        modified_files = set()
-        for commit_obj in data.get('commits', []):
-            for fi in commit_obj.get('added', []):
-                modified_files.add(fi)
-            for fi in commit_obj.get('modified', []):
-                modified_files.add(fi)
-        # build query
-        _query = {"query": {"bool": {"should": [
-            {"regexp": {"_meta.url.raw": {"value": '.*{owner}/{repo}/.*/{fi}'.format(owner=re.escape(repo_owner), repo=re.escape(repo_name), fi=re.escape(fi)),
-                                          "max_determinized_states": 200000}}} for fi in modified_files]}}}
-
-        # get list of ids that need to be refreshed
-        ids_refresh = [x['_id'] for x in self.data_handler.fetch_all(query=_query)]
-        # if there are any ids to refresh, do it
-        if ids_refresh:
-            self.data_handler.refresh_all(id_list=ids_refresh, dryrun=False)
-

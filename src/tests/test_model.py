@@ -1,13 +1,13 @@
 import pytest
 
 from web.api.model import API_Doc
-    
+
 
 def test_doc_exists():
     """
     Existing ID exists
     """
-    _id = 'f307760715d91908d0ae6de7f0810b22' 
+    _id = 'f307760715d91908d0ae6de7f0810b22'
     exists = API_Doc.exists(_id=_id)
 
 def test_doc_doesnt_exist():
@@ -32,13 +32,13 @@ def test_tag_aggregation():
     agg_name = 'field_values'
 
     res = API_Doc.aggregate(field=field, size=100, agg_name=agg_name).to_dict()
-    assert len(res.get('aggregations', {}).get(agg_name, {}).get('buckets', [])) >= 1 
+    assert len(res.get('aggregations', {}).get(agg_name, {}).get('buckets', [])) >= 1
 
 # def test_delete_doc():
 #     """
 #     delete doc
 #     """
-#     _id = '3912601003e25befedfb480a5687ab07' 
+#     _id = '3912601003e25befedfb480a5687ab07'
 #     doc = API_Doc()
 #     doc = doc.get(id=_id)
 #     res = doc.delete(id=s_id)

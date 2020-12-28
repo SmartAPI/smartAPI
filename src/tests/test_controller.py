@@ -1,11 +1,11 @@
 import pytest
 
-from web.api.controller import APIDocController, SlugRegistrationError, get_api_metadata_by_url
+from web.api.controller import APIDocController, RegistryError, get_api_metadata_by_url
 from web.api.model import API_Doc
 
 _my_gene_id = '59dce17363dce279d389100834e43648'
 
-_my_disease_id = '671b45c0301c8624abbd26ae78449ca2'
+_my_disease_id = '48a39f7fb04ea9c5e850264a38113f12'
 
 _test_slug = 'myslug'
 
@@ -17,13 +17,15 @@ _my_disease = {}
 
 _my_gene_url = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
 
-_my_disease_url = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mydisease.info/smartapi.yaml'
+_my_disease_url = 'https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json'
 
-def setup_class():
+@pytest.fixture(autouse=True, scope='module')
+def setup_fixture():
     """
-    Model is given an already transformed doc with an already encoded ID
-    and _meta field with test user
+    Get data from test urls
     """
+    global _my_disease
+    global _my_gene
     # mygene
     if API_Doc.exists(_my_gene_id):
         doc = API_Doc()
@@ -34,12 +36,24 @@ def setup_class():
         doc = API_Doc()
         doc = doc.get(id=_my_disease_id)
         doc.delete(id=_my_disease_id)
-    cls._my_gene = get_api_metadata_by_url(_my_gene_url)
-    cls._my_disease = get_api_metadata_by_url(_my_disease_url)
+    _my_gene = get_api_metadata_by_url(_my_gene_url)
+    _my_disease = get_api_metadata_by_url(_my_disease_url)
+
+def test_add_dryrun():
+    """
+    Dryrun add doc
+    """
+    with pytest.raises(RegistryError) as err:
+        APIDocController.add(
+            _my_gene,
+            user_name=_user['login'],
+            url=_my_gene_url,
+            dryrun=True)
+        assert err == 'API is valid but this was only a test'
 
 def test_add_doc_1():
     """
-    Add test My Gene API to index, return new doc ID
+    Successful addition
     """
     res = APIDocController.add(
         _my_gene,
@@ -47,6 +61,17 @@ def test_add_doc_1():
         url=_my_gene_url)
 
     assert res.get('_id') == _my_gene_id
+
+def test_add_already_exists():
+    """
+    API exists
+    """
+    with pytest.raises(RegistryError) as err:
+        APIDocController.add(
+            _my_gene,
+            user_name=_user['login'],
+            url=_my_gene_url)
+        assert err == 'API Exists'
 
 def test_add_doc_2():
     """
@@ -64,7 +89,14 @@ def test_get_all():
     Get ALL docs
     """
     docs = APIDocController.get_all()
-    assert isinstance(docs, list)
+    assert len(docs) == 2
+
+def test_get_all_size_1():
+    """
+    Get ALL with size
+    """
+    docs = APIDocController.get_all(size=1)
+    assert len(docs) == 1
 
 def test_get_one():
     """
@@ -91,12 +123,19 @@ def test_validate_slug():
     """
     APIDocController.validate_slug_name(slug_name=_test_slug)
 
-def test_validate_slug_invalid():
+def test_validate_slug_invalid_1():
     """
-    Update registered slug name for ID
+    slug name not allowed
     """
-    with pytest.raises(SlugRegistrationError):
+    with pytest.raises(RegistryError):
         APIDocController.validate_slug_name(slug_name='smart-api')
+
+def test_validate_slug_invalid_2():
+    """
+    invalid characters in slug
+    """
+    with pytest.raises(RegistryError):
+        APIDocController.validate_slug_name(slug_name='myname#')
 
 def test_update_slug():
     """
@@ -123,7 +162,7 @@ def test_model_slug_taken():
     """
     Slug name already exists
     """
-    APIDocController.slug_is_available(slug=_test_slug)
+    assert APIDocController.slug_is_available(slug=_test_slug) is True
 
 def test_delete_slug():
     """
@@ -147,8 +186,7 @@ def test_refresh_api():
     res = doc.refresh_api(_id=api_id, user=user, test=True)
     assert res.get('test-updated', '') == f"API with ID {api_id} was refreshed"
 
-@classmethod
-def teardown_class(cls):
+def teardown_module():
     """ teardown any state that was previously setup.
     """
     print("teardown")
