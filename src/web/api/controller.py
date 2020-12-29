@@ -292,80 +292,34 @@ class APIDocController:
         """
         Get one doc by id/slug
         """
+        search = API_Doc.search()
+        search.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
 
-        def _get_hit_object(hit):
-            """[summary]
-
-            Args:
-                hit (list): ES response, list of hits
-
-            Returns:
-                dict: extracted doc dict
-            """
-            obj = hit.get('fields', hit.get('_source', {}))
-            if '_id' in hit:
-                obj['_id'] = hit['_id']
-            return obj
-
-        def _get_api_doc(api_doc, with_meta=True):
-            doc = decode_raw(api_doc.get('~raw', ''))
-            if with_meta:
-                doc["_meta"] = api_doc.get('_meta', {})
-                doc["_id"] = api_doc["_id"]
-            return doc
-
-        s = API_Doc.search()
-        if not len(fields):
-            fields = ['_all']
-
-        s.source(includes=fields)
-        s.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
-
-        res = s.execute().to_dict()
-        if return_raw:
-            return res
-        res = [_get_hit_object(d) for d in res['hits']['hits']]
+        if len(fields):
+            search.source(includes=fields)
         if not return_raw:
-            try:
-                res = [_get_api_doc(x, with_meta=with_meta) for x in res]
-            except ValueError as e:
-                res = {'success': False, 'error': str(e)}
-        if len(res) == 1:
-            res = res[0]
-        return res
+            search.source(excludes=['*.~raw'])
+        if not with_meta:
+            search.source(excludes=['*._meta'])
+
+        if search.count() > 1:
+            raise APIRequestError(f"No exact matches for '{api_name}' found: {search.count()} results")
+
+        return [doc for doc in search]
+        
 
     @staticmethod
     def get_all(fields=[], from_=0, size=0):
         """
         Get all docs
         """
-
-        def _get_hit_object(hit):
-            """[summary]
-
-            Args:
-                hit (list): ES response, list of hits
-
-            Returns:
-                dict: extracted doc dict
-            """
-            print('hit', hit)
-            obj = hit.get('fields', hit.get('_source', {}))
-            if '_id' in hit:
-                obj['_id'] = hit['_id']
-            return obj
-
         search = API_Doc.search()
-        total = size if size != 0 else search.count()
-        start = 0
-        if from_:
-            start = from_
-        search = search[start:total]
+        if size:
+            search = search[from_: from_ + size]
         if len(fields):
             search.source(includes=fields)
 
-        res = [_get_hit_object(d) for d in search]
-        return res
+        return [doc for doc in search]
 
     @staticmethod
     def get_api_id_from_slug(slug):

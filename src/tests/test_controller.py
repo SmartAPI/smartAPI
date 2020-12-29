@@ -51,6 +51,12 @@ def test_add_dryrun():
             dryrun=True)
         assert err == 'API is valid but this was only a test'
 
+def test_validate():
+    """
+    validate metadata
+    """
+    assert APIDocController.validate(_my_gene)
+
 def test_add_doc_1():
     """
     Successful addition
@@ -98,6 +104,13 @@ def test_get_all_size_1():
     docs = APIDocController.get_all(size=1)
     assert len(docs) == 1
 
+def test_get_all_from():
+    """
+    Get ALL from starting point
+    """
+    docs = APIDocController.get_all(from_=1)
+    assert len(docs) == 1
+
 def test_get_one():
     """
     Get one doc by ID
@@ -105,7 +118,25 @@ def test_get_one():
     _id = _my_gene_id
 
     doc = APIDocController.get_api(api_name=_id)
-    assert isinstance(doc, dict)
+    assert doc[0]['info']['title'] == 'MyGene.info API'
+
+def test_get_one_no_meta():
+    """
+    Get one doc without meta field
+    """
+    _id = _my_gene_id
+
+    doc = APIDocController.get_api(api_name=_id, with_meta=False)
+    assert '_meta' in doc
+
+def test_get_one_raw():
+    """
+    Get one doc with raw
+    """
+    _id = _my_gene_id
+
+    doc = APIDocController.get_api(api_name=_id, return_raw=True)
+    assert '~raw' in doc['hits']['hits'][0]
 
 def test_get_tags():
     """
