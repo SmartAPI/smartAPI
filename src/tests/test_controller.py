@@ -164,15 +164,17 @@ def test_validate_slug_invalid_1():
     """
     slug name not allowed
     """
-    with pytest.raises(RegistryError):
+    with pytest.raises(RegistryError) as err:
         APIDocController.validate_slug_name(slug_name='smart-api')
+        assert err == "Slug name smart-api is reserved, please choose another"
 
 def test_validate_slug_invalid_2():
     """
     invalid characters in slug
     """
-    with pytest.raises(RegistryError):
+    with pytest.raises(RegistryError) as err:
         APIDocController.validate_slug_name(slug_name='myname#')
+        assert err == "Slug name myname# contains invalid characters"
 
 def test_update_slug():
     """

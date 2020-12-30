@@ -8,14 +8,61 @@ from biothings.tests.web import BiothingsTestCase
 
 class SmartAPIQueryTest(BiothingsTestCase):
 
-    def test_all(self):
+    @property
+    def auth_user(self):
+        return self.cookie_header('minions@example.com')
+
+    def test_01_create_401(self):
+        '''
+        [CREATE]
+        '''
+        body = {
+            'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
+        }
+        self.query(endpoint="/api", method='POST', json=body, expect=401)
+
+    def test_02_create(self):
+        '''
+        [CREATE]
+        '''
+        body = {
+            'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
+        }
+        res = self.query(endpoint="/api", method='POST', json=body, headers=self.auth_user)
+        assert res.get('success', False)
+
+    def test_03_read(self):
+        '''
+        [READ]
+        '''
+        res = self.query(endpoint="/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='GET')
+        assert res.get('info', '').get('title', '') == "LINCS Data Portal API"
+
+    def test_04_update(self):
+        '''
+        [UPDATE]
+        '''
+        body = {
+            'slug': 'new_slug'
+        }
+        res = self.query(endpoint="/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.auth_user)
+        assert res.get('success', False)
+
+    def test_05_delete(self):
+        '''
+        [DELETE]
+        '''
+        s = self.query(endpoint="/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='DELETE', headers=self.auth_user)
+        assert res.get('success', False)
+
+    def test_100_all(self):
         '''
         [QUERY] Basic functionality
         '''
         res = self.query(q='__all__')
         assert res['total']['value'] == 1
 
-    def test_query(self):
+    def test_101_query(self):
         '''
         [QUERY] Customization by properties
         '''
@@ -66,8 +113,6 @@ class SmartAPIQueryTest(BiothingsTestCase):
             if _id in ids_0:
                 assert False
 
-    # Result Formatting
-
     def test_301_sources(self):
         ''' Return specified fields '''
         res = self.query(q='__all__', fields='_id,info')
@@ -90,4 +135,3 @@ class SmartAPIQueryTest(BiothingsTestCase):
         res = self.request('query?q=__all__&rawquery=1').json()
         assert "query" in res
         assert "bool" in res["query"]
-
