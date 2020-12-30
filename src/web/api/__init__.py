@@ -8,10 +8,10 @@ import os
 
 from elasticsearch_dsl import connections
 
-from .model import API_Doc
+from .model import APIDoc
 
 __all__ = [
-    'API_Doc'
+    'APIDoc'
 ]
 
 # parse environment variables

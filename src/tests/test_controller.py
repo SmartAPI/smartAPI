@@ -1,7 +1,7 @@
 import pytest
 
 from web.api.controller import APIDocController, RegistryError, get_api_metadata_by_url
-from web.api.model import API_Doc
+from web.api.model import APIDoc
 
 _my_gene_id = '59dce17363dce279d389100834e43648'
 
@@ -27,13 +27,13 @@ def setup_fixture():
     global _my_disease
     global _my_gene
     # mygene
-    if API_Doc.exists(_my_gene_id):
-        doc = API_Doc()
+    if APIDoc.exists(_my_gene_id):
+        doc = APIDoc()
         doc = doc.get(id=_my_gene_id)
         doc.delete(id=_my_gene_id)
     # mydisease
-    if API_Doc.exists(_my_disease_id):
-        doc = API_Doc()
+    if APIDoc.exists(_my_disease_id):
+        doc = APIDoc()
         doc = doc.get(id=_my_disease_id)
         doc.delete(id=_my_disease_id)
     _my_gene = get_api_metadata_by_url(_my_gene_url)
@@ -51,11 +51,17 @@ def test_add_dryrun():
             dryrun=True)
         assert err == 'API is valid but this was only a test'
 
-def test_validate():
+def test_validate_valid():
     """
-    validate metadata
+    valid metadata
     """
     assert APIDocController.validate(_my_gene)
+
+def test_validate_invalid():
+    """
+    invalid metadata
+    """
+    assert not APIDocController.validate({'some_field': 'no_meaning'})
 
 def test_add_doc_1():
     """
@@ -118,7 +124,7 @@ def test_get_one():
     _id = _my_gene_id
 
     doc = APIDocController.get_api(api_name=_id)
-    assert doc[0]['info']['title'] == 'MyGene.info API'
+    assert doc['info']['title'] == 'MyGene.info API'
 
 def test_get_one_no_meta():
     """
@@ -127,7 +133,7 @@ def test_get_one_no_meta():
     _id = _my_gene_id
 
     doc = APIDocController.get_api(api_name=_id, with_meta=False)
-    assert '_meta' in doc
+    assert '_meta' not in doc
 
 def test_get_one_raw():
     """
@@ -136,7 +142,7 @@ def test_get_one_raw():
     _id = _my_gene_id
 
     doc = APIDocController.get_api(api_name=_id, return_raw=True)
-    assert '~raw' in doc['hits']['hits'][0]
+    assert '~raw' not in doc
 
 def test_get_tags():
     """

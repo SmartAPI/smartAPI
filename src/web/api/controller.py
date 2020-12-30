@@ -14,6 +14,7 @@ import requests
 import yaml
 import sys
 from collections import OrderedDict
+# from abc import ABC, abstractmethod
 
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b
@@ -22,7 +23,7 @@ else:
 
 from elasticsearch import RequestError
 from elasticsearch_dsl import Q
-from .model import API_Doc
+from .model import APIDoc
 
 logger = logging.getLogger(__name__)
 
@@ -223,11 +224,11 @@ class APIMetadata:
 class APIDocController:
 
     def __init__(self, _id):
-        self._doc = API_Doc.get(id=_id)
+        self._doc = APIDoc.get(id=_id)
 
     @staticmethod
     def exists(_id):
-        return API_Doc.exists(_id)
+        return APIDoc.exists(_id)
 
     @staticmethod
     def validate(data):
@@ -235,7 +236,7 @@ class APIDocController:
             metadata = APIMetadata(data)
             valid = metadata.validate()
         except RegistryError as err:
-            raise BadRequest(details=str(err))
+            return False
         else:
             return valid
 
@@ -283,88 +284,82 @@ class APIDocController:
         if dryrun:
             raise APIMetadataRegistrationError('API is valid but this was only a test')
 
-        doc = API_Doc(meta={'id': api_id}, ** metadata.convert_es())
+        doc = APIDoc(meta={'id': api_id}, ** metadata.convert_es())
         doc.save()
         return {'_id': api_id}
 
     @staticmethod
-    def get_api(api_name, fields=[], with_meta=True, return_raw=False, from_=0):
+    def _get_api_doc(api_doc, with_meta=True, raw=False):
+        if raw:
+            doc = decode_raw(api_doc['~raw'])
+        else:
+            doc = api_doc
+        if with_meta:
+            doc["_meta"] = api_doc['_meta']
+            doc["_id"] = api_doc["_id"]
+        return doc
+
+    @staticmethod
+    def get_api(api_name, fields=[], with_meta=False, return_raw=True, from_=0):
         """
         Get one doc by id/slug
         """
-        search = API_Doc.search()
+        search = APIDoc.search()
         search.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
 
         if len(fields):
             search.source(includes=fields)
-        if not return_raw:
-            search.source(excludes=['*.~raw'])
-        if not with_meta:
-            search.source(excludes=['*._meta'])
 
         if search.count() > 1:
             raise APIRequestError(f"No exact matches for '{api_name}' found: {search.count()} results")
 
-        return [doc for doc in search]
-        
+        res = [doc for doc in search]
+        return APIDocController._get_api_doc(res[0], with_meta=with_meta, raw=return_raw)
 
     @staticmethod
     def get_all(fields=[], from_=0, size=0):
         """
-        Get all docs
+        Returns a list of all docs in index
         """
-        search = API_Doc.search()
-        if size:
-            search = search[from_: from_ + size]
+        search = APIDoc.search()
+        total = size if size != 0 else search.count()
+        search = search[from_: total]
+
         if len(fields):
             search.source(includes=fields)
-
-        return [doc for doc in search]
+        return [doc for doc in search.scan()]
 
     @staticmethod
     def get_api_id_from_slug(slug):
         """
         Return ID of doc with exact match for slug provided
 
-        Args:
-            slug (str): slug name
-
-        Raises:
-            RequestError: multiple hits or error fetching
-
         Returns:
-            [str]: doc ID for exact match
+            doc ID for exact match
         """
 
         if not slug:
             raise RequestError('slug is required')
-        s = API_Doc.search()
-        s = s.query('term', _meta__slug=slug)
-        response = s.execute()
+        search = APIDoc.search()
+        search = search.query('term', _meta__slug=slug)
 
-        if not response.hits.total.value == 1:
-            raise APIRequestError(f'Query for "{slug}" has {response.hits.total.value} results')
+        if not search.count() == 1:
+            raise APIRequestError(f'Query for "{slug}" has {search.count()} results')
 
-        doc = response.hits[0]
-        return doc.id
+        res = [doc for doc in search]
+        return res[0].id
 
     @staticmethod
     def slug_is_available(slug):
         """
         Check if a slug is available
 
-        Args:
-            slug (str): slug name to be checked
-
-        Raises:
-            RequestError: slug was not provided
-
         Returns:
             Bool = exists
         """
         if not slug:
             raise RequestError('slug is required')
-        res = API_Doc.slug_exists(slug)
+        res = APIDoc.slug_exists(slug)
         return res
 
     @staticmethod
@@ -384,7 +379,7 @@ class APIDocController:
             raise SlugRegistrationError(f"Slug name {slug_name} is reserved, please choose another")
         if not all([x in _valid_chars for x in _slug]):
             raise SlugRegistrationError(f"Slug name {slug_name} contains invalid characters")
-        if API_Doc.slug_exists(slug=_slug):
+        if APIDoc.slug_exists(slug=_slug):
             raise SlugRegistrationError(f"Slug name {slug_name} already exists")
 
     @staticmethod
@@ -402,16 +397,14 @@ class APIDocController:
         """
         agg_name = 'field_values'
 
-        res = API_Doc.aggregate(field=field, size=size, agg_name=agg_name)
+        res = APIDoc.aggregate(field=field, size=size, agg_name=agg_name)
         return res.to_dict()
 
-    def delete(self, _id, user):
+    @staticmethod
+    def delete(_id, user):
         """
         delete api with ID
         """
-        if not self.exists(_id):
-            raise APIRequestError(f"API with id '{_id}' does not exist")
-
         doc = self._doc.get(id=_id).to_dict()
         _user = doc.get('_meta', {}).get('github_username', '')
 

@@ -46,5 +46,5 @@ API_PREFIX = 'api'
 # Biothings SDK Settings
 # *****************************************************************************
 ACCESS_CONTROL_ALLOW_METHODS = 'HEAD,GET,POST,DELETE,PUT,OPTIONS'
-ES_QUERY_BUILDER = "web.api.pipeline.SmartAPIQueryBuilder"
+ES_QUERY_BUILDER = "web.pipeline.SmartAPIQueryBuilder"
 DISABLE_CACHING = True

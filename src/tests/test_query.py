@@ -6,7 +6,7 @@ import pytest
 from biothings.tests.web import BiothingsTestCase
 
 
-class DiscoveryQueryTest(BiothingsTestCase):
+class SmartAPIQueryTest(BiothingsTestCase):
 
     def test_all(self):
         '''
@@ -77,8 +77,8 @@ class DiscoveryQueryTest(BiothingsTestCase):
 
     def test_302_size(self):
         ''' Return specified size '''
-        res = self.query(q='__all__', size=6)
-        eq_(len(res['hits']), 6)
+        res = self.query(q='__all__', size=2)
+        assert len(res['hits']) == 2
 
     def test_303_raw(self):
         ''' Return raw ES result '''

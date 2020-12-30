@@ -7,7 +7,7 @@ from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
-from ..api.controller import (APIDocController, get_api_metadata_by_url, RegistryError)
+from web.api.controller import (APIDocController, get_api_metadata_by_url, RegistryError)
 
 def github_authenticated(func):
     '''

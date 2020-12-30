@@ -8,7 +8,7 @@ ES_INDEX_NAME = 'smartapi_oas3'
 client = Elasticsearch()
 
 
-class Document_Meta(InnerDoc):
+class DocumentMeta(InnerDoc):
     '''
     _meta field.
     ETag: "47ccb-16b4c2a9eb0"
@@ -40,7 +40,7 @@ class Contact(InnerDoc):
     name = Keyword()
     url = Text()
 
-class Document_Info(InnerDoc):
+class DocumentInfo(InnerDoc):
     '''
     contact: {email: "marcin.pilarczyk@uc.edu", name: "API Support - Marcin Pilarczyk",…}
     description: "Documentation of the ilincs.org API. Learn more about [ilincs.org](http://www.ilincs.org/ilincs/about)"
@@ -54,7 +54,7 @@ class Document_Info(InnerDoc):
     title = Text(required=True)
     version = Text()
 
-class API_Doc(Document):
+class APIDoc(Document):
 
     '''
     get, delete and update methods are included by default by elasticsearch_dsl
@@ -82,8 +82,8 @@ class API_Doc(Document):
         _score: 1
     }
     '''
-    _meta = Object(Document_Meta, required=True)
-    info = Object(Document_Info, required=True)
+    _meta = Object(DocumentMeta, required=True)
+    info = Object(DocumentInfo, required=True)
     paths = Nested(
         multi=True,
         properties={
@@ -96,6 +96,8 @@ class API_Doc(Document):
     # only one can exist
     swagger = Text()
     openapi = Text()
+    basePath = Text()
+    host = Text()
 
     class Meta:
         dynamic = MetaField(True)
