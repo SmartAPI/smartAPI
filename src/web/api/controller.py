@@ -307,27 +307,26 @@ class APIDocController:
         search = APIDoc.search()
         search.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
 
-        if len(fields):
-            search.source(includes=fields)
+        if fields:
+            search = search.source(includes=fields)
 
         if search.count() > 1:
             raise APIRequestError(f"No exact matches for '{api_name}' found: {search.count()} results")
 
-        res = [doc for doc in search]
-        return APIDocController._get_api_doc(res[0], with_meta=with_meta, raw=return_raw)
+        return APIDocController._get_api_doc(search[0], with_meta=with_meta, raw=return_raw)
 
     @staticmethod
-    def get_all(fields=[], from_=0, size=0):
+    def get_all(fields=[], from_=0, size=10):
         """
-        Returns a list of all docs in index
+        Returns a list of all docs in index.
+        Each document is a dsl search hit that behaves like a dictionary
         """
         search = APIDoc.search()
-        total = size if size != 0 else search.count()
-        search = search[from_: total]
+        search = search[from_: from_ + size]
 
-        if len(fields):
-            search.source(includes=fields)
-        return [doc for doc in search.scan()]
+        if fields:
+            search = search.source(includes=fields)
+        return list(iter(search))
 
     @staticmethod
     def get_api_id_from_slug(slug):
@@ -341,13 +340,12 @@ class APIDocController:
         if not slug:
             raise RequestError('slug is required')
         search = APIDoc.search()
-        search = search.query('term', _meta__slug=slug)
+        search = search.query('term', _meta__slug__raw=slug)
 
         if not search.count() == 1:
             raise APIRequestError(f'Query for "{slug}" has {search.count()} results')
 
-        res = [doc for doc in search]
-        return res[0].id
+        return search[0].id
 
     @staticmethod
     def slug_is_available(slug):

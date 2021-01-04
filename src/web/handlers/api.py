@@ -141,10 +141,17 @@ class APIHandler(BaseHandler):
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
+        version = ''
+        if 'openapi' in data:
+            version = 'openapi'
+        if 'swagger' in data:
+            version = 'swagger'
+
         try:
             res = APIDocController.add(
                 api_doc=data,
                 user_name=user['login'],
+                version=version,
                 **self.args)
 
         except RegistryError as err:
@@ -190,6 +197,7 @@ class APIHandler(BaseHandler):
         Args:
             _id: API id to be deleted permanently
         """
+        print('ID TO DELETE', _id)
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 

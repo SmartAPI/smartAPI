@@ -2,24 +2,39 @@
     Biothings ESQueryHandler Type Tester
 '''
 import pytest
+import json
+from tornado.escape import json_encode
+from tornado.web import create_signed_value
 
 from biothings.tests.web import BiothingsTestCase
 
 
 class SmartAPIQueryTest(BiothingsTestCase):
 
+    @classmethod
+    def cookie_header(cls, username):
+        cookie_name, cookie_value = 'user', {'login': username}
+        secure_cookie = create_signed_value(
+            cls.settings.COOKIE_SECRET, cookie_name,
+            json_encode(cookie_value))
+        return {'Cookie': '='.join((cookie_name, secure_cookie.decode()))}
+
     @property
     def auth_user(self):
-        return self.cookie_header('minions@example.com')
+        return self.cookie_header('artofmarco@gmail.com')
+
+    @property
+    def evil_user(self):
+        return self.cookie_header('villain@example.com')
 
     def test_01_create_401(self):
         '''
-        [CREATE]
+        [CREATE] Unauthorized
         '''
         body = {
             'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
         }
-        self.query(endpoint="/api", method='POST', json=body, expect=401)
+        self.request("/api", method='POST', json=body, expect=401)
 
     def test_02_create(self):
         '''
@@ -28,31 +43,44 @@ class SmartAPIQueryTest(BiothingsTestCase):
         body = {
             'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
         }
-        res = self.query(endpoint="/api", method='POST', json=body, headers=self.auth_user)
+        res = self.request("/api", method='POST', json=body, headers=self.auth_user)
+        res= json.loads(res.text)
         assert res.get('success', False)
 
     def test_03_read(self):
         '''
         [READ]
         '''
-        res = self.query(endpoint="/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='GET')
-        assert res.get('info', '').get('title', '') == "LINCS Data Portal API"
+        res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='GET')
+        res = json.loads(res.text)
+        assert json_data.get('info', '').get('title', '') == "LINCS Data Portal API"
 
-    def test_04_update(self):
+    def test_04_update_400(self):
+        '''
+        [UPDATE] Unauthorized
+        '''
+        body = {
+            'slug': 'new_slug'
+        }
+        self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.evil_user, expect=400)
+
+    def test_05_update(self):
         '''
         [UPDATE]
         '''
         body = {
             'slug': 'new_slug'
         }
-        res = self.query(endpoint="/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.auth_user)
+        res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.auth_user)
+        res = json.loads(res.text)
         assert res.get('success', False)
 
-    def test_05_delete(self):
+    def test_06_delete(self):
         '''
         [DELETE]
         '''
-        s = self.query(endpoint="/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='DELETE', headers=self.auth_user)
+        res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='DELETE', headers=self.auth_user)
+        res = json.loads(res.text)
         assert res.get('success', False)
 
     def test_100_all(self):
