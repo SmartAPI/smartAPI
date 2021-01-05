@@ -5,7 +5,7 @@ import logging
 from elasticsearch_dsl import Index, Search
 
 from web.api.model import API_Doc
-from web.api.controller import SWAGGER2_INDEXED_ITEMS, APIDocController, get_api_metadata_by_url, APIRequestError
+from web.api import SWAGGER2_INDEXED_ITEMS, APIDocController, get_api_metadata_by_url, APIRequestError
 
 
 class SmartAPIData():

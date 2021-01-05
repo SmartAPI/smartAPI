@@ -7,7 +7,7 @@ from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
-from web.api.controller import (APIDocController, get_api_metadata_by_url, RegistryError)
+from web.api.controller import (APIDocController, get_api_metadata_by_url, RegistryError, V2Metadata, V3Metadata)
 
 def github_authenticated(func):
     '''
@@ -141,17 +141,11 @@ class APIHandler(BaseHandler):
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
-        version = ''
-        if 'openapi' in data:
-            version = 'openapi'
-        if 'swagger' in data:
-            version = 'swagger'
-
         try:
-            res = APIDocController.add(
+            doc = APIDocController.from_dict(data)
+            res = doc.save(
                 api_doc=data,
                 user_name=user['login'],
-                version=version,
                 **self.args)
 
         except RegistryError as err:
@@ -174,7 +168,9 @@ class APIHandler(BaseHandler):
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
-        doc = APIDocController(_id=_id)
+        data = APIDocController.get(_id)
+
+        doc = APIDocController(_metadata=data)
 
         if self.args.refresh is False:
             try:
@@ -197,13 +193,11 @@ class APIHandler(BaseHandler):
         Args:
             _id: API id to be deleted permanently
         """
-        print('ID TO DELETE', _id)
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
-        doc = APIDocController(_id=_id)
         try:
-            res = doc.delete(_id=_id, user=self.current_user)
+            res = APIDocController.delete(_id=_id, user=self.current_user)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
