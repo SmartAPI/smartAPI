@@ -13,7 +13,7 @@ class SmartAPIQueryTest(BiothingsTestCase):
 
     @classmethod
     def cookie_header(cls, username):
-        cookie_name, cookie_value = 'user', {'login': username}
+        cookie_name, cookie_value = 'user', {'github_username': username}
         secure_cookie = create_signed_value(
             cls.settings.COOKIE_SECRET, cookie_name,
             json_encode(cookie_value))
@@ -21,11 +21,11 @@ class SmartAPIQueryTest(BiothingsTestCase):
 
     @property
     def auth_user(self):
-        return self.cookie_header('artofmarco@gmail.com')
+        return self.cookie_header('marcodarko')
 
     @property
     def evil_user(self):
-        return self.cookie_header('villain@example.com')
+        return self.cookie_header('eviluser01')
 
     def test_01_create_401(self):
         '''

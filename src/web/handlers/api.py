@@ -101,24 +101,18 @@ class APIHandler(BaseHandler):
 
     name = "api_handler"
 
-    def get(self, api_name=None):
+    def get(self, query=None):
         """
-        Get one API by ID or all
-
-        Args:
-            api_name (str): name of API doc requested
-
-        Returns:
-            JSON or YAML of doc requested
+        Get one API by api ID or slug or ALL
         """
-        if api_name is None:
+        if query is None:
             res = APIDocController.get_all(
                 fields=self.args.fields,
                 from_=self.args._from,
                 size=self.args.size)
         else:
             res = APIDocController.get_api(
-                api_name=api_name,
+                query=query,
                 fields=self.args.fields,
                 with_meta=self.args.meta,
                 return_raw=self.args.raw,
@@ -141,13 +135,26 @@ class APIHandler(BaseHandler):
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
+        if self.args.dryrun:
+            try:
+                doc = APIDocController.from_dict(data)
+                doc.validate()
+            except RegistryError as err:
+                raise BadRequest(details=str(err))
+            else:
+                if isinstance(doc, V2Metadata):
+                    self.finish(
+                        {'success': True, 'details': "[Dryrun] Valid Swagger V2 Metadata"})
+                elif isinstance(doc, V3Metadata):
+                    self.finish(
+                        {'success': True, 'details': "[Dryrun] Valid OpenAPI V3 Metadata"})
+
         try:
             doc = APIDocController.from_dict(data)
             res = doc.save(
                 api_doc=data,
                 user_name=user['login'],
                 **self.args)
-
         except RegistryError as err:
             raise BadRequest(details=str(err))
         else:
@@ -157,20 +164,13 @@ class APIHandler(BaseHandler):
     @github_authenticated
     def put(self, _id):
         """
-        Update/remove a slug if empty
-        OR
-        refresh document using url
-
-        Args:
-            slug: update with value or empty if 'deleting'
-            refresh: determine operation / update doc by url
+        Update registered slug or refresh by url
         """
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
-        data = APIDocController.get(_id)
-
-        doc = APIDocController(_metadata=data)
+        data = APIDocController.get(_id).to_dict()
+        doc = APIDocController.from_dict(data)
 
         if self.args.refresh is False:
             try:
@@ -189,13 +189,9 @@ class APIHandler(BaseHandler):
     def delete(self, _id):
         """
         Delete API
-
-        Args:
-            _id: API id to be deleted permanently
         """
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
-
         try:
             res = APIDocController.delete(_id=_id, user=self.current_user)
         except RegistryError as err:

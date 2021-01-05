@@ -78,6 +78,6 @@ def test_delete_doc():
     delete doc
     """
     doc = APIDoc()
-    doc = doc.get(id=doc_1_id)
-    doc.delete(id=doc_1_id)
+    doc = doc.get(doc_1_id)
+    doc.delete()
     assert not APIDoc.exists(_id=doc_1_id)

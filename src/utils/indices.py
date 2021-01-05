@@ -36,4 +36,3 @@ def refresh():
 
     index_1 = Index(APIDoc.Index.name)
     index_1.refresh()
-    

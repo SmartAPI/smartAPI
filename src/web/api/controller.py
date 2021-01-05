@@ -22,7 +22,7 @@ else:
     from pyblake2 import blake2b  # pylint: disable=import-error
 
 from elasticsearch import RequestError
-from elasticsearch_dsl import Q
+from elasticsearch_dsl import Q, Search
 from .model import APIDoc
 
 logger = logging.getLogger(__name__)
@@ -44,6 +44,8 @@ SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
 
 # This is a separate schema for SmartAPI extensions only
 SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
+# Translator schema
+TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
 METADATA_KEY_ORDER = ['openapi', 'info', 'servers',
                       'externalDocs', 'tags', 'security', 'paths', 'components']
 
@@ -223,8 +225,8 @@ class APIMetadata:
 
 class APIDocController(ABC):
 
-    def __init__(self, _metadata=None):
-        self.metadata = _metadata
+    def __init__(self, metadata):
+        self.metadata = metadata
 
     @staticmethod
     def exists(_id):
@@ -238,35 +240,46 @@ class APIDocController(ABC):
     def from_dict(dic):
         if 'openapi' in dic:
             return V3Metadata(dic)
-        if 'swagger' in dic:
+        elif 'swagger' in dic:
             return V2Metadata(dic)
+        else:
+            raise ValidationError('Version unknown')
 
     @staticmethod
-    def _get_api_doc(api_doc, with_meta=True, raw=False):
+    def get(_id):
+        return APIDoc.get(_id)
+
+    @staticmethod
+    def _get_api_doc(_doc, with_meta=False, raw=True):
         if raw:
-            doc = decode_raw(api_doc['~raw'])
+            doc = decode_raw(_doc['~raw'])
         else:
-            doc = api_doc
+            doc = _doc
         if with_meta:
-            doc["_meta"] = api_doc['_meta']
-            doc["_id"] = api_doc["_id"]
+            doc["_meta"] = _doc['_meta']
+            doc["_id"] = _doc["_id"]
         return doc
 
     @staticmethod
-    def get_api(api_name, fields=[], with_meta=False, return_raw=True, from_=0):
+    def get_api(query, fields=[], with_meta=False, return_raw=True, from_=0):
         """
         Get one doc by id/slug
         """
         search = APIDoc.search()
-        search.query = Q('bool', should=[Q('match', _id=api_name) | Q('term', _meta__slug=api_name)], minimum_should_match=1)
+
+        if APIDoc.exists(query):
+            search = search.query('match', _id=query)
+        else:
+            search = search.query('term', _meta__slug=query, minimum_should_match=1)
 
         if fields:
             search = search.source(includes=fields)
 
-        if search.count() > 1:
-            raise APIRequestError(f"No exact matches for '{api_name}' found: {search.count()} results")
+        if search.count() != 1:
+            raise APIRequestError(f"No exact matches for '{query}' found: {search.count()} results")
 
-        return APIDocController._get_api_doc(search[0], with_meta=with_meta, raw=return_raw)
+        doc = search[0].to_dict()
+        return APIDocController._get_api_doc(doc, with_meta=with_meta, raw=return_raw)
 
     @staticmethod
     def get_all(fields=[], from_=0, size=10):
@@ -289,11 +302,11 @@ class APIDocController(ABC):
         Returns:
             doc ID for exact match
         """
-
         if not slug:
             raise RequestError('slug is required')
+
         search = APIDoc.search()
-        search = search.query('term', _meta__slug__raw=slug)
+        search = search.filter('term', _meta__slug=query, minimum_should_match=1)
 
         if not search.count() == 1:
             raise APIRequestError(f'Query for "{slug}" has {search.count()} results')
@@ -367,60 +380,35 @@ class APIDocController(ABC):
 
     def update_slug(self, _id, user, slug_name):
         """
-        Update API doc slug name
-
-        Args:
-            _id (str): doc ID to be updated
-            user (dict): user info of requester
-            slug_name (str): new slug name
-
-        Raises:
-            SlugRegistrationError: detail slug registration msg
-
-        Returns:
-            msg with id._meta.slug and updated slug name
+        Update API doc registered slug name
         """
         if not self.exists(_id):
             raise APIRequestError(f"API with id '{_id}' does not exist")
-
-        i = self._doc.to_dict()
-        _user = i.get('_meta', {}).get('github_username', '')
-
-        if user.get('login', None) != _user:
-            raise APIRequestError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
 
         self.validate_slug_name(slug_name)
 
-        self._doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
+        api_doc = self.get(_id)
+        api_doc.update(id=_id, refresh=True, _meta={"slug": slug_name.lower()})
         return {"{}._meta.slug".format(_id): slug_name.lower()}
 
-    def refresh_api(self, _id, user, test=False):
+    def refresh_api(self, _id, user):
         """
         refresh the given API document object based on its saved metadata url
-
-        Args:
-            _id (str): ID of API doc
-            user (dict): user info
-            test : if test doc will not update to avoid conflict with unit test
-
-        Returns:
-            Dict with ID updated message
         """
         if not self.exists(_id):
             raise APIRequestError(f"API with id '{_id}' does not exist")
 
-        api_doc = self._doc.to_dict()
+        api_doc = self.get(_id)
 
-        _meta = api_doc.get('_meta', {})
+        _meta = api_doc.to_dict().get('_meta', {})
 
         res = get_api_metadata_by_url(_meta['url'])
 
         if res and isinstance(res, dict):
             _meta['timestamp'] = dt.now().isoformat()
             res['_meta'] = _meta
-            if test:
-                return {'test-updated': f"API with ID {_id} was refreshed"}
-            self._doc.update(id=_id, refresh=True, **res['metadata'])
+
+            api_doc.update(id=_id, refresh=True, **res)
             return {'updated': f"API with ID {_id} was refreshed"}
         else:
             raise APIRequestError('Invalid input data.')
@@ -429,39 +417,28 @@ class APIDocController(ABC):
         """
         delete the slug of API _id.
         used in APIMetaDataHandler [DELETE]
-
-        Args:
-            _id (str): ID of doc
         """
         if not self.exists(_id):
             raise APIRequestError(f"API with id '{_id}' does not exist")
 
-        self._doc.update(id=_id, refresh=True, _meta={'slug': ''})
+        api_doc = self.get(_id)
+        api_doc.update(id=_id, refresh=True, _meta={'slug': ''})
 
         return f"slug deleted for {_id} was deleted"
 
 class V3Metadata(APIDocController):
 
     def __init__(self, metadata):
-        # get the major version of the schema type
-        if metadata.get('openapi', False):
-            self.schema_version = 'OAS' + metadata['openapi'].split('.')[0]
-        else:
-            self.schema_version = None
-        # set the correct schema validation url
-        self.schema_url = OAS3_SCHEMA_URL
+        """
+        OAS3 V3 Metadata
+        """
+        super().__init__(metadata)
+        assert metadata['openapi'].split('.')[0] == "3"
         self.get_schema()
-        self.metadata = metadata
-        self._meta = self.metadata.pop('_meta', {})
-        try:
-            self._meta['ETag'] = requests.get(
-                self._meta['url']).headers.get(
-                'ETag', 'I').strip('W/"')
-        except BaseException:
-            pass
+        # make schema download class
 
     def get_schema(self):
-        schema = requests.get(self.schema_url).text
+        schema = requests.get(OAS3_SCHEMA_URL).text
         if schema.startswith("export default "):
             schema = schema[len("export default "):]
         try:
@@ -470,28 +447,37 @@ class V3Metadata(APIDocController):
             self.oas_schema = yaml.load(schema, Loader=yaml.SafeLoader)
         self.smartapi_schema = requests.get(SMARTAPI_SCHEMA_URL).json()
 
-    def validate_oas3(self):
+    def _validate_oas3(self):
         '''
         Validate against V3 OpenAPI schema
         '''
-        if not self.schema_version or self.schema_version != "OAS3":
-            raise ValidationError('Version unknown or not OAS3')
         try:
             jsonschema.validate(self.metadata, self.oas_schema)
         except jsonschema.ValidationError as e:
-            err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
+            err_msg = "OAS3 Validation Error: '{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
             raise ValidationError(err_msg)
         except Exception as e:
             raise ValidationError("Unexpected Validation Error: {} - {}".format(type(e).__name__, e))
 
-    def validate_smartapi(self):
+    def _validate_smartapi(self):
         '''
         Validate against SmartAPI schema
         '''
         try:
             jsonschema.validate(self.metadata, self.smartapi_schema)
         except jsonschema.ValidationError as e:
-            err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
+            err_msg = "SmartAPI Validation Error: '{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
+            raise ValidationError(err_msg)
+
+    def _validate_translator(self):
+        '''
+        Validate against x-translator
+        '''
+        translator_schema = requests.get(TRANSLATOR_URL).json()
+        try:
+            jsonschema.validate(self.metadata, translator_schema)
+        except jsonschema.ValidationError as e:
+            err_msg = "Translator Validation Error: '{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
             raise ValidationError(err_msg)
 
     def encode_api_id(self, url):
@@ -518,13 +504,24 @@ class V3Metadata(APIDocController):
 
     def create_meta(self, url, user_name):
         """
-        Add creation metadata
+        Document metadata added on convertion
         """
         self._meta = {
             "github_username": user_name,
             'url': url,
             'timestamp': dt.now().isoformat()
         }
+        try:
+            self._meta['ETag'] = requests.get(
+                self._meta['url']).headers.get(
+                'ETag', 'I').strip('W/"')
+        except BaseException:
+            pass
+
+    def validate(self):
+        self._validate_oas3()
+        self._validate_smartapi()
+        self._validate_translator()
 
     def save(self, api_doc, user_name=None, **options):
         """
@@ -532,50 +529,32 @@ class V3Metadata(APIDocController):
 
         Returns saved API ID
         """
-        dryrun = options.get('dryrun')
         overwrite = options.get('overwrite')
         url = options.get('url')
 
-        self.validate_oas3()
-        self.validate_smartapi()
+        self.validate()
 
         api_id = self.encode_api_id(url)
-        doc_exists = self.exists(api_id)
-
-        if doc_exists and not overwrite:
+        if self.exists(api_id) and not overwrite:
             raise APIMetadataRegistrationError('API Exists')
-        if dryrun:
-            raise APIMetadataRegistrationError('API is valid but this was only a test')
 
         self.create_meta(url, user_name)
         doc = APIDoc(meta={'id': api_id}, ** self.convert_es())
         doc.save()
-        return {'_id': api_id}
+        return api_id
 
 class V2Metadata(APIDocController):
 
     def __init__(self, metadata):
-        # get the major version of the schema type
-        if metadata.get('swagger', False):
-            self.schema_version = 'SWAGGER' + metadata['swagger'].split('.')[0]
-        else:
-            self.schema_version = None
-        # set the correct schema validation url
-        self.schema_url = SWAGGER2_SCHEMA_URL
+        """
+        Swagger V2 Metadata
+        """
+        super().__init__(metadata)
+        assert metadata['swagger'].split('.')[0] == "2"
         self.get_schema()
-        self.metadata = metadata
-        self._meta = self.metadata.pop('_meta', {})
-        try:
-            self._meta['ETag'] = requests.get(
-                self._meta['url']).headers.get(
-                'ETag', 'I').strip('W/"')
-        except BaseException:
-            pass
-        if self.schema_version == 'SWAGGER2':
-            self._meta['swagger_v2'] = True
 
     def get_schema(self):
-        schema = requests.get(self.schema_url).text
+        schema = requests.get(SWAGGER2_SCHEMA_URL).text
         if schema.startswith("export default "):
             schema = schema[len("export default "):]
         try:
@@ -591,8 +570,6 @@ class V2Metadata(APIDocController):
 
     def validate(self):
         '''Validate against OpenAPI V3 schema'''
-        if not self.schema_version or self.schema_version != "SWAGGER2":
-            raise ValidationError('Version unknown or not SWAGGER2')
         try:
             jsonschema.validate(self.metadata, self.oas_schema)
         except jsonschema.ValidationError as e:
@@ -604,24 +581,32 @@ class V2Metadata(APIDocController):
         return {"valid": True, "v2": True}
 
     def convert_es(self):
-        '''convert API metadata for ES indexing.'''
-
-        if self.schema_version == 'OAS3':
-            _d = copy.copy(self.metadata)
-            _d['_meta'] = self._meta
-            # convert paths to a list of each path item
-            _paths = []
-            for path in _d.get('paths', []):
-                _paths.append({
-                    "path": path,
-                    "pathitem": _d['paths'][path]
-                })
-            if _paths:
-                _d['paths'] = _paths
-
+        '''index Swagger compatible items'''
+        # swagger 2 or other, only index limited fields
+        _d = {"_meta": self._meta}
+        for key in SWAGGER2_INDEXED_ITEMS:
+            if key in self.metadata:
+                _d[key] = self.metadata[key]
         # include compressed binary raw metadata as "~raw"
         _d["~raw"] = encode_raw(self.metadata)
         return _d
+
+    def create_meta(self, url, user_name):
+        """
+        Document metadata added on convertion
+        """
+        self._meta = {
+            "github_username": user_name,
+            'url': url,
+            'timestamp': dt.now().isoformat(),
+            'swagger_v2': True
+        }
+        try:
+            self._meta['ETag'] = requests.get(
+                self._meta['url']).headers.get(
+                'ETag', 'I').strip('W/"')
+        except BaseException:
+            pass
 
     def save(self, api_doc, user_name=None, **options):
         """
@@ -630,15 +615,8 @@ class V2Metadata(APIDocController):
         Returns saved API ID
         """
         save_v2 = options.get('save_v2')
-        dryrun = options.get('dryrun')
         overwrite = options.get('overwrite')
         url = options.get('url')
-
-        api_doc['_meta'] = {
-            "github_username": user_name,
-            'url': url,
-            'timestamp': dt.now().isoformat()
-        }
 
         validation = self.validate()
 
@@ -652,9 +630,8 @@ class V2Metadata(APIDocController):
 
         if doc_exists and not overwrite:
             raise APIMetadataRegistrationError('API Exists')
-        if dryrun:
-            raise APIMetadataRegistrationError('API is valid but this was only a test')
 
+        self.create_meta(url, user_name)
         doc = APIDoc(meta={'id': api_id}, ** self.convert_es())
         doc.save()
-        return {'_id': api_id}
+        return api_id
