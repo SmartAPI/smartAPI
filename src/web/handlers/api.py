@@ -7,7 +7,7 @@ from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
-from web.api.controller import (APIDocController, get_api_metadata_by_url, RegistryError, V2Metadata, V3Metadata)
+from web.api.controller import (APIDocController, Downloader, RegistryError, V2Metadata, V3Metadata)
 
 def github_authenticated(func):
     '''
@@ -50,7 +50,7 @@ class ValidateHandler(BaseHandler):
 
         if url:
             try:
-                data = get_api_metadata_by_url(url)
+                data = Downloader.get_api_metadata_by_url(url)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
 
@@ -101,22 +101,17 @@ class APIHandler(BaseHandler):
 
     name = "api_handler"
 
-    def get(self, query=None):
+    def get(self, _id=None):
         """
-        Get one API by api ID or slug or ALL
+        Get one API or ALL
         """
-        if query is None:
+        if _id is None:
             res = APIDocController.get_all(
                 fields=self.args.fields,
                 from_=self.args._from,
                 size=self.args.size)
         else:
-            res = APIDocController.get_api(
-                query=query,
-                fields=self.args.fields,
-                with_meta=self.args.meta,
-                return_raw=self.args.raw,
-                from_=self.args._from)
+            res = APIDocController.get_api_by_id(_id)
 
         self.format = self.args.out_format
         self.finish(res)
@@ -131,7 +126,7 @@ class APIHandler(BaseHandler):
         data = None
 
         try:
-            data = get_api_metadata_by_url(url)
+            data = Downloader.get_api_metadata_by_url(url)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 

@@ -1,53 +1,60 @@
+import os
+
 import pytest
 import json
 
-from web.api.controller import APIDocController, RegistryError, get_api_metadata_by_url, V3Metadata, V2Metadata
+from web.api.controller import APIDocController, RegistryError, Downloader, ValidationError
 from web.api.model import APIDoc
 from utils.indices import refresh
-from .data import TEST1, TEST2
 
-_my_gene_id = '59dce17363dce279d389100834e43648'
+MYGENE_ID = '59dce17363dce279d389100834e43648'
 
-_my_disease_id = '48a39f7fb04ea9c5e850264a38113f12'
+MYDISEASE_ID = '48a39f7fb04ea9c5e850264a38113f12'
 
-_test_slug = 'myslug'
+TEST1_ID = '26ce0569ba5b82902148069b4c3e51b4'
 
-_user = {"github_username": "marcodarko"}
+TEST2_ID = 'a3cfb0c18f630ce73ccf86b1db5117db'
 
-_my_gene = {}
+TEST_SLUG = 'myslug'
 
-_my_disease = {}
+USER = {"github_username": "marcodarko"}
 
-_my_gene_url = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
+MYGENE = {}
 
-_my_disease_url = 'https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json'
+MYDISEASE = {}
+
+MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
+
+MYDISEASE_URL = 'https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json'
 
 @pytest.fixture(autouse=True, scope='module')
 def setup_fixture():
     """
     Get data from test urls
     """
-    global _my_disease
-    global _my_gene
-    # mygene
-    if APIDoc.exists(_my_gene_id):
-        doc = APIDoc()
-        doc = doc.get(_my_gene_id)
-        doc.delete()
-    # mydisease
-    if APIDoc.exists(_my_disease_id):
-        doc = APIDoc()
-        doc = doc.get(_my_disease_id)
-        doc.delete()
-    # download tests
-    _my_gene = get_api_metadata_by_url(_my_gene_url)
-    _my_disease = get_api_metadata_by_url(_my_disease_url)
-    # save test docs
-    test1 = APIDoc(meta={'id': '26ce0569ba5b82902148069b4c3e51b4'}, **json.loads(TEST1))
-    test1.save()
+    global MYDISEASE
+    global MYGENE
+    test_ids = [MYGENE_ID, MYDISEASE_ID, TEST1_ID, TEST2_ID]
+    for _id in test_ids:
+        if APIDoc.exists(_id):
+            doc = APIDoc()
+            doc = doc.get(_id)
+            doc.delete()
+    # remote file tests
+    MYGENE = Downloader.get_api_metadata_by_url(MYGENE_URL)
+    MYDISEASE = Downloader.get_api_metadata_by_url(MYDISEASE_URL)
+    # local file tests
+    dirname = os.path.dirname(__file__)
 
-    test2 = APIDoc(meta={'id': 'a3cfb0c18f630ce73ccf86b1db5117db'}, **json.loads(TEST2))
-    test2.save()
+    with open(os.path.join(dirname, 'test_doc_1.json'), 'r') as file:
+        doc_1 = json.load(file)
+        test1 = APIDoc(meta={'id': TEST1_ID}, **doc_1)
+        test1.save()
+
+    with open(os.path.join(dirname, 'test_doc_2.json'), 'r') as file:
+        doc_2 = json.load(file)
+        test2 = APIDoc(meta={'id': TEST2_ID}, **doc_2)
+        test2.save()
 
     refresh()
 
@@ -62,68 +69,60 @@ def test_version():
     """
     metadata version handler
     """
-    assert isinstance(APIDocController.from_dict(_my_gene), V3Metadata)
+    assert APIDocController.from_dict(MYGENE).version == 'v3'
 
 def test_validation():
     """
     valid openapi v3 metadata
     """
-    doc = APIDocController.from_dict(_my_gene)
+    doc = APIDocController.from_dict(MYGENE)
     doc.validate()
 
 def test_validate_invalid_v3():
     """
     invalid openapi v3 metadata
     """
-    with pytest.raises(KeyError):
-        doc = V3Metadata({'some_field': 'no_meaning'})
-        doc.validate_oas3()
-
-def test_validate_invalid_v2():
-    """
-    invalid openapi v2 metadata
-    """
-    with pytest.raises(KeyError):
-        doc = V2Metadata({'some_field': 'no_meaning'})
+    with pytest.raises(ValidationError):
+        doc = APIDocController.from_dict({'some_field': 'no_meaning', 'openapi': '3.0.0'})
         doc.validate()
 
 def test_add_doc_1():
     """
     Successful addition
     """
-    doc = APIDocController.from_dict(_my_gene)
+    doc = APIDocController.from_dict(MYGENE)
     res = doc.save(
-        _my_gene,
-        user_name=_user['github_username'],
-        url=_my_gene_url)
+        MYGENE,
+        user_name=USER['github_username'],
+        url=MYGENE_URL)
     refresh()
-    assert res == _my_gene_id
-    assert APIDoc.exists(_id=_my_gene_id)
+    assert res == MYGENE_ID
+    assert APIDoc.exists(_id=MYGENE_ID)
 
 def test_add_already_exists():
     """
     API exists
     """
     with pytest.raises(RegistryError) as err:
-        doc = APIDocController.from_dict(_my_gene)
+        doc = APIDocController.from_dict(MYGENE)
         doc.save(
-            _my_gene,
-            user_name=_user['github_username'],
-            url=_my_gene_url)
-        assert err == 'API Exists'
+            MYGENE,
+            user_name=USER['github_username'],
+            url=MYGENE_URL)
+    assert err == 'API Exists'
 
 def test_add_doc_2():
     """
     Add test My Disease API to index, return new doc ID
     """
-    doc = APIDocController.from_dict(_my_disease)
+    doc = APIDocController.from_dict(MYDISEASE)
     res = doc.save(
-        _my_disease,
-        user_name=_user['github_username'],
-        url=_my_disease_url)
+        MYDISEASE,
+        user_name=USER['github_username'],
+        url=MYDISEASE_URL)
     refresh()
-    assert res == _my_disease_id
-    assert APIDoc.exists(_id=_my_disease_id)
+    assert res == MYDISEASE_ID
+    assert APIDoc.exists(_id=MYDISEASE_ID)
 
 def test_get_all_size_1():
     """
@@ -143,109 +142,74 @@ def test_get_one():
     """
     Get one doc by ID
     """
-    _id = _my_gene_id
-
-    doc = APIDocController.get_api(query=_id)
+    doc = APIDocController.get_api_by_id(_id=MYGENE_ID)
     assert doc['info']['title'] == 'MyGene.info API'
-
-def test_get_one_no_meta():
-    """
-    Get one doc without meta field
-    """
-    _id = _my_gene_id
-
-    doc = APIDocController.get_api(query=_id, with_meta=False)
-    assert '_meta' not in doc
-
-def test_get_one_raw():
-    """
-    Get one doc with raw
-    """
-    _id = _my_gene_id
-
-    doc = APIDocController.get_api(query=_id, return_raw=True)
-    assert '~raw' not in doc
 
 def test_get_tags():
     """
     Get tag aggregations for field
     """
-    field = 'info.contact.name'
-    size = 100
-
-    res = APIDocController.get_tags(field=field, size=size)
+    res = APIDocController.get_tags(field='info.contact.name', size=100)
     assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
 
 def test_validate_slug():
     """
     Update registered slug name for ID
     """
-    APIDocController.validate_slug_name(slug_name=_test_slug)
+    APIDocController.validate_slug_name(TEST_SLUG)
 
 def test_validate_slug_invalid_1():
     """
     slug name not allowed
     """
     with pytest.raises(RegistryError) as err:
-        APIDocController.validate_slug_name(slug_name='smart-api')
-        assert err == "Slug name smart-api is reserved, please choose another"
+        APIDocController.validate_slug_name('smart-api')
+    assert err == "Slug name smart-api is reserved, please choose another"
 
 def test_validate_slug_invalid_2():
     """
     invalid characters in slug
     """
     with pytest.raises(RegistryError) as err:
-        APIDocController.validate_slug_name(slug_name='myname#')
-        assert err == "Slug name myname# contains invalid characters"
+        APIDocController.validate_slug_name('myname#')
+    assert err == "Slug name myname# contains invalid characters"
 
 def test_update_slug():
     """
     Update registered slug name for ID
     """
-    api_id = _my_gene_id
-    slug = _test_slug
-    user = _user
-
-    doc = APIDocController.from_dict(_my_gene)
-    res = doc.update_slug(_id=api_id, user=user, slug_name=slug)
-    assert res.get(f'{api_id}._meta.slug', False) == slug
+    doc = APIDocController.from_dict(MYGENE)
+    res = doc.update_slug(_id=MYGENE_ID, user=USER, slug_name=TEST_SLUG)
+    assert res.get(f'{MYGENE_ID}._meta.slug', False) == slug
 
 def test_get_api_from_slug():
     """
     Get ID of doc with slug
     """
-    slug = _test_slug
-
-    _id = APIDocController.get_api_id_from_slug(slug=slug)
+    _id = APIDocController.get_api_id_from_slug(TEST_SLUG)
     assert isinstance(_id, str)
 
 def test_model_slug_taken():
     """
     Slug name already exists
     """
-    assert APIDocController.slug_is_available(slug=_test_slug) is True
+    assert not APIDocController.slug_is_available(TEST_SLUG)
 
 def test_delete_slug():
     """
     Delete slug for ID
     """
-    api_id = _my_gene_id
-    user = _user
-
-    doc = APIDocController.from_dict(_my_gene)
-    res = doc.update_slug(_id=api_id, user=user, slug_name='')
-    assert res.get(f'{api_id}._meta.slug', False) == ''
+    doc = APIDocController.from_dict(MYGENE)
+    res = doc.update_slug(_id=MYGENE_ID, user=USER, slug_name='')
+    assert res.get(f'{MYGENE_ID}._meta.slug', False) == ''
 
 def test_refresh_api():
     """
     Refresh single api with id
     """
-    api_id = _my_gene_id
-    user = _user
-
-    doc = APIDocController.from_dict(_my_gene)
-    res = doc.refresh_api(_id=api_id, user=user)
-    assert res.get('updated', '') == f"API with ID {api_id} was refreshed"
+    doc = APIDocController.from_dict(MYGENE)
+    res = doc.refresh_api(_id=MYGENE_ID, user=USER)
+    assert res.get('updated', '') == f"API with ID {MYGENE_ID} was refreshed"
 
 def teardown_module():
     """ teardown any state that was previously setup.

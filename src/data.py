@@ -1,17 +1,17 @@
-import json 
+import json
 import boto3
 import logging
 
 from elasticsearch_dsl import Index, Search
 
 from web.api.model import API_Doc
-from web.api import SWAGGER2_INDEXED_ITEMS, APIDocController, get_api_metadata_by_url, APIRequestError
+from web.api import SWAGGER2_INDEXED_ITEMS, APIDocController, Downloader, RegistryError
 
 
 class SmartAPIData():
     """
     This class provides methods to:
-    
+
     -backup all docs to file or S3
     -restore docs from local file with v2 and v3 support
     -refresh one doc
@@ -29,7 +29,7 @@ class SmartAPIData():
         _id = api_doc['_id']
         _meta = api_doc['_meta']
 
-        res = get_api_metadata_by_url(_meta['url'])
+        res = Downloader.get_api_metadata_by_url(_meta['url'])
         if res and isinstance(res, dict):
             if not res:
                 res['error'] = '[Request] '+res.get('error', '')
@@ -43,7 +43,7 @@ class SmartAPIData():
                 try:
                     doc = APIDocController(_id=_id)
                     status = doc.refresh_api(_id=_id, user=user, test=False)
-                except APIRequestError as err:
+                except RegistryError as err:
                     status = str(err)
 
         else:
@@ -58,7 +58,7 @@ class SmartAPIData():
 
         :param id_list: the list of API documents to perform the refresh operation
         :param ignore_archives:
-        :param dryrun: 
+        :param dryrun:
         :param use_etag: by default, HTTP ETag is used to speed up version detection
         '''
         updates = 0
@@ -154,7 +154,7 @@ class SmartAPIData():
 
     def restore_all_with_file(self, backupfile, overwrite=False):
         """
-        Delete existing index and restore all documents from local file. 
+        Delete existing index and restore all documents from local file.
 
         Args:
             backupfile (file path): path to ES backup file
@@ -190,7 +190,7 @@ class SmartAPIData():
                     _d[key] = _doc[key]
             _d['~raw'] = _doc['~raw']
             return _d
-        
+
         if Index(cls.index_name).exists():
             if overwrite and ask("Warning: index \"{}\" exists. Do you want to overwrite it?".format(self.index_name)) == 'Y':
                 Index(index_name).delete()
