@@ -15,17 +15,25 @@ TEST1_ID = '26ce0569ba5b82902148069b4c3e51b4'
 
 TEST2_ID = 'a3cfb0c18f630ce73ccf86b1db5117db'
 
-TEST_SLUG = 'myslug'
-
-USER = {"github_username": "marcodarko"}
-
 MYGENE = {}
 
 MYDISEASE = {}
 
+TEST1 = {}
+
+TEST2 = {}
+
 MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
 
 MYDISEASE_URL = 'https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json'
+
+TEST1_URL = 'https://raw.githubusercontent.com/JDRomano2/ncats-apis/master/date/openapi_date.yml'
+
+TEST2_URL = 'https://automat.renci.org/panther/openapi.json'
+
+TEST_SLUG = 'myslug'
+
+USER = {"github_username": "marcodarko"}
 
 @pytest.fixture(autouse=True, scope='module')
 def setup_fixture():
@@ -34,27 +42,28 @@ def setup_fixture():
     """
     global MYDISEASE
     global MYGENE
+    global TEST1
+    global TEST2
+
     test_ids = [MYGENE_ID, MYDISEASE_ID, TEST1_ID, TEST2_ID]
+    # clean up index
     for _id in test_ids:
         if APIDoc.exists(_id):
             doc = APIDoc()
             doc = doc.get(_id)
             doc.delete()
-    # remote file tests
+    # prepare data to be saved in tests
     MYGENE = Downloader.get_api_metadata_by_url(MYGENE_URL)
     MYDISEASE = Downloader.get_api_metadata_by_url(MYDISEASE_URL)
-    # local file tests
-    dirname = os.path.dirname(__file__)
 
-    with open(os.path.join(dirname, 'test_doc_1.json'), 'r') as file:
-        doc_1 = json.load(file)
-        test1 = APIDoc(meta={'id': TEST1_ID}, **doc_1)
-        test1.save()
+    # save initial docs
+    TEST1 = Downloader.get_api_metadata_by_url(TEST1_URL)
+    test1 = APIDoc(meta={'id': TEST1_ID}, **TEST1)
+    test1.save()
 
-    with open(os.path.join(dirname, 'test_doc_2.json'), 'r') as file:
-        doc_2 = json.load(file)
-        test2 = APIDoc(meta={'id': TEST2_ID}, **doc_2)
-        test2.save()
+    TEST2 = Downloader.get_api_metadata_by_url(TEST2_URL)
+    test2 = APIDoc(meta={'id': TEST2_ID}, **TEST2)
+    test2.save()
 
     refresh()
 
@@ -182,7 +191,7 @@ def test_update_slug():
     res = doc.update_slug(_id=MYGENE_ID, user=USER, slug_name=TEST_SLUG)
     assert res.get(f'{MYGENE_ID}._meta.slug', False) == slug
 
-def test_get_api_from_slug():
+def test_get_id_from_slug():
     """
     Get ID of doc with slug
     """
@@ -214,8 +223,8 @@ def test_refresh_api():
 def teardown_module():
     """ teardown any state that was previously setup.
     """
-    test1 = APIDoc.get('26ce0569ba5b82902148069b4c3e51b4')
+    test1 = APIDoc.get(TEST1_ID)
     test1.delete()
 
-    test2 = APIDoc.get('a3cfb0c18f630ce73ccf86b1db5117db')
+    test2 = APIDoc.get(TEST2_ID)
     test2.delete()

@@ -398,7 +398,7 @@ class APIDocController(ABC):
             raise RequestError('slug is required')
 
         search = APIDoc.search()
-        search = search.filter('term', _meta__slug=slug, minimum_should_match=1)
+        search = search.filter('term', _meta__slug=slug)
 
         if not search.count() == 1:
             raise RegistryError(f'Query for "{slug}" has {search.count()} results')
