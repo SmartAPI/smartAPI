@@ -2,7 +2,7 @@ import logging
 
 from elasticsearch_dsl import Index
 from elasticsearch import Elasticsearch
-from web.api.model import APIDoc
+from model import APIDoc
 
 from .mapping import smart_api_mapping
 

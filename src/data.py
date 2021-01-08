@@ -4,8 +4,8 @@ import logging
 
 from elasticsearch_dsl import Index, Search
 
-from web.api.model import API_Doc
-from web.api import SWAGGER2_INDEXED_ITEMS, APIDocController, Downloader, RegistryError
+from model import API_Doc
+from controller import SWAGGER2_INDEXED_ITEMS, APIDocController, Downloader, RegistryError
 
 
 class SmartAPIData():
@@ -41,6 +41,7 @@ class SmartAPIData():
                 _id = res["_id"]
 
                 try:
+                    # TODO update to new signature
                     doc = APIDocController(_id=_id)
                     status = doc.refresh_api(_id=_id, user=user, test=False)
                 except RegistryError as err:

@@ -1,12 +1,20 @@
+'''
+    Elasticsearch Document Object Model
+    - The ES backend is a collection of these documents
+    - API_Doc
+    Reference: https://schema.org/docs/datamodel.html
+'''
 
-from elasticsearch_dsl import InnerDoc, Keyword, Object, Date, Text, Document, MetaField, Nested, A, Q
-from elasticsearch import Elasticsearch
+import os
 
-ES_HOST = 'localhost:9200'
+from elasticsearch_dsl import *  # pylint
+
+# parse environment variables
+ES_HOST = os.getenv('ES_HOST', 'localhost:9200')
 ES_INDEX_NAME = 'smartapi_oas3'
 
-client = Elasticsearch()
-
+# create a default connection
+connections.create_connection(hosts=ES_HOST)
 
 class APIDoc(Document):
 
@@ -43,9 +51,10 @@ class APIDoc(Document):
             "pathitem": Nested(multi=True)
         })
     tags = Object(multi=True, properties={"name": Keyword()})
-    # only one can exist
-    swagger = Text()
     openapi = Text()
+
+    # swagger fields
+    swagger = Text()
     basePath = Text()
     host = Text()
 
@@ -83,7 +92,7 @@ class APIDoc(Document):
         s.aggs.bucket(agg_name, a)
         response = s.execute()
         return response
-   
+
     @classmethod
     def slug_exists(cls, slug):
         s = cls.search()

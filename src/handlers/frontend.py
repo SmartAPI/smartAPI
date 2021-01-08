@@ -9,12 +9,12 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import torngithub
+from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
 from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
-from web.api.controller import APIDocController
-from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
+from controller import APIDocController
 
 log = logging.getLogger("smartapi")
 
@@ -23,7 +23,7 @@ src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-TEMPLATE_PATH = os.path.join(src_path, '../templates/')
+TEMPLATE_PATH = os.path.join(src_path, './templates/')
 AVAILABLE_TAGS = ['translator', 'nihdatacommons']
 
 # your Github application Callback

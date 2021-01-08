@@ -1,6 +1,6 @@
 import pytest
 
-from web.api.controller import APIMetadata, ValidationError
+from controller import APIDocController, RegistryError
 
 transform_test_doc = {
     "openapi": "3.0.0",
@@ -94,8 +94,8 @@ def test_transform_paths():
     """
     Transform field 'paths' for optimal performance on ES
     """
-    metadata = APIMetadata(transform_test_doc)
-    transformed = metadata.convert_es()
+    doc = APIDocController.from_dict(transform_test_doc)
+    transformed = doc.convert_es()
     first_item = transformed.get('paths')[0]
     assert first_item.get('path') and first_item.get('pathitem')
 
@@ -103,11 +103,5 @@ def test_validate_doc():
     """
     Validate doc against specification schema
     """
-    valid = False
-    try:
-        metadata = APIMetadata(transform_test_doc)
-        validation = metadata.validate()
-        valid = validation.get('valid')
-    except ValidationError:
-        valid = False
-    assert valid is True
+    doc = APIDocController.from_dict(transform_test_doc)
+    validation = doc.validate()

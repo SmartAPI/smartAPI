@@ -1,0 +1,967 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "contact": {
+            "email": "help@biothings.io",
+            "name": "Chunlei Wu",
+            "x-id": "https://github.com/newgene",
+            "x-role": "responsible developer"
+        },
+        "description": "Documentation of the MyChem.info chem query web services.  Learn more about [MyChem.info](http://MyChem.info/)",
+        "termsOfService": "http://MyChem.info/terms",
+        "title": "MyChem.info API",
+        "version": "1.0",
+        "x-translator": {
+            "component": "KP",
+            "team": [
+                "Service Provider"
+            ]
+        }
+    },
+    "servers": [
+        {
+            "description": "Encrypted Production server",
+            "url": "https://mychem.info/v1"
+        },
+        {
+            "description": "Production server",
+            "url": "http://mychem.info/v1"
+        }
+    ],
+    "tags": [
+        {
+            "name": "chemical"
+        },
+        {
+            "name": "drug"
+        },
+        {
+            "name": "annotation"
+        },
+        {
+            "name": "query"
+        },
+        {
+            "name": "translator"
+        },
+        {
+            "name": "biothings"
+        }
+    ],
+    "paths": {
+        "/chem": {
+            "post": {
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dotfield",
+                        "name": "dotfield"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields",
+                        "name": "fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/email",
+                        "name": "email"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format",
+                        "name": "format"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "ids": {
+                                        "description": "multiple chemical IDs separated by comma. Note that currently we only take the input ids up to 1000 maximum, the rest will be omitted. Type: string (list). Max: 1000.",
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "ids"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/Chem"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "description": "A list of matching chemical objects"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResult"
+                                }
+                            }
+                        },
+                        "description": "A response indicating an improperly formatted query"
+                    }
+                },
+                "summary": "For a list of chemical IDs, return the matching chemical object",
+                "tags": [
+                    "chemical"
+                ]
+            }
+        },
+        "/chem/{chemid}": {
+            "get": {
+                "parameters": [
+                    {
+                        "description": "Retrieve chemical objects based on ID - currently one of: [InChiKey](https://en.wikipedia.org/wiki/International_Chemical_Identifier#InChIKey), [DrugBank accession number](https://www.drugbank.ca/documentation), [ChEMBLID](https://www.ebi.ac.uk/chembl/faq#faq40), [ChEBI identifier](http://www.ebi.ac.uk/chebi/aboutChebiForward.do), [PubChem CID](https://pubchem.ncbi.nlm.nih.gov/search/help_search.html#Cid), [UNII](https://www.fda.gov/ForIndustry/DataStandards/SubstanceRegistrationSystem-UniqueIngredientIdentifierUNII/).  Supports JSONP and CORS as well.",
+                        "example": "USNINKBPBVKHHZ-CYUUQNCZSA-L",
+                        "in": "path",
+                        "name": "chemid",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/dotfield",
+                        "name": "dotfield"
+                    },
+                    {
+                        "$ref": "#/components/parameters/callback",
+                        "name": "callback"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields",
+                        "name": "fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/email",
+                        "name": "email"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format",
+                        "name": "format"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Chem"
+                                }
+                            }
+                        },
+                        "description": "A matching chemical object"
+                    },
+                    "404": {
+                        "description": "A response indicating an unknown chemical ID"
+                    }
+                },
+                "summary": "Retrieve chemical objects based on ID",
+                "tags": [
+                    "chemical"
+                ]
+            }
+        },
+        "/metadata": {
+            "get": {
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/callback",
+                        "in": "query",
+                        "name": "callback"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "MyChem.info metadata object"
+                    }
+                },
+                "summary": "Get metadata about the data available from MyChem.info",
+                "tags": [
+                    "metadata"
+                ]
+            }
+        },
+        "/metadata/fields": {
+            "get": {
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/search",
+                        "name": "search"
+                    },
+                    {
+                        "$ref": "#/components/parameters/callback",
+                        "name": "callback"
+                    },
+                    {
+                        "$ref": "#/components/parameters/prefix",
+                        "name": "prefix"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format",
+                        "name": "format"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "MyChem.info metadata fields object"
+                    }
+                },
+                "summary": "Get metadata about the data fields available from a MyChem.info chem object",
+                "tags": [
+                    "metadata"
+                ]
+            }
+        },
+        "/query": {
+            "get": {
+                "parameters": [
+                    {
+                        "description": "Query string.  The detailed query syntax can be found from our [docs](http://MyChem.info).  Examples: \"Fludara\", \"CHEMBI:63599\", \"DB01073\".",
+                        "example": "Fludara",
+                        "in": "query",
+                        "name": "q",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/dotfield",
+                        "name": "dotfield"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields",
+                        "name": "fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/facet_size",
+                        "name": "facet_size"
+                    },
+                    {
+                        "$ref": "#/components/parameters/sort",
+                        "name": "sort"
+                    },
+                    {
+                        "$ref": "#/components/parameters/callback",
+                        "name": "callback"
+                    },
+                    {
+                        "$ref": "#/components/parameters/email",
+                        "name": "email"
+                    },
+                    {
+                        "$ref": "#/components/parameters/facets",
+                        "name": "facets"
+                    },
+                    {
+                        "$ref": "#/components/parameters/size",
+                        "name": "size"
+                    },
+                    {
+                        "$ref": "#/components/parameters/from",
+                        "name": "from"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format",
+                        "name": "format"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QueryResult"
+                                }
+                            }
+                        },
+                        "description": "A query response with the \"hits\" property"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResult"
+                                }
+                            }
+                        },
+                        "description": "A response indicating an improperly formatted query"
+                    }
+                },
+                "summary": "Make chemical queries and return matching chemical hits. Supports JSONP and CORS as well.",
+                "tags": [
+                    "query"
+                ]
+            },
+            "post": {
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/dotfield",
+                        "name": "dotfield"
+                    },
+                    {
+                        "$ref": "#/components/parameters/email",
+                        "name": "email"
+                    },
+                    {
+                        "$ref": "#/components/parameters/fields",
+                        "name": "fields"
+                    },
+                    {
+                        "$ref": "#/components/parameters/size",
+                        "name": "size"
+                    },
+                    {
+                        "$ref": "#/components/parameters/format",
+                        "name": "format"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "properties": {
+                                    "q": {
+                                        "description": "multiple query terms separated by comma (also \"+\" or whitespace).  Does not support wildcard queries",
+                                        "type": "string"
+                                    },
+                                    "scopes": {
+                                        "description": "a comma-separated list of fields as the search \"scopes\" (fields to search through for query term). The available \"fields\" that can be passed to the \"scopes\" parameter are listed in the **/metadata/fields** endpoint.string Default: \"scopes=_id\".",
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QueryPOSTResult"
+                                }
+                            }
+                        },
+                        "description": "Query response objects with the \"hits\" property"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResult"
+                                }
+                            }
+                        },
+                        "description": "A response indicating an improperly formatted query"
+                    }
+                },
+                "summary": "Make batch chemical queries and return matching chemical hits",
+                "tags": [
+                    "query"
+                ],
+                "x-bte-kgs-operations": [
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/metabolizedBy"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/target"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/treats"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/contraindication"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/metabolize"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/targetedBy"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/treatedBy"
+                    },
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/contraindicatedBy"
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "callback": {
+                "description": "you can pass a \"callback\" parameter to make a JSONP call. Type: string.",
+                "in": "query",
+                "name": "callback",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "dotfield": {
+                "description": "control the format of the returned chem object. If \"true\" or \"1\", all fields will be collapsed into a single level deep object (all nested objects will be a single level deep, using dotfield notation to signify the nested structure) Type: boolean. Default: false.",
+                "in": "query",
+                "name": "dotfield",
+                "schema": {
+                    "type": "boolean"
+                }
+            },
+            "email": {
+                "description": "If you are regular users of our services, we encourage you to provide us with an email, so that we can better track the usage or follow up with you.",
+                "in": "query",
+                "name": "email",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "facet_size": {
+                "description": "the number of facet buckets to return in the response. Type: integer. Default: 10. Max: 1000.",
+                "in": "query",
+                "name": "facet_size",
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "facets": {
+                "description": "a comma-separated list of fields to return facets on.  In addition to query hits, the fields notated in \"facets\" will be aggregated by value and bucklet counts will be displayed in the \"facets\" field of the response object. Type: string (list). Default: None. Max: 1000.",
+                "in": "query",
+                "name": "facets",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "fields": {
+                "description": "a comma-separated list of fields (in dotfield notation) used to limit the fields returned from the matching chem hit(s). The supported field names can be found from any chem object or from the /metadata/fields endpoint. If \"fields=all\", all available fields will be returned. Type: string (list). Default: all. Max: 1000.",
+                "in": "query",
+                "name": "fields",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "format": {
+                "description": "controls output format of server response, currently supports: \"json\", \"jsonld\", \"html\". Type: string. Default: json.",
+                "in": "query",
+                "name": "format",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "from": {
+                "description": "the number of matching chem hits to skip, starting from 0.  This can be useful for paging in combination with the \"size\" parameter. Type: integer. Default: None.",
+                "in": "query",
+                "name": "from",
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "prefix": {
+                "description": "Pass a prefix string to filter the available fields. Type: string. Default: None.",
+                "in": "query",
+                "name": "prefix",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "search": {
+                "description": "Pass a search term to filter the available fields. Type: string. Default: None.",
+                "in": "query",
+                "name": "search",
+                "schema": {
+                    "type": "string"
+                }
+            },
+            "size": {
+                "description": "the maximum number of matching chem hits to return per batch. Type: integer. Default: 10.",
+                "in": "query",
+                "name": "size",
+                "schema": {
+                    "type": "integer"
+                }
+            },
+            "sort": {
+                "description": "the comma-separated list of fields to sort on. Prefix each with \"-\" for descending order, otherwise in ascending order. Default: sort by descending score.",
+                "in": "query",
+                "name": "sort",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "Chem": {
+                "properties": {
+                    "_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "_id"
+                ],
+                "type": "object"
+            },
+            "ErrorResult": {
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            },
+            "QueryPOSTResult": {
+                "items": {
+                    "allOf": [
+                        {
+                            "$ref": "#/components/schemas/Chem"
+                        },
+                        {
+                            "properties": {
+                                "_score": {
+                                    "format": "float",
+                                    "type": "number"
+                                },
+                                "query": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    ]
+                },
+                "type": "array"
+            },
+            "QueryResult": {
+                "properties": {
+                    "hits": {
+                        "items": {
+                            "$ref": "#/components/schemas/Chem"
+                        },
+                        "type": "array"
+                    },
+                    "max_score": {
+                        "format": "float",
+                        "type": "number"
+                    },
+                    "took": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "int64_or_array": {
+                "oneOf": [
+                    {
+                        "items": {
+                            "format": "int64",
+                            "type": "integer"
+                        },
+                        "type": "array"
+                    },
+                    {
+                        "format": "int64",
+                        "type": "integer"
+                    }
+                ]
+            },
+            "string_or_array": {
+                "oneOf": [
+                    {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            }
+        },
+        "x-bte-response-mapping": {
+            "metabolizedBy": {
+                "name": "drugbank.enzymes.name",
+                "SYMBOL": "drugbank.enzymes.gene_name",
+                "function": "drugbank.enzymes.general_function",
+                "action": "drugbank.enzymes.actions"
+            },
+            "target-drugbank": {
+                "name": "drugbank.targets.name",
+                "SYMBOL": "drugbank.targets.gene_name",
+                "function": "drugbank.targets.general_function",
+                "action": "drugbank.targets.actions",
+                "pubmed": "drugbank.targets.pmids"
+            },
+            "target-drugcentral": {
+                "name": "drugcentral.bioactivity.target_name",
+                "SYMBOL": "drugcentral.bioactivity.uniprot.gene_symbol",
+                "action": "drugcentral.bioactivity.action_type"
+            },
+            "treats": {
+                "name": "drugcentral.drug_use.indication.concept_name",
+                "SNOMED": "drugcentral.drug_use.indication.snomed_concept_id",
+                "UMLS": "drugcentral.drug_use.indication.umls_cui"
+            },
+            "contraindication": {
+                "name": "drugcentral.drug_use.contraindication.concept_name",
+                "SNOMED": "drugcentral.drug_use.contraindication.snomed_concept_id",
+                "UMLS": "drugcentral.drug_use.contraindication.umls_cui"
+            },
+            "drugbank": {
+                "DRUGBANK": "drugbank.id"
+            },
+            "chembl": {
+                "CHEMBL.COMPOUND": "chembl.molecule_chembl_id"
+            }
+        },
+        "x-bte-kgs-operations": {
+            "metabolizedBy": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugbank.enzymes"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugbank.id"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "inputs": [
+                        {
+                            "id": "DRUGBANK",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "predicate": "metabolic_processing_affected_by",
+                    "source": "drugbank",
+                    "outputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/metabolizedBy"
+                    }
+                }
+            ],
+            "target": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugbank.targets"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugbank.id"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "inputs": [
+                        {
+                            "id": "DRUGBANK",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "predicate": "physically_interacts_with",
+                    "source": "drugbank",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/target-drugbank"
+                    }
+                },
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugcentral.bioactivity"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "chembl.molecule_chembl_id"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "inputs": [
+                        {
+                            "id": "CHEMBL.COMPOUND",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "predicate": "physically_interacts_with",
+                    "source": "drugcentral",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/target-drugcentral"
+                    }
+                }
+            ],
+            "treats": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugcentral.drug_use.indication"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "chembl.molecule_chembl_id"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "inputs": [
+                        {
+                            "id": "CHEMBL.COMPOUND",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "UMLS",
+                            "semantic": "Disease"
+                        }
+                    ],
+                    "predicate": "treats",
+                    "source": "drugcentral",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/treats"
+                    }
+                }
+            ],
+            "contraindication": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugcentral.drug_use.contraindication"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "chembl.molecule_chembl_id"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "inputs": [
+                        {
+                            "id": "CHEMBL.COMPOUND",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "UMLS",
+                            "semantic": "Disease"
+                        }
+                    ],
+                    "predicate": "contraindication",
+                    "source": "drugcentral",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/contraindication"
+                    }
+                }
+            ],
+            "metabolize": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugbank.id",
+                        "size": "250"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugbank.enzymes.gene_name"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "outputs": [
+                        {
+                            "id": "DRUGBANK",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "predicate": "metabolize",
+                    "source": "drugbank",
+                    "inputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/drugbank"
+                    }
+                }
+            ],
+            "targetedBy": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "drugbank.id",
+                        "size": "250"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugbank.targets.gene_name"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "outputs": [
+                        {
+                            "id": "DRUGBANK",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "inputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "predicate": "physically_interacts_with",
+                    "source": "drugbank",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/drugbank"
+                    }
+                },
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "chembl.molecule_chembl_id",
+                        "size": "250"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugcentral.bioactivity.uniprot.gene_symbol"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "outputs": [
+                        {
+                            "id": "CHEMBL.COMPOUND",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "inputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "predicate": "physically_interacts_with",
+                    "source": "drugcentral",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/chembl"
+                    }
+                }
+            ],
+            "treatedBy": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "chembl.molecule_chembl_id",
+                        "size": "250"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugcentral.drug_use.indication.umls_cui"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "outputs": [
+                        {
+                            "id": "CHEMBL.COMPOUND",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "inputs": [
+                        {
+                            "id": "UMLS",
+                            "semantic": "Disease"
+                        }
+                    ],
+                    "predicate": "treated_by",
+                    "source": "drugcentral",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/chembl"
+                    }
+                }
+            ],
+            "contraindicatedBy": [
+                {
+                    "supportBatch": true,
+                    "inputSeparator": ",",
+                    "parameters": {
+                        "fields": "chembl.molecule_chembl_id",
+                        "size": "250"
+                    },
+                    "requestBody": {
+                        "body": {
+                            "q": "{inputs[0]}",
+                            "scopes": "drugcentral.drug_use.contraindication.umls_cui"
+                        },
+                        "header": "application/x-www-form-urlencoded"
+                    },
+                    "outputs": [
+                        {
+                            "id": "CHEMBL.COMPOUND",
+                            "semantic": "ChemicalSubstance"
+                        }
+                    ],
+                    "inputs": [
+                        {
+                            "id": "UMLS",
+                            "semantic": "Disease"
+                        }
+                    ],
+                    "predicate": "contraindicated_by",
+                    "source": "drugcentral",
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/chembl"
+                    }
+                }
+            ]
+        }
+    }
+}

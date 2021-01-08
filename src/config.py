@@ -30,12 +30,12 @@ ES_INDICES = {
 # Tornado URL Patterns
 # *****************************************************************************
 APP_LIST = [
-    (r'/api/?', 'web.handlers.api.APIHandler'),
+    (r'/api/?', 'handlers.api.APIHandler'),
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "api_doc"}),
-    (r'/api/validate/?', 'web.handlers.api.ValidateHandler'),
-    (r'/api/metadata/?', 'web.handlers.api.APIHandler'),
-    (r'/api/metadata/(.+)/?', 'web.handlers.api.APIHandler'),
-    (r'/api/suggestion/?', 'web.handlers.api.ValueSuggestionHandler'),
+    (r'/api/validate/?', 'handlers.api.ValidateHandler'),
+    (r'/api/metadata/?', 'handlers.api.APIHandler'),
+    (r'/api/metadata/(.+)/?', 'handlers.api.APIHandler'),
+    (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
 ]
 
 # biothings web tester will read this
@@ -46,5 +46,5 @@ API_PREFIX = 'api'
 # Biothings SDK Settings
 # *****************************************************************************
 ACCESS_CONTROL_ALLOW_METHODS = 'HEAD,GET,POST,DELETE,PUT,OPTIONS'
-ES_QUERY_BUILDER = "web.pipeline.SmartAPIQueryBuilder"
+ES_QUERY_BUILDER = "pipeline.SmartAPIQueryBuilder"
 DISABLE_CACHING = True

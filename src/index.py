@@ -3,7 +3,7 @@
 from biothings.web.index_base import main
 from tornado.ioloop import IOLoop
 
-from web.handlers.frontend import APP_LIST
+from handlers.frontend import APP_LIST
 from utils.indices import setup_data
 
 

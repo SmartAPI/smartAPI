@@ -1,6 +1,6 @@
 import pytest
 
-from web.api.model import APIDoc
+from model import APIDoc
 
 doc_1_id = '59dce17363dce279d389100834e43648'
 
@@ -39,8 +39,8 @@ def setup_fixture():
     """
     if APIDoc.exists(doc_1_id):
         doc = APIDoc()
-        doc = doc.get(id=doc_1_id)
-        doc.delete(id=doc_1_id)
+        doc = doc.get(doc_1_id)
+        doc.delete()
     new_doc = APIDoc(meta={'id': doc_1_id}, **test_doc)
     new_doc.save()
 
@@ -48,7 +48,7 @@ def test_doc_exists():
     """
     Existing ID exists
     """
-    assert APIDoc.exists(_id=doc_1_id)
+    assert APIDoc.exists(doc_1_id)
 
 def test_doc_does_not_exist():
     """

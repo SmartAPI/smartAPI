@@ -1,35 +1,26 @@
 import os
 
-import pytest
 import json
+import pytest
 
-from web.api.controller import APIDocController, RegistryError, Downloader, ValidationError
-from web.api.model import APIDoc
+from controller import APIDocController, RegistryError
+from model import APIDoc
 from utils.indices import refresh
 
-MYGENE_ID = '59dce17363dce279d389100834e43648'
-
-MYDISEASE_ID = '48a39f7fb04ea9c5e850264a38113f12'
-
-TEST1_ID = '26ce0569ba5b82902148069b4c3e51b4'
-
-TEST2_ID = 'a3cfb0c18f630ce73ccf86b1db5117db'
-
-MYGENE = {}
-
-MYDISEASE = {}
-
-TEST1 = {}
-
-TEST2 = {}
-
 MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
+MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mychem.info/openapi_full.yml'
+DATEAPI_URL = 'https://raw.githubusercontent.com/JDRomano2/ncats-apis/master/date/openapi_date.yml'
+AUTOMAT_URL = 'https://automat.renci.org/panther/openapi.json'
 
-MYDISEASE_URL = 'https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json'
+MYGENE_ID = '59dce17363dce279d389100834e43648'
+MYCHEM_ID = '8f08d1446e0bb9c2b323713ce83e2bd3'
+AUTOMAT_ID = 'a3cfb0c18f630ce73ccf86b1db5117db'
+DATEAPI_ID = '26ce0569ba5b82902148069b4c3e51b4'
 
-TEST1_URL = 'https://raw.githubusercontent.com/JDRomano2/ncats-apis/master/date/openapi_date.yml'
-
-TEST2_URL = 'https://automat.renci.org/panther/openapi.json'
+AUTOMAT_DATA = {}
+DATEAPI_DATA = {}
+MYGENE_DATA = {}
+MYCHEM_DATA = {}
 
 TEST_SLUG = 'myslug'
 
@@ -38,35 +29,44 @@ USER = {"github_username": "marcodarko"}
 @pytest.fixture(autouse=True, scope='module')
 def setup_fixture():
     """
-    Get data from test urls
+    Prepare data for 2 tests and save 2 documents initially
     """
-    global MYDISEASE
-    global MYGENE
-    global TEST1
-    global TEST2
+    global MYCHEM_DATA
+    global MYGENE_DATA
+    global AUTOMAT_DATA
+    global DATEAPI_DATA
 
-    test_ids = [MYGENE_ID, MYDISEASE_ID, TEST1_ID, TEST2_ID]
+    test_ids = [MYGENE_ID, MYCHEM_ID, AUTOMAT_ID, DATEAPI_ID]
+    dirname = os.path.dirname(__file__)
+
     # clean up index
     for _id in test_ids:
         if APIDoc.exists(_id):
             doc = APIDoc()
             doc = doc.get(_id)
             doc.delete()
+
     # prepare data to be saved in tests
-    MYGENE = Downloader.get_api_metadata_by_url(MYGENE_URL)
-    MYDISEASE = Downloader.get_api_metadata_by_url(MYDISEASE_URL)
+    with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
+        MYGENE_DATA = json.load(file)
+
+    with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
+        MYCHEM_DATA = json.load(file)
 
     # save initial docs
-    TEST1 = Downloader.get_api_metadata_by_url(TEST1_URL)
-    test1 = APIDoc(meta={'id': TEST1_ID}, **TEST1)
-    test1.save()
+    with open(os.path.join(dirname, 'automat.json'), 'r') as file:
+        AUTOMAT_DATA = json.load(file)
+        d1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
+        d1.save()
 
-    TEST2 = Downloader.get_api_metadata_by_url(TEST2_URL)
-    test2 = APIDoc(meta={'id': TEST2_ID}, **TEST2)
-    test2.save()
-
+    with open(os.path.join(dirname, 'dateapi.json'), 'r') as file:
+        DATEAPI_DATA = json.load(file)
+        d2 = APIDoc(meta={'id': DATEAPI_ID}, **DATEAPI_DATA)
+        d2.save()
+    # refresh index
     refresh()
 
+@pytest.mark.first
 def test_get_all():
     """
     Get ALL docs
@@ -78,20 +78,20 @@ def test_version():
     """
     metadata version handler
     """
-    assert APIDocController.from_dict(MYGENE).version == 'v3'
+    assert APIDocController.from_dict(MYGENE_DATA).version == 'v3'
 
 def test_validation():
     """
     valid openapi v3 metadata
     """
-    doc = APIDocController.from_dict(MYGENE)
+    doc = APIDocController.from_dict(MYGENE_DATA)
     doc.validate()
 
 def test_validate_invalid_v3():
     """
     invalid openapi v3 metadata
     """
-    with pytest.raises(ValidationError):
+    with pytest.raises(RegistryError):
         doc = APIDocController.from_dict({'some_field': 'no_meaning', 'openapi': '3.0.0'})
         doc.validate()
 
@@ -99,9 +99,9 @@ def test_add_doc_1():
     """
     Successful addition
     """
-    doc = APIDocController.from_dict(MYGENE)
+    doc = APIDocController.from_dict(MYGENE_DATA)
     res = doc.save(
-        MYGENE,
+        MYGENE_DATA,
         user_name=USER['github_username'],
         url=MYGENE_URL)
     refresh()
@@ -113,25 +113,25 @@ def test_add_already_exists():
     API exists
     """
     with pytest.raises(RegistryError) as err:
-        doc = APIDocController.from_dict(MYGENE)
+        doc = APIDocController.from_dict(MYGENE_DATA)
         doc.save(
-            MYGENE,
+            MYGENE_DATA,
             user_name=USER['github_username'],
             url=MYGENE_URL)
-    assert err == 'API Exists'
+    assert str(err.value) == 'API Exists'
 
 def test_add_doc_2():
     """
     Add test My Disease API to index, return new doc ID
     """
-    doc = APIDocController.from_dict(MYDISEASE)
+    doc = APIDocController.from_dict(MYCHEM_DATA)
     res = doc.save(
-        MYDISEASE,
+        MYCHEM_DATA,
         user_name=USER['github_username'],
-        url=MYDISEASE_URL)
+        url=MYCHEM_URL)
     refresh()
-    assert res == MYDISEASE_ID
-    assert APIDoc.exists(_id=MYDISEASE_ID)
+    assert res == MYCHEM_ID
+    assert APIDoc.exists(_id=MYCHEM_ID)
 
 def test_get_all_size_1():
     """
@@ -173,7 +173,7 @@ def test_validate_slug_invalid_1():
     """
     with pytest.raises(RegistryError) as err:
         APIDocController.validate_slug_name('smart-api')
-    assert err == "Slug name smart-api is reserved, please choose another"
+    assert str(err.value) == "Slug name smart-api is reserved, please choose another"
 
 def test_validate_slug_invalid_2():
     """
@@ -181,50 +181,57 @@ def test_validate_slug_invalid_2():
     """
     with pytest.raises(RegistryError) as err:
         APIDocController.validate_slug_name('myname#')
-    assert err == "Slug name myname# contains invalid characters"
+    assert str(err.value) == "Slug name myname# contains invalid characters"
 
 def test_update_slug():
     """
     Update registered slug name for ID
     """
-    doc = APIDocController.from_dict(MYGENE)
-    res = doc.update_slug(_id=MYGENE_ID, user=USER, slug_name=TEST_SLUG)
-    assert res.get(f'{MYGENE_ID}._meta.slug', False) == slug
+    doc = APIDocController.from_dict(MYGENE_DATA)
+    res = doc.update_slug(MYGENE_ID, slug_name=TEST_SLUG)
+    assert res == TEST_SLUG
+
+def test_get_one_by_slug():
+    """
+    Get one doc by slug
+    """
+    doc = APIDocController.get_api_by_slug(TEST_SLUG)
+    assert doc['_id'] == MYGENE_ID
 
 def test_get_id_from_slug():
     """
     Get ID of doc with slug
     """
     _id = APIDocController.get_api_id_from_slug(TEST_SLUG)
-    assert isinstance(_id, str)
+    assert _id == MYGENE_ID
 
 def test_model_slug_taken():
     """
-    Slug name already exists
+    Slug name is taken
     """
-    assert not APIDocController.slug_is_available(TEST_SLUG)
+    assert APIDocController.slug_is_available(TEST_SLUG)
 
 def test_delete_slug():
     """
-    Delete slug for ID
+    Delete slug
     """
-    doc = APIDocController.from_dict(MYGENE)
-    res = doc.update_slug(_id=MYGENE_ID, user=USER, slug_name='')
-    assert res.get(f'{MYGENE_ID}._meta.slug', False) == ''
+    doc = APIDocController.from_dict(MYGENE_DATA)
+    res = doc.update_slug(MYGENE_ID)
+    assert res == ''
 
 def test_refresh_api():
     """
-    Refresh single api with id
+    Refresh api
     """
-    doc = APIDocController.from_dict(MYGENE)
-    res = doc.refresh_api(_id=MYGENE_ID, user=USER)
-    assert res.get('updated', '') == f"API with ID {MYGENE_ID} was refreshed"
+    doc = APIDocController.from_dict(MYGENE_DATA)
+    res = doc.refresh_api(MYGENE_ID)
+    assert res == f"API with ID {MYGENE_ID} was refreshed"
 
 def teardown_module():
     """ teardown any state that was previously setup.
     """
-    test1 = APIDoc.get(TEST1_ID)
+    test1 = APIDoc.get(AUTOMAT_ID)
     test1.delete()
 
-    test2 = APIDoc.get(TEST2_ID)
+    test2 = APIDoc.get(DATEAPI_ID)
     test2.delete()

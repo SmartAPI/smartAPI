@@ -7,13 +7,12 @@ from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
-from web.api.controller import (APIDocController, Downloader, RegistryError, V2Metadata, V3Metadata)
+from controller import (APIDocController, Downloader, RegistryError, V2Metadata, V3Metadata)
 
 def github_authenticated(func):
     '''
     RegistryHandler Decorator
     '''
-
     def _(self, *args, **kwargs):
 
         if not self.current_user:
@@ -32,7 +31,6 @@ class BaseHandler(BaseAPIHandler):
         if not user_json:
             return None
         return json.loads(user_json.decode('utf-8'))
-
 
 class ValidateHandler(BaseHandler):
 
@@ -82,8 +80,6 @@ class APIHandler(BaseHandler):
         'GET': {
             'fields': {'type': list, 'default': []},
             'format': {'type': str, 'default': 'json'},
-            'raw': {'type': bool, 'default': False},
-            'meta': {'type': bool, 'default': False},
             '_from': {'type': int, 'default': 0},
             'size': {'type': int, 'default': 0},
         },
@@ -111,9 +107,12 @@ class APIHandler(BaseHandler):
                 from_=self.args._from,
                 size=self.args.size)
         else:
+            if not APIDocController.exists(_id):
+                raise HTTPError(404, response='API does not exist')
+
             res = APIDocController.get_api_by_id(_id)
 
-        self.format = self.args.out_format
+        self.format = self.args.format
         self.finish(res)
 
     @github_authenticated
@@ -164,17 +163,14 @@ class APIHandler(BaseHandler):
         if not APIDocController.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
-        data = APIDocController.get(_id).to_dict()
-        doc = APIDocController.from_dict(data)
-
         if self.args.refresh is False:
             try:
-                res = doc.update_slug(_id=_id, user=self.current_user, slug_name=self.args.slug)
+                res = APIDocController.update_slug(_id, slug_name=self.args.slug)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
         else:
             try:
-                res = doc.refresh_api(_id=_id, user=self.current_user, test=False)
+                res = APIDocController.refresh_api(_id)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
 

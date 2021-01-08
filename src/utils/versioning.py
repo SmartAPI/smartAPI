@@ -23,4 +23,3 @@ def backup_and_refresh():
     except:
         logging.exception("Refresh failed.")
 
-
