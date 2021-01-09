@@ -248,8 +248,7 @@ def update_uptime_status():
         return api.api_status
 
     search = Search(index='smartapi_oas3') \
-        .query("match_all") \
-        .exclude("term", **{"_meta._archived": "true"})
+        .query("match_all")
 
     total = search.count()
     result = {}

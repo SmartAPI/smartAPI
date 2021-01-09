@@ -2,34 +2,87 @@ import pytest
 
 from model import APIDoc
 
-doc_1_id = '59dce17363dce279d389100834e43648'
+MYDISEASE_ID = 'f307760715d91908d0ae6de7f0810b22'
 
-test_doc = {
+MYDISEASE_DATA = {
     "openapi": "3.0.0",
     "info": {
-        "version": "1.0.0",
-        "title": "AEOLUsrs API",
-        "description": "Documentation of the A curated and standardized adverse drug event resource to accelerate drug safety research (AEOLUS) web query services. Learn more about the underlying dataset [HERE](https://www.nature.com/articles/sdata201626)",
-        "termsOfService": "http://tsing.cm/terms/",
+        "version": "1.0",
+        "title": "MyDisease.info API",
+        "description": "Documentation of the MyDisease.info disease query web services.  Learn more about [MyDisease.info](http://MyDisease.info/)",
+        "termsOfService": "http://MyDisease.info/terms",
         "contact": {
-            "name": "Juan M. Banda",
+            "name": "Chunlei Wu",
             "x-role": "responsible developer",
-            "email": "jmbanda@stanford.edu",
-            "x-id": "http://orcid.org/0000-0001-8499-824X"
+            "email": "help@biothings.io",
+            "x-id": "https://github.com/newgene"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://MyDisease.info/v1",
+            "description": "Production server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "disease"
         },
-        "x-maturity": "development",
-        "x-implementationLanguage": "PHP"
+        {
+            "name": "query"
+        },
+        {
+            "name": "metadata"
+        }
+    ],
+    "paths": {
+        "/metadata/fields": {
+            "get": {
+                "tags": [
+                    "metadata"
+                ],
+                "summary": "Get metadata about the data fields available from a MyDisease.info disease object",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "$ref": "#/components/parameters/search"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "MyDisease.info metadata fields object"
+                    }
+                }
+            }
+        }
     },
-    "externalDocs": {
-        "description": "Find more info here",
-        "url": "http://ec2-54-186-230-27.us-west-2.compute.amazonaws.com:8080/swagger-ui.html"
-    },
-    "_meta": {
-        "github_username": "marcodarko",
-        "url": "https://raw.githubusercontent.com/jmbanda/biohack2017_smartAPI/master/AEOLUSsrsAPI-v1.0.json",
-        "timestamp": "2020-12-30T12:06:42.771619+00:00",
-        "ETag": "57282573850cdaf330d5f44d91c899c70ca4b39292c3fc446574b99abc069510"
-    },
+    "components": {
+        "parameters": {
+            "search": {
+                "name": "search",
+                "in": "query",
+                "description": "Pass a search term to filter the available fields. Type: string. Default: None.",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "string_or_array": {
+                "oneOf": [
+                    {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    }
 }
 
 @pytest.fixture(autouse=True, scope='module')
@@ -37,47 +90,41 @@ def setup_fixture():
     """
     Get data from test urls
     """
-    if APIDoc.exists(doc_1_id):
-        doc = APIDoc()
-        doc = doc.get(doc_1_id)
+    if APIDoc.exists(MYDISEASE_ID):
+        doc = APIDoc.get(MYDISEASE_ID)
         doc.delete()
-    new_doc = APIDoc(meta={'id': doc_1_id}, **test_doc)
+    new_doc = APIDoc(meta={'id': MYDISEASE_ID}, **MYDISEASE_DATA)
     new_doc.save()
 
 def test_doc_exists():
     """
     Existing ID exists
     """
-    assert APIDoc.exists(doc_1_id)
+    assert APIDoc.exists(MYDISEASE_ID)
 
 def test_doc_does_not_exist():
     """
     Fake ID does not exists
     """
-    assert not APIDoc.exists(_id='id123779328749279')
+    assert not APIDoc.exists('id123779328749279')
 
 def test_slug_available():
     """
     Slug name is available
     """
-    slug_exists = APIDoc.slug_exists(slug='new_slug')
-    assert slug_exists is False
+    assert not APIDoc.slug_exists(slug='new_slug')
 
 def test_tag_aggregation():
     """
     Confirm aggregations exists for field, eg. tags
     """
-    field = 'info.contact.name'
-    agg_name = 'field_values'
-
-    res = APIDoc.aggregate(field=field, size=100, agg_name=agg_name).to_dict()
-    assert len(res.get('aggregations', {}).get(agg_name, {}).get('buckets', [])) >= 1
+    res = APIDoc.aggregate(field='info.contact.name', size=100, agg_name='field_values').to_dict()
+    assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
 
 def test_delete_doc():
     """
     delete doc
     """
-    doc = APIDoc()
-    doc = doc.get(doc_1_id)
+    doc = APIDoc.get(MYDISEASE_ID)
     doc.delete()
-    assert not APIDoc.exists(_id=doc_1_id)
+    assert not APIDoc.exists(MYDISEASE_ID)

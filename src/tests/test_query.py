@@ -40,10 +40,10 @@ class SmartAPIQueryTest(BiothingsTestCase):
         '''
         [CREATE]
         '''
-        body = {
+        doc = {
             'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
         }
-        res = self.request("/api", method='POST', json=body, headers=self.auth_user)
+        res = self.request("/api", method='POST', json=doc, headers=self.auth_user)
         res= json.loads(res.text)
         assert res.get('success', False)
 
@@ -60,7 +60,7 @@ class SmartAPIQueryTest(BiothingsTestCase):
         [UPDATE] Unauthorized
         '''
         body = {
-            'slug': 'new_slug'
+            'slug': 'lincs_slug'
         }
         self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.evil_user, expect=400)
 
@@ -69,7 +69,7 @@ class SmartAPIQueryTest(BiothingsTestCase):
         [UPDATE]
         '''
         body = {
-            'slug': 'new_slug'
+            'slug': 'lincs_slug'
         }
         res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.auth_user)
         res = json.loads(res.text)

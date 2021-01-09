@@ -66,7 +66,6 @@ def setup_fixture():
     # refresh index
     refresh()
 
-@pytest.mark.first
 def test_get_all():
     """
     Get ALL docs

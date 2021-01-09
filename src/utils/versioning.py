@@ -1,25 +1,20 @@
 '''
 Backup es index to S3 and refresh
 '''
-
 import logging
 
-from tornado.ioloop import IOLoop
-
-from web.api.es import ESQuery
-
+from data import SmartAPIData
 
 def backup_and_refresh():
     '''
     Run periodically in the main event loop
     '''
-    esq = ESQuery()
+    data = SmartAPIData()
     try:
-        esq.backup_all(aws_s3_bucket='smartapi')
-    except:
+        data.backup_all(aws_s3_bucket='smartapi')
+    except Exception:
         logging.exception("Backup failed.")
     try:
-        esq.refresh_all(dryrun=False)
-    except:
+        data.refresh_all(dryrun=False)
+    except Exception:
         logging.exception("Refresh failed.")
-

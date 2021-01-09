@@ -1,11 +1,10 @@
 import json
-import requests
 import re
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 
 try:
 	from config import SLACK_WEBHOOKS
-except ImportError: 
+except ImportError:
 	SLACK_WEBHOOKS = []
 
 def get_tags(data):
@@ -24,15 +23,15 @@ def change_link_markdown(description):
 	return re.sub('\[(?P<label>[^\[\]]+)\]\((?P<url>[^()]+)\)', '<\g<url>|\g<label>>', description)
 
 def generate_slack_params(data, res, github_user, webhook_dict):
-	"""Generate parameters that will be used in slack post request. 
+	"""Generate parameters that will be used in slack post request.
 	
-	In this case, markdown is used to generate formatting that 
+	In this case, markdown is used to generate formatting that
 	will show in Slack message
 	"""
 	api_title = data["info"]["title"]
 	# limit API description to 120 characters
-	api_description = ((data["info"]["description"][:120] + '...') 
-						if len(data["info"]["description"]) > 120 
+	api_description = ((data["info"]["description"][:120] + '...')
+						if len(data["info"]["description"]) > 120
 						else data["info"]["description"])
 	api_description = change_link_markdown(api_description)
 	api_id = res["_id"]
@@ -71,11 +70,11 @@ def generate_slack_params(data, res, github_user, webhook_dict):
 
 def send_slack_msg(data, res, github_user):
 	"""Make requests to slack to post information about newly registered API. 
-	
+
 	Notifications will be sent to every 
 	channel/webhook that is not tag specific, or will be sent to
 	slack if the registered API contains a tag that is also specific
-	a channel/webhook. 
+	a channel/webhook.
 	"""
 	headers = {'content-type': 'application/json'}
 	data_tags = get_tags(data)

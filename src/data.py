@@ -1,122 +1,132 @@
 import json
 import boto3
 import logging
+from datetime import datetime, date
+import requests
 
 from elasticsearch_dsl import Index, Search
 
-from model import API_Doc
+from model import APIDoc
 from controller import SWAGGER2_INDEXED_ITEMS, APIDocController, Downloader, RegistryError
+from utils.indices import setup_data
 
+def get_datestamp():
+    d = date.today()
+    return d.strftime('%Y%m%d')
+
+def ask(prompt, options='YN'):
+    '''
+    Prompt Yes or No,return the upper case 'Y' or 'N'
+    '''
+    options = options.upper()
+    while 1:
+        s = input(prompt+'[%s]' % '|'.join(list(options))).strip().upper()
+        if s in options:
+            break
+    return s
 
 class SmartAPIData():
     """
-    This class provides methods to:
-
-    -backup all docs to file or S3
-    -restore docs from local file with v2 and v3 support
-    -refresh one doc
-    -refresh all docs from list
-
-    -fetch all docs in current index
+    Backup docs to S3 and refresh docs based on registered url
     """
 
     def __init__(self):
-        self.index_name = API_Doc.Index.name
+        self.index_name = APIDoc.Index.name
 
-    def _refresh_one(self, api_doc, user=None, override_owner=False, dryrun=True,
-                     error_on_identical=False, save_v2=False):
-        ''' refresh the given API document object based on its saved metadata url  '''
+    @staticmethod
+    def polite_requests(url, head=False):
+        try:
+            if head:
+                res = requests.head(url, timeout=5)
+            else:
+                res = requests.get(url, timeout=5)
+        except requests.exceptions.Timeout:
+            return False
+        except requests.exceptions.ConnectionError:
+            return False
+        except requests.exceptions.RequestException:
+            return False
+        if res.status_code != 200:
+            return False
+        return res
+
+    def _refresh_one(self, api_doc):
+
+        '''
+        refresh the given API document object based on its saved metadata url
+        '''
         _id = api_doc['_id']
         _meta = api_doc['_meta']
 
         res = Downloader.get_api_metadata_by_url(_meta['url'])
-        if res and isinstance(res, dict):
-            if not res:
-                res['error'] = '[Request] '+res.get('error', '')
-                status = res
-            else:
-                _meta['timestamp'] = datetime.now().isoformat()
-                res['_meta'] = _meta
 
-                _id = res["_id"]
+        _meta['timestamp'] = datetime.now().isoformat()
+        res['_meta'] = _meta
 
-                try:
-                    # TODO update to new signature
-                    doc = APIDocController(_id=_id)
-                    status = doc.refresh_api(_id=_id, user=user, test=False)
-                except RegistryError as err:
-                    status = str(err)
-
-        else:
-            status = {'success': False, 'error': 'Invalid input data.'}
+        try:
+            doc = APIDocController.from_dict(res)
+            status = doc.refresh_api(_id)
+        except RegistryError as err:
+            status = str(err)
 
         return status
 
-    def refresh_all(
-            self, id_list=[],
-            dryrun=True, return_status=False, use_etag=True, ignore_archives=True):
-        '''refresh saved API documents based on their metadata urls.
+    def refresh_all(self, id_list=[], use_etag=True):
+        '''
+        refresh saved API documents based on their metadata urls.
 
         :param id_list: the list of API documents to perform the refresh operation
-        :param ignore_archives:
-        :param dryrun:
         :param use_etag: by default, HTTP ETag is used to speed up version detection
         '''
         updates = 0
         status_li = []
         logging.info("Refreshing API metadata:")
 
-        for api_doc in self.fetch_all(id_list=id_list, ignore_archives=ignore_archives):
+        for api_doc in self.fetch_all(id_list=id_list):
 
             _id, status = api_doc['_id'], ''
 
-            # if use_etag:
-            #     _res = polite_requests(api_doc.get('_meta', {}).get('url', ''), head=True)
-            #     if _res.get('success'):
-            #         res = _res.get('response')
-            #         etag_local = api_doc.get('_meta', {}).get('ETag', '')
-            #         etag_server = res.headers.get('ETag', 'N').strip('W/"')
-            #         if etag_local == etag_server:
-            #             status = "OK (Via Etag)"
+            if use_etag:
+                url = api_doc.get('_meta', {}).get('url', '')
+                _res = self.polite_requests(url, head=True)
+                if _res:
+                    etag_local = api_doc.get('_meta', {}).get('ETag', '')
+                    etag_server = _res.headers.get('ETag', 'N').strip('W/"')
+                    if etag_local == etag_server:
+                        status = f"No changes ID {_id} (Via Etag)"
 
             if not status:
-                res = self._refresh_one(
-                    api_doc, dryrun=dryrun, override_owner=True, error_on_identical=True,
-                    save_v2=True)
-                if res.get('success'):
-                    if res.get('warning'):
-                        status = 'OK'
-                    else:
-                        status = "OK Updated"
-                        updates += 1
+                try:
+                    res = self._refresh_one(api_doc)
+                except RegistryError as err:
+                    status = err
                 else:
-                    status = "ERR " + res.get('error')[:60]
+                    # status is f"API with ID {_id} was refreshed"
+                    status = res
+                    updates += 1
 
             status_li.append((_id, status))
-            logging.info("%s: %s", _id, status)
+            logging.info(f"Updated {_id}: {status}")
 
         logging.info("%s: %s APIs refreshed. %s Updates.", get_datestamp(), len(status_li), updates)
-
-        if dryrun:
-            logging.warning("This is a dryrun! No actual changes have been made.")
-            logging.warning("When ready, run it again with \"dryrun=False\" to apply changes.")
 
         return status_li
 
     def fetch_all(self, as_list=False, id_list=[], query={}):
-        """return a generator of all docs from the ES index.
-            return a list instead if as_list is True.
-            if query is passed, it returns docs that match the query.
-            else if id_list is passed, it returns only docs from the given ids.
         """
-        if query:
-            _query = query
-        elif id_list:
-            _query = {"query": {"ids": {"values": id_list}}}
-        else:
-            _query = {"query": {"match_all": {}}}
+        return a generator of all docs from the ES index.
+        return a list instead if as_list is True.
+        if query is passed, it returns docs that match the query.
+        else if id_list is passed, it returns only docs from the given ids.
+        """
+        search = Search(index=self.index_name)
 
-        scan_res = Search(index=self.index_name).scan(query=_query)
+        if query:
+            search = search.from_dict(query)
+        elif id_list:
+            search = search.from_dict({"query": {"ids": {"values": id_list}}})
+
+        scan_res = search.scan()
 
         def _fn(x):
             x['_source'].setdefault('_id', x['_id'])
@@ -134,23 +144,27 @@ class SmartAPIData():
         """
         # get the real index name in case index is an alias
         logging.info("Backup started.")
-        alias_d = Index(cls.index_name).get_alias()
+        alias_d = Index(self.index_name).get_alias()
         assert len(alias_d) == 1
+
         index_name = list(alias_d.keys())[0]
         default_name = "{}_backup_{}.json".format(index_name, get_datestamp())
         outfile = outfile or default_name
         doc_li = self.fetch_all(as_list=True)
+
         if aws_s3_bucket:
             location_prompt = 'on S3'
             s3 = boto3.resource('s3')
             s3.Bucket(aws_s3_bucket).put_object(
-                Key='db_backup/{}'.format(outfile), Body=json.dumps(doc_li, indent=2))
+                Key='db_backup/{}'.format(outfile),
+                Body=json.dumps(doc_li, indent=2))
         else:
             out_f = open(outfile, 'w')
             location_prompt = 'locally'
             out_f = open(outfile, 'w')
             json.dump(doc_li, out_f, indent=2)
             out_f.close()
+
         logging.info("Backed up %s docs in \"%s\" %s.", len(doc_li), outfile, location_prompt)
 
     def restore_all_with_file(self, backupfile, overwrite=False):
@@ -159,16 +173,12 @@ class SmartAPIData():
 
         Args:
             backupfile (file path): path to ES backup file
-            overwrite (bool, optional): Overwrite entire index. Defaults to False.
+            overwrite (bool, required): Overwrite entire index. Must be true to proceed.
         """
 
         def legacy_backupfile_support_path_str(_doc):
             """
-            transform multiple key field 'paths' for swagger specification
-            Args:
-                _doc: raw doc
-            Returns:
-                transformed _doc: 'paths' field transformed for ES performance
+            'paths' field transformed for ES performance
             """
             _paths = []
             if 'paths' in _doc:
@@ -192,25 +202,24 @@ class SmartAPIData():
             _d['~raw'] = _doc['~raw']
             return _d
 
-        if Index(cls.index_name).exists():
-            if overwrite and ask("Warning: index \"{}\" exists. Do you want to overwrite it?".format(self.index_name)) == 'Y':
-                Index(index_name).delete()
+        logging.info("Restore from file started")
+        if Index(self.index_name).exists():
+            if overwrite:
+                logging.info(f"Index {self.index_name} deleted")
+                Index(self.index_name).delete()
             else:
-                print("Error: index \"{}\" exists. Try a different index_name.".format(self.index_name))
-                return
+                logging.info("Restore from file aborted.  set 'override' to True to retry.")
+                raise RegistryError("Error: index \"{}\" exists. Try a different index_name.".format(self.index_name))
 
-        print("Loading docs from \"{}\"...".format(backupfile), end=" ")
         in_f = open(backupfile)
         doc_li = json.load(in_f)
-        print("Done. [{} Documents]".format(len(doc_li)))
 
-        print("Creating index...", end=" ")
-        API_Doc.init()
-        print("Done.")
+        setup_data()
+        logging.info(f"Index {self.index_name} created")
 
-        print("Indexing...", end=" ")
         swagger_v2_count = 0
         openapi_v3_count = 0
+
         for _doc in doc_li:
             _id = _doc.pop('_id')
             if "swagger" in _doc:
@@ -221,10 +230,9 @@ class SmartAPIData():
                 openapi_v3_count += 1
             else:
                 print('\n\tWARNING: ', _id, 'No Version.')
-            # self._es.index(index=index_name,
-            #                doc_type=self._doc_type, body=_doc, id=_id)
-            doc = API_Doc(meta={'id': _id}, ** _doc)
+            doc = APIDoc(meta={'id': _id}, ** _doc)
             doc.save()
-        print(swagger_v2_count, ' Swagger Objects and ',
-              openapi_v3_count, ' Openapi Objects. ')
-        print("Done.")
+
+        logging.info(f"Openapi Objects {openapi_v3_count} indexed")
+        logging.info(f"Swagger Objects {swagger_v2_count} indexed")
+        logging.info("Restore from file complete")

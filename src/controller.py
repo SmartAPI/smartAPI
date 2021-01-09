@@ -204,7 +204,7 @@ class APIDocController(ABC):
     @classmethod
     def get_api_by_slug(cls, slug):
         """
-        Get one doc by id
+        Get one doc by slug
         """
         search = APIDoc.search().filter('term', _meta__slug=slug)
         count = search.count()
