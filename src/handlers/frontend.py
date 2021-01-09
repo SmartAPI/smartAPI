@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
-from controller import APIDocController
+from controller import SmartAPI
 
 log = logging.getLogger("smartapi")
 
@@ -48,7 +48,7 @@ class MainHandler(BaseHandler):
     def get(self):
         slug = self.request.host.split(".")[0]
         if slug and slug.lower() not in ['www', 'dev', 'smart-api', 'localhost:8000']:
-            api_id = APIDocController.get_api_id_from_slug(slug)
+            api_id = SmartAPI.get_api_id_from_slug(slug)
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)

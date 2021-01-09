@@ -3,7 +3,7 @@ import os
 import json
 import pytest
 
-from controller import APIDocController, RegistryError
+from controller import SmartAPI, RegistryError
 from model import APIDoc
 from utils.indices import refresh
 
@@ -70,20 +70,20 @@ def test_get_all():
     """
     Get ALL docs
     """
-    docs = APIDocController.get_all()
+    docs = SmartAPI.get_all()
     assert len(docs) == 2
 
 def test_version():
     """
     metadata version handler
     """
-    assert APIDocController.from_dict(MYGENE_DATA).version == 'v3'
+    assert SmartAPI.from_dict(MYGENE_DATA).version == 'v3'
 
 def test_validation():
     """
     valid openapi v3 metadata
     """
-    doc = APIDocController.from_dict(MYGENE_DATA)
+    doc = SmartAPI.from_dict(MYGENE_DATA)
     doc.validate()
 
 def test_validate_invalid_v3():
@@ -91,14 +91,14 @@ def test_validate_invalid_v3():
     invalid openapi v3 metadata
     """
     with pytest.raises(RegistryError):
-        doc = APIDocController.from_dict({'some_field': 'no_meaning', 'openapi': '3.0.0'})
+        doc = SmartAPI.from_dict({'some_field': 'no_meaning', 'openapi': '3.0.0'})
         doc.validate()
 
 def test_add_doc_1():
     """
     Successful addition
     """
-    doc = APIDocController.from_dict(MYGENE_DATA)
+    doc = SmartAPI.from_dict(MYGENE_DATA)
     res = doc.save(
         MYGENE_DATA,
         user_name=USER['github_username'],
@@ -112,7 +112,7 @@ def test_add_already_exists():
     API exists
     """
     with pytest.raises(RegistryError) as err:
-        doc = APIDocController.from_dict(MYGENE_DATA)
+        doc = SmartAPI.from_dict(MYGENE_DATA)
         doc.save(
             MYGENE_DATA,
             user_name=USER['github_username'],
@@ -123,7 +123,7 @@ def test_add_doc_2():
     """
     Add test My Disease API to index, return new doc ID
     """
-    doc = APIDocController.from_dict(MYCHEM_DATA)
+    doc = SmartAPI.from_dict(MYCHEM_DATA)
     res = doc.save(
         MYCHEM_DATA,
         user_name=USER['github_username'],
@@ -136,42 +136,42 @@ def test_get_all_size_1():
     """
     Get ALL with size
     """
-    docs = APIDocController.get_all(size=1)
+    docs = SmartAPI.get_all(size=1)
     assert len(docs) == 1
 
 def test_get_all_from():
     """
     Get ALL from starting point
     """
-    docs = APIDocController.get_all(from_=1)
+    docs = SmartAPI.get_all(from_=1)
     assert len(docs) == 3
 
 def test_get_one():
     """
     Get one doc by ID
     """
-    doc = APIDocController.get_api_by_id(_id=MYGENE_ID)
+    doc = SmartAPI.get_api_by_id(_id=MYGENE_ID)
     assert doc['info']['title'] == 'MyGene.info API'
 
 def test_get_tags():
     """
     Get tag aggregations for field
     """
-    res = APIDocController.get_tags(field='info.contact.name', size=100)
+    res = SmartAPI.get_tags(field='info.contact.name', size=100)
     assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
 
 def test_validate_slug():
     """
     Update registered slug name for ID
     """
-    APIDocController.validate_slug_name(TEST_SLUG)
+    SmartAPI.validate_slug_name(TEST_SLUG)
 
 def test_validate_slug_invalid_1():
     """
     slug name not allowed
     """
     with pytest.raises(RegistryError) as err:
-        APIDocController.validate_slug_name('smart-api')
+        SmartAPI.validate_slug_name('smart-api')
     assert str(err.value) == "Slug name smart-api is reserved, please choose another"
 
 def test_validate_slug_invalid_2():
@@ -179,14 +179,14 @@ def test_validate_slug_invalid_2():
     invalid characters in slug
     """
     with pytest.raises(RegistryError) as err:
-        APIDocController.validate_slug_name('myname#')
+        SmartAPI.validate_slug_name('myname#')
     assert str(err.value) == "Slug name myname# contains invalid characters"
 
 def test_update_slug():
     """
     Update registered slug name for ID
     """
-    doc = APIDocController.from_dict(MYGENE_DATA)
+    doc = SmartAPI.from_dict(MYGENE_DATA)
     res = doc.update_slug(MYGENE_ID, slug_name=TEST_SLUG)
     assert res == TEST_SLUG
 
@@ -194,27 +194,27 @@ def test_get_one_by_slug():
     """
     Get one doc by slug
     """
-    doc = APIDocController.get_api_by_slug(TEST_SLUG)
+    doc = SmartAPI.get_api_by_slug(TEST_SLUG)
     assert doc['_id'] == MYGENE_ID
 
 def test_get_id_from_slug():
     """
     Get ID of doc with slug
     """
-    _id = APIDocController.get_api_id_from_slug(TEST_SLUG)
+    _id = SmartAPI.get_api_id_from_slug(TEST_SLUG)
     assert _id == MYGENE_ID
 
 def test_model_slug_taken():
     """
     Slug name is taken
     """
-    assert APIDocController.slug_is_available(TEST_SLUG)
+    assert SmartAPI.slug_is_available(TEST_SLUG)
 
 def test_delete_slug():
     """
     Delete slug
     """
-    doc = APIDocController.from_dict(MYGENE_DATA)
+    doc = SmartAPI.from_dict(MYGENE_DATA)
     res = doc.update_slug(MYGENE_ID)
     assert res == ''
 
@@ -222,7 +222,7 @@ def test_refresh_api():
     """
     Refresh api
     """
-    doc = APIDocController.from_dict(MYGENE_DATA)
+    doc = SmartAPI.from_dict(MYGENE_DATA)
     res = doc.refresh_api(MYGENE_ID)
     assert res == f"API with ID {MYGENE_ID} was refreshed"
 

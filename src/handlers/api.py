@@ -7,7 +7,8 @@ from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
 from utils.slack_notification import send_slack_msg
-from controller import (APIDocController, Downloader, RegistryError, V2Metadata, V3Metadata)
+from controller import (SmartAPI, RegistryError, V2Metadata, V3Metadata)
+from utils.schema_download import SchemaDownloader
 
 def github_authenticated(func):
     '''
@@ -48,7 +49,7 @@ class ValidateHandler(BaseHandler):
 
         if url:
             try:
-                data = Downloader.get_api_metadata_by_url(url)
+                data = SchemaDownloader.download(url)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
 
@@ -67,7 +68,7 @@ class ValidateHandler(BaseHandler):
             raise BadRequest(details="Need to provide data in the request body first")
 
         try:
-            valid = APIDocController.validate(data)
+            valid = SmartAPI.validate(data)
         except RegistryError as err:
             raise BadRequest(details=str(err))
         else:
@@ -102,15 +103,15 @@ class APIHandler(BaseHandler):
         Get one API or ALL
         """
         if _id is None:
-            res = APIDocController.get_all(
+            res = SmartAPI.get_all(
                 fields=self.args.fields,
                 from_=self.args._from,
                 size=self.args.size)
         else:
-            if not APIDocController.exists(_id):
+            if not SmartAPI.exists(_id):
                 raise HTTPError(404, response='API does not exist')
 
-            res = APIDocController.get_api_by_id(_id)
+            res = SmartAPI.get_api_by_id(_id)
 
         self.format = self.args.format
         self.finish(res)
@@ -125,13 +126,13 @@ class APIHandler(BaseHandler):
         data = None
 
         try:
-            data = Downloader.get_api_metadata_by_url(url)
+            data = SchemaDownloader.download(url)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
         if self.args.dryrun:
             try:
-                doc = APIDocController.from_dict(data)
+                doc = SmartAPI.from_dict(data)
                 doc.validate()
             except RegistryError as err:
                 raise BadRequest(details=str(err))
@@ -144,7 +145,7 @@ class APIHandler(BaseHandler):
                         {'success': True, 'details': "[Dryrun] Valid OpenAPI V3 Metadata"})
 
         try:
-            doc = APIDocController.from_dict(data)
+            doc = SmartAPI.from_dict(data)
             res = doc.save(
                 api_doc=data,
                 user_name=user['login'],
@@ -160,17 +161,17 @@ class APIHandler(BaseHandler):
         """
         Update registered slug or refresh by url
         """
-        if not APIDocController.exists(_id):
+        if not SmartAPI.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
         if self.args.refresh is False:
             try:
-                res = APIDocController.update_slug(_id, slug_name=self.args.slug)
+                res = SmartAPI.update_slug(_id, slug_name=self.args.slug)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
         else:
             try:
-                res = APIDocController.refresh_api(_id)
+                res = SmartAPI.refresh_api(_id)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
 
@@ -181,10 +182,10 @@ class APIHandler(BaseHandler):
         """
         Delete API
         """
-        if not APIDocController.exists(_id):
+        if not SmartAPI.exists(_id):
             raise HTTPError(404, response='API does not exist')
         try:
-            res = APIDocController.delete(_id=_id, user=self.current_user)
+            res = SmartAPI.delete(_id=_id, user=self.current_user)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
@@ -208,5 +209,5 @@ class ValueSuggestionHandler(BaseHandler):
         Returns aggregations for any field provided
         Used for tag:count on registry
         """
-        res = APIDocController.get_tags(self.args.field, self.args.size)
+        res = SmartAPI.get_tags(self.args.field, self.args.size)
         self.finish(res)

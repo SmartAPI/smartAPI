@@ -14,9 +14,6 @@ from collections import OrderedDict
 from datetime import datetime as dt
 
 import jsonschema
-import requests
-import requests_cache
-import yaml
 
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b
@@ -26,6 +23,7 @@ else:
 from elasticsearch import RequestError
 
 from model import APIDoc
+from utils.schema_download import SchemaDownloader
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +42,6 @@ SWAGGER2_INDEXED_ITEMS = ['info', 'tags', 'swagger', 'host', 'basePath']
 # list of major versions of schema that we support
 SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
 
-# This is a separate schema for SmartAPI extensions only
-SMARTAPI_SCHEMA_URL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/schemas/smartapi_schema.json'
 # Translator schema
 TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
 
@@ -57,83 +53,23 @@ class RegistryError(Exception):
     """General API error"""
 
 # *****************************************************************************
-# Schema Download Manager
-# *****************************************************************************
-
-class Downloader():
-
-    def __init__(self):
-        requests_cache.install_cache('smartapi_downloader_cache')
-        # expire_after = datetime.timedelta(days=7)
-        # requests_cache.install_cache('smartapi_downloader_cache',expire_after=expire_after)
-        self.v3_schema_urls = [OAS3_SCHEMA_URL, TRANSLATOR_URL, SMARTAPI_SCHEMA_URL]
-        self.v2_schema_urls = [SWAGGER2_SCHEMA_URL]
-        # get schemas
-        self.v3_validation_schemas = [self.download_schema(url) for url in self.v3_schema_urls]
-        self.v2_validation_schemas = [self.download_schema(url) for url in self.v2_schema_urls]
-
-    @property
-    def v3_schemas(self):
-        return self.v3_validation_schemas
-
-    @property
-    def v2_schemas(self):
-        return self.v2_validation_schemas
-
-    @staticmethod
-    def get_api_metadata_by_url(url):
-        try:
-            res = requests.get(url, timeout=5)
-        except requests.exceptions.RequestException as err:
-            raise RegistryError(f'Failed URL request: {str(err)}')
-        if res.status_code != 200:
-            raise RegistryError(f'Failed URL request with status: {res.status_code}')
-        try:
-            metadata = res.json()
-        except ValueError:
-            try:
-                metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
-            except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
-                raise RegistryError(f'Invalid Format: {str(err)}')
-        return metadata
-
-    @staticmethod
-    def download_schema(url):
-        data = requests.get(url).text
-        if data.startswith("export default "):
-            data = data[len("export default "):]
-        try:
-            schema = json.loads(data)
-        except ValueError:
-            try:
-                schema = yaml.load(data, Loader=yaml.SafeLoader)
-            except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
-                raise RegistryError(f'Invalid Format: {str(err)}')
-        if schema:
-            return schema
-
-
-# *****************************************************************************
 # API Doc Controller
 # *****************************************************************************
 
-class APIDocController(ABC):
+class SmartAPI(ABC):
 
     def __init__(self, metadata):
         self._metadata = metadata
+        self.version = ''
 
     def __getitem__(self, key):
         return self._metadata[key]
-
-    @property
-    @abstractmethod
-    def version(self):
-        pass
 
     @staticmethod
     def exists(_id):
         return APIDoc.exists(_id)
 
+    # POST
     @abstractmethod
     def save(self, api_doc, user_name=None, **options):
         pass
@@ -185,10 +121,10 @@ class APIDocController(ABC):
         """
         Get one doc by id
         """
-        if not APIDocController.exists(_id):
+        if not SmartAPI.exists(_id):
             raise RegistryError(f"API with id '{_id}' does not exist")
 
-        doc = APIDocController.get(_id)
+        doc = SmartAPI.get(_id)
 
         _raw = gzip.decompress(base64.urlsafe_b64decode(doc['~raw'])).decode('utf-8')
         d = json.loads(_raw)
@@ -290,8 +226,7 @@ class APIDocController(ABC):
 
         _meta = api_doc.to_dict().get('_meta', {})
 
-        d = Downloader()
-        res = d.get_api_metadata_by_url(_meta['url'])
+        res = SchemaDownloader.download(_meta['url'])
 
         _meta['timestamp'] = dt.now().isoformat()
         res['_meta'] = _meta
@@ -314,29 +249,15 @@ class APIDocController(ABC):
         doc.delete()
         return _id
 
-class V3Metadata(APIDocController):
+class V3Metadata(SmartAPI):
 
     def __init__(self, metadata):
         """
         OAS3 V3 Metadata
         """
         super().__init__(metadata)
+        self.version = 'v3'
         assert metadata['openapi'].split('.')[0] == "3"
-        self.get_schema()
-
-    @property
-    def version(self):
-        return 'v3'
-
-    def get_schema(self):
-        schema = requests.get(OAS3_SCHEMA_URL).text
-        if schema.startswith("export default "):
-            schema = schema[len("export default "):]
-        try:
-            self.oas_schema = json.loads(schema)
-        except Exception:
-            self.oas_schema = yaml.load(schema, Loader=yaml.SafeLoader)
-        self.smartapi_schema = requests.get(SMARTAPI_SCHEMA_URL).json()
 
     def encode_api_id(self, url):
         if not url:
@@ -371,25 +292,28 @@ class V3Metadata(APIDocController):
             'url': url,
             'timestamp': dt.now().isoformat()
         }
-        try:
-            self._meta['ETag'] = requests.get(
-                self._meta['url']).headers.get(
-                'ETag', 'I').strip('W/"')
-        except BaseException:
-            pass
+        etag = SchemaDownloader.get_etag(self._meta['url'])
+        if etag:
+            self._meta['ETag'] = etag
 
     def validate(self):
-        d = Downloader()
-        for schema in d.v3_schemas:
+        downloader = SchemaDownloader()
+
+        downloader.register('openapi_v3', OAS3_SCHEMA_URL)
+        downloader.register('x-translator', TRANSLATOR_URL)
+
+        schemas = downloader.get_schemas()
+
+        for name, schema in schemas.items():
             try:
                 jsonschema.validate(self._metadata, schema)
             except jsonschema.ValidationError as e:
-                err_msg = "Validation Error: '{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
+                err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
                 raise RegistryError(err_msg)
             except Exception as e:
-                raise RegistryError("Unexpected Validation Error: {} - {}".format(type(e).__name__, e))
+                err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
+                raise RegistryError(err_msg)
 
-    # POST
     def save(self, api_doc, user_name=None, **options):
         """
         Save an OpenAPI V3 document
@@ -410,28 +334,15 @@ class V3Metadata(APIDocController):
         doc.save()
         return api_id
 
-class V2Metadata(APIDocController):
+class V2Metadata(SmartAPI):
 
     def __init__(self, metadata):
         """
         Swagger V2 Metadata
         """
         super().__init__(metadata)
+        self.version = 'v2'
         assert metadata['swagger'].split('.')[0] == "2"
-        self.get_schema()
-
-    @property
-    def version(self):
-        return 'v2'
-
-    def get_schema(self):
-        schema = requests.get(SWAGGER2_SCHEMA_URL).text
-        if schema.startswith("export default "):
-            schema = schema[len("export default "):]
-        try:
-            self.oas_schema = json.loads(schema)
-        except Exception:
-            self.oas_schema = yaml.load(schema, Loader=yaml.SafeLoader)
 
     def encode_api_id(self, url):
         if not url:
@@ -439,16 +350,21 @@ class V2Metadata(APIDocController):
         return blake2b(url.encode('utf8'), digest_size=16).hexdigest()
 
     def validate(self):
-        '''Validate against OpenAPI V3 schema'''
-        try:
-            jsonschema.validate(self._metadata, self.oas_schema)
-        except jsonschema.ValidationError as e:
-            err_msg = "'{}': {}".format('.'.join([str(x) for x in e.path]), e.message)
-            raise RegistryError(err_msg)
-        except Exception as e:
-            raise RegistryError("Unexpected Validation Error: {} - {}".format(type(e).__name__, e))
+        downloader = SchemaDownloader()
 
-        return {"valid": True, "v2": True}
+        downloader.register('openapi_v3', SWAGGER2_SCHEMA_URL)
+
+        schemas = downloader.get_schemas()
+
+        for name, schema in schemas.items():
+            try:
+                jsonschema.validate(self._metadata, schema)
+            except jsonschema.ValidationError as e:
+                err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
+                raise RegistryError(err_msg)
+            except Exception as e:
+                err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
+                raise RegistryError(err_msg)
 
     def convert_es(self):
         '''index Swagger compatible items'''
@@ -473,14 +389,10 @@ class V2Metadata(APIDocController):
             'timestamp': dt.now().isoformat(),
             'swagger_v2': True
         }
-        try:
-            self._meta['ETag'] = requests.get(
-                self._meta['url']).headers.get(
-                'ETag', 'I').strip('W/"')
-        except BaseException:
-            pass
+        etag = SchemaDownloader.get_etag(self._meta['url'])
+        if etag:
+            self._meta['ETag'] = etag
 
-    # POST
     def save(self, api_doc, user_name=None, **options):
         """
         Save a Swagger V2 document
@@ -493,15 +405,12 @@ class V2Metadata(APIDocController):
 
         validation = self.validate()
 
-        if validation.get('valid') is False:
-            return validation
-        if validation.get('v2') is True and not save_v2:
-            raise RegistryError('API is Swagger V2 which is not fully suppported')
+        if not save_v2:
+            raise RegistryError('API is Swagger V2 which is not fully suppported, set save_v2 = True')
 
         api_id = self.encode_api_id(url)
-        doc_exists = self.exists(api_id)
 
-        if doc_exists and not overwrite:
+        if self.exists(api_id) and not overwrite:
             raise RegistryError('API Exists')
 
         self.create_meta(url, user_name)

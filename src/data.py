@@ -7,29 +7,14 @@ import requests
 from elasticsearch_dsl import Index, Search
 
 from model import APIDoc
-from controller import SWAGGER2_INDEXED_ITEMS, APIDocController, Downloader, RegistryError
+from controller import SWAGGER2_INDEXED_ITEMS, SmartAPI, RegistryError
 from utils.indices import setup_data
-
-def get_datestamp():
-    d = date.today()
-    return d.strftime('%Y%m%d')
-
-def ask(prompt, options='YN'):
-    '''
-    Prompt Yes or No,return the upper case 'Y' or 'N'
-    '''
-    options = options.upper()
-    while 1:
-        s = input(prompt+'[%s]' % '|'.join(list(options))).strip().upper()
-        if s in options:
-            break
-    return s
+from utils.schema_download import SchemaDownloader
 
 class SmartAPIData():
     """
     Backup docs to S3 and refresh docs based on registered url
     """
-
     def __init__(self):
         self.index_name = APIDoc.Index.name
 
@@ -58,13 +43,13 @@ class SmartAPIData():
         _id = api_doc['_id']
         _meta = api_doc['_meta']
 
-        res = Downloader.get_api_metadata_by_url(_meta['url'])
+        res = SchemaDownloader.download(_meta['url'])
 
         _meta['timestamp'] = datetime.now().isoformat()
         res['_meta'] = _meta
 
         try:
-            doc = APIDocController.from_dict(res)
+            doc = SmartAPI.from_dict(res)
             status = doc.refresh_api(_id)
         except RegistryError as err:
             status = str(err)
@@ -108,7 +93,7 @@ class SmartAPIData():
             status_li.append((_id, status))
             logging.info(f"Updated {_id}: {status}")
 
-        logging.info("%s: %s APIs refreshed. %s Updates.", get_datestamp(), len(status_li), updates)
+        logging.info("%s: %s APIs refreshed. %s Updates.", date.today().strftime('%Y%m%d'), len(status_li), updates)
 
         return status_li
 
@@ -148,7 +133,7 @@ class SmartAPIData():
         assert len(alias_d) == 1
 
         index_name = list(alias_d.keys())[0]
-        default_name = "{}_backup_{}.json".format(index_name, get_datestamp())
+        default_name = "{}_backup_{}.json".format(index_name, date.today().strftime('%Y%m%d'))
         outfile = outfile or default_name
         doc_li = self.fetch_all(as_list=True)
 
