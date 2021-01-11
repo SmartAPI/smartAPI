@@ -146,10 +146,10 @@ class APIHandler(BaseHandler):
 
         try:
             doc = SmartAPI.from_dict(data)
-            res = doc.save(
-                api_doc=data,
-                user_name=user['login'],
-                **self.args)
+            doc.username = user['login']
+            doc.url = url
+            doc.overwrite = self.args.overwrite
+            res = doc.save()
         except RegistryError as err:
             raise BadRequest(details=str(err))
         else:
@@ -185,7 +185,7 @@ class APIHandler(BaseHandler):
         if not SmartAPI.exists(_id):
             raise HTTPError(404, response='API does not exist')
         try:
-            res = SmartAPI.delete(_id=_id, user=self.current_user)
+            res = SmartAPI.delete(_id)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 

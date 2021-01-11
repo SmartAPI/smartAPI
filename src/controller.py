@@ -23,7 +23,7 @@ else:
 from elasticsearch import RequestError
 
 from model import APIDoc
-from utils.schema_download import SchemaDownloader
+from utils.schema_download import SchemaDownloader, DownloadError
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,16 @@ SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
 # Translator schema
 TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
 
+
+DOWNLOADER = SchemaDownloader('smartapi_downloader_cache')
+
+try:
+    DOWNLOADER.register('openapi_v3', OAS3_SCHEMA_URL, 'v3')
+    DOWNLOADER.register('x-translator', TRANSLATOR_URL, 'v3')
+    DOWNLOADER.register('swagger_v2', SWAGGER2_SCHEMA_URL, 'v2')
+except DownloadError:
+    pass
+
 # *****************************************************************************
 # Custom Exceptions
 # *****************************************************************************
@@ -60,10 +70,18 @@ class SmartAPI(ABC):
 
     def __init__(self, metadata):
         self._metadata = metadata
-        self.version = ''
+        self.url = ''
+        self.username = ''
+        self.overwrite = False
+        self.slug = ''
 
     def __getitem__(self, key):
         return self._metadata[key]
+
+    @property
+    @abstractmethod
+    def version(self):
+        pass
 
     @staticmethod
     def exists(_id):
@@ -82,24 +100,6 @@ class SmartAPI(ABC):
             return V2Metadata(dic)
         else:
             raise RegistryError('Version unknown')
-
-    @staticmethod
-    def get(_id):
-        return APIDoc.get(_id)
-
-    # VALIDATION
-    @staticmethod
-    def slug_is_available(slug):
-        """
-        Check if a slug is available
-
-        Returns:
-            Bool = exists
-        """
-        if not slug:
-            raise RequestError('slug is required')
-        res = APIDoc.slug_exists(slug)
-        return res
 
     @classmethod
     def validate_slug_name(cls, slug_name):
@@ -121,10 +121,7 @@ class SmartAPI(ABC):
         """
         Get one doc by id
         """
-        if not SmartAPI.exists(_id):
-            raise RegistryError(f"API with id '{_id}' does not exist")
-
-        doc = SmartAPI.get(_id)
+        doc = APIDoc.get(_id)
 
         _raw = gzip.decompress(base64.urlsafe_b64decode(doc['~raw'])).decode('utf-8')
         d = json.loads(_raw)
@@ -143,10 +140,7 @@ class SmartAPI(ABC):
         Get one doc by slug
         """
         search = APIDoc.search().filter('term', _meta__slug=slug)
-        count = search.count()
-
-        if search.count() != 1:
-            raise RegistryError(f"No exact matches for '{slug}' found: {count} results")
+        assert search.count() == 1
 
         hit = next(iter(search)).to_dict(include_meta=True)
         hit.update(hit.pop('_source'))
@@ -225,27 +219,22 @@ class SmartAPI(ABC):
         api_doc = APIDoc.get(_id)
 
         _meta = api_doc.to_dict().get('_meta', {})
-
-        res = SchemaDownloader.download(_meta['url'])
-
         _meta['timestamp'] = dt.now().isoformat()
+
+        url = _meta['url']
+        res = SchemaDownloader.download(url)
+
         res['_meta'] = _meta
 
-        api_doc.update(refresh=True, **res)
-        return f"API with ID {_id} was refreshed"
+        return api_doc.update(** res)
 
     # DELETE
     @staticmethod
-    def delete(_id, user):
+    def delete(_id):
         """
         delete api with ID
         """
         doc = APIDoc.get(id=_id)
-        _user = doc['_meta']['github_username']
-
-        if user.get('login', None) != _user:
-            raise RegistryError("User '{}' is not the owner of API '{}'".format(user.get('login', None), _id))
-
         doc.delete()
         return _id
 
@@ -256,32 +245,11 @@ class V3Metadata(SmartAPI):
         OAS3 V3 Metadata
         """
         super().__init__(metadata)
-        self.version = 'v3'
         assert metadata['openapi'].split('.')[0] == "3"
 
-    def encode_api_id(self, url):
-        if not url:
-            raise ValueError("Missing required _meta.url field.")
-        return blake2b(url.encode('utf8'), digest_size=16).hexdigest()
-
-    def convert_es(self):
-        '''convert API metadata for ES indexing.'''
-        _d = copy.copy(self._metadata)
-        _d['_meta'] = self._meta
-        # convert paths to a list of each path item
-        _paths = []
-        for path in _d.get('paths', []):
-            _paths.append({
-                "path": path,
-                "pathitem": _d['paths'][path]
-            })
-        if _paths:
-            _d['paths'] = _paths
-        # include compressed binary raw metadata as "~raw"
-        _raw = json.dumps(self._metadata).encode('utf-8')
-        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
-        _d["~raw"] = _raw
-        return _d
+    @property
+    def version(self):
+        return 'v3'
 
     def create_meta(self, url, user_name):
         """
@@ -292,17 +260,13 @@ class V3Metadata(SmartAPI):
             'url': url,
             'timestamp': dt.now().isoformat()
         }
-        etag = SchemaDownloader.get_etag(self._meta['url'])
+        etag = SchemaDownloader.download(self._meta['url'], etag_only=True)
         if etag:
             self._meta['ETag'] = etag
 
     def validate(self):
-        downloader = SchemaDownloader()
 
-        downloader.register('openapi_v3', OAS3_SCHEMA_URL)
-        downloader.register('x-translator', TRANSLATOR_URL)
-
-        schemas = downloader.get_schemas()
+        schemas = DOWNLOADER.get_schemas()
 
         for name, schema in schemas.items():
             try:
@@ -314,23 +278,40 @@ class V3Metadata(SmartAPI):
                 err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
                 raise RegistryError(err_msg)
 
-    def save(self, api_doc, user_name=None, **options):
+    def save(self):
         """
         Save an OpenAPI V3 document
 
         Returns saved API ID
         """
-        overwrite = options.get('overwrite')
-        url = options.get('url')
 
         self.validate()
 
-        api_id = self.encode_api_id(url)
-        if self.exists(api_id) and not overwrite:
+        api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
+
+        if self.exists(api_id) and not self.overwrite:
             raise RegistryError('API Exists')
 
-        self.create_meta(url, user_name)
-        doc = APIDoc(meta={'id': api_id}, ** self.convert_es())
+        self.create_meta(self.url, self.username)
+
+        # transform paths
+        data = copy.copy(self._metadata)
+        data['_meta'] = self._meta
+        # convert paths to a list of each path item
+        paths = []
+        for path in data.get('paths', []):
+            paths.append({
+                "path": path,
+                "pathitem": data['paths'][path]
+            })
+        if paths:
+            data['paths'] = paths
+        # include compressed binary raw metadata as "~raw"
+        _raw = json.dumps(self._metadata).encode('utf-8')
+        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
+        data["~raw"] = _raw
+
+        doc = APIDoc(meta={'id': api_id}, ** data)
         doc.save()
         return api_id
 
@@ -341,20 +322,15 @@ class V2Metadata(SmartAPI):
         Swagger V2 Metadata
         """
         super().__init__(metadata)
-        self.version = 'v2'
         assert metadata['swagger'].split('.')[0] == "2"
 
-    def encode_api_id(self, url):
-        if not url:
-            raise ValueError("Missing required _meta.url field.")
-        return blake2b(url.encode('utf8'), digest_size=16).hexdigest()
+    @property
+    def version(self):
+        return 'v2'
 
     def validate(self):
-        downloader = SchemaDownloader()
 
-        downloader.register('openapi_v3', SWAGGER2_SCHEMA_URL)
-
-        schemas = downloader.get_schemas()
+        schemas = DOWNLOADER.get_schemas('v2')
 
         for name, schema in schemas.items():
             try:
@@ -365,19 +341,6 @@ class V2Metadata(SmartAPI):
             except Exception as e:
                 err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
                 raise RegistryError(err_msg)
-
-    def convert_es(self):
-        '''index Swagger compatible items'''
-        # swagger 2 or other, only index limited fields
-        _d = {"_meta": self._meta}
-        for key in SWAGGER2_INDEXED_ITEMS:
-            if key in self._metadata:
-                _d[key] = self._metadata[key]
-        # include compressed binary raw metadata as "~raw"
-        _raw = json.dumps(self._metadata).encode('utf-8')
-        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
-        _d["~raw"] = _raw
-        return _d
 
     def create_meta(self, url, user_name):
         """
@@ -389,7 +352,7 @@ class V2Metadata(SmartAPI):
             'timestamp': dt.now().isoformat(),
             'swagger_v2': True
         }
-        etag = SchemaDownloader.get_etag(self._meta['url'])
+        etag = SchemaDownloader.download(self._meta['url'], etag_only=True)
         if etag:
             self._meta['ETag'] = etag
 
@@ -399,21 +362,26 @@ class V2Metadata(SmartAPI):
 
         Returns saved API ID
         """
-        save_v2 = options.get('save_v2')
-        overwrite = options.get('overwrite')
-        url = options.get('url')
 
-        validation = self.validate()
+        self.validate()
 
-        if not save_v2:
-            raise RegistryError('API is Swagger V2 which is not fully suppported, set save_v2 = True')
+        api_id = api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
 
-        api_id = self.encode_api_id(url)
-
-        if self.exists(api_id) and not overwrite:
+        if self.exists(api_id) and not self.overwrite:
             raise RegistryError('API Exists')
 
-        self.create_meta(url, user_name)
-        doc = APIDoc(meta={'id': api_id}, ** self.convert_es())
+        self.create_meta(self.url, self.username)
+
+        # transform paths
+        data = {"_meta": self._meta}
+        for key in SWAGGER2_INDEXED_ITEMS:
+            if key in self._metadata:
+                data[key] = self._metadata[key]
+        # include compressed binary raw metadata as "~raw"
+        _raw = json.dumps(self._metadata).encode('utf-8')
+        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
+        data["~raw"] = _raw
+
+        doc = APIDoc(meta={'id': api_id}, ** data)
         doc.save()
         return api_id

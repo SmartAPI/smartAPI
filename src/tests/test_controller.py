@@ -26,43 +26,39 @@ TEST_SLUG = 'myslug'
 
 USER = {"github_username": "marcodarko"}
 
+dirname = os.path.dirname(__file__)
+
+# prepare data to be saved in tests
+with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
+    MYGENE_DATA = json.load(file)
+
+with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
+    MYCHEM_DATA = json.load(file)
+
+with open(os.path.join(dirname, 'automat.json'), 'r') as file:
+    AUTOMAT_DATA = json.load(file)
+
+with open(os.path.join(dirname, 'dateapi.json'), 'r') as file:
+    DATEAPI_DATA = json.load(file)
+
 @pytest.fixture(autouse=True, scope='module')
 def setup_fixture():
     """
     Prepare data for 2 tests and save 2 documents initially
     """
-    global MYCHEM_DATA
-    global MYGENE_DATA
-    global AUTOMAT_DATA
-    global DATEAPI_DATA
-
     test_ids = [MYGENE_ID, MYCHEM_ID, AUTOMAT_ID, DATEAPI_ID]
-    dirname = os.path.dirname(__file__)
 
     # clean up index
     for _id in test_ids:
         if APIDoc.exists(_id):
-            doc = APIDoc()
-            doc = doc.get(_id)
+            doc = APIDoc.get(_id)
             doc.delete()
-
-    # prepare data to be saved in tests
-    with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
-        MYGENE_DATA = json.load(file)
-
-    with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
-        MYCHEM_DATA = json.load(file)
-
     # save initial docs
-    with open(os.path.join(dirname, 'automat.json'), 'r') as file:
-        AUTOMAT_DATA = json.load(file)
-        d1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
-        d1.save()
+    d1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
+    d1.save()
 
-    with open(os.path.join(dirname, 'dateapi.json'), 'r') as file:
-        DATEAPI_DATA = json.load(file)
-        d2 = APIDoc(meta={'id': DATEAPI_ID}, **DATEAPI_DATA)
-        d2.save()
+    d2 = APIDoc(meta={'id': DATEAPI_ID}, **DATEAPI_DATA)
+    d2.save()
     # refresh index
     refresh()
 
@@ -99,10 +95,9 @@ def test_add_doc_1():
     Successful addition
     """
     doc = SmartAPI.from_dict(MYGENE_DATA)
-    res = doc.save(
-        MYGENE_DATA,
-        user_name=USER['github_username'],
-        url=MYGENE_URL)
+    doc.url = MYGENE_URL
+    doc.username = 'marcodarko'
+    res = doc.save()
     refresh()
     assert res == MYGENE_ID
     assert APIDoc.exists(_id=MYGENE_ID)
@@ -113,10 +108,9 @@ def test_add_already_exists():
     """
     with pytest.raises(RegistryError) as err:
         doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.save(
-            MYGENE_DATA,
-            user_name=USER['github_username'],
-            url=MYGENE_URL)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
     assert str(err.value) == 'API Exists'
 
 def test_add_doc_2():
@@ -124,10 +118,9 @@ def test_add_doc_2():
     Add test My Disease API to index, return new doc ID
     """
     doc = SmartAPI.from_dict(MYCHEM_DATA)
-    res = doc.save(
-        MYCHEM_DATA,
-        user_name=USER['github_username'],
-        url=MYCHEM_URL)
+    doc.url = MYCHEM_URL
+    doc.username = 'marcodarko'
+    res = doc.save()
     refresh()
     assert res == MYCHEM_ID
     assert APIDoc.exists(_id=MYCHEM_ID)
@@ -204,12 +197,6 @@ def test_get_id_from_slug():
     _id = SmartAPI.get_api_id_from_slug(TEST_SLUG)
     assert _id == MYGENE_ID
 
-def test_model_slug_taken():
-    """
-    Slug name is taken
-    """
-    assert SmartAPI.slug_is_available(TEST_SLUG)
-
 def test_delete_slug():
     """
     Delete slug
@@ -223,8 +210,7 @@ def test_refresh_api():
     Refresh api
     """
     doc = SmartAPI.from_dict(MYGENE_DATA)
-    res = doc.refresh_api(MYGENE_ID)
-    assert res == f"API with ID {MYGENE_ID} was refreshed"
+    assert doc.refresh_api(MYGENE_ID)
 
 def teardown_module():
     """ teardown any state that was previously setup.
@@ -233,4 +219,10 @@ def teardown_module():
     test1.delete()
 
     test2 = APIDoc.get(DATEAPI_ID)
+    test2.delete()
+
+    test1 = APIDoc.get(MYGENE_ID)
+    test1.delete()
+
+    test2 = APIDoc.get(MYCHEM_ID)
     test2.delete()
