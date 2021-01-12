@@ -1,19 +1,14 @@
 import json
+from collections import UserDict
 
 import requests
 import requests_cache
 import yaml
 
-requests_cache.install_cache('smartapi_downloader_cache')
+requests_cache.install_cache('.downloader_cache')
 
 class DownloadError(Exception):
     """Error fetching data from url"""
-
-class DownloadData(dict):
-
-    def __init__(self, *args, etag=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.etag = etag
 
 class SchemaDownloader():
     """
@@ -30,7 +25,7 @@ class SchemaDownloader():
         self.schemas[name] = self.download_schema(url)
 
     @staticmethod
-    def download(url, with_etag=False):
+    def download(url):
         """
         get json/yaml api metadata by url
         """
@@ -48,9 +43,8 @@ class SchemaDownloader():
             except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
                 raise DownloadError(f'Invalid Format: {str(err)}')
 
-        data = DownloadData(metadata)
-        if with_etag:
-            data.etag = res.headers.get('ETag', 'I').strip('W/"')
+        data = UserDict(metadata)
+        data.etag = res.headers.get('ETag', 'I').strip('W/"')
         return data
 
     def download_schema(self, url):

@@ -3,7 +3,7 @@ Backup es index to S3 and refresh
 '''
 import logging
 
-from data import SmartAPIData
+from admin import SmartAPIData
 
 def backup_and_refresh():
     '''

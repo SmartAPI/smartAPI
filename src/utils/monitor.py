@@ -1,22 +1,19 @@
 '''
     API Uptime Monitor
 
-        - Status: Good, Bad, Incompatible, Unknown
+    - Status: Good, Bad, Incompatible, Unknown
 
-        - Run this file directly to perform status check
+    - Run this file directly to perform status check
 '''
 
 import logging
 from datetime import datetime
-from functools import partial
 
 import requests
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search
 from elasticsearch_dsl.connections import connections
+from model import APIDoc, APIStatus
 # pylint:disable=import-error, ungrouped-imports
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-from tornado.ioloop import IOLoop
 
 connections.create_connection(hosts=['localhost'])
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
@@ -81,7 +78,7 @@ class API:
             return
 
         for _endpoint, _endpoint_info in self.endpoints_info.items():
-            endpoint_doc = {'name': '/'.join(s.strip('/') for s in(self.api_server, _endpoint)),
+            endpoint_doc = {'name': '/'.join(s.strip('/') for s in (self.api_server, _endpoint)),
                             'components': self.components}
             if 'get' in _endpoint_info:
                 endpoint_doc['method'] = 'GET'
@@ -151,7 +148,7 @@ class Endpoint:
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                         pass
-                elif 'required' in _param and _param['required'] == True:
+                elif 'required' in _param and _param['required'] is True:
                     example = True
             if not example:
                 try:
@@ -181,7 +178,7 @@ class Endpoint:
                         return response
                     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
                         pass
-                elif 'required' in _param and _param['required'] == True:
+                elif 'required' in _param and _param['required'] is True:
                     example = True
             if self.requestbody:
                 content = self.requestbody.get('content')
@@ -242,13 +239,15 @@ def update_uptime_status():
     logger = logging.getLogger("utils.uptime.update")
     logger.info("Start uptime check...")
 
-    def check_status(doc):
+    def check_endpoint_status(doc):
         api = API(doc)
         api.check_api_status()
         return api.api_status
 
-    search = Search(index='smartapi_oas3') \
-        .query("match_all")
+    # def check_url_status(url):
+        # TODO check url status
+
+    search = APIDoc.search()
 
     total = search.count()
     result = {}
@@ -260,62 +259,26 @@ def update_uptime_status():
         doc = hit.to_dict()
         doc['_id'] = hit.meta.id
 
-        status = check_status(doc)
+        status = check_endpoint_status(doc)
+        # url_status = check_url_status(doc)
 
         logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
 
-        doc_params = {
-            "id": hit.meta.id,
-            "index": 'smartapi_oas3',
-            "doc_type": 'api'
-        }
-        partial_update = {
-            "doc": {
-                "_meta": {
-                    "uptime_status": status,
-                    "uptime_ts": datetime.utcnow()
-                }
+        if APIStatus.exists(hit.meta.id):
+            doc = APIStatus.get(hit.meta.id)
+            doc.update(uptime_status=status)
+            doc.update(uptime_ts=datetime.utcnow())
+            # doc.update(url_status=url_status)
+        else:
+            data = {
+                "uptime_status": status,
+                "uptime_ts": datetime.utcnow(),
+                # "url_status": url_status
             }
-        }
-        es_client = Elasticsearch()
-        res = es_client.update(body=partial_update, **doc_params)
-
-        logger.debug(res)
+            doc = APIStatus(meta={'id': hit.meta.id}, ** data)
+            doc.save()
 
         result[status] = result.get(status, 0) + 1
 
     logger.info("Uptime updated. %s", result)
 
-
-def main():
-    """
-    Check Production Server API Status
-
-    - Output result to screen and file
-    - Do not make changes to es index
-
-    """
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger("utils.uptime.main")
-    logger.info("Start checking API status.")
-
-    # call smartapi API to fetch all API metadata in registry
-    api_docs = requests.get('https://smart-api.info/api/query?q=__all__&size=100').json()
-    logger.info("Retrieved %s api documents.", api_docs['total'])
-
-    # can rename or specify a specific folder to put the file
-    output_file_name = 'smarapi_uptime_robot' + datetime.today().strftime('%Y-%m-%d') + '.txt'
-    with open(output_file_name, 'w') as f:  # pylint: disable=invalid-name
-
-        for api_doc in api_docs['hits']:
-            api = API(api_doc)
-            api.check_api_status()
-            logger.info("%s : %s", api.id, api.api_status)
-            f.write(api.id + '\t' + api.api_status + '\n')
-
-    logger.info("Done.")
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    main()

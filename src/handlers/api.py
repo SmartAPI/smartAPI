@@ -6,9 +6,9 @@ from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
-from utils.slack_notification import send_slack_msg
-from controller import (SmartAPI, RegistryError, V2Metadata, V3Metadata)
-from utils.schema_download import SchemaDownloader
+from utils.notify import send_slack_msg
+from controller import (SmartAPI, RegistryError)
+from utils.downloader import SchemaDownloader
 
 def github_authenticated(func):
     '''
@@ -126,29 +126,22 @@ class APIHandler(BaseHandler):
         data = None
 
         try:
-            data = SchemaDownloader.download(url)
+            file = SchemaDownloader.download(url)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
-        if self.args.dryrun:
-            try:
-                doc = SmartAPI.from_dict(data)
-                doc.validate()
-            except RegistryError as err:
-                raise BadRequest(details=str(err))
-            else:
-                if isinstance(doc, V2Metadata):
-                    self.finish(
-                        {'success': True, 'details': "[Dryrun] Valid Swagger V2 Metadata"})
-                elif isinstance(doc, V3Metadata):
-                    self.finish(
-                        {'success': True, 'details': "[Dryrun] Valid OpenAPI V3 Metadata"})
-
         try:
-            doc = SmartAPI.from_dict(data)
+            doc = SmartAPI.from_dict(file.data)
             doc.username = user['login']
             doc.url = url
-            res = doc.save(overwrite=self.args.overwrite)
+            doc.etag = file.etag
+
+            if self.args.dryrun:
+                doc.validate()
+                # TODO will this happen on invalid?
+                self.finish({'success': True, 'details': f"[Dryrun] Valid {doc.version} Metadata"})
+            else:
+                res = doc.save(overwrite=self.args.overwrite)
         except RegistryError as err:
             raise BadRequest(details=str(err))
         else:

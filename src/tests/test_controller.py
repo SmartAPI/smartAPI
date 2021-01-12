@@ -48,7 +48,7 @@ def setup_fixture():
         if APIDoc.exists(_id):
             doc = APIDoc.get(_id)
             doc.delete()
-    # save initial docs
+    # save initial docs with paths already transformed
     d1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
     d1.save()
 
@@ -119,6 +119,17 @@ def test_add_doc_2():
     refresh()
     assert res == MYCHEM_ID
     assert APIDoc.exists(_id=MYCHEM_ID)
+
+def test_overwrite():
+    """
+    Try to overwrite item not owned
+    """
+    with pytest.raises(RegistryError) as err:
+        doc = SmartAPI.from_dict(MYCHEM_DATA)
+        doc.url = MYCHEM_URL
+        doc.username = 'stoleyour_url'
+        doc.save(overwrite=True)
+    assert str(err.value) == 'Cannot overwrite APIs you do not own'
 
 def test_get_all_size_1():
     """
@@ -203,14 +214,14 @@ def test_refresh_api():
 def teardown_module():
     """ teardown any state that was previously setup.
     """
-    test1 = APIDoc.get(AUTOMAT_ID)
-    test1.delete()
+    # test1 = APIDoc.get(AUTOMAT_ID)
+    # test1.delete()
 
-    test2 = APIDoc.get(DATEAPI_ID)
-    test2.delete()
+    # test2 = APIDoc.get(DATEAPI_ID)
+    # test2.delete()
 
-    test1 = APIDoc.get(MYGENE_ID)
-    test1.delete()
+    # test1 = APIDoc.get(MYGENE_ID)
+    # test1.delete()
 
-    test2 = APIDoc.get(MYCHEM_ID)
-    test2.delete()
+    # test2 = APIDoc.get(MYCHEM_ID)
+    # test2.delete()

@@ -7,8 +7,8 @@
 
 import os
 
-from elasticsearch_dsl import *  # pylint
-
+from elasticsearch_dsl import *  # pylint: disable=unused-import
+from elasticsearch_dsl.connections import connections
 # parse environment variables
 ES_HOST = os.getenv('ES_HOST', 'localhost:9200')
 ES_INDEX_NAME = 'smartapi_oas3'
@@ -99,3 +99,33 @@ class APIDoc(Document):
         s.query = Q('bool', should=[Q('match', _meta__slug=slug)])
         res = s.execute().to_dict()
         return bool(res['hits']['total']['value'])
+
+
+class APIStatus(Document):
+
+    '''
+    API url and endpoints status
+    '''
+
+    uptime_status = Text()
+    uptime_ts = Date()
+    url_status = Text()
+
+    class Meta:
+        dynamic = MetaField(False)
+
+    class Index:
+        '''
+        Associated ES index
+        '''
+        name = "smartapi_status"
+        settings = {
+            "number_of_shards": 1,
+            "number_of_replicas": 0
+        }
+
+    @classmethod
+    def exists(cls, _id):
+        search = cls.search().query('match', _id=_id)
+        return bool(search.source(False).execute().hits)
+

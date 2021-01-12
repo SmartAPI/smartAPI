@@ -13,17 +13,15 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime as dt
 
-import jsonschema
+from jsonschema import validate, ValidationError
 
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b
 else:
     from pyblake2 import blake2b  # pylint: disable=import-error
 
-from elasticsearch import RequestError
-
 from model import APIDoc
-from utils.schema_download import SchemaDownloader, DownloadError
+from utils.downloader import SchemaDownloader, DownloadError
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +29,12 @@ logger = logging.getLogger(__name__)
 # Validation schemas, tags
 # *****************************************************************************
 
-# Official oas3 json schema for validation is still in-development.
-# For now we us this updated oas3-schema from swagger-editor
-OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.7.1/src/plugins/json-schema-validator/oas3-schema.yaml'
+# V2 Schemas
 SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
+
+# V3 Schemas
+TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
+OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.7.1/src/plugins/json-schema-validator/oas3-schema.yaml'
 
 # List of root keys that should be indexed in version 2 schema
 SWAGGER2_INDEXED_ITEMS = ['info', 'tags', 'swagger', 'host', 'basePath']
@@ -42,16 +42,12 @@ SWAGGER2_INDEXED_ITEMS = ['info', 'tags', 'swagger', 'host', 'basePath']
 # list of major versions of schema that we support
 SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
 
-# Translator schema
-TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
-
-
 downloader = SchemaDownloader()
 
 try:
+    downloader.register('swagger_v2', SWAGGER2_SCHEMA_URL)
     downloader.register('openapi_v3', OAS3_SCHEMA_URL)
     downloader.register('x-translator', TRANSLATOR_URL)
-    downloader.register('swagger_v2', SWAGGER2_SCHEMA_URL)
 except DownloadError:
     pass
 
@@ -73,6 +69,7 @@ class SmartAPI(ABC):
         self.url = ''
         self.username = ''
         self.slug = ''
+        self.etag = ''
 
     def __getitem__(self, key):
         return self._metadata[key]
@@ -85,6 +82,10 @@ class SmartAPI(ABC):
     @staticmethod
     def exists(_id):
         return APIDoc.exists(_id)
+
+    @abstractmethod
+    def validate(self):
+        pass
 
     # POST
     @abstractmethod
@@ -186,7 +187,7 @@ class SmartAPI(ABC):
         cls.validate_slug_name(slug_name)
 
         api_doc = APIDoc.get(_id)
-        api_doc.update(refresh=True, _meta={"slug": slug_name.lower()})
+        api_doc.update(_meta={"slug": slug_name.lower()})
         return slug_name.lower()
 
     @staticmethod
@@ -201,7 +202,7 @@ class SmartAPI(ABC):
 
         url = _meta['url']
         res = SchemaDownloader.download(url)
-
+        res = res.data
         res['_meta'] = _meta
 
         return api_doc.update(** res)
@@ -234,12 +235,12 @@ class V3Metadata(SmartAPI):
         for name, schema in downloader.schemas.items():
             if name in ['openapi_v3', 'x-translator']:
                 try:
-                    jsonschema.validate(self._metadata, schema)
-                except jsonschema.ValidationError as e:
-                    err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
+                    validate(instance=self._metadata, schema=schema)
+                except ValidationError as e:
+                    err_msg = f"Validation Error [{name}]: {e.message}. In: {e.path}"
                     raise RegistryError(err_msg)
                 except Exception as e:
-                    err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
+                    err_msg = f"Unexpected Validation Error [{name}]: {type(e).__name__} - {e}"
                     raise RegistryError(err_msg)
 
     def save(self, overwrite=False):
@@ -253,20 +254,22 @@ class V3Metadata(SmartAPI):
 
         api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
 
-        if self.exists(api_id) and not overwrite:
-            raise RegistryError('API Exists')
+        if self.exists(api_id):
+            if not overwrite:
+                raise RegistryError('API exists')
+            else:
+                existing = APIDoc.get(api_id).to_dict()
+                existing_user = existing.get('_meta', {}).get('github_username', {})
+                if existing_user != self.username:
+                    raise RegistryError('Cannot overwrite APIs you do not own')
 
         # create doc meta
         self._meta = {
             "github_username": self.username,
             'url': self.url,
-            'timestamp': dt.now().isoformat()
+            'timestamp': dt.now().isoformat(),
+            'ETag': self.etag
         }
-        try:
-            d_data = SchemaDownloader.download(self.url, with_etag=True)
-            self._meta['ETag'] = d_data.etag
-        except DownloadError:
-            pass
 
         # transform paths
         data = copy.copy(self._metadata)
@@ -309,12 +312,12 @@ class V2Metadata(SmartAPI):
         for name, schema in downloader.schemas.items():
             if name in ['swagger_v2']:
                 try:
-                    jsonschema.validate(self._metadata, schema)
-                except jsonschema.ValidationError as e:
-                    err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
+                    validate(instance=self._metadata, schema=schema)
+                except ValidationError as e:
+                    err_msg = f"Validation Error [{name}]: {e.message}. In: {e.path}"
                     raise RegistryError(err_msg)
                 except Exception as e:
-                    err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
+                    err_msg = f"Unexpected Validation Error [{name}]: {type(e).__name__} - {e}"
                     raise RegistryError(err_msg)
 
     def save(self, overwrite=False):
@@ -328,20 +331,22 @@ class V2Metadata(SmartAPI):
 
         api_id = api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
 
-        if self.exists(api_id) and not overwrite:
-            raise RegistryError('API Exists')
+        if self.exists(api_id):
+            if not overwrite:
+                raise RegistryError('API exists')
+            else:
+                existing = APIDoc.get(api_id).to_dict()
+                existing_user = existing.get('_meta', {}).get('github_username', {})
+                if existing_user != self.username:
+                    raise RegistryError('Cannot overwrite APIs you do not own')
 
         # create doc meta
         self._meta = {
             "github_username": self.username,
             'url': self.url,
-            'timestamp': dt.now().isoformat()
+            'timestamp': dt.now().isoformat(),
+            'ETag': self.etag
         }
-        try:
-            d_data = SchemaDownloader.download(self.url, with_etag=True)
-            self._meta['ETag'] = d_data.etag
-        except DownloadError:
-            pass
 
         # transform paths
         data = {"_meta": self._meta}

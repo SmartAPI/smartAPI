@@ -1,67 +1,56 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "version": "1.0",
-        "title": "DATE API",
-        "description": "Web API to query DATE data stored in MySQL. Primary features are MySQL-like syntax for filtering database table rows and the ability to perform JOINs remotely.",
-        "contact": {
-            "name": "Joseph D. Romano",
-            "x-role": "responsible developer",
-            "email": "jdr2160@cumc.columbia.edu",
-            "x-id": "https://github.com/JDRomano2"
-        },
-        "termsOfService": "https://github.com/JDRomano2/ncats-apis/blob/master/date/terms.md"
+    "_id": "26ce0569ba5b82902148069b4c3e51b4",
+    "_meta": {
+        "ETag": "5e82ee533ea2a7bda1be332c771c57bfaf38fdcb",
+        "github_username": "JDRomano2",
+        "timestamp": "2019-05-16T17:14:28.440703",
+        "uptime_status": "unknown",
+        "uptime_ts": "2021-01-12T00:28:21.129452",
+        "url": "https://raw.githubusercontent.com/JDRomano2/ncats-apis/master/date/openapi_date.yml"
     },
-    "servers": [
+    "_score": 1,
+    "info": {
+        "contact": {
+            "email": "jdr2160@cumc.columbia.edu",
+            "name": "Joseph D. Romano",
+            "x-id": "https://github.com/JDRomano2",
+            "x-role": "responsible developer"
+        },
+        "description": "Web API to query DATE data stored in MySQL. Primary features are MySQL-like syntax for filtering database table rows and the ability to perform JOINs remotely.",
+        "termsOfService": "https://github.com/JDRomano2/ncats-apis/blob/master/date/terms.md",
+        "title": "DATE API",
+        "version": "1.0"
+    },
+    "openapi": "3.0.0",
+    "paths": [
         {
-            "url": "http://date.nsides.io",
-            "description": "Production server"
+            "path": "/api/{tablename}",
+            "pathitem": {
+                "get": {
+                    "summary": "Prints contents of {tablename} by row"
+                }
+            }
+        },
+        {
+            "path": "/api/{tablename}/{id}",
+            "pathitem": {
+                "get": {
+                    "summary": "Fetches a single row from {tablename} by primary key {id}"
+                }
+            }
+        },
+        {
+            "path": "/api/tables",
+            "pathitem": {
+                "get": {
+                    "summary": "Lists all available tables (i.e., valid values for {tablename})"
+                }
+            }
         }
     ],
     "tags": [
         {
             "name": "translator"
         }
-    ],
-    "paths": {
-        "/api/{tablename}": {
-            "get": {
-                "summary": "Prints contents of {tablename} by row",
-                "responses": {
-                    "200": {
-                        "description": "JSON-formatted list where each element is a JSON object where keys are table columns and values are the corresponding cell values. Users can pass parameters with a MySQL-like syntax to perform filtering within the table."
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "tablename",
-                        "in": "path",
-                        "required": true,
-                        "description": "One of the table names documented at http://date.nsides.io, or liste in the response to '/api/tables'.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "_fields",
-                        "in": "query",
-                        "description": "One or more table columns to include in the query's response. If omitted, all table columns will be returned in the response.",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "_where",
-                        "in": "query",
-                        "description": "One or more tuples delimited by logical operators, where each tuple is a comparison applied to a specific table column. Follows syntax specifications described at https://github.com/o1lab/xmysql#row-filtering--where",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+    ]
 }

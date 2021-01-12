@@ -9,7 +9,7 @@ from elasticsearch_dsl import Index, Search
 from model import APIDoc
 from controller import SWAGGER2_INDEXED_ITEMS, SmartAPI, RegistryError
 from utils.indices import setup_data
-from utils.schema_download import SchemaDownloader
+from utils.downloader import SchemaDownloader
 
 class SmartAPIData():
     """
