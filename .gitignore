@@ -22,3 +22,5 @@ smartapi_*.json
 #env
 /env
 /env-dsl
+
+*.sqlite
