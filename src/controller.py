@@ -46,12 +46,12 @@ SUPPORTED_SCHEMA_VERSIONS = ['SWAGGER2', 'OAS3']
 TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
 
 
-DOWNLOADER = SchemaDownloader('smartapi_downloader_cache')
+downloader = SchemaDownloader()
 
 try:
-    DOWNLOADER.register('openapi_v3', OAS3_SCHEMA_URL, 'v3')
-    DOWNLOADER.register('x-translator', TRANSLATOR_URL, 'v3')
-    DOWNLOADER.register('swagger_v2', SWAGGER2_SCHEMA_URL, 'v2')
+    downloader.register('openapi_v3', OAS3_SCHEMA_URL)
+    downloader.register('x-translator', TRANSLATOR_URL)
+    downloader.register('swagger_v2', SWAGGER2_SCHEMA_URL)
 except DownloadError:
     pass
 
@@ -72,7 +72,6 @@ class SmartAPI(ABC):
         self._metadata = metadata
         self.url = ''
         self.username = ''
-        self.overwrite = False
         self.slug = ''
 
     def __getitem__(self, key):
@@ -89,7 +88,7 @@ class SmartAPI(ABC):
 
     # POST
     @abstractmethod
-    def save(self, api_doc, user_name=None, **options):
+    def save(self, overwrite=False):
         pass
 
     @staticmethod
@@ -178,27 +177,6 @@ class SmartAPI(ABC):
         res = APIDoc.aggregate(field=field, size=size, agg_name=agg_name)
         return res.to_dict()
 
-    @classmethod
-    def get_api_id_from_slug(cls, slug):
-        """
-        Get doc ID for exact match of slug
-        Used for loading metadata in Swagger UI
-        """
-        if not slug:
-            raise RequestError('slug is required')
-
-        search = APIDoc.search()
-        search = search.filter('term', _meta__slug=slug)
-
-        count = search.count()
-        if not count == 1:
-            raise RegistryError(f'Query for "{slug}" has {count} results')
-
-        hit = next(iter(search)).to_dict(include_meta=True)
-        hit.update(hit.pop('_source'))
-        hit.pop('_index')
-        return cls.from_dict(hit)["_id"]
-
     # PUT
     @classmethod
     def update_slug(cls, _id, slug_name=''):
@@ -251,34 +229,20 @@ class V3Metadata(SmartAPI):
     def version(self):
         return 'v3'
 
-    def create_meta(self, url, user_name):
-        """
-        Document metadata added on convertion
-        """
-        self._meta = {
-            "github_username": user_name,
-            'url': url,
-            'timestamp': dt.now().isoformat()
-        }
-        etag = SchemaDownloader.download(self._meta['url'], etag_only=True)
-        if etag:
-            self._meta['ETag'] = etag
-
     def validate(self):
 
-        schemas = DOWNLOADER.get_schemas()
+        for name, schema in downloader.schemas.items():
+            if name in ['openapi_v3', 'x-translator']:
+                try:
+                    jsonschema.validate(self._metadata, schema)
+                except jsonschema.ValidationError as e:
+                    err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
+                    raise RegistryError(err_msg)
+                except Exception as e:
+                    err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
+                    raise RegistryError(err_msg)
 
-        for name, schema in schemas.items():
-            try:
-                jsonschema.validate(self._metadata, schema)
-            except jsonschema.ValidationError as e:
-                err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
-                raise RegistryError(err_msg)
-            except Exception as e:
-                err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
-                raise RegistryError(err_msg)
-
-    def save(self):
+    def save(self, overwrite=False):
         """
         Save an OpenAPI V3 document
 
@@ -289,14 +253,25 @@ class V3Metadata(SmartAPI):
 
         api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
 
-        if self.exists(api_id) and not self.overwrite:
+        if self.exists(api_id) and not overwrite:
             raise RegistryError('API Exists')
 
-        self.create_meta(self.url, self.username)
+        # create doc meta
+        self._meta = {
+            "github_username": self.username,
+            'url': self.url,
+            'timestamp': dt.now().isoformat()
+        }
+        try:
+            d_data = SchemaDownloader.download(self.url, with_etag=True)
+            self._meta['ETag'] = d_data.etag
+        except DownloadError:
+            pass
 
         # transform paths
         data = copy.copy(self._metadata)
         data['_meta'] = self._meta
+
         # convert paths to a list of each path item
         paths = []
         for path in data.get('paths', []):
@@ -306,6 +281,7 @@ class V3Metadata(SmartAPI):
             })
         if paths:
             data['paths'] = paths
+
         # include compressed binary raw metadata as "~raw"
         _raw = json.dumps(self._metadata).encode('utf-8')
         _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
@@ -330,33 +306,18 @@ class V2Metadata(SmartAPI):
 
     def validate(self):
 
-        schemas = DOWNLOADER.get_schemas('v2')
+        for name, schema in downloader.schemas.items():
+            if name in ['swagger_v2']:
+                try:
+                    jsonschema.validate(self._metadata, schema)
+                except jsonschema.ValidationError as e:
+                    err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
+                    raise RegistryError(err_msg)
+                except Exception as e:
+                    err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
+                    raise RegistryError(err_msg)
 
-        for name, schema in schemas.items():
-            try:
-                jsonschema.validate(self._metadata, schema)
-            except jsonschema.ValidationError as e:
-                err_msg = "Validation Error [{}]: '{}': {}".format(name, '.'.join([str(x) for x in e.path]), e.message)
-                raise RegistryError(err_msg)
-            except Exception as e:
-                err_msg = "Unexpected Validation Error [{}]: {} - {}".format(name, type(e).__name__, e)
-                raise RegistryError(err_msg)
-
-    def create_meta(self, url, user_name):
-        """
-        Document metadata added on convertion
-        """
-        self._meta = {
-            "github_username": user_name,
-            'url': url,
-            'timestamp': dt.now().isoformat(),
-            'swagger_v2': True
-        }
-        etag = SchemaDownloader.download(self._meta['url'], etag_only=True)
-        if etag:
-            self._meta['ETag'] = etag
-
-    def save(self, api_doc, user_name=None, **options):
+    def save(self, overwrite=False):
         """
         Save a Swagger V2 document
 
@@ -367,16 +328,27 @@ class V2Metadata(SmartAPI):
 
         api_id = api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
 
-        if self.exists(api_id) and not self.overwrite:
+        if self.exists(api_id) and not overwrite:
             raise RegistryError('API Exists')
 
-        self.create_meta(self.url, self.username)
+        # create doc meta
+        self._meta = {
+            "github_username": self.username,
+            'url': self.url,
+            'timestamp': dt.now().isoformat()
+        }
+        try:
+            d_data = SchemaDownloader.download(self.url, with_etag=True)
+            self._meta['ETag'] = d_data.etag
+        except DownloadError:
+            pass
 
         # transform paths
         data = {"_meta": self._meta}
         for key in SWAGGER2_INDEXED_ITEMS:
             if key in self._metadata:
                 data[key] = self._metadata[key]
+
         # include compressed binary raw metadata as "~raw"
         _raw = json.dumps(self._metadata).encode('utf-8')
         _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')

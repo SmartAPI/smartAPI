@@ -4,47 +4,38 @@ import requests
 import requests_cache
 import yaml
 
+requests_cache.install_cache('smartapi_downloader_cache')
+
 class DownloadError(Exception):
     """Error fetching data from url"""
+
+class DownloadData(dict):
+
+    def __init__(self, *args, etag=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.etag = etag
 
 class SchemaDownloader():
     """
     Schema Downloader and download util for metadata
     """
 
-    def __init__(self, cache):
-        requests_cache.install_cache(cache)
+    def __init__(self):
         self.schemas = {}
-        self.v2_schemas = {}
 
-    def register(self, name, url, v='v3'):
+    def register(self, name, url):
         """
-        register a validation schema by url, name and version
+        register a validation schema by url and name
         """
-        if v == 'v3':
-            self.schemas[name] = self.download_schema(url)
-        else:
-            self.v2_schemas[name] = self.download_schema(url)
-
-    def get_schemas(self, v='v3'):
-        """
-        get version registered validation schemas
-        """
-        if v == 'v3':
-            return self.schemas
-        else:
-            return self.v2_schemas
+        self.schemas[name] = self.download_schema(url)
 
     @staticmethod
-    def download(url, etag_only=False):
+    def download(url, with_etag=False):
         """
         get json/yaml api metadata by url
         """
         try:
             res = requests.get(url, timeout=5)
-            if etag_only:
-                return res.headers.get('ETag', 'I').strip('W/"')
-
         except requests.exceptions.RequestException as err:
             raise DownloadError(f'Failed URL request: {str(err)}')
         if res.status_code != 200:
@@ -56,7 +47,11 @@ class SchemaDownloader():
                 metadata = yaml.load(res.text, Loader=yaml.SafeLoader)
             except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
                 raise DownloadError(f'Invalid Format: {str(err)}')
-        return metadata
+
+        data = DownloadData(metadata)
+        if with_etag:
+            data.etag = res.headers.get('ETag', 'I').strip('W/"')
+        return data
 
     def download_schema(self, url):
         """

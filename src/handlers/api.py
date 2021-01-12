@@ -148,8 +148,7 @@ class APIHandler(BaseHandler):
             doc = SmartAPI.from_dict(data)
             doc.username = user['login']
             doc.url = url
-            doc.overwrite = self.args.overwrite
-            res = doc.save()
+            res = doc.save(overwrite=self.args.overwrite)
         except RegistryError as err:
             raise BadRequest(details=str(err))
         else:

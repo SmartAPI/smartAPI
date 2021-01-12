@@ -17,11 +17,6 @@ MYCHEM_ID = '8f08d1446e0bb9c2b323713ce83e2bd3'
 AUTOMAT_ID = 'a3cfb0c18f630ce73ccf86b1db5117db'
 DATEAPI_ID = '26ce0569ba5b82902148069b4c3e51b4'
 
-AUTOMAT_DATA = {}
-DATEAPI_DATA = {}
-MYGENE_DATA = {}
-MYCHEM_DATA = {}
-
 TEST_SLUG = 'myslug'
 
 USER = {"github_username": "marcodarko"}
@@ -32,7 +27,7 @@ dirname = os.path.dirname(__file__)
 with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
     MYGENE_DATA = json.load(file)
 
-with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
+with open(os.path.join(dirname, 'mychem.json'), 'r') as file:
     MYCHEM_DATA = json.load(file)
 
 with open(os.path.join(dirname, 'automat.json'), 'r') as file:
@@ -189,13 +184,6 @@ def test_get_one_by_slug():
     """
     doc = SmartAPI.get_api_by_slug(TEST_SLUG)
     assert doc['_id'] == MYGENE_ID
-
-def test_get_id_from_slug():
-    """
-    Get ID of doc with slug
-    """
-    _id = SmartAPI.get_api_id_from_slug(TEST_SLUG)
-    assert _id == MYGENE_ID
 
 def test_delete_slug():
     """

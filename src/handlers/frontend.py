@@ -48,7 +48,7 @@ class MainHandler(BaseHandler):
     def get(self):
         slug = self.request.host.split(".")[0]
         if slug and slug.lower() not in ['www', 'dev', 'smart-api', 'localhost:8000']:
-            api_id = SmartAPI.get_api_id_from_slug(slug)
+            api_id = SmartAPI.get_api_by_slug(slug)['_id']
             if api_id:
                 swaggerUI_file = "smartapi-ui.html"
                 swagger_template = templateEnv.get_template(swaggerUI_file)
