@@ -214,14 +214,14 @@ def test_refresh_api():
 def teardown_module():
     """ teardown any state that was previously setup.
     """
-    # test1 = APIDoc.get(AUTOMAT_ID)
-    # test1.delete()
+    test1 = APIDoc.get(AUTOMAT_ID)
+    test1.delete()
 
-    # test2 = APIDoc.get(DATEAPI_ID)
-    # test2.delete()
+    test2 = APIDoc.get(DATEAPI_ID)
+    test2.delete()
 
-    # test1 = APIDoc.get(MYGENE_ID)
-    # test1.delete()
+    test1 = APIDoc.get(MYGENE_ID)
+    test1.delete()
 
-    # test2 = APIDoc.get(MYCHEM_ID)
-    # test2.delete()
+    test2 = APIDoc.get(MYCHEM_ID)
+    test2.delete()
