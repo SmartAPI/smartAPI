@@ -122,18 +122,21 @@ class APIHandler(BaseHandler):
         Add an API metadata doc
         """
         user = self.current_user
-        url = self.args.url
         data = None
 
+        if SmartAPI.exists(self.args.url, "_meta.url"):
+            if not self.args.overwrite:
+                raise RegistryError('API exists')
+
         try:
-            file = SchemaDownloader.download(url)
+            file = SchemaDownloader.download(self.args.url)
         except RegistryError as err:
             raise BadRequest(details=str(err))
 
         try:
             doc = SmartAPI.from_dict(file.data)
             doc.username = user['login']
-            doc.url = url
+            doc.url = self.args.url
             doc.etag = file.etag
             doc.validate()
         except RegistryError as err:
@@ -143,7 +146,6 @@ class APIHandler(BaseHandler):
             self.finish({'success': True, 'details': f"[Dryrun] Valid {doc.version} Metadata"})
             return
         try:
-            #TODO handler overwrite
             res = doc.save()
         except RegistryError as err:
             raise BadRequest(details=str(err))

@@ -4,6 +4,7 @@ and API metadata operations
 """
 import copy
 import gzip
+import base64
 import json
 import logging
 import string
@@ -63,12 +64,6 @@ class SmartAPI(ABC):
         self.username = ''
         self.slug = ''
         self.etag = ''
-        self._meta = {
-            "github_username": self.username,
-            'url': self.url,
-            'timestamp': dt.now().isoformat(),
-            'ETag': self.etag
-        }
         self.id = ''
         self._es_doc = None
 
@@ -81,8 +76,8 @@ class SmartAPI(ABC):
         pass
 
     @staticmethod
-    def exists(_id):
-        return APIDoc.exists(_id)
+    def exists(_id, field="_id"):
+        return APIDoc.exists(_id, field)
 
     @abstractmethod
     def validate(self):
@@ -134,14 +129,14 @@ class SmartAPI(ABC):
             if key not in d2:
                 d2[key] = d[key]
 
-        cls.id = doc.meta.id
-        cls.slug = doc.to_dict().get('_meta', {}).get('slug', '')
-        cls.url = doc.to_dict().get('_meta', {}).get('url', '')
-        cls.etag = doc.to_dict().get('_meta', {}).get('ETag', '')
-        cls.username = doc.to_dict().get('_meta', {}).get('github_username', '')
-        cls._es_doc = doc
+        obj = cls.from_dict(d2)
 
-        return cls.from_dict(d2)
+        obj._es_doc = doc
+        obj.id = doc.meta.id
+        obj.username = doc._meta.github_username
+        obj.slug = doc._meta.slug
+        obj.etag = doc._meta.ETag
+        return obj
 
     @classmethod
     def get_api_by_slug(cls, slug):
@@ -155,14 +150,15 @@ class SmartAPI(ABC):
         doc.update(doc.pop('_source'))
         doc.pop('_index')
 
-        cls.id = doc.meta.id
-        cls.slug = doc.to_dict().get('_meta', {}).get('slug', '')
-        cls.url = doc.to_dict().get('_meta', {}).get('url', '')
-        cls.etag = doc.to_dict().get('_meta', {}).get('ETag', '')
-        cls.username = doc.to_dict().get('_meta', {}).get('github_username', '')
-        cls._es_doc = doc
+        obj = cls.from_dict(doc)
 
-        return cls.from_dict(doc)
+        obj._es_doc = doc
+        obj.id = doc.meta.id
+        obj.username = doc._meta.github_username
+        obj.slug = doc._meta.slug
+        obj.etag = doc._meta.ETag
+
+        return obj
 
     @staticmethod
     def get_all(fields=[], from_=0, size=10):
@@ -209,14 +205,10 @@ class SmartAPI(ABC):
         """
         refresh the given API document object based on its saved metadata url
         """
-        api_doc = self._es_doc
-
         file = SchemaDownloader.download(self.url)
-        res = file.data
-        self._meta['ETag'] = file.etag
-        res['_meta'] = self._meta
-
-        return api_doc.update(** res)
+        self._metadata = file.data
+        self.etag = file.etag
+        return self.save()
 
     # DELETE
     def delete(self):
@@ -242,7 +234,7 @@ class V3Metadata(SmartAPI):
     def validate(self):
 
         for name, schema in downloader.schemas.items():
-            if name in ['openapi_v3', 'x-translator']:
+            if name != "swagger_v2":
                 try:
                     validate(instance=self._metadata, schema=schema)
                 except ValidationError as e:
@@ -258,14 +250,10 @@ class V3Metadata(SmartAPI):
 
         Returns saved API ID
         """
-
         self.validate()
 
         # transform paths
         data = copy.copy(self._metadata)
-        data['_meta'] = self._meta
-
-        # convert paths to a list of each path item
         paths = []
         for path in data.get('paths', []):
             paths.append({
@@ -276,6 +264,12 @@ class V3Metadata(SmartAPI):
             data['paths'] = paths
 
         self._es_doc = APIDoc(**data)
+        self._es_doc._meta.Etag = self.etag   
+        self._es_doc._meta.url = self.url
+        self._es_doc._meta.github_username = self.username
+        self._es_doc._meta.slug = self.slug
+        self._es_doc._meta.timestamp = dt.now().isoformat()
+
         self._es_doc.save()
         return self._es_doc.meta.id
 
@@ -293,17 +287,15 @@ class V2Metadata(SmartAPI):
         return 'v2'
 
     def validate(self):
-
-        for name, schema in downloader.schemas.items():
-            if name in ['swagger_v2']:
-                try:
-                    validate(instance=self._metadata, schema=schema)
-                except ValidationError as e:
-                    err_msg = f"Validation Error [{name}]: {e.message}. In: {e.path}"
-                    raise RegistryError(err_msg)
-                except Exception as e:
-                    err_msg = f"Unexpected Validation Error [{name}]: {type(e).__name__} - {e}"
-                    raise RegistryError(err_msg)
+        if 'swagger_v2' in downloader.schemas:
+            try:
+                validate(instance=self._metadata, schema=downloader.schemas['swagger_v2'])
+            except ValidationError as e:
+                err_msg = f"Validation Error [Swagger_V2]: {e.message}. In: {e.path}"
+                raise RegistryError(err_msg)
+            except Exception as e:
+                err_msg = f"Unexpected Validation Error [Swagger_V2]: {type(e).__name__} - {e}"
+                raise RegistryError(err_msg)
 
     def save(self):
         """
@@ -313,13 +305,17 @@ class V2Metadata(SmartAPI):
         """
         self.validate()
 
-        # transform paths
-        data = {"_meta": self._meta}
+        data = {}
         for key in SWAGGER2_INDEXED_ITEMS:
             if key in self._metadata:
                 data[key] = self._metadata[key]
 
         self._es_doc = APIDoc(**data)
-        self._es_doc.save()
+        self._es_doc._meta.Etag = self.etag   
+        self._es_doc._meta.url = self.url
+        self._es_doc._meta.github_username = self.username
+        self._es_doc._meta.slug = self.slug
+        self._es_doc._meta.timestamp = dt.now().isoformat()
 
+        self._es_doc.save()
         return self._es_doc.meta.id
