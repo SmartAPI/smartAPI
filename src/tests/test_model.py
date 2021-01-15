@@ -1,10 +1,18 @@
 import pytest
 
 from model import APIDoc
+from utils.indices import refresh
 
 MYDISEASE_ID = 'f307760715d91908d0ae6de7f0810b22'
 
 MYDISEASE_DATA = {
+    "_meta": {
+        "ETag": "659023576fb3c74c5a6eb4ec3987fba0d4164f060ab33c5040c0386ac18544b2",
+        "github_username": "cyrus0824",
+        "slug": "mydisease",
+        "timestamp": "2019-10-22T04:26:58.530282",
+        "url": "https://raw.githubusercontent.com/biothings/mydisease.info/master/mydisease/swagger/mydisease.yml"
+    },
     "openapi": "3.0.0",
     "info": {
         "version": "1.0",
@@ -93,8 +101,14 @@ def setup_fixture():
     if APIDoc.exists(MYDISEASE_ID):
         doc = APIDoc.get(MYDISEASE_ID)
         doc.delete()
-    new_doc = APIDoc(meta={'id': MYDISEASE_ID}, **MYDISEASE_DATA)
+
+def test_save():
+    """
+    Save doc
+    """
+    new_doc = APIDoc(**MYDISEASE_DATA)
     new_doc.save()
+    refresh()
 
 def test_doc_exists():
     """
@@ -112,7 +126,7 @@ def test_slug_available():
     """
     Slug name is available
     """
-    assert not APIDoc.slug_exists(slug='new_slug')
+    assert not APIDoc.exists('new_slug', field="._meta.slug")
 
 def test_tag_aggregation():
     """
@@ -128,3 +142,10 @@ def test_delete_doc():
     doc = APIDoc.get(MYDISEASE_ID)
     doc.delete()
     assert not APIDoc.exists(MYDISEASE_ID)
+
+def teardown_module():
+    """ teardown any state that was previously setup.
+    """
+    if APIDoc.exists(MYDISEASE_ID):
+        doc = APIDoc.get(MYDISEASE_ID)
+        doc.delete()

@@ -244,8 +244,9 @@ def update_uptime_status():
         api.check_api_status()
         return api.api_status
 
-    # def check_url_status(url):
-        # TODO check url status
+    def check_url_status(url):
+        request = requests.head(url)
+        return request.status_code
 
     search = APIDoc.search()
 
@@ -260,20 +261,20 @@ def update_uptime_status():
         doc['_id'] = hit.meta.id
 
         status = check_endpoint_status(doc)
-        # url_status = check_url_status(doc)
+        url_status = check_url_status(doc['_meta']['url'])
 
         logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
 
         if APIStatus.exists(hit.meta.id):
             doc = APIStatus.get(hit.meta.id)
-            doc.update(uptime_status=status)
+            doc.update(uptime_status=status) 
             doc.update(uptime_ts=datetime.utcnow())
-            # doc.update(url_status=url_status)
+            doc.update(url_status=url_status)
         else:
             data = {
                 "uptime_status": status,
                 "uptime_ts": datetime.utcnow(),
-                # "url_status": url_status
+                "url_status": url_status
             }
             doc = APIStatus(meta={'id': hit.meta.id}, ** data)
             doc.save()

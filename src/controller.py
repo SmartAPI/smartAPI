@@ -2,26 +2,19 @@
 Controllers for API doc addition
 and API metadata operations
 """
-import base64
 import copy
 import gzip
 import json
 import logging
 import string
-import sys
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from datetime import datetime as dt
 
-from jsonschema import validate, ValidationError
-
-if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
-    from hashlib import blake2b
-else:
-    from pyblake2 import blake2b  # pylint: disable=import-error
+from jsonschema import ValidationError, validate
 
 from model import APIDoc
-from utils.downloader import SchemaDownloader, DownloadError
+from utils.downloader import DownloadError, SchemaDownloader
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +63,14 @@ class SmartAPI(ABC):
         self.username = ''
         self.slug = ''
         self.etag = ''
+        self._meta = {
+            "github_username": self.username,
+            'url': self.url,
+            'timestamp': dt.now().isoformat(),
+            'ETag': self.etag
+        }
+        self.id = ''
+        self._es_doc = None
 
     def __getitem__(self, key):
         return self._metadata[key]
@@ -89,7 +90,7 @@ class SmartAPI(ABC):
 
     # POST
     @abstractmethod
-    def save(self, overwrite=False):
+    def save(self):
         pass
 
     @staticmethod
@@ -112,12 +113,12 @@ class SmartAPI(ABC):
             raise RegistryError(f"Slug name {slug_name} is reserved, please choose another")
         if not all([x in _valid_chars for x in _slug]):
             raise RegistryError(f"Slug name {slug_name} contains invalid characters")
-        if APIDoc.slug_exists(slug=_slug):
+        if APIDoc.exists(_slug, field="._meta.slug"):
             raise RegistryError(f"Slug name {slug_name} already exists")
 
     # GET
-    @staticmethod
-    def get_api_by_id(_id):
+    @classmethod
+    def get_api_by_id(cls, _id):
         """
         Get one doc by id
         """
@@ -132,7 +133,15 @@ class SmartAPI(ABC):
         for key in d:
             if key not in d2:
                 d2[key] = d[key]
-        return d2
+
+        cls.id = doc.meta.id
+        cls.slug = doc.to_dict().get('_meta', {}).get('slug', '')
+        cls.url = doc.to_dict().get('_meta', {}).get('url', '')
+        cls.etag = doc.to_dict().get('_meta', {}).get('ETag', '')
+        cls.username = doc.to_dict().get('_meta', {}).get('github_username', '')
+        cls._es_doc = doc
+
+        return cls.from_dict(d2)
 
     @classmethod
     def get_api_by_slug(cls, slug):
@@ -142,10 +151,18 @@ class SmartAPI(ABC):
         search = APIDoc.search().filter('term', _meta__slug=slug)
         assert search.count() == 1
 
-        hit = next(iter(search)).to_dict(include_meta=True)
-        hit.update(hit.pop('_source'))
-        hit.pop('_index')
-        return cls.from_dict(hit)
+        doc = next(iter(search)).to_dict(include_meta=True)
+        doc.update(doc.pop('_source'))
+        doc.pop('_index')
+
+        cls.id = doc.meta.id
+        cls.slug = doc.to_dict().get('_meta', {}).get('slug', '')
+        cls.url = doc.to_dict().get('_meta', {}).get('url', '')
+        cls.etag = doc.to_dict().get('_meta', {}).get('ETag', '')
+        cls.username = doc.to_dict().get('_meta', {}).get('github_username', '')
+        cls._es_doc = doc
+
+        return cls.from_dict(doc)
 
     @staticmethod
     def get_all(fields=[], from_=0, size=10):
@@ -179,43 +196,35 @@ class SmartAPI(ABC):
         return res.to_dict()
 
     # PUT
-    @classmethod
-    def update_slug(cls, _id, slug_name=''):
+    def update_slug(self):
         """
         Update API doc registered slug name
         """
-        cls.validate_slug_name(slug_name)
+        self.validate_slug_name(self.slug)
 
-        api_doc = APIDoc.get(_id)
-        api_doc.update(_meta={"slug": slug_name.lower()})
-        return slug_name.lower()
+        self._es_doc.update(_meta={"slug": self.slug.lower()})
+        return self.slug.lower()
 
-    @staticmethod
-    def refresh_api(_id):
+    def refresh(self):
         """
         refresh the given API document object based on its saved metadata url
         """
-        api_doc = APIDoc.get(_id)
+        api_doc = self._es_doc
 
-        _meta = api_doc.to_dict().get('_meta', {})
-        _meta['timestamp'] = dt.now().isoformat()
-
-        url = _meta['url']
-        res = SchemaDownloader.download(url)
-        res = res.data
-        res['_meta'] = _meta
+        file = SchemaDownloader.download(self.url)
+        res = file.data
+        self._meta['ETag'] = file.etag
+        res['_meta'] = self._meta
 
         return api_doc.update(** res)
 
     # DELETE
-    @staticmethod
-    def delete(_id):
+    def delete(self):
         """
-        delete api with ID
+        delete api
         """
-        doc = APIDoc.get(id=_id)
-        doc.delete()
-        return _id
+        self._es_doc.delete()
+        return self.id
 
 class V3Metadata(SmartAPI):
 
@@ -243,7 +252,7 @@ class V3Metadata(SmartAPI):
                     err_msg = f"Unexpected Validation Error [{name}]: {type(e).__name__} - {e}"
                     raise RegistryError(err_msg)
 
-    def save(self, overwrite=False):
+    def save(self):
         """
         Save an OpenAPI V3 document
 
@@ -251,25 +260,6 @@ class V3Metadata(SmartAPI):
         """
 
         self.validate()
-
-        api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
-
-        if self.exists(api_id):
-            if not overwrite:
-                raise RegistryError('API exists')
-            else:
-                existing = APIDoc.get(api_id).to_dict()
-                existing_user = existing.get('_meta', {}).get('github_username', {})
-                if existing_user != self.username:
-                    raise RegistryError('Cannot overwrite APIs you do not own')
-
-        # create doc meta
-        self._meta = {
-            "github_username": self.username,
-            'url': self.url,
-            'timestamp': dt.now().isoformat(),
-            'ETag': self.etag
-        }
 
         # transform paths
         data = copy.copy(self._metadata)
@@ -285,14 +275,9 @@ class V3Metadata(SmartAPI):
         if paths:
             data['paths'] = paths
 
-        # include compressed binary raw metadata as "~raw"
-        _raw = json.dumps(self._metadata).encode('utf-8')
-        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
-        data["~raw"] = _raw
-
-        doc = APIDoc(meta={'id': api_id}, ** data)
-        doc.save()
-        return api_id
+        self._es_doc = APIDoc(**data)
+        self._es_doc.save()
+        return self._es_doc.meta.id
 
 class V2Metadata(SmartAPI):
 
@@ -320,33 +305,13 @@ class V2Metadata(SmartAPI):
                     err_msg = f"Unexpected Validation Error [{name}]: {type(e).__name__} - {e}"
                     raise RegistryError(err_msg)
 
-    def save(self, overwrite=False):
+    def save(self):
         """
         Save a Swagger V2 document
 
         Returns saved API ID
         """
-
         self.validate()
-
-        api_id = api_id = blake2b(self.url.encode('utf8'), digest_size=16).hexdigest()
-
-        if self.exists(api_id):
-            if not overwrite:
-                raise RegistryError('API exists')
-            else:
-                existing = APIDoc.get(api_id).to_dict()
-                existing_user = existing.get('_meta', {}).get('github_username', {})
-                if existing_user != self.username:
-                    raise RegistryError('Cannot overwrite APIs you do not own')
-
-        # create doc meta
-        self._meta = {
-            "github_username": self.username,
-            'url': self.url,
-            'timestamp': dt.now().isoformat(),
-            'ETag': self.etag
-        }
 
         # transform paths
         data = {"_meta": self._meta}
@@ -354,11 +319,7 @@ class V2Metadata(SmartAPI):
             if key in self._metadata:
                 data[key] = self._metadata[key]
 
-        # include compressed binary raw metadata as "~raw"
-        _raw = json.dumps(self._metadata).encode('utf-8')
-        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
-        data["~raw"] = _raw
+        self._es_doc = APIDoc(**data)
+        self._es_doc.save()
 
-        doc = APIDoc(meta={'id': api_id}, ** data)
-        doc.save()
-        return api_id
+        return self._es_doc.meta.id

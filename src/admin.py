@@ -50,7 +50,7 @@ class SmartAPIData():
 
         try:
             doc = SmartAPI.from_dict(res)
-            status = doc.refresh_api(_id)
+            status = doc.refresh()
         except RegistryError as err:
             status = str(err)
 

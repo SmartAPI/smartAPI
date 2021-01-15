@@ -95,7 +95,7 @@ def test_add_doc_1():
     res = doc.save()
     refresh()
     assert res == MYGENE_ID
-    assert APIDoc.exists(_id=MYGENE_ID)
+    assert APIDoc.exists(MYGENE_ID)
 
 def test_add_already_exists():
     """
@@ -118,18 +118,7 @@ def test_add_doc_2():
     res = doc.save()
     refresh()
     assert res == MYCHEM_ID
-    assert APIDoc.exists(_id=MYCHEM_ID)
-
-def test_overwrite():
-    """
-    Try to overwrite item not owned
-    """
-    with pytest.raises(RegistryError) as err:
-        doc = SmartAPI.from_dict(MYCHEM_DATA)
-        doc.url = MYCHEM_URL
-        doc.username = 'stoleyour_url'
-        doc.save(overwrite=True)
-    assert str(err.value) == 'Cannot overwrite APIs you do not own'
+    assert APIDoc.exists(MYCHEM_ID)
 
 def test_get_all_size_1():
     """
@@ -149,7 +138,7 @@ def test_get_one():
     """
     Get one doc by ID
     """
-    doc = SmartAPI.get_api_by_id(_id=MYGENE_ID)
+    doc = SmartAPI.get_api_by_id(MYGENE_ID)
     assert doc['info']['title'] == 'MyGene.info API'
 
 def test_get_tags():
@@ -185,8 +174,9 @@ def test_update_slug():
     """
     Update registered slug name for ID
     """
-    doc = SmartAPI.from_dict(MYGENE_DATA)
-    res = doc.update_slug(MYGENE_ID, slug_name=TEST_SLUG)
+    doc = SmartAPI.get_api_by_id(MYGENE_ID)
+    doc.slug = TEST_SLUG
+    res = doc.update_slug()
     assert res == TEST_SLUG
 
 def test_get_one_by_slug():
@@ -200,16 +190,24 @@ def test_delete_slug():
     """
     Delete slug
     """
-    doc = SmartAPI.from_dict(MYGENE_DATA)
-    res = doc.update_slug(MYGENE_ID)
+    doc = SmartAPI.get_api_by_id(MYGENE_ID)
+    doc.slug = ''
+    res = doc.update_slug()
     assert res == ''
 
 def test_refresh_api():
     """
     Refresh api
     """
-    doc = SmartAPI.from_dict(MYGENE_DATA)
-    assert doc.refresh_api(MYGENE_ID)
+    doc = SmartAPI.get_api_by_id(MYGENE_ID)
+    assert doc.refresh()
+
+def test_delete_doc():
+    """
+    Delete doc
+    """
+    doc = SmartAPI.get_api_by_id(MYGENE_ID)
+    assert doc.delete == MYGENE_ID
 
 def teardown_module():
     """ teardown any state that was previously setup.

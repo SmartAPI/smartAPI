@@ -1,14 +1,15 @@
 
 import json
-import yaml
 
+import yaml
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
 from tornado.httpclient import HTTPError
 
+from controller import RegistryError, SmartAPI
+from utils.downloader import SchemaDownloader, DownloadError
 from utils.notify import send_slack_msg
-from controller import (SmartAPI, RegistryError)
-from utils.downloader import SchemaDownloader
+
 
 def github_authenticated(func):
     '''
@@ -82,11 +83,10 @@ class APIHandler(BaseHandler):
             'fields': {'type': list, 'default': []},
             'format': {'type': str, 'default': 'json'},
             '_from': {'type': int, 'default': 0},
-            'size': {'type': int, 'default': 0},
+            'size': {'type': int, 'default': 10},
         },
         'PUT': {
-            'slug': {'type': str, 'default': ''},
-            'refresh': {'type': bool, 'default': False},
+            'slug': {'type': str, 'default': None},
         },
         'POST': {
             'url': {'type': str, 'default': None, 'required': True},
@@ -135,13 +135,16 @@ class APIHandler(BaseHandler):
             doc.username = user['login']
             doc.url = url
             doc.etag = file.etag
+            doc.validate()
+        except RegistryError as err:
+            raise BadRequest(details=str(err))
 
-            if self.args.dryrun:
-                doc.validate()
-                # TODO will this happen on invalid?
-                self.finish({'success': True, 'details': f"[Dryrun] Valid {doc.version} Metadata"})
-            else:
-                res = doc.save(overwrite=self.args.overwrite)
+        if self.args.dryrun:
+            self.finish({'success': True, 'details': f"[Dryrun] Valid {doc.version} Metadata"})
+            return
+        try:
+            #TODO handler overwrite
+            res = doc.save()
         except RegistryError as err:
             raise BadRequest(details=str(err))
         else:
@@ -156,14 +159,17 @@ class APIHandler(BaseHandler):
         if not SmartAPI.exists(_id):
             raise HTTPError(404, response='API does not exist')
 
-        if self.args.refresh is False:
+        if self.args.slug is None:
             try:
-                res = SmartAPI.update_slug(_id, slug_name=self.args.slug)
-            except RegistryError as err:
+                doc = SmartAPI.get_api_by_id(_id)
+                res = doc.refresh()
+            except (RegistryError, DownloadError) as err:
                 raise BadRequest(details=str(err))
         else:
             try:
-                res = SmartAPI.refresh_api(_id)
+                doc = SmartAPI.get_api_by_id(_id)
+                doc.slug = self.args.slug
+                res = doc.update_slug()
             except RegistryError as err:
                 raise BadRequest(details=str(err))
 
@@ -177,7 +183,8 @@ class APIHandler(BaseHandler):
         if not SmartAPI.exists(_id):
             raise HTTPError(404, response='API does not exist')
         try:
-            res = SmartAPI.delete(_id)
+            doc = SmartAPI.get_api_by_id(_id)
+            res = doc.delete()
         except RegistryError as err:
             raise BadRequest(details=str(err))
 

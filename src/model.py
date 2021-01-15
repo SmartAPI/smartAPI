@@ -4,11 +4,20 @@
     - API_Doc
     Reference: https://schema.org/docs/datamodel.html
 '''
-
+import base64
+import gzip
+import json
 import os
+import sys
+
+if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
+    from hashlib import blake2b
+else:
+    from pyblake2 import blake2b  # pylint: disable=import-error
 
 from elasticsearch_dsl import *  # pylint: disable=unused-import
 from elasticsearch_dsl.connections import connections
+
 # parse environment variables
 ES_HOST = os.getenv('ES_HOST', 'localhost:9200')
 ES_INDEX_NAME = 'smartapi_oas3'
@@ -72,33 +81,26 @@ class APIDoc(Document):
         }
 
     @classmethod
-    def exists(cls, _id):
-        search = cls.search().query('match', _id=_id)
-        return bool(search.source(False).execute().hits)
-
-    @classmethod
-    def get_api_from_slug(cls, slug):
-        s = cls.search()
-        s.query = Q('bool', should=[Q('match', _meta__slug=slug, size=1)])
-        res = s.execute().to_dict()
-        return res
+    def exists(cls, value, field="_id"):
+        search = cls.search().query('match', **{field: value})
+        return bool(search.count())
 
     @classmethod
     def aggregate(cls, agg_name: str, field: str, size: int):
         s = cls.search()
-        if ".raw" not in field:
+        if not field.endswith(".raw"):
             field = field + ".raw"
         a = A('terms', field=field, size=size)
         s.aggs.bucket(agg_name, a)
         response = s.execute()
         return response
 
-    @classmethod
-    def slug_exists(cls, slug):
-        s = cls.search()
-        s.query = Q('bool', should=[Q('match', _meta__slug=slug)])
-        res = s.execute().to_dict()
-        return bool(res['hits']['total']['value'])
+    def save(self, *args, **kwargs):
+        _raw = json.dumps(self.to_dict()).encode('utf-8')
+        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
+        self["~raw"] = _raw
+        self.meta.id = blake2b(self._meta.url.encode('utf8'), digest_size=16).hexdigest()
+        super().save(*args, **kwargs)
 
 
 class APIStatus(Document):
@@ -109,7 +111,7 @@ class APIStatus(Document):
 
     uptime_status = Text()
     uptime_ts = Date()
-    url_status = Text()
+    url_status = Integer()
 
     class Meta:
         dynamic = MetaField(False)
@@ -127,5 +129,5 @@ class APIStatus(Document):
     @classmethod
     def exists(cls, _id):
         search = cls.search().query('match', _id=_id)
-        return bool(search.source(False).execute().hits)
+        return bool(search.count())
 

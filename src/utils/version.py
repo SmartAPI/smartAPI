@@ -15,6 +15,6 @@ def backup_and_refresh():
     except Exception:
         logging.exception("Backup failed.")
     try:
-        data.refresh_all(dryrun=False)
+        data.refresh_all()
     except Exception:
         logging.exception("Refresh failed.")
