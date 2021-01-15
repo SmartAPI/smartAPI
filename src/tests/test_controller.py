@@ -95,18 +95,7 @@ def test_add_doc_1():
     res = doc.save()
     refresh()
     assert res == MYGENE_ID
-#     assert APIDoc.exists(MYGENE_ID)
-
-# def test_add_already_exists():
-#     """
-#     API exists
-#     """
-#     with pytest.raises(RegistryError) as err:
-#         doc = SmartAPI.from_dict(MYGENE_DATA)
-#         doc.url = MYGENE_URL
-#         doc.username = 'marcodarko'
-#         doc.save()
-#     assert str(err.value) == 'API Exists'
+    assert APIDoc.exists(MYGENE_ID)
 
 def test_add_doc_2():
     """
@@ -200,14 +189,16 @@ def test_refresh_api():
     Refresh api
     """
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    assert doc.refresh()
+    new_etag = doc.refresh()
+    assert doc.etag == new_etag
 
 def test_delete_doc():
     """
     Delete doc
     """
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    assert doc.delete == MYGENE_ID
+    res = doc.delete()
+    assert res == MYGENE_ID
 
 def teardown_module():
     """ teardown any state that was previously setup.

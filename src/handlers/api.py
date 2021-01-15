@@ -112,6 +112,8 @@ class APIHandler(BaseHandler):
                 raise HTTPError(404, response='API does not exist')
 
             res = SmartAPI.get_api_by_id(_id)
+            # needed for get_all?
+            res = dict(res)
 
         self.format = self.args.format
         self.finish(res)
@@ -122,7 +124,6 @@ class APIHandler(BaseHandler):
         Add an API metadata doc
         """
         user = self.current_user
-        data = None
 
         if SmartAPI.exists(self.args.url, "_meta.url"):
             if not self.args.overwrite:
@@ -151,7 +152,7 @@ class APIHandler(BaseHandler):
             raise BadRequest(details=str(err))
         else:
             self.finish({'success': True, 'details': res})
-            send_slack_msg(data, res, user['login'])
+            send_slack_msg(file.data, res, user['login'])
 
     @github_authenticated
     def put(self, _id):

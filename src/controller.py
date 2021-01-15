@@ -9,7 +9,7 @@ import json
 import logging
 import string
 from abc import ABC, abstractmethod
-from collections import OrderedDict
+from collections import OrderedDict, UserDict
 from datetime import datetime as dt
 
 from jsonschema import ValidationError, validate
@@ -56,19 +56,17 @@ class RegistryError(Exception):
 # API Doc Controller
 # *****************************************************************************
 
-class SmartAPI(ABC):
+class SmartAPI(UserDict, ABC):
 
     def __init__(self, metadata):
-        self._metadata = metadata
+        super().__init__(metadata)
+        self._metadata = self.data
         self.url = ''
         self.username = ''
         self.slug = ''
         self.etag = ''
         self.id = ''
         self._es_doc = None
-
-    def __getitem__(self, key):
-        return self._metadata[key]
 
     @property
     @abstractmethod
@@ -135,7 +133,9 @@ class SmartAPI(ABC):
         obj.id = doc.meta.id
         obj.username = doc._meta.github_username
         obj.slug = doc._meta.slug
+        obj.url = doc._meta.url
         obj.etag = doc._meta.ETag
+        # print('OBJ TYPE ', type(obj))
         return obj
 
     @classmethod
@@ -156,6 +156,7 @@ class SmartAPI(ABC):
         obj.id = doc.meta.id
         obj.username = doc._meta.github_username
         obj.slug = doc._meta.slug
+        obj.url = doc._meta.url
         obj.etag = doc._meta.ETag
 
         return obj
@@ -208,7 +209,8 @@ class SmartAPI(ABC):
         file = SchemaDownloader.download(self.url)
         self._metadata = file.data
         self.etag = file.etag
-        return self.save()
+        self.save()
+        return self.etag
 
     # DELETE
     def delete(self):
@@ -263,8 +265,12 @@ class V3Metadata(SmartAPI):
         if paths:
             data['paths'] = paths
 
+        _raw = json.dumps(self._metadata).encode('utf-8')
+        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
+        data["~raw"] = _raw
+
         self._es_doc = APIDoc(**data)
-        self._es_doc._meta.Etag = self.etag   
+        self._es_doc._meta.Etag = self.etag
         self._es_doc._meta.url = self.url
         self._es_doc._meta.github_username = self.username
         self._es_doc._meta.slug = self.slug
@@ -310,8 +316,12 @@ class V2Metadata(SmartAPI):
             if key in self._metadata:
                 data[key] = self._metadata[key]
 
+        _raw = json.dumps(self._metadata).encode('utf-8')
+        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
+        data["~raw"] = _raw
+
         self._es_doc = APIDoc(**data)
-        self._es_doc._meta.Etag = self.etag   
+        self._es_doc._meta.Etag = self.etag
         self._es_doc._meta.url = self.url
         self._es_doc._meta.github_username = self.username
         self._es_doc._meta.slug = self.slug

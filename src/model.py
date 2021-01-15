@@ -4,9 +4,6 @@
     - API_Doc
     Reference: https://schema.org/docs/datamodel.html
 '''
-import base64
-import gzip
-import json
 import os
 import sys
 
@@ -24,6 +21,21 @@ ES_INDEX_NAME = 'smartapi_oas3'
 
 # create a default connection
 connections.create_connection(hosts=ES_HOST)
+
+class Document_Meta(InnerDoc):
+    '''
+    _meta field.
+    ETag: "47ccb-16b4c2a9eb0"
+    github_username: "pilare"
+    slug: "ilincs"
+    timestamp: "2019-06-12T15:22:24.973780"
+    url: "http://www.ilincs.org/ilincs/smartapi.yml"
+    '''
+    github_username = Keyword(required=True)
+    timestamp = Date(default_timezone='UTC')
+    url = Text(required=True)
+    ETag = Text()
+    slug = Text()
 
 class APIDoc(Document):
 
@@ -51,8 +63,8 @@ class APIDoc(Document):
         _meta: {ETag: "I", github_username: "markwilkinson", swagger_v2: true,…}
     }
     '''
-    _meta = Object(multi=True)
-    info = Object(multi=True)
+    _meta = Object(Document_Meta, required=True)
+    info = Object()
     paths = Nested(
         multi=True,
         properties={
@@ -96,9 +108,6 @@ class APIDoc(Document):
         return response
 
     def save(self, *args, **kwargs):
-        _raw = json.dumps(self.to_dict()).encode('utf-8')
-        _raw = base64.urlsafe_b64encode(gzip.compress(_raw)).decode('utf-8')
-        self["~raw"] = _raw
         self.meta.id = blake2b(self._meta.url.encode('utf8'), digest_size=16).hexdigest()
         super().save(*args, **kwargs)
 
@@ -107,6 +116,11 @@ class APIStatus(Document):
 
     '''
     API url and endpoints status
+    {
+        "uptime_status": "incompatible",
+        "uptime_ts": "2021-01-13T17:41:07.599428",
+        "url_status": 500
+    }
     '''
 
     uptime_status = Text()
