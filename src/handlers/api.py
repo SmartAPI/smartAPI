@@ -45,11 +45,9 @@ class ValidateHandler(BaseHandler):
 
     def post(self):
 
-        url = self.get_body_argument('url', None)
-        data = None
-
-        if url:
+        if 'url' in self.request.body_arguments:
             try:
+                url = self.get_body_argument('url')
                 data = SchemaDownloader.download(url)
             except RegistryError as err:
                 raise BadRequest(details=str(err))
