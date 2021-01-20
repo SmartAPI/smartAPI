@@ -165,20 +165,20 @@ def test_update_slug():
     """
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     doc.slug = TEST_SLUG
-    res = doc.update_slug()
-    assert res == TEST_SLUG
+    res = doc.save()
+    assert res == MYGENE_ID
 
 def test_get_one_by_slug():
     """
     Get one doc by slug
     """
+    refresh()
     if not SmartAPI.exists(MYGENE_ID):
         doc = SmartAPI.from_dict(MYGENE_DATA)
         doc.url = MYGENE_URL
         doc.username = 'marcodarko'
         doc.save()
         doc.slug = TEST_SLUG
-        refresh()
 
     doc = SmartAPI.get_api_by_slug(TEST_SLUG)
     assert doc['_id'] == MYGENE_ID
@@ -204,12 +204,13 @@ def test_delete_doc():
     """
     Delete doc
     """
+    refresh()
     if not SmartAPI.exists(MYGENE_ID):
         doc = SmartAPI.from_dict(MYGENE_DATA)
         doc.url = MYGENE_URL
         doc.username = 'marcodarko'
         doc.save()
-        refresh()
+    
 
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     res = doc.delete()

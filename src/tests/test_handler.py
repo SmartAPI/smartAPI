@@ -189,6 +189,13 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [CREATE] Disallow overwriting of docs not owned
         '''
+        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+            doc = SmartAPI.from_dict(MYGENE_DATA)
+            doc.url = MYGENE_URL
+            doc.username = 'marcodarko'
+            doc.save()
+            refresh()
+
         body = {
             'url': VALID_V3_URL,
             'overwrite': True
@@ -198,7 +205,7 @@ class SmartAPITest(BiothingsTestCase):
             method='POST',
             data=body,
             headers=self.evil_user,
-            expect=403)
+            expect=401)
 
     def test_105_allow_overwrite(self):
         '''
@@ -225,6 +232,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         res = self.request(
             "/api/metadata/"+MYGENE_ID,
@@ -240,6 +248,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         res = self.request(
             "/api/metadata/"+MYGENE_ID+"&format=yaml",
@@ -257,6 +266,13 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [READ] Get all docs with specific fields
         '''
+        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+            doc = SmartAPI.from_dict(MYGENE_DATA)
+            doc.url = MYGENE_URL
+            doc.username = 'marcodarko'
+            doc.save()
+            refresh()
+
         res = self.request("/api/metadata&fields=info,_meta", method='GET').json()
         assert res[0].get('info', {}).get('title', '') == 'MyGene.info API'
         assert res[0].get('_meta', {}).get('github_username', '') == 'marcodarko'
@@ -285,6 +301,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         body = {
             'slug': 'lincs_slug'
@@ -294,7 +311,7 @@ class SmartAPITest(BiothingsTestCase):
             method='PUT',
             data=body,
             headers=self.evil_user,
-            expect=400)
+            expect=401)
 
     def test_113_update(self):
         '''
@@ -305,6 +322,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         body = {
             'slug': 'lincs_slug'
@@ -326,6 +344,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         res = self.request(
             "/api/metadata/"+MYGENE_ID,
@@ -342,13 +361,13 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
-        res = self.request(
+        self.request(
             "/api/metadata/"+MYGENE_ID,
             method='DELETE',
             headers=self.evil_user,
-            expect=400)
-        assert res.status_code == 400
+            expect=401)
 
     def test_116_delete(self):
         '''
@@ -359,6 +378,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         res = self.request(
             "/api/metadata/"+MYGENE_ID,
@@ -375,6 +395,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
+            refresh()
 
         res = self.request(
             "/api/suggestion?field=tags.name",

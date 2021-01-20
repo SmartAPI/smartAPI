@@ -146,9 +146,11 @@ class APIHandler(BaseHandler):
         if existing_doc:
             if self.args.overwrite:
                 if user['login'] != existing_doc.username:
-                    raise RegistryError('Overwrite not allowed')
+                    self.send_error(
+                    message='Unauthorized [overwrite] not allowed', status_code=401)
+                pass
             else:
-                raise RegistryError('API exists')
+                raise BadRequest(details='API exists')
 
         try:
             file = SchemaDownloader.download(self.args.url)
@@ -180,8 +182,15 @@ class APIHandler(BaseHandler):
         """
         Update registered slug or refresh by url
         """
+        user = self.current_user
+
         if not SmartAPI.exists(_id):
             raise HTTPError(404, response='API does not exist')
+
+        existing_doc = SmartAPI.get_api_by_id(_id)
+        if user['login'] != existing_doc.username:
+            self.send_error(
+                    message='Unauthorized [update] not allowed', status_code=401)
 
         if self.args.slug:
             try:
@@ -212,7 +221,8 @@ class APIHandler(BaseHandler):
 
         doc = SmartAPI.get_api_by_id(_id)
         if user['login'] != doc.username:
-            raise RegistryError('Delete not allowed')
+            self.send_error(
+                    message='Unauthorized [delete] not allowed', status_code=401)
 
         try:
             res = doc.delete()

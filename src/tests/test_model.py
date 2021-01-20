@@ -142,6 +142,7 @@ def test_006_delete_doc():
         new_doc = APIDoc(**MYDISEASE_DATA)
         new_doc.save()
         refresh()
+
     doc = APIDoc.get(MYDISEASE_ID)
     doc.delete()
     assert not APIDoc.exists(MYDISEASE_ID)

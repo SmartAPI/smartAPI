@@ -185,7 +185,8 @@ class SmartAPI(UserDict, ABC):
         search = search[from_: from_ + size]
 
         if fields:
-            search = search.source(includes=fields)
+            search = search.extra(_source={"includes": fields})
+            # search = search.source(includes=fields)
         return list(iter(search))
 
     @staticmethod
