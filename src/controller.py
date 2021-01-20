@@ -185,9 +185,8 @@ class SmartAPI(UserDict, ABC):
         search = search[from_: from_ + size]
 
         if fields:
-            search = search.extra(_source={"includes": fields})
-            # search = search.source(includes=fields)
-        return list(iter(search))
+            search = search.extra(_source={"include": fields})
+        return [res.to_dict() for res in search]
 
     @staticmethod
     def get_tags(field=None, size=100):

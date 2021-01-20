@@ -268,9 +268,9 @@ class SmartAPITest(BiothingsTestCase):
             refresh()
 
         res = self.request(
-            "/api/metadata/"+MYGENE_ID+"&format=yaml",
+            "/api/metadata/"+MYGENE_ID+"?format=yaml",
             method='GET')
-        yaml.load(res, Loader=yaml.SafeLoader)
+        yaml.load(res.text, Loader=yaml.SafeLoader)
 
     def test_108_get_all(self):
         '''
@@ -291,7 +291,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.save()
             refresh()
 
-        res = self.request("/api/metadata&fields=info,_meta", method='GET').json()
+        res = self.request("/api/metadata?fields=info,_meta", method='GET').json()
         assert res[0].get('info', {}).get('title', '') == 'MyGene.info API'
         assert res[0].get('_meta', {}).get('github_username', '') == 'marcodarko'
         assert not res[0].get('paths', {})
@@ -300,7 +300,7 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [READ] Get all docs from
         '''
-        res = self.request("/api/metadata&_from=1", method='GET').json()
+        res = self.request("/api/metadata?_from=1", method='GET').json()
         assert len(res) == 1
 
     def test_111_get_all_size(self):
@@ -315,7 +315,7 @@ class SmartAPITest(BiothingsTestCase):
             doc.save()
             refresh()
 
-        res = self.request("/api/metadata&size=1", method='GET').json()
+        res = self.request("/api/metadata?size=1", method='GET').json()
         assert len(res) == 1
 
     def test_112_update_not_allowed(self):
