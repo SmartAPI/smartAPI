@@ -1,3 +1,6 @@
+"""
+SmartAPI Controller Tests
+"""
 import os
 
 import json
@@ -7,8 +10,10 @@ from controller import SmartAPI, RegistryError
 from model import APIDoc
 from utils.indices import refresh
 
-MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
-MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mychem.info/openapi_full.yml'
+MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
+    'translator-api-registry/master/mygene.info/openapi_full.yml'
+MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
+    'translator-api-registry/master/mychem.info/openapi_full.yml'
 DATEAPI_URL = 'https://raw.githubusercontent.com/JDRomano2/ncats-apis/master/date/openapi_date.yml'
 AUTOMAT_URL = 'https://automat.renci.org/panther/openapi.json'
 
@@ -49,11 +54,11 @@ def setup_fixture():
             doc = APIDoc.get(_id)
             doc.delete()
     # save initial docs with paths already transformed
-    d1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
-    d1.save()
+    doc1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
+    doc1.save()
 
-    d2 = APIDoc(meta={'id': DATEAPI_ID}, **DATEAPI_DATA)
-    d2.save()
+    doc2 = APIDoc(meta={'id': DATEAPI_ID}, **DATEAPI_DATA)
+    doc2.save()
     # refresh index
     refresh()
 
@@ -173,19 +178,24 @@ def test_get_one_by_slug():
     Get one doc by slug
     """
     refresh()
-    if not SmartAPI.exists(MYGENE_ID):
+    if not APIDoc.exists(MYGENE_ID):
         doc = SmartAPI.from_dict(MYGENE_DATA)
         doc.url = MYGENE_URL
         doc.username = 'marcodarko'
-        doc.save()
         doc.slug = TEST_SLUG
+        doc.etag = 'I'
+        doc.save()
+        refresh()
 
+    assert APIDoc.exists(MYGENE_ID)
+    assert APIDoc.exists(TEST_SLUG, '_meta.slug')
+    refresh()
     doc = SmartAPI.get_api_by_slug(TEST_SLUG)
     assert doc['_id'] == MYGENE_ID
 
 def test_delete_slug():
     """
-    Delete slug
+    Delete slug (replaced by save now)
     """
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     doc.slug = ''
@@ -205,19 +215,19 @@ def test_delete_doc():
     Delete doc
     """
     refresh()
-    if not SmartAPI.exists(MYGENE_ID):
+    if not APIDoc.exists(MYGENE_ID):
         doc = SmartAPI.from_dict(MYGENE_DATA)
         doc.url = MYGENE_URL
         doc.username = 'marcodarko'
         doc.save()
-    
+        refresh()
 
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     res = doc.delete()
     assert res == MYGENE_ID
 
 def teardown_module():
-    """ 
+    """
     teardown any state that was previously setup.
     """
     for _id in [AUTOMAT_ID, DATEAPI_ID, MYGENE_ID, MYCHEM_ID]:

@@ -108,6 +108,7 @@ def test_001_save():
     new_doc = APIDoc(**MYDISEASE_DATA)
     new_doc.save()
     refresh()
+    assert APIDoc.exists(MYDISEASE_ID)
 
 def test_002_doc_exists():
     """
@@ -138,6 +139,7 @@ def test_006_delete_doc():
     """
     delete doc
     """
+    refresh()
     if not APIDoc.exists(MYDISEASE_ID):
         new_doc = APIDoc(**MYDISEASE_DATA)
         new_doc.save()
@@ -145,6 +147,7 @@ def test_006_delete_doc():
 
     doc = APIDoc.get(MYDISEASE_ID)
     doc.delete()
+    refresh()
     assert not APIDoc.exists(MYDISEASE_ID)
 
 def teardown_module():

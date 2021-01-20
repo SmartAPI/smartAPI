@@ -7,18 +7,20 @@ import os
 import pytest
 import yaml
 from biothings.tests.web import BiothingsTestCase
-from controller import SmartAPI
 from tornado.escape import json_encode
 from tornado.web import create_signed_value
+from controller import SmartAPI
 from utils.indices import refresh
 
-VALID_V3_URL = 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
+VALID_V3_URL = 'https://raw.githubusercontent.com/schurerlab/'\
+    'smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
 
 API_ID = '1ad2cba40cb25cd70d00aa8fba9cfaf3'
 
 INVALID_V3_URL = 'https://raw.githubusercontent.com/marcodarko/api_exmaple/master/api.yml'
 
-MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
+MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
+    'translator-api-registry/master/mygene.info/openapi_full.yml'
 
 MYGENE_ID = '59dce17363dce279d389100834e43648'
 
@@ -32,7 +34,7 @@ with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
 
 @pytest.fixture(scope="module", autouse=True)
 def setup():
-    """ 
+    """
     setup state called once for the class
     """
     for _id in [MYGENE_ID, API_ID]:
@@ -41,9 +43,15 @@ def setup():
             doc.delete()
 
 class SmartAPITest(BiothingsTestCase):
+    '''
+    SmartAPI metadata instance controller tests
+    '''
 
     @classmethod
     def cookie_header(cls, username):
+        '''
+        request header
+        '''
         cookie_name, cookie_value = 'user', {'login': username}
         secure_cookie = create_signed_value(
             cls.settings.COOKIE_SECRET, cookie_name,
@@ -52,10 +60,16 @@ class SmartAPITest(BiothingsTestCase):
 
     @property
     def auth_user(self):
+        '''
+        authorized user
+        '''
         return self.cookie_header('marcodarko')
 
     @property
     def evil_user(self):
+        '''
+        unauthorized user
+        '''
         return self.cookie_header('eviluser01')
 
     # ****** VALIDATOR *******
@@ -169,7 +183,7 @@ class SmartAPITest(BiothingsTestCase):
             method='POST',
             data=body,
             headers=self.auth_user).json()
-        assert res.get('success', False)
+        assert res.get('success')
         assert res.get('details') == '[Dryrun] Valid v3 Metadata'
 
     def test_103_create(self):
@@ -189,15 +203,15 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [CREATE] Disallow overwriting of docs not owned
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
             doc.save()
             refresh()
-
         body = {
-            'url': VALID_V3_URL,
+            'url': MYGENE_URL,
             'overwrite': True
         }
         self.request(
@@ -227,7 +241,8 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [READ] Get one doc by id
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -243,10 +258,12 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [READ] Get one with format
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
+            doc.etag = 'I'
             doc.save()
             refresh()
 
@@ -266,7 +283,8 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [READ] Get all docs with specific fields
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -289,14 +307,23 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [READ] Get specific size response
         '''
-        res = self.request("/api/metadata&size=2", method='GET').json()
-        assert len(res) == 2
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
+            doc = SmartAPI.from_dict(MYGENE_DATA)
+            doc.url = MYGENE_URL
+            doc.username = 'marcodarko'
+            doc.save()
+            refresh()
+
+        res = self.request("/api/metadata&size=1", method='GET').json()
+        assert len(res) == 1
 
     def test_112_update_not_allowed(self):
         '''
         [UPDATE] Unauthorized
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -317,7 +344,8 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [UPDATE]
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -339,7 +367,8 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [UPDATE] refresh doc by registered url
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -356,7 +385,8 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [DELETE] Unauthorized
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -373,7 +403,8 @@ class SmartAPITest(BiothingsTestCase):
         '''
         [DELETE]
         '''
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -384,13 +415,16 @@ class SmartAPITest(BiothingsTestCase):
             "/api/metadata/"+MYGENE_ID,
             method='DELETE',
             headers=self.auth_user).json()
-        assert res.get('success', False)
+        assert res.get('success')
 
     # ****** SUGGESTION *******
 
     def test_201_suggestion(self):
-
-        if not SmartAPI.exists(MYGENE_URL, '_meta.slug'):
+        '''
+        [GET] get aggregations for field
+        '''
+        refresh()
+        if not SmartAPI.exists(MYGENE_URL, '_meta.url'):
             doc = SmartAPI.from_dict(MYGENE_DATA)
             doc.url = MYGENE_URL
             doc.username = 'marcodarko'
@@ -399,13 +433,13 @@ class SmartAPITest(BiothingsTestCase):
 
         res = self.request(
             "/api/suggestion?field=tags.name",
-            method='GET', 
+            method='GET',
             headers=self.auth_user).json()
         assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
 
 
 def teardown_module():
-    """ 
+    """
     teardown any state that was previously setup.
     called once for the class
     """

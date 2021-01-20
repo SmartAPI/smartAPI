@@ -14,7 +14,7 @@ from datetime import datetime as dt
 
 from jsonschema import ValidationError, validate
 
-from model import APIDoc
+from model import APIDoc, APIStatus
 from utils.downloader import DownloadError, SchemaDownloader
 
 logger = logging.getLogger(__name__)
@@ -154,7 +154,7 @@ class SmartAPI(UserDict, ABC):
         """
         Get one doc by slug
         """
-        if not APIDoc.exists(slug, "._meta.slug"):
+        if not APIDoc.exists(slug, "_meta.slug"):
             raise RegistryError(f'slug [{slug}] does not exist')
 
         search = APIDoc.search().filter('term', _meta__slug=slug)
@@ -167,11 +167,11 @@ class SmartAPI(UserDict, ABC):
         obj = cls.from_dict(doc)
 
         obj._es_doc = doc
-        obj.id = doc.meta.id
-        obj.username = doc._meta.github_username  # pylint: disable=protected-access
-        obj.slug = doc._meta.slug  # pylint: disable=protected-access
-        obj.url = doc._meta.url  # pylint: disable=protected-access
-        obj.etag = doc._meta.etag  # pylint: disable=protected-access
+        obj.id = doc['_id']
+        obj.username = doc['_meta']['github_username']  # pylint: disable=protected-access
+        obj.slug = doc['_meta']['slug']  # pylint: disable=protected-access
+        obj.url = doc['_meta']['slug']  # pylint: disable=protected-access
+        obj.etag = doc['_meta']['etag']  # pylint: disable=protected-access
 
         return obj
 
@@ -206,6 +206,14 @@ class SmartAPI(UserDict, ABC):
 
         res = APIDoc.aggregate(field=field, size=size, agg_name=agg_name)
         return res.to_dict()
+
+    def get_status(self):
+        """
+        get api url and uptime status
+        """
+        if APIStatus.exists(self.id):
+            return APIStatus.get(self.id).to_dict()
+        raise RegistryError(f'Status for {self.id} does not exist')
 
     # PUT
     def update_slug(self):
@@ -284,7 +292,7 @@ class V3Metadata(SmartAPI):
         data["~raw"] = _raw
 
         self._es_doc = APIDoc(**data)
-        self._es_doc._meta.Etag = self.etag
+        self._es_doc._meta.etag = self.etag
         self._es_doc._meta.url = self.url
         self._es_doc._meta.github_username = self.username
         self._es_doc._meta.slug = self.slug
@@ -335,7 +343,7 @@ class V2Metadata(SmartAPI):
         data["~raw"] = _raw
 
         self._es_doc = APIDoc(**data)
-        self._es_doc._meta.Etag = self.etag
+        self._es_doc._meta.etag = self.etag
         self._es_doc._meta.url = self.url
         self._es_doc._meta.github_username = self.username
         self._es_doc._meta.slug = self.slug

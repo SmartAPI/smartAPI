@@ -9,7 +9,7 @@ import json
 import yaml
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
-from tornado.httpclient import HTTPError
+from tornado.web import HTTPError
 
 from controller import RegistryError, SmartAPI
 from utils.downloader import SchemaDownloader, DownloadError
@@ -127,7 +127,7 @@ class APIHandler(BaseHandler):
                 size=self.args.size)
         else:
             if not SmartAPI.exists(_id):
-                raise HTTPError(404, response='API does not exist')
+                raise HTTPError(404, reason='API does not exist')
 
             res = SmartAPI.get_api_by_id(_id)
 
@@ -144,12 +144,9 @@ class APIHandler(BaseHandler):
         existing_doc = SmartAPI.exists(self.args.url, "_meta.url")
 
         if existing_doc:
-            if self.args.overwrite:
-                if user['login'] != existing_doc.username:
-                    self.send_error(
-                    message='Unauthorized [overwrite] not allowed', status_code=401)
-                pass
-            else:
+            if user['login'] != existing_doc.username:
+                raise HTTPError(401)
+            if not self.args.overwrite:
                 raise BadRequest(details='API exists')
 
         try:
@@ -185,7 +182,7 @@ class APIHandler(BaseHandler):
         user = self.current_user
 
         if not SmartAPI.exists(_id):
-            raise HTTPError(404, response='API does not exist')
+            raise HTTPError(404, reason='API does not exist')
 
         existing_doc = SmartAPI.get_api_by_id(_id)
         if user['login'] != existing_doc.username:
@@ -217,12 +214,11 @@ class APIHandler(BaseHandler):
         user = self.current_user
 
         if not SmartAPI.exists(_id):
-            raise HTTPError(404, response='API does not exist')
+            raise HTTPError(404, reason='API does not exist')
 
         doc = SmartAPI.get_api_by_id(_id)
         if user['login'] != doc.username:
-            self.send_error(
-                    message='Unauthorized [delete] not allowed', status_code=401)
+            raise HTTPError(401)
 
         try:
             res = doc.delete()
@@ -254,3 +250,26 @@ class ValueSuggestionHandler(BaseHandler):
         """
         res = SmartAPI.get_tags(self.args.field, self.args.size)
         self.finish(res)
+
+
+class APIStatusHandler(BaseHandler):
+    """
+    Handle api and url status
+    """
+    name = 'status_handler'
+
+    def get(self, _id):  # pylint: disable=arguments-differ
+        """
+        /api/status/<id>
+        returns collected routine uptime and url status
+        """
+        if not SmartAPI.exists(_id):
+            raise HTTPError(404, reason='API does not exist')
+
+        doc = SmartAPI.get_api_by_id(_id)
+        try:
+            res = doc.get_status()
+        except RegistryError as err:
+            raise BadRequest(details=str(err)) from err
+        else:
+            self.finish(res)
