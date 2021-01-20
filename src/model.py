@@ -12,8 +12,8 @@ if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
 else:
     from pyblake2 import blake2b  # pylint: disable=import-error
 
-from elasticsearch_dsl import *  # pylint: disable=unused-import
-from elasticsearch_dsl.connections import connections
+from elasticsearch_dsl import *  # pylint: disable=unused-wildcard-import
+from elasticsearch_dsl.connections import connections  # pylint: disable=wrong-import-position
 
 # parse environment variables
 ES_HOST = os.getenv('ES_HOST', 'localhost:9200')
@@ -22,10 +22,10 @@ ES_INDEX_NAME = 'smartapi_oas3'
 # create a default connection
 connections.create_connection(hosts=ES_HOST)
 
-class Document_Meta(InnerDoc):
+class DocumentMeta(InnerDoc):
     '''
     _meta field.
-    ETag: "47ccb-16b4c2a9eb0"
+    etag: "47ccb-16b4c2a9eb0"
     github_username: "pilare"
     slug: "ilincs"
     timestamp: "2019-06-12T15:22:24.973780"
@@ -34,7 +34,7 @@ class Document_Meta(InnerDoc):
     github_username = Keyword(required=True)
     timestamp = Date(default_timezone='UTC')
     url = Text(required=True)
-    ETag = Text()
+    etag = Text()
     slug = Text()
 
 class APIDoc(Document):
@@ -53,17 +53,17 @@ class APIDoc(Document):
         }],
         tags: [{name: "GeneInfo"}, {name: "SignatureMeta"}, {name: "MeasurementMetaData"}, {name: "SearchTerm"},…]
         _id: "bee3622cff00265a07cf3fd9828be2bf"
-        _meta: {ETag: "47ccb-16b4c2a9eb0", github_username: "pilare", slug: "ilincs",…}
+        _meta: {etag: "47ccb-16b4c2a9eb0", github_username: "pilare", slug: "ilincs",…}
     }
     OR SWAGGER v2
     {
         info: {contact: {email: "markw@illuminae.com", name: "Mark D Wilkinson", url: "http://fairmetrics.org",…},…}
         swagger: "2.0"
         _id: "fe67b4a16a05d20626a52c3d5efd61cf"
-        _meta: {ETag: "I", github_username: "markwilkinson", swagger_v2: true,…}
+        _meta: {etag: "I", github_username: "markwilkinson", swagger_v2: true,…}
     }
     '''
-    _meta = Object(Document_Meta, required=True)
+    _meta = Object(DocumentMeta, required=True)
     info = Object()
     paths = Nested(
         multi=True,
@@ -80,6 +80,9 @@ class APIDoc(Document):
     host = Text()
 
     class Meta:
+        '''
+        Doc Meta
+        '''
         dynamic = MetaField(True)
 
     class Index:
@@ -94,20 +97,30 @@ class APIDoc(Document):
 
     @classmethod
     def exists(cls, value, field="_id"):
+        """
+        Get ID or none of existing doc with matching field query
+        """
         search = cls.search().query('match', **{field: value})
-        return bool(search.count())
+        # TODO what if multiple?
+        if search.count() == 1:
+            doc = next(iter(search)).to_dict(include_meta=True)
+            doc.update(doc.pop('_source'))
+            doc.pop('_index')
+            return doc['_id']
+        else:
+            return None
 
     @classmethod
     def aggregate(cls, agg_name: str, field: str, size: int):
-        s = cls.search()
+        search = cls.search()
         if not field.endswith(".raw"):
             field = field + ".raw"
-        a = A('terms', field=field, size=size)
-        s.aggs.bucket(agg_name, a)
-        response = s.execute()
+        agg = A('terms', field=field, size=size)
+        search.aggs.bucket(agg_name, agg)
+        response = search.execute()
         return response
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         self.meta.id = blake2b(self._meta.url.encode('utf8'), digest_size=16).hexdigest()
         super().save(*args, **kwargs)
 
@@ -128,6 +141,9 @@ class APIStatus(Document):
     url_status = Integer()
 
     class Meta:
+        '''
+        Doc Meta
+        '''
         dynamic = MetaField(False)
 
     class Index:
@@ -142,6 +158,9 @@ class APIStatus(Document):
 
     @classmethod
     def exists(cls, _id):
+        '''
+        Doc with api status exists
+        '''
         search = cls.search().query('match', _id=_id)
         return bool(search.count())
 

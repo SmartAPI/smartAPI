@@ -172,6 +172,14 @@ def test_get_one_by_slug():
     """
     Get one doc by slug
     """
+    if not SmartAPI.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        doc.slug = TEST_SLUG
+        refresh()
+
     doc = SmartAPI.get_api_by_slug(TEST_SLUG)
     assert doc['_id'] == MYGENE_ID
 
@@ -196,21 +204,22 @@ def test_delete_doc():
     """
     Delete doc
     """
+    if not SmartAPI.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     res = doc.delete()
     assert res == MYGENE_ID
 
 def teardown_module():
-    """ teardown any state that was previously setup.
+    """ 
+    teardown any state that was previously setup.
     """
-    test1 = APIDoc.get(AUTOMAT_ID)
-    test1.delete()
-
-    test2 = APIDoc.get(DATEAPI_ID)
-    test2.delete()
-
-    test1 = APIDoc.get(MYGENE_ID)
-    test1.delete()
-
-    test2 = APIDoc.get(MYCHEM_ID)
-    test2.delete()
+    for _id in [AUTOMAT_ID, DATEAPI_ID, MYGENE_ID, MYCHEM_ID]:
+        if APIDoc.exists(_id):
+            test_doc = APIDoc.get(_id)
+            test_doc.delete()

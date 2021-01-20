@@ -1,5 +1,4 @@
 import pytest
-
 from model import APIDoc
 from utils.indices import refresh
 
@@ -7,7 +6,7 @@ MYDISEASE_ID = 'f307760715d91908d0ae6de7f0810b22'
 
 MYDISEASE_DATA = {
     "_meta": {
-        "ETag": "659023576fb3c74c5a6eb4ec3987fba0d4164f060ab33c5040c0386ac18544b2",
+        "etag": "659023576fb3c74c5a6eb4ec3987fba0d4164f060ab33c5040c0386ac18544b2",
         "github_username": "cyrus0824",
         "slug": "mydisease",
         "timestamp": "2019-10-22T04:26:58.530282",
@@ -102,7 +101,7 @@ def setup_fixture():
         doc = APIDoc.get(MYDISEASE_ID)
         doc.delete()
 
-def test_save():
+def test_001_save():
     """
     Save doc
     """
@@ -110,35 +109,39 @@ def test_save():
     new_doc.save()
     refresh()
 
-def test_doc_exists():
+def test_002_doc_exists():
     """
     Existing ID exists
     """
     assert APIDoc.exists(MYDISEASE_ID)
 
-def test_doc_does_not_exist():
+def test_003_doc_does_not_exist():
     """
     Fake ID does not exists
     """
     assert not APIDoc.exists('id123779328749279')
 
-def test_slug_available():
+def test_004_slug_available():
     """
     Slug name is available
     """
     assert not APIDoc.exists('new_slug', field="._meta.slug")
 
-def test_tag_aggregation():
+def test_005_tag_aggregation():
     """
     Confirm aggregations exists for field, eg. tags
     """
     res = APIDoc.aggregate(field='info.contact.name', size=100, agg_name='field_values').to_dict()
     assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
 
-def test_delete_doc():
+def test_006_delete_doc():
     """
     delete doc
     """
+    if not APIDoc.exists(MYDISEASE_ID):
+        new_doc = APIDoc(**MYDISEASE_DATA)
+        new_doc.save()
+        refresh()
     doc = APIDoc.get(MYDISEASE_ID)
     doc.delete()
     assert not APIDoc.exists(MYDISEASE_ID)

@@ -24,11 +24,13 @@ logger = logging.getLogger(__name__)
 # *****************************************************************************
 
 # V2 Schemas
-SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.6.1/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
-
+SWAGGER2_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/'\
+    'v3.6.1/src/plugins/validate-json-schema/structural-validation/swagger2-schema.js'
 # V3 Schemas
-TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
-OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/swagger-editor/v3.7.1/src/plugins/json-schema-validator/oas3-schema.yaml'
+TRANSLATOR_URL = 'https://raw.githubusercontent.com/NCATSTranslator/'\
+    'translator_extensions/main/x-translator/smartapi_x-translator_schema.json'
+OAS3_SCHEMA_URL = 'https://raw.githubusercontent.com/swagger-api/'\
+    'swagger-editor/v3.7.1/src/plugins/json-schema-validator/oas3-schema.yaml'
 
 # List of root keys that should be indexed in version 2 schema
 SWAGGER2_INDEXED_ITEMS = ['info', 'tags', 'swagger', 'host', 'basePath']
@@ -57,6 +59,11 @@ class RegistryError(Exception):
 # *****************************************************************************
 
 class SmartAPI(UserDict, ABC):
+    """
+    Create a SmartAPI object from
+    openapi v3 or swagger v2 metadata
+    eg. SmartAPI.from_dict(data)
+    """
 
     def __init__(self, metadata):
         super().__init__(metadata)
@@ -65,7 +72,7 @@ class SmartAPI(UserDict, ABC):
         self.username = ''
         self.slug = ''
         self.etag = ''
-        self.id = ''
+        self.id = ''  # pylint: disable=invalid-name 
         self._es_doc = None
 
     @property
@@ -73,9 +80,12 @@ class SmartAPI(UserDict, ABC):
     def version(self):
         pass
 
-    @staticmethod
-    def exists(_id, field="_id"):
-        return APIDoc.exists(_id, field)
+    @classmethod
+    def exists(cls, _id, field="_id"):
+        _id = APIDoc.exists(_id, field)
+        if _id:
+            return cls.get_api_by_id(_id)
+        return None
 
     @abstractmethod
     def validate(self):
@@ -118,24 +128,25 @@ class SmartAPI(UserDict, ABC):
         doc = APIDoc.get(_id)
 
         _raw = gzip.decompress(base64.urlsafe_b64decode(doc['~raw'])).decode('utf-8')
-        d = json.loads(_raw)
-        d2 = OrderedDict()
-        for key in ['openapi', 'info', 'servers', 'externalDocs', 'tags', 'security', 'paths', 'components']:
-            if key in d:
-                d2[key] = d[key]
-        for key in d:
-            if key not in d2:
-                d2[key] = d[key]
+        data = json.loads(_raw)
+        # return main keys back in preferred order
+        doc_2 = OrderedDict()
+        for key in ['openapi', 'info', 'servers',
+                    'externalDocs', 'tags', 'security', 'paths', 'components']:
+            if key in data:
+                doc_2[key] = data[key]
+        for key in data:
+            if key not in doc_2:
+                doc_2[key] = data[key]
 
-        obj = cls.from_dict(d2)
+        obj = cls.from_dict(doc_2)
 
         obj._es_doc = doc
         obj.id = doc.meta.id
-        obj.username = doc._meta.github_username
-        obj.slug = doc._meta.slug
-        obj.url = doc._meta.url
-        obj.etag = doc._meta.ETag
-        # print('OBJ TYPE ', type(obj))
+        obj.username = doc._meta.github_username  # pylint: disable=protected-access
+        obj.slug = doc._meta.slug  # pylint: disable=protected-access
+        obj.url = doc._meta.url  # pylint: disable=protected-access
+        obj.etag = doc._meta.etag  # pylint: disable=protected-access
         return obj
 
     @classmethod
@@ -143,6 +154,9 @@ class SmartAPI(UserDict, ABC):
         """
         Get one doc by slug
         """
+        if not APIDoc.exists(slug, "._meta.slug"):
+            raise RegistryError(f'slug [{slug}] does not exist')
+
         search = APIDoc.search().filter('term', _meta__slug=slug)
         assert search.count() == 1
 
@@ -154,15 +168,15 @@ class SmartAPI(UserDict, ABC):
 
         obj._es_doc = doc
         obj.id = doc.meta.id
-        obj.username = doc._meta.github_username
-        obj.slug = doc._meta.slug
-        obj.url = doc._meta.url
-        obj.etag = doc._meta.ETag
+        obj.username = doc._meta.github_username  # pylint: disable=protected-access
+        obj.slug = doc._meta.slug  # pylint: disable=protected-access
+        obj.url = doc._meta.url  # pylint: disable=protected-access
+        obj.etag = doc._meta.etag  # pylint: disable=protected-access
 
         return obj
 
     @staticmethod
-    def get_all(fields=[], from_=0, size=10):
+    def get_all(fields=(), from_=0, size=10):
         """
         Returns a list of all docs in index.
         Each document is a dsl search hit that behaves like a dictionary
@@ -198,7 +212,6 @@ class SmartAPI(UserDict, ABC):
         Update API doc registered slug name
         """
         self.validate_slug_name(self.slug)
-
         self._es_doc.update(_meta={"slug": self.slug.lower()})
         return self.slug.lower()
 
@@ -239,12 +252,12 @@ class V3Metadata(SmartAPI):
             if name != "swagger_v2":
                 try:
                     validate(instance=self._metadata, schema=schema)
-                except ValidationError as e:
-                    err_msg = f"Validation Error [{name}]: {e.message}. In: {e.path}"
-                    raise RegistryError(err_msg)
-                except Exception as e:
-                    err_msg = f"Unexpected Validation Error [{name}]: {type(e).__name__} - {e}"
-                    raise RegistryError(err_msg)
+                except ValidationError as err:
+                    err_msg = f"Validation Error [{name}]: {err.message}. In: {err.path}"
+                    raise RegistryError(err_msg) from err
+                except Exception as err:
+                    err_msg = f"Unexpected Validation Error [{name}]: {type(err).__name__} - {err}"
+                    raise RegistryError(err_msg) from err
 
     def save(self):
         """
@@ -296,12 +309,12 @@ class V2Metadata(SmartAPI):
         if 'swagger_v2' in downloader.schemas:
             try:
                 validate(instance=self._metadata, schema=downloader.schemas['swagger_v2'])
-            except ValidationError as e:
-                err_msg = f"Validation Error [Swagger_V2]: {e.message}. In: {e.path}"
-                raise RegistryError(err_msg)
-            except Exception as e:
-                err_msg = f"Unexpected Validation Error [Swagger_V2]: {type(e).__name__} - {e}"
-                raise RegistryError(err_msg)
+            except ValidationError as err:
+                err_msg = f"Validation Error [Swagger_V2]: {err.message}. In: {err.path}"
+                raise RegistryError(err_msg) from err
+            except Exception as err:
+                err_msg = f"Unexpected Validation Error [Swagger_V2]: {type(err).__name__} - {err}"
+                raise RegistryError(err_msg) from err
 
     def save(self):
         """

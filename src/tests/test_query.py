@@ -2,11 +2,9 @@
     Biothings ESQueryHandler Type Tester
 '''
 import pytest
-import json
+from biothings.tests.web import BiothingsTestCase
 from tornado.escape import json_encode
 from tornado.web import create_signed_value
-
-from biothings.tests.web import BiothingsTestCase
 
 
 class SmartAPIQueryTest(BiothingsTestCase):
@@ -27,61 +25,6 @@ class SmartAPIQueryTest(BiothingsTestCase):
     def evil_user(self):
         return self.cookie_header('eviluser01')
 
-    def test_01_create_401(self):
-        '''
-        [CREATE] Unauthorized
-        '''
-        body = {
-            'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
-        }
-        self.request("/api", method='POST', json=body, expect=401)
-
-    def test_02_create(self):
-        '''
-        [CREATE]
-        '''
-        doc = {
-            'url': 'https://raw.githubusercontent.com/schurerlab/smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
-        }
-        res = self.request("/api", method='POST', json=doc, headers=self.auth_user)
-        res= json.loads(res.text)
-        assert res.get('success', False)
-
-    def test_03_read(self):
-        '''
-        [READ]
-        '''
-        res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='GET')
-        res = json.loads(res.text)
-        assert json_data.get('info', '').get('title', '') == "LINCS Data Portal API"
-
-    def test_04_update_400(self):
-        '''
-        [UPDATE] Unauthorized
-        '''
-        body = {
-            'slug': 'lincs_slug'
-        }
-        self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.evil_user, expect=400)
-
-    def test_05_update(self):
-        '''
-        [UPDATE]
-        '''
-        body = {
-            'slug': 'lincs_slug'
-        }
-        res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='PUT', data=body, headers=self.auth_user)
-        res = json.loads(res.text)
-        assert res.get('success', False)
-
-    def test_06_delete(self):
-        '''
-        [DELETE]
-        '''
-        res = self.request("/api/metadata/1ad2cba40cb25cd70d00aa8fba9cfaf3", method='DELETE', headers=self.auth_user)
-        res = json.loads(res.text)
-        assert res.get('success', False)
 
     def test_100_all(self):
         '''

@@ -75,7 +75,7 @@ class SmartAPIData():
                 url = api_doc.get('_meta', {}).get('url', '')
                 _res = self.polite_requests(url, head=True)
                 if _res:
-                    etag_local = api_doc.get('_meta', {}).get('ETag', '')
+                    etag_local = api_doc.get('_meta', {}).get('etag', '')
                     etag_server = _res.headers.get('ETag', 'N').strip('W/"')
                     if etag_local == etag_server:
                         status = f"No changes ID {_id} (Via Etag)"
