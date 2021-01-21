@@ -215,14 +215,6 @@ class SmartAPI(UserDict, ABC):
         raise RegistryError(f'Status for {self.id} does not exist')
 
     # PUT
-    def update_slug(self):
-        """
-        Update API doc registered slug name
-        """
-        self.validate_slug_name(self.slug)
-        self._es_doc.update(_meta={"slug": self.slug.lower()})
-        return self.slug.lower()
-
     def refresh(self):
         """
         refresh the given API document object based on its saved metadata url

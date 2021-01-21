@@ -193,15 +193,6 @@ def test_get_one_by_slug():
     doc = SmartAPI.get_api_by_slug(TEST_SLUG)
     assert doc['_id'] == MYGENE_ID
 
-def test_delete_slug():
-    """
-    Delete slug (replaced by save now)
-    """
-    doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    doc.slug = ''
-    res = doc.update_slug()
-    assert res == ''
-
 def test_refresh_api():
     """
     Refresh api

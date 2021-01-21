@@ -1,0 +1,87 @@
+{
+    "_meta": {
+        "etag": "659023576fb3c74c5a6eb4ec3987fba0d4164f060ab33c5040c0386ac18544b2",
+        "github_username": "cyrus0824",
+        "slug": "mydisease",
+        "timestamp": "2019-10-22T04:26:58.530282",
+        "url": "https://raw.githubusercontent.com/biothings/mydisease.info/master/mydisease/swagger/mydisease.yml"
+    },
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0",
+        "title": "MyDisease.info API",
+        "description": "Documentation of the MyDisease.info disease query web services.  Learn more about [MyDisease.info](http://MyDisease.info/)",
+        "termsOfService": "http://MyDisease.info/terms",
+        "contact": {
+            "name": "Chunlei Wu",
+            "x-role": "responsible developer",
+            "email": "help@biothings.io",
+            "x-id": "https://github.com/newgene"
+        }
+    },
+    "servers": [
+        {
+            "url": "http://MyDisease.info/v1",
+            "description": "Production server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "disease"
+        },
+        {
+            "name": "query"
+        },
+        {
+            "name": "metadata"
+        }
+    ],
+    "paths": {
+        "/metadata/fields": {
+            "get": {
+                "tags": [
+                    "metadata"
+                ],
+                "summary": "Get metadata about the data fields available from a MyDisease.info disease object",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "$ref": "#/components/parameters/search"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "MyDisease.info metadata fields object"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "parameters": {
+            "search": {
+                "name": "search",
+                "in": "query",
+                "description": "Pass a search term to filter the available fields. Type: string. Default: None.",
+                "schema": {
+                    "type": "string"
+                }
+            }
+        },
+        "schemas": {
+            "string_or_array": {
+                "oneOf": [
+                    {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            }
+        }
+    }
+}
