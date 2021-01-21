@@ -173,12 +173,11 @@
                   <small>Filters Most Active <br />(Last 30 days)</small>
                 </div>
                 <template v-for="(pop,index) in popularTags">
-                  <!-- <a v-if="index < 10" :class="{ active: pop.active, blue: pop.active }" :title="pop.count" @click.prevent="toggleTag(pop,'tag');toggleTag(pop,'author');search(query); googleAnalytics('Registry_Tag', pop.name)" href="#!" class="collection-item" style="padding:4px;" > -->
                     <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="pushHistory();googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
-                    {{index+1}} <small v-text="'#'+pop.name"></small>
+                    {{index+1}} <small><span v-text="pop.type == 'tags' ? '#' : '@'"></span> <span v-text="pop.name"></span></small>
                   </a>
                 </template>
-              </ul>
+              </ul>ß
           </div>
             <div class="col s12 hide-on-med-and-up show-on-small-only">
                 <ul class="collapsible">
