@@ -31,6 +31,9 @@ text-decoration: underline;
 .swagger-ui svg:not(:root){
   display: none;
 }
+.swagger-ui select{
+  display: inline;
+}
 </style>
 <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
   <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
@@ -40,7 +43,7 @@ text-decoration: underline;
 {% block extra_scripts %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
-  <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js" charset="UTF-8"></script>
   <script>
 
   // Plug-in to hide empty tags in Swagger UI
