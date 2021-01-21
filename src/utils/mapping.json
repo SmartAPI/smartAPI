@@ -1,11 +1,11 @@
-smart_api_mapping = {
+{
     "mappings": {
         "dynamic_templates": [
             {
                 "ignore_example_field": {
                     "path_match": "*.example",
                     "mapping": {
-                        "index": False,
+                        "index": false,
                         "type": "text"
                     }
                 }
@@ -14,7 +14,7 @@ smart_api_mapping = {
                 "ignore_ref_field": {
                     "match": "$ref",
                     "mapping": {
-                        "index": False
+                        "index": false
                     }
                 }
             },
@@ -22,7 +22,7 @@ smart_api_mapping = {
                 "ignore_schema_field": {
                     "match": "schema",
                     "mapping": {
-                        "enabled": False
+                        "enabled": false
                     }
                 }
             },
@@ -30,19 +30,18 @@ smart_api_mapping = {
                 "ignore_content_field": {
                     "match": "content",
                     "mapping": {
-                        "enabled": False
+                        "enabled": false
                     }
                 }
             },
-            # this must be the last template
             {
                 "template_1": {
                     "match": "*",
                     "match_mapping_type": "string",
                     "mapping": {
                         "type": "text",
-                        "index": True,
-                        "ignore_malformed": True,
+                        "index": true,
+                        "ignore_malformed": true,
                         "fields": {
                                 "raw": {
                                     "type": "keyword"
@@ -54,10 +53,10 @@ smart_api_mapping = {
         ],
         "properties": {
             "components": {
-                "enabled": False
+                "enabled": false
             },
             "definitions": {
-                "enabled": False
+                "enabled": false
             },
             "~raw": {
                 "type": "binary"

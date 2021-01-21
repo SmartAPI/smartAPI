@@ -1,10 +1,14 @@
+import json
 import logging
+import os
 
-from elasticsearch_dsl import Index
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Index
 from model import APIDoc, APIStatus
 
-from .mapping import smart_api_mapping
+dirname = os.path.dirname(__file__)
+with open(os.path.join(dirname, 'mapping.json'), 'r') as file:
+    SMARTAPI_MAPPING = json.load(file)
 
 def setup_data():
 
@@ -12,7 +16,7 @@ def setup_data():
         if not Index(APIDoc.Index.name).exists():
             # API doc - supports dynamic templates
             elastic = Elasticsearch()
-            elastic.indices.create(index=APIDoc.Index.name, ignore=400, body=smart_api_mapping)
+            elastic.indices.create(index=APIDoc.Index.name, ignore=400, body=SMARTAPI_MAPPING)
     except Exception as exc:
         logging.warning(exc)
 
