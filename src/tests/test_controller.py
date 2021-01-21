@@ -68,6 +68,8 @@ def test_get_all():
     """
     docs = SmartAPI.get_all()
     assert len(docs) == 2
+    assert docs[0]["info"]["title"] in ["Automat Panther", "DATE API"]
+    assert docs[1]["info"]["title"] in ["Automat Panther", "DATE API"]
 
 def test_version():
     """
@@ -94,6 +96,7 @@ def test_add_doc_1():
     """
     Successful addition
     """
+    assert not APIDoc.exists(MYGENE_ID)
     doc = SmartAPI.from_dict(MYGENE_DATA)
     doc.url = MYGENE_URL
     doc.username = 'marcodarko'
@@ -106,6 +109,7 @@ def test_add_doc_2():
     """
     Add test My Disease API to index, return new doc ID
     """
+    assert not APIDoc.exists(MYCHEM_ID)
     doc = SmartAPI.from_dict(MYCHEM_DATA)
     doc.url = MYCHEM_URL
     doc.username = 'marcodarko'
@@ -118,6 +122,9 @@ def test_get_all_size_1():
     """
     Get ALL with size
     """
+    search = APIDoc.search()
+    assert search.count() > 1
+
     docs = SmartAPI.get_all(size=1)
     assert len(docs) == 1
 
@@ -125,6 +132,23 @@ def test_get_all_from():
     """
     Get ALL from starting point
     """
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    if not APIDoc.exists(MYCHEM_ID):
+        doc = SmartAPI.from_dict(MYCHEM_DATA)
+        doc.url = MYCHEM_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    search = APIDoc.search()
+    assert search.count() == 4
+
     docs = SmartAPI.get_all(from_=1)
     assert len(docs) == 3
 
@@ -132,15 +156,50 @@ def test_get_one():
     """
     Get one doc by ID
     """
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    assert APIDoc.exists(MYGENE_ID)
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     assert doc['info']['title'] == 'MyGene.info API'
 
-def test_get_tags():
+def test_get_tags_1():
     """
-    Get tag aggregations for field
+    Get tag aggregations for field (owners)
     """
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    assert APIDoc.exists(MYGENE_ID)
     res = SmartAPI.get_tags(field='info.contact.name', size=100)
-    assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
+    tags = res.get('aggregations', {}).get('field_values', {}).get('buckets', [])
+    assert len(tags) >= 1
+    assert [tag for tag in tags if tag['key'] in ['Chunlei Wu']]
+
+def test_get_tags_2():
+    """
+    Get tag aggregations for field (tags)
+    """
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    assert APIDoc.exists(MYGENE_ID)
+    res = SmartAPI.get_tags(field='tags', size=100)
+    tags = res.get('aggregations', {}).get('field_values', {}).get('buckets', [])
+    assert len(tags) >= 1
+    assert [tag for tag in tags if tag['key'] in ['translator']]
 
 def test_validate_slug():
     """
@@ -171,6 +230,8 @@ def test_update_slug():
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     doc.slug = TEST_SLUG
     res = doc.save()
+    refresh()
+    assert APIDoc.exists(TEST_SLUG, '_meta.slug')
     assert res == MYGENE_ID
 
 def test_get_one_by_slug():
@@ -216,6 +277,8 @@ def test_delete_doc():
     doc = SmartAPI.get_api_by_id(MYGENE_ID)
     res = doc.delete()
     assert res == MYGENE_ID
+    refresh()
+    assert not APIDoc.exists(MYGENE_ID)
 
 def teardown_module():
     """
