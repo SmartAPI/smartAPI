@@ -1,11 +1,18 @@
+"""
+SmartAPI DSL Document tests
+"""
 import json
 import os
 
 import pytest
+from elasticsearch import Elasticsearch
 from model import APIDoc
 from utils.indices import refresh
 
+ES_INDEX_NAME = 'smartapi_oas3'
 MYDISEASE_ID = 'f307760715d91908d0ae6de7f0810b22'
+
+client = Elasticsearch()
 
 dirname = os.path.dirname(__file__)
 
@@ -18,14 +25,14 @@ def setup_fixture():
     """
     Get data from test urls
     """
-    if APIDoc.exists(MYDISEASE_ID):
-        doc = APIDoc.get(MYDISEASE_ID)
-        doc.delete()
+    if client.exists(ES_INDEX_NAME, MYDISEASE_ID):
+        client.delete(ES_INDEX_NAME, MYDISEASE_ID)
 
 def test_001_save():
     """
     Save doc
     """
+    assert not client.exists(ES_INDEX_NAME, MYDISEASE_ID)
     new_doc = APIDoc(**MYDISEASE_DATA)
     new_doc.save()
     refresh()
@@ -61,7 +68,7 @@ def test_006_delete_doc():
     delete doc
     """
     refresh()
-    if not APIDoc.exists(MYDISEASE_ID):
+    if not client.exists(ES_INDEX_NAME, MYDISEASE_ID):
         new_doc = APIDoc(**MYDISEASE_DATA)
         new_doc.save()
         refresh()
@@ -69,11 +76,10 @@ def test_006_delete_doc():
     doc = APIDoc.get(MYDISEASE_ID)
     doc.delete()
     refresh()
-    assert not APIDoc.exists(MYDISEASE_ID)
+    assert not client.exists(ES_INDEX_NAME, MYDISEASE_ID)
 
 def teardown_module():
     """ teardown any state that was previously setup.
     """
-    if APIDoc.exists(MYDISEASE_ID):
-        doc = APIDoc.get(MYDISEASE_ID)
-        doc.delete()
+    if client.exists(ES_INDEX_NAME, MYDISEASE_ID):
+        client.delete(ES_INDEX_NAME, MYDISEASE_ID)
