@@ -105,7 +105,7 @@ class SmartAPI(UserDict, ABC):
         else:
             raise RegistryError('Version unknown')
 
-    def validate_slug_name(self):
+    def validate_slug(self):
         """
         Function that determines whether slug is a valid slug name
         """
@@ -265,7 +265,8 @@ class V3Metadata(SmartAPI):
         Returns saved API ID
         """
         self.validate()
-        self.validate_slug_name()
+        if self.slug:
+            self.validate_slug()
 
         # transform paths
         data = copy.copy(self._metadata)
@@ -323,7 +324,8 @@ class V2Metadata(SmartAPI):
         Returns saved API ID
         """
         self.validate()
-        self.validate_slug_name()
+        if self.slug:
+            self.validate_slug()
 
         data = {}
         for key in SWAGGER2_INDEXED_ITEMS:

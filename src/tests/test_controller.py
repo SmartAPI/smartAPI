@@ -205,22 +205,54 @@ def test_validate_slug():
     """
     Update registered slug name for ID
     """
-    SmartAPI.validate_slug_name(TEST_SLUG)
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    assert APIDoc.exists(MYGENE_ID)
+    doc = SmartAPI.get_api_by_id(MYGENE_ID)
+    doc.slug = TEST_SLUG
+    doc.validate_slug()
 
 def test_validate_slug_invalid_1():
     """
     slug name not allowed
     """
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    assert APIDoc.exists(MYGENE_ID)
+
     with pytest.raises(RegistryError) as err:
-        SmartAPI.validate_slug_name('smart-api')
+        doc = SmartAPI.get_api_by_id(MYGENE_ID)
+        doc.slug = 'smart-api'
+        doc.validate_slug()
     assert str(err.value) == "Slug name smart-api is reserved, please choose another"
 
 def test_validate_slug_invalid_2():
     """
     invalid characters in slug
     """
+    if not APIDoc.exists(MYGENE_ID):
+        doc = SmartAPI.from_dict(MYGENE_DATA)
+        doc.url = MYGENE_URL
+        doc.username = 'marcodarko'
+        doc.save()
+        refresh()
+
+    assert APIDoc.exists(MYGENE_ID)
+    
     with pytest.raises(RegistryError) as err:
-        SmartAPI.validate_slug_name('myname#')
+        doc = SmartAPI.get_api_by_id(MYGENE_ID)
+        doc.slug = 'myname#'
+        doc.validate_slug()
     assert str(err.value) == "Slug name myname# contains invalid characters"
 
 def test_update_slug():
