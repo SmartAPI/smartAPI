@@ -105,19 +105,18 @@ class SmartAPI(UserDict, ABC):
         else:
             raise RegistryError('Version unknown')
 
-    @classmethod
-    def validate_slug_name(cls, slug_name):
+    def validate_slug_name(self):
         """
-        Function that determines whether slug_name is a valid slug name
+        Function that determines whether slug is a valid slug name
         """
         _valid_chars = string.ascii_letters + string.digits + "-_~"
-        _slug = slug_name.lower()
-        if _slug in ('www', 'dev', 'smart-api'):
-            raise RegistryError(f"Slug name {slug_name} is reserved, please choose another")
+        _slug = self.slug.lower()
+        if _slug in ('www', 'dev', 'smart-api', 'api'):
+            raise RegistryError(f"Slug name {_slug} is reserved, please choose another")
         if not all([x in _valid_chars for x in _slug]):
-            raise RegistryError(f"Slug name {slug_name} contains invalid characters")
+            raise RegistryError(f"Slug name {_slug} contains invalid characters")
         if APIDoc.exists(_slug, field="._meta.slug"):
-            raise RegistryError(f"Slug name {slug_name} already exists")
+            raise RegistryError(f"Slug name {_slug} already exists")
 
     # GET
     @classmethod
@@ -266,6 +265,7 @@ class V3Metadata(SmartAPI):
         Returns saved API ID
         """
         self.validate()
+        self.validate_slug_name()
 
         # transform paths
         data = copy.copy(self._metadata)
@@ -323,6 +323,7 @@ class V2Metadata(SmartAPI):
         Returns saved API ID
         """
         self.validate()
+        self.validate_slug_name()
 
         data = {}
         for key in SWAGGER2_INDEXED_ITEMS:

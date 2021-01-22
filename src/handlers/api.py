@@ -193,6 +193,7 @@ class APIHandler(BaseHandler):
             try:
                 doc = SmartAPI.get_api_by_id(_id)
                 doc.slug = self.args.slug
+                doc.validate_slug_name()
                 res = doc.save()
             except RegistryError as err:
                 raise BadRequest(details=str(err)) from err
