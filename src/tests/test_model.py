@@ -36,7 +36,7 @@ def test_001_save():
     new_doc = APIDoc(**MYDISEASE_DATA)
     new_doc.save()
     refresh()
-    assert APIDoc.exists(MYDISEASE_ID)
+    assert client.exists(ES_INDEX_NAME, MYDISEASE_ID)
 
 def test_002_doc_exists():
     """
@@ -61,7 +61,9 @@ def test_005_tag_aggregation():
     Confirm aggregations exists for field, eg. tags
     """
     res = APIDoc.aggregate(field='info.contact.name', size=100, agg_name='field_values').to_dict()
-    assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
+    tags = res.get('aggregations', {}).get('field_values', {}).get('buckets', [])
+    assert len(tags) >= 1
+    assert [tag for tag in tags if tag['key'] in ['Chunlei Wu']]
 
 def test_006_delete_doc():
     """
@@ -69,8 +71,7 @@ def test_006_delete_doc():
     """
     refresh()
     if not client.exists(ES_INDEX_NAME, MYDISEASE_ID):
-        new_doc = APIDoc(**MYDISEASE_DATA)
-        new_doc.save()
+        client.create(ES_INDEX_NAME, MYDISEASE_ID, **MYDISEASE_DATA, doc_type="_doc")
         refresh()
 
     doc = APIDoc.get(MYDISEASE_ID)
