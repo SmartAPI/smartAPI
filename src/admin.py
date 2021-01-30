@@ -1,3 +1,4 @@
+from admin import SmartAPIData
 import json
 import boto3
 import logging
@@ -11,10 +12,12 @@ from controller import SWAGGER2_INDEXED_ITEMS, SmartAPI, RegistryError
 from utils.indices import setup_data
 from utils.downloader import SchemaDownloader
 
+
 class SmartAPIData():
     """
     Backup docs to S3 and refresh docs based on registered url
     """
+
     def __init__(self):
         self.index_name = APIDoc.Index.name
 
@@ -36,7 +39,6 @@ class SmartAPIData():
         return res
 
     def _refresh_one(self, api_doc):
-
         '''
         refresh the given API document object based on its saved metadata url
         '''
@@ -221,3 +223,18 @@ class SmartAPIData():
         logging.info(f"Openapi Objects {openapi_v3_count} indexed")
         logging.info(f"Swagger Objects {swagger_v2_count} indexed")
         logging.info("Restore from file complete")
+
+
+def backup_and_refresh():
+    '''
+    Run periodically in the main event loop
+    '''
+    data = SmartAPIData()
+    try:
+        data.backup_all(aws_s3_bucket='smartapi')
+    except Exception:
+        logging.exception("Backup failed.")
+    try:
+        data.refresh_all()
+    except Exception:
+        logging.exception("Refresh failed.")

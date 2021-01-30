@@ -242,7 +242,7 @@
                         }
                     },
                     {
-                        "description": "relevant when faceting on species (i.e., “facets=taxid” are passed). It’s used to pass species filter without changing the scope of faceting, so that the returned facet counts won’t change. Either species name or taxonomy id can be used, just like “species” parameter.",
+                        "description": "relevant when faceting on species (i.e., \"facets=taxid\" are passed). It’s used to pass species filter without changing the scope of faceting, so that the returned facet counts won’t change. Either species name or taxonomy id can be used, just like \"species\" parameter.",
                         "in": "query",
                         "name": "species_facet_filter",
                         "schema": {
@@ -250,7 +250,7 @@
                         }
                     },
                     {
-                        "description": "when passed as “True” or “1”, the query returns only the hits with valid Entrez gene ids. Default: False.",
+                        "description": "when passed as \"True\" or \"1\", the query returns only the hits with valid Entrez gene ids. Default: False.",
                         "in": "query",
                         "name": "entrezonly",
                         "schema": {
@@ -258,7 +258,7 @@
                         }
                     },
                     {
-                        "description": "when passed as “True” or “1”, the query returns only the hits with valid Ensembl gene ids. Default: False.",
+                        "description": "when passed as \"True\" or \"1\", the query returns only the hits with valid Ensembl gene ids. Default: False.",
                         "in": "query",
                         "name": "ensemblonly",
                         "schema": {

@@ -41,11 +41,10 @@
                     "mapping": {
                         "type": "text",
                         "index": true,
-                        "ignore_malformed": true,
                         "fields": {
-                                "raw": {
-                                    "type": "keyword"
-                                }
+                            "raw": {
+                                "type": "keyword"
+                            }
                         }
                     }
                 }
@@ -58,7 +57,7 @@
             "definitions": {
                 "enabled": false
             },
-            "~raw": {
+            "_raw": {
                 "type": "binary"
             }
         }

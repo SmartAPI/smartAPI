@@ -1,43 +1,52 @@
 import json
-import logging
 import os
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Index
-from model import APIDoc, APIStatus
+from model import APIDoc, APIMeta
 
-dirname = os.path.dirname(__file__)
-with open(os.path.join(dirname, 'mapping.json'), 'r') as file:
+_dirname = os.path.dirname(__file__)
+with open(os.path.join(_dirname, 'mapping.json'), 'r') as file:
     SMARTAPI_MAPPING = json.load(file)
 
-def setup_data():
 
-    try:
-        if not Index(APIDoc.Index.name).exists():
-            # API doc - supports dynamic templates
-            elastic = Elasticsearch()
-            elastic.indices.create(index=APIDoc.Index.name, ignore=400, body=SMARTAPI_MAPPING)
-    except Exception as exc:
-        logging.warning(exc)
+def setup():
+    """
+    Setup Elasticsearch Index.
+    Primary index with dynamic template.
+    Secondary index with static mappings.
+    """
 
-    try:
-        if not Index(APIStatus.Index.name).exists():
-            # API status
-            APIStatus.init()
-    except Exception as exc:
-        logging.warning(exc)
+    if not Index(APIDoc.Index.name).exists():
+        elastic = Elasticsearch()
+        elastic.indices.create(
+            index=APIDoc.Index.name,
+            body=SMARTAPI_MAPPING
+        )
+        APIDoc.init()
+
+    if not Index(APIMeta.Index.name).exists():
+        APIMeta.init()
 
 
-def reset_data():
+def reset():
 
-    index_1 = Index(APIDoc.Index.name)
+    index = Index(APIDoc.Index.name)
 
-    if index_1.exists():
-        index_1.delete()
+    if index.exists():
+        index.delete()
 
-    APIDoc.init()
+    index = Index(APIMeta.Index.name)
+
+    if index.exists():
+        index.delete()
+
+    setup()
+
 
 def refresh():
 
-    index_1 = Index(APIDoc.Index.name)
-    index_1.refresh()
+    index = Index(APIDoc.Index.name)
+    index.refresh()
+    index = Index(APIMeta.Index.name)
+    index.refresh()

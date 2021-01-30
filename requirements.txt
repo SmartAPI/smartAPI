@@ -1,4 +1,4 @@
-biothings[web_extra]==0.8.2
+biothings[web_extra]==0.9.0
 
 # document validation
 jsonschema==3.2.0
@@ -9,7 +9,7 @@ elasticsearch-async==6.2.0
 elasticsearch-dsl==7.3.0
 torngithub==0.2.0 
 Jinja2>=2.9.6
-pycurl==7.43.0.3
+pycurl==7.43.0.4
 requests-cache==0.5.2
 tornado==5.1.1
 chardet==3.0.4
@@ -19,3 +19,8 @@ gitdb==4.0.5
 
 # s3 backup
 boto3==1.16.2
+
+# local issuer certificate
+certifi
+
+pytest

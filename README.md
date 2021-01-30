@@ -92,3 +92,5 @@ Contact: api-interoperability@googlegroups.com
     python index.py --debug
     ```
 You should now able to access API dev server at http://localhost:8000
+
+Note: On windows with python 3.7, if you cannot install pycurl automatically, try downloading a pre-compiled binary and install manually from https://www.lfd.uci.edu/~gohlke/pythonlibs/

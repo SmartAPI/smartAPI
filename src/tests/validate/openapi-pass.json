@@ -1,0 +1,1386 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "contact": {
+      "name": "Ma'ayan Lab",
+      "url": "http://labs.icahn.mssm.edu/maayanlab/contact/",
+      "x-id": "http://labs.icahn.mssm.edu/maayanlab/",
+      "x-role": "responsible organization"
+    },
+    "description": "Harmonizome is a web-based tool that allows users to search for genes or\nproteins and their functional terms, extracted and organized from over a\nhundred publicly available resources.\n",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "termsOfService": "http://amp.pharm.mssm.edu/Harmonizome/terms",
+    "title": "Harmonizome",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://amp.pharm.mssm.edu/Harmonizome"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Maayanlab"
+    },
+    {
+      "name": "NIHdatacommons"
+    }
+  ],
+  "paths": {
+    "/api/1.0": {
+      "get": {
+        "operationId": "getEntities",
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "entities": [
+                      {
+                        "entity": "attribute",
+                        "href": "/api/1.0/attribute"
+                      },
+                      {
+                        "entity": "gene",
+                        "href": "/api/1.0/gene"
+                      }
+                    ],
+                    "version": 1.0
+                  },
+                  "properties": {
+                    "entities": {
+                      "items": {
+                        "properties": {
+                          "entity": {
+                            "type": "string"
+                          },
+                          "href": {
+                            "type": "string"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "version": {
+                      "format": "float",
+                      "type": "number"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns a list of available data entities"
+      }
+    },
+    "/api/1.0/attribute": {
+      "get": {
+        "operationId": "attribute",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 295496,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/attribute/%26alpha%3B-bungarotoxin",
+                        "name": "\\u0026alpha;-bungarotoxin"
+                      },
+                      {
+                        "href": "/api/1.0/attribute/%26alpha%3B%26beta%3B-meATP",
+                        "name": "\\u0026alpha;\\u0026beta;-meATP"
+                      }
+                    ],
+                    "next": "/api/1.0/attribute?cursor\\u003d100",
+                    "selection": [
+                      0,
+                      100
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on attributes"
+      }
+    },
+    "/api/1.0/attribute/{endpoint}": {
+      "get": {
+        "operationId": "attribute_data",
+        "parameters": [
+          {
+            "description": "Endpoint of an attribute href",
+            "example": "%26alpha%3B-bungarotoxin",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "descriptionFromNamingAuthority": "",
+                    "geneSets": [
+                      {
+                        "href": "/api/1.0/gene_set/%26alpha%3B-bungarotoxin/Guide",
+                        "name": "\\u0026alpha;-bungarotoxin/Guide"
+                      }
+                    ],
+                    "idFromNamingAuthority": "",
+                    "name": "\\u0026alpha;-bungarotoxin",
+                    "nameFromDataset": "\\u0026alpha;-bungarotoxin",
+                    "nameFromNamingAuthority": "\\u0026alpha;-bungarotoxin",
+                    "namingAuthority": {
+                      "href": "/api/1.0/naming_authority/Guide+to+Pharmacology",
+                      "name": "Guide to Pharmacology"
+                    },
+                    "urlFromNamingAuthority": ""
+                  },
+                  "properties": {
+                    "descriptionFromNamingAuthority": {
+                      "type": "string"
+                    },
+                    "geneSets": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "idFromNamingAuthority": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "nameFromNamingAuthority": {
+                      "type": "string"
+                    },
+                    "namingAuthority": {
+                      "$ref": "#/components/schemas/names"
+                    },
+                    "urlFromNamingAuthority": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified attribute"
+      }
+    },
+    "/api/1.0/dataset": {
+      "get": {
+        "operationId": "dataset",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 114,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/dataset/Biocarta+Pathways",
+                        "name": "Biocarta Pathways"
+                      },
+                      {
+                        "href": "/api/1.0/dataset/CTD+Gene-Disease+Associations",
+                        "name": "CTD Gene-Disease Associations"
+                      }
+                    ],
+                    "next": "/api/1.0/dataset?cursor\\u003d100",
+                    "selection": [
+                      0,
+                      100
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on datasets"
+      }
+    },
+    "/api/1.0/dataset/{endpoint}": {
+      "get": {
+        "operationId": "dataset_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a dataset href",
+            "example": "Biocarta+Pathways",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "association": "protein-pathway associations",
+                    "attributeGroup": "functional term, phrase or reference",
+                    "attributeType": "pathway",
+                    "datasetGroup": "structural or functional annotations",
+                    "description": "sets of proteins participating in pathways",
+                    "geneSets": [
+                      {
+                        "href": "/api/1.0/gene_set/acetylation+and+deacetylation",
+                        "name": "acetylation and deacetylation of rela"
+                      },
+                      {
+                        "href": "/api/1.0/gene_set/actions+of+nitric+oxide",
+                        "name": "actions of nitric oxide"
+                      }
+                    ],
+                    "measurement": "association by literature curation",
+                    "name": "Biocarta Pathways",
+                    "pubMedIds": [],
+                    "resource": {
+                      "href": "/api/1.0/resource/Biocarta",
+                      "name": "Biocarta"
+                    }
+                  },
+                  "properties": {
+                    "association": {
+                      "type": "string"
+                    },
+                    "attributeGroup": {
+                      "type": "string"
+                    },
+                    "attributeType": {
+                      "type": "string"
+                    },
+                    "datasetGroup": {
+                      "type": "string"
+                    },
+                    "geneSets": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "measurement": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "resource": {
+                      "$ref": "#/components/schemas/names"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified dataset"
+      }
+    },
+    "/api/1.0/gene": {
+      "get": {
+        "operationId": "gene",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 56720,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/gene/ITGA8",
+                        "symbol": "ITGA8"
+                      },
+                      {
+                        "href": "/api/1.0/gene/ITGA9",
+                        "symbol": "ITGA9"
+                      }
+                    ],
+                    "next": "/api/1.0/gene?cursor\\u003d100",
+                    "selection": [
+                      0,
+                      100
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "$ref": "#/components/schemas/symbols"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on genes"
+      }
+    },
+    "/api/1.0/gene/{endpoint}": {
+      "get": {
+        "operationId": "gene_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a gene href",
+            "example": "ITGA9",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Display functional associations for a gene",
+            "in": "query",
+            "name": "showAssociations",
+            "schema": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "description": "This gene encodes an alpha integrin",
+                    "hgncRootFamilies": [
+                      {
+                        "href": "/api/1.0/gene_family/Integrins+%28ITG%29",
+                        "name": "Integrins (ITG)"
+                      }
+                    ],
+                    "name": "integrin, alpha 9",
+                    "ncbiEntrezGeneId": 3680,
+                    "proteins": [
+                      {
+                        "href": "/api/1.0/protein/ITA9_HUMAN",
+                        "symbol": "ITA9_HUMAN"
+                      }
+                    ],
+                    "symbol": "ITGA9",
+                    "synonyms": [
+                      "ALPHA-RLC",
+                      "RLC",
+                      "ITGA4L"
+                    ]
+                  },
+                  "properties": {
+                    "description": {
+                      "type": "string"
+                    },
+                    "hgncRootFamilies": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "ncbiEntrezGeneId": {
+                      "type": "integer"
+                    },
+                    "ncbiEntrezGeneUrl": {
+                      "type": "string"
+                    },
+                    "proteins": {
+                      "items": {
+                        "$ref": "#/components/schemas/symbols"
+                      },
+                      "type": "array"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "synonyms": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified gene",
+        "x-bte-kgs-operations": [
+          {
+            "$ref": "#/components/x-bte-kgs-operations/gene-annotation"
+          }
+        ]
+      }
+    },
+    "/api/1.0/gene_family": {
+      "get": {
+        "operationId": "gene_family",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 309,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/gene_family/Annexins+%28ANXA%29",
+                        "name": "Annexins (ANXA)"
+                      },
+                      {
+                        "href": "/api/1.0/gene_family/Butyrophilins+%28BTN%29",
+                        "name": "Butyrophilins (BTN)"
+                      }
+                    ],
+                    "next": "/api/1.0/gene_family?cursor\\u003d100",
+                    "selection": [
+                      0,
+                      100
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on gene families"
+      }
+    },
+    "/api/1.0/gene_family/{endpoint}": {
+      "get": {
+        "operationId": "gene_family_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a gene family href",
+            "example": "Annexins+%28ANXA%29",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "familyId": 404,
+                    "genes": [
+                      {
+                        "href": "/api/1.0/gene/ANXA8L1",
+                        "symbol": "ANXA8L1"
+                      },
+                      {
+                        "href": "/api/1.0/gene/ANXA1",
+                        "symbol": "ANXA1"
+                      }
+                    ],
+                    "name": "Annexins (ANXA)",
+                    "url": "http://www.genenames.org/cgi-bin/genefamilies/set/404"
+                  },
+                  "properties": {
+                    "familyId": {
+                      "type": "integer"
+                    },
+                    "genes": {
+                      "items": {
+                        "$ref": "#/components/schemas/symbols"
+                      },
+                      "type": "array"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified gene family"
+      }
+    },
+    "/api/1.0/gene_set": {
+      "get": {
+        "operationId": "gene_set",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 332715,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/gene_set/HS683/Achilles+Cell+Line",
+                        "name": "HS683/Achilles Cell Line"
+                      },
+                      {
+                        "href": "/api/1.0/gene_set/OV7/Achilles+Cell+Line",
+                        "name": "OV7/Achilles Cell Line"
+                      }
+                    ],
+                    "next": "/api/1.0/gene_set?cursor\\u003d100",
+                    "selection": [
+                      0,
+                      100
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on gene sets"
+      }
+    },
+    "/api/1.0/gene_set/{endpoint}": {
+      "get": {
+        "operationId": "gene_set_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a gene set href",
+            "example": "HS683/Achilles+Cell+Line+Gene+Essentiality+Profiles",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "associations": [
+                      {
+                        "gene": {
+                          "href": "/api/1.0/gene/CD36",
+                          "symbol": "CD36"
+                        },
+                        "standardizedValue": 1.00344,
+                        "thresholdValue": 1.0
+                      },
+                      {
+                        "gene": {
+                          "href": "/api/1.0/gene/RBM10",
+                          "symbol": "RBM10"
+                        },
+                        "standardizedValue": 1.24312,
+                        "thresholdValue": 1.0
+                      }
+                    ],
+                    "attribute": {
+                      "href": "/api/1.0/attribute/HS-683+cell",
+                      "name": "HS-683 cell"
+                    },
+                    "dataset": {
+                      "href": "/api/1.0/dataset/Achilles+Cell+Line",
+                      "name": "Achilles Cell Line Gene Essentiality Profiles"
+                    }
+                  },
+                  "properties": {
+                    "associations": {
+                      "items": {
+                        "properties": {
+                          "gene": {
+                            "$ref": "#/components/schemas/symbols"
+                          },
+                          "standardizedValue": {
+                            "type": "number"
+                          },
+                          "thresholdValue": {
+                            "type": "number"
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "attribute": {
+                      "$ref": "#/components/schemas/names"
+                    },
+                    "dataset": {
+                      "$ref": "#/components/schemas/names"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified gene set"
+      }
+    },
+    "/api/1.0/naming_authority": {
+      "get": {
+        "operationId": "naming_authority",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 89,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/naming_authority/Cell+Ontology",
+                        "name": "Cell Ontology"
+                      },
+                      {
+                        "href": "/api/1.0/naming_authority/Gene+Ontology",
+                        "name": "Gene Ontology"
+                      }
+                    ],
+                    "next": "",
+                    "selection": [
+                      0,
+                      89
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on naming authorities"
+      }
+    },
+    "/api/1.0/naming_authority/{endpoint}": {
+      "get": {
+        "operationId": "naming_authority_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a resource href",
+            "example": "Cell+Ontology",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "acronym": "CL",
+                    "description": "The Cell Ontology is designed as a structured controlled vocabulary for cell types.",
+                    "name": "Cell Ontology",
+                    "publication": "dx.doi.org/10.1186/1471-2105-12-6",
+                    "url": "http://bioportal.bioontology.org/ontologies/CL"
+                  },
+                  "properties": {
+                    "acronym": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "publication": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified resource"
+      }
+    },
+    "/api/1.0/protein": {
+      "get": {
+        "operationId": "protein",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 19673,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/protein/A1BG_HUMAN",
+                        "symbol": "A1BG_HUMAN"
+                      },
+                      {
+                        "href": "/api/1.0/protein/A1CF_HUMAN",
+                        "symbol": "A1CF_HUMAN"
+                      }
+                    ],
+                    "next": "/api/1.0/protein?cursor\\u003d100",
+                    "selection": [
+                      0,
+                      100
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "$ref": "#/components/schemas/symbols"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on proteins"
+      }
+    },
+    "/api/1.0/protein/{endpoint}": {
+      "get": {
+        "operationId": "protein_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a resource href",
+            "example": "A1BG_HUMAN",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "description": "This is a protein.",
+                    "gene": {
+                      "href": "/api/1.0/gene/A1BG",
+                      "symbol": "A1BG"
+                    },
+                    "symbol": "A1BG_HUMAN",
+                    "uniprotId": "P04217",
+                    "uniprotUrl": "http://www.uniprot.org/uniprot/P04217'"
+                  },
+                  "properties": {
+                    "description": {
+                      "type": "string"
+                    },
+                    "gene": {
+                      "$ref": "#/components/schemas/symbols"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "uniprotId": {
+                      "type": "string"
+                    },
+                    "uniprotUrl": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified resource"
+      }
+    },
+    "/api/1.0/resource": {
+      "get": {
+        "operationId": "resource",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/cursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "count": 66,
+                    "entities": [
+                      {
+                        "href": "/api/1.0/resource/Achilles",
+                        "name": "Achilles"
+                      },
+                      {
+                        "href": "/api/1.0/resource/Biocarta",
+                        "name": "Biocarta"
+                      }
+                    ],
+                    "next": "",
+                    "selection": [
+                      0,
+                      66
+                    ]
+                  },
+                  "properties": {
+                    "count": {
+                      "type": "integer"
+                    },
+                    "entities": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "next": {
+                      "type": "string"
+                    },
+                    "selection": {
+                      "$ref": "#/components/schemas/selection"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns information on resources"
+      }
+    },
+    "/api/1.0/resource/{endpoint}": {
+      "get": {
+        "operationId": "resource_data",
+        "parameters": [
+          {
+            "description": "Endpoint of a resource href",
+            "example": "Achilles",
+            "in": "path",
+            "name": "endpoint",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "example": {
+                    "acronym": "",
+                    "datasets": [
+                      {
+                        "href": "/api/1.0/dataset/Achilles+Cell+Line",
+                        "name": "Achilles Cell Line"
+                      }
+                    ],
+                    "description": "This is a resource.",
+                    "name": "Achilles",
+                    "pubMedIds": [
+                      25984343,
+                      20829323,
+                      21746896
+                    ],
+                    "url": "http://www.broadinstitute.org/achilles"
+                  },
+                  "properties": {
+                    "acronym": {
+                      "type": "string"
+                    },
+                    "datasets": {
+                      "items": {
+                        "$ref": "#/components/schemas/names"
+                      },
+                      "type": "array"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "pubMedIds": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful response"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "5XX": {
+            "$ref": "#/components/responses/5XX"
+          }
+        },
+        "summary": "Returns data from a specified resource"
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "cursor": {
+        "description": "See the selection of data starting here",
+        "in": "query",
+        "name": "cursor",
+        "schema": {
+          "default": 0,
+          "type": "integer"
+        }
+      }
+    },
+    "responses": {
+      "400": {
+        "description": "Bad request'"
+      },
+      "404": {
+        "description": "Page not found"
+      },
+      "5XX": {
+        "description": "Unexpected error"
+      }
+    },
+    "schemas": {
+      "names": {
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "selection": {
+        "items": {
+          "type": "integer"
+        },
+        "type": "array"
+      },
+      "symbols": {
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "x-bte-kgs-operations": {
+      "gene-annotation": [
+        {
+          "inputs": [
+            {
+              "id": "SYMBOL",
+              "semantic": "Gene"
+            }
+          ],
+          "method": "get",
+          "outputs": [
+            {
+              "id": "NCBIGene",
+              "semantic": "Gene"
+            }
+          ],
+          "parameters": {
+            "endpoint": "{inputs[0]}"
+          },
+          "path": "/query",
+          "predicate": "equals",
+          "response_mapping": {
+            "$ref": "#/components/x-bte-response-mapping/gene-annotation"
+          },
+          "source": "Harmonizome",
+          "supportBatch": false
+        }
+      ]
+    },
+    "x-bte-response-mapping": {
+      "gene-annotation": {
+        "NCBIGene": "ncbiEntrezGeneId"
+      }
+    }
+  },
+  "x-externalResources": [
+    {
+      "x-type": "api documentation",
+      "x-url": "https://github.com/MaayanLab/smartAPIs/blob/master/harmonizome_smartapi.yml"
+    },
+    {
+      "x-description": "The harmonizome: a collection of processed datasets gathered to serve and \nmine knowledge about genes and proteins\n",
+      "x-type": "publication",
+      "x-url": "https://academic.oup.com/database/article/doi/10.1093/database/baw100/2630482"
+    }
+  ]
+}

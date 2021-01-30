@@ -1,57 +1,69 @@
-'''
-    Biothings ESQueryHandler Type Tester
-'''
 import json
 import os
 
 import pytest
 import yaml
 from biothings.tests.web import BiothingsTestCase
+from controller import NotFoundError, SmartAPI
+from model import APIDoc
 from tornado.escape import json_encode
 from tornado.web import create_signed_value
-from controller import SmartAPI
-from utils.indices import refresh
-
-VALID_V3_URL = 'https://raw.githubusercontent.com/schurerlab/'\
-    'smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
-
-API_ID = '1ad2cba40cb25cd70d00aa8fba9cfaf3'
-
-INVALID_V3_URL = 'https://raw.githubusercontent.com/marcodarko/api_exmaple/master/api.yml'
+from utils import decoder
+from utils.indices import refresh, reset
 
 MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
-    'translator-api-registry/master/mygene.info/openapi_full.yml'
+    'translator-api-registry/master/mygene.info/openapi_minimum.yml'
+MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
+    'translator-api-registry/master/mychem.info/openapi_full.yml'
 
 MYGENE_ID = '59dce17363dce279d389100834e43648'
+MYCHEM_ID = '8f08d1446e0bb9c2b323713ce83e2bd3'
 
-USER = {"github_username": "marcodarko"}
 
 dirname = os.path.dirname(__file__)
 
 # prepare data to be saved in tests
-with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
-    MYGENE_DATA = json.load(file)
+with open(os.path.join(dirname, 'mygene.es.json'), 'r') as file:
+    MYGENE_ES = json.load(file)
 
-@pytest.fixture(scope="module", autouse=True)
-def setup():
-    """
-    setup state called once for the class
-    """
-    for _id in [MYGENE_ID, API_ID]:
-        if SmartAPI.exists(_id):
-            doc = SmartAPI.get_api_by_id(_id)
-            doc.delete()
+with open(os.path.join(dirname, 'mychem.es.json'), 'r') as file:
+    MYCHEM_ES = json.load(file)
 
-class SmartAPITest(BiothingsTestCase):
-    '''
-    SmartAPI metadata instance controller tests
-    '''
+with open(os.path.join(dirname, 'mygene.yml'), 'rb') as file:
+    MYGENE_RAW = file.read()
+
+with open(os.path.join(dirname, 'mychem.yml'), 'rb') as file:
+    MYCHEM_RAW = file.read()
+
+
+MYGENE_ID = MYGENE_ES.pop("_id")
+MYCHEM_ID = MYCHEM_ES.pop("_id")
+
+
+@pytest.fixture(autouse=True, scope='module')
+def setup_fixture():
+    """
+    Index 2 documents.
+    """
+    reset()
+
+    # save initial docs with paths already transformed
+    mygene = APIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
+    mygene._raw = decoder.compress(MYGENE_RAW)
+    mygene.save()
+
+    mychem = APIDoc(meta={'id': MYCHEM_ID}, **MYCHEM_ES)
+    mychem._raw = decoder.compress(MYCHEM_RAW)
+    mychem.save()
+
+    # refresh index
+    refresh()
+
+
+class SmartAPIEndpoint(BiothingsTestCase):
 
     @classmethod
     def cookie_header(cls, username):
-        '''
-        request header
-        '''
         cookie_name, cookie_value = 'user', {'login': username}
         secure_cookie = create_signed_value(
             cls.settings.COOKIE_SECRET, cookie_name,
@@ -60,390 +72,190 @@ class SmartAPITest(BiothingsTestCase):
 
     @property
     def auth_user(self):
-        '''
-        authorized user
-        '''
-        return self.cookie_header('marcodarko')
+        return self.cookie_header('tester')
 
     @property
     def evil_user(self):
-        '''
-        unauthorized user
-        '''
         return self.cookie_header('eviluser01')
 
-    # ****** VALIDATOR *******
-    def test_001_validate_valid_url(self):
+
+class TestValidate(SmartAPIEndpoint):
+
+    # TODO
+    # URL TEST MOVES TO LOCAL SERVER
+
+    def test_url_valid(self):
         '''
         [POST] with url
         '''
+        VALID_V3_URL = \
+            'https://raw.githubusercontent.com/schurerlab/'\
+            'smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
+
         self.request(
-            "/api/validate/",
-            method='POST',
-            data={'url': VALID_V3_URL})
+            "/api/validate/", method='POST',
+            data={'url': VALID_V3_URL}
+        )
 
-    def test_002_validate_invalid_url(self):
+    def test_url_invalid(self):
         '''
-        [POST] with url invalid data
+        [POST] with url of invalid data
         '''
+        INVALID_V3_URL = \
+            'https://raw.githubusercontent.com/marcodarko/'\
+            'api_exmaple/master/api.yml'
+
         self.request(
-            "/api/validate/",
-            method='POST',
-            data={'url': INVALID_V3_URL},
-            expect=400)
+            "/api/validate/", method='POST',
+            data={'url': INVALID_V3_URL}, expect=400
+        )
 
-    def test_003_validate_body_json(self):
+    def test_json(self):
         '''
-        [POST] with body JSON
+        [POST] with JSON body
         '''
-        headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-        self.request(
-            "/api/validate/",
-            method='POST',
-            json=MYGENE_DATA,
-            headers=headers,
-            expect=200)
-
-    def test_004_validate_body_yaml(self):
-        '''
-        [POST] with body YAML
-        '''
-        yaml_doc = """
-            openapi: '3.0.0'
-            info:
-            version: 1.0.0
-            title: AEOLUsrs API
-            description: >-
-                Documentation of the A curated and standardized adverse drug event resource
-                to accelerate drug safety research (AEOLUS) web query services. Learn more
-                about the underlying dataset [HERE](https://www.nature.com/articles/sdata201626)
-            termsOfService: 'http://tsing.cm/terms/'
-            contact:
-                name: Juan M. Banda
-                x-role: responsible developer
-                email: jmbanda@stanford.edu
-                x-id: 'http://orcid.org/0000-0001-8499-824X'
-            x-maturity: development
-            x-implementationLanguage: PHP
-            externalDocs:
-            description: Find more info here
-            url: 'http://ec2-54-186-230-27.us-west-2.compute.amazonaws.com:8080/swagger-ui.html'
-            x-externalResources:
-            - x-url: 'http://ec2-54-186-230-27.us-west-2.compute.amazonaws.com:8080/swagger-ui.html'
-                x-type: api documentation
-            - x-url: 'https://doi.org/10.1038/sdata.2016.26'
-                x-type: publication
-                x-description: 'A curated and standardized adverse drug event resource to accelerate drug safety research'
-            - x-url: 'https://twitter.com/drjmbanda'
-                x-type: social media
-            servers:
-            - url: 'http://ec2-54-186-230-27.us-west-2.compute.amazonaws.com:8080/v3'
-                description: Development server
-                x-location: 'California, USA'
-                variables:
-                port: {
-                    "enum": ['8080'],
-                    "default": '8080'
-                    }
-            tags:
-            - x-id: 'http://purl.bioontology.org/ontology/MESH/D016907'
-                name: Adverse Drug Reaction Reporting Systems
-            """
-
         headers = {'Content-type': 'application/yaml', 'Accept': 'text/plain'}
-        self.request(
-            "/api/validate/",
-            method='POST',
-            json=MYGENE_DATA,
-            headers=headers,
-            expect=200)
-
-    # ****** METADATA *******
-
-    def test_101_not_authorized(self):
-        '''
-        [CREATE] Unauthorized
-        '''
-        self.request(
-            "/api/metadata/",
-            method='POST',
-            data={'url': VALID_V3_URL},
-            expect=401)
-
-    def test_102_dryrun(self):
-        '''
-        [CREATE] save doc
-        '''
-        body = {
-            'url': VALID_V3_URL,
-            'dryrun': True
-        }
-        res = self.request(
-            "/api/metadata/",
-            method='POST',
-            data=body,
-            headers=self.auth_user).json()
-        assert res.get('success')
-        assert res.get('details') == '[Dryrun] Valid v3 Metadata'
-
-    def test_103_create(self):
-        '''
-        [CREATE] save doc
-        '''
-        res = self.request(
-            "/api/metadata/",
-            method='POST',
-            data={'url': VALID_V3_URL},
-            headers=self.auth_user).json()
-        refresh()
-        assert res.get('success', False)
-        assert SmartAPI.exists(API_ID)
-
-    def test_104_refuse_overwrite(self):
-        '''
-        [CREATE] Disallow overwriting of docs not owned
-        '''
-        refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
-        body = {
-            'url': MYGENE_URL,
-            'overwrite': True
-        }
-        self.request(
-            "/api/metadata/",
-            method='POST',
-            data=body,
-            headers=self.evil_user,
-            expect=401)
-
-    def test_105_allow_overwrite(self):
-        '''
-        [CREATE] Allow overwriting of doc
-        '''
-        body = {
-            'url': VALID_V3_URL,
-            'overwrite': True
-        }
-        res = self.request(
-            "/api/metadata/",
-            method='POST',
-            data=body,
-            headers=self.auth_user).json()
-        assert res.get('success')
+        self.request("/api/validate/", method='POST', json=decoder.to_dict(MYGENE_RAW))
+        self.request("/api/validate/", method='POST', data=MYGENE_RAW, headers=headers)
+        self.request("/api/validate/", method='POST', data=MYGENE_RAW)
+        with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
+            self.request("/api/validate/", method='POST', data=file.read())
+        with open(os.path.join(dirname, './validate/swagger-pass.json'), 'rb') as file:
+            self.request("/api/validate/", method='POST', data=file.read())
+        with open(os.path.join(dirname, './validate/x-translator-pass.json'), 'rb') as file:
+            self.request("/api/validate/", method='POST', data=file.read())
+        with open(os.path.join(dirname, './validate/x-translator-fail-1.yml'), 'rb') as file:
+            self.request("/api/validate/", method='POST', data=file.read(), expect=400)
+        with open(os.path.join(dirname, './validate/x-translator-fail-2.yml'), 'rb') as file:
+            self.request("/api/validate/", method='POST', data=file.read(), expect=400)
 
 
-    def test_106_get_one(self):
+class TestSuggestion(SmartAPIEndpoint):
+
+    def test_suggestion(self):
+        '''
+        [GET] get aggregations for field
+        '''
+        self.request("/api/suggestion", expect=400)
+        res = self.request("/api/suggestion?field=tags.name").json()
+        assert "annotation" in res
+        assert res["annotation"] == 2
+        assert "translator" in res
+        assert res["translator"] == 2
+
+
+class TestCRUD(SmartAPIEndpoint):
+
+    def test_get_one(self):
         '''
         [READ] Get one doc by id
         '''
-        refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
-
-        res = self.request(
-            "/api/metadata/"+MYGENE_ID,
-            method='GET').json()
+        res = self.request("/api/metadata/" + MYGENE_ID).json()
         assert res.get('info', {}).get('title', '') == "MyGene.info API"
 
-    def test_107_get_one_format(self):
-        '''
-        [READ] Get one with format
-        '''
-        refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.etag = 'I'
-            doc.save()
-            refresh()
+        res = self.request("/api/metadata/" + MYCHEM_ID).json()
+        assert res.get('info', {}).get('title', '') == "MyChem.info API"
 
-        res = self.request(
-            "/api/metadata/"+MYGENE_ID+"?format=yaml",
-            method='GET')
+        res = self.request("/api/metadata/" + MYGENE_ID + "?format=yaml")
         yaml.load(res.text, Loader=yaml.SafeLoader)
 
-    def test_108_get_all(self):
+    def test_get_all(self):
         '''
         [READ] Get all
         '''
         res = self.request("/api/metadata/", method='GET').json()
-        assert len(res)
+        assert len(res) == 2
 
-    def test_109_get_all_with_fields(self):
-        '''
-        [READ] Get all docs with specific fields
-        '''
-        refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
-
-        res = self.request("/api/metadata?fields=info,_meta", method='GET').json()
-        assert res[0].get('info', {}).get('title', '') == 'MyGene.info API'
-        assert res[0].get('_meta', {}).get('github_username', '') == 'marcodarko'
-        assert not res[0].get('paths', {})
-
-    def test_110_get_all_from(self):
-        '''
-        [READ] Get all docs from
-        '''
-        res = self.request("/api/metadata?_from=1", method='GET').json()
+        res = self.request("/api/metadata?from_=1", method='GET').json()
         assert len(res) == 1
-
-    def test_111_get_all_size(self):
-        '''
-        [READ] Get specific size response
-        '''
-        refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
 
         res = self.request("/api/metadata?size=1", method='GET').json()
         assert len(res) == 1
 
-    def test_112_update_not_allowed(self):
-        '''
-        [UPDATE] Unauthorized
-        '''
-        refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
+    def test_post(self):
+
+        _ID = '1ad2cba40cb25cd70d00aa8fba9cfaf3'
+        VALID_V3_URL = \
+            'https://raw.githubusercontent.com/schurerlab/'\
+            'smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
+
+        try:
+            smartapi = SmartAPI.get(_ID)
+            smartapi.delete()
             refresh()
+        except NotFoundError:
+            pass
 
-        body = {
-            'slug': 'lincs_slug'
-        }
-        self.request(
-            "/api/metadata/"+MYGENE_ID,
-            method='PUT',
-            data=body,
-            headers=self.evil_user,
-            expect=401)
-
-    def test_113_update(self):
-        '''
-        [UPDATE]
-        '''
+        self.request("/api/metadata/", method='POST', data={'url': VALID_V3_URL}, expect=401)
+        self.request("/api/metadata/", method='POST', data={'url': MYGENE_URL}, headers=self.auth_user, expect=409)
+        self.request("/api/metadata/", method='POST', headers=self.auth_user, expect=400)
+        self.request("/api/metadata/", method='POST', data={'url': "http://invalidhost/file"}, headers=self.auth_user, expect=400)
+        self.request("/api/metadata/", method='POST', data={'url': VALID_V3_URL, 'dryrun': True}, headers=self.auth_user)
         refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
-
-        body = {
-            'slug': 'lincs_slug'
-        }
-        res = self.request(
-            "/api/metadata/"+MYGENE_ID,
-            method='PUT',
-            data=body,
-            headers=self.auth_user).json()
-        assert res.get('success', False)
-        assert res.get('details', '') == MYGENE_ID
-
-    def test_114_update_refresh(self):
-        '''
-        [UPDATE] refresh doc by registered url
-        '''
+        assert not SmartAPI.exists(_ID)
+        self.request("/api/metadata/", method='POST', data={'url': VALID_V3_URL}, headers=self.auth_user)
         refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
+        assert SmartAPI.exists(_ID)
 
-        res = self.request(
-            "/api/metadata/"+MYGENE_ID,
-            method='PUT',
-            headers=self.auth_user).json()
-        assert res.get('success', False)
+        try:
+            smartapi = SmartAPI.get(_ID)
+            smartapi.delete()
+        except NotFoundError:
+            pass
 
-    def test_115_delete_not_allowed(self):
-        '''
-        [DELETE] Unauthorized
-        '''
+    def test_update_slug(self):
+        mygene = SmartAPI.get(MYGENE_ID)
+        assert mygene.slug == "mygene"
+
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygeeni"}, expect=401)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygeeni"}, headers=self.evil_user, expect=403)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "my"}, headers=self.auth_user, expect=400)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "www"}, headers=self.auth_user, expect=400)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "MYGENE"}, headers=self.auth_user, expect=400)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygene!!"}, headers=self.auth_user, expect=400)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygeeni"}, headers=self.auth_user)
+
         refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
+        assert not SmartAPI.find("mygene")
+        assert SmartAPI.find("mygeeni")
 
-        self.request(
-            "/api/metadata/"+MYGENE_ID,
-            method='DELETE',
-            headers=self.evil_user,
-            expect=401)
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": ""}, headers=self.auth_user)
 
-    def test_116_delete(self):
-        '''
-        [DELETE]
-        '''
         refresh()
-        if not SmartAPI.exists(MYGENE_ID):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
+        assert not SmartAPI.find("mygeeni")
+        assert not SmartAPI.find("mygene")
 
-        res = self.request(
-            "/api/metadata/"+MYGENE_ID,
-            method='DELETE',
-            headers=self.auth_user).json()
-        assert res.get('success')
-
-    # ****** SUGGESTION *******
-
-    def test_201_suggestion(self):
-        '''
-        [GET] get aggregations for field
-        '''
+        self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygene"}, headers=self.auth_user)
         refresh()
-        if not SmartAPI.exists(MYGENE_URL, '_meta.url'):
-            doc = SmartAPI.from_dict(MYGENE_DATA)
-            doc.url = MYGENE_URL
-            doc.username = 'marcodarko'
-            doc.save()
-            refresh()
+        assert not SmartAPI.find("mygeeni")
+        assert SmartAPI.find("mygene")
 
-        res = self.request(
-            "/api/suggestion?field=tags.name",
-            method='GET',
-            headers=self.auth_user).json()
-        assert len(res.get('aggregations', {}).get('field_values', {}).get('buckets', [])) >= 1
+        # teardown
+        refresh()
+        if not SmartAPI.find("mygene"):
+            mygene = APIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
+            mygene._raw = decoder.compress(MYGENE_RAW)
+            mygene.save()
 
+    def test_update_doc(self):
+        pass  # TODO
 
-def teardown_module():
-    """
-    teardown any state that was previously setup.
-    called once for the class
-    """
-    for _id in [MYGENE_ID, API_ID]:
-        if SmartAPI.exists(_id):
-            doc = SmartAPI.get_api_by_id(_id)
-            doc.delete()
+    def test_delete(self):
+
+        # setup
+        assert SmartAPI.exists(MYGENE_ID)
+
+        self.request("/api/metadata/" + MYGENE_ID, method='DELETE', expect=401)
+        self.request("/api/metadata/" + MYGENE_ID, method='DELETE', headers=self.evil_user, expect=403)
+        self.request("/api/metadata/" + MYGENE_ID, method='DELETE', headers=self.auth_user)
+
+        refresh()
+        assert not SmartAPI.exists(MYGENE_ID)
+
+        # teardown
+        refresh()
+        if not SmartAPI.exists(MYGENE_ID):  # recover the deleted file
+            mygene = APIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
+            mygene._raw = decoder.compress(MYGENE_RAW)
+            mygene.save()
+        refresh()

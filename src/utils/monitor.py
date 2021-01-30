@@ -1,21 +1,21 @@
-'''
+"""
     API Uptime Monitor
 
-    - Status: Good, Bad, Incompatible, Unknown
+    Status:
+        Good,
+        Bad,
+        Incompatible,
+        Unknown
 
-    - Run this file directly to perform status check
-'''
+"""
 
 import logging
-from datetime import datetime
 
 import requests
-from elasticsearch_dsl.connections import connections
-from model import APIDoc, APIStatus
+
 # pylint:disable=import-error, ungrouped-imports
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-connections.create_connection(hosts=['localhost'])
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
 
 
@@ -230,56 +230,3 @@ class Endpoint:
 
     def check_response_status(self, response):
         return response.status_code
-
-
-def update_uptime_status():
-    """
-    Perform Periodic Update to Uptime Status in ES
-    """
-    logger = logging.getLogger("utils.uptime.update")
-    logger.info("Start uptime check...")
-
-    def check_endpoint_status(doc):
-        api = API(doc)
-        api.check_api_status()
-        return api.api_status
-
-    def check_url_status(url):
-        request = requests.head(url)
-        return request.status_code
-
-    search = APIDoc.search()
-
-    total = search.count()
-    result = {}
-
-    logger.info("Found %s documents", total)
-
-    for index, hit in enumerate(search.scan()):
-
-        doc = hit.to_dict()
-        doc['_id'] = hit.meta.id
-
-        status = check_endpoint_status(doc)
-        url_status = check_url_status(doc['_meta']['url'])
-
-        logger.info("[%s/%s] %s", index + 1, total, hit.meta.id)
-
-        if APIStatus.exists(hit.meta.id):
-            doc = APIStatus.get(hit.meta.id)
-            doc.update(uptime_status=status) 
-            doc.update(uptime_ts=datetime.utcnow())
-            doc.update(url_status=url_status)
-        else:
-            data = {
-                "uptime_status": status,
-                "uptime_ts": datetime.utcnow(),
-                "url_status": url_status
-            }
-            doc = APIStatus(meta={'id': hit.meta.id}, ** data)
-            doc.save()
-
-        result[status] = result.get(status, 0) + 1
-
-    logger.info("Uptime updated. %s", result)
-

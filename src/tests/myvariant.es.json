@@ -1,0 +1,254 @@
+{
+    "_id": "94cb5d61356b04e0be1c51c70945918b",
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0",
+        "title": "MyVariant.info API",
+        "description": "Documentation of the MyVariant.info Variant Query web services. Learn more about [MyVariant.info](http://myvariant.info/)",
+        "termsOfService": "http://myvariant.info/terms/",
+        "contact": {
+            "name": "Chunlei Wu",
+            "x-role": "responsible developer",
+            "email": "help@myvariant.info",
+            "x-id": "https://github.com/newgene"
+        },
+        "x-translator": {
+            "component": "KP",
+            "team": [
+                "Service Provider"
+            ]
+        }
+    },
+    "servers": [
+        {
+            "url": "http://myvariant.info/v1",
+            "description": "Production server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "variant"
+        },
+        {
+            "name": "annotation"
+        },
+        {
+            "name": "query"
+        },
+        {
+            "name": "translator"
+        }
+    ],
+    "paths": [
+        {
+            "path": "/query",
+            "pathitem": {
+                "get": {
+                    "summary": "Make variant query and return matching variant hits",
+                    "parameters": [
+                        {
+                            "name": "q",
+                            "in": "query",
+                            "description": "Query string. Examples \"rs752396467\", \"possibly_damaging\", \"CDK7\".",
+                            "required": true,
+                            "x-valueType": [
+                                "http://identifiers.org/hgnc.symbol/",
+                                "http://identifiers.org/dbsnp/",
+                                "http://identifiers.org/ensembl.gene/",
+                                "http://identifiers.org/ensembl.transcript/",
+                                "http://identifiers.org/ensembl.protein/",
+                                "http://identifiers.org/ccds/",
+                                "http://identifiers.org/uniprot/",
+                                "http://identifiers.org/clinvar/",
+                                "http://identifiers.org/omim/",
+                                "http://identifiers.org/efo/",
+                                "http://identifiers.org/orphanet/",
+                                "http://identifiers.org/hgnc/",
+                                "http://identifiers.org/pubmed/",
+                                "http://identifiers.org/refseq/",
+                                "http://identifiers.org/clinicalsignificance/"
+                            ],
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "A query response object with \"hits\" property",
+                            "x-responseValueType": [
+                                {
+                                    "path": "_id",
+                                    "valueType": "http://identifiers.org/hgvs/"
+                                },
+                                {
+                                    "path": "cadd.gene.genename",
+                                    "valueType": "http://identifiers.org/hgnc.symbol/"
+                                },
+                                {
+                                    "path": "clinvar.rsid",
+                                    "valueType": "http://identifiers.org/dbsnp/"
+                                },
+                                {
+                                    "path": "cadd.gene.gene_id",
+                                    "valueType": "http://identifiers.org/ensembl.gene/"
+                                },
+                                {
+                                    "path": "cadd.gene.feature_id",
+                                    "valueType": "http://identifiers.org/ensembl.transcript/"
+                                },
+                                {
+                                    "path": "cadd.gene.ccds_id",
+                                    "valueType": "http://identifiers.org/ccds/"
+                                },
+                                {
+                                    "path": "clinvar.uniprot",
+                                    "valueType": "http://identifiers.org/uniprot/"
+                                },
+                                {
+                                    "path": "clinvar.omim",
+                                    "valueType": "http://identifiers.org/omim/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.accession",
+                                    "valueType": "http://identifiers.org/clinvar/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.conditions.identifiers.omim",
+                                    "valueType": "http://identifiers.org/omim/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.conditions.identifiers.efo",
+                                    "valueType": "http://identifiers.org/efo/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.conditions.identifiers.orphanet",
+                                    "valueType": "http://identifiers.org/orphanet/"
+                                },
+                                {
+                                    "path": "clinvar.gene.id",
+                                    "valueType": "http://identifiers.org/hgnc/"
+                                },
+                                {
+                                    "path": "dbnsfp.ensembl.proteinid",
+                                    "valueType": "http://identifiers.org/ensembl.protein/"
+                                },
+                                {
+                                    "path": "docm.pubmed_id",
+                                    "valueType": "http://identifiers.org/pubmed/"
+                                },
+                                {
+                                    "path": "evs.gene.accession",
+                                    "valueType": "http://identifiers.org/refseq/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.clinical_significance",
+                                    "valueType": "http://identifiers.org/clinicalsignificance/"
+                                }
+                            ],
+                            "x-JSONLDContext": "https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/jsonld_context/myvariant_context.json"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "path": "/variant/{variantid}",
+            "pathitem": {
+                "get": {
+                    "summary": "For a given variant id, return the matching variant object",
+                    "parameters": [
+                        {
+                            "name": "variantid",
+                            "in": "path",
+                            "description": "Variant HGVS ID, dbSNP ID",
+                            "required": true,
+                            "x-valueType": [
+                                "http://identifiers.org/hgvs/",
+                                "http://identifiers.org/dbsnp/"
+                            ],
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "A variant object",
+                            "x-responseValueType": [
+                                {
+                                    "path": "cadd.gene.genename",
+                                    "valueType": "http://identifiers.org/hgnc.symbol/"
+                                },
+                                {
+                                    "path": "clinvar.rsid",
+                                    "valueType": "http://identifiers.org/dbsnp/"
+                                },
+                                {
+                                    "path": "cadd.gene.gene_id",
+                                    "valueType": "http://identifiers.org/ensembl.gene/"
+                                },
+                                {
+                                    "path": "cadd.gene.feature_id",
+                                    "valueType": "http://identifiers.org/ensembl.transcript/"
+                                },
+                                {
+                                    "path": "cadd.gene.ccds_id",
+                                    "valueType": "http://identifiers.org/ccds/"
+                                },
+                                {
+                                    "path": "clinvar.uniprot",
+                                    "valueType": "http://identifiers.org/uniprot/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.accession",
+                                    "valueType": "http://identifiers.org/clinvar/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.conditions.identifiers.omim",
+                                    "valueType": "http://identifiers.org/omim/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.conditions.identifiers.efo",
+                                    "valueType": "http://identifiers.org/efo/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.conditions.identifiers.orphanet",
+                                    "valueType": "http://identifiers.org/orphanet/"
+                                },
+                                {
+                                    "path": "clinvar.gene.id",
+                                    "valueType": "http://identifiers.org/hgnc/"
+                                },
+                                {
+                                    "path": "dbnsfp.ensembl.proteinid",
+                                    "valueType": "http://identifiers.org/ensembl.protein/"
+                                },
+                                {
+                                    "path": "docm.pubmed_id",
+                                    "valueType": "http://identifiers.org/pubmed/"
+                                },
+                                {
+                                    "path": "evs.gene.accession",
+                                    "valueType": "http://identifiers.org/refseq/"
+                                },
+                                {
+                                    "path": "clinvar.rcv.clinical_significance",
+                                    "valueType": "http://identifiers.org/clinicalsignificance/"
+                                }
+                            ],
+                            "x-JSONLDContext": "https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/myvariant.info/jsonld_context/myvariant_context.json"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "_meta": {
+        "url": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/myvariant.info/openapi_minimum.yml",
+        "timestamp": "2021-01-30T02:39:53.088361+00:00",
+        "username": "tester",
+        "slug": "myvariant"
+    },
+    "_raw": "H4sIAPnGFGAC/+1X3W/bNhB/919B+EUbEElpuzWoHoYFyT66tmkKB9nDMAQUdZbZSaRCUoqNYf/7jhLlWI5kyA6CAYP9YNjH4++O932yAEELHhHvTXAanHoTLuYymhBSgdJcCjx4ZcmEGG4yiMin1S1VnAoTWE5yfv0ezxLQTPHC1Bd+8JFCyKVkZQ7CUEslck7MArZvuz/kSwlqRR4gJhpUxRnogHwEqgTJpQJCY1maGvSPLsCf3yyMKaIwzFfVBjn81uoLKtef57MGMCL9nDVXiOxMoqrMRLUYQXO8cbEoRQac/F7WxKWvpLWAAl1IoXmcAT68gkwWoGoOyCnPUBJkxY9dOQ6AJ2hPq4hGTVJuFmUcMJmHAh5SEGDNvPSNokJn1EjVKIMMKA8tGZEP1zXFAM2bM0J84l5IrpWseALKUifWjuhBy+WTUmVO7lMDVK+8GqnjQg+xkpLVnmuQvImhqYNrrONQNihUCNm4e4N4b1278f/xdZOCmkUNGdZMzYtSMO3TdJnnFOnE+0T/glZgg4jCEvSEKW2MUMMWXKRrjgU32nMgBVUo1zhbtDZzuq0phHDxqGv76Qvr9tOErDYKBQfkpyXNiww0mSp99v3rN+/efvf2bHpCpoXUNlJWdwnNaYq8lnhx+eFsGmzAKbgvuYLEmqeEjYOlX9GshJtVAVFHvL/2J7pcGD7n+MJAqjRcpIIFepXHMgu9kXeSWItiNDcIDXmcBTZk975U+7+26t5XCyUNcDH6HmOJHs1cCm7xx4NnXGC8jeaXOc/HvxgTczSwKhZUwHjNbYCMZi7KOIdkNLuCuYb7vYzIGc00TwWSGRWsG1GaLbCodkPf2GRwmTdp86cuybCR497r01MvGkpm79yVkfYmkfFXYIY8YFEmU1tApgTjASu7WXmdhGxv3A4lpi1rEbnjSYeOHXV9YYdrqqcR2+AxmiR1xtVftn4dAj9cGpyUJqoD7P0HqN9fRvr0P8g6O+vOtpQ5UGwOzxO0o1Zti7O15iBZvUWq6wxXmvbHHqppXXhbmfbH7q1nW0HEqoAyHOZ0MxLsa5mBCvtUCM5uCbeJrYMOyEs+bEAmuFlvv3jrKffjX+nq/wEvHeocXdl1fB9WzXoaTYOdxELPi2Crsz8nV4eGAydPsjxoetlBWTrQBhtwqHRjpGcE+0Dj7IkC1zLvNnvmYcm1s/Mu/d9mn68+Xl7gXgRL021yPSvM1cX5zcy/oSIFbMwQPs75Pu6X2DVTji17FcaZjMOcapzIt1eRr1qKLLljjcTH05YSWAbUwwvdQfi3+8GTf7wd68PPUhFKUl6BWO8IPDlp9we7mD7ZIZp5YMwWsdZha5uwvhu5TLR78K+/3M7I+8sTzI/Z1TX+erEdodLPWA5ecCrrN/9ek9dxUjpOSi8zKR0HmuNAcxxo/o8DjfcfTjTe5F81QJVnhRcAAA=="
+}

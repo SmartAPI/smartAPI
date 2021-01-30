@@ -1,86 +1,62 @@
 """
-SmartAPI DSL Document tests
+SmartAPI Database Persistence Model Tests
 """
 import json
 import os
 
 import pytest
 from elasticsearch import Elasticsearch
+
 from model import APIDoc
 from utils.indices import refresh
 
-ES_INDEX_NAME = 'smartapi_oas3'
-MYDISEASE_ID = 'f307760715d91908d0ae6de7f0810b22'
-
 client = Elasticsearch()
-
 dirname = os.path.dirname(__file__)
 
 # prepare data to be saved in tests
-with open(os.path.join(dirname, 'mydisease.json'), 'r') as file:
-    MYDISEASE_DATA = json.load(file)
+with open(os.path.join(dirname, 'mygene.es.json'), 'r') as file:
+    MYGENE = json.load(file)
+    MYGENE.pop("_id")
+
+ES_INDEX_NAME = 'smartapi_docs'
+
 
 @pytest.fixture(autouse=True, scope='module')
 def setup_fixture():
-    """
-    Get data from test urls
-    """
-    if client.exists(ES_INDEX_NAME, MYDISEASE_ID):
-        client.delete(ES_INDEX_NAME, MYDISEASE_ID)
-
-def test_001_save():
-    """
-    Save doc
-    """
-    assert not client.exists(ES_INDEX_NAME, MYDISEASE_ID)
-    new_doc = APIDoc(**MYDISEASE_DATA)
-    new_doc.save()
+    client.delete(ES_INDEX_NAME, "doc0", ignore=404)
+    client.delete(ES_INDEX_NAME, "doc1", ignore=404)
+    client.create(ES_INDEX_NAME, "doc1", MYGENE)
     refresh()
-    assert client.exists(ES_INDEX_NAME, MYDISEASE_ID)
 
-def test_002_doc_exists():
-    """
-    Existing ID exists
-    """
-    assert APIDoc.exists(MYDISEASE_ID)
 
-def test_003_doc_does_not_exist():
-    """
-    Fake ID does not exists
-    """
-    assert not APIDoc.exists('id123779328749279')
+def test_exists():
+    # info.title : "MyDisease.info API"
+    assert not APIDoc.exists('doc0')
+    assert APIDoc.exists('doc1')
+    assert APIDoc.exists('3.0.0', 'openapi')
+    assert APIDoc.exists('mygene', '_meta.slug')
+    assert not APIDoc.exists('mygene', 'info.title')
+    assert APIDoc.exists('mygene.info', 'info.title')
+    assert APIDoc.exists('mygene.info api', 'info.title')
+    assert APIDoc.exists('api', 'info.title')
+    assert not APIDoc.exists('mygene', 'info.title.raw')
+    assert not APIDoc.exists('mygene.info', 'info.title.raw')
+    assert not APIDoc.exists('mygene.info api', 'info.title.raw')
+    assert not APIDoc.exists('api', 'info.title.raw')
+    assert APIDoc.exists('MyGene.info API', 'info.title.raw')
+    assert APIDoc.exists('mygene.info', 'info.description')
 
-def test_004_slug_available():
-    """
-    Slug name is available
-    """
-    assert not APIDoc.exists('new_slug', field="._meta.slug")
 
-def test_005_tag_aggregation():
-    """
-    Confirm aggregations exists for field, eg. tags
-    """
-    res = APIDoc.aggregate(field='info.contact.name', size=100, agg_name='field_values').to_dict()
-    tags = res.get('aggregations', {}).get('field_values', {}).get('buckets', [])
-    assert len(tags) >= 1
-    assert [tag for tag in tags if tag['key'] in ['Chunlei Wu']]
+def test_aggregation():
+    assert 'Chunlei Wu' in APIDoc.aggregate('info.contact.name')
+    assert 'gene' in APIDoc.aggregate()
+    assert 'annotation' in APIDoc.aggregate()
+    assert 'query' in APIDoc.aggregate()
+    assert 'query' in APIDoc.aggregate('tags.name.raw')
+    assert 'query' in APIDoc.aggregate('tags.name')
+    assert 'tester' in APIDoc.aggregate('_meta.username')
+    assert 'mygene' in APIDoc.aggregate('_meta.slug')
 
-def test_006_delete_doc():
-    """
-    delete doc
-    """
-    refresh()
-    if not client.exists(ES_INDEX_NAME, MYDISEASE_ID):
-        client.create(ES_INDEX_NAME, MYDISEASE_ID, **MYDISEASE_DATA, doc_type="_doc")
-        refresh()
-
-    doc = APIDoc.get(MYDISEASE_ID)
-    doc.delete()
-    refresh()
-    assert not client.exists(ES_INDEX_NAME, MYDISEASE_ID)
 
 def teardown_module():
-    """ teardown any state that was previously setup.
-    """
-    if client.exists(ES_INDEX_NAME, MYDISEASE_ID):
-        client.delete(ES_INDEX_NAME, MYDISEASE_ID)
+    client.delete(ES_INDEX_NAME, "doc1", ignore=404)

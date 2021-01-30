@@ -1,0 +1,7 @@
+# TODO
+
+Remove entity identifiable information from test data.
+
+# WARNING
+
+Test case runs on the same index name as that of production.

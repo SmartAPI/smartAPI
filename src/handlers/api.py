@@ -1,3 +1,4 @@
+
 """
 API handler for SmartAPI
 Validation /api/validate
@@ -5,14 +6,15 @@ Metadata /api/metadata
 Suggestion /api/suggestion
 """
 import json
+from tornado import httpclient
 
 import yaml
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
-from tornado.web import HTTPError
-
-from controller import RegistryError, SmartAPI
-from utils.downloader import SchemaDownloader, DownloadError
+from controller import APIMonStat, APIWebDoc, ControllerError, NotFoundError, SmartAPI
+from jsonschema import ValidationError, validate
+from tornado.web import Finish, HTTPError
+from utils.downloader import DownloadError, Downloader, download_async
 from utils.notify import send_slack_msg
 
 
@@ -20,6 +22,7 @@ def github_authenticated(func):
     '''
     RegistryHandler Decorator
     '''
+
     def _(self, *args, **kwargs):
 
         if not self.current_user:
@@ -30,6 +33,7 @@ def github_authenticated(func):
         return func(self, *args, **kwargs)
 
     return _
+
 
 class BaseHandler(BaseAPIHandler):
     """
@@ -42,52 +46,43 @@ class BaseHandler(BaseAPIHandler):
             return None
         return json.loads(user_json.decode('utf-8'))
 
+
 class ValidateHandler(BaseHandler):
     """
-    Validate api metadata based on
-    openapi v3 or swagger v2
-    accepts url or content body
+    Validate Swagger/OpenAPI document.
+    Accepts URL in form data, JSON/YAML body.
     """
 
-    kwargs = {
-        'POST': {
-            'url': {'type': str, 'default': None},
-        },
-    }
     name = "validator"
+    kwargs = {
+        "POST": {"url": {"type": str, "location": "form"}}
+    }
 
-    def post(self): # pylint: disable=arguments-differ
+    async def post(self):
 
-        if 'url' in self.request.body_arguments:
+        if self.args.url:
+
             try:
-                url = self.get_body_argument('url', None)
-                file = SchemaDownloader.download(url)
-                data = file.data
-            except RegistryError as err:
-                raise BadRequest(details=str(err)) from err
+                file = await download_async(self.args.url, raise_error=True)
+            except DownloadError as err:
+                raise BadRequest(details=str(err))
+            else:  # other file info irrelevent for validation
+                raw = file.raw
 
-        elif self.request.headers.get('Content-Type', '').startswith('application/json'):
-            try:
-                data = self.args_json
-            except json.JSONDecodeError as err:
-                raise BadRequest(details="Invalid JSON body") from err
-
-        elif self.request.headers.get('Content-Type', '').startswith('application/yaml'):
-            try:
-                data = yaml.load(self.request.body, Loader=yaml.SafeLoader)
-            except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
-                raise BadRequest(details="Body does not contain valid API metadata") from err
-        else:
-            raise BadRequest(details="Need to provide data in the request body first")
+        else:  # then treat the request body as raw
+            raw = self.request.body
 
         try:
-            doc = SmartAPI.from_dict(data)
-            doc.validate()
+            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY, raw)
+            smartapi.validate()
 
-        except RegistryError as err:
-            raise BadRequest(details=str(err)) from err
+        except (ControllerError, AssertionError) as err:
+            raise BadRequest(details=str(err))
         else:
-            self.finish({'success': True, 'details': f'Valid [{doc.version}] metadata'})
+            self.finish({
+                'success': True,
+                'details': f'Valid {smartapi.version} metadata.'
+            })
 
 
 class APIHandler(BaseHandler):
@@ -99,9 +94,9 @@ class APIHandler(BaseHandler):
 
     kwargs = {
         'GET': {
-            'fields': {'type': list, 'default': []},
+            # 'fields': {'type': list, 'default': []},
             'format': {'type': str, 'default': 'json'},
-            '_from': {'type': int, 'default': 0},
+            'from_': {'type': int, 'default': 0, 'alias': 'from'},
             'size': {'type': int, 'default': 10},
         },
         'PUT': {
@@ -109,124 +104,137 @@ class APIHandler(BaseHandler):
         },
         'POST': {
             'url': {'type': str, 'required': True},
-            'overwrite': {'type': bool, 'default': False},
             'dryrun': {'type': bool, 'default': False},
         },
     }
 
-    name = "api_handler"
+    name = "smartapi"
 
-    def get(self, _id=None):  # pylint: disable=arguments-differ
+    def get(self, _id=None):
         """
         Get one API or ALL
         """
         if _id is None:
-            res = SmartAPI.get_all(
-                fields=self.args.fields,
-                from_=self.args._from,  # pylint: disable=protected-access
+            docs = SmartAPI.get_all(
+                from_=self.args.from_,
                 size=self.args.size)
-        else:
-            if not SmartAPI.exists(_id):
-                raise HTTPError(404, reason='API does not exist')
-
-            res = SmartAPI.get_api_by_id(_id)
-
-        self.format = self.args.format
-        self.finish(dict(res))
-
-    @github_authenticated
-    def post(self):  # pylint: disable=arguments-differ
-        """
-        Add an API metadata doc
-        """
-        user = self.current_user
-
-        existing_doc = SmartAPI.exists(self.args.url, "_meta.url")
-
-        if existing_doc:
-            if user['login'] != existing_doc.username:
-                raise HTTPError(401)
-            if not self.args.overwrite:
-                raise BadRequest(details='API exists')
+            raise Finish([dict(doc) for doc in docs])
 
         try:
-            file = SchemaDownloader.download(self.args.url)
-        except RegistryError as err:
+            doc = SmartAPI.get(_id)
+        except NotFoundError:
+            raise HTTPError(404)
+        else:
+            self.format = self.args.format
+            self.finish(dict(doc))
+
+    @github_authenticated
+    async def post(self):
+        """
+        Add an API document
+        """
+
+        if SmartAPI.find(self.args.url, "url"):
+            raise HTTPError(409)
+
+        try:
+            file = await download_async(self.args.url)
+        except DownloadError as err:
             raise BadRequest(details=str(err)) from err
 
         try:
-            doc = SmartAPI.from_dict(file.data)
-            doc.username = user['login']
-            doc.url = self.args.url
-            doc.etag = file.etag
+            doc = SmartAPI(self.args.url, file.raw)
             doc.validate()
-        except RegistryError as err:
+        except (ControllerError, AssertionError) as err:
             raise BadRequest(details=str(err)) from err
 
         if self.args.dryrun:
-            self.finish({'success': True, 'details': f"[Dryrun] Valid {doc.version} Metadata"})
-            return
+            raise Finish({
+                'success': True,
+                'details': f"[Dryrun] Valid {doc.version} Metadata"
+            })
+
         try:
-            res = doc.save()
-        except RegistryError as err:
+            doc.username = self.current_user['login']
+            _id = doc.save()
+        except ControllerError as err:
             raise BadRequest(details=str(err)) from err
         else:
-            self.finish({'success': True, 'details': res})
-            send_slack_msg(file.data, res, user['login'])
+            self.finish({
+                'success': True,
+                '_id': _id
+            })
+
+        try:  # maintain secondary index
+            web = APIWebDoc(self.args.url)
+            web.refresh(file)
+            web.save()
+        except Exception:
+            pass
 
     @github_authenticated
-    def put(self, _id):  # pylint: disable=arguments-differ
+    async def put(self, _id):
         """
-        Update registered slug or refresh by url
+        Update registered slug or refresh the document.
+        Supply the slug field in request body to update it.
+        Supply an emtpy string/empty form value to remove it.
+        Use an empty request body to indicate a refresh.
         """
-        user = self.current_user
 
-        if not SmartAPI.exists(_id):
-            raise HTTPError(404, reason='API does not exist')
+        try:
+            smartapi = SmartAPI.get(_id)
+        except NotFoundError:
+            raise HTTPError(404)
 
-        existing_doc = SmartAPI.get_api_by_id(_id)
-        if user['login'] != existing_doc.username:
-            self.send_error(
-                    message='Unauthorized [update] not allowed', status_code=401)
+        if smartapi.username != self.current_user['login']:
+            raise HTTPError(403)
 
-        if self.args.slug:
+        if self.args.slug is not None:
             try:
-                doc = SmartAPI.get_api_by_id(_id)
-                doc.slug = self.args.slug
-                doc.validate_slug()
-                res = doc.save()
-            except RegistryError as err:
-                raise BadRequest(details=str(err)) from err
-        else:
-            # Refresh doc assumed if no slug provided
-            try:
-                doc = SmartAPI.get_api_by_id(_id)
-                res = doc.refresh()
-            except (RegistryError, DownloadError) as err:
+                smartapi.slug = self.args.slug or None
+                smartapi.save()
+
+            except (ControllerError, ValueError) as err:
                 raise BadRequest(details=str(err)) from err
 
-        self.finish({'success': True, 'details': res})
+        else:  # refresh the document TODO NOT FULLY TESTED
+            try:
+                file = await download_async(self.args.url)
+                smartapi.raw = file.raw
+                smartapi.save()
+
+            except (ControllerError, DownloadError) as err:
+                raise BadRequest(details=str(err)) from err
+
+            try:  # maintain secondary index
+                web = APIWebDoc(self.args.url)
+                web.refresh(file)
+                web.save()
+            except Exception:
+                pass
+
+        self.finish({'success': True})
 
     @github_authenticated
-    def delete(self, _id):  # pylint: disable=arguments-differ
+    def delete(self, _id):
         """
         Delete API
         """
-        user = self.current_user
-
-        if not SmartAPI.exists(_id):
-            raise HTTPError(404, reason='API does not exist')
-
-        doc = SmartAPI.get_api_by_id(_id)
-        if user['login'] != doc.username:
-            raise HTTPError(401)
 
         try:
-            res = doc.delete()
-        except RegistryError as err:
+            smartapi = SmartAPI.get(_id)
+        except NotFoundError:
+            raise HTTPError(404)
+
+        if smartapi.username != self.current_user['login']:
+            raise HTTPError(403)
+
+        try:
+            _id = smartapi.delete()
+        except ControllerError as err:
             raise BadRequest(details=str(err)) from err
 
-        self.finish({'success': True, 'details': res})
+        self.finish({'success': True, '_id': _id})
 
 
 class ValueSuggestionHandler(BaseHandler):
@@ -237,19 +245,19 @@ class ValueSuggestionHandler(BaseHandler):
     kwargs = {
         'GET': {
             'field': {'type': str, 'required': True},
-            'size': {'type': int, 'default': 10},
+            # 'size': {'type': int, 'default': 10},
         },
     }
 
     name = 'value_suggestion'
 
-    def get(self):  # pylint: disable=arguments-differ
+    def get(self):
         """
         /api/suggestion?field=
         Returns aggregations for any field provided
         Used for tag:count on registry
         """
-        res = SmartAPI.get_tags(self.args.field, self.args.size)
+        res = SmartAPI.get_tags(self.args.field)
         self.finish(res)
 
 
@@ -257,20 +265,19 @@ class APIStatusHandler(BaseHandler):
     """
     Handle api and url status
     """
-    name = 'status_handler'
+    name = 'status'
 
-    def get(self, _id):  # pylint: disable=arguments-differ
+    def get(self, _id):
         """
         /api/status/<id>
         returns collected routine uptime and url status
         """
-        if not SmartAPI.exists(_id):
-            raise HTTPError(404, reason='API does not exist')
-
-        doc = SmartAPI.get_api_by_id(_id)
         try:
-            res = doc.get_status()
-        except RegistryError as err:
-            raise BadRequest(details=str(err)) from err
-        else:
-            self.finish(res)
+            monitor = APIMonStat.get(_id)
+        except NotFoundError:
+            raise HTTPError(404)
+
+        self.finish({
+            "status": monitor.status,
+            "timestamp": monitor.timestamp.isoformat()
+        })

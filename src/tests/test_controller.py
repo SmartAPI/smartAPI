@@ -1,322 +1,285 @@
 """
 SmartAPI Controller Tests
 """
-import os
-
 import json
-import pytest
+import os
+import elasticsearch
 
-from controller import SmartAPI, RegistryError
-from model import APIDoc
-from utils.indices import refresh
+import pytest
+from controller import ConflictError, ControllerError, NotFoundError, SmartAPI
+from model import APIDoc, APIMeta
+from utils import decoder
+from utils.indices import refresh, reset
 
 MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
-    'translator-api-registry/master/mygene.info/openapi_full.yml'
+    'translator-api-registry/master/mygene.info/openapi_minimum.yml'
 MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
     'translator-api-registry/master/mychem.info/openapi_full.yml'
-DATEAPI_URL = 'https://raw.githubusercontent.com/JDRomano2/ncats-apis/master/date/openapi_date.yml'
-AUTOMAT_URL = 'https://automat.renci.org/panther/openapi.json'
 
 MYGENE_ID = '59dce17363dce279d389100834e43648'
 MYCHEM_ID = '8f08d1446e0bb9c2b323713ce83e2bd3'
-AUTOMAT_ID = 'a3cfb0c18f630ce73ccf86b1db5117db'
-DATEAPI_ID = '26ce0569ba5b82902148069b4c3e51b4'
 
-TEST_SLUG = 'myslug'
-
-USER = {"github_username": "marcodarko"}
 
 dirname = os.path.dirname(__file__)
 
 # prepare data to be saved in tests
-with open(os.path.join(dirname, 'mygene.json'), 'r') as file:
-    MYGENE_DATA = json.load(file)
+with open(os.path.join(dirname, 'mygene.es.json'), 'r') as file:
+    MYGENE_ES = json.load(file)
 
-with open(os.path.join(dirname, 'mychem.json'), 'r') as file:
-    MYCHEM_DATA = json.load(file)
+with open(os.path.join(dirname, 'mychem.es.json'), 'r') as file:
+    MYCHEM_ES = json.load(file)
 
-with open(os.path.join(dirname, 'automat.json'), 'r') as file:
-    AUTOMAT_DATA = json.load(file)
+with open(os.path.join(dirname, 'mygene.yml'), 'rb') as file:
+    MYGENE_RAW = file.read()
 
-with open(os.path.join(dirname, 'dateapi.json'), 'r') as file:
-    DATEAPI_DATA = json.load(file)
+with open(os.path.join(dirname, 'mychem.yml'), 'rb') as file:
+    MYCHEM_RAW = file.read()
+
+
+MYGENE_ID = MYGENE_ES.pop("_id")
+MYCHEM_ID = MYCHEM_ES.pop("_id")
+
 
 @pytest.fixture(autouse=True, scope='module')
 def setup_fixture():
     """
-    Prepare data for 2 tests and save 2 documents initially
+    Index 2 documents.
     """
-    test_ids = [MYGENE_ID, MYCHEM_ID, AUTOMAT_ID, DATEAPI_ID]
-
-    # clean up index
-    for _id in test_ids:
-        if APIDoc.exists(_id):
-            doc = APIDoc.get(_id)
-            doc.delete()
+    reset()
     # save initial docs with paths already transformed
-    doc1 = APIDoc(meta={'id': AUTOMAT_ID}, **AUTOMAT_DATA)
-    doc1.save()
+    mygene = APIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
+    mygene._raw = decoder.compress(MYGENE_RAW)
+    mygene.save()
 
-    doc2 = APIDoc(meta={'id': DATEAPI_ID}, **DATEAPI_DATA)
-    doc2.save()
+    mychem = APIDoc(meta={'id': MYCHEM_ID}, **MYCHEM_ES)
+    mychem._raw = decoder.compress(MYCHEM_RAW)
+    mychem.save()
+
     # refresh index
     refresh()
 
+
 def test_get_all():
     """
-    Get ALL docs
+    SmartAPI.get_all()
     """
-    docs = SmartAPI.get_all()
+    docs = list(SmartAPI.get_all())
     assert len(docs) == 2
-    assert docs[0]["info"]["title"] in ["Automat Panther", "DATE API"]
-    assert docs[1]["info"]["title"] in ["Automat Panther", "DATE API"]
+    assert docs[0]["info"]["title"] in ["MyGene.info API", "MyChem.info API"]
+    assert docs[1]["info"]["title"] in ["MyGene.info API", "MyChem.info API"]
 
-def test_version():
-    """
-    metadata version handler
-    """
-    assert SmartAPI.from_dict(MYGENE_DATA).version == 'v3'
 
-def test_validation():
+def test_get_all_size():
     """
-    valid openapi v3 metadata
-    """
-    doc = SmartAPI.from_dict(MYGENE_DATA)
-    doc.validate()
-
-def test_validate_invalid_v3():
-    """
-    invalid openapi v3 metadata
-    """
-    with pytest.raises(RegistryError):
-        doc = SmartAPI.from_dict({'some_field': 'no_meaning', 'openapi': '3.0.0'})
-        doc.validate()
-
-def test_add_doc_1():
-    """
-    Successful addition
-    """
-    assert not APIDoc.exists(MYGENE_ID)
-    doc = SmartAPI.from_dict(MYGENE_DATA)
-    doc.url = MYGENE_URL
-    doc.username = 'marcodarko'
-    res = doc.save()
-    refresh()
-    assert res == MYGENE_ID
-    assert APIDoc.exists(MYGENE_ID)
-
-def test_add_doc_2():
-    """
-    Add test My Disease API to index, return new doc ID
-    """
-    assert not APIDoc.exists(MYCHEM_ID)
-    doc = SmartAPI.from_dict(MYCHEM_DATA)
-    doc.url = MYCHEM_URL
-    doc.username = 'marcodarko'
-    res = doc.save()
-    refresh()
-    assert res == MYCHEM_ID
-    assert APIDoc.exists(MYCHEM_ID)
-
-def test_get_all_size_1():
-    """
-    Get ALL with size
+    SmartAPI.get_all(size=1)
     """
     search = APIDoc.search()
-    assert search.count() > 1
+    assert search.count() == 2
 
-    docs = SmartAPI.get_all(size=1)
+    docs = list(SmartAPI.get_all(size=1))
     assert len(docs) == 1
+
 
 def test_get_all_from():
     """
-    Get ALL from starting point
+    SmartAPI.get_all(from_=1)
     """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
-
-    if not APIDoc.exists(MYCHEM_ID):
-        doc = SmartAPI.from_dict(MYCHEM_DATA)
-        doc.url = MYCHEM_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
-
     search = APIDoc.search()
-    assert search.count() == 4
+    assert search.count() == 2
 
-    docs = SmartAPI.get_all(from_=1)
-    assert len(docs) == 3
+    docs = list(SmartAPI.get_all(from_=1))
+    assert len(docs) == 1
 
-def test_get_one():
+
+def test_get():
     """
-    Get one doc by ID
+    smartapi = SmartAPI.get(_id)
+    smartapi._id
+    smartapi.url
+    smartapi.version
+    ...
     """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
+    mygene = SmartAPI.get(MYGENE_ID)
+    assert mygene._id == MYGENE_ID
+    assert mygene.version == 'openapi'
+    assert mygene.username == 'tester'
+    assert mygene.slug == 'mygene'
+    assert mygene['info']['title'] == 'MyGene.info API'
+    assert mygene.raw == MYGENE_RAW
+    assert mygene.url == MYGENE_URL
 
-    assert APIDoc.exists(MYGENE_ID)
-    doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    assert doc['info']['title'] == 'MyGene.info API'
+    with pytest.raises(AttributeError):
+        mygene._id = "NEWID"
+    with pytest.raises(AttributeError):
+        mygene.url = "http://example.org/"
+    with pytest.raises(ValueError):
+        mygene.slug = "a"
+    with pytest.raises(ValueError):
+        mygene.slug = "AAA"
+    with pytest.raises(ValueError):
+        mygene.slug = "www"
+    with pytest.raises(ValueError):
+        mygene.slug = "^_^"
 
-def test_get_tags_1():
+    with pytest.raises(NotFoundError):
+        SmartAPI.get("NOTEXIST")
+
+
+def test_get_tags():
     """
-    Get tag aggregations for field (owners)
+    SmartAPI.get_tags()
+    SmartAPI.get_tags(field)
     """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
+    aggs = SmartAPI.get_tags()
+    assert aggs == {'Chunlei Wu': 2}
+    aggs = SmartAPI.get_tags('tags.name')
+    assert 'annotation' in aggs
+    assert 'translator' in aggs
+    assert 'biothings' in aggs
 
-    assert APIDoc.exists(MYGENE_ID)
-    res = SmartAPI.get_tags(field='info.contact.name', size=100)
-    tags = res.get('aggregations', {}).get('field_values', {}).get('buckets', [])
-    assert len(tags) >= 1
-    assert [tag for tag in tags if tag['key'] in ['Chunlei Wu']]
 
-def test_get_tags_2():
+def test_search():
     """
-    Get tag aggregations for field (tags)
+    SmartAPI.exists(_id)
+    SmartAPI.find(slug)
+    SmartAPI.find(val, field)
     """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
+    assert SmartAPI.exists(MYGENE_ID)
+    assert SmartAPI.exists(MYCHEM_ID)
+    assert SmartAPI.find('mygene') == MYGENE_ID
+    assert SmartAPI.find('mychem') == MYCHEM_ID
+    assert SmartAPI.find('tester', 'username')
+    assert SmartAPI.find('gene', 'tags.name') == MYGENE_ID
+    assert SmartAPI.find('drug', 'tags.name') == MYCHEM_ID
+    assert SmartAPI.find(MYGENE_URL, 'url') == MYGENE_ID
+    assert SmartAPI.find(MYCHEM_URL, 'url') == MYCHEM_ID
 
-    assert APIDoc.exists(MYGENE_ID)
-    res = SmartAPI.get_tags(field='tags', size=100)
-    tags = res.get('aggregations', {}).get('field_values', {}).get('buckets', [])
-    assert len(tags) >= 1
-    assert [tag for tag in tags if tag['key'] in ['translator']]
 
-def test_validate_slug():
+def test_validation():
     """
-    Update registered slug name for ID
+    smartapi.validate()
     """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
+    URL = "http://example.com/invalid.json"
+    with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        smartapi.validate()
+    with open(os.path.join(dirname, './validate/swagger-pass.json'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        smartapi.validate()
+    with open(os.path.join(dirname, './validate/x-translator-pass.json'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        smartapi.validate()
+    with open(os.path.join(dirname, './validate/x-translator-fail-1.yml'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        with pytest.raises(ControllerError):
+            smartapi.validate()
+    with open(os.path.join(dirname, './validate/x-translator-fail-2.yml'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        with pytest.raises(ControllerError):
+            smartapi.validate()
+    smartapi = SmartAPI(URL, b'{}')
+    with pytest.raises(ControllerError):
+        smartapi.validate()
 
-    assert APIDoc.exists(MYGENE_ID)
-    doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    doc.slug = TEST_SLUG
-    doc.validate_slug()
 
-def test_validate_slug_invalid_1():
-    """
-    slug name not allowed
-    """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
-
-    assert APIDoc.exists(MYGENE_ID)
-
-    with pytest.raises(RegistryError) as err:
-        doc = SmartAPI.get_api_by_id(MYGENE_ID)
-        doc.slug = 'smart-api'
-        doc.validate_slug()
-    assert str(err.value) == "Slug name smart-api is reserved, please choose another"
-
-def test_validate_slug_invalid_2():
-    """
-    invalid characters in slug
-    """
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
-        refresh()
-
-    assert APIDoc.exists(MYGENE_ID)
-    
-    with pytest.raises(RegistryError) as err:
-        doc = SmartAPI.get_api_by_id(MYGENE_ID)
-        doc.slug = 'myname#'
-        doc.validate_slug()
-    assert str(err.value) == "Slug name myname# contains invalid characters"
-
-def test_update_slug():
-    """
-    Update registered slug name for ID
-    """
-    doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    doc.slug = TEST_SLUG
-    res = doc.save()
+@pytest.fixture
+def openapi():
+    yield '5f5141cbae5ca099d3f420f9c42c94cf'
     refresh()
-    assert APIDoc.exists(TEST_SLUG, '_meta.slug')
-    assert res == MYGENE_ID
+    try:  # teardown
+        APIDoc.get('5f5141cbae5ca099d3f420f9c42c94cf').delete()
+    except elasticsearch.exceptions.NotFoundError:
+        pass
 
-def test_get_one_by_slug():
+
+def test_save(openapi):
     """
-    Get one doc by slug
+    SmartAPI.slug.validate(slug)
+    smartapi.slug
+    smartapi.save()
     """
-    refresh()
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.slug = TEST_SLUG
-        doc.etag = 'I'
-        doc.save()
+    URL = "http://example.com/valid.json"
+    with pytest.raises(ValueError):
+        SmartAPI.slug.validate("a")
+    with pytest.raises(ValueError):
+        SmartAPI.slug.validate("AAA")
+    with pytest.raises(ValueError):
+        SmartAPI.slug.validate("www")
+    with pytest.raises(ValueError):
+        SmartAPI.slug.validate("^_^")
+    with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        smartapi.slug = "mygene"
+        smartapi.validate()
+        with pytest.raises(ControllerError):
+            smartapi.save()
+        smartapi.username = "tester"
+        with pytest.raises(ConflictError):
+            smartapi.save()
+        smartapi.slug = "mychem"
+        with pytest.raises(ConflictError):
+            smartapi.save()
+        smartapi.slug = "openapi"
+        smartapi.save()
         refresh()
-
-    assert APIDoc.exists(MYGENE_ID)
-    assert APIDoc.exists(TEST_SLUG, '_meta.slug')
-    refresh()
-    doc = SmartAPI.get_api_by_slug(TEST_SLUG)
-    assert doc['_id'] == MYGENE_ID
-
-def test_refresh_api():
-    """
-    Refresh api
-    """
-    doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    new_etag = doc.refresh()
-    assert doc.etag == new_etag
-
-def test_delete_doc():
-    """
-    Delete doc
-    """
-    refresh()
-    if not APIDoc.exists(MYGENE_ID):
-        doc = SmartAPI.from_dict(MYGENE_DATA)
-        doc.url = MYGENE_URL
-        doc.username = 'marcodarko'
-        doc.save()
+        assert SmartAPI.find("openapi") == smartapi._id
+        smartapi.save()  # no change
         refresh()
+        assert SmartAPI.find("openapi") == smartapi._id
+        smartapi.slug = None
+        smartapi.save()
+        refresh()
+        assert not SmartAPI.find("openapi")
+        found = SmartAPI.get(openapi)
+        assert dict(smartapi) == dict(found)
+        assert smartapi.username == found.username
+        assert smartapi.slug == found.slug
+        assert smartapi.url == found.url
 
-    doc = SmartAPI.get_api_by_id(MYGENE_ID)
-    res = doc.delete()
-    assert res == MYGENE_ID
+
+@pytest.fixture
+def myvariant():
+
+    with open(os.path.join(dirname, 'myvariant.es.json'), 'r') as file:
+        MYVARIANT_ES = json.load(file)
+    with open(os.path.join(dirname, 'myvariant.yml'), 'rb') as file:
+        MYVARIANT_RAW = file.read()
+    MYVARIANT_ID = MYVARIANT_ES.pop("_id")
+
+    myvariant = APIDoc(meta={'id': MYVARIANT_ID}, **MYVARIANT_ES)
+    myvariant._raw = decoder.compress(MYVARIANT_RAW)
+    myvariant.save()
+
+    mv_meta = APIMeta(meta={'id': MYVARIANT_ID})
+    mv_meta.url = "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/myvariant.info/openapi_minimum.yml"
+    mv_meta.save()
+
     refresh()
-    assert not APIDoc.exists(MYGENE_ID)
+    yield MYVARIANT_ID
+    refresh()
 
-def teardown_module():
-    """
-    teardown any state that was previously setup.
-    """
-    for _id in [AUTOMAT_ID, DATEAPI_ID, MYGENE_ID, MYCHEM_ID]:
-        if APIDoc.exists(_id):
-            test_doc = APIDoc.get(_id)
-            test_doc.delete()
+    try:
+        APIDoc.get(MYVARIANT_ID).delete()
+    except elasticsearch.exceptions.NotFoundError:
+        pass
+    try:
+        APIMeta.get(MYVARIANT_ID).delete()
+    except elasticsearch.exceptions.NotFoundError:
+        pass
+
+
+def test_delete(myvariant):
+
+    mv = SmartAPI.get(myvariant)
+    mv.delete()
+
+    refresh()
+
+    assert not APIDoc.exists(myvariant)
+    assert not APIMeta.exists(myvariant)
+
+    URL = "http://example.com/valid.json"
+    with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
+        smartapi = SmartAPI(URL, file.read())
+        with pytest.raises(NotFoundError):
+            smartapi.delete()

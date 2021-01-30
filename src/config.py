@@ -23,7 +23,7 @@ QUERY_KWARGS['*']['tags'] = {'type': list, 'group': 'esqb'}
 # Elasticsearch
 # *****************************************************************************
 ES_INDICES = {
-    'api_doc': 'smartapi_oas3'
+    'metadata': 'smartapi_docs'
 }
 
 # *****************************************************************************
@@ -31,7 +31,7 @@ ES_INDICES = {
 # *****************************************************************************
 APP_LIST = [
     (r'/api/?', 'handlers.api.APIHandler'),
-    (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "api_doc"}),
+    (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
     (r'/api/validate/?', 'handlers.api.ValidateHandler'),
     (r'/api/metadata/?', 'handlers.api.APIHandler'),
     (r'/api/metadata/(.+)/?', 'handlers.api.APIHandler'),
