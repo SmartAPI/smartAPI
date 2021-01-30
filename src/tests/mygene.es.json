@@ -1,0 +1,173 @@
+{
+    "_id": "67932b75e2c51d1e1da2bf8263e59f0a",
+    "openapi": "3.0.0",
+    "info": {
+        "version": "3.0",
+        "title": "MyGene.info API",
+        "description": "Documentation of the MyGene.info Gene Query web services. Learn more about [MyGene.info](http://mygene.info/)",
+        "termsOfService": "http://mygene.info/terms/",
+        "contact": {
+            "name": "Chunlei Wu",
+            "x-role": "responsible developer",
+            "email": "help@mygene.info",
+            "x-id": "https://github.com/newgene"
+        },
+        "x-translator": {
+            "component": "KP",
+            "team": [
+                "Service Provider"
+            ]
+        }
+    },
+    "servers": [
+        {
+            "url": "http://mygene.info/v3",
+            "description": "Production server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "gene"
+        },
+        {
+            "name": "annotation"
+        },
+        {
+            "name": "query"
+        },
+        {
+            "name": "translator"
+        }
+    ],
+    "paths": [
+        {
+            "path": "/query",
+            "pathitem": {
+                "get": {
+                    "summary": "Make gene query and return matching gene hits",
+                    "parameters": [
+                        {
+                            "name": "q",
+                            "in": "query",
+                            "description": "Query string. Examples \"CDK2\", \"NM_052827\", \"204639_at\". The detailed query syntax can be found at http://docs.mygene.info/en/latest/doc/query_service.html",
+                            "required": true,
+                            "x-valueType": [
+                                "http://identifiers.org/hgnc.symbol/",
+                                "http://identifiers.org/refseq/",
+                                "http://identifiers.org/unigene/",
+                                "http://identifiers.org/uniprot/",
+                                "http://identifiers.org/pdb/",
+                                "http://identifiers.org/biocarta.pathway/",
+                                "http://identifiers.org/kegg.pathway/",
+                                "http://identifiers.org/wikipathways/",
+                                "http://identifiers.org/pharmgkb.pathways/",
+                                "http://identifiers.org/reactome/"
+                            ],
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "A query response object with \"hits\" property",
+                            "x-responseValueType": [
+                                {
+                                    "path": "hits._id",
+                                    "valueType": "http://identifiers.org/ncbigene/"
+                                },
+                                {
+                                    "path": "hits.entrezgene",
+                                    "valueType": "http://identifiers.org/ncbigene/"
+                                },
+                                {
+                                    "path": "hits.symbol",
+                                    "valueType": "http://identifiers.org/hgnc.symbol/"
+                                },
+                                {
+                                    "path": "hits.taxid",
+                                    "valueType": "http://identifiers.org/taxonomy/"
+                                }
+                            ],
+                            "x-JSONLDContext": "https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/jsonld_context/mygene_context.json"
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "path": "/gene/{geneid}",
+            "pathitem": {
+                "get": {
+                    "summary": "For a given gene id, return the matching gene object",
+                    "parameters": [
+                        {
+                            "name": "geneid",
+                            "in": "path",
+                            "description": "Entrez or Ensembl gene id, e.g., 1017, ENSG00000170248. A retired Entrez Gene id works too if it is replaced by a new one, e.g., 245794",
+                            "required": true,
+                            "x-valueType": [
+                                "http://identifiers.org/ncbigene/",
+                                "http://identifiers.org/ensembl/"
+                            ],
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "A gene object",
+                            "x-responseValueType": [
+                                {
+                                    "path": "symbol",
+                                    "valueType": "http://identifiers.org/hgnc.symbol/"
+                                },
+                                {
+                                    "path": "unigene",
+                                    "valueType": "http://identifiers.org/unigene/"
+                                },
+                                {
+                                    "path": "uniprot.Swiss-Prot",
+                                    "valueType": "http://identifiers.org/uniprot/"
+                                },
+                                {
+                                    "path": "pdb",
+                                    "valueType": "http://identifiers.org/pdb/"
+                                },
+                                {
+                                    "path": "pathway.biocarta.id",
+                                    "valueType": "http://identifiers.org/biocarta.pathway/"
+                                },
+                                {
+                                    "path": "pathway.kegg.id",
+                                    "valueType": "http://identifiers.org/kegg.pathway/"
+                                },
+                                {
+                                    "path": "pathway.reactome.id",
+                                    "valueType": "http://identifiers.org/reactome/"
+                                },
+                                {
+                                    "path": "pathway.wikipathways.id",
+                                    "valueType": "http://identifiers.org/wikipathways/"
+                                },
+                                {
+                                    "path": "pathway.pharmgkb.id",
+                                    "valueType": "http://identifiers.org/pharmgkb.pathways/"
+                                }
+                            ],
+                            "x-JSONLDContext": "https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/jsonld_context/mygene_context.json"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "_meta": {
+        "url": "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_minimum.yml",
+        "timestamp": "2021-01-30T02:48:35.584830+00:00",
+        "username": "tester",
+        "slug": "mygene"
+    },
+    "_raw": "H4sIAAPJFGAC/81WTW/jNhC951cMfFELRJLjZJtdH4oGSRq0u8mmSNAeisKgpLHEtUQqJOWPLfa/71CUHGlrp7aBFPUhiMiZNx98nEdZomAlH4N3GgyDoXfExVSOjwDmqDSXwm14tGC4yXEMt6sbFBhYM7i4/4U2EtSx4qWprX/0aQXgSsZVgcIwuwpyCibDnqv9D36rUK1ggRFoVHMeow7gAzIloJAKgUWyMjXcnx3Xv77LjCnHYVis0nYt/N4miKrQH6cPDmoMG8xqk5BsY0m5xWZcowtWkPllVokcOfxR1YtLX0lbr0JdSqF5lCNVOsdclqhqCywYzykM5uVPnSCNN0+odTYFTTmk3GRVFMSyCAUurKnt6NI3igmdMyOVy4QMKBj1bQzv7+sVg6xwewA+NLXBvZJznlAetm90UNbCh0rlTcxvyp6fejVE76Q8AkmquD4gB+MdGZY2WK4nFqLzyYSQ7kg7i0/2EDvfzzUdlcxkNV5YG7k6UjRtQboqCkbr4N2yGdbRHBxFSqjzprJUYCbOuEjddsaN9hr3kimKaJr62x41Wa1XALh4zrL9bSJt+3O01EZR1ACul6woc9QwuLx6Pxocw+DudjJ8M3o7Orcfo+HZD6fvJswMAnjMsAeUoCGKYNIUpVdEuiXETECEMJUVFclMz6M5vETGOuieIIqQWora2C3XzUlzZ4LMFHkHROFTxRUm9iSqbj5Lf87yCh9XJY57Qf01aYhTwvApp5YGUqVhloo40Ksiknno7eijcKrxaWfzSnBb5j72pZJmZ/syiXa2jbiMmTIssMRdsNXOjjNM072dFnzGGx+9ezkZU0U6i4K9PRXSwJNFv9M6zmiM9elgLEEa+h+1nKqHIHYumjcaDr3xthvlXTScbz1BRp8wNrCgSQgDe4sHQOdIs9SsvB5JW4/ft5HVVj6uB0Ew4Ulvk2Rr7bW1ESKONlOuA0weCj834+8V8N2d2h/7pQvZgacxc0hnyE0KWfQpvPR/ffh49+HqkiQTl6Z/GpsU7u7y4vHBf2QiRaIQhs+C4NNLg8435USuVRjlMgoLpmmA99Tqk5YiTyaxi9dstZ+B3bXpeWHd47/tX5588V4Ql5+lAgYpn6NwIsKT41Zd7LukrzCOqLtojAv9jdDYU9hRZ65rkgFld018L6L8OTsM0uAYToYn58dwffdwM7S/k/Ph6OxtABc2eTviN6HdOAhYSDXTYKQEPgVugGvyKnMWkxxFJLBADxGgt0YTqwc1Ontz/u7slTRl6/XY5oCuOf/V3NpAgr0G0+td7UYq94feprFrWKuowcOCa+3Tq9AcFGGjKrsIpMH7Q24S7gbOSV+wlutDZt2/an0/Vq3wh8R58WnQj9Eq9EFxNsr7P2N0Hx0HxXnx1dKPtX6rHBLn5YfO/1KUvgI3L4fjTA8AAA=="
+}

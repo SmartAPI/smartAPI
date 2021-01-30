@@ -262,7 +262,7 @@
                         <div class="blue-grey-text">
                            <div class="row">
                              <div class="col s5 m10">
-                               Total APIs: <span class="blue-text">{{total}}</span>
+                               Total APIs: <span class="blue-text">{{total.value}}</span>
                                <button :data-clipboard-text='shareURL' @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );" v-if="shareURLButtonVisible" class="smallButton grey copyBtn" title='Copy to clipboard'>
                                  <i class="fa fa-clipboard" aria-hidden="true"></i> Copy Search URL
                                </button>
@@ -1193,7 +1193,7 @@ const store = new Vuex.Store({
           loadFilters: function (){
               var self = this;
               axios.get('/api/suggestion?field=tags.name&size=1000').then(function(response){
-                  let tags = _.map(response.data.field_values.buckets, function(item){
+                  let tags = _.map(response.data.aggregations.field_values.buckets, function(item){
                       return {'name':item.key, 'count': item.doc_count, 'active': false};
                   });
                   var payload = {};
@@ -1201,7 +1201,7 @@ const store = new Vuex.Store({
                   store.commit('saveTags',payload);
 
                   axios.get('/api/suggestion?field=info.contact.name&size=1000').then(function(response){
-                      let authors = _.map(response.data.field_values.buckets, function(item){
+                      let authors = _.map(response.data.aggregations.field_values.buckets, function(item){
                           return {'name':item.key, 'count': item.doc_count, 'active': false};
                       });
 

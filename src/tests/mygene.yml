@@ -1,0 +1,104 @@
+openapi: '3.0.0'
+info:
+  version: '3.0'
+  title: MyGene.info API
+  description: >-
+    Documentation of the MyGene.info Gene Query web services. Learn more about
+    [MyGene.info](http://mygene.info/)
+  termsOfService: http://mygene.info/terms/
+  contact:
+    name: Chunlei Wu
+    x-role: responsible developer
+    email: help@mygene.info
+    x-id: 'https://github.com/newgene'
+  x-translator:
+    component: KP
+    team:
+      - Service Provider
+servers:
+  - url: 'http://mygene.info/v3'
+    description: 'Production server'
+tags:
+  - name: gene
+  - name: annotation
+  - name: query
+  - name: translator
+paths:
+  /query:
+    get:
+      summary: 'Make gene query and return matching gene hits'
+      parameters:
+        - name: q
+          in: query
+          description: >-
+            Query string. Examples "CDK2", "NM_052827", "204639_at". The
+            detailed query syntax can be found at
+            http://docs.mygene.info/en/latest/doc/query_service.html
+          required: true
+          x-valueType:
+            - 'http://identifiers.org/hgnc.symbol/'
+            - 'http://identifiers.org/refseq/'
+            - 'http://identifiers.org/unigene/'
+            - 'http://identifiers.org/uniprot/'
+            - 'http://identifiers.org/pdb/'
+            - 'http://identifiers.org/biocarta.pathway/'
+            - 'http://identifiers.org/kegg.pathway/'
+            - 'http://identifiers.org/wikipathways/'
+            - 'http://identifiers.org/pharmgkb.pathways/'
+            - 'http://identifiers.org/reactome/'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'A query response object with "hits" property'
+          x-responseValueType:
+            - path: hits._id
+              valueType: 'http://identifiers.org/ncbigene/'
+            - path: hits.entrezgene
+              valueType: 'http://identifiers.org/ncbigene/'
+            - path: hits.symbol
+              valueType: 'http://identifiers.org/hgnc.symbol/'
+            - path: hits.taxid
+              valueType: 'http://identifiers.org/taxonomy/'
+          x-JSONLDContext:
+            'https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/jsonld_context/mygene_context.json'
+  '/gene/{geneid}':
+    get:
+      summary: 'For a given gene id, return the matching gene object'
+      parameters:
+        - name: geneid
+          in: path
+          description: >-
+            Entrez or Ensembl gene id, e.g., 1017, ENSG00000170248. A retired
+            Entrez Gene id works too if it is replaced by a new one, e.g.,
+            245794
+          required: true
+          x-valueType:
+            - 'http://identifiers.org/ncbigene/'
+            - 'http://identifiers.org/ensembl/'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'A gene object'
+          x-responseValueType:
+            - path: symbol
+              valueType: 'http://identifiers.org/hgnc.symbol/'
+            - path: unigene
+              valueType: 'http://identifiers.org/unigene/'
+            - path: uniprot.Swiss-Prot
+              valueType: 'http://identifiers.org/uniprot/'
+            - path: pdb
+              valueType: 'http://identifiers.org/pdb/'
+            - path: pathway.biocarta.id
+              valueType: 'http://identifiers.org/biocarta.pathway/'
+            - path: pathway.kegg.id
+              valueType: 'http://identifiers.org/kegg.pathway/'
+            - path: pathway.reactome.id
+              valueType: 'http://identifiers.org/reactome/'
+            - path: pathway.wikipathways.id
+              valueType: 'http://identifiers.org/wikipathways/'
+            - path: pathway.pharmgkb.id
+              valueType: 'http://identifiers.org/pharmgkb.pathways/'
+          x-JSONLDContext:
+            'https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/jsonld_context/mygene_context.json'

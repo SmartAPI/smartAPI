@@ -1,16 +1,26 @@
-biothings[web_extra]==0.5.0
+biothings[web_extra]==0.9.0
 
 # document validation
-jsonschema>=2.6.0
+jsonschema==3.2.0
 
 # web handling
-elasticsearch-dsl==6.4.0
+elasticsearch==7.9.1
+elasticsearch-async==6.2.0
+elasticsearch-dsl==7.3.0
 torngithub==0.2.0 
 Jinja2>=2.9.6
-pycurl==7.43.0.3
+pycurl==7.43.0.4
+requests-cache==0.5.2
+tornado==5.1.1
+chardet==3.0.4
 
 # gitdb version specified because gitdb.utils.compat not available in newest version
-gitdb==0.6.4
+gitdb==4.0.5
 
 # s3 backup
-boto3>=1.9.86,<2.0
+boto3==1.16.2
+
+# local issuer certificate
+certifi
+
+pytest

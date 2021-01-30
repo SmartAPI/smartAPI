@@ -1,0 +1,231 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: balhoff@renci.org
+    name: Jim Balhoff
+  description: TRAPI interface to database of Causal Activity Models
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://opensource.org/licenses/MIT
+  title: CAM-KP API
+  version: '0.1'
+servers:
+- url: https://stars-app.renci.org/cam-kp
+tags:
+- name: translator
+paths:
+  /predicates:
+    get:
+      operationId: getPredicates
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  items:
+                    items:
+                      $ref: '#/components/schemas/BiolinkPredicate'
+                    type: array
+                  type: array
+                type: array
+          description: ''
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: ''
+      summary: Get predicates used at this service
+  /query:
+    post:
+      operationId: postQuery
+      parameters:
+      - in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TRAPIQueryRequestBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TRAPIMessage'
+          description: ''
+        default:
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: ''
+      summary: Submit a TRAPI question graph and retrieve matching solutions
+components:
+  schemas:
+    BiolinkClass:
+      properties:
+        iri:
+          $ref: '#/components/schemas/IRI'
+        shorthand:
+          type: string
+      required:
+      - shorthand
+      - iri
+      type: object
+    BiolinkPredicate:
+      properties:
+        iri:
+          $ref: '#/components/schemas/IRI'
+        shorthand:
+          type: string
+      required:
+      - shorthand
+      - iri
+      type: object
+    IRI:
+      properties:
+        value:
+          type: string
+      required:
+      - value
+      type: object
+    TRAPIEdge:
+      properties:
+        id:
+          type: string
+        source_id:
+          $ref: '#/components/schemas/IRI'
+        target_id:
+          $ref: '#/components/schemas/IRI'
+        type:
+          $ref: '#/components/schemas/BiolinkPredicate'
+      required:
+      - id
+      - source_id
+      - target_id
+      type: object
+    TRAPIEdgeBinding:
+      properties:
+        kg_id:
+          type: string
+        provenance:
+          type: string
+        qg_id:
+          type: string
+      required:
+      - kg_id
+      type: object
+    TRAPIKnowledgeGraph:
+      properties:
+        edges:
+          items:
+            $ref: '#/components/schemas/TRAPIEdge'
+          type: array
+        nodes:
+          items:
+            $ref: '#/components/schemas/TRAPINode'
+          type: array
+      type: object
+    TRAPIMessage:
+      properties:
+        knowledge_graph:
+          $ref: '#/components/schemas/TRAPIKnowledgeGraph'
+        query_graph:
+          $ref: '#/components/schemas/TRAPIQueryGraph'
+        results:
+          items:
+            $ref: '#/components/schemas/TRAPIResult'
+          type: array
+      type: object
+    TRAPINode:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          items:
+            $ref: '#/components/schemas/BiolinkClass'
+          type: array
+      required:
+      - id
+      type: object
+    TRAPINodeBinding:
+      properties:
+        kg_id:
+          type: string
+        qg_id:
+          type: string
+      required:
+      - kg_id
+      type: object
+    TRAPIQueryEdge:
+      properties:
+        id:
+          type: string
+        source_id:
+          type: string
+        target_id:
+          type: string
+        type:
+          $ref: '#/components/schemas/BiolinkPredicate'
+      required:
+      - id
+      - source_id
+      - target_id
+      type: object
+    TRAPIQueryGraph:
+      properties:
+        edges:
+          items:
+            $ref: '#/components/schemas/TRAPIQueryEdge'
+          type: array
+        nodes:
+          items:
+            $ref: '#/components/schemas/TRAPIQueryNode'
+          type: array
+      type: object
+    TRAPIQueryNode:
+      properties:
+        curie:
+          $ref: '#/components/schemas/IRI'
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/BiolinkClass'
+      required:
+      - id
+      type: object
+    TRAPIQueryRequestBody:
+      properties:
+        message:
+          $ref: '#/components/schemas/TRAPIMessage'
+      required:
+      - message
+      type: object
+    TRAPIResult:
+      properties:
+        edge_bindings:
+          items:
+            $ref: '#/components/schemas/TRAPIEdgeBinding'
+          type: array
+        extra_edges:
+          items:
+            $ref: '#/components/schemas/TRAPIEdgeBinding'
+          type: array
+        extra_nodes:
+          items:
+            $ref: '#/components/schemas/TRAPINodeBinding'
+          type: array
+        node_bindings:
+          items:
+            $ref: '#/components/schemas/TRAPINodeBinding'
+          type: array
+      type: object

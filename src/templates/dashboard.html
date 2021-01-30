@@ -586,7 +586,7 @@ Vue.component('status', {
             };
             axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login,params).then(function(response){
                   self.apis = response.data.hits;
-                  self.total = response.data.total;
+                  self.total = response.data.total.value;
                   self.hideLoading();
               }).catch(err=>{
                 const toast = swal.mixin({
@@ -737,9 +737,9 @@ Vue.component('status', {
           },
           evaluateShortname: function(){
             var self = this;
-            axios.get(`/api/query?q=__all__&filters={"_meta.slug.raw":["`+this.myShortName+`"]}&fields=_meta`).then(response=>{
+            axios.get(`/api/query?q=__all__&filters={"_meta.slug":["`+this.myShortName+`"]}&fields=_meta`).then(response=>{
               //console.log(response.data.hits);
-              if (response.data.total) {
+              if (response.data.total.value) {
                 self.availableShortName = false;
                 self.takenSlug = true;
                 return false;
@@ -790,7 +790,7 @@ Vue.component('status', {
 
                 toast({
                   type: 'error',
-                  title:'Slug failed to register'
+                  title:response.data.error
                 })
               }
             }).catch(error=>{

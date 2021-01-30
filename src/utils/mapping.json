@@ -1,0 +1,65 @@
+{
+    "mappings": {
+        "dynamic_templates": [
+            {
+                "ignore_example_field": {
+                    "path_match": "*.example",
+                    "mapping": {
+                        "index": false,
+                        "type": "text"
+                    }
+                }
+            },
+            {
+                "ignore_ref_field": {
+                    "match": "$ref",
+                    "mapping": {
+                        "index": false
+                    }
+                }
+            },
+            {
+                "ignore_schema_field": {
+                    "match": "schema",
+                    "mapping": {
+                        "enabled": false
+                    }
+                }
+            },
+            {
+                "ignore_content_field": {
+                    "match": "content",
+                    "mapping": {
+                        "enabled": false
+                    }
+                }
+            },
+            {
+                "template_1": {
+                    "match": "*",
+                    "match_mapping_type": "string",
+                    "mapping": {
+                        "type": "text",
+                        "index": true,
+                        "fields": {
+                            "raw": {
+                                "type": "keyword"
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "properties": {
+            "components": {
+                "enabled": false
+            },
+            "definitions": {
+                "enabled": false
+            },
+            "_raw": {
+                "type": "binary"
+            }
+        }
+    }
+}
