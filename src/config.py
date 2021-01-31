@@ -35,6 +35,7 @@ APP_LIST = [
     (r'/api/validate/?', 'handlers.api.ValidateHandler'),
     (r'/api/metadata/?', 'handlers.api.APIHandler'),
     (r'/api/metadata/(.+)/?', 'handlers.api.APIHandler'),
+    (r'/api/status/(.+)/?', 'handlers.api.APIStatusHandler'),
     (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
 ]
 

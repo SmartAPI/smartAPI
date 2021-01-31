@@ -14,6 +14,7 @@ smartapi_*.json
 
 # allow customized biothing package
 /biothings
+/biothings.api
 
 # ignore .DS_Store on Mac
 .DS_Store

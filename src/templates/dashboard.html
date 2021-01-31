@@ -584,7 +584,7 @@ Vue.component('status', {
                     'fields': 'info,_meta,tags,openapi,swagger,'
                 }
             };
-            axios.get("/api/query?size=100&q=_meta.github_username:"+self.userInfo.login,params).then(function(response){
+            axios.get("/api/query?size=100&q=_meta.username:"+self.userInfo.login,params).then(function(response){
                   self.apis = response.data.hits;
                   self.total = response.data.total.value;
                   self.hideLoading();

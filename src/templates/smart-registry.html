@@ -261,7 +261,7 @@
                         <div class="blue-grey-text">
                            <div class="row">
                              <div class="col s5 m10">
-                               Total APIs: <span class="blue-text">{{total.value}}</span>
+                               Total APIs: <span class="blue-text">{{total}}</span>
                                <button :data-clipboard-text='shareURL' @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );" v-if="shareURLButtonVisible" class="smallButton grey copyBtn" title='Copy to clipboard'>
                                  <i class="fa fa-clipboard" aria-hidden="true"></i> Copy Search URL
                                </button>
@@ -866,7 +866,7 @@ const store = new Vuex.Store({
       },
     },
     mounted: function(){
-
+      console.log('api', this.api)
     },
     template: `
     <div class="card context">
@@ -889,7 +889,7 @@ const store = new Vuex.Store({
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
 
-            <div class="apiStatus" title="Click to learn more">
+            <div class="apiStatus" title="Click to learn more" style="display:none;">
               <div class="blue-grey-text">Status</div>
               <template v-if="api['_meta']['uptime_status'] ==='bad'">
                 <div class="red">
@@ -1062,7 +1062,6 @@ const store = new Vuex.Store({
         }
       },
       methods: {
-
           getBTEapis(){
             var self = this;
             axios.get('https://biothings.io/explorer_beta/api/v2/metadata/apis').then(res=>{
@@ -1105,7 +1104,6 @@ const store = new Vuex.Store({
           sortResults(e){
             this.sort = e.target.value;
           },
-
           handleDescriptionClick(event, show){
             if (show) {
               event.target.style.maxHeight = 'none';
@@ -1119,7 +1117,6 @@ const store = new Vuex.Store({
               }
             }
           },
-
           showHideDetails: function(event){
             //toggle show/hide text on details link per card
             let text = $(event.target).text().trim().toLowerCase();
@@ -1179,6 +1176,8 @@ const store = new Vuex.Store({
                   payload["apis"] = response.data.hits;
                   store.commit('saveApis',payload);
 
+                  // console.log('res', response.data)
+
                   // history.pushState(null, "SmartAPI", window.location.href)
 
                   // self.apis = response.data.hits;
@@ -1191,16 +1190,24 @@ const store = new Vuex.Store({
           },
           loadFilters: function (){
               var self = this;
-              axios.get('/api/suggestion?field=tags.name&size=1000').then(function(response){
-                  let tags = _.map(response.data.aggregations.field_values.buckets, function(item){
+              axios.get('/api/suggestion?field=tags.name').then(function(response){
+                  let temp_data = []
+                  for(key in response.data){
+                    temp_data.push({key: key, doc_count: response.data[key]})
+                  }
+                  let tags = _.map(temp_data, function(item){
                       return {'name':item.key, 'count': item.doc_count, 'active': false};
                   });
                   var payload = {};
                   payload["tags"] = tags;
                   store.commit('saveTags',payload);
 
-                  axios.get('/api/suggestion?field=info.contact.name&size=1000').then(function(response){
-                      let authors = _.map(response.data.aggregations.field_values.buckets, function(item){
+                  axios.get('/api/suggestion?field=info.contact.name').then(function(response){
+                      let temp_data = []
+                      for(key in response.data){
+                        temp_data.push({key: key, doc_count: response.data[key]})
+                      }
+                      let authors = _.map(temp_data, function(item){
                           return {'name':item.key, 'count': item.doc_count, 'active': false};
                       });
 
@@ -1378,8 +1385,6 @@ const store = new Vuex.Store({
               if (this.page < this.pages)
                   this.page += 1
           },
-
-
           getUserInfo: function(){
             var self= this;
             axios.get('/user').then(response=>{

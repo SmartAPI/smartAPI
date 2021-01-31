@@ -6,20 +6,26 @@
 .swal2-icon.swal2-warning{
   font-size: 1em;
 }
+.register_input{
+  width: 85% !important; 
+  margin: auto !important;
+}
+.m-0{
+  margin: 0px !important;
+}
 </style>
-<main id="regApp" class="dashboardBack row" style="margin: 0; display: flex;">
-
+<main id="registerAPI" class="blue-grey dashboardBack row m-0 darken-2">
   <div class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
     <div id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
       <object width="200px"  alt="SmartAPI" data="/static/img/api-welcome.svg" class=""></object>
       <h3 class="center blue-grey-text flow-text">Register your API metadata</h3>
-        <form id="apireg_form">
-            <input placeholder="Enter the URL to your raw API Metadata here" name="url" type="url" class="validate browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
-            <br>
-            <input type="checkbox" id="dry_run" name="dryrun"/>
-            <label for="dry_run">Dry run only. API won't actually saved.</label></p>
-            <button class="btn waves-effect waves-light red accent-2" onclick="javascript:this.form.reset()">Cancel</button>
-            <button class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
+        <form @submit.prevent="handleSubmit()">
+            <input placeholder="Enter the URL to your raw API Metadata here" v-model="url" name="url" type="url" class="validate register_input">
+            <div class="padding20">
+              <input type="checkbox" class="browser-default" id="dry_run" name="dryrun" v-model="dry_run"/>
+              <label for="dry_run">Dry run only. API won't actually saved.</label>
+            </div>
+            <button :class="[ready?'':'hide']" :disabled="!ready" class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
             <p class="center blue-text">
                If you hosted your data on GitHub make sure to use the raw data link!
             </p>
@@ -31,7 +37,7 @@
               <a href="/guide" class="btn blue">GUIDE</a>
             </p>
             <blockquote class="padding20 grey-text">
-              Swagger V2 can be submitted, however it will not experiece full functionality on SmartAPI and BioThings Explorer.
+              Swagger V2 can be submitted, however it will not experience full functionality on SmartAPI and BioThings Explorer.
               <br />
               <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
               <br />
@@ -40,15 +46,6 @@
         </form>
       </div>
     </div>
-  </div>
-
-  <a class="modal-trigger" href="#submit_mask"></a>
-
-  <div id="submit_mask" class="modal">
-    <div class="modal-content">
-      <h4>Submitting...</h4>
-    </div>
-  </div>
 </main>
 {% include "footer.html" %}
 {% endblock %}
@@ -57,25 +54,98 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-
 <script>
   var app = new Vue({
-    el: 'regApp',
-    data: function(){
-      return{
-        choice:''
+      el: '#registerAPI',
+      data: function(){
+        return {
+          url:'',
+          dry_run: false
+        }
+      },
+      computed:{
+        ready: function(){
+          return this.url ? true : false;
+        }
+      },
+      methods: {
+        handleSubmit: function(){
+          let self = this;
+          if(self.ready){
+            let data = {
+              url: self.url
+            }
+            if(self.dry_run){
+              data['dryrun'] = true;
+            }
+            axios.post("/api", data).then(res=>{
+              // console.log('response', res.data)
+              if(res.data.success){
+                if(res.data.hasOwnProperty('details') && res.data.details.includes("[Dryrun]")){
+                  swal({
+                      imageUrl: '/static/img/api-dryrun.svg',
+                      imageWidth: 300,
+                      imageAlt: 'Dry Run',
+                      title: res.data.details,
+                      html: "Because this is a dry run your data has <b>not</b> been saved. If you want to register your API, uncheck 'dry run' and try again.",
+                    })
+                }else if(res.data.hasOwnProperty('_id')){
+                  swal({
+                    imageUrl: '/static/img/api-sucess.svg',
+                    imageWidth: 300,
+                    title: 'Great! You are done!',
+                    html: "You can view your API documentation <b><a href='/registry?q="+res.data._id+"'>HERE</a></b>",
+                  })
+                }
+              }
+            }).catch(err=>{
+              if(err.hasOwnProperty('response') && err.response.hasOwnProperty('data')){
+                console.log('[Error]:', err.response)
+                if(err.response.data.hasOwnProperty('error') && err.response.data.error == "Conflict"){
+                swal({
+                  title: "Wait a second...",
+                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
+                  imageUrl: '/static/img/api-fail.svg',
+                  imageWidth: 300,
+                  confirmButtonText: 'OK',
+                });
+              }
+              else if(err.response.data.hasOwnProperty('details') && err.response.data.details == "API exists"){
+                swal({
+                  title: "Wait a second...",
+                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
+                  imageUrl: '/static/img/api-fail.svg',
+                  imageWidth: 300,
+                  confirmButtonText: 'OK',
+                });
+              }
+              else if(err.response.data.hasOwnProperty('details') && err.response.data.details.includes("Validation Error")){
+                swal({
+                  title: "Oh no!",
+                  imageUrl: '/static/img/api-fail.svg',
+                  imageWidth: 300,
+                  confirmButtonText: 'OK',
+                  html: "<h5>There's a problem...</h5><h6>Here's what we found:</h6><p><code class='red-text'>"+err.response.data.details+"</code></p>",
+                })
+              }
+              else{
+                swal({
+                  title: "Oops!",
+                  imageUrl: '/static/img/api-fail.svg',
+                  imageWidth: 300,
+                  confirmButtonText: 'OK',
+                  html: "<h5>There's something wrong...</h5><p>Error: <b class='red-text'>"+err.response.data.details || err.response.data+"</b></p>",
+                })
+              }
+              }
+            });
+          }
+        }
+      },
+      mounted: function(){
+        // 'url': {'type': str, 'required': True},
+        // 'dryrun': {'type': bool, 'default': False},
       }
-    },
-    methods:{
-
-    },
-    mounted: function(){
-      setTimeout(function(){
-        $('#arrowBox').slideDown('slow');
-      }, 1000);
-
-
-    }
   });
 </script>
 {% endblock %}
