@@ -48,13 +48,16 @@ class MainHandler(BaseHandler):
     def get(self):
         slug = self.request.host.split(".")[0]
         if slug and slug.lower() not in ['www', 'dev', 'smart-api', 'localhost:8000']:
-            api_id = SmartAPI.get_api_by_slug(slug)['_id']
-            if api_id:
-                swaggerUI_file = "smartapi-ui.html"
-                swagger_template = templateEnv.get_template(swaggerUI_file)
-                swagger_output = swagger_template.render(apiID=api_id)
-                self.write(swagger_output)
-                return
+            try:
+                api_id = SmartAPI.find(slug)
+                if api_id:
+                    swaggerUI_file = "smartapi-ui.html"
+                    swagger_template = templateEnv.get_template(swaggerUI_file)
+                    swagger_output = swagger_template.render(apiID=api_id)
+                    self.write(swagger_output)
+                    return
+            except Exception:
+                pass
         index_file = "index.html"
         index_template = templateEnv.get_template(index_file)
         index_output = index_template.render()
@@ -231,6 +234,7 @@ class APIEditorHandler(BaseHandler):
             Context=json.dumps({"Id": yourApiID, "Data": True}))
         self.write(swagger_output)
 
+
 class PortalHandler(BaseHandler):
 
     def get(self, portal=None):
@@ -246,6 +250,7 @@ class PortalHandler(BaseHandler):
             raise tornado.web.HTTPError(404)
         self.write(reg_output)
 
+
 class MetaKGHandler(BaseHandler):
 
     def get(self):
@@ -254,6 +259,7 @@ class MetaKGHandler(BaseHandler):
         output = template.render(Context=json.dumps(
             {"portal": 'translator'}))
         self.write(output)
+
 
 class TemplateHandler(BaseHandler):
 
@@ -269,6 +275,7 @@ class TemplateHandler(BaseHandler):
 
         self.set_status(self.status)
         self.write(output)
+
 
 APP_LIST = [
     (r"/", MainHandler),
@@ -292,5 +299,5 @@ APP_LIST = [
     (r"/privacy/?", TemplateHandler, {"filename": "privacy.html"}),
     (r"/branding/?", TemplateHandler, {"filename": "brand.html"}),
     (r"/guide/?", TemplateHandler, {"filename": "guide.html"}),
-    
+
 ]
