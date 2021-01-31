@@ -882,7 +882,7 @@ const store = new Vuex.Store({
             <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
               Swagger2
             </span>
-            <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.github_username === userInfo.login " class="versionBadge light-blue">
+            <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.username === userInfo.login " class="versionBadge light-blue">
               My&nbsp;API
             </a>
             <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
@@ -957,10 +957,10 @@ const store = new Vuex.Store({
             </template>
           </div>
           <div class="col s12 center">
-            <template v-if="api._meta && api._meta.github_username">
+            <template v-if="api._meta && api._meta.username">
               <small class="blue-grey-text">registered by</small>
                 <small class="white-text">
-                  <a :href="'https://github.com/'+api._meta.github_username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.github_username"></span></a>
+                  <a :href="'https://github.com/'+api._meta.username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.username"></span></a>
                 </small>
             </template>
           </div>
@@ -983,7 +983,7 @@ const store = new Vuex.Store({
             <button class="smallButton grey copyBtn" :data-clipboard-text="api._meta.url">
                 <i class="fa fa-clipboard" aria-hidden="true"></i>
             </button>
-            <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="userInfo && api._meta.github_username === userInfo.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
+            <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="userInfo && api._meta.username === userInfo.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
               target="_blank">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
             </a>
