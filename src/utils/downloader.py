@@ -111,7 +111,7 @@ class TornadoParser(ResponseParser):
         return self._response.body
 
 
-def download(url, timeout=5, raise_error=False):
+def download(url, timeout=5, raise_error=True):
     try:
         response = requests.get(url, timeout=timeout)
         if raise_error:
@@ -128,7 +128,7 @@ def download(url, timeout=5, raise_error=False):
         )
 
 
-async def download_async(url, timeout=20, raise_error=False):
+async def download_async(url, timeout=20, raise_error=True):
     client = httpclient.AsyncHTTPClient()
     try:
         response = await client.fetch(

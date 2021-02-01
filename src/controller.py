@@ -383,7 +383,7 @@ class APIWebDoc(AbstractStatus, AbstractDoc):
         if isinstance(content, File):
             file = content
         else:  # blocking network operation
-            file = download(self.url)
+            file = download(self.url, raise_error=False)
 
         self.raw = file.raw
         self.etag = file.etag

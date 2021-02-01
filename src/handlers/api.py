@@ -63,7 +63,7 @@ class ValidateHandler(BaseHandler):
         if self.args.url:
 
             try:
-                file = await download_async(self.args.url, raise_error=True)
+                file = await download_async(self.args.url)
             except DownloadError as err:
                 raise BadRequest(details=str(err))
             else:  # other file info irrelevent for validation
@@ -199,7 +199,7 @@ class APIHandler(BaseHandler):
 
         else:  # refresh the document TODO NOT FULLY TESTED
             try:
-                file = await download_async(smartapi.url, raise_error=True)
+                file = await download_async(smartapi.url)
                 smartapi.raw = file.raw
                 smartapi.save()
 
