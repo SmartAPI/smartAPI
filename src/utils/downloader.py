@@ -137,7 +137,7 @@ async def download_async(url, timeout=20, raise_error=False):
             ca_certs=certifi.where())
         result = TornadoParser(response)
     except httpclient.HTTPClientError as err:
-        raise DownloadError(type(err).__name__) from err
+        raise DownloadError(str(err)) from err
     except Exception as err:
         raise DownloadError(type(err).__name__) from err
     else:
