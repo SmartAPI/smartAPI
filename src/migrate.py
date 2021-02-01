@@ -3,10 +3,11 @@ import base64
 from elasticsearch.client import Elasticsearch
 from elasticsearch.helpers import scan
 
-from controller import ConflictError, ControllerError, OpenAPI, SmartAPI, Swagger
+from controller import ControllerError, OpenAPI, SmartAPI, Swagger
 from model import APIDoc
 from utils import decoder
 
+ES_ORIGIN = "http://smart-api.info:9200"
 ES_DESTINATION = "http://18.237.41.215:9200"
 
 
@@ -22,7 +23,7 @@ class MigrationSmartAPI(SmartAPI):
         else:  # then it must be swagger
             doc = Swagger(self._data)
 
-        # NOTE OVERRIDE
+        # OVERRIDE
         # try:
         #     doc.validate()  # basing on its format
         # except ValueError as err:
@@ -41,7 +42,6 @@ class MigrationSmartAPI(SmartAPI):
         _doc = self.validate()
         _doc.clean()  # only keep indexing fields
 
-        # NOTE
         # OVERRIDE
         # if self.slug:
         #     _id = self.find(self.slug)
@@ -56,11 +56,11 @@ class MigrationSmartAPI(SmartAPI):
         doc = APIDoc(**_doc)
         doc.meta.id = self._id
         doc._meta.url = self.url
-        doc._meta.timestamp = timestamp  # TODO HERE IS AN OVERRIDE
+        doc._meta.timestamp = timestamp  # OVERRIDE
         doc._meta.username = self.username
         doc._meta.slug = self.slug
         doc._raw = decoder.compress(self.raw)
-        doc.save(**kwargs)  # TODO HERE IS AN OVERRIDE
+        doc.save(**kwargs)  # OVERRIDE
 
         return self._id
 
@@ -70,7 +70,7 @@ def main():
     client = Elasticsearch(ES_DESTINATION)
 
     for doc in scan(
-        Elasticsearch("http://smart-api.info:9200"),
+        Elasticsearch(ES_ORIGIN),
         query={"query": {"match_all": {}}},
         index="smartapi_oas3",
         doc_type="api"
