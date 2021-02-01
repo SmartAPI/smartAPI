@@ -199,7 +199,7 @@ class APIHandler(BaseHandler):
 
         else:  # refresh the document TODO NOT FULLY TESTED
             try:
-                file = await download_async(self.args.url)
+                file = await download_async(smartapi.url, raise_error=True)
                 smartapi.raw = file.raw
                 smartapi.save()
 
@@ -207,7 +207,7 @@ class APIHandler(BaseHandler):
                 raise BadRequest(details=str(err)) from err
 
             try:  # maintain secondary index
-                web = APIWebDoc(self.args.url)
+                web = APIWebDoc(smartapi.url)
                 web.refresh(file)
                 web.save()
             except Exception:
