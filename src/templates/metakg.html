@@ -110,9 +110,6 @@
               <pill-box type="output_type"></pill-box>
             </div>
             <div class="col s12 center">
-              <!-- <button class="btn blue" type="submit" name="search">
-                Search
-              </button> -->
               <button v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
                 Clear
               </button>
@@ -152,16 +149,6 @@
                   <i class="fa fa-info-circle resultInfo pointer green-text" aria-hidden="true"
                     style="float: right;"></i>
                 </small>
-                <small class="d-block">
-                  <template v-for="tag in item.tags">
-                    <small class="s-badge blue darken-2 white-text" v-if="tag =='translator'" :key="tag"
-                      v-text="tag"></small>
-                    <small class="s-badge cyan darken-2 white-text" v-if="tag =='biothings'" :key="tag"
-                      v-text="tag"></small>
-                    <small class="s-badge purple darken-2 white-text" v-if="tag =='reasoner'" :key="tag"
-                      v-text="tag"></small>
-                  </template>
-                </small>
                 <small class="s-badge lighten-4 grey-text" v-text="item.association.input_type"></small>
                 <i class="fa fa-arrow-circle-right grey-text" aria-hidden="true"></i>
                 <small class="s-badge lighten-5 purple-text" v-text="item.association.predicate"></small>
@@ -186,23 +173,9 @@
           <h4>Loading...</h4>
         </div>
         <div v-show="!loading" class="d-flex justify-content-around">
-          <small class="pointer grey-text" @click="showAPIS = !showAPIS">
-            <span v-text="showAPIS?'Hide':'Show'"></span> APIs
-          </small>
           <small class="pointer grey-text" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
               aria-hidden="true"></i> Reset
             Zoom</small>
-        </div>
-        <div v-show="showAPIS">
-          <canvas class="col s12" id="myChart" width="100%" height="150" style="margin: auto;"></canvas>
-          <div class="apisCont">
-            <template v-for="(num,api) in apis" :key="api">
-              <span class="pointer api-pill" :class="getClass(api)" @mouseenter="handleME(api)"
-                @mouseleave="handleML(api)">
-                <span v-text="api"></span>&nbsp;<span class="yellow-text" v-text="'('+num+')'"></span>
-              </span>
-            </template>
-          </div>
         </div>
         <div v-if="!loading && results.length == 0" class="deep-orange-text padding20 center">
           <img src="/static/img/api-error.svg" width="150px" alt="oh no.." />
@@ -219,16 +192,8 @@
           </template>
         </div>
         <div v-show="!loading" class="text-right container d-flex justify-content-around">
-          <small class="pointer grey-text" @click="showTags = !showTags">
-            <span v-text="showTags?'Hide':'Show'"></span> Tags
-          </small>
           <small class="pointer grey-text" @click="download">
             <i class="fa fa-download" aria-hidden="true"></i> Download Image
-          </small>
-          <small class="pointer grey-text" @click="toggleSpread()">
-            Switch Layout
-            <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
-            <span v-text="spread?'Spread (Better for more results)':'Compact (Better for less results)'"></span>
           </small>
         </div>
       </div>
@@ -248,17 +213,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.1/remarkable.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
 <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-popper@1.0.5/cytoscape-popper.min.js"></script>
 <script src="https://unpkg.com/tippy.js@5/dist/tippy-bundle.iife.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/tippy.js@5/dist/backdrop.css" />
-	<link rel="stylesheet" href="https://unpkg.com/tippy.js@5/themes/light.css" />
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@5/themes/light.css" />
 
-<!-- <script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script> -->
 <script>
   // vue dev tools on inspector
-  Vue.config.devtools = true
+  // Vue.config.devtools = true
 
   const store = new Vuex.Store({
     state: {
@@ -323,42 +286,6 @@
         state.input_type = [];
         state.output_type = [];
       },
-      toggleSpread(state) {
-
-        state.spread = !state.spread
-
-        if (!state.spread) {
-          let l = this.cy.layout({
-            name: 'concentric',
-            avoidOverlap: true,
-            avoidOverlapPadding: 300,
-            minNodeSpacing: 300,
-            nestingFactor: 1.2,
-            initialTemp: 1000,
-            coolingFactor: 0.99,
-            minTemp: 1.0,
-            gravity: 1.4,
-          });
-          this.cy.$('edge:selected').css({
-            "z-index": 1000,
-          })
-
-          l.run();
-        } else {
-          let l = this.cy.layout({
-            name: 'grid',
-            avoidOverlap: true,
-            avoidOverlapPadding: 300,
-            minNodeSpacing: 300,
-            nestingFactor: 1.2,
-            initialTemp: 1000,
-            coolingFactor: 0.99,
-            minTemp: 1.0,
-            gravity: 1.4
-          });
-          l.run();
-        }
-      },
       saveInput(state, payload) {
 
         let name = payload['name'];
@@ -384,152 +311,76 @@
         this.cy = cytoscape({
           container: document.getElementById('cy'),
           elements: state.cyto_data,
+          hideEdgesOnViewport: true,
           layout: {
             name: "concentric",
             avoidOverlap: true,
-            avoidOverlapPadding: 300,
+            avoidOverlapPadding: 200,
             minNodeSpacing: 10,
-            minNodeSpacing: 300,
-            nestingFactor: 1.2,
-            initialTemp: 1000,
-            coolingFactor: 0.99,
-            minTemp: 1.0,
-            gravity: 1.4,
+            minNodeSpacing: 200,
           },
-          style: cytoscape.stylesheet()
-            .selector('node')
-            .css({
-              'content': 'data(name)',
-              "text-valign": "bottom",
-              "text-halign": "center",
-              'color': '#3c5f99',
-              'background-fit': 'cover',
-              'border-color': '#000',
-              'border-width': 3,
-              'border-opacity': 0.5,
-              'font-size': '3em',
-              'text-outline-width': 4,
-              'text-outline-color': 'white',
-              'background-color': '#9c27b0',
-              'z-index': 1000
-            })
-            .selector('node:selected')
-            .css({
-              'color': 'red',
-              'border-color': 'red',
-              'border-width': 3,
-              'border-opacity': 0.7,
-            })
-            .selector(':parent')
-            .css({
-              'text-valign': 'top',
-              'text-halign': 'center',
-              'color': '#9c27b0',
-              'border-color': '#9c27b0',
-              'border-style': 'dotted',
-              'border-width': 4,
-              'background-opacity': 0,
-              'z-compound-depth': 'orphan'
-            })
-            .selector('edge').css({
-              'curve-style': 'bezier',
-              'line-color': 'lightblue',
-              'target-arrow-shape': 'triangle',
-              'target-arrow-color': '#257FC5',
-              'width': 2,
-              'z-index': 1,
-            })
-            .selector('edge:selected').css({
-              'source-text-offset': 150,
-              'text-background-color': '#f0f0f0',
-              'text-background-padding': 10,
-              'text-background-opacity': 1,
-              'text-background-shape': 'roundrectangle',
-              'text-wrap': 'wrap',
-              'edge-text-rotation': 'autorotate',
-              'z-index': 1000,
-              'color': '#9c27b0',
-              'font-size': '2.5em',
-              'width': 4,
-              'line-color': '#f24141',
-              'target-arrow-color': '#f24141',
-              'arrow-scale': 2
-            })
-            .selector('#Gene').css({
-              'background-image': '/static/img/graph/Gene.png',
-            })
-            .selector('#BiolinkGene').css({
-              'background-image': '/static/img/graph/BiolinkGene.png',
-            })
-            .selector('#Cell').css({
-              'background-image': '/static/img/graph/Cell.png',
-            })
-            .selector('#SequenceVariant').css({
-              'background-image': '/static/img/graph/SequenceVariant.png',
-            })
-            .selector('#Protein').css({
-              'background-image': '/static/img/graph/Protein.png',
-            })
-            .selector('#CellularComponent').css({
-              'background-image': '/static/img/graph/CellularComponent.png',
-            })
-            .selector('#ChemicalSubstance').css({
-              'background-image': '/static/img/graph/ChemicalSubstance.png',
-            })
-            .selector('#BiolinkChemicalSubstance').css({
-              'background-image': '/static/img/graph/BiolinkChemicalSubstance.png',
-            })
-            .selector('#AnatomicalEntity').css({
-              'background-image': '/static/img/graph/AnatomicalEntity.png',
-            })
-            .selector('#PhenotypicFeature').css({
-              'background-image': '/static/img/graph/PhenotypicFeature.png',
-            })
-            .selector('#Transcript').css({
-              'background-image': '/static/img/graph/Transcript.png',
-            })
-            .selector('#Disease').css({
-              'background-image': '/static/img/graph/Disease.png',
-            })
-            .selector('#Pathway').css({
-              'background-image': '/static/img/graph/Pathway.png',
-            })
-            .selector('#BiologicalProcess').css({
-              'background-image': '/static/img/graph/BiologicalProcess.png',
-            })
-            .selector('#MolecularActivity').css({
-              'background-image': '/static/img/graph/MolecularActivity.png',
-            })
-            .selector('#GenomicEntity').css({
-              'background-image': '/static/img/graph/GenomicEntity.png',
-            })
-            .selector('#Phenotype').css({
-              'background-image': '/static/img/graph/Phenotype.png',
-            })
-            .selector('#Biolink\\:disease').css({
-              'background-image': '/static/img/graph/Disease.png',
-            })
-            .selector('#Biolink\\:drug').css({
-              'background-image': '/static/img/graph/Drug.png',
-            })
-            .selector('#Biolink\\:populationOfIndividualOrganisms').css({
-              'background-image': '/static/img/graph/Group.png',
-            })
-            .selector('#Biolink\\:procedure').css({
-              'background-image': '/static/img/graph/Procedure.png',
-            })
-            .selector('.highlightedTag')
-            .css({
-              'line-color': '#673782',
-              'target-arrow-color': '#f24141',
-              'width': 4,
-            })
-            .selector('.highlightedAPI')
-            .css({
-              'line-color': 'red',
-              'target-arrow-color': '#f24141',
-              'width': 4,
-            })
+          style: [
+            {
+              selector: 'node',
+              style: {
+                'content': 'data(name)',
+                'min-zoomed-font-size': '2em',
+                "text-valign": "bottom",
+                "text-halign": "center",
+                'color': '#3c5f99',
+                'font-size': '3em',
+                'text-outline-width': 4,
+                'text-outline-color': 'white',
+                'background-color': '#9c27b0',
+                'z-index': 1000
+              }
+            },
+            {
+              selector: 'node:selected',
+              style:{
+                'background-color': 'red',
+              }
+            },
+            {
+              selector: 'edge',
+              style:{
+                'curve-style': 'bezier',
+                'line-color': 'lightblue',
+                'target-arrow-shape': 'triangle',
+                'target-arrow-color': '#257FC5',
+                'width': 2,
+                'z-index': 1,
+              }
+            },
+            {
+              selector: 'edge:selected',
+              style:{
+                'z-index': 1000,
+                'color': '#9c27b0',
+                'font-size': '2.5em',
+                'width': 4,
+                'line-color': '#f24141',
+                'target-arrow-color': '#f24141',
+                'arrow-scale': 2
+              }
+            },
+            {
+              selector: '.highlightedTag',
+              style:{
+                'line-color': '#673782',
+                'target-arrow-color': '#f24141',
+                'width': 4,
+              }
+            },
+            {
+              selector: '.highlightedAPI',
+              style:{
+                'line-color': 'red',
+                'target-arrow-color': '#f24141',
+                'width': 4,
+                }
+            },
+          ]
         });
 
         this.cy.$('node').on('grab', function (e) {
@@ -682,100 +533,79 @@
       loadMetaKG(state, payload) {
         state.meta_kg = payload['graph']
         //Initial data Processing
-        //Create Edges and Nodes
-        //
         const t0 = performance.now();
         //all nodes and edges
         let data = []
         let nodes = new Set()
-        //tags found in APIs
-        let tagList = new Set()
-
         state.operationsTotal = state.meta_kg.ops.length
 
-        // console.log(state.meta_kg.ops)
+        console.log(state.meta_kg.ops)
 
-        for (var i = 0; i < state.meta_kg.ops.length; i++) {
+        state.meta_kg.ops.forEach((op, i) => {
+          
+          nodes.add(op['association']['input_type']);
+          nodes.add(op['association']['output_type']);
 
-          if (state.meta_kg.ops[i].hasOwnProperty('tags')) {
-            for (var x = 0; x < state.meta_kg.ops[i]['tags'].length; x++) {
-              tagList.add(state.meta_kg.ops[i]['tags'][x])
-            }
-          }
-          nodes.add(state.meta_kg.ops[i]['association']['input_type'])
-          nodes.add(state.meta_kg.ops[i]['association']['output_type'])
+          let edgeName = op['association']['api_name'] + ' : ' + op['association']['predicate'];
 
-          let edgeName = state.meta_kg.ops[i]['association']['api_name'] + ' : ' + state.meta_kg.ops[i][
-            'association'
-          ]['predicate']
-
-          let edge = { // edge ab
+          let edge = {
             group: 'edges',
             data: {
               id: edgeName + i,
               name: edgeName,
-              predicate: state.meta_kg.ops[i]['association']['predicate'],
-              output_id: state.meta_kg.ops[i]['association']['output_id'],
-              api_name: state.meta_kg.ops[i]['association']['api_name'],
-              tags: state.meta_kg.ops[i]['tags'],
-              type: state.meta_kg.ops[i]['association']['api_name'],
-              source: state.meta_kg.ops[i]['association']['input_type'],
-              target: state.meta_kg.ops[i]['association']['output_type'],
+              predicate: op['association']['predicate'],
+              output_id: op['association']['output_id'],
+              api_name: op['association']['api_name'],
+              type: op['association']['api_name'],
+              source: op['association']['input_type'],
+              target: op['association']['output_type'],
             }
           };
 
-          data.push(edge)
+          data.push(edge);
 
           // Autocomplete
-          if (!state.output_autocomplete.includes(state.meta_kg.ops[i]['association']['output_type'])) {
-            state.output_autocomplete.push(state.meta_kg.ops[i]['association']['output_type'])
+          if (!state.output_autocomplete.includes(op['association']['output_type'])) {
+            state.output_autocomplete.push(op['association']['output_type']);
           }
-          if (!state.input_autocomplete.includes(state.meta_kg.ops[i]['association']['input_type'])) {
-            state.input_autocomplete.push(state.meta_kg.ops[i]['association']['input_type'])
+          if (!state.input_autocomplete.includes(op['association']['input_type'])) {
+            state.input_autocomplete.push(op['association']['input_type']);
           }
-          if (!state.predicate_autocomplete.includes(state.meta_kg.ops[i]['association']['predicate'])) {
-            state.predicate_autocomplete.push(state.meta_kg.ops[i]['association']['predicate'])
+          if (!state.predicate_autocomplete.includes(op['association']['predicate'])) {
+            state.predicate_autocomplete.push(op['association']['predicate']);
           }
 
           // APIs
-          if (state.meta_kg.ops[i]['association']['api_name'] in state.apis) {
-            state.apis[state.meta_kg.ops[i]['association']['api_name']]++
+          if (op['association']['api_name'] in state.apis) {
+            state.apis[op['association']['api_name']]++
           } else {
-            state.apis[state.meta_kg.ops[i]['association']['api_name']] = 1
+            state.apis[op['association']['api_name']] = 1
           }
 
-        }
+        });
 
 
-        let nodesFinal = []
-
-        nodes = [...nodes]
-
-        for (let index = 0; index < nodes.length; index++) {
-          const element = nodes[index];
-          let node = { 
+        [...nodes].forEach(node => {
+          data.push({ 
             group: 'nodes',          
             data: {
-              name: element,
-              id: element
+              name: node,
+              id: node
             }
-          };
-          nodesFinal.push(node) 
-        }
+          });
+        });
 
-        //array-ify tag list
-        state.tagList = [...tagList]
-        state.cyto_data = data.concat(nodesFinal)
+        state.cyto_data = data;
 
         //save backup of all options for getNewOptions
-        state.predicate_autocomplete_all = state.predicate_autocomplete
+        state.predicate_autocomplete_all = state.predicate_autocomplete;
 
         let p = {}
         p['loading'] = false;
-        store.commit('toggleLoading', p)
+        store.commit('toggleLoading', p);
 
         // starting results on left panel
-        state.results = state.meta_kg.ops
+        state.results = state.meta_kg.ops;
 
         const t1 = performance.now();
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
@@ -788,56 +618,43 @@
         const t0 = performance.now();
 
         let data = []
-        let edges = []
         let nodes = new Set()
-        for (var i = 0; i < state.results.length; i++) {
 
-          nodes.add(state.results[i]['association']['input_type'])
-          nodes.add(state.results[i]['association']['output_type'])
+        state.results.forEach((result, i) => {
+          nodes.add(result['association']['input_type'])
+          nodes.add(result['association']['output_type'])
 
-          let edgeName = state.results[i]['association']['api_name'] + ' : ' + state.results[i]['association'][
+          let edgeName = result['association']['api_name'] + ' : ' + result['association'][
             'predicate'
           ]
 
-          let edge = { // edge ab
+          let edge = {
             group: 'edges',
             data: {
               id: edgeName + i,
               name: edgeName,
-              predicate: state.results[i]['association']['predicate'],
-              output_id: state.results[i]['association']['output_id'],
-              api_name: state.results[i]['association']['api_name'],
-              tags: state.meta_kg.ops[i]['tags'],
-              source: state.results[i]['association']['input_type'],
-              target: state.results[i]['association']['output_type'],
+              predicate: result['association']['predicate'],
+              output_id: result['association']['output_id'],
+              api_name: result['association']['api_name'],
+              source: result['association']['input_type'],
+              target: result['association']['output_type'],
             }
           };
 
-          edges.push(edge)
-
-        }
+          data.push(edge)
+        });
         
-        let nodesFinal = []
-
-        nodes = [...nodes]
-        let parentNodesSet = new Set()
-
-        for (let index = 0; index < nodes.length; index++) {
-          const element = nodes[index];
-          let node = { 
-            group: 'nodes',
+        [...nodes].forEach(node => {
+          data.push({ 
+            group: 'nodes',          
             data: {
-              name : element,
-              id : element,
+              name: node,
+              id: node
             }
-          };
-          nodesFinal.push(node)         
-        }
+          });
+        });
 
-        // nodesFinal = _.sortBy(nodesFinal, [function(o) { return o.data.parent; }]);
-      
-
-        state.cyto_data = data.concat(edges).concat(nodesFinal)
+        state.cyto_data = data
 
         const t1 = performance.now();
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
@@ -1009,20 +826,6 @@
       }) {
         this.cy.fit();
       },
-      // handle_metaKG_Query ({ commit, state }, q){
-      //   if (!q.predicate[0].length) {
-      //     document.getElementById('callResults').innerHTML= '<h4 class="red-text">You must enter something first</h4>';
-      //   }else{
-      //     // console.log(q)
-      //
-      //     var payload = {};
-      //     payload["res"] = state.meta_kg.filter(q);
-      //     commit('saveResults',payload);
-      //
-      //     commit('drawGraph');
-      //   }
-      //
-      // },
       highlightThis({
         commit,
         state
@@ -1503,12 +1306,6 @@
           self.apisProcessed = true;
         }
       },
-      showAPIS: function (s) {
-        if (s) {
-          var self = this;
-          self.drawPie();
-        }
-      },
       loading: function (isLoading) {
         var self = this;
         if (!isLoading) {
@@ -1531,52 +1328,6 @@
       }
     },
     methods: {
-      drawPie() {
-        var self = this;
-
-        let = sorted = _(self.apis)
-          .toPairs()
-          .orderBy([1], ['desc'])
-          .fromPairs()
-          .value()
-
-        let labels = Object.keys(sorted);
-        let data = Object.values(sorted);
-
-
-
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: labels,
-            datasets: [{
-              // label: '# of Votes',
-              data: data,
-              backgroundColor: ["#17202A", "#1B2631", "#212F3C", "#283747", "#2E4053", "#34495E", "#5D6D7E",
-                "#85929E", "#AEB6BF", "#D6DBDF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF",
-                "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF",
-                "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF",
-                "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF", "#EBEDEF"
-              ],
-              borderWidth: 1,
-            }],
-
-          },
-          options: {
-            legend: {
-              display: false
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            title: {
-              display: true,
-              text: 'Operations per API'
-            }
-          }
-        });
-
-      },
       allWithTag: function (name) {
         var payload = {};
         payload["highlight"] = name
@@ -1742,9 +1493,6 @@
         payload["unhighlight"] = edgeName;
         payload['item'] = item;
         store.dispatch('unhighlightRow', payload)
-      },
-      toggleSpread() {
-        store.commit('toggleSpread');
       },
       loadExample() {
         store.commit('reset');
