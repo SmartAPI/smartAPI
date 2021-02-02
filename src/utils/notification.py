@@ -8,21 +8,16 @@ try:
 except ImportError:
     SLACK_WEBHOOKS = []
 
-class Notification(dict):
+class Message():
     """
-    Processable fields: title, description, _id, x-translator
+    Notify of new API registered by user
+    Processable fields: title, description, _id
     """
 
-    def __getattr__(self, attr):
-        if attr in ('_id', 'title', 'description', 'x-translator'):
-            if attr in self['title']:
-                if attr == 'description':
-                    return self['title'][attr][:150] + '...'
-                return self['title'][attr]
-            if attr in self:
-                return self[attr]
-            return ""
-        raise AttributeError()
+    def __init__(self, user, api):
+        self.user = user
+        self.api = api
+        self.translator_api = self.api.get('x-translator', False)
 
     def to_slack_payload(self):
         """
@@ -30,11 +25,19 @@ class Notification(dict):
         https://api.slack.com/messaging/composing/layouts
         """
         blocks = []
+
+        if self.translator_api:
+            header_title = ":large_purple_circle: New Translator API Registered"
+            color = "#642F6B"
+        else:
+            header_title = ":large_blue_circle: New API Registered"
+            color = "#3080C1"
+
         blocks.append({
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": ":large_blue_circle: New API Registered",
+                    "text": header_title,
                     "emoji": True
                 }
             })
@@ -42,55 +45,67 @@ class Notification(dict):
             "type": "divider"
         })
 
-        if self.title:
+        if self.api.get('info', {}).get('title', ''):
             blocks.append({
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": ":large_blue_circle: " + self.title,
-                    "emoji": True
-                }
-            })
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Name*: " + self.api['info']['title']
+			}
+		})
 
-        if self.description:
-            body = {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": self.description},
-            }
-            blocks.append(body)
-
-            if self['x-translator']:
-                img_url = "https://smart-api.info/static/img/slack_translator.png"
-            else:
-                mg_url = "https://smart-api.info/static/img/owl-fly.gif"
-
-            body["accessory"] = {
-                "type": "image",
-                "image_url": img_url,
-                "alt_text": "SmartAPI"
-            }
-            blocks.append(body)
-
-        if self._id:
+        if self.api.get('info', {}).get('description', ''):
             blocks.append({
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "View details"
-                },
-                "accessory": {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Click Here",
-                    },
-                    "value": "registry_click",
-                    "url": "http://smart-api.info/registry?q=" + self._id,
-                    "action_id": "button-action"
+                    "text": "*Description*: " + self.api['info']['description']
                 }
             })
+
+        if self.user:
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*Registered by*: <https://github.com/{self.user}|{self.user}>"
+                }
+            })
+
+        if self.api.get('_id', ''):
+            registry_url = f"http://smart-api.info/registry?q={self.api['_id']}"
+            docs_url = f"http://smart-api.info/ui/{self.api['_id']}"
+
+            blocks.append({
+			"type": "context",
+			"elements": [
+				{
+					"type": "image",
+					"image_url": "https://smart-api.info/static/img/owl-fly.gif",
+					"alt_text": "SmartAPI"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"<{registry_url}|View on SmartAPI>"
+				},
+				{
+					"type": "plain_text",
+					"text": "   |  "
+				},
+				{
+					"type": "mrkdwn",
+					"text": ":book:"
+				},
+				{
+					"type": "mrkdwn",
+					"text": f"<{docs_url}|View API Documentation>"
+				}
+			]
+		})
+
         return {
             "attachments": [{
+                "color": color,
                 "blocks": blocks
             }]
         }
@@ -130,7 +145,7 @@ def test_slack():
     """test slack notification on main channel
     """
     response = slack_msg.send()
-    print(response)
+    print(response.status_code)
 
 if __name__ == '__main__':
     test_slack()
