@@ -25,12 +25,15 @@ class Message():
         https://api.slack.com/messaging/composing/layouts
         """
         blocks = []
+        title = self.api.get('info', {}).get('title', '')
 
         if self.translator_api:
             header_title = ":large_purple_circle: New Translator API Registered"
+            fallback_text = f":large_purple_circle: New API Registered: {title}"
             color = "#642F6B"
         else:
             header_title = ":large_blue_circle: New API Registered"
+            fallback_text = f":large_blue_circle: New API Registered: {title}"
             color = "#3080C1"
 
         blocks.append({
@@ -41,36 +44,17 @@ class Message():
                     "emoji": True
                 }
             })
-        blocks.append({
-            "type": "divider"
-        })
 
-        if self.api.get('info', {}).get('title', ''):
-            blocks.append({
+        description = self.api.get('info', {}).get('description', '')[:120] + '...'
+        user = self.user
+
+        blocks.append({
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "*Name*: " + self.api['info']['title']
+				"text": f"*Name*: {title} \n *Description*: {description} \n *Registered by*: <https://github.com/{user}|{user}>"
 			}
 		})
-
-        if self.api.get('info', {}).get('description', ''):
-            blocks.append({
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*Description*: " + self.api['info']['description']
-                }
-            })
-
-        if self.user:
-            blocks.append({
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*Registered by*: <https://github.com/{self.user}|{self.user}>"
-                }
-            })
 
         if self.api.get('_id', ''):
             registry_url = f"http://smart-api.info/registry?q={self.api['_id']}"
@@ -90,7 +74,7 @@ class Message():
 				},
 				{
 					"type": "plain_text",
-					"text": "   |  "
+					"text": " | "
 				},
 				{
 					"type": "mrkdwn",
@@ -102,12 +86,10 @@ class Message():
 				}
 			]
 		})
-
+        # send as message
         return {
-            "attachments": [{
-                "color": color,
-                "blocks": blocks
-            }]
+            "text": fallback_text,
+            "blocks": blocks
         }
     
     def send(self):
