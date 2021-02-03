@@ -24,6 +24,9 @@
       <i class="fa fa-cog fa-spin fa-fw fa-3x"></i>
     </div>
     <div class="col s12 m10 center">
+      <h6 class="grey-text">
+        This process might take several seconds.
+      </h6>
       <h6 class="white-text">
         <template v-if="!apisLoaded">
           <i class="fa fa-cog fa-spin fa-fw"></i>
@@ -34,12 +37,6 @@
           API metadata loaded
         </template>
       </h6>
-      <ul>
-        <li v-for="(p,i) in processes" :key="i">
-          <i class="fa fa-check green-text" aria-hidden="true"></i>
-          <small v-text="p"></small>
-        </li>
-      </ul>
       <h6 class="white-text">
         <template v-if="!apisProcessed">
           <i class="fa fa-cog fa-spin fa-fw"></i>
@@ -245,16 +242,11 @@
       "operationsTotal": 0,
       "loading": false,
       "predicate_autocomplete_all": [],
-      "processes": []
     },
     strict: true,
     mutations: {
       toggleLoading(state, payload) {
         state.loading = payload['loading'];
-      },
-      addProcess(state, payload) {
-        let process = payload['p'];
-        state.processes.push(process)
       },
       reset(state) {
         let changes = false
@@ -461,8 +453,6 @@
         const t1 = performance.now();
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
         console.log(`%c Rendering graph took ${seconds} seconds.`, 'color:yellow');
-
-        state.processes.push(`Rendered graph in ${seconds} seconds.`)
       },
       saveContext(state, payload) {
         state.name = payload['context']['portal'];
@@ -526,8 +516,6 @@
         const t1 = performance.now();
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
         console.log(`%c (getNewOptions) Calculating input options took ${seconds} seconds.`, 'color:cyan');
-
-        state.processes.push(`Calculated input options in ${seconds} seconds.`)
 
       },
       loadMetaKG(state, payload) {
@@ -610,8 +598,6 @@
         const t1 = performance.now();
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
         console.log(`%c Parsing initial data took ${seconds} seconds.`, 'color:pink');
-
-        state.processes.push(`Processed initial data in ${seconds} seconds.`)
       },
       saveResults(state, payload) {
         state.results = payload['res']
@@ -814,9 +800,6 @@
       },
       getLoading: (state) => {
         return state.loading
-      },
-      getProcesses: (state) => {
-        return state.processes
       },
     },
     actions: {
@@ -1295,9 +1278,6 @@
       tagList: function () {
         return store.getters.getTagList
       },
-      processes: function () {
-        return store.getters.getProcesses
-      },
     },
     watch: {
       apis: function (a) {
@@ -1384,28 +1364,18 @@
       async loadKG() {
         var self = this;
 
-        let meta_kg = new kg()
+        let meta_kg = new kg();
         //load meta-kg API graph with reasoner APIs
         const t0 = performance.now();
-        await meta_kg.constructMetaKG(includeReasoner = true)
+        await meta_kg.constructMetaKG(includeReasoner = true);
         const t1 = performance.now();
         self.apisLoaded = true;
         //performance check
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
         console.log(`%c Getting Meta-KG graph took ${seconds} seconds.`, 'color:limegreen');
 
-        var payl = {};
-        payl["p"] = `Got Meta-KG graph in ${seconds} seconds.`;
-        store.commit('addProcess', payl)
         //send graph data to store for processing
-        var payload = {};
-        payload["graph"] = meta_kg;
-        store.commit('loadMetaKG', payload)
-
-        self.drawCytoscape();
-      },
-      drawCytoscape() {
-        //
+        store.commit('loadMetaKG', {'graph': meta_kg});
         store.commit('drawGraph');
       },
       parseKGData() {
