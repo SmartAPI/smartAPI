@@ -30,11 +30,9 @@ class Message():
         if self.translator_api:
             header_title = ":large_purple_circle: New Translator API Registered"
             fallback_text = f":large_purple_circle: New API Registered: {title}"
-            color = "#642F6B"
         else:
             header_title = ":large_blue_circle: New API Registered"
             fallback_text = f":large_blue_circle: New API Registered: {title}"
-            color = "#3080C1"
 
         blocks.append({
                 "type": "header",
