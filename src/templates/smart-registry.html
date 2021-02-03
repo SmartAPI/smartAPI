@@ -70,6 +70,9 @@
     transform: translate(24px, 0);
   }
 }
+.apiDetails tbody tr td{
+  padding: 3px;
+}
 </style>
 {% raw %}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -929,68 +932,93 @@ const store = new Vuex.Store({
           <a style="border-radius: 20px;" class="btn getBTEApis" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" href="#" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></a>
       </div>
       <div class="card-content detailsBack" v-if="showDetails || apis.length === 1">
-        <div class="row" style="width:60%;magin;margin: auto !important;">
+        <div class="row">
           <div class="col s12 right-align">
             <small class="grey-text">Updated: </small><small class="white-text"><span v-text="getDate(api._meta.timestamp)"></span> </span></small>
           </div>
-          <div class="col s12 center">
-            <h5 class="grey-text"><span class="white-text bold">
-              <span v-text="api.info.title"></span>
-              </span> V <span v-text="api.info.version"></span>
-            </h5>
+          <div class="col s12 left">
+            <h4 class="white-text bold m" style="display:inline-block;" v-text="api.info.title"></h4>
+            <h6 class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></h6>
           </div>
-          <div class="col s12 center">
-            <template v-for='name in checkForName(api)'>
-              <template v-if="name != 'Name Unavailable'">
-                <small class="blue-grey-text">by</small>
-                <small class="white-text">
-                  <i class="fa fa-user" aria-hidden="true"></i> <span v-text="name"></span>
-                </small>
-              </template>
-            </template>
+          <div class="col s12">
+            <table class="apiDetails">
+              <colgroup>
+                <col span="1" style="width:25%">
+                <col span="1" style="width:75%">
+              </colgroup>
+              <tbody>
+                <template v-for='name in checkForName(api)'>
+                  <tr v-if="name != 'Name Unavailable'">
+                    <td>
+                      <small class="white-text">Created By</small>
+                    </td>
+                    <td>
+                      <small class="white-text">
+                        <i class="fa fa-user" aria-hidden="true"></i> <span v-text="name"></span>
+                      </small>
+                    </td>
+                  </tr>
+                </template>
+                <tr>
+                  <td>
+                    <small class="white-text">Registered by</small>
+                  </td>
+                  <td>
+                    <small class="white-text">
+                      <a :href="'https://github.com/'+api._meta.username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.username"></span></a>
+                    </small>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <small class="white-text">SmartAPI ID</small>
+                  </td>
+                  <td>
+                    <a class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>
+                      <small>
+                        <span :id="'id'+api._id" :value="api._id" v-text="api._id"></span> <i class="fa fa-external-link" aria-hidden="true"></i>
+                      </small>
+                    </a>
+                    <button class="smallButton grey copyBtn" :data-clipboard-text="api._id">
+                        <i class="fa fa-clipboard" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <small class="white-text">Metadata URL</small>
+                  </td>
+                  <td>
+                    <a class="link" target="_blank" v-bind:href='api._meta.url'>
+                      <small><span v-text="_.truncate(api._meta.url)"></span> <i class="fa fa-external-link" aria-hidden="true"></i></small>
+                    </a>
+                    <button class="smallButton grey copyBtn" :data-clipboard-text="api._meta.url">
+                        <i class="fa fa-clipboard" aria-hidden="true"></i>
+                    </button>
+                    <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="userInfo && api._meta.username === userInfo.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
+                      target="_blank">
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <small class="white-text">SmartAPI Registry URL</small>
+                  </td>
+                  <td>
+                    <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
+                      <small><span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q=<span v-text="api._id"></span> </span></small>
+                    </a>
+                    <button class="smallButton grey copyBtn" :data-clipboard-text="'http://smart-api.info/registry?q='+api._id">
+                        <i class="fa fa-clipboard" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div class="col s12 center">
-            <template v-if="api._meta && api._meta.username">
-              <small class="blue-grey-text">registered by</small>
-                <small class="white-text">
-                  <a :href="'https://github.com/'+api._meta.username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.username"></span></a>
-                </small>
-            </template>
-          </div>
-          <div class="col s12 center">
-            <small class="white-text">SmartAPI ID</small>
-            <a class="link" target="_blank" v-bind:href='"/api/metadata/"+api._id'>
-              <small>
-                <span :id="'id'+api._id" :value="api._id" v-text="api._id"></span> <i class="fa fa-external-link" aria-hidden="true"></i>
-              </small>
-            </a>
-            <button class="smallButton grey copyBtn" :data-clipboard-text="api._id">
-                <i class="fa fa-clipboard" aria-hidden="true"></i>
-            </button>
-          </div>
-          <div class="col s12 center">
-            <small class="white-text">Metadata URL</small>
-            <a class="link" target="_blank" v-bind:href='api._meta.url'>
-              <small><span v-text="_.truncate(api._meta.url)"></span> <i class="fa fa-external-link" aria-hidden="true"></i></small>
-            </a>
-            <button class="smallButton grey copyBtn" :data-clipboard-text="api._meta.url">
-                <i class="fa fa-clipboard" aria-hidden="true"></i>
-            </button>
-            <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="userInfo && api._meta.username === userInfo.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
-              target="_blank">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
-            </a>
-          </div>
-          <div class="col s12 center">
-            <small class="white-text">SmartAPI Registry URL</small>
-            <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
-              <small><span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q=<span v-text="api._id"></span> </span></small>
-            </a>
-            <button class="smallButton grey copyBtn" :data-clipboard-text="'http://smart-api.info/registry?q='+api._id">
-                <i class="fa fa-clipboard" aria-hidden="true"></i>
-            </button>
-          </div>
-          <div class="col s12 center" style="padding:20px;">
+
+          <div class="col s12 left" style="padding:20px;">
             <a class="btn green getBTEApis" style="margin:5px;"
                v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
                View API Documentation
