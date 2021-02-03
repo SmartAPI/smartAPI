@@ -41,8 +41,9 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         if options.tags:
             search = search.filter('terms', tags=options.tags)
 
-        if options.filters:  # TODO what is this?
-            field_mapping = json.loads(options.filters)
-            search = search.filter('terms', **field_mapping)
+        if options.filters:  # {'tags.name.raw': ['test'], 'info.contact.name.raw': ['John Doe']}
+            field_mappings = json.loads(options.filters)
+            for field, value in field_mappings.items():
+                search = search.filter('terms', **{field: value})
 
         return search

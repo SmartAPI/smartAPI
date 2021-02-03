@@ -15,7 +15,6 @@ from controller import APIMonStat, APIWebDoc, ControllerError, NotFoundError, Sm
 from jsonschema import ValidationError, validate
 from tornado.web import Finish, HTTPError
 from utils.downloader import DownloadError, Downloader, download_async
-from utils.notify import send_slack_msg
 
 
 def github_authenticated(func):
