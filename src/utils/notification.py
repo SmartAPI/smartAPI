@@ -55,8 +55,8 @@ class Message():
 		})
 
         if self.api.get('_id', ''):
-            registry_url = f"http://smart-api.info/registry?q={self.api['_id']}"
-            docs_url = f"http://smart-api.info/ui/{self.api['_id']}"
+            registry_url = f"https://smart-api.info/registry?q={self.api['_id']}"
+            docs_url = f"https://smart-api.info/ui/{self.api['_id']}"
 
             blocks.append({
 			"type": "context",
