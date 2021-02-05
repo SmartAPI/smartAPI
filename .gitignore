@@ -22,6 +22,7 @@ smartapi_*.json
 #env
 /env
 /env-dsl
+.env
 
 .vscode/
 *.sqlite

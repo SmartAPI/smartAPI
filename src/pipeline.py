@@ -35,11 +35,11 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
 
         search = search.params(rest_total_hits_as_int=True)
 
-        if options.authors:
-            search = search.filter('terms', info__contact__name=options.authors)
+        if options.authors:  # '"Chunlei Wu"'
+            search = search.filter('terms', info__contact__name__raw=options.authors)
 
-        if options.tags:
-            search = search.filter('terms', tags=options.tags)
+        if options.tags:  # '"chemical", "drug"'
+            search = search.filter('terms', tags__name__raw=options.tags)
 
         if options.filters:  # {'tags.name.raw': ['test'], 'info.contact.name.raw': ['John Doe']}
             field_mappings = json.loads(options.filters)
