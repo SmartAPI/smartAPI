@@ -111,15 +111,22 @@ class TornadoParser(ResponseParser):
         return self._response.body
 
 
+# TODO require additional testing
+
+
 def download(url, timeout=5, raise_error=True):
     try:
         response = requests.get(url, timeout=timeout)
         if raise_error:
             response.raise_for_status()
         result = RequestsParser(response)
-    except requests.exceptions.RequestException as err:
+    except requests.exceptions.HTTPError as err:
         raise DownloadError(str(err)) from err
-    else:  # could still be a non-200s
+    except requests.exceptions.RequestException as err:
+        if raise_error:
+            raise DownloadError(str(err)) from err
+        return File(599)
+    else:
         return File(
             status=result.get_status(),
             raw=result.get_raw(),
@@ -138,8 +145,10 @@ async def download_async(url, timeout=20, raise_error=True):
         result = TornadoParser(response)
     except httpclient.HTTPClientError as err:
         raise DownloadError(str(err)) from err
-    except Exception as err:
-        raise DownloadError(type(err).__name__) from err
+    except IOError as err:
+        if raise_error:
+            raise DownloadError(type(err).__name__) from err
+        return File(599)
     else:
         return File(
             status=result.get_status(),

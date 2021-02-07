@@ -42,6 +42,9 @@ class BaseHandler(BaseAPIHandler):
             return None
         return json.loads(user_json.decode('utf-8'))
 
+        # DEBUG USAGE
+        # return {"login": "tester"}
+
 
 class ValidateHandler(BaseHandler):
     """
@@ -191,7 +194,7 @@ class APIHandler(BaseHandler):
 
             self.finish({'success': True})
 
-        else:  # refresh the document TODO NOT FULLY TESTED
+        else:
             file = await download_async(smartapi.url, raise_error=False)
             smartapi.refresh(file)
             smartapi.save()
@@ -201,7 +204,7 @@ class APIHandler(BaseHandler):
                 _status = smartapi.webdoc.STATUS(_code)
                 _status = _status.name.lower()
             except ValueError:
-                _status = 'failed'
+                _status = 'nofile'  # keep original copy
 
             self.finish({
                 'success': _code in (200, 299),

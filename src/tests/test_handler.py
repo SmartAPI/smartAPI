@@ -1,7 +1,35 @@
+"""
+    SmartAPI Tornado Handler Tests
+
+    Setup:
+        mygene_minimum
+        mychem_full
+
+    CRUD Testcases:
+
+        read mygene
+        read mychem
+        read all
+
+        add lincs
+
+        refresh mychem (with live content change)
+        refresh mygene (simulate url broken)
+
+        update mygene slug
+        delete mygene
+
+    Note: Cannot directly combine pytest class fixture with tornado test class.
+    Some teardown code are in the testcases and may be skipped if the testcase failed.
+
+"""
+
 import json
 import os
+from datetime import datetime, timezone
 
 import pytest
+import tornado
 import yaml
 from biothings.tests.web import BiothingsTestCase
 from controller import NotFoundError, SmartAPI
@@ -25,19 +53,19 @@ dirname = os.path.dirname(__file__)
 # prepare data to be saved in tests
 with open(os.path.join(dirname, 'mygene.es.json'), 'r') as file:
     MYGENE_ES = json.load(file)
+    MYGENE_ID = MYGENE_ES.pop("_id")
+
 
 with open(os.path.join(dirname, 'mychem.es.json'), 'r') as file:
     MYCHEM_ES = json.load(file)
+    MYCHEM_ID = MYCHEM_ES.pop("_id")
+
 
 with open(os.path.join(dirname, 'mygene.yml'), 'rb') as file:
     MYGENE_RAW = file.read()
 
 with open(os.path.join(dirname, 'mychem.yml'), 'rb') as file:
     MYCHEM_RAW = file.read()
-
-
-MYGENE_ID = MYGENE_ES.pop("_id")
-MYCHEM_ID = MYCHEM_ES.pop("_id")
 
 
 @pytest.fixture(autouse=True, scope='module')
@@ -48,12 +76,16 @@ def setup_fixture():
     reset()
 
     # save initial docs with paths already transformed
-    mygene = APIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
-    mygene._raw = decoder.compress(MYGENE_RAW)
+    mygene = SmartAPI(MYGENE_URL)
+    mygene.raw = MYGENE_RAW
+    mygene.username = 'tester'
+    mygene.slug = 'mygene'
     mygene.save()
 
-    mychem = APIDoc(meta={'id': MYCHEM_ID}, **MYCHEM_ES)
-    mychem._raw = decoder.compress(MYCHEM_RAW)
+    mychem = SmartAPI(MYCHEM_URL)
+    mychem.raw = MYCHEM_RAW
+    mychem.username = 'tester'
+    mychem.slug = 'mychem'
     mychem.save()
 
     # refresh index
@@ -144,12 +176,40 @@ class TestSuggestion(SmartAPIEndpoint):
         assert res["translator"] == 2
 
 
+class DynamicFileHandler(tornado.web.StaticFileHandler):
+
+    counter = 0
+
+    @classmethod
+    def get_absolute_path(cls, root: str, path: str) -> str:
+
+        if path == 'mygene.yml':
+            if cls.counter == 0:
+                pass
+            elif cls.counter == 1:
+                path = 'mygene_full.yml'
+            elif cls.counter == 2:
+                path = 'mygene_notexist.yml'
+            elif cls.counter == 3:
+                path = 'mygene_invalid.yml'  # no translator info
+            else:
+                path = 'mygene_full.yml'
+            cls.counter += 1
+
+        abspath = os.path.abspath(os.path.join(root, path))
+        return abspath
+
+
 class TestCRUD(SmartAPIEndpoint):
 
+    def get_app(self):
+        return tornado.web.Application([
+            (r'/test/(.*)', DynamicFileHandler, {"path": "./tests/"}),  # cwd is project src
+            (r'.*', super().get_app())
+        ])
+
     def test_get_one(self):
-        '''
-        [READ] Get one doc by id
-        '''
+
         res = self.request("/api/metadata/" + MYGENE_ID).json()
         assert res.get('info', {}).get('title', '') == "MyGene.info API"
 
@@ -160,9 +220,7 @@ class TestCRUD(SmartAPIEndpoint):
         yaml.load(res.text, Loader=yaml.SafeLoader)
 
     def test_get_all(self):
-        '''
-        [READ] Get all
-        '''
+
         res = self.request("/api/metadata/", method='GET').json()
         assert len(res) == 2
 
@@ -204,6 +262,7 @@ class TestCRUD(SmartAPIEndpoint):
             pass
 
     def test_update_slug(self):
+
         mygene = SmartAPI.get(MYGENE_ID)
         assert mygene.slug == "mygene"
 
@@ -238,7 +297,94 @@ class TestCRUD(SmartAPIEndpoint):
             mygene.save()
 
     def test_update_doc(self):
-        pass  # TODO
+
+        self.request("/api/metadata/" + MYCHEM_ID, method="PUT", expect=401)
+        self.request("/api/metadata/notexists", method="PUT", headers=self.auth_user, expect=404)
+        self.request("/api/metadata/" + MYCHEM_ID, method="PUT", headers=self.evil_user, expect=403)
+
+        res = self.request("/api/metadata/" + MYCHEM_ID, method="PUT", headers=self.auth_user).json()
+        assert res["success"]
+        assert res["code"] == 299
+        assert res["status"] == "updated"
+
+        mychem = SmartAPI.get(MYCHEM_ID)
+        assert mychem.webdoc.status == 299
+        assert mychem.webdoc.timestamp
+        ts0 = mychem.webdoc.timestamp
+
+        res = self.request("/api/metadata/" + MYCHEM_ID, method="PUT", headers=self.auth_user).json()
+        assert res["success"]
+        assert res["code"] == 200
+        assert res["status"] == "latest"
+
+        mychem = SmartAPI.get(MYCHEM_ID)
+        assert mychem.webdoc.status == 200
+        assert mychem.webdoc.timestamp >= ts0
+
+        # setup
+        mygene_ref = SmartAPI(self.get_url('/test/mygene.yml'))
+        mygene_ref.raw = MYGENE_RAW
+        mygene_ref.username = 'tester'
+        mygene_ref.save()
+
+        # first request, same file, minimul version
+        res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
+        assert res["success"]
+        assert res["code"] == 200
+        assert res["status"] == "latest"
+
+        mygene = SmartAPI.get(mygene_ref._id)
+        assert mygene.webdoc.status == 200
+
+        # second request, full version, updated
+        res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
+        assert res["success"]
+        assert res["code"] == 299
+        assert res["status"] == "updated"
+
+        mygene = SmartAPI.get(mygene_ref._id)
+        assert mygene.webdoc.status == 299
+
+        # third request, link temporarily unavailable
+        res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
+        assert not res["success"]
+        assert res["code"] == 404
+        assert res["status"] == "nofile"
+
+        mygene = SmartAPI.get(mygene_ref._id)
+        assert mygene.webdoc.status == 404
+
+        # fourth request, link back up, new version doesn't pass validation
+        res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
+        assert not res["success"]
+        assert res["code"] == 499
+        assert res["status"] == "invalid"
+
+        mygene = SmartAPI.get(mygene_ref._id)
+        assert mygene.webdoc.status == 499
+
+        # fifth request, link restored to a working version
+        res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
+        assert res["success"]
+        assert res["code"] == 200
+        assert res["status"] == "latest"
+
+        mygene = SmartAPI.get(mygene_ref._id)
+        assert mygene.webdoc.status == 200
+
+        # setup
+        mygene_ref_2 = SmartAPI('http://invalidhost/mygene.yml')
+        mygene_ref_2.raw = MYGENE_RAW
+        mygene_ref_2.username = 'tester'
+        mygene_ref_2.save()
+
+        res = self.request("/api/metadata/" + mygene_ref_2._id, method="PUT", headers=self.auth_user).json()
+        assert not res["success"]
+        assert res["code"] == 599
+        assert res["status"] == "nofile"
+
+        mygene = SmartAPI.get(mygene_ref_2._id)
+        assert mygene.webdoc.status == 599
 
     def test_delete(self):
 
