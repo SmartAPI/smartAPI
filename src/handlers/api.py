@@ -6,15 +6,12 @@ Metadata /api/metadata
 Suggestion /api/suggestion
 """
 import json
-from tornado import httpclient
 
-import yaml
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
-from controller import APIMonStat, APIWebDoc, ControllerError, NotFoundError, SmartAPI
-from jsonschema import ValidationError, validate
+from controller import APIRefreshStatus, ControllerError, NotFoundError, SmartAPI
 from tornado.web import Finish, HTTPError
-from utils.downloader import DownloadError, Downloader, download_async
+from utils.downloader import Downloader, DownloadError, download_async
 
 
 def github_authenticated(func):
@@ -54,7 +51,9 @@ class ValidateHandler(BaseHandler):
 
     name = "validator"
     kwargs = {
-        "POST": {"url": {"type": str, "location": "form"}}
+        "POST": {
+            "url": {"type": str, "location": "form"}
+        }
     }
 
     async def post(self):
@@ -72,7 +71,8 @@ class ValidateHandler(BaseHandler):
             raw = self.request.body
 
         try:
-            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY, raw)
+            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
+            smartapi.raw = raw
             smartapi.validate()
 
         except (ControllerError, AssertionError) as err:
@@ -85,7 +85,6 @@ class ValidateHandler(BaseHandler):
 
 
 class APIHandler(BaseHandler):
-
     """
     Handle CRUD ops for api metadata based on
     openapi v3 or swagger v2
@@ -142,7 +141,8 @@ class APIHandler(BaseHandler):
             raise BadRequest(details=str(err)) from err
 
         try:
-            doc = SmartAPI(self.args.url, file.raw)
+            doc = SmartAPI(self.args.url)
+            doc.refresh(file)
             doc.validate()
         except (ControllerError, AssertionError) as err:
             raise BadRequest(details=str(err)) from err
@@ -163,13 +163,6 @@ class APIHandler(BaseHandler):
                 'success': True,
                 '_id': _id
             })
-
-        try:  # maintain secondary index
-            web = APIWebDoc(self.args.url)
-            web.refresh(file)
-            web.save()
-        except Exception:
-            pass
 
     @github_authenticated
     async def put(self, _id):
@@ -196,23 +189,25 @@ class APIHandler(BaseHandler):
             except (ControllerError, ValueError) as err:
                 raise BadRequest(details=str(err)) from err
 
+            self.finish({'success': True})
+
         else:  # refresh the document TODO NOT FULLY TESTED
+            file = await download_async(smartapi.url, raise_error=False)
+            smartapi.refresh(file)
+            smartapi.save()
+
+            _code = smartapi.webdoc.status
             try:
-                file = await download_async(smartapi.url)
-                smartapi.raw = file.raw
-                smartapi.save()
+                _status = smartapi.webdoc.STATUS(_code)
+                _status = _status.name.lower()
+            except ValueError:
+                _status = 'failed'
 
-            except (ControllerError, DownloadError) as err:
-                raise BadRequest(details=str(err)) from err
-
-            try:  # maintain secondary index
-                web = APIWebDoc(smartapi.url)
-                web.refresh(file)
-                web.save()
-            except Exception:
-                pass
-
-        self.finish({'success': True})
+            self.finish({
+                'success': _code in (200, 299),
+                'code': _code,
+                'status': _status
+            })
 
     @github_authenticated
     def delete(self, _id):
@@ -243,8 +238,7 @@ class ValueSuggestionHandler(BaseHandler):
 
     kwargs = {
         'GET': {
-            'field': {'type': str, 'required': True},
-            # 'size': {'type': int, 'default': 10},
+            'field': {'type': str, 'required': True}
         },
     }
 
@@ -258,25 +252,3 @@ class ValueSuggestionHandler(BaseHandler):
         """
         res = SmartAPI.get_tags(self.args.field)
         self.finish(res)
-
-
-class APIStatusHandler(BaseHandler):
-    """
-    Handle api and url status
-    """
-    name = 'status'
-
-    def get(self, _id):
-        """
-        /api/status/<id>
-        returns collected routine uptime and url status
-        """
-        try:
-            monitor = APIMonStat.get(_id)
-        except NotFoundError:
-            raise HTTPError(404)
-
-        self.finish({
-            "status": monitor.status,
-            "timestamp": monitor.timestamp.isoformat()
-        })

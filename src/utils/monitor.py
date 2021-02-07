@@ -60,14 +60,10 @@ class API:
         except KeyError:
             self.api_server = None
             self.api_status = 'incompatible'
-        new_path_info = {}
-        if 'paths' in api_doc:
-            for _path in api_doc['paths']:
-                new_path_info[_path['path']] = _path['pathitem']
         else:
             self.api_status = 'incompatible'
         self.components = api_doc.get('components')
-        self.endpoints_info = new_path_info
+        self.endpoints_info = api_doc.get('paths')
 
     def check_api_status(self):
         '''

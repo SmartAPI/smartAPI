@@ -1,14 +1,16 @@
 """
 SmartAPI Controller Tests
 """
+from datetime import datetime, timezone
 import json
 import os
-import elasticsearch
 
+import elasticsearch
 import pytest
 from controller import ConflictError, ControllerError, NotFoundError, SmartAPI
-from model import APIDoc, APIMeta
+from model import APIDoc
 from utils import decoder
+from utils.downloader import File
 from utils.indices import refresh, reset
 
 MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
@@ -16,7 +18,7 @@ MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
 MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
     'translator-api-registry/master/mychem.info/openapi_full.yml'
 
-MYGENE_ID = '59dce17363dce279d389100834e43648'
+MYGENE_ID = '67932b75e2c51d1e1da2bf8263e59f0a'
 MYCHEM_ID = '8f08d1446e0bb9c2b323713ce83e2bd3'
 
 
@@ -161,23 +163,29 @@ def test_validation():
     """
     URL = "http://example.com/invalid.json"
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         smartapi.validate()
     with open(os.path.join(dirname, './validate/swagger-pass.json'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         smartapi.validate()
     with open(os.path.join(dirname, './validate/x-translator-pass.json'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         smartapi.validate()
     with open(os.path.join(dirname, './validate/x-translator-fail-1.yml'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         with pytest.raises(ControllerError):
             smartapi.validate()
     with open(os.path.join(dirname, './validate/x-translator-fail-2.yml'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         with pytest.raises(ControllerError):
             smartapi.validate()
-    smartapi = SmartAPI(URL, b'{}')
+    smartapi = SmartAPI(URL)
+    smartapi.raw = b'{}'
     with pytest.raises(ControllerError):
         smartapi.validate()
 
@@ -208,7 +216,8 @@ def test_save(openapi):
     with pytest.raises(ValueError):
         SmartAPI.slug.validate("^_^")
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         smartapi.slug = "mygene"
         smartapi.validate()
         with pytest.raises(ControllerError):
@@ -250,20 +259,12 @@ def myvariant():
     myvariant._raw = decoder.compress(MYVARIANT_RAW)
     myvariant.save()
 
-    mv_meta = APIMeta(meta={'id': MYVARIANT_ID})
-    mv_meta.url = "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/myvariant.info/openapi_minimum.yml"
-    mv_meta.save()
-
     refresh()
     yield MYVARIANT_ID
     refresh()
 
     try:
         APIDoc.get(MYVARIANT_ID).delete()
-    except elasticsearch.exceptions.NotFoundError:
-        pass
-    try:
-        APIMeta.get(MYVARIANT_ID).delete()
     except elasticsearch.exceptions.NotFoundError:
         pass
 
@@ -276,10 +277,148 @@ def test_delete(myvariant):
     refresh()
 
     assert not APIDoc.exists(myvariant)
-    assert not APIMeta.exists(myvariant)
 
     URL = "http://example.com/valid.json"
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
-        smartapi = SmartAPI(URL, file.read())
+        smartapi = SmartAPI(URL)
+        smartapi.raw = file.read()
         with pytest.raises(NotFoundError):
             smartapi.delete()
+
+
+def test_uptime_status():
+    mygene = SmartAPI.get(MYGENE_ID)
+    assert mygene.uptime.status is None
+
+    mygene.uptime.update('up')
+    assert mygene.uptime.status == 'up'
+    mygene.save()
+    refresh()
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.uptime_status == 'up'
+
+    mygene.uptime.update(None)
+    assert mygene.uptime.status is None
+    mygene.save()
+    refresh()
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.uptime_status is None
+
+
+def test_uptime_update():
+    mygene = SmartAPI.get(MYGENE_ID)
+    mygene.check()  # minimum api document
+    assert mygene.uptime.status == 'incompatible'
+
+    mygene.save()
+    refresh()
+
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.uptime_status == 'incompatible'
+
+    mychem = SmartAPI.get(MYCHEM_ID)
+    mychem.check()  # full api document
+    assert mychem.uptime.status == 'good'
+
+    mychem.save()
+    refresh()
+
+    mychem_doc = APIDoc.get(MYCHEM_ID)
+    assert mychem_doc._stat.uptime_status == 'good'
+
+
+def test_refresh_status():
+
+    with open(os.path.join(dirname, 'mygene_full.yml'), 'rb') as file:
+        MYGENE_FULL = file.read()
+
+    mygene = SmartAPI.get(MYGENE_ID)  # minimum
+    assert mygene.webdoc.status is None
+    assert 'components' not in mygene
+
+    mygene.webdoc.update(File(200, MYGENE_FULL))  # new content
+
+    assert mygene.webdoc.status == 299  # updated
+    assert 'components' in mygene
+    assert mygene.webdoc.timestamp > datetime(2020, 1, 1)
+    _ts0 = mygene.webdoc.timestamp
+
+    mygene.save()
+    refresh()
+
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.refresh_status == 299
+    assert 'components' in mygene_doc
+
+    mygene.webdoc.update(File(200, MYGENE_FULL))  # no change
+
+    assert mygene.webdoc.status == 200  # latest
+    assert 'components' in mygene
+    assert mygene.webdoc.timestamp > _ts0
+
+    mygene.save()
+    refresh()
+
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.refresh_status == 200
+    assert 'components' in mygene_doc
+
+    mygene.webdoc.update(File(404))  # link broken
+
+    assert mygene.webdoc.status == 404
+    assert 'components' in mygene  # do not affect main copy
+
+    mygene.save()
+    refresh()
+
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.refresh_status == 404
+    assert 'components' in mygene_doc
+
+    mygene.webdoc.update(File(200, MYGENE_FULL))  # link back working
+
+    assert mygene.webdoc.status == 200  # latest
+    assert 'components' in mygene
+
+    mygene.save()
+    refresh()
+
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.refresh_status == 200
+    assert 'components' in mygene_doc
+
+    mygene.webdoc.update(File(200, b'{"openapi":"3.0.0"}'))  # invalid
+
+    assert mygene.webdoc.status == 499  # invalid
+    assert 'components' in mygene  # do not affect main copy
+
+    mygene.save()
+    refresh()
+
+    mygene_doc = APIDoc.get(MYGENE_ID)
+    assert mygene_doc._stat.refresh_status == 499
+    assert 'components' in mygene_doc
+
+
+def test_refresh_update():
+
+    mychem = SmartAPI.get(MYCHEM_ID)
+    assert mychem.webdoc.status is None
+
+    # NOTE
+    # the following update and the updates thereafter will be applied
+    # https://github.com/NCATS-Tangerine/translator-api-registry/commit/b01baa5
+
+    mychem.refresh()
+    assert mychem.webdoc.status == 299  # new version
+    assert mychem.webdoc.timestamp > datetime(2020, 1, 1, tzinfo=timezone.utc)
+    _ts0 = mychem.webdoc.timestamp
+
+    mychem.refresh()
+    assert mychem.webdoc.status == 200  # already latest
+    assert mychem.webdoc.timestamp >= _ts0  # could be cached internally
+
+    mychem.save()
+    refresh()
+    mychem_doc = APIDoc.get(MYCHEM_ID)
+    assert mychem_doc._stat.refresh_status == 200

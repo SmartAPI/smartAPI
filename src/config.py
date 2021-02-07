@@ -15,7 +15,6 @@ from config_key import *
 # *****************************************************************************
 # User Input Control
 # *****************************************************************************
-QUERY_KWARGS['*']['filters'] = {'type': str, 'group': 'esqb'}
 QUERY_KWARGS['*']['authors'] = {'type': list, 'group': 'esqb'}
 QUERY_KWARGS['*']['tags'] = {'type': list, 'group': 'esqb'}
 
@@ -35,7 +34,6 @@ APP_LIST = [
     (r'/api/validate/?', 'handlers.api.ValidateHandler'),
     (r'/api/metadata/?', 'handlers.api.APIHandler'),
     (r'/api/metadata/(.+)/?', 'handlers.api.APIHandler'),
-    (r'/api/status/(.+)/?', 'handlers.api.APIStatusHandler'),
     (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
 ]
 

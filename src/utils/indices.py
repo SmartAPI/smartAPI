@@ -3,7 +3,7 @@ import os
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Index
-from model import APIDoc, APIMeta
+from model import APIDoc
 
 _dirname = os.path.dirname(__file__)
 with open(os.path.join(_dirname, 'mapping.json'), 'r') as file:
@@ -25,18 +25,10 @@ def setup():
         )
         APIDoc.init()
 
-    if not Index(APIMeta.Index.name).exists():
-        APIMeta.init()
-
 
 def reset():
 
     index = Index(APIDoc.Index.name)
-
-    if index.exists():
-        index.delete()
-
-    index = Index(APIMeta.Index.name)
 
     if index.exists():
         index.delete()
@@ -47,6 +39,4 @@ def reset():
 def refresh():
 
     index = Index(APIDoc.Index.name)
-    index.refresh()
-    index = Index(APIMeta.Index.name)
     index.refresh()

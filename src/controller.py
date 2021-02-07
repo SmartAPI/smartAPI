@@ -1,12 +1,6 @@
 """
-Controllers for API doc addition
-and API metadata operations
+    SmartAPI CRUD Validation and Refresh Operations
 """
-import base64
-import copy
-import gzip
-import inspect
-import json
 import logging
 import string
 import sys
@@ -14,17 +8,17 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict, UserDict, UserString
 from collections.abc import Iterable, Mapping
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from enum import IntEnum
 from types import MappingProxyType
+from typing import Type
 from urllib.parse import scheme_chars, urlparse
 
-import elasticsearch
 import jsonschema
-import requests
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
 
-from model import APIDoc, APIMeta
+from model import APIDoc
 from utils import decoder, monitor
 from utils.downloader import Downloader, DownloadError, File, download
 
@@ -67,9 +61,8 @@ class NotFoundError(ControllerError):
 class ConflictError(ControllerError):
     pass
 
-# TODO username migration
-# TODO change asserts to ifs
 # TODO multiple time validation
+# TODO etag support
 
 
 def validate(doc, schemas):
@@ -194,87 +187,8 @@ class AbstractWebEntity(ABC):
         # it's not trivial to handle url change in DB
         return self._url
 
-    @classmethod
-    @abstractmethod
-    def get(cls, _id):
-        """
-        Retrieve the existing record in database.
-        """
 
-    @abstractmethod
-    def save(self):
-        """
-        Save or update this entity in database.
-        May perform partial updates behind the scene.
-        """
-
-    @abstractmethod
-    def delete(self):
-        """
-        Delete this entity in database.
-        May also delete associated entities.
-        """
-
-
-class AbstractStatus(AbstractWebEntity):
-    """
-        The point-in-time status of a web entity.
-        And the timestamp associated with the status.
-    """
-
-    def __init__(self, url, ts=None):
-        super().__init__(url)
-
-        self.status = None
-        self._timestamp = ts
-
-    @property
-    def timestamp(self):
-        """
-        Timestamp at which the "status" recorded is achieved.
-        Correspond to a refresh event. Cannot change directly.
-        """
-        return self._timestamp
-
-    @abstractmethod
-    def save(self):
-
-        try:  # partial update
-            doc = APIMeta.get(self._id)
-        except ESNotFoundError:
-            doc = APIMeta()  # new record
-            doc.meta.id = self._id
-            doc.url = self.url
-
-        return doc
-
-        # more class specific logic is
-        # to be implemented in sub-classes
-
-    def delete(self):
-
-        # need to delete through primary object
-        # use SmartAPI class to perform deletion.
-        raise ControllerError("Not allowed.")
-
-    @abstractmethod
-    def refresh(self, content=None):
-        """
-        Refresh the status of this web entity.
-        Optionally with the content provided as parameter.
-        Update the timestamp to reflect the operation.
-        The timestamp can be server or local time.
-        """
-
-    def refresh_timestamp(self):
-        """
-        Update the timestamp to the current time.
-        Used for manual update of fields.
-        """
-        self._timestamp = datetime.utcnow()
-
-
-class AbstractDoc(AbstractWebEntity, Mapping):
+class AbstractWebDoc(AbstractWebEntity, Mapping):
     """
         A mapping defined by JSON/YAML encoded bytes.
         The object level shallow access is read-only.
@@ -300,7 +214,6 @@ class AbstractDoc(AbstractWebEntity, Mapping):
         if value is None:
             self._raw = None
             return  # allow None
-
         try:
             self._data = decoder.to_dict(value)
         except (ValueError, TypeError) as err:
@@ -318,92 +231,98 @@ class AbstractDoc(AbstractWebEntity, Mapping):
         return len(self._data)
 
 
-class APIMonStat(AbstractStatus):
+class AbstractEntityStatus():
+    """
+        With a point-in-time status of a web entity.
+        And the timestamp associated with the status.
+    """
+    # Corresponds to a group of _stat fields in SmartAPI.
 
-    @classmethod
-    def get(cls, _id):
+    def __init__(self, entity, status=None, timestamp=None):
 
-        try:
-            meta = APIMeta.get(_id)
-        except ESNotFoundError as err:
-            raise NotFoundError from err
+        self._entity = entity
+        self._status = status
+        self._timestamp = timestamp
 
-        doc = cls(meta.url, meta.uptime_ts)
-        doc.status = meta.uptime_status
+    @property
+    def timestamp(self):
+        """
+        Timestamp at which the "status" recorded is achieved.
+        Correspond to a refresh event. Cannot change directly.
+        """
+        return self._timestamp
 
-        return doc
+    @property
+    def status(self):
+        """
+        The position of affairs at the particular time recorded
+        by its timestamp attribute. Modifiable through update.
+        Update of this field also updates the timestamp field.
+        """
+        return self._status
 
-    def refresh(self, content=None):
+    @abstractmethod
+    def update(self, content):
+        """
+        Update the status of this web entity.
+        Optionally with the external content provided.
+        Update the timestamp to reflect the operation.
+        The timestamp can be server or local time.
+        """
+        self._status = content
+        self.update_timestamp()
 
-        if content:
-            self.status = content
-        else:
-            doc = SmartAPI.get(self._id)
-            api = monitor.API(doc)
-            api.check_api_status()  # blocking
-            self.status = api.api_status
-
-        self.refresh_timestamp()
-
-    def save(self):
-
-        meta = super().save()
-        meta.uptime_status = self.status
-        meta.uptime_ts = self.timestamp
-        meta.save()
-
-        return self._id
+    def update_timestamp(self):
+        """
+        Update the timestamp to the current time.
+        """
+        self._timestamp = datetime.utcnow()
+        self._timestamp.replace(tzinfo=timezone.utc)
 
 
-class APIWebDoc(AbstractStatus, AbstractDoc):
+class APIMonitorStatus(AbstractEntityStatus):
+    pass
 
-    def __init__(self, url, ts=None):
-        super().__init__(url, ts)
 
-        self.raw = None
-        self.etag = None
+class APIRefreshStatus(AbstractEntityStatus):
 
-    @classmethod
-    def get(cls, _id):
+    class STATUS(IntEnum):
+        LATEST = 200  # no need to update, already at latest version
+        UPDATED = 299  # new version available and update successful
+        INVALID = 499  # cannot update to new version because validation failed
 
-        try:
-            meta = APIMeta.get(_id)
-        except ESNotFoundError as err:
-            raise NotFoundError from err
+    def update(self, content):  # TODO return status?
 
-        doc = cls(meta.url, meta.web_ts)
-        doc.raw = decoder.decompress(meta.web_raw)
-        doc.etag = meta.web_etag
-        doc.status = meta.web_status
+        if content is None:
+            super().update(content)
+            return
 
-        return doc
+        if not isinstance(content, File):
+            raise TypeError("Invalid content.")
 
-    def refresh(self, content=None):
-
-        if isinstance(content, File):
-            file = content
-        else:  # blocking network operation
-            file = download(self.url, raise_error=False)
-
-        self.raw = file.raw
-        self.etag = file.etag
-        self.status = file.status
-        self._timestamp = file.date
-
+        self._status = content.status
+        self._timestamp = content.date
         if not self._timestamp:
-            self.refresh_timestamp()
+            self.update_timestamp()
 
-    def save(self):
+        if content.status != 200 or not content.raw:
+            return  # no need to update main copy
 
-        meta = super().save()
-        meta.meta.id = self._id
-        meta.web_status = self.status
-        meta.web_etag = self.etag
-        meta.web_raw = decoder.compress(self.raw)
-        meta.web_ts = self.timestamp
-        meta.save()
+        _raw = self._entity.raw  # backup
+        try:
+            self._entity.raw = content.raw
+            self._entity.validate()
+        except ControllerError:
+            self._entity.raw = _raw  # rollback
+            self._status = self.STATUS.INVALID.value
+            return
 
-        return self._id
+        # refresh is successful
+        if self._entity.raw != _raw and _raw:
+            self._status = self.STATUS.UPDATED.value
+        else:
+            self._status = self.STATUS.LATEST.value
+        return
 
 
 class Slug():
@@ -440,22 +359,24 @@ class Slug():
             raise ValueError("Slug contains invalid characters.")
 
 
-class SmartAPI(AbstractDoc):
+class SmartAPI(AbstractWebDoc):
 
     # SmartAPI.slug.validate(value: Union[str, NoneType]) -> None
     # smartapi.slug : Union[str, NoneType]
     slug = Slug()
 
     # use this as url for validation only workflow
-    VALIDATION_ONLY = PlaceHolder("http://localhost/doc")
+    VALIDATION_ONLY = PlaceHolder("http://nohost/nofile")
 
-    def __init__(self, url, raw):
+    def __init__(self, url):
 
         super().__init__(url)
 
+        self.uptime = APIMonitorStatus(self)
+        self.webdoc = APIRefreshStatus(self)
+
         self.username = None
         self.slug = None
-        self.raw = raw
 
     @property
     def version(self):
@@ -502,11 +423,20 @@ class SmartAPI(AbstractDoc):
         except ESNotFoundError as err:
             raise NotFoundError from err
 
-        raw = decoder.decompress(doc._raw)
-
-        obj = cls(doc._meta.url, raw)
+        obj = cls(doc._meta.url)
+        obj.raw = decoder.decompress(doc._raw)
         obj.username = doc._meta.username
         obj.slug = doc._meta.slug
+
+        obj.uptime = APIMonitorStatus(
+            obj, doc._stat.uptime_status,
+            doc._stat.uptime_ts
+        )
+
+        obj.webdoc = APIRefreshStatus(
+            obj, doc._stat.refresh_status,
+            doc._stat.refresh_ts
+        )
 
         return obj
 
@@ -532,6 +462,25 @@ class SmartAPI(AbstractDoc):
 
         return doc
 
+    def check(self):
+
+        doc = dict(self)
+        doc['_id'] = self._id
+
+        api = monitor.API(doc)
+        api.check_api_status()  # blocking network operation
+
+        self.uptime.update(api.api_status)
+        return api.api_status
+
+    def refresh(self, file=None):
+
+        if file is None:  # blocking network operation
+            file = download(self.url, raise_error=False)
+
+        self.webdoc.update(file)
+        return self.webdoc.status
+
     def save(self):
 
         if not self.username:
@@ -555,10 +504,18 @@ class SmartAPI(AbstractDoc):
 
         doc = APIDoc(**_doc)
         doc.meta.id = self._id
+
         doc._meta.url = self.url
         doc._meta.timestamp = datetime.utcnow()
         doc._meta.username = self.username
         doc._meta.slug = self.slug
+
+        doc._stat.uptime_status = self.uptime.status
+        doc._stat.uptime_ts = self.uptime.timestamp
+
+        doc._stat.refresh_status = self.webdoc.status
+        doc._stat.refresh_ts = self.webdoc.timestamp
+
         doc._raw = decoder.compress(self.raw)
         doc.save()
 
@@ -600,14 +557,9 @@ class SmartAPI(AbstractDoc):
 
     def delete(self):
 
-        try:  # primary index
+        try:
             APIDoc.get(self._id).delete()
         except ESNotFoundError as err:
             raise NotFoundError() from err
-
-        try:  # secondary index
-            APIMeta.get(self._id).delete()
-        except ESNotFoundError:
-            pass
 
         return self._id

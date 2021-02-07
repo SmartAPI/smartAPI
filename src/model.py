@@ -16,22 +16,7 @@ ES_INDEX_NAME = 'smartapi_docs'
 connections.create_connection(hosts=ES_HOST)
 
 
-class ESDoc(Document):
-
-    @classmethod
-    def exists(cls, value, field="_id"):
-        """
-        Return the first matching document's _id or None.
-        Data could change after query, use try-catch for
-        any follow up operations like Document.get(_id).
-        """
-        search = cls.search().query('match', **{field: value})
-        if search.count():
-            return next(iter(search)).meta.id
-        return None
-
-
-class DocumentMeta(InnerDoc):
+class UserMeta(InnerDoc):
     """ The _meta field. """
     username = Keyword(required=True)
     timestamp = Date(default_timezone='UTC')
@@ -39,9 +24,19 @@ class DocumentMeta(InnerDoc):
     slug = Keyword()
 
 
-class APIDoc(ESDoc):
+class StatMeta(InnerDoc):
+    """ The _stat field. """
+    uptime_status = Keyword()
+    uptime_ts = Date()
 
-    _meta = Object(DocumentMeta, required=True)
+    refresh_status = Integer()
+    refresh_ts = Date()
+
+
+class APIDoc(Document):
+
+    _meta = Object(UserMeta, required=True)
+    _stat = Object(StatMeta)
     _raw = Binary()
 
     info = Object()
@@ -61,13 +56,13 @@ class APIDoc(ESDoc):
 
     class Meta:
         """
-        Mapping Settings
+        Index Mappings
         """
         dynamic = MetaField(True)
 
     class Index:
         """
-        Associated ES index
+        Index Settings
         """
         name = ES_INDEX_NAME
         settings = {
@@ -75,10 +70,26 @@ class APIDoc(ESDoc):
             "number_of_replicas": 0
         }
 
-    @classmethod
-    def aggregate(cls, field="tags.name"):
+    @ classmethod
+    def exists(cls, value, field="_id"):
+        """
+        Return the first matching document's _id or None.
+        Data could change after query, use try-catch for
+        any follow up operations like Document.get(_id).
+        """
+        search = cls.search().query('match', **{field: value})
+        if search.count():
+            return next(iter(search)).meta.id
+        return None
 
-        if not field.endswith(".raw") and not field.startswith("_meta"):
+    @ classmethod
+    def aggregate(cls, field="tags.name"):
+        """
+        Perform terms aggregation on a keyword field.
+        Add multi-field keyword indexing suffix automatically.
+        """
+
+        if not field.endswith(".raw") and not field.startswith("_"):
             field = field + ".raw"  # so that it's a keyword field
 
         # build the aggregation query
@@ -91,40 +102,3 @@ class APIDoc(ESDoc):
         result = {b['key']: b['doc_count'] for b in buckets}
 
         return result
-
-
-class APIMeta(ESDoc):
-    """
-    API url and endpoints status
-    {
-        "uptime_status": "incompatible",
-        "uptime_ts": "2021-01-13T17:41:07.599428",
-        "url_status": 500
-    }
-    """
-    url = Keyword(required=True)
-
-    uptime_status = Text()
-    uptime_ts = Date()
-
-    web_status = Integer()
-    web_ts = Date()
-
-    web_etag = Keyword()
-    web_raw = Binary()
-
-    class Meta:
-        """
-        Doc Meta
-        """
-        dynamic = MetaField(False)
-
-    class Index:
-        """
-        Associated ES index
-        """
-        name = "smartapi_meta"
-        settings = {
-            "number_of_shards": 1,
-            "number_of_replicas": 0
-        }
