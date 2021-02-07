@@ -185,7 +185,8 @@ class APIHandler(BaseHandler):
             raise HTTPError(403)
 
         if self.args.slug is not None:
-            try:
+
+            try:  # update slug
                 smartapi.slug = self.args.slug or None
                 smartapi.save()
 
@@ -194,7 +195,7 @@ class APIHandler(BaseHandler):
 
             self.finish({'success': True})
 
-        else:
+        else:  # refresh
             file = await download_async(smartapi.url, raise_error=False)
             smartapi.refresh(file)
             smartapi.save()
