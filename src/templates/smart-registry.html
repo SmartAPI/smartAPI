@@ -73,6 +73,9 @@
 .apiDetails tbody tr td{
   padding: 3px;
 }
+.tippy-tooltip{
+  padding: 0px !important;
+}
 </style>
 {% raw %}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -892,19 +895,24 @@ const store = new Vuex.Store({
                   FAIL
                 </div>
               </template>
-              <template v-if="api['_meta']['uptime_status'] ==='good'">
+              <template v-else-if="api['_meta']['uptime_status'] ==='good'">
               <div class="green">
                 PASS
               </div>
               </template>
-              <template v-if="api['_meta']['uptime_status'] ==='unknown'">
+              <template v-else-if="api['_meta']['uptime_status'] ==='unknown'">
               <div class="orange">
                 UNKNOWN
               </div>
               </template>
-              <template v-if="api['_meta']['uptime_status'] ==='incompatible'">
+              <template v-else-if="api['_meta']['uptime_status'] ==='incompatible'">
               <div class="blue">
                 INCOMPATIBLE
+              </div>
+              </template>
+              <template v-else>
+              <div class="gray-text grey">
+                N/A
               </div>
               </template>
             </div>
@@ -1635,7 +1643,7 @@ const store = new Vuex.Store({
 
           tippy( '#app', {
             target: '.apiStatus',
-            content: `<div>
+            content: `<div class="white" style="padding:0px;">
                         <table>
                           <tbody>
                             <tr>
