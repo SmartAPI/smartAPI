@@ -1,6 +1,6 @@
 ''' SmartAPI Configuration '''
 
-from biothings.web.settings.default import QUERY_KWARGS
+from biothings.web.settings.default import ES_RESULT_TRANSFORM, QUERY_KWARGS
 
 from config_key import *
 
@@ -46,4 +46,5 @@ API_PREFIX = 'api'
 # *****************************************************************************
 ACCESS_CONTROL_ALLOW_METHODS = 'HEAD,GET,POST,DELETE,PUT,OPTIONS'
 ES_QUERY_BUILDER = "pipeline.SmartAPIQueryBuilder"
+ES_RESULT_TRANSFORM = "pipeline.SmartAPIResultTransform"
 DISABLE_CACHING = True

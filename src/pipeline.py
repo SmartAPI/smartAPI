@@ -1,7 +1,6 @@
-import json
 
 from biothings.utils.web.es_dsl import AsyncSearch
-from biothings.web.pipeline import ESQueryBuilder
+from biothings.web.pipeline import ESQueryBuilder, ESResultTransform
 
 
 class SmartAPIQueryBuilder(ESQueryBuilder):
@@ -43,3 +42,25 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
             search = search.filter('terms', tags__name__raw=options.tags)
 
         return search
+
+
+class SmartAPIResultTransform(ESResultTransform):
+
+    def transform_hit(self, path, doc, options):
+
+        if path == '':
+            doc.pop('_index')
+            doc.pop('_type', None)    # not available by default on es7
+            doc.pop('sort', None)     # added when using sort
+            doc.pop('_node', None)    # added when using explain
+            doc.pop('_shard', None)   # added when using explain
+
+            # OVERRIDE
+            # TODO TEST CASES
+            try:
+                doc['paths'] = {
+                    item['path']: item['pathitem']
+                    for item in doc['paths']
+                }
+            except Exception:
+                pass
