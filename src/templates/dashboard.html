@@ -654,41 +654,90 @@ Vue.component('status', {
             self.getApis();
 
           },
+          showMessage(title, status){
+            const toast = swal.mixin({
+                  toast: true,
+                  position: 'top',
+                  showConfirmButton: false,
+                  timer: 4000
+                });
+            switch (status) {
+              case 'updated':
+                swal({
+                  title: "Sweet!",
+                  confirmButtonText: 'OK',
+                  imageUrl: '/static/img/api-sucess.svg',
+                  imageWidth: 200,
+                  html: "<h5><b>"+title+"</b> was updated!</h5>",
+                  footer: "<p>You may look at your latest changes on our <a href='/registry?q="+title+"'>API registry</a>.</p>"
+                })
+                break;
+
+              case 'nochange':
+                swal({
+                  title: "Hmmm...",
+                  imageUrl: '/static/img/api-thinking.svg',
+                  imageWidth: 200,
+                  confirmButtonText: 'OK',
+                  html: "<h5><b>"+title+"</b> has no changes.</h5>",
+                  footer: "<p>If this doesn't sound right, wait a few minutes and try again. Repositories such as GitHub may have a delay updating their raw data.</p>"
+                })
+                break;
+
+              case 'invalid':
+                swal({
+                  title: "Oops!",
+                  confirmButtonText: 'OK',
+                  imageUrl: '/static/img/api-fail.svg',
+                  imageWidth: 200,
+                  confirmButtonText: 'OK',
+                  html: "<h5 class='red-text'>New version found but there's validation errors.</h5>",
+                  footer: "<p>Try loading your newest version into this <a href='/editor'>editor</a>, or try to add as a new API to see detailed validation error.</p>"
+                })
+                break;
+
+              case 'nofile':
+                swal({
+                  title: "Oh no!",
+                  confirmButtonText: 'OK',
+                  imageUrl: '/static/img/api-error.svg',
+                  imageWidth: 200,
+                  html: "<h6 class='red-text'>Looks like the source file no longers exists or is not reachable</h6>",
+                  footer: "<p>This issue can only be resolved by restoring your source file or deleting this API and re-registering as a new API with a working source file.</p>"
+                })
+                break;
+            
+              default:
+                toast({
+                    title: 'NAME: <b>' + title + '</b> - STATUS: ' + status
+                  })
+                break;
+            }
+          },
           refreshingThis: function(title, id){
             var self = this;
             self.showLoading();
             axios.put('/api/metadata/'+id).then(res=>{
-              self.hideLoading();
               if( res.data.success ){
-                const toast = swal.mixin({
-                  toast: true,
-                  position: 'top',
-                  showConfirmButton: false,
-                  timer: 2000
-                });
-
-                toast({
-                  type: 'success',
-                  title: title + ' was refreshed!'
-                })
+                self.showMessage(title, res.data.status)
+                self.hideLoading();
               }else if( !res.data.success ){
-                const toast = swal.mixin({
-                  toast: true,
-                  position: 'top',
-                  showConfirmButton: false,
-                  timer: 2000
-                });
-
+                self.showMessage(title, res.data.status)
+                self.hideLoading();
+              }
+            }).catch(err=>{
+              if (err.response.data.hasOwnProperty('status')) {
+                self.showMessage(title, err.response.data.status)
+              } else {
                 toast({
                   type: 'error',
                   title: title+' failed to refresh'
                 })
               }
-            }).catch(err=>{
+              self.hideLoading();
               throw(err);
             });
             self.getApis();
-
           },
           showLoading: function(){
             $('#loading-overlay').show();

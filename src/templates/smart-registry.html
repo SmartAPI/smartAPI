@@ -708,7 +708,7 @@ const store = new Vuex.Store({
               var params = {
                   "params": {
                       "q": encodeURIComponent(query),
-                      'fields': 'info,_meta,uptime_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
+                      'fields': 'info,_meta,_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
                   }
               };
               var filters = this.getQueryFilters();
@@ -888,24 +888,24 @@ const store = new Vuex.Store({
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
 
-            <div class="apiStatus" title="Click to learn more">
+            <div v-if="api && api['_status']" class="apiStatus" title="Click to learn more">
               <div class="blue-grey-text">Status</div>
-              <template v-if="api['_meta']['uptime_status'] ==='bad'">
+              <template v-if="api['_status'] && api['_status']['uptime_status'] ==='bad'">
                 <div class="red">
                   FAIL
                 </div>
               </template>
-              <template v-else-if="api['_meta']['uptime_status'] ==='good'">
+              <template v-else-if="api['_status'] && api['_status']['uptime_status'] ==='good'">
               <div class="green">
                 PASS
               </div>
               </template>
-              <template v-else-if="api['_meta']['uptime_status'] ==='unknown'">
+              <template v-else-if="api['_status'] && api['_status']['uptime_status'] ==='unknown'">
               <div class="orange">
                 UNKNOWN
               </div>
               </template>
-              <template v-else-if="api['_meta']['uptime_status'] ==='incompatible'">
+              <template v-else-if="api['_status'] && api['_status']['uptime_status'] ==='incompatible'">
               <div class="blue">
                 INCOMPATIBLE
               </div>
@@ -1189,7 +1189,7 @@ const store = new Vuex.Store({
               var params = {
                   "params": {
                       "q": encodeURIComponent(query),
-                      'fields': 'info,_meta,uptime_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
+                      'fields': 'info,_meta,_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
                   }
               }
               var filters = self.getQueryFilters();
@@ -1370,7 +1370,7 @@ const store = new Vuex.Store({
                   var params = {
                       "params": {
                           "q": encodeURIComponent(query),
-                          'fields': 'info,_meta,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
+                          'fields': 'info,_meta,_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
                       }
                   };
                   var filters = this.getQueryFilters();
