@@ -28,6 +28,7 @@ def migrate():
             smartapi.username = doc['_source']['_meta']['github_username']
             smartapi.slug = doc['_source']['_meta'].get('slug')
             smartapi.save(update_ts=False)
+    print()
 
 
 def update():
@@ -45,6 +46,7 @@ def update():
         if smartapi.webdoc.status == 299:
             smartapi.webdoc._status = 200  # change status not reliable during migration
         smartapi.save(update_ts=False)
+    print()
 
 
 if __name__ == "__main__":
