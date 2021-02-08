@@ -171,10 +171,12 @@ class APIHandler(BaseHandler):
     @github_authenticated
     async def put(self, _id):
         """
-        Update registered slug or refresh the document.
-        Supply the slug field in request body to update it.
-        Supply an emtpy string/empty form value to remove it.
-        Use an empty request body to indicate a refresh.
+        Add/Update the URL slug:
+            PUT {"slug": "new_slug"}
+        Remove a URL slug:
+            PUT {"slug": "" }
+        Refresh a document:
+            PUT {}
         """
 
         try:
