@@ -300,14 +300,14 @@ def test_uptime_status():
     mygene.save()
     refresh()
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.uptime_status == 'up'
+    assert mygene_doc._status.uptime_status == 'up'
 
     mygene.uptime.update(None)
     assert mygene.uptime.status is None
     mygene.save()
     refresh()
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.uptime_status is None
+    assert mygene_doc._status.uptime_status is None
 
 
 def test_uptime_update():
@@ -319,7 +319,7 @@ def test_uptime_update():
     refresh()
 
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.uptime_status == 'incompatible'
+    assert mygene_doc._status.uptime_status == 'incompatible'
 
     mychem = SmartAPI.get(MYCHEM_ID)
     mychem.check()  # full api document
@@ -329,7 +329,7 @@ def test_uptime_update():
     refresh()
 
     mychem_doc = APIDoc.get(MYCHEM_ID)
-    assert mychem_doc._stat.uptime_status == 'good'
+    assert mychem_doc._status.uptime_status == 'good'
 
 
 def test_refresh_status():
@@ -352,7 +352,7 @@ def test_refresh_status():
     refresh()
 
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.refresh_status == 299
+    assert mygene_doc._status.refresh_status == 299
     assert 'components' in mygene_doc
 
     mygene.webdoc.update(File(200, MYGENE_FULL))  # no change
@@ -365,7 +365,7 @@ def test_refresh_status():
     refresh()
 
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.refresh_status == 200
+    assert mygene_doc._status.refresh_status == 200
     assert 'components' in mygene_doc
 
     mygene.webdoc.update(File(404))  # link broken
@@ -377,7 +377,7 @@ def test_refresh_status():
     refresh()
 
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.refresh_status == 404
+    assert mygene_doc._status.refresh_status == 404
     assert 'components' in mygene_doc
 
     mygene.webdoc.update(File(200, MYGENE_FULL))  # link back working
@@ -389,7 +389,7 @@ def test_refresh_status():
     refresh()
 
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.refresh_status == 200
+    assert mygene_doc._status.refresh_status == 200
     assert 'components' in mygene_doc
 
     mygene.webdoc.update(File(200, b'{"openapi":"3.0.0"}'))  # invalid
@@ -401,7 +401,7 @@ def test_refresh_status():
     refresh()
 
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._stat.refresh_status == 499
+    assert mygene_doc._status.refresh_status == 499
     assert 'components' in mygene_doc
 
 
@@ -426,4 +426,4 @@ def test_refresh_update():
     mychem.save()
     refresh()
     mychem_doc = APIDoc.get(MYCHEM_ID)
-    assert mychem_doc._stat.refresh_status == 200
+    assert mychem_doc._status.refresh_status == 200

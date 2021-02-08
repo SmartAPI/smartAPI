@@ -257,7 +257,7 @@ class AbstractEntityStatus():
         With a point-in-time status of a web entity.
         And the timestamp associated with the status.
     """
-    # Corresponds to a group of _stat fields in SmartAPI.
+    # Corresponds to a group of _status fields in SmartAPI.
 
     def __init__(self, entity, status=None, timestamp=None):
 
@@ -451,13 +451,13 @@ class SmartAPI(AbstractWebDoc):
         obj.slug = doc._meta.slug
 
         obj.uptime = APIMonitorStatus(
-            obj, doc._stat.uptime_status,
-            doc._stat.uptime_ts
+            obj, doc._status.uptime_status,
+            doc._status.uptime_ts
         )
 
         obj.webdoc = APIRefreshStatus(
-            obj, doc._stat.refresh_status,
-            doc._stat.refresh_ts
+            obj, doc._status.refresh_status,
+            doc._status.refresh_ts
         )
 
         return obj
@@ -547,11 +547,11 @@ class SmartAPI(AbstractWebDoc):
         doc._meta.username = self.username
         doc._meta.slug = self.slug
 
-        doc._stat.uptime_status = self.uptime.status
-        doc._stat.uptime_ts = self.uptime.timestamp
+        doc._status.uptime_status = self.uptime.status
+        doc._status.uptime_ts = self.uptime.timestamp
 
-        doc._stat.refresh_status = self.webdoc.status
-        doc._stat.refresh_ts = self.webdoc.timestamp
+        doc._status.refresh_status = self.webdoc.status
+        doc._status.refresh_ts = self.webdoc.timestamp
 
         doc._raw = decoder.compress(self.raw)
         doc.save()

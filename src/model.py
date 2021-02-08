@@ -25,7 +25,7 @@ class UserMeta(InnerDoc):
 
 
 class StatMeta(InnerDoc):
-    """ The _stat field. """
+    """ The _status field. """
     uptime_status = Keyword()
     uptime_ts = Date()
 
@@ -36,7 +36,7 @@ class StatMeta(InnerDoc):
 class APIDoc(Document):
 
     _meta = Object(UserMeta, required=True)
-    _stat = Object(StatMeta)
+    _status = Object(StatMeta)
     _raw = Binary()
 
     info = Object()
