@@ -1,7 +1,7 @@
-import json
 from abc import ABC, abstractmethod
 from collections import UserDict, namedtuple
 from collections.abc import Iterable, Mapping
+from datetime import timezone
 from email.utils import parsedate_to_datetime as parsedt
 from itertools import repeat
 from urllib.parse import urlparse
@@ -9,7 +9,6 @@ from urllib.parse import urlparse
 import certifi
 import requests
 import requests_cache
-import yaml
 from tornado import httpclient
 
 from utils import decoder
@@ -76,7 +75,7 @@ class ResponseParser(ABC):
         # Add more checking logic here to contain the error if this matters.
 
         try:
-            return parsedt(_ts)
+            return parsedt(_ts).replace(tzinfo=timezone.utc)
         except TypeError:
             return None
 
@@ -111,7 +110,7 @@ class TornadoParser(ResponseParser):
         return self._response.body
 
 
-# TODO require additional testing
+# TODO REQUIRE ADDITIONAL TESTING TO UNDERSTAND ERROR TYPES
 
 
 def download(url, timeout=5, raise_error=True):
