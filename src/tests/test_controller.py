@@ -216,8 +216,9 @@ def test_save(openapi):
     with pytest.raises(ValueError):
         SmartAPI.slug.validate("^_^")
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
+        raw = file.read()
         smartapi = SmartAPI(URL)
-        smartapi.raw = file.read()
+        smartapi.raw = raw
         smartapi.slug = "mygene"
         smartapi.validate()
         with pytest.raises(ControllerError):
@@ -229,6 +230,10 @@ def test_save(openapi):
         with pytest.raises(ConflictError):
             smartapi.save()
         smartapi.slug = "openapi"
+        smartapi.raw = None
+        with pytest.raises(ControllerError):
+            smartapi.save()
+        smartapi.raw = raw
         smartapi.save()
         refresh()
         assert SmartAPI.find("openapi") == smartapi._id

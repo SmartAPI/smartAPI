@@ -9,9 +9,9 @@ import json
 
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
-from controller import APIRefreshStatus, ControllerError, NotFoundError, SmartAPI
+from controller import ControllerError, NotFoundError, SmartAPI
 from tornado.web import Finish, HTTPError
-from utils.downloader import Downloader, DownloadError, download_async
+from utils.downloader import DownloadError, download_async
 
 
 def github_authenticated(func):
@@ -144,21 +144,22 @@ class APIHandler(BaseHandler):
             raise BadRequest(details=str(err)) from err
 
         try:
-            doc = SmartAPI(self.args.url)
-            doc.refresh(file)
-            doc.validate()
+            smartapi = SmartAPI(self.args.url)
+            smartapi.raw = file.raw
+            smartapi.validate()
         except (ControllerError, AssertionError) as err:
             raise BadRequest(details=str(err)) from err
 
         if self.args.dryrun:
             raise Finish({
                 'success': True,
-                'details': f"[Dryrun] Valid {doc.version} Metadata"
+                'details': f"[Dryrun] Valid {smartapi.version} Metadata"
             })
 
         try:
-            doc.username = self.current_user['login']
-            _id = doc.save()
+            smartapi.username = self.current_user['login']
+            smartapi.refresh(file)  # populate webdoc meta
+            _id = smartapi.save()
         except ControllerError as err:
             raise BadRequest(details=str(err)) from err
         else:
@@ -197,20 +198,19 @@ class APIHandler(BaseHandler):
 
         else:  # refresh
             file = await download_async(smartapi.url, raise_error=False)
-            smartapi.refresh(file)
+            code = smartapi.refresh(file)
             smartapi.save()
 
-            _code = smartapi.webdoc.status
             try:
-                _status = smartapi.webdoc.STATUS(_code)
-                _status = _status.name.lower()
+                status = smartapi.webdoc.STATUS(code)
+                status = status.name.lower()
             except ValueError:
-                _status = 'nofile'  # keep original copy
+                status = 'nofile'  # keep the original copy
 
             self.finish({
-                'success': _code in (200, 299),
-                'code': _code,
-                'status': _status
+                'success': code in (200, 299),
+                'status': status,
+                'code': code
             })
 
     @github_authenticated

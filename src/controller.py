@@ -1,26 +1,48 @@
 """
     SmartAPI CRUD Validation and Refresh Operations
+
+    Add a document:
+
+        smartapi = SmartAPI(url)
+        smartapi.raw = rawbytes
+        smartapi.username = username
+        smartapi.slug = slug # optional
+        smartapi.validate() # should call it before save
+        smartapi.save()
+
+        smartapi.check() # populate uptime status
+        smartapi.refresh() # refresh and populate refresh status, auto validate
+        smartapi.save()
+
+    Modify a document metadata:
+
+        smartapi = SmartAPI.get(_id)
+        smartapi.slug = newslug
+        smartapi.save()
+
+    Delete a document:
+
+        smartapi = SmartAPI.get(_id)
+        smartapi.delete()
+
 """
 import logging
 import string
 import sys
 from abc import ABC, abstractmethod
 from collections import OrderedDict, UserDict, UserString
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from configparser import ConfigParser
 from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
 from enum import IntEnum
-from types import MappingProxyType
-from typing import Type
-from urllib.parse import scheme_chars, urlparse
+from urllib.parse import urlparse
 
 import jsonschema
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
 
 from model import APIDoc
 from utils import decoder, monitor
-from utils.downloader import Downloader, DownloadError, File, download
+from utils.downloader import Downloader, File, download
 
 if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
     from hashlib import blake2b
@@ -31,6 +53,8 @@ logger = logging.getLogger(__name__)
 
 config = ConfigParser()
 config.read('schemas.ini')
+
+# TODO etag support
 
 # NOTE
 # Consider allowing the application to launch
@@ -60,9 +84,6 @@ class NotFoundError(ControllerError):
 
 class ConflictError(ControllerError):
     pass
-
-# TODO multiple time validation
-# TODO etag support
 
 
 def validate(doc, schemas):
@@ -291,7 +312,7 @@ class APIRefreshStatus(AbstractEntityStatus):
         UPDATED = 299  # new version available and update successful
         INVALID = 499  # cannot update to new version because validation failed
 
-    def update(self, content):  # TODO return status?
+    def update(self, content):
 
         if content is None:
             super().update(content)
@@ -368,9 +389,10 @@ class SmartAPI(AbstractWebDoc):
     # use this as url for validation only workflow
     VALIDATION_ONLY = PlaceHolder("http://nohost/nofile")
 
-    def __init__(self, url):
+    def __init__(self, url, ts=None):
 
         super().__init__(url)
+        self._timestamp = ts
 
         self.uptime = APIMonitorStatus(self)
         self.webdoc = APIRefreshStatus(self)
@@ -423,7 +445,7 @@ class SmartAPI(AbstractWebDoc):
         except ESNotFoundError as err:
             raise NotFoundError from err
 
-        obj = cls(doc._meta.url)
+        obj = cls(doc._meta.url, doc._meta.timestamp)
         obj.raw = decoder.decompress(doc._raw)
         obj.username = doc._meta.username
         obj.slug = doc._meta.slug
@@ -440,12 +462,7 @@ class SmartAPI(AbstractWebDoc):
 
         return obj
 
-    def validate(self):
-        """
-        Validate the properties and the mapping document.
-        Return a formatted object basing on format version.
-        Raise exceptions on all types of errors anywhere.
-        """
+    def _validate_dispatch(self):
 
         if not self.version:
             raise ControllerError("Unknown version.")
@@ -455,6 +472,16 @@ class SmartAPI(AbstractWebDoc):
         else:  # then it must be swagger
             doc = Swagger(self._data)
 
+        return doc
+
+    def validate(self):
+        """
+        Validate the properties and the mapping document.
+        Return a formatted object basing on format version.
+        Raise exceptions on all types of errors anywhere.
+        """
+
+        doc = self._validate_dispatch()
         try:
             doc.validate()  # basing on its format
         except ValueError as err:
@@ -481,7 +508,11 @@ class SmartAPI(AbstractWebDoc):
         self.webdoc.update(file)
         return self.webdoc.status
 
-    def save(self):
+    def save(self, update_ts=True):
+        # TODO DOCSTRING
+
+        if not self.raw:
+            raise ControllerError("No content.")
 
         if not self.username:
             raise ControllerError("Username is required.")
@@ -489,7 +520,13 @@ class SmartAPI(AbstractWebDoc):
         if self.url is self.VALIDATION_ONLY:
             raise ControllerError("In validation-only mode.")
 
-        _doc = self.validate()
+        # NOTE
+        # why not enforce validation here?
+        # we add additional constraints to the application from time to time
+        # it's actually hard to retrospectively make sure all previously
+        # submitted API document always meet our latest requirements
+
+        _doc = self._validate_dispatch()
         _doc.clean()  # only keep indexing fields
 
         if self.slug:
@@ -506,7 +543,7 @@ class SmartAPI(AbstractWebDoc):
         doc.meta.id = self._id
 
         doc._meta.url = self.url
-        doc._meta.timestamp = datetime.utcnow()
+        doc._meta.timestamp = datetime.now(timezone.utc) if update_ts else self._timestamp
         doc._meta.username = self.username
         doc._meta.slug = self.slug
 
