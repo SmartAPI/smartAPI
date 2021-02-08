@@ -100,7 +100,7 @@
               }
             }).catch(err=>{
               if(err.hasOwnProperty('response') && err.response.hasOwnProperty('data')){
-                console.log('[Error]:', err.response)
+                // console.log('[Error]:', err.response)
                 if(err.response.data.hasOwnProperty('error') && err.response.data.error == "Conflict"){
                 swal({
                   title: "Wait a second...",
