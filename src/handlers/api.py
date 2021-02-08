@@ -199,7 +199,7 @@ class APIHandler(BaseHandler):
         else:  # refresh
             file = await download_async(smartapi.url, raise_error=False)
             code = smartapi.refresh(file)
-            smartapi.save()
+            smartapi.save(file.status == 200)  # TODO TS FIELD REQUIRES TESTING
 
             try:
                 status = smartapi.webdoc.STATUS(code)

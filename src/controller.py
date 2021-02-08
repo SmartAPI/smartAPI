@@ -7,7 +7,7 @@
         smartapi.raw = rawbytes
         smartapi.username = username
         smartapi.slug = slug # optional
-        smartapi.validate() # should call it before save
+        smartapi.validate() # should be called before saving
         smartapi.save()
 
         smartapi.check() # populate uptime status
@@ -508,7 +508,7 @@ class SmartAPI(AbstractWebDoc):
         self.webdoc.update(file)
         return self.webdoc.status
 
-    def save(self, update_ts=True):
+    def save(self, update_ts=True):  # TODO maybe the default should be false
         # TODO DOCSTRING
 
         if not self.raw:
