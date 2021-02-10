@@ -1,6 +1,6 @@
 ''' SmartAPI Configuration '''
 
-from biothings.web.settings.default import ES_RESULT_TRANSFORM, QUERY_KWARGS
+from biothings.web.settings.default import QUERY_KWARGS
 
 from config_key import *
 
