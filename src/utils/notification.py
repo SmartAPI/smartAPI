@@ -17,7 +17,7 @@ class SlackNewAPIMessage():
 
     def get_header(self):
         return {
-            "type": "plain_text",
+            "type": "mrkdwn",
             "text": "A new API has been registered on Smart-API.info:",
         }
 
@@ -42,7 +42,7 @@ class SlackNewAPIMessage():
         return {
             "text": self.get_notification(),
             "blocks": [
-                {"type": "header", "text": self.get_header()},
+                {"type": "section", "text": self.get_header()},
                 {"type": "section", "text": self.get_body()},
                 {"type": "context", "elements": self.get_footer()}
             ]
@@ -56,7 +56,7 @@ class SlackNewTranslatorAPIMessage(SlackNewAPIMessage):
 
     def get_header(self):
         return {
-            "type": "plain_text",
+            "type": "mrkdwn",
             "text": "A new Translator API has been registered on Smart-API.info:",
         }
 
