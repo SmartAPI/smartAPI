@@ -23,6 +23,8 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                             {"term": {"info.title": {"value": q, "boost": 2.0}}},
                             {"term": {"server.url": {"value": q, "boost": 1.1}}},
                             {"term": {"_id": q}},
+                            {"wildcard": {"info.title": {"value": q + "*"}}},
+                            {"wildcard": {"info.description": {"value": q + "*"}}},
                             {"query_string": {"query": q}},
                         ]
                     }
