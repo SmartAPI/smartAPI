@@ -6,12 +6,17 @@ Metadata /api/metadata
 Suggestion /api/suggestion
 """
 import json
+import logging
 
+import certifi
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.exceptions import BadRequest
 from controller import ControllerError, NotFoundError, SmartAPI
+from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
+from torngithub import json_encode
 from utils.downloader import DownloadError, download_async
+from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 
 def github_authenticated(func):
@@ -35,6 +40,30 @@ class BaseHandler(BaseAPIHandler):
     """
     Base SmartAPI Handler
     """
+
+    async def prepare(self):
+
+        super().prepare()
+
+        # Additionally support GitHub Token Login
+        # Mainly for debug and admin purposes
+
+        if 'Authorization' in self.request.headers:
+            if self.request.headers['Authorization'].startswith('Bearer '):
+                token = self.request.headers['Authorization'].split(' ', 1)[1]
+                http_client = AsyncHTTPClient()
+                try:
+                    response = await http_client.fetch(
+                        "https://api.github.com/user", request_timeout=10,
+                        headers={'Authorization': 'token ' + token}, ca_certs=certifi.where())
+                    user = json.loads(response.body)
+                except Exception as e:  # TODO
+                    logging.warning(e)
+                else:
+                    if 'login' in user:
+                        logging.info('logged in user from github token: %s', user)
+                        self.set_secure_cookie("user", json_encode(user))
+                        self.current_user = user
 
     def get_current_user(self):
         user_json = self.get_secure_cookie("user")
@@ -167,6 +196,49 @@ class APIHandler(BaseHandler):
                 'success': True,
                 '_id': _id
             })
+            await self._notify(smartapi)
+
+    async def _notify(self, smartapi):
+        client = AsyncHTTPClient()
+        kwargs = {
+            "_id": smartapi._id,
+            "name": dict(smartapi).get('info', {}).get('title', '<Notitle>'),
+            "description": dict(smartapi).get('info', {}).get('description', '')[:120] + '...',
+            "username": smartapi.username
+        }
+        try:
+            # NOTE
+            # SLACK_WEBHOOKS = [
+            #     {"webhook": <url>}
+            #     {"webhook": <url>, "tags": "translator"} # project specific
+            # ]
+            for slack in getattr(self.web_settings, "SLACK_WEBHOOKS", []):
+
+                if "tags" in slack:
+                    if slack["tags"] == "translator":
+                        if "x-translator" in smartapi["info"]:
+                            res = await client.fetch(
+                                slack["webhook"], method='POST',
+                                headers={'content-type': 'application/json'},
+                                body=json.dumps(SlackNewTranslatorAPIMessage(**kwargs).compose()),
+                            )
+                            logging.info(res.code)
+                            logging.info(res.body)
+
+                    # elif slack["tags"] == <other>:
+                    #   pass
+
+                # typical case
+                res = await client.fetch(
+                    slack["webhook"], method='POST',
+                    headers={'content-type': 'application/json'},
+                    body=json.dumps(SlackNewAPIMessage(**kwargs).compose()),
+                )
+                logging.info(res.code)
+                logging.info(res.body)
+
+        except Exception as exc:
+            logging.error(str(exc))
 
     @github_authenticated
     async def put(self, _id):
