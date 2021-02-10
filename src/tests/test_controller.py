@@ -1,9 +1,10 @@
 """
 SmartAPI Controller Tests
 """
-from datetime import datetime, timezone
 import json
 import os
+import time
+from datetime import datetime, timezone
 
 import elasticsearch
 import pytest
@@ -206,6 +207,8 @@ def test_save(openapi):
     smartapi.slug
     smartapi.save()
     """
+    _t0 = datetime.now(timezone.utc)
+    time.sleep(0.1)
     URL = "http://example.com/valid.json"
     with pytest.raises(ValueError):
         SmartAPI.slug.validate("a")
@@ -218,6 +221,8 @@ def test_save(openapi):
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
         raw = file.read()
         smartapi = SmartAPI(URL)
+        with pytest.raises(ControllerError):
+            smartapi.raw = None
         smartapi.raw = raw
         smartapi.slug = "mygene"
         smartapi.validate()
@@ -230,16 +235,25 @@ def test_save(openapi):
         with pytest.raises(ConflictError):
             smartapi.save()
         smartapi.slug = "openapi"
-        smartapi.raw = None
-        with pytest.raises(ControllerError):
-            smartapi.save()
-        smartapi.raw = raw
         smartapi.save()
         refresh()
         assert SmartAPI.find("openapi") == smartapi._id
+        assert smartapi.date_created > _t0
+        assert smartapi.last_updated > _t0
+        assert smartapi.date_created == smartapi.last_updated
+        apidoc = APIDoc.get(smartapi._id)
+        assert apidoc._meta.date_created == smartapi.date_created
+        assert apidoc._meta.last_updated == smartapi.last_updated
+        _t1 = smartapi.date_created
         smartapi.save()  # no change
         refresh()
         assert SmartAPI.find("openapi") == smartapi._id
+        assert smartapi.date_created == _t1
+        assert smartapi.last_updated == _t1
+        assert smartapi.date_created == smartapi.last_updated
+        apidoc = APIDoc.get(smartapi._id)
+        assert apidoc._meta.date_created == smartapi.date_created
+        assert apidoc._meta.last_updated == smartapi.last_updated
         smartapi.slug = None
         smartapi.save()
         refresh()
@@ -249,6 +263,20 @@ def test_save(openapi):
         assert smartapi.username == found.username
         assert smartapi.slug == found.slug
         assert smartapi.url == found.url
+        assert smartapi.date_created == _t1
+        assert smartapi.last_updated == _t1
+        assert smartapi.date_created == smartapi.last_updated
+        apidoc = APIDoc.get(smartapi._id)
+        assert apidoc._meta.date_created == smartapi.date_created
+        assert apidoc._meta.last_updated == smartapi.last_updated
+        smartapi.raw = raw  # should trigger ts update
+        smartapi.save()
+        refresh()
+        assert smartapi.date_created == _t1
+        assert smartapi.last_updated > _t1
+        apidoc = APIDoc.get(smartapi._id)
+        assert apidoc._meta.date_created == smartapi.date_created
+        assert apidoc._meta.last_updated == smartapi.last_updated
 
 
 @pytest.fixture

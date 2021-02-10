@@ -1,12 +1,20 @@
 """
     SmartAPI CRUD Validation and Refresh Operations
 
+    Validation only:
+
+        smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
+        smartapi.raw = rawbytes
+        smartapi.validate()
+
     Add a document:
 
         smartapi = SmartAPI(url)
         smartapi.raw = rawbytes
+
         smartapi.username = username
         smartapi.slug = slug # optional
+
         smartapi.validate() # should be called before saving
         smartapi.save()
 
@@ -36,6 +44,7 @@ from configparser import ConfigParser
 from datetime import datetime, timezone
 from enum import IntEnum
 from urllib.parse import urlparse
+from warnings import warn
 
 import jsonschema
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
@@ -102,7 +111,7 @@ def validate(doc, schemas):
 
     except jsonschema.ValidationError as err:
         _ = (
-            f"Failed {name} validation at"
+            f"Failed {name} validation at "
             f"{err.path} - {err.message}. "
             # show path first, message can
             # sometimes be very very long
@@ -209,49 +218,6 @@ class AbstractWebEntity(ABC):
         return self._url
 
 
-class AbstractWebDoc(AbstractWebEntity, Mapping):
-    """
-        A mapping defined by JSON/YAML encoded bytes.
-        The object level shallow access is read-only.
-    """
-
-    def __init__(self, url):
-        super().__init__(url)
-
-        self._raw = None
-        self._data = {}
-
-    @property
-    def raw(self):
-        """
-        Bytes that correspond to the URL.
-        This object is a view of this field.
-        """
-        return self._raw
-
-    @raw.setter
-    def raw(self, value):
-
-        if value is None:
-            self._raw = None
-            return  # allow None
-        try:
-            self._data = decoder.to_dict(value)
-        except (ValueError, TypeError) as err:
-            raise ControllerError(str(err)) from err
-        else:  # dict conversion success
-            self._raw = value
-
-    def __getitem__(self, key):
-        return self._data.__getitem__(key)
-
-    def __iter__(self):
-        return iter(self._data)
-
-    def __len__(self):
-        return len(self._data)
-
-
 class AbstractEntityStatus():
     """
         With a point-in-time status of a web entity.
@@ -285,65 +251,64 @@ class AbstractEntityStatus():
     @abstractmethod
     def update(self, content):
         """
-        Update the status of this web entity.
-        Optionally with the external content provided.
+        Update the status of this web entity with the content provided.
+        The content should indicate a certain type of status.
         Update the timestamp to reflect the operation.
         The timestamp can be server or local time.
-        """
-        self._status = content
-        self.update_timestamp()
-
-    def update_timestamp(self):
-        """
-        Update the timestamp to the current time.
         """
         self._timestamp = datetime.utcnow()
         self._timestamp.replace(tzinfo=timezone.utc)
 
 
 class APIMonitorStatus(AbstractEntityStatus):
-    pass
+    """
+        API Uptime Monitor Status.
+        See utils.monitor for details.
+    """
+
+    def update(self, content):
+        super().update(content)
+        self._status = content
 
 
 class APIRefreshStatus(AbstractEntityStatus):
+    """
+        API Document Refresh Status.
+        Support HTTP status codes and the ones below.
+    """
 
     class STATUS(IntEnum):
-        LATEST = 200  # no need to update, already at latest version
+        """ Code Expansion """
+        NOT_MODIFIED = 200  # no need to update, already at latest version
         UPDATED = 299  # new version available and update successful
         INVALID = 499  # cannot update to new version because validation failed
 
     def update(self, content):
 
-        if content is None:
-            super().update(content)
-            return
-
         if not isinstance(content, File):
             raise TypeError("Invalid content.")
 
+        super().update(content)
         self._status = content.status
-        self._timestamp = content.date
-        if not self._timestamp:
-            self.update_timestamp()
+
+        if content.date:  # more accurate
+            self._timestamp = content.date
 
         if content.status != 200 or not content.raw:
-            return  # no need to update main copy
+            return  # no need to update _raw
 
-        _raw = self._entity.raw  # backup
         try:
-            self._entity.raw = content.raw
-            self._entity.validate()
+            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
+            smartapi.raw = content.raw
+            smartapi.validate()
         except ControllerError:
-            self._entity.raw = _raw  # rollback
             self._status = self.STATUS.INVALID.value
-            return
-
-        # refresh is successful
-        if self._entity.raw != _raw and _raw:
-            self._status = self.STATUS.UPDATED.value
-        else:
-            self._status = self.STATUS.LATEST.value
-        return
+        else:  # safe to update
+            if self._entity.raw in (content.raw, None):
+                self._status = self.STATUS.NOT_MODIFIED.value
+            else:  # raw field changed
+                self._status = self.STATUS.UPDATED.value
+            self._entity.raw = content.raw
 
 
 class Slug():
@@ -380,7 +345,7 @@ class Slug():
             raise ValueError("Slug contains invalid characters.")
 
 
-class SmartAPI(AbstractWebDoc):
+class SmartAPI(AbstractWebEntity, Mapping):
 
     # SmartAPI.slug.validate(value: Union[str, NoneType]) -> None
     # smartapi.slug : Union[str, NoneType]
@@ -389,16 +354,46 @@ class SmartAPI(AbstractWebDoc):
     # use this as url for validation only workflow
     VALIDATION_ONLY = PlaceHolder("http://nohost/nofile")
 
-    def __init__(self, url, ts=None):
+    def __init__(self, url):
 
         super().__init__(url)
-        self._timestamp = ts
 
         self.uptime = APIMonitorStatus(self)
         self.webdoc = APIRefreshStatus(self)
 
         self.username = None
         self.slug = None
+
+        self.date_created = None
+        self.last_updated = None
+
+        self._raw = None
+        self._data = {}
+
+    @property
+    def raw(self):
+        """
+        Bytes that correspond to the URL.
+        This object is a view of this field.
+        """
+        return self._raw
+
+    @raw.setter
+    def raw(self, value):
+
+        if not value:
+            raise ControllerError("Empty value.")
+        try:
+            self._data = decoder.to_dict(value)
+        except (ValueError, TypeError) as err:
+            raise ControllerError(str(err)) from err
+        else:  # dict conversion success
+            self._raw = value
+
+        # update the timestamps
+        self.last_updated = datetime.now(timezone.utc)
+        if not self.date_created:
+            self.date_created = self.last_updated
 
     @property
     def version(self):
@@ -445,10 +440,14 @@ class SmartAPI(AbstractWebDoc):
         except ESNotFoundError as err:
             raise NotFoundError from err
 
-        obj = cls(doc._meta.url, doc._meta.timestamp)
+        obj = cls(doc._meta.url)
         obj.raw = decoder.decompress(doc._raw)
+
         obj.username = doc._meta.username
         obj.slug = doc._meta.slug
+
+        obj.date_created = doc._meta.date_created
+        obj.last_updated = doc._meta.last_updated
 
         obj.uptime = APIMonitorStatus(
             obj, doc._status.uptime_status,
@@ -508,7 +507,7 @@ class SmartAPI(AbstractWebDoc):
         self.webdoc.update(file)
         return self.webdoc.status
 
-    def save(self, update_ts=True):  # TODO maybe the default should be false
+    def save(self):
         # TODO DOCSTRING
 
         if not self.raw:
@@ -519,6 +518,20 @@ class SmartAPI(AbstractWebDoc):
 
         if self.url is self.VALIDATION_ONLY:
             raise ControllerError("In validation-only mode.")
+
+        if not self.last_updated:
+            self.last_updated = datetime.now(timezone.utc)
+            warn("Filling in date_updated with current time.")
+        if not self.date_created:
+            self.date_created = self.last_updated
+            warn("Filling in date_created with current time.")
+
+        if not isinstance(self.date_created, datetime):
+            raise ControllerError("Invalid created time.")
+        if not isinstance(self.last_updated, datetime):
+            raise ControllerError("Invalid updated time.")
+        if self.date_created > self.last_updated:
+            raise ControllerError("Invalid timestamps.")
 
         # NOTE
         # why not enforce validation here?
@@ -543,9 +556,11 @@ class SmartAPI(AbstractWebDoc):
         doc.meta.id = self._id
 
         doc._meta.url = self.url
-        doc._meta.timestamp = datetime.now(timezone.utc) if update_ts else self._timestamp
         doc._meta.username = self.username
         doc._meta.slug = self.slug
+
+        doc._meta.date_created = self.date_created
+        doc._meta.last_updated = self.last_updated
 
         doc._status.uptime_status = self.uptime.status
         doc._status.uptime_ts = self.uptime.timestamp
@@ -600,3 +615,15 @@ class SmartAPI(AbstractWebDoc):
             raise NotFoundError() from err
 
         return self._id
+
+    # READ-ONLY DICT-LIKE ACCESS
+    # FOR FIRST LEVEL KEYS
+
+    def __getitem__(self, key):
+        return self._data.__getitem__(key)
+
+    def __iter__(self):
+        return iter(self._data)
+
+    def __len__(self):
+        return len(self._data)

@@ -1,5 +1,7 @@
 import base64
+from datetime import timezone
 
+from dateutil import parser
 from elasticsearch.client import Elasticsearch
 from elasticsearch.helpers import scan
 
@@ -23,11 +25,12 @@ def migrate():
             url = doc['_source']['_meta']['url']
             raw = decoder.decompress(base64.urlsafe_b64decode(doc['_source']['~raw']))
 
-            smartapi = SmartAPI(url, doc['_source']['_meta']['timestamp'])
+            smartapi = SmartAPI(url)
             smartapi.raw = raw
+            smartapi.date_created = parser.parse(doc['_source']['_meta']['timestamp']).replace(tzinfo=timezone.utc)
             smartapi.username = doc['_source']['_meta']['github_username']
             smartapi.slug = doc['_source']['_meta'].get('slug')
-            smartapi.save(update_ts=False)
+            smartapi.save()
     print()
 
 
@@ -45,7 +48,7 @@ def update():
         print(smartapi.refresh())
         if smartapi.webdoc.status == 299:
             smartapi.webdoc._status = 200  # change status not reliable during migration
-        smartapi.save(update_ts=False)
+        smartapi.save()
     print()
 
 

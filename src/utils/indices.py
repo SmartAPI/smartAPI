@@ -18,12 +18,12 @@ def setup():
     """
 
     if not Index(APIDoc.Index.name).exists():
+        APIDoc.init()
         elastic = Elasticsearch()
-        elastic.indices.create(
+        elastic.indices.put_mapping(
             index=APIDoc.Index.name,
             body=SMARTAPI_MAPPING
         )
-        APIDoc.init()
 
 
 def reset():

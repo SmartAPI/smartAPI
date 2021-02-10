@@ -315,7 +315,7 @@ class TestCRUD(SmartAPIEndpoint):
         res = self.request("/api/metadata/" + MYCHEM_ID, method="PUT", headers=self.auth_user).json()
         assert res["success"]
         assert res["code"] == 200
-        assert res["status"] == "latest"
+        assert res["status"] == "not_modified"
 
         mychem = SmartAPI.get(MYCHEM_ID)
         assert mychem.webdoc.status == 200
@@ -331,7 +331,7 @@ class TestCRUD(SmartAPIEndpoint):
         res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
         assert res["success"]
         assert res["code"] == 200
-        assert res["status"] == "latest"
+        assert res["status"] == "not_modified"
 
         mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 200
@@ -367,7 +367,7 @@ class TestCRUD(SmartAPIEndpoint):
         res = self.request("/api/metadata/" + mygene_ref._id, method="PUT", headers=self.auth_user).json()
         assert res["success"]
         assert res["code"] == 200
-        assert res["status"] == "latest"
+        assert res["status"] == "not_modified"
 
         mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 200

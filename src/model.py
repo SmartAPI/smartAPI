@@ -18,10 +18,11 @@ connections.create_connection(hosts=ES_HOST)
 
 class UserMeta(InnerDoc):
     """ The _meta field. """
-    username = Keyword(required=True)
-    timestamp = Date(default_timezone='UTC')
     url = Keyword(required=True)
-    slug = Keyword()
+    slug = Keyword()  # url shortcut
+    username = Keyword(required=True)
+    date_created = Date(default_timezone='UTC')
+    last_updated = Date(default_timezone='UTC')
 
 
 class StatMeta(InnerDoc):
@@ -67,7 +68,8 @@ class APIDoc(Document):
         name = ES_INDEX_NAME
         settings = {
             "number_of_shards": 1,
-            "number_of_replicas": 0
+            "number_of_replicas": 0,
+            "mapping.ignore_malformed": True
         }
 
     @ classmethod
