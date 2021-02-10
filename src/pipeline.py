@@ -24,7 +24,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                             {"term": {"server.url": {"value": q, "boost": 1.1}}},
                             {"term": {"_id": q}},
                             {"query_string": {"query": q}},
-                            {"query_string": {"query": q + "*", "boost": 0.8}}
+                            {"query_string": {"query": q.replace('"', '') + "*", "boost": 0.8}}
                         ]
                     }
                 }
