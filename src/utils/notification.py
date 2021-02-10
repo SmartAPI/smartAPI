@@ -13,20 +13,19 @@ class SlackNewAPIMessage():
         self.username = username
 
     def get_notification(self):
-        return f":large_blue_circle: New API Registered: {self.name}"
+        return f"A new API has been registered on Smart-API.info: {self.name}"
 
     def get_header(self):
         return {
             "type": "plain_text",
-            "text": ":large_blue_circle: New API Registered",
-            "emoji": True
+            "text": "A new API has been registered on Smart-API.info:",
         }
 
     def get_body(self):
         return {
             "type": "mrkdwn",
             "text": (
-                f"*Name*: {self.name}\n"
+                f"*Title*: {self.name}\n"
                 f"*Description*: {self.description}\n"
                 f"*Registered by*: <https://github.com/{self.username}|{self.username}>"
             )
@@ -34,10 +33,8 @@ class SlackNewAPIMessage():
 
     def get_footer(self):
         return [
-            {"type": "image", "image_url": "https://smart-api.info/static/img/owl-fly.gif", "alt_text": "SmartAPI"},
             {"type": "mrkdwn", "text": f"<https://smart-api.info/registry?q={self._id}|View on SmartAPI>"},
             {"type": "plain_text", "text": " | "},
-            {"type": "mrkdwn", "text": ":book:"},
             {"type": "mrkdwn", "text": f"<https://smart-api.info/ui/{self._id}|View API Documentation>"}
         ]
 
@@ -55,13 +52,12 @@ class SlackNewAPIMessage():
 class SlackNewTranslatorAPIMessage(SlackNewAPIMessage):
 
     def get_notification(self):
-        return f":large_purple_circle: New API Registered: {self.name}"
+        return f"A new Translator API has been registered on Smart-API.info: {self.name}"
 
     def get_header(self):
         return {
             "type": "plain_text",
-            "text": ":large_purple_circle: New Translator API Registered",
-            "emoji": True
+            "text": "A new Translator API has been registered on Smart-API.info:",
         }
 
 
