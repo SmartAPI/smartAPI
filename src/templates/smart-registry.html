@@ -663,15 +663,16 @@ const store = new Vuex.Store({
                   }
               }
           }else{
-              api.paths.forEach(function(path){
-                  for(var method in path['pathitem']) {
-                    if (path['pathitem'][method].hasOwnProperty('summary')) {
-                      operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': path['pathitem'][method].summary, 'path': path.path })
-                    }else if (path['pathitem'][method].hasOwnProperty('description')) {
-                      operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': path['pathitem'][method].description, 'path': path.path })
-                    }
+              for (endpoint in api.paths) {
+                const item = api.paths[endpoint];
+                for(var method in item) {
+                  if (item[method].hasOwnProperty('summary')) {
+                    operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': item[method]['summary'], 'path': endpoint })
+                  }else if (item[method].hasOwnProperty('description')) {
+                    operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': item[method]['description'], 'path': endpoint })
                   }
-              })
+                }
+              }
           }
           return operations;
       },
