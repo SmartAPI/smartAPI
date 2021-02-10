@@ -1180,6 +1180,7 @@ const store = new Vuex.Store({
           },
           refreshApis: function(){
               var self = this;
+              let url = "/api/query?size=100"
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -1187,29 +1188,29 @@ const store = new Vuex.Store({
               if(!self.query){
                 query="__all__"
               }
-              var params = {
+              
+              var config = {
                   "params": {
                       "q": encodeURIComponent(query),
-                      'fields': 'info,_meta,_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
+                      'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                   }
               }
               var filters = self.getQueryFilters();
               if (Object.keys(filters).length !== 0){
-                params["params"]["filters"] = filters;
+                for (const param in filters) {
+                  // config["params"][param] = filters[param]
+                  url += "&"+param+"="+encodeURIComponent(filters[param])
+                }
               }
+              // console.log("%c "+url, "color: limegreen")
               self.loading_start();
-              axios.get("/api/query?size=100", params).then(function(response){
+              axios.get(url, config).then(function(response){
                   self.loading_end();
 
                   var payload = {};
                   payload["apis"] = response.data.hits;
                   store.commit('saveApis',payload);
 
-                  // console.log('res', response.data)
-
-                  // history.pushState(null, "SmartAPI", window.location.href)
-
-                  // self.apis = response.data.hits;
                   self.total = response.data.total;
                   self.calculatePages();
               }).catch(err=>{
@@ -1252,42 +1253,42 @@ const store = new Vuex.Store({
               });
           },
           getQueryFilters: function(){
-              var filters = [];
+              var tagFilters = [];
               var authorFilters = [];
               var finalFilters = {};
               // regular tags
               this.tags.forEach(function(item){
                 if (item.active){
-                  filters.push(item.name);
+                  tagFilters.push('"'+item.name+'"');
                 }   
               });
               // include not found on list
               this.tagsNotFound.forEach(tag => {
-                filters.push(tag);
+                tagFilters.push('"'+tag+'"');
               })
               //popular tags
               this.popularTags.forEach(function(item){
-              if (item.active && !filters.includes(item.name))
-                  filters.push(item.name);
+              if (item.active && !tagFilters.includes(item.name))
+                tagFilters.push('"'+item.name+'"');
               });
 
-              if (filters.length > 0){
-                finalFilters['tags.name.raw'] = filters;
+              if (tagFilters.length > 0){
+                finalFilters['tags'] = tagFilters;
               }
 
               this.authors.forEach(function(item){
                 if (item.active){
-                  authorFilters.push(item.name);
+                  authorFilters.push('"'+item.name+'"');
                 }
               });
               // include not found on list
               this.ownersNotFound.forEach(owner => {
-                authorFilters.push(owner);
+                authorFilters.push('"'+owner+'"');
               })
               if (authorFilters.length){
-                finalFilters['info.contact.name.raw'] = authorFilters;
+                finalFilters['authors'] = authorFilters;
               }
-
+              // console.log('filters found', finalFilters)
               return finalFilters;
           },
           searchForTags: function(tagName){
@@ -1357,6 +1358,7 @@ const store = new Vuex.Store({
           },
           search: function (query) {
               var self = this;
+              let url = '/api/query?size=100'
               // self.context= {{Context}};
               if (!self.context.Special && !query){
                 query = $('#search_query').val();
@@ -1368,15 +1370,18 @@ const store = new Vuex.Store({
               }
               if (query) {
                   self.googleAnalytics('Registry_Searches',query)
-                  var params = {
+                  var config = {
                       "params": {
                           "q": encodeURIComponent(query),
-                          'fields': 'info,_meta,_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
-                      }
+                          'fields': 'info,_meta,_status,paths,tags,openapi,swagger',                         
+                      },
                   };
                   var filters = this.getQueryFilters();
                   if (Object.keys(filters).length !== 0){
-                    params["params"]["filters"] = filters;
+                    for (const param in filters) {
+                      // config["params"][param] = filters[param]
+                      url += "&"+param+"="+encodeURIComponent(filters[param])
+                    }
                   }
                   self.loading_start();
                   // Share search URL
@@ -1384,7 +1389,7 @@ const store = new Vuex.Store({
 
                   $(".context").unmark();
                   self.total = 0;
-                  axios.get('/api/query?size=100', params).then(function (response) {
+                  axios.get(url, config).then(function (response) {
                       self.loading_end();
                       $(".context").unmark();
 
@@ -1398,8 +1403,6 @@ const store = new Vuex.Store({
                         store.commit('sort',payload)
                       }
 
-                      // history.pushState(null, "SmartAPI", window.location.href)
-
                       self.handleContext(self.context);
                       self.total = response.data.total;
                       self.page = 1;
@@ -1407,7 +1410,6 @@ const store = new Vuex.Store({
                   }).catch(err=>{
                     throw err;
                     self.loading_end();
-
                   });
               }
           },
