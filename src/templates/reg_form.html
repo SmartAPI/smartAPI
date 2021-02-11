@@ -13,6 +13,12 @@
 .m-0{
   margin: 0px !important;
 }
+
+.codeBox{
+ border-radius: 5px;
+ border: inset 2px #f2f2f2 solid;
+ text-align: left;
+}
 </style>
 <main id="registerAPI" class="blue-grey dashboardBack row m-0 darken-2">
   <div class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
@@ -105,7 +111,7 @@
                 swal({
                   title: "Wait a second...",
                   html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
-                  imageUrl: '/static/img/api-fail.svg',
+                  imageUrl: '/static/img/api-overwrite.svg',
                   imageWidth: 300,
                   confirmButtonText: 'OK',
                 });
@@ -121,20 +127,24 @@
               }
               else if(err.response.data.hasOwnProperty('details') && err.response.data.details.includes("Validation Error")){
                 swal({
-                  title: "Oh no!",
+                  title: "Oh no, there's a problem!",
                   imageUrl: '/static/img/api-fail.svg',
                   imageWidth: 300,
                   confirmButtonText: 'OK',
-                  html: "<h5>There's a problem...</h5><h6>Here's what we found:</h6><p><code class='red-text'>"+err.response.data.details+"</code></p>",
+                  html:`<h5>Here's what we found:</h5>
+                        <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,
+                  footer:`<p><b class="red-text">Need help?</b> Take a look at OpenAPI specification examples <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
                 })
               }
               else{
                 swal({
-                  title: "Oops!",
+                  title: "Oops, there's an issue!",
                   imageUrl: '/static/img/api-fail.svg',
                   imageWidth: 300,
                   confirmButtonText: 'OK',
-                  html: "<h5>There's something wrong...</h5><p>Error: <b class='red-text'>"+err.response.data.details || err.response.data+"</b></p>",
+                  html:`<h5>Here's what we found:</h5>
+                        <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,
+                  footer:`<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
                 })
               }
               }
