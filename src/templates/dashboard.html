@@ -7,6 +7,9 @@
 .tabs .indicator{
   background: var(--blue-medium);
 }
+.tippy-tooltip{
+  padding: 0px !important;
+}
 </style>
 <main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3 dashboardBack">
   <!-- IF NO USERINFO DISPLAY LOGIN-->
@@ -91,7 +94,7 @@
                      </span>
                   </td>
                   <td  class="center-align">
-                    <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.timestamp) }}</span>
+                    <span style="font-weight: bold" class="green-text smallFont">{{ convertDate(api._meta.last_updated) }}</span>
                   </td>
                   <td  class="center-align">
                     <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
@@ -147,8 +150,8 @@
 
                     </td>
                     <td  class="center-align">
-                      <span style="font-weight: bold" class="green-text smallFont hide-on-large-only ">{{ convertDate(api._meta.timestamp) }}</span>
-                      <span style="font-weight: bold" class="green-text hide-on-med-and-down"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ convertDate(api._meta.timestamp) }}</span>
+                      <span style="font-weight: bold" class="green-text smallFont hide-on-large-only ">{{ convertDate(api._meta.last_updated) }}</span>
+                      <span style="font-weight: bold" class="green-text hide-on-med-and-down"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ convertDate(api._meta.last_updated) }}</span>
                     </td>
                     <td class="center-align">
                       <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id"></refresh>
@@ -412,8 +415,8 @@ Vue.component('status', {
   methods:{
     getStatus(api){
       let self = this;
-      if (api['_meta'].hasOwnProperty('uptime_status')) {
-        let stat = api['_meta']['uptime_status'];
+      if (api?._status?.uptime_status) {
+        let stat = api['_status']['uptime_status'];
         switch (stat) {
           case 'unknown':
             self.status = 'UNKNOWN';
@@ -435,12 +438,15 @@ Vue.component('status', {
           self.status = '';
           self.clss = 'grey-text';
         }
+      }else{
+        self.status = '';
+          self.clss = 'grey-text';
       }
     },
     setTooltip(){
       tippy( '#tippyParent', {
         target:'.apiStatus',
-        content: `<div>
+        content: `<div class="white" style="padding:0px;">
                     <table>
                       <tbody>
                         <tr>
@@ -490,7 +496,7 @@ Vue.component('status', {
     this.setTooltip();
     this.getStatus(this.api);
   },
-  template: `<i v-if='status' class="material-icons apiStatus tiny" :class='clss'>brightness_1</i>`
+  template: `<i class="material-icons apiStatus tiny" :class='clss'>brightness_1</i>`
 });
 
 
