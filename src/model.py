@@ -27,6 +27,7 @@ class UserMeta(InnerDoc):
 
 class StatMeta(InnerDoc):
     """ The _status field. """
+
     uptime_status = Keyword()
     uptime_ts = Date()
 

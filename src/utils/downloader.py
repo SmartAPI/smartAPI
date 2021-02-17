@@ -14,8 +14,8 @@ from tornado import httpclient
 from utils import decoder
 
 requests_cache.install_cache('.downloader_cache')
-# TODO
-# should capture ERR_CONNECTION_TIMED_OUT message
+
+# TODO should capture ERR_CONNECTION_TIMED_OUT message
 
 
 class DownloadError(Exception):
