@@ -55,9 +55,6 @@ def backup_to_s3(filename=None, bucket="smartapi"):
     save_to_s3(smartapis, filename, bucket)
 
 
-backup = backup_to_file
-
-
 def _restore(smartapis):
     if indices.exists():
         logging.error("Cannot write to an existing index.")
@@ -74,13 +71,24 @@ def _restore(smartapis):
         _smartapi.save()
 
 
-def restore_from_s3(filename, bucket="smartapi"):
-    s3 = boto3.resource('s3')
+def restore_from_s3(filename=None, bucket="smartapi"):
+
+    s3 = boto3.client('s3')
+
+    if not filename:
+        objects = s3.list_objects_v2(Bucket='smartapi', Prefix='db_backup')['Contents']
+        filename = max(objects, key=lambda x: x['LastModified'])['Key']
+
+    if not filename.startswith('db_backup/'):
+        filename = 'db_backup/' + filename
+
+    logging.info("GET s3://%s/%s", bucket, filename)
+
     obj = s3.get_object(
         Bucket=bucket,
-        Key='db_backup/{}'.format(filename)
+        Key=filename
     )
-    smartapis = json.loads(obj)
+    smartapis = json.loads(obj['Body'].read())
     _restore(smartapis)
 
 
@@ -90,23 +98,32 @@ def restore_from_file(filename):
         _restore(smartapis)
 
 
-restore = restore_from_file
-
-
-def refresh():
+def refresh_document():
     for smartapi in SmartAPI.get_all(1000):
         logging.info(smartapi._id)
         smartapi.refresh()
         smartapi.save()
 
 
-def check():
+def check_uptime():
     for smartapi in SmartAPI.get_all(1000):
         logging.info(smartapi._id)
         smartapi.check()
         smartapi.save()
 
 
+restore = restore_from_file
+backup = backup_to_file
+
+refresh = refresh_document
+check = check_uptime
+
+
 def routine():
-    refresh()
-    check()
+    backup_to_s3()
+    refresh_document()
+    check_uptime()
+
+
+if __name__ == '__main__':
+    restore_from_s3()
