@@ -26,7 +26,7 @@
 <main id="index-app">
 <div class="section no-pad-bot light-blue lighten-5 mainBackgroundParticle" id="index-banner" style="overflow: hidden;">
   <div id="particles-js">
-    <div class="center-align indexChild" >
+    <div class="center-align indexChild container" >
         <object width="40%"  alt="SmartAPI" data="/static/img/logo-small.svg" class="hide-on-med-only hide-on-large-only"></object>
         <object width="60%"  alt="SmartAPI" data="/static/img/logo-medium.svg"class="hide-on-small-only hide-on-large-only"></object>
         <object width="100%" style="max-width: 500px;"  alt="SmartAPI" data="/static/img/logo-large.svg" class="hide-on-small-only hide-on-med-only"></object>
@@ -192,9 +192,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vivus/0.4.3/vivus.js"></script>
 <script src="https://unpkg.com/sweetalert2@7.22.0/dist/sweetalert2.all.js"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script> -->
-<script src="https://pixijs.download/dev-graphics-batch-pool/pixi.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/T-vK/SuperParticles@master/SuperParticles.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script type="text/javascript">
     var app = new Vue({
         el: '#index-app',
@@ -349,46 +347,9 @@
                 swal.close();
             });
           },
-          webGLParticles(){
-            new SuperParticles({
-                maxFps: 30, // requires pixi.js v5
-                autoStartAnimation: true, // true/false
-                container: {
-                    element: '#particles-js',
-                    backgroundCssRule: null // css or null (null: don't modify container background)
-                },
-                pixiApp: { // these are documented here: http://pixijs.download/release/docs/PIXI.Application.html#Application
-                    antialias: true,
-                    transparent: true,
-                    forceFXAA: false,
-                    powerPreference: 'high-performance',
-                    resolution: 1.0
-                },
-                particles: {
-                    amount: 80, // unit: particles
-                    radius: 2, // unit: pixels
-                    velocity : 5, // unit: pixels/second
-                    color: "0xFFFFFF", // unit: rgb hex color
-                    fadeInDuration: 3000, // unit: milliseconds
-                    fadeOutDuration: 600, // unit: milliseconds
-                    keepRelativePositionOnResize: true, // true/false
-                },
-                lines: {
-                    minDistance: .1, // unit: percent (1: 100%; 0: 0%
-                    color: "0xFFFFFF", // unit: hex color
-                    maxOpacity: 1, // 1: full opacity; 0: no opacity
-                    thickness: 1, // unit: pixels
-                    distanceBasedTransparency: true, // true/false
-                },
-                debug: {
-                    showFps: false, // true/false
-                }
-            })
-          }
         },
         mounted: function(){
-          // this.particles();
-          this.webGLParticles();
+          this.particles();
           this.animatedIcons();
           this.checkCookieNotification();
         }
