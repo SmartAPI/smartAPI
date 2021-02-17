@@ -10,6 +10,10 @@ with open(os.path.join(_dirname, 'mapping.json'), 'r') as file:
     SMARTAPI_MAPPING = json.load(file)
 
 
+def exists():
+    return Index(APIDoc.Index.name).exists()
+
+
 def setup():
     """
     Setup Elasticsearch Index.
@@ -17,7 +21,7 @@ def setup():
     Secondary index with static mappings.
     """
 
-    if not Index(APIDoc.Index.name).exists():
+    if not exists():
         APIDoc.init()
         elastic = Elasticsearch()
         elastic.indices.put_mapping(
@@ -26,12 +30,14 @@ def setup():
         )
 
 
+def delete():
+    Index(APIDoc.Index.name).delete()
+
+
 def reset():
 
-    index = Index(APIDoc.Index.name)
-
-    if index.exists():
-        index.delete()
+    if exists():
+        delete()
 
     setup()
 
