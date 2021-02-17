@@ -60,7 +60,7 @@ class API:
         except KeyError:
             self.api_server = None
             self.api_status = 'incompatible'
-        else:
+        if 'paths' not in api_doc:
             self.api_status = 'incompatible'
         self.components = api_doc.get('components')
         self.endpoints_info = api_doc.get('paths')
