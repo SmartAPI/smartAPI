@@ -1,247 +1,112 @@
-"""
-    TODO
-    THIS FILE NEEDS TO BE MAINTAINED
-    DOES NOT WORK NOW
-"""
 
 
-from admin import SmartAPIData
 import json
-import boto3
 import logging
-from datetime import datetime, date
-import requests
+from datetime import datetime
 
-from elasticsearch_dsl import Index, Search
+import boto3
 
-from model import APIDoc
-from controller import SWAGGER2_INDEXED_ITEMS, SmartAPI, RegistryError
-from utils.indices import setup_data
-from utils.downloader import SchemaDownloader
+from controller import SmartAPI
+from utils import indices
 
-
-class SmartAPIData():
-    """
-    Backup docs to S3 and refresh docs based on registered url
-    """
-
-    def __init__(self):
-        self.index_name = APIDoc.Index.name
-
-    @staticmethod
-    def polite_requests(url, head=False):
-        try:
-            if head:
-                res = requests.head(url, timeout=5)
-            else:
-                res = requests.get(url, timeout=5)
-        except requests.exceptions.Timeout:
-            return False
-        except requests.exceptions.ConnectionError:
-            return False
-        except requests.exceptions.RequestException:
-            return False
-        if res.status_code != 200:
-            return False
-        return res
-
-    def _refresh_one(self, api_doc):
-        '''
-        refresh the given API document object based on its saved metadata url
-        '''
-        _id = api_doc['_id']
-        _meta = api_doc['_meta']
-
-        res = SchemaDownloader.download(_meta['url'])
-
-        _meta['timestamp'] = datetime.now().isoformat()
-        res['_meta'] = _meta
-
-        try:
-            doc = SmartAPI.from_dict(res)
-            status = doc.refresh()
-        except RegistryError as err:
-            status = str(err)
-
-        return status
-
-    def refresh_all(self, id_list=[], use_etag=True):
-        '''
-        refresh saved API documents based on their metadata urls.
-
-        :param id_list: the list of API documents to perform the refresh operation
-        :param use_etag: by default, HTTP ETag is used to speed up version detection
-        '''
-        updates = 0
-        status_li = []
-        logging.info("Refreshing API metadata:")
-
-        for api_doc in self.fetch_all(id_list=id_list):
-
-            _id, status = api_doc['_id'], ''
-
-            if use_etag:
-                url = api_doc.get('_meta', {}).get('url', '')
-                _res = self.polite_requests(url, head=True)
-                if _res:
-                    etag_local = api_doc.get('_meta', {}).get('etag', '')
-                    etag_server = _res.headers.get('ETag', 'N').strip('W/"')
-                    if etag_local == etag_server:
-                        status = f"No changes ID {_id} (Via Etag)"
-
-            if not status:
-                try:
-                    res = self._refresh_one(api_doc)
-                except RegistryError as err:
-                    status = err
-                else:
-                    # status is f"API with ID {_id} was refreshed"
-                    status = res
-                    updates += 1
-
-            status_li.append((_id, status))
-            logging.info(f"Updated {_id}: {status}")
-
-        logging.info("%s: %s APIs refreshed. %s Updates.", date.today().strftime('%Y%m%d'), len(status_li), updates)
-
-        return status_li
-
-    def fetch_all(self, as_list=False, id_list=[], query={}):
-        """
-        return a generator of all docs from the ES index.
-        return a list instead if as_list is True.
-        if query is passed, it returns docs that match the query.
-        else if id_list is passed, it returns only docs from the given ids.
-        """
-        search = Search(index=self.index_name)
-
-        if query:
-            search = search.from_dict(query)
-        elif id_list:
-            search = search.from_dict({"query": {"ids": {"values": id_list}}})
-
-        scan_res = search.scan()
-
-        def _fn(x):
-            x['_source'].setdefault('_id', x['_id'])
-            return x['_source']
-
-        doc_iter = (_fn(x) for x in scan_res)    # return docs only
-        if as_list:
-            return list(doc_iter)
-        else:
-            return doc_iter
-
-    def backup_all(self, outfile=None, aws_s3_bucket=None):
-        """
-        back up all docs to S3 or output file
-        """
-        # get the real index name in case index is an alias
-        logging.info("Backup started.")
-        alias_d = Index(self.index_name).get_alias()
-        assert len(alias_d) == 1
-
-        index_name = list(alias_d.keys())[0]
-        default_name = "{}_backup_{}.json".format(index_name, date.today().strftime('%Y%m%d'))
-        outfile = outfile or default_name
-        doc_li = self.fetch_all(as_list=True)
-
-        if aws_s3_bucket:
-            location_prompt = 'on S3'
-            s3 = boto3.resource('s3')
-            s3.Bucket(aws_s3_bucket).put_object(
-                Key='db_backup/{}'.format(outfile),
-                Body=json.dumps(doc_li, indent=2))
-        else:
-            out_f = open(outfile, 'w')
-            location_prompt = 'locally'
-            out_f = open(outfile, 'w')
-            json.dump(doc_li, out_f, indent=2)
-            out_f.close()
-
-        logging.info("Backed up %s docs in \"%s\" %s.", len(doc_li), outfile, location_prompt)
-
-    def restore_all_with_file(self, backupfile, overwrite=False):
-        """
-        Delete existing index and restore all documents from local file.
-
-        Args:
-            backupfile (file path): path to ES backup file
-            overwrite (bool, required): Overwrite entire index. Must be true to proceed.
-        """
-
-        def legacy_backupfile_support_path_str(_doc):
-            """
-            'paths' field transformed for ES performance
-            """
-            _paths = []
-            if 'paths' in _doc:
-                for path in _doc['paths']:
-                    _paths.append({
-                        "path": path,
-                        "pathitem": _doc['paths'][path]
-                    })
-            if _paths:
-                _doc['paths'] = _paths
-            return _doc
-
-        def legacy_backupfile_support_rm_flds(_doc):
-            """
-            Maintain legacy structure for swagger specification
-            """
-            _d = {"_meta": _doc['_meta']}
-            for key in SWAGGER2_INDEXED_ITEMS:
-                if key in _doc:
-                    _d[key] = _doc[key]
-            _d['~raw'] = _doc['~raw']
-            return _d
-
-        logging.info("Restore from file started")
-        if Index(self.index_name).exists():
-            if overwrite:
-                logging.info(f"Index {self.index_name} deleted")
-                Index(self.index_name).delete()
-            else:
-                logging.info("Restore from file aborted.  set 'override' to True to retry.")
-                raise RegistryError("Error: index \"{}\" exists. Try a different index_name.".format(self.index_name))
-
-        in_f = open(backupfile)
-        doc_li = json.load(in_f)
-
-        setup_data()
-        logging.info(f"Index {self.index_name} created")
-
-        swagger_v2_count = 0
-        openapi_v3_count = 0
-
-        for _doc in doc_li:
-            _id = _doc.pop('_id')
-            if "swagger" in _doc:
-                swagger_v2_count += 1
-                _doc = legacy_backupfile_support_rm_flds(_doc)
-                _doc = legacy_backupfile_support_path_str(_doc)
-            elif "openapi" in _doc:
-                openapi_v3_count += 1
-            else:
-                print('\n\tWARNING: ', _id, 'No Version.')
-            doc = APIDoc(meta={'id': _id}, ** _doc)
-            doc.save()
-
-        logging.info(f"Openapi Objects {openapi_v3_count} indexed")
-        logging.info(f"Swagger Objects {swagger_v2_count} indexed")
-        logging.info("Restore from file complete")
+logging.basicConfig(level="INFO")
 
 
-def backup_and_refresh():
-    '''
-    Run periodically in the main event loop
-    '''
-    data = SmartAPIData()
-    try:
-        data.backup_all(aws_s3_bucket='smartapi')
-    except Exception:
-        logging.exception("Backup failed.")
-    try:
-        data.refresh_all()
-    except Exception:
-        logging.exception("Refresh failed.")
+def _default_filename():
+    return "smartapi_" + datetime.today().strftime("%Y%m%d") + ".json"
+
+
+def save_to_file(mapping, filename=None):
+    filename = filename or _default_filename()
+    with open(filename, 'w') as file:
+        json.dump(mapping, file, indent=2)
+
+
+def save_to_s3(mapping, filename=None, bucket="smartapi"):
+    filename = filename or _default_filename()
+    s3 = boto3.resource('s3')
+    s3.Bucket(bucket).put_object(
+        Key='db_backup/{}'.format(filename),
+        Body=json.dumps(mapping, indent=2)
+    )
+
+
+def _backup():
+    smartapis = []
+    for smartapi in SmartAPI.get_all(1000):
+        smartapis.append({
+            "url": smartapi.url,
+            "username": smartapi.username,
+            "slug": smartapi.slug,
+            "date_created": smartapi.date_created.isoformat(),
+            "last_updated": smartapi.last_updated.isoformat(),
+            "raw": smartapi.raw.decode()  # to string
+        })
+    return smartapis
+
+
+def backup_to_file(filename=None):
+    smartapis = _backup()
+    save_to_file(smartapis, filename)
+
+
+def backup_to_s3(filename=None, bucket="smartapi"):
+    smartapis = _backup()
+    save_to_s3(smartapis, filename, bucket)
+
+
+backup = backup_to_file
+
+
+def _restore(smartapis):
+    if indices.exists():
+        logging.error("Cannot write to an existing index.")
+        return
+    indices.reset()
+    for smartapi in smartapis:
+        logging.info(smartapi["url"])
+        _smartapi = SmartAPI(smartapi["url"])
+        _smartapi.username = smartapi["username"]
+        _smartapi.slug = smartapi["slug"]
+        _smartapi.date_created = datetime.fromisoformat(smartapi["date_created"])
+        _smartapi.last_updated = datetime.fromisoformat(smartapi["last_updated"])
+        _smartapi.raw = smartapi["raw"].encode()  # to bytes
+        _smartapi.save()
+
+
+def restore_from_s3(filename, bucket="smartapi"):
+    s3 = boto3.resource('s3')
+    obj = s3.get_object(
+        Bucket=bucket,
+        Key='db_backup/{}'.format(filename)
+    )
+    smartapis = json.loads(obj)
+    _restore(smartapis)
+
+
+def restore_from_file(filename):
+    with open(filename) as file:
+        smartapis = json.load(file)
+        _restore(smartapis)
+
+
+restore = restore_from_file
+
+
+def refresh():
+    for smartapi in SmartAPI.get_all(1000):
+        logging.info(smartapi._id)
+        smartapi.refresh()
+        smartapi.save()
+
+
+def check():
+    for smartapi in SmartAPI.get_all(1000):
+        logging.info(smartapi._id)
+        smartapi.check()
+        smartapi.save()
+
+
+def routine():
+    refresh()
+    check()
