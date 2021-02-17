@@ -99,16 +99,20 @@ def restore_from_file(filename):
 
 
 def refresh_document():
+    logger = logging.getLogger("refresh")
     for smartapi in SmartAPI.get_all(1000):
-        logging.info(smartapi._id)
-        smartapi.refresh()
+        logger.info(smartapi._id)
+        _status = smartapi.refresh()
+        logger.info(_status)
         smartapi.save()
 
 
 def check_uptime():
+    logger = logging.getLogger("uptime")
     for smartapi in SmartAPI.get_all(1000):
-        logging.info(smartapi._id)
-        smartapi.check()
+        logger.info(smartapi._id)
+        _status = smartapi.check()
+        logger.info(_status)
         smartapi.save()
 
 
@@ -120,8 +124,12 @@ check = check_uptime
 
 
 def routine():
+    logger = logging.getLogger("routine")
+    logger.info("backup_to_s3()")
     backup_to_s3()
+    logger.info("refresh_document()")
     refresh_document()
+    logger.info("check_uptime()")
     check_uptime()
 
 

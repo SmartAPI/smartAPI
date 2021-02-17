@@ -88,7 +88,7 @@ class API:
                 try:
                     response = endpoint.make_api_call()
                 except Exception as exception:  # pylint: disable=broad-except
-                    logger = logging.getLogger("utils.uptime.API")
+                    logger = logging.getLogger("utils.monitor")
                     logger.error(exception)
                 else:
                     if response:
