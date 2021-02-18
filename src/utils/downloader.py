@@ -8,12 +8,9 @@ from urllib.parse import urlparse
 
 import certifi
 import requests
-import requests_cache
 from tornado import httpclient
 
 from utils import decoder
-
-requests_cache.install_cache('.downloader_cache')
 
 # TODO should capture ERR_CONNECTION_TIMED_OUT message
 

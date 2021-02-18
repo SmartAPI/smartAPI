@@ -10,7 +10,6 @@ elasticsearch-dsl==7.3.0
 torngithub==0.2.0 
 Jinja2>=2.9.6
 pycurl==7.43.0.4
-requests-cache==0.5.2
 tornado==5.1.1
 chardet==3.0.4
 
