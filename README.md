@@ -8,6 +8,8 @@ SmartAPI allows API publishers to annotate their services and input/output param
 Presentation: http://bit.ly/smartAPIslides  
 Contact: api-interoperability@googlegroups.com  
 
+[NEEDS UPDATE - CONTENT BELOW OUTDATED]
+
 
 # How to run a dev API server locally
 1. Install Elasticsearch (version 6.x) at localhost:9200 (follow [this instruction](https://www.elastic.co/downloads/elasticsearch)) or install with docker (follow [this instruction](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html))
