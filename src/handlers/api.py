@@ -117,8 +117,8 @@ class ValidateHandler(BaseHandler):
 
 class StatusHandler(BaseHandler):
     """
-    Check API endpoints for overall status.
-    Accepts URL in form data, JSON/YAML body.
+    Check an external API document's uptime status.
+    Accepts its URL as form data or content as JSON/YAML in body.
     """
 
     name = "status-validator"
@@ -145,14 +145,14 @@ class StatusHandler(BaseHandler):
         try:
             smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
             smartapi.raw = raw
-            status = smartapi.check()
+            smartapi.check()
 
         except (ControllerError, AssertionError) as err:
             raise BadRequest(details=str(err))
         else:
             self.finish({
                 'success': True,
-                'details': status
+                'details': smartapi.uptime.status
             })
 
 
