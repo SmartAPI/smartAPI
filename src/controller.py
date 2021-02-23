@@ -488,7 +488,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         return doc
 
-    def check(self):
+    def check(self, update=True):
 
         doc = dict(self)
         doc['_id'] = self._id
@@ -496,7 +496,8 @@ class SmartAPI(AbstractWebEntity, Mapping):
         api = monitor.API(doc)
         api.check_api_status()  # blocking network operation
 
-        self.uptime.update(api.api_status)
+        if update:
+            self.uptime.update(api.api_status)
         return api.api_status
 
     def refresh(self, file=None):

@@ -96,7 +96,7 @@ class ValidateHandler(BaseHandler):
                 file = await download_async(self.args.url)
             except DownloadError as err:
                 raise BadRequest(details=str(err))
-            else:  # other file info irrelevent for validation
+            else:  # other file info irrelevant for validation
                 raw = file.raw
 
         else:  # then treat the request body as raw
@@ -113,6 +113,46 @@ class ValidateHandler(BaseHandler):
             self.finish({
                 'success': True,
                 'details': f'Valid {smartapi.version} metadata.'
+            })
+
+class StatusHandler(BaseHandler):
+    """
+    Check API endpoints for overall status.
+    Accepts URL in form data, JSON/YAML body.
+    """
+
+    name = "status-validator"
+    kwargs = {
+        "POST": {
+            "url": {"type": str, "location": "form"}
+        }
+    }
+
+    async def post(self):
+
+        if self.args.url:
+
+            try:
+                file = await download_async(self.args.url)
+            except DownloadError as err:
+                raise BadRequest(details=str(err))
+            else:  # other file info irrelevant for validation
+                raw = file.raw
+
+        else:  # then treat the request body as raw
+            raw = self.request.body
+
+        try:
+            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
+            smartapi.raw = raw
+            status = smartapi.check(update=False)
+
+        except (ControllerError, AssertionError) as err:
+            raise BadRequest(details=str(err))
+        else:
+            self.finish({
+                'success': True,
+                'details': status
             })
 
 
