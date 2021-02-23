@@ -24,7 +24,15 @@ File = namedtuple("File", (
     "raw",  # response body as bytes
     "etag",  # stripped ETag hash in header
     "date",  # response time in header
-), defaults=repeat(None, 4))
+))
+
+# PYTHON 3.7 - MARK A
+# File = namedtuple("File", (
+#     "status",  # HTTP status code
+#     "raw",  # response body as bytes
+#     "etag",  # stripped ETag hash in header
+#     "date",  # response time in header
+# ), defaults=repeat(None, 4))
 
 # NOTE may also be helpful to record
 # response expiration time in header
@@ -121,7 +129,7 @@ def download(url, timeout=5, raise_error=True):
     except requests.exceptions.RequestException as err:
         if raise_error:
             raise DownloadError(str(err)) from err
-        return File(599)
+        return File(599, None, None, None)  # MARK A
     else:
         return File(
             status=result.get_status(),
@@ -144,7 +152,7 @@ async def download_async(url, timeout=20, raise_error=True):
     except IOError as err:
         if raise_error:
             raise DownloadError(type(err).__name__) from err
-        return File(599)
+        return File(599, None, None, None)  # MARK A
     else:
         return File(
             status=result.get_status(),
