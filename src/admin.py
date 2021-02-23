@@ -1,4 +1,21 @@
+"""
+    Data Administration Module
 
+    import admin
+
+    admin.backup_to_file() # backup to cwd with the an auto-generated filename.
+    admin.backup_to_s3() # backup to s3 with the an auto-generated filename.
+
+    admin.restore_from_file(filename) # restore a backup file
+    admin.restore_from_s3() # restore the latest s3 version
+
+    # file operation shortcut
+    admin.backup()
+    admin.restore(filename)
+
+    See below for additional usage.
+
+"""
 
 import json
 import logging
