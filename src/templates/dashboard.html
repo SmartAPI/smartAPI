@@ -1048,6 +1048,124 @@ Vue.component('source-status', {
             }
           });
 
+          tippy( '#top-2', {
+        target: '.urlStatus',
+        content: `<div class="white" style="padding:0px;">
+                    <table>
+                      <thead>
+                        <tr>
+                          <td colspan="2" class='grey-text center'>
+                            <b>Source URL & Metadata Status</b>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class='green-text center'>
+                            <b>OK</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Source URL is working and returns valid metadata.</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='orange-text center'>
+                            <b>NOT FOUND</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Source URL returns not found.</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='red-text center'>
+                            <b>INVALID</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Source URL works but contains invalid metadata.</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='purple-text center'>
+                            <b>BROKEN</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Source URL is broken.</small>
+                          </td>
+                        </tr>
+                        <tr class="cyan lighten-5">
+                          <td colspan='2' class='blue-grey-text'>
+                            <p>
+                              <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
+                            </p>
+                            <p>
+                              <b>Need help?</b> Click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
+                            </p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>`,
+        placement: 'left',
+        theme:'light',
+        trigger:'click',
+        sticky:true,
+        interactive:true,
+      });
+
+          tippy( '#top', {
+        target: '.apiStatus',
+        content: `<div class="white" style="padding:0px;">
+                    <table>
+                      <thead>
+                        <tr>
+                          <td colspan="2" class='grey-text center'>
+                            <b>Overall API Endpoint Status</b>
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class='green-text center'>
+                            <b>PASS</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Your OpenAPI V3 API endpoints provide examples and all return code 200.</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='red-text center'>
+                            <b>FAIL</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
+                          </td>
+                        </tr>
+                        <tr> 
+                          <td class='orange-text center'>
+                            <b>UNKNOWN</b>
+                          </td>
+                          <td class="black-text">
+                            <small>None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.</small>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class='blue-text center'>
+                            <b>INCOMPATIBLE</b>
+                          </td>
+                          <td class="black-text">
+                            <small>Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.</small>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>`,
+        placement: 'left',
+        theme:'light',
+        trigger:'click',
+        sticky:true,
+        interactive:true,
+      });
+
 
         },
         watch: {
