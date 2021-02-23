@@ -145,7 +145,7 @@ class StatusHandler(BaseHandler):
         try:
             smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
             smartapi.raw = raw
-            status = smartapi.check(update=False)
+            status = smartapi.check()
 
         except (ControllerError, AssertionError) as err:
             raise BadRequest(details=str(err))
