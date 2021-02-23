@@ -8,11 +8,9 @@ SmartAPI allows API publishers to annotate their services and input/output param
 Presentation: http://bit.ly/smartAPIslides  
 Contact: api-interoperability@googlegroups.com  
 
-[NEEDS UPDATE - CONTENT BELOW OUTDATED]
-
 
 # How to run a dev API server locally
-1. Install Elasticsearch (version 6.x) at localhost:9200 (follow [this instruction](https://www.elastic.co/downloads/elasticsearch)) or install with docker (follow [this instruction](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html))
+1. Install Elasticsearch (version 7.x) at localhost:9200 (follow [this instruction](https://www.elastic.co/downloads/elasticsearch)) or install with docker (follow [this instruction](https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html))
 2. Clone this repo
     ```
     git clone https://github.com/SmartAPI/smartAPI.git
@@ -38,9 +36,8 @@ Contact: api-interoperability@googlegroups.com
     GITHUB_CLIENT_SECRET = '<your Github application Client Secret>'
     SLACK_WEBHOOKS = [ 
 	    {
-		    "tag": '<string>' or '<list of strings>', # (optional)
-		    "webhook": '<insert webhook URL>', 
-		    "template": '<slack markdown string with variables included as {variable_name}>' # (optional)
+		    "tag": '<string>', # (optional)
+		    "webhook": '<insert webhook URL>'
 	    }
     ] # (optional) 
     ```
@@ -54,40 +51,18 @@ Contact: api-interoperability@googlegroups.com
     
     Follow [this instruction](https://slack.com/help/articles/115005265063-Incoming-Webhooks-for-Slack) to create Slack webhooks and obtain webhook URLs. 
     
-    If one would like a Slack notification pushed only if the newly registered API contains a specific tag or tags, one should include the ```tag``` key, which should have the value of the specific tag(s) (case sensitive).
+    If one would like a Slack notification pushed only if the newly registered API contains a specific tag, one should include the ```tag``` key, which should have the value of the specific tag (case sensitive).
     
     For example:
     ```
-    "tags": ['translator','biothings'] # will send every time an API is registered with a 'translator' and/or 'biothings' tag 
-    ```
-    or
-    ```
     "tags": 'translator' # will send every time an API is registered with a 'translator' tag 
     ```
-    Finally, to supply your own template instead of using the default Slack Markdown template, please supply the template as a string, with optional variables to be included in a ```{variable}``` format. For example: 
-    ```
-    "template": "A new API has been registered on SmartAPI.info:\n\n*Title:* {api_title}\n*Description:* {api_description}"
-    ```
-    The variables that can be supplied include: 
-    ```
-    api_title  # title of registered API 
-    api_description # listed describtion of API
-    registry_url # url that the API is listed in the SmartAPI registry
-    docs_url # url for the API's documentation on SmartAPI.info
-    github_user # the github username of the individual that registered the API
-    ```
     
-7. Create index in Python (version 3.x) shell:
-    ```
-    from web.api import es  
-    es.create_index()
-    ```
-   Or import some API data from a saved dump file. Contact us for the dump file.  
+7. Optionally import some API data from a saved dump file. Contact us for the dump file.  
    And replace the name of the file in the command with the backup file name.
     ```
-    from web.api import es
-    esq = es.ESQuery()
-    esq.restore_all("smartapi_oas3_backup_20200706.json", es.ES_INDEX_NAME)
+    import admin
+    admin.restore("smartapi_oas3_backup_20200706.json")
     ```
 8. Run dev server
     ```
