@@ -1,23 +1,5 @@
 {% extends "main.html" %} {% include "smartapi-head.html" %} {% block content %}
 {% include "header.html" %} {% raw %}
-<style>
-  .loadBlock {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    padding: 20px;
-    text-align: center;
-    background: black;
-    color: white;
-    z-index: 1000;
-  }
-  .badgepill{
-    border-radius: 5px;
-    padding: 2px;
-    color: white;
-    display: inline;
-  }
-</style>
 <main id="meta-app" class="white" style="width: 100%;" v-cloak>
   <div class="loadBlock row" v-if="loading && !apisProcessed">
     <div class="col s12 m2 center d-flex align-items-center">
@@ -204,7 +186,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="/static/js/clipboard.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@1.5.1/bundle.js"></script>
+<script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@2.2.10/bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.15.1/cytoscape.min.js"
   integrity="sha256-oYPiLQ2sL4jlYuCJE3rDZFD0OUy8t1fL6U0wIWyqUf8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
@@ -527,7 +509,7 @@
         let nodes = new Set()
         state.operationsTotal = state.meta_kg.ops.length
 
-        console.log(state.meta_kg.ops)
+        // console.log(state.meta_kg.ops)
 
         state.meta_kg.ops.forEach((op, i) => {
           

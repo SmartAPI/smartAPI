@@ -4,79 +4,6 @@
 {% endblock %}
 {% block content %}
 {% include "header.html" %}
-<style>
-[v-cloak] > * { display:none; }
-.loader{
-  position: absolute;
-  margin:auto;
-  top: 46vh;
-  left: 46vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.lds-ellipsis {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-ellipsis div {
-  position: absolute;
-  top: 33px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #328cc4;
-  animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-.lds-ellipsis div:nth-child(1) {
-  left: 8px;
-  animation: lds-ellipsis1 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(2) {
-  left: 8px;
-  animation: lds-ellipsis2 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(3) {
-  left: 32px;
-  animation: lds-ellipsis2 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(4) {
-  left: 56px;
-  animation: lds-ellipsis3 0.6s infinite;
-}
-@keyframes lds-ellipsis1 {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-@keyframes lds-ellipsis3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
-}
-@keyframes lds-ellipsis2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
-  }
-}
-.apiDetails tbody tr td{
-  padding: 3px;
-}
-.tippy-tooltip{
-  padding: 0px !important;
-}
-</style>
 {% raw %}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -552,6 +479,131 @@ const store = new Vuex.Store({
               </div>`
   });
 
+  Vue.component('source-status', {
+  data: function(){
+    return{
+      status:'',
+      clss:'',
+    }
+  },
+  props: ['api'],
+  methods:{
+    getStatus(api){
+      let self = this;
+      if (api?._status?.refresh_status) {
+        let stat = api['_status']['refresh_status'];
+        switch (stat) {
+          case 200:
+            self.status = "OK";
+            self.clss = 'green';
+            break;
+          case 299:
+            self.status = "OK";
+            self.clss = 'green';
+            break;
+          case 499:
+            self.status = "INVALID";
+            self.clss = 'red';
+            break;
+          case 599:
+            self.status = "BROKEN";
+            self.clss = 'purple';
+            break;
+          case 404:
+            self.status = "NOT FOUND";
+            self.clss = 'orange';
+            break;
+          default:
+          self.status = stat;
+          self.clss = 'black';
+        }
+      }else{
+        self.status = 'N/A';
+          self.clss = 'grey darken-1';
+      }
+    },
+  },
+  mounted: function(){
+    this.getStatus(this.api);
+  },
+  template: `<div v-if="api && api['_status']" class="urlStatus" title="Click to learn more">
+              <div class="blue-grey-text">Source Status</div>
+              <div v-text="status" :class='clss'></div>
+            </div>`
+});
+
+Vue.component('my-api', {
+  data: function(){
+    return{
+      status:'',
+      clss:'',
+      issues: true
+    }
+  },
+  props: ['api', 'userInfo'],
+  methods:{
+    getStatus(api){
+      let self = this;
+      if (api?._status?.refresh_status) {
+        let stat = api['_status']['refresh_status'];
+        switch (stat) {
+          case 200:
+            self.status = "OK";
+            self.clss = 'green';
+            self.issues = false;
+            break;
+          case 299:
+            self.status = "OK";
+            self.clss = 'green';
+            break;
+          case 499:
+            self.status = "INVALID";
+            self.clss = 'red';
+            break;
+          case 599:
+            self.status = "BROKEN";
+            self.clss = 'purple';
+            break;
+          case 404:
+            self.status = "NOT FOUND";
+            self.clss = 'orange';
+            break;
+          default:
+          self.status = stat;
+          self.clss = 'black';
+        }
+      }else{
+        self.status = 'N/A';
+          self.clss = 'grey darken-1';
+      }
+    },
+  },
+  mounted: function(){
+    let self = this;
+
+    self.getStatus(self.api);
+
+    tippy( '#app', {
+    target: '.myAPI',
+    content: 'Loading...',
+    animateFill: false,
+    animation: 'fade',
+    theme:'light',
+    onShow(instance) {
+      let ok = !self.issues;
+      let cls = ok ? "blue-text" : "red-text";
+      let msg = ok ? "This API is registered by you." : "API metadata cannot be synchronized with its source URL due to an error. <br>Fix the issue and refresh it from your dashboard.";
+      
+      instance.setContent('<div style="padding:5px;"><h6 class="'+cls+'">'+msg+'</h6><h6 class="blue-text"><b>Click to go to your dashboard</b></h6></div>')
+    },
+  });
+
+  },
+  template: `<a href="/dashboard" v-if="userInfo && api._meta.username === userInfo.login " class="versionBadge light-blue myAPI pointer">
+              My&nbsp;API <span v-if="issues" class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
+            </a>`
+});
+
   Vue.component('apicontainer', {
     data: function(){
       return{
@@ -722,7 +774,7 @@ const store = new Vuex.Store({
 
               $(".context").unmark();
               self.total = 0;
-              axios.get('/api/query?size=100', params).then(function (response) {
+              axios.get('/api/query?size=500', params).then(function (response) {
                   // self.loading_end();
                   $(".context").unmark();
 
@@ -882,9 +934,7 @@ const store = new Vuex.Store({
             <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
               Swagger2
             </span>
-            <a style="cursor: pointer !important;" href="/dashboard" v-if="userInfo && api._meta.username === userInfo.login " class="versionBadge light-blue">
-              My&nbsp;API
-            </a>
+            <my-api :api="api" :userInfo="userInfo"></my-api>
             <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
@@ -947,7 +997,7 @@ const store = new Vuex.Store({
           </div>
           <div class="col s12 left">
             <h4 class="white-text bold m" style="display:inline-block;" v-text="api.info.title"></h4>
-            <h6 class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></h6>
+            <h5 class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></h5>
           </div>
           <div class="col s12">
             <table class="apiDetails">
@@ -995,7 +1045,7 @@ const store = new Vuex.Store({
                 </tr>
                 <tr>
                   <td>
-                    <small class="white-text">Metadata URL</small>
+                    <small class="white-text">Source URL</small>
                   </td>
                   <td>
                     <a class="link" target="_blank" v-bind:href='api._meta.url'>
@@ -1008,6 +1058,7 @@ const store = new Vuex.Store({
                       target="_blank">
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                     </a>
+                    <source-status :api='api'></source-status>
                   </td>
                 </tr>
                 <tr>
@@ -1039,7 +1090,7 @@ const store = new Vuex.Store({
           </div>
         </div>
           <template v-if=" api.hasOwnProperty('openapi') ">
-            <h6 class="center white-text">(<span v-text="getOperations(api).length"></span>) Operations</h6>
+            <h5 class="left grey-text">(<span v-text="getOperations(api).length"></span>) Operations</h5>
             <table  class="bordered grey lighten-5" style="margin: 20px 0px;">
               <col width="10%">
               <col width="30%">
@@ -1180,7 +1231,7 @@ const store = new Vuex.Store({
           },
           refreshApis: function(){
               var self = this;
-              let url = "/api/query?size=100"
+              let url = "/api/query?size=500"
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -1358,7 +1409,7 @@ const store = new Vuex.Store({
           },
           search: function (query) {
               var self = this;
-              let url = '/api/query?size=100'
+              let url = '/api/query?size=500'
               // self.context= {{Context}};
               if (!self.context.Special && !query){
                 query = $('#search_query').val();
@@ -1643,53 +1694,6 @@ const store = new Vuex.Store({
           animation: 'fade',
           theme:'light',
           trigger:'click'});
-
-          tippy( '#app', {
-            target: '.apiStatus',
-            content: `<div class="white" style="padding:0px;">
-                        <table>
-                          <tbody>
-                            <tr>
-                              <td class='green-text center'>
-                                <b>PASS</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                Your OpenAPI V3 API endpoints provide examples and all return code 200.
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class='red-text center'>
-                                <b>FAIL</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                Your OpenAPI V3 API endpoints provide examples but return code other than 200.
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class='orange-text center'>
-                                <b>UNKNOWN</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class='blue-text center'>
-                                <b>INCOMPATIBLE</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>`,
-            placement: 'left',
-            theme:'light',
-            trigger:'click',
-            sticky:true,
-            interactive:true,
-          });
 
       },
       updated: function(){

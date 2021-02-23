@@ -2,39 +2,8 @@
 {% block content %}
 {% include "simple-header.html" %}
 {% raw %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.43.0/swagger-ui.css" integrity="sha256-9jIRYJHiSOCrFcEa7U84nXvo3FRg3uiE2+A/YqBS4AM=" crossorigin="anonymous">
 <link  type="text/css" rel="stylesheet" href="/static/css/swagger.css"/>
-<style>
-.swagger-ui .info .title{
- font-size: 3.5em !important;
- margin-bottom: 20px;
- line-height: normal;
-}
-.swagger-ui{
-  margin-bottom: 50px;
-}
-h2.title{
- padding-top: 20px;
- text-align: center;
-}
-span.url{
- word-wrap: break-word;
-}
-div.info a{
-color: var(--blue-medium) !important;
-text-decoration: underline;
-}
-.swagger-ui .servers>label select {
-    min-width: 130px;
-    max-width: 100%;
-    display: block;
-}
-.swagger-ui svg:not(:root){
-  display: none;
-}
-.swagger-ui select{
-  display: inline;
-}
-</style>
 <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
   <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
 </main>
@@ -43,7 +12,7 @@ text-decoration: underline;
 {% block extra_scripts %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
-  <script src="https://unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js" charset="UTF-8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@3.43.0/swagger-ui-bundle.js" integrity="sha256-2pA2pa1BY6+FvXEF8lzpX57QcWSOe2Bj5YXGa/+AWWs=" crossorigin="anonymous"></script>
   <script>
 
   // Plug-in to hide empty tags in Swagger UI
@@ -67,10 +36,13 @@ text-decoration: underline;
         return {
           apiID:'',
           smartStyle: true,
+          name: ''
         }
       },
       methods: {
         loadSwaggerUI: function(dataurl){
+          let self = this;
+
           const ui = SwaggerUIBundle({
               url: dataurl,
               dom_id: '#swagger-ui',
@@ -85,8 +57,23 @@ text-decoration: underline;
               ],
             })
             window.ui = ui;
+
+            setTimeout(() => {
+              $("hgroup.main").after('<a class="green-text" href="/registry?q='+self.apiID+'"><b>&lt; Back to SmartAPI : '+self.name+'</b></a>');
+
+              let servers_selected = $("div.servers label select").val();
+              console.log("severs", servers_selected)
+              if (servers_selected) {
+                if (servers_selected.includes('http:') && window.location.protocol == 'https:') {
+                  $("div.servers label select").after('<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>')
+                }
+              }
+            }, 500);
+
+            
         },
         getMetadata(url){
+          let self = this;
           axios.get(url).then(res=>{
             // console.log('res',res.data)
             let data = res.data
@@ -95,6 +82,7 @@ text-decoration: underline;
               // Open graph and Meta
               meta = document.createElement('meta');
               meta.setAttribute('property',"og:title");
+              self.name = data.info.title
               meta.setAttribute('content',"SmartAPI | "+data.info.title);
               document.getElementsByTagName('head')[0].appendChild(meta);
 
