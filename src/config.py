@@ -32,7 +32,7 @@ APP_LIST = [
     (r'/api/?', 'handlers.api.APIHandler'),
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
     (r'/api/validate/?', 'handlers.api.ValidateHandler'),
-    (r'/api/status/?', 'handlers.api.StatusHandler'),
+    (r'/api/status/?', 'handlers.api.UptimeHandler'),
     (r'/api/metadata/?', 'handlers.api.APIHandler'),
     (r'/api/metadata/(.+)/?', 'handlers.api.APIHandler'),
     (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),

@@ -115,7 +115,7 @@ class ValidateHandler(BaseHandler):
                 'details': f'Valid {smartapi.version} metadata.'
             })
 
-class StatusHandler(BaseHandler):
+class UptimeHandler(BaseHandler):
     """
     Check an external API document's uptime status.
     Accepts its URL as form data or content as JSON/YAML in body.
