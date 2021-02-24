@@ -1536,7 +1536,11 @@
 
                 if (res.data.hits.length) {
                   desc = res.data.hits[0]['info']['description'].substring(0,400)+'...';
-                  status = res.data.hits[0]['_meta']['uptime_status']
+                  if (res.data.hits[0].hasOwnProperty("_status") && res.data.hits[0]['_status'].hasOwnProperty("uptime_status")) {
+                    status = res.data.hits[0]['_status']['uptime_status']
+                  }else{
+                    status = "N/A"
+                  }
 
                   instance.setContent(`<div>
                   <h6>API: <a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">` + info
