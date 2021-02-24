@@ -115,10 +115,10 @@
                         </div>
                         <div class="col s6 m3">
                           <small>Specification </small>
-                          <span v-if=" api.hasOwnProperty('openapi') " class="smallFont badge green white-text" data-tippy-content="<b class='green-text'>OpenAPI 3</b> Specification">
+                          <span v-if=" api.hasOwnProperty('openapi')" style="font-size:75%" class="smallFont badge green white-text" data-tippy-content="<b class='green-text'>OpenAPI 3</b> Specification">
                             OAS3
                           </span>
-                          <span v-else-if=" api.hasOwnProperty('swagger') " class="smallFont badge blue white-text" data-tippy-content="<b class='blue-text'>Swagger 2</b> Specification">
+                          <span v-else-if=" api.hasOwnProperty('swagger')" style="font-size:75%" class="smallFont badge blue white-text" data-tippy-content="<b class='blue-text'>Swagger 2</b> Specification">
                             Swagger2
                           </span>
                         </div>
@@ -419,7 +419,7 @@ Vue.component('status', {
   mounted: function(){
     this.getStatus(this.api);
   },
-  template: `<span class="badge apiStatus white-text" :class='clss' v-text="status"></span>`
+  template: `<span class="badge apiStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
 });
 
 Vue.component('source-status', {
@@ -469,7 +469,7 @@ Vue.component('source-status', {
   mounted: function(){
     this.getStatus(this.api);
   },
-  template: `<span class="badge urlStatus white-text" :class='clss' v-text="status"></span>`
+  template: `<span class="badge urlStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
 });
 
 
