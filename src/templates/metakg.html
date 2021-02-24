@@ -245,15 +245,6 @@
           state.output_selected = [];
           changes = true
         }
-        // if (!changes) {
-        //   Swal.fire({
-        //     type: 'warning',
-        //     toast: true,
-        //     title: 'Nothing to clear',
-        //     showConfirmButton: false,
-        //     timer: 2000
-        //   });
-        // }
         changes = false
 
         state.predicate = [];
@@ -501,15 +492,19 @@
 
       },
       loadMetaKG(state, payload) {
-        state.meta_kg = payload['graph']
+        state.meta_kg = payload['graph'];
         //Initial data Processing
         const t0 = performance.now();
         //all nodes and edges
-        let data = []
-        let nodes = new Set()
-        state.operationsTotal = state.meta_kg.ops.length
+        let data = [];
+        let nodes = new Set();
+        let oac_set = new Set();
+        let iac_set = new Set();
+        let pac_set = new Set();
 
-        console.log(state.meta_kg.ops)
+        state.operationsTotal = state.meta_kg.ops.length;
+
+        // console.log(state.meta_kg.ops)
 
         state.meta_kg.ops.forEach((op, i) => {
           
@@ -535,27 +530,18 @@
           data.push(edge);
 
           // Autocomplete
-          if (!state.output_autocomplete.includes(op['association']['output_type'])) {
-            state.output_autocomplete.push(op['association']['output_type']);
-          }
-          if (!state.input_autocomplete.includes(op['association']['input_type'])) {
-            state.input_autocomplete.push(op['association']['input_type']);
-          }
-          if (!state.predicate_autocomplete.includes(op['association']['predicate'])) {
-            state.predicate_autocomplete.push(op['association']['predicate']);
-          }
-
-          // APIs
-          if (op['association']['api_name'] in state.apis) {
-            state.apis[op['association']['api_name']]++
-          } else {
-            state.apis[op['association']['api_name']] = 1
-          }
+          oac_set.add(op['association']['output_type']);
+          iac_set.add(op['association']['input_type']);
+          pac_set.add(op['association']['predicate']);
 
         });
 
+        state.output_autocomplete = [...oac_set];
+        state.input_autocomplete = [...iac_set];
+        state.predicate_autocomplete = [...pac_set];
 
-        [...nodes].forEach(node => {
+
+        nodes.forEach(node => {
           data.push({ 
             group: 'nodes',          
             data: {
@@ -608,11 +594,10 @@
               target: result['association']['output_type'],
             }
           };
-
           data.push(edge)
         });
         
-        [...nodes].forEach(node => {
+        nodes.forEach(node => {
           data.push({ 
             group: 'nodes',          
             data: {
