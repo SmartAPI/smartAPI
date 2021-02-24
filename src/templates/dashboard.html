@@ -635,7 +635,7 @@ Vue.component('source-status', {
             self.apis=[];
             var params = {
                 "params": {
-                    'fields': 'info,_meta,tags,openapi,swagger,'
+                    'fields': 'info,_meta,tags,openapi,swagger,_status'
                 }
             };
             axios.get("/api/query?size=100&q=_meta.username:"+self.userInfo.login,params).then(function(response){
