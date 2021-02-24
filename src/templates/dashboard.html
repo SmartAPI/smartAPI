@@ -387,7 +387,7 @@ Vue.component('status', {
   methods:{
     getStatus(api){
       let self = this;
-      if (api?._status?.uptime_status) {
+      if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('uptime_status')) {
         let stat = api['_status']['uptime_status'];
         switch (stat) {
           case 'unknown':
@@ -433,7 +433,7 @@ Vue.component('source-status', {
   methods:{
     getStatus(api){
       let self = this;
-      if (api?._status?.refresh_status) {
+      if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('refresh_status')) {
         let stat = api['_status']['refresh_status'];
         switch (stat) {
           case 200:
