@@ -7,6 +7,7 @@ Suggestion /api/suggestion
 """
 import json
 import logging
+from collections import OrderedDict
 
 import certifi
 from biothings.web.handlers import BaseAPIHandler
@@ -156,7 +157,9 @@ class APIHandler(BaseHandler):
             raise HTTPError(404)
         else:
             self.format = self.args.format
-            self.finish(dict(doc))
+            # Use OrderedDict to ensure key
+            # orders during YAML serialization
+            self.finish(OrderedDict(doc))
 
     @github_authenticated
     async def post(self):
