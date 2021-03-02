@@ -3,6 +3,40 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
+<style>
+  .apisCont{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0px !important;
+  }
+  .apisCont div:first-child{
+    flex-basis: 30%;
+    flex-grow: 1;
+  }
+  .apisCont div{
+    flex-basis: 50%;
+    flex-grow: 1;
+  }
+  .apisCont div:last-child{
+    flex-basis: 20%;
+    flex-grow: 0;
+  }
+  .statusTable tr td{
+    padding: 2px;
+    font-size: smaller;
+    color: rgb(70, 70, 70);
+  }
+  .statusTable tr{
+    background-color: rgba(0,0,0,.06);
+    border-bottom: 1px solid rgb(185, 185, 185);
+  }
+  .resultsContainer{
+    max-height: 700px;
+    overflow-y: scroll;
+  }
+</style>
 <main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3" v-cloak>
   <!-- IF NO USER INFO DISPLAY LOGIN-->
   <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
@@ -69,71 +103,84 @@
                 <ul class="collection resultsContainer">
                   <li class="collection-item" v-for="(api,index) in results" style="margin-bottom:0px;padding: 0px;">
                     <div class="row" style="padding: 0px; margin-bottom:0px;">
-                      <div class="col s12 row" style="padding: 0px; 
-                      margin-bottom:0px;
-                      display: flex;
-                      align-items: center;
-                      flex-wrap: wrap;">
-                        <div class="col s6 m3 p-1">
+                      <div class="col s12 apisCont">
+                        <div style="padding-left: 10px;">
                           <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
-                            <h6><b>{{ api.info.title }}</b></h6>
+                            <h5 class="left-align" style="font-size: 1.24rem;">
+                              <b>{{ api.info.title }}</b>
+                              <small>
+                                <span class="black-text">V.{{api.info.version}}</span>
+                              </small>
+                            </h5>
                           </a>
-                          <small>
-                            <span class="grey-text smallFont">V.{{api.info.version}}</span>
-                          </small>
-                        </div>
-                        <div class="col s6 m3 p-1">
-                          <h6>
-                            <small class="grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> Last Updated </small>
+                          
+                          <h6 class="left-align">
+                            <a href="#" class='popularity pointer blue-text' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
+                              <small><i class="fa fa-bar-chart"></i> User Interactions</small>
+                            </a>
                           </h6>
-                          <small>
-                            <span class="green-text"> {{ convertDate(api._meta.last_updated) }}</span>
-                          </small>
+                          
                         </div>
-                        <div class="col s4 m2 p-1">
-                          <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id" 
-                          data-tippy-content="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
+                        <div class="row m-0">
+                          <div class="col s4">
+                            <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id" 
+                            data-tippy-content="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
+                          </div>
+                          <div class="col s4">
+                            <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text" 
+                            data-tippy-content="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
+                              <i class="material-icons white-text">check</i>
+                          </button>
+                          </div>
+                          <div class="col s4">
+                            <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn btn-small scale-in-center red white-text modal-trigger" 
+                            data-tippy-content="<b class='red-text'>Delete</b> <br/>(Delete API metadata from SmartAPI registry permanently - cannot be undone)">
+                              <i class="material-icons white-text">delete_forever</i>
+                            </a>
+                          </div>
+                          <div class="col s12">
+                            <h6 class="center-align">
+                              <small class="indigo-text"><i class="fa fa-clock-o" aria-hidden="true"></i> Last Updated </small>
+                              <small>
+                                <b class="green-text"> {{ convertDate(api._meta.last_updated) }}</b>
+                              </small>
+                            </h6>
+                          </div>
                         </div>
-                        <div class="col s4 m2 p-1">
-                          <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text" 
-                          data-tippy-content="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
-                            <i class="material-icons white-text">check</i>
-                        </button>
-                        </div>
-                        <div class="col s4 m2 p-1">
-                          <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn btn-small scale-in-center red white-text modal-trigger" 
-                          data-tippy-content="<b class='red-text'>Delete</b> <br/>(Delete API metadata from SmartAPI registry permanently - cannot be undone)">
-                            <i class="material-icons white-text">delete_forever</i>
-                          </a>
-                        </div>
-                      </div>
-                      <div class="col s12 row" style="padding: 0px; margin-bottom:0px;background-color: rgba(0, 0, 0, .05);">
-                        <div class="col s6 m3">
-                          <a href="#" class='popularity pointer blue-text' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
-                            <small><i class="fa fa-bar-chart"></i> User Interactions</small>
-                          </a>
-                        </div>
-                        <div class="col s6 m3">
-                          <small>Specification </small>
-                          <span v-if=" api.hasOwnProperty('openapi')" style="font-size:75%" class="smallFont badge green white-text" data-tippy-content="<b class='green-text'>OpenAPI 3</b> Specification">
-                            OAS3
-                          </span>
-                          <span v-else-if=" api.hasOwnProperty('swagger')" style="font-size:75%" class="smallFont badge blue white-text" data-tippy-content="<b class='blue-text'>Swagger 2</b> Specification">
-                            Swagger2
-                          </span>
-                        </div>
-                        <div class="col s6 m3">
-                          <small>API Status </small> <status :api='api'></status>
-                        </div>
-                        <div class="col s6 m3">
-                          <small>Source Status </small>
-                          <source-status :api='api'></source-status>
+                        <div>
+                          <table class="statusTable">
+                            <tbody>
+                              <tr>
+                                <td>Specification</td>
+                                <td>
+                                  <span v-if=" api.hasOwnProperty('openapi')" style="font-size:75%" class="smallFont badge green white-text" data-tippy-content="<b class='green-text'>OpenAPI 3</b> Specification">
+                                    OAS3
+                                  </span>
+                                  <span v-else-if=" api.hasOwnProperty('swagger')" style="font-size:75%" class="smallFont badge blue white-text" data-tippy-content="<b class='blue-text'>Swagger 2</b> Specification">
+                                    Swagger2
+                                  </span>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Uptime Status</td>
+                                <td>
+                                  <status :api='api'></status>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Source Status</td>
+                                <td>
+                                  <source-status :api='api'></source-status>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                     </div>
                   </li>
                   <div v-if="apis.length === 0">
-                    <small class="center-align grey lighten-3">
+                    <small class="center-align grey lighten-3 padding20">
                       <span class="grey-text smallFont">No Contributions Yet</span><br>
                     </small>
                   </div>
@@ -652,9 +699,10 @@ Vue.component('source-status', {
                 }
             };
             axios.get("/api/query?size=100&q=_meta.username:"+self.userInfo.login,params).then(function(response){
-                  self.apis = response.data.hits;
+                  self.apis = _.sortBy(response.data.hits,'info.title');
                   self.total = response.data.total;
                   self.hideLoading();
+
               }).catch(err=>{
                 const toast = swal.mixin({
                   toast: true,
@@ -1018,7 +1066,6 @@ Vue.component('source-status', {
                       </div>`,
             placement: 'left',
             theme:'light',
-            trigger:'click',
             sticky:true,
             interactive:true,
           });
