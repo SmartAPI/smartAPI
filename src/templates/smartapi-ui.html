@@ -55,22 +55,19 @@
                 // plug-in to hide empty tags
                 HideEmptyTagsPlugin
               ],
-            })
-            window.ui = ui;
+              onComplete:()=>{
+                $("hgroup.main").after('<a class="blue" style="padding:5px; border-radius:5px; border:1px grey solid; color:white !important; text-decoration:none;" href="/registry?q='+self.apiID+'">Back to SmartAPI Registry</a>');
 
-            setTimeout(() => {
-              $("hgroup.main").after('<a class="green-text" href="/registry?q='+self.apiID+'"><b>&lt; Back to SmartAPI : '+self.name+'</b></a>');
-
-              let servers_selected = $("div.servers label select").val();
-              console.log("severs", servers_selected)
-              if (servers_selected) {
-                if (servers_selected.includes('http:') && window.location.protocol == 'https:') {
-                  $("div.servers label select").after('<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>')
+                let servers_selected = $("div.servers label select").val();
+                console.log("severs", servers_selected)
+                if (servers_selected) {
+                  if (servers_selected.includes('http:') && window.location.protocol == 'https:') {
+                    $("div.servers label select").after('<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>')
+                  }
                 }
               }
-            }, 500);
-
-            
+            })
+            window.ui = ui;
         },
         getMetadata(url){
           let self = this;

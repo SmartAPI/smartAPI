@@ -532,13 +532,12 @@ Vue.component('my-api', {
       issues: true
     }
   },
-  props: ['api', 'userInfo'],
+  props: ['api_status'],
   methods:{
-    getStatus(api){
+    getStatus(status){
       let self = this;
-      if (api?._status?.refresh_status) {
-        let stat = api['_status']['refresh_status'];
-        switch (stat) {
+      if (status) {
+        switch (status) {
           case 200:
             self.status = "OK";
             self.clss = 'green';
@@ -573,7 +572,7 @@ Vue.component('my-api', {
   mounted: function(){
     let self = this;
 
-    self.getStatus(self.api);
+    self.getStatus(self.api_status);
 
     tippy( '#app', {
     target: '.myAPI',
@@ -591,7 +590,7 @@ Vue.component('my-api', {
   });
 
   },
-  template: `<a href="/dashboard" v-if="userInfo && api._meta.username === userInfo.login " class="versionBadge light-blue myAPI pointer">
+  template: `<a href="/dashboard" class="versionBadge light-blue myAPI pointer">
               My&nbsp;API <span v-if="issues" class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
             </a>`
 });
@@ -926,7 +925,7 @@ Vue.component('my-api', {
             <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
               Swagger2
             </span>
-            <my-api :api="api" :userInfo="userInfo"></my-api>
+            <my-api v-if="userInfo && api._meta.username === userInfo.login" :api_status="api?._status?.refresh_status || 'n/a'"></my-api>
             <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
