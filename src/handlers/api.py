@@ -231,14 +231,14 @@ class APIHandler(BaseHandler):
                     # elif slack["tags"] == <other>:
                     #   pass
 
-                # typical case
-                res = await client.fetch(
-                    slack["webhook"], method='POST',
-                    headers={'content-type': 'application/json'},
-                    body=json.dumps(SlackNewAPIMessage(**kwargs).compose()),
-                )
-                logging.info(res.code)
-                logging.info(res.body)
+                else:  # typical case
+                    res = await client.fetch(
+                        slack["webhook"], method='POST',
+                        headers={'content-type': 'application/json'},
+                        body=json.dumps(SlackNewAPIMessage(**kwargs).compose()),
+                    )
+                    logging.info(res.code)
+                    logging.info(res.body)
 
         except Exception as exc:
             logging.error(str(exc))
