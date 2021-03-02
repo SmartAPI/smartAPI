@@ -563,12 +563,20 @@ Vue.component('source-status', {
           validate(url){
             let self = this;
             if (url) {
-              axios.post('/api/validate',{'url':url}).then(res=>{
+              var bodyFormData = new FormData();
+              bodyFormData.append('url', url);
+              axios({
+                  method: "post",
+                  url: '/api/validate',
+                  data: bodyFormData,
+                  headers: { "Content-Type": "multipart/form-data" },
+                }).then(res=>{
                 console.log(res.data)
                 swal({
                     imageUrl: '/static/img/api-sucess.svg',
                     imageWidth: 300,
                     title: 'Great! Everything looks good!',
+                    footer: "<h5 class='green-text'>" + res.data.details + "</h5>"
                   })
               }).catch(err=>{
                 if(err.hasOwnProperty('response') && err.response.hasOwnProperty('data')){
