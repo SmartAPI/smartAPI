@@ -362,17 +362,9 @@ const store = new Vuex.Store({
             state.apis = _.sortBy(state.apis,'info.title').reverse();
             break;
           case 'Recently Updated':
-            // state.apis = _.sortBy(state.apis,'._meta.timestamp').reverse();
             state.apis = _.orderBy(state.apis, (o) => {
-              return moment(o['_meta']['timestamp']).format('YYYYMMDD')
+              return moment(o['_meta']['last_updated']).format('YYYYMMDD')
             }, ['desc'] );
-            // console.log('%c Date Sort Results','color:limegreen')
-            // for (let i = 0; i < state.apis.length; i++) {
-            //   let element = state.apis[i];
-            //   let time = moment(element['_meta']['timestamp']).format("L")
-            //   console.log(time)
-              
-            // }
             break;
           default:
             state.apis = _.sortBy(state.apis,'info.title');
