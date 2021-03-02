@@ -214,7 +214,12 @@
                 </div>
                 <hr />
               </template>
-              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Doc</a>
+              <div class="d-flex padding20" style="justify-content: center;">
+                <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
+                <div class='grey lighten-3 p-1 indigo-text'><small v-text="apis[selectedAPIIndex]._id"></small></div>
+              </div>
+              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Documentation</a>
+              <a :href="'/registry?q='+apis[selectedAPIIndex]._id" class="btn indigo">View API On SmartAPI Registry</a>
             </li>
             <template v-for='link in checkForAPIInfoLink(apis[selectedAPIIndex])'>
               <li  class="collection-item blue-grey lighten-4">
