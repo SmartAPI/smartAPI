@@ -339,8 +339,8 @@
                   <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
                   <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
                   <br />
-                  <span v-if="myShortName.length <= 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
-                  <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length <= 3 && invalidChars"/>
+                  <span v-if="myShortName.length < 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
+                  <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length < 3 && invalidChars"/>
                   <span v-if="invalidChars" class="red-text"><i class="tiny material-icons">warning</i> Invalid Characters</span>
                   <span v-if="takenSlug" class="orange-text"><i class="tiny material-icons">warning</i> Taken Slug</span>
                 </p>
@@ -1265,10 +1265,10 @@ Vue.component('source-status', {
             if (re.test(self.myShortName) ) {
               self.invalidChars = true;
             }
-            if( !re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50 ) {
+            if( !re.test(self.myShortName) && shortname.length > 2 && shortname.length <= 50 ) {
                 self.takenSlug = false;
                 self.evaluateShortname();
-            }else if(re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50){
+            }else if(re.test(self.myShortName) && shortname.length > 2 && shortname.length <= 50){
               self.invalidChars = true;
               self.availableShortName = false;
             }else{

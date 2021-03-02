@@ -337,7 +337,7 @@ class Slug():
         if value != value.lower():
             raise ValueError("Slug must be in lowercase.")
 
-        if value in ('www', 'dev', 'smart-api', 'api'):
+        if value in ('www', 'dev', 'smart-api'):
             raise ValueError(f"Slug '{value}' is reserved.")
 
         _valid_chars = string.ascii_letters + string.digits + "-_~"
