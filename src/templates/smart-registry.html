@@ -524,7 +524,7 @@ const store = new Vuex.Store({
             </div>`
 });
 
-Vue.component('my-api', {
+  Vue.component('my-api', {
   data: function(){
     return{
       status:'',
@@ -717,6 +717,7 @@ Vue.component('my-api', {
                 }
               }
           }
+          operations = operations.length > 20 ? operations.slice(0,19) : operations;
           return operations;
       },
       validateFields(path){
@@ -931,7 +932,7 @@ Vue.component('my-api', {
             </a>
 
             <div v-if="api && api['_status']" class="apiStatus" title="Click to learn more">
-              <div class="blue-grey-text">Status</div>
+              <div class="blue-grey-text">Uptime Status</div>
               <template v-if="api['_status'] && api['_status']['uptime_status'] ==='bad'">
                 <div class="red">
                   FAIL
@@ -1081,7 +1082,10 @@ Vue.component('my-api', {
           </div>
         </div>
           <template v-if=" api.hasOwnProperty('openapi') ">
-            <h5 class="left grey-text">(<span v-text="getOperations(api).length"></span>) Operations</h5>
+            <h5 class="grey-text">(<span v-text="getOperations(api).length"></span>) Operations</h5>
+            <h6>
+              <small class="grey-text">For a full list click on View API Documentation</small>
+            </h6>
             <table  class="bordered grey lighten-5" style="margin: 20px 0px;">
               <col width="10%">
               <col width="30%">
