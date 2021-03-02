@@ -598,7 +598,8 @@ const store = new Vuex.Store({
   Vue.component('apicontainer', {
     data: function(){
       return{
-        showDetails:false
+        showDetails:false,
+        overLimit: false
       }
     },
     props: ['api'],
@@ -717,7 +718,10 @@ const store = new Vuex.Store({
                 }
               }
           }
-          operations = operations.length > 20 ? operations.slice(0,19) : operations;
+          if (operations.length > 20 ) {
+            operations = operations.slice(0,19);
+            self.overLimit = true
+          }
           return operations;
       },
       validateFields(path){
@@ -1083,7 +1087,7 @@ const store = new Vuex.Store({
         </div>
           <template v-if=" api.hasOwnProperty('openapi') ">
             <h5 class="grey-text">(<span v-text="getOperations(api).length"></span>) Operations</h5>
-            <h6>
+            <h6 v-if="overLimit">
               <small class="grey-text">For a full list click on View API Documentation</small>
             </h6>
             <table  class="bordered grey lighten-5" style="margin: 20px 0px;">
