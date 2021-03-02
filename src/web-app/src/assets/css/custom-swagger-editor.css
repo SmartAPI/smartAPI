@@ -1,0 +1,43 @@
+#swagger-editor .topbar{
+  background-color: #3f85bb;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  font-family: Roboto,sans-serif;
+  font-size: 9px;
+  line-height: 1.42857143;
+  color: #444;
+  margin: 0px;
+}
+
+.swagger-ui .info .title small{
+  line-height: normal;
+}
+
+.container {
+  height: 100%;
+  max-width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#editor-wrapper {
+  height: 100%;
+  border:1em solid #000;
+  border:none;
+}
+
+.Pane2 {
+  overflow-y: scroll;
+  background-color: white !important;
+}
+
+#swagger-editor .topbar-logo__title::before{
+  content: "SmartAPI ";
+  font-weight: 100;
+  font-family: smartFont;
+  color: var(--blue-light);
+}

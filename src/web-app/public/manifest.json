@@ -1,0 +1,16 @@
+{
+    "lang": "en",
+    "name": "SmartAPI",
+    "short_name": "SmartAPI",
+    "icons": [
+        {
+      "src": "img/icons/apple-touch-icon-120x120.png",
+      "sizes": "120x120",
+      "type": "image/png"
+      }
+    ],
+    "display": "fullscreen",
+    "orientation": "landscape",
+    "theme_color": "#328cc4",
+    "background_color": "#328cc4"
+  }

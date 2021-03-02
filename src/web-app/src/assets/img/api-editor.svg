@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 22.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 106.8 106.8" style="enable-background:new 0 0 106.8 106.8;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#2F81C1;}
+	.st1{fill:url(#SVGID_1_);}
+	.st2{fill:url(#SVGID_2_);}
+	.st3{fill:#1D6493;}
+	.st4{fill:#1D567C;}
+	.st5{fill:#8CC1E5;}
+	.st6{fill:#0D2D3F;}
+	.st7{fill:#2E93CC;}
+  @keyframes Ani {
+		0% {
+				transform: rotate(0deg);
+        transform-origin: center;
+
+		}
+		25% {
+				transform: rotate(-9deg);
+        transform-origin: center;
+
+		}
+		50% {
+				transform: rotate(0deg);
+        transform-origin: center;
+
+		}
+    75% {
+				transform: rotate(-9deg);
+        transform-origin: center;
+
+		}
+		100% {
+				transform: rotate(0deg);
+        transform-origin: center;
+
+		}
+}
+
+		.Ani {
+				animation: Ani 1s ease-in-out;
+				-webkit-animation: Ani 1s ease-in-out;
+				-webkit-animation-iteration-count: 1; /* Safari 4.0 - 8.0 */
+				animation-iteration-count: 1;
+		}
+</style>
+<path id="wing" class="st0 Ani" d="M25.4,42c0,0-44.3-22.9-1.2,19.8C24.2,61.8,31.5,51.4,25.4,42z"/>
+<g id="body">
+	<path class="st0" d="M64.7,87c0,0,14,16.9,10.1-4.1C74.9,82.9,66.2,79.2,64.7,87z"/>
+	<radialGradient id="SVGID_1_" cx="57.25" cy="53.8326" r="34" gradientUnits="userSpaceOnUse">
+		<stop  offset="0" style="stop-color:#AAE1F9"/>
+		<stop  offset="1" style="stop-color:#2F81C1"/>
+	</radialGradient>
+	<circle class="st1" cx="57.2" cy="53.8" r="34"/>
+
+		<linearGradient id="SVGID_2_" gradientUnits="userSpaceOnUse" x1="40.6609" y1="35.8637" x2="66.3565" y2="80.3697" gradientTransform="matrix(0.9829 0.1839 0.1839 -0.9829 -9.3102 98.4616)">
+		<stop  offset="0" style="stop-color:#AAE1F9"/>
+		<stop  offset="1" style="stop-color:#FFFFFF"/>
+	</linearGradient>
+	<path class="st2" d="M79.4,41.8C72,27.7,63.6,31.6,59.5,35c-1.3,1.1-3.4,0.7-4.2-0.8c-2.7-4.7-9.1-11.2-21-0.8
+		c-16.9,14.7-2,41,15.2,42.9c0.1,0,0.2,0,0.4,0.1C66.3,80.8,89.8,61.5,79.4,41.8z"/>
+	<path class="st0" d="M70.3,49.6c-0.2-0.3-2-2.3-3.9-2.9c-3.3-0.9-4.6,1.2-4.6,1.2s-2,5.6-4.8,10.9c-1.6,3.1-3,5.5-4.3,7.2
+		c-2,2.5-3.1,2.8-3.6,2.7c-0.7-0.1-2.7-1.4-3.7-11.9c-0.1-0.9-0.1-1.9-0.2-2.8L45,48c0.1-0.7,0.2-1.4,0.2-2.1c0-4.5-1.9-8.2-4.3-8.2
+		c-2.4,0-5.4,3.7-5.4,8.2s3,8.2,5.4,8.2c0.9,0,1.7-0.5,2.4-1.4c0.1,1.4,0.1,2.8,0.3,4.2c0.7,8.7,2.4,13.1,5.1,13.6l0.1,0
+		c1.6,0.2,3.4-0.9,5.3-3.3c1.5-1.8,2.9-4.3,4.5-7.6c0.7-1.3,1.4-2.7,1.9-4.1c0.8-2.1,2.3-5.6,3.1-6c2.2-1.2,5.2-0.2,6.3,2.8
+		C70.2,53.1,71.7,51.7,70.3,49.6z"/>
+	<path class="st0" d="M91.2,53.8c0,0,16.6,45.7-6.4,19.9C84.8,73.7,83.8,60.4,91.2,53.8z"/>
+	<g>
+
+			<rect x="69.6" y="32.8" transform="matrix(0.6177 0.7864 -0.7864 0.6177 60.8734 -52.9392)" class="st3" width="30.6" height="6.7"/>
+		<rect x="94" y="45.4" transform="matrix(0.6177 0.7864 -0.7864 0.6177 74.5966 -55.9121)" class="st4" width="1.5" height="6.7"/>
+		<path class="st5" d="M94.7,54.1l-2.1-2.6l5.3-4.2l2.1,2.6c1.1,1.5,0.9,3.6-0.6,4.7l0,0C98,55.8,95.9,55.6,94.7,54.1z"/>
+		<polygon class="st5" points="78.1,22 72.7,18.8 70.9,20.2 72.8,26.2 		"/>
+
+			<rect x="69.2" y="17.1" transform="matrix(0.6177 0.7864 -0.7864 0.6177 41.388 -48.7826)" class="st6" width="3.3" height="2.1"/>
+
+			<rect x="69.4" y="34.9" transform="matrix(0.6177 0.7864 -0.7864 0.6177 60.9112 -52.765)" class="st7" width="30.6" height="2.7"/>
+	</g>
+</g>
+</svg>
