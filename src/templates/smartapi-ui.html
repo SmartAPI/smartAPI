@@ -30,13 +30,16 @@
       }
     }
   };
+
+
   var app = new Vue({
       el: '#ui-app',
       data: function(){
         return {
           apiID:'',
           smartStyle: true,
-          name: ''
+          name: '',
+          api : {}
         }
       },
       methods: {
@@ -76,6 +79,7 @@
             let data = res.data
             if (data) {
               let meta = null;
+              self.api = data
               // Open graph and Meta
               meta = document.createElement('meta');
               meta.setAttribute('property',"og:title");

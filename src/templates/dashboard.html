@@ -26,7 +26,7 @@
   .statusTable tr td{
     padding: 2px;
     font-size: smaller;
-    color: rgb(70, 70, 70);
+    color: rgb(100, 100, 100);
   }
   .statusTable tr{
     background-color: rgba(0,0,0,.06);
@@ -381,150 +381,150 @@
 
 <script>
 
-const store = new Vuex.Store({
-    state: {
-      'analytics':Object,
-      'tags':Array
-    },
-    strict: true,
-    mutations: {
-      saveAnalytics(state,payload){
-        state.analytics = payload['analytics'];
+  const store = new Vuex.Store({
+      state: {
+        'analytics':Object,
+        'tags':Array
       },
-    },
-    getters:{
-      // exposed as store.getters.nameOfGetter
-      getHitsFor: (state) => (apiname) => {
-        let data={'labels':[],'datasets':[]};
-        let label = '';
-        let dataArray=[];
+      strict: true,
+      mutations: {
+        saveAnalytics(state,payload){
+          state.analytics = payload['analytics'];
+        },
+      },
+      getters:{
+        // exposed as store.getters.nameOfGetter
+        getHitsFor: (state) => (apiname) => {
+          let data={'labels':[],'datasets':[]};
+          let label = '';
+          let dataArray=[];
 
-        for (var i = 0; i < state.analytics.length; i++) {
-          if (state.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
-            label = state.analytics[i][0].toUpperCase();
-            if (label == "EXPANDED") {
-              label = "VIEWS"
+          for (var i = 0; i < state.analytics.length; i++) {
+            if (state.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
+              label = state.analytics[i][0].toUpperCase();
+              if (label == "EXPANDED") {
+                label = "VIEWS"
+              }
+              data.labels.push(label);
+              let number = state.analytics[i][2];
+              dataArray.push(number)
             }
-            data.labels.push(label);
-            let number = state.analytics[i][2];
-            dataArray.push(number)
-          }
 
-        }
-        data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
-        // console.log('user interactions...',data)
-        return data
-      },
-      getTags:(state)=>{
-        let pop = []
-        for (var i = 0; i < state.analytics.length; i++) {
-          if (state.analytics[i][0] ==='tag') {
-            pop.push({'name':state.analytics[i][1],'active':false,'count':state.analytics[i][2]})
           }
+          data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
+          // console.log('user interactions...',data)
+          return data
+        },
+        getTags:(state)=>{
+          let pop = []
+          for (var i = 0; i < state.analytics.length; i++) {
+            if (state.analytics[i][0] ==='tag') {
+              pop.push({'name':state.analytics[i][1],'active':false,'count':state.analytics[i][2]})
+            }
+          }
+          return pop;
         }
-        return pop;
+
       }
+    });
 
-    }
-  });
-
-Vue.component('status', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-    }
-  },
-  props: ['api'],
-  methods:{
-    getStatus(api){
-      let self = this;
-      if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('uptime_status')) {
-        let stat = api['_status']['uptime_status'];
-        switch (stat) {
-          case 'unknown':
-            self.status = 'UNKNOWN';
-            self.clss = 'orange';
-            break;
-          case 'good':
-            self.status = 'PASS';
-            self.clss = 'green';
-            break;
-          case 'bad':
-            self.status = 'BAD';
-            self.clss = 'red';
-            break;
-          case 'incompatible':
-            self.status = 'INCOMPATIBLE';
-            self.clss = 'blue';
-            break;
-          default:
+  Vue.component('status', {
+    data: function(){
+      return{
+        status:'',
+        clss:'',
+      }
+    },
+    props: ['api'],
+    methods:{
+      getStatus(api){
+        let self = this;
+        if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('uptime_status')) {
+          let stat = api['_status']['uptime_status'];
+          switch (stat) {
+            case 'unknown':
+              self.status = 'UNKNOWN';
+              self.clss = 'orange';
+              break;
+            case 'good':
+              self.status = 'PASS';
+              self.clss = 'green';
+              break;
+            case 'bad':
+              self.status = 'BAD';
+              self.clss = 'red';
+              break;
+            case 'incompatible':
+              self.status = 'INCOMPATIBLE';
+              self.clss = 'blue';
+              break;
+            default:
+            self.status = 'N/A';
+            self.clss = 'grey';
+          }
+        }else{
           self.status = 'N/A';
           self.clss = 'grey';
         }
-      }else{
-        self.status = 'N/A';
-        self.clss = 'grey';
+      },
+    },
+    mounted: function(){
+      this.getStatus(this.api);
+    },
+    template: `<span class="badge apiStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
+  });
+
+  Vue.component('source-status', {
+    data: function(){
+      return{
+        status:'',
+        clss:'',
       }
     },
-  },
-  mounted: function(){
-    this.getStatus(this.api);
-  },
-  template: `<span class="badge apiStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
-});
-
-Vue.component('source-status', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-    }
-  },
-  props: ['api'],
-  methods:{
-    getStatus(api){
-      let self = this;
-      if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('refresh_status')) {
-        let stat = api['_status']['refresh_status'];
-        switch (stat) {
-          case 200:
-            self.status = "OK";
-            self.clss = 'green';
-            break;
-          case 299:
-            self.status = "OK";
-            self.clss = 'green';
-            break;
-          case 499:
-            self.status = "INVALID";
-            self.clss = 'red';
-            break;
-          case 599:
-            self.status = "BROKEN";
-            self.clss = 'purple';
-            break;
-          case 404:
-            self.status = "NOT FOUND";
-            self.clss = 'orange';
-            break;
-          default:
-          self.status = stat;
-          self.clss = 'black';
+    props: ['api'],
+    methods:{
+      getStatus(api){
+        let self = this;
+        if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('refresh_status')) {
+          let stat = api['_status']['refresh_status'];
+          switch (stat) {
+            case 200:
+              self.status = "OK";
+              self.clss = 'green';
+              break;
+            case 299:
+              self.status = "OK";
+              self.clss = 'green';
+              break;
+            case 499:
+              self.status = "INVALID";
+              self.clss = 'red';
+              break;
+            case 599:
+              self.status = "BROKEN";
+              self.clss = 'purple';
+              break;
+            case 404:
+              self.status = "NOT FOUND";
+              self.clss = 'orange';
+              break;
+            default:
+            self.status = stat;
+            self.clss = 'black';
+          }
+        }else{
+          self.status = 'N/A';
+          self.clss = 'grey darken-1';
         }
-      }else{
-        self.status = 'N/A';
-        self.clss = 'grey darken-1';
-      }
+      },
     },
-  },
-  mounted: function(){
-    this.getStatus(this.api);
-  },
-  template: `<span class="badge urlStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
-});
+    mounted: function(){
+      this.getStatus(this.api);
+    },
+    template: `<span class="badge urlStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
+  });
 
-
+  
   // Refresh Button Component
   Vue.component('refresh', {
     data: function(){
