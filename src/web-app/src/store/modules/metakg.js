@@ -2,6 +2,8 @@ import cytoscape from 'cytoscape'
 import popper from 'cytoscape-popper';
 import tippy from 'tippy.js';
 
+cytoscape.use(popper);
+
 export const metakg = {
     state: () => ({ 
         'name': 'translator',
@@ -70,8 +72,6 @@ export const metakg = {
         drawGraph(state) {
         const t0 = performance.now();
         var self = this;
-
-        cytoscape.use(popper);
 
         this.cy = cytoscape({
             container: document.getElementById('cy'),
@@ -171,11 +171,18 @@ export const metakg = {
             let ref = ele.popperRef();
             ele.tippy = tippy(document.createElement('div'), {
             getReferenceClientRect: ref.getBoundingClientRect,
-            content: ele.id(),
+            content: function(){ // function can be better for performance
+                var div = document.createElement('div');
+                div.innerHTML = ele.id();
+                return div;
+            },
             hideOnClick: false,
             placement:'top-start',
+            trigger: 'manual', // mandatory
+            arrow: true,
+            interactive: true,
             theme:'light',
-            appendTo: document.body // or append dummyDomEle to document.body
+            appendTo: document.body, // or append dummyDomEle to document.body
             });
         }
 
@@ -188,7 +195,10 @@ export const metakg = {
             `</b> <b class="orange darken-2 badgepill">`+ele.data('target')+
             `</b></div>`,
             hideOnClick: false,
+            trigger: 'manual', // mandatory
             placement:'top-start',
+            arrow: true,
+            interactive: true,
             theme:'light',
             appendTo: document.body // or append dummyDomEle to document.body
             });
@@ -630,7 +640,7 @@ export const metakg = {
         commit,
         state
         }) {
-        // console.log(state)
+        console.log("HANDLE NEW QUERY")
         let q = {}
         if (state.output_type && state.output_type.length) {
             q['output_type'] = state.output_type

@@ -36,7 +36,7 @@ export default {
           var payload = {};
           payload["type"] = self.type;
           payload["q"] = self.q;
-
+          console.log('sending', self.q)
           this.$store.commit('pushPill', payload);
         } else {
           this.$swal.fire({
@@ -129,7 +129,7 @@ export default {
             return this.$store.getters.getO_AC
           default:
             console.log('NO AUTOCOMPLETE')
-            return false
+            return []
         }
 
       },
@@ -144,7 +144,7 @@ export default {
             return this.$store.getters.getO_Selected
           default:
             console.log('NO SELECTED OPTIONS')
-            return false
+            return []
         }
 
       },
