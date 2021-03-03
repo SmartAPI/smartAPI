@@ -1,10 +1,5 @@
 #swagger-editor .topbar{
-  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#2b85bc+0,273238+57 */
-  background: rgb(43,133,188); /* Old browsers */
-  background: -moz-linear-gradient(45deg, rgba(43,133,188,1) 0%, rgba(39,50,56,1) 57%); /* FF3.6-15 */
-  background: -webkit-linear-gradient(45deg, rgba(43,133,188,1) 0%,rgba(39,50,56,1) 57%); /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(45deg, rgba(43,133,188,1) 0%,rgba(39,50,56,1) 57%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2b85bc', endColorstr='#273238',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+  background-color: #3f85bb;
 }
 
 * {
@@ -22,10 +17,6 @@ body {
   line-height: normal;
 }
 
-#swagger-editor {
-  font-size: 1.3em;
-}
-
 .container {
   height: 100%;
   max-width: 880px;
@@ -41,6 +32,7 @@ body {
 
 .Pane2 {
   overflow-y: scroll;
+  background-color: white !important;
 }
 
 #swagger-editor .topbar-logo__title::before{
