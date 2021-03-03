@@ -292,7 +292,7 @@ const store = new Vuex.Store({
     strict: true,
     mutations: {
       saveAnalytics(state,payload){
-        state.analytics = payload['analytics'];
+        state.analytics = Object.freeze(payload['analytics']);
         let pop = []
         for (var i = 0; i < state.analytics.length; i++) {
           if (state.analytics[i][0] ==='tag') {
@@ -322,7 +322,7 @@ const store = new Vuex.Store({
         state.bteapis= payload['apis'];
       },
       saveApis(state,payload){
-        state.apis= payload['apis'];
+        state.apis= Object.freeze(payload['apis']);
         // console.log('APIS',state.apis)
       },
       saveTags(state,payload){
