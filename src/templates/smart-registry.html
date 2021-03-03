@@ -147,14 +147,14 @@
           <form class="col s12 l10 center-align" @submit.prevent="search(query)" id="api_search_form">
             <template v-if='specialTagsUI'>
               <div  class="col s12 l3 input-field center-align">
-                <a class='tooltipped' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
-                  <img v-if="specialTagsUI" width="auto" style="max-height: 40px; max-width:100%;" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
+                <a class='tooltipped p-1' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
+                  <img v-if="specialTagsUI" width="70%" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
                 </a>
                 <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">
-                  <a class="blue-text d-block" href="/portal/translator">
-                    Go to portal <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                  <a class="btn blue white-text d-block" href="/portal/translator" style="margin: 5px 0px;">
+                    Go to portal
                   </a>
-                  <a class="purple-text d-block" href="/portal/translator/metakg">
+                  <a class="btn purple white-text d-block" href="/portal/translator/metakg">
                     <i class="fa fa-connectdevelop" aria-hidden="true"></i>Search MetaKG Graph <i class="fa fa-chevron-right" aria-hidden="true"></i>
                   </a>
                 </div>
@@ -519,7 +519,7 @@ const store = new Vuex.Store({
     this.getStatus(this.api);
   },
   template: `<div v-if="api && api['_status']" class="urlStatus" title="Click to learn more">
-              <div class="blue-grey-text">Source Status</div>
+              <div class="blue-grey-text">Source</div>
               <div v-text="status" :class='clss'></div>
             </div>`
 });
@@ -871,7 +871,7 @@ const store = new Vuex.Store({
             </a>
 
             <div v-if="api && api['_status']" class="apiStatus" title="Click to learn more">
-              <div class="blue-grey-text">Uptime Status</div>
+              <div class="blue-grey-text">Uptime</div>
               <template v-if="api['_status'] && api['_status']['uptime_status'] ==='bad'">
                 <div class="red">
                   FAIL
@@ -1466,7 +1466,7 @@ const store = new Vuex.Store({
               switch (tagname) {
                 case 'translator':
                   self.specialTagName = 'NCATS Biomedical Data Translator';
-                  self.specialTagImage = '/static/img/ncats-logo.png';
+                  self.specialTagImage = '/static/img/TranslatorLogo.JPG';
                   self.specialTagURL = 'https://ncats.nih.gov/translator';
                   break;
                   case 'nihdatacommons' || 'NIHdatacommons':
@@ -1643,7 +1643,7 @@ const store = new Vuex.Store({
                       <thead>
                         <tr>
                           <td colspan="2" class='grey-text center'>
-                            <b>Source URL & Metadata Status</b>
+                            <b>API Metadata Source URL Status</b>
                           </td>
                         </tr>
                       </thead>
@@ -1707,7 +1707,7 @@ const store = new Vuex.Store({
                       <thead>
                         <tr>
                           <td colspan="2" class='grey-text center'>
-                            <b>Overall API Endpoint Status</b>
+                            <b>Overall API Endpoint Uptime Status</b>
                           </td>
                         </tr>
                       </thead>

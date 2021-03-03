@@ -14,7 +14,10 @@
   flex-grow: 1;
   flex-basis: 50%;
   align-content: center;
-  padding: 3px;
+  padding: 3px 6px;
+  text-align: center;
+  font-size: .8em !important;
+  color: #434849;
 }
 .pillStatus div:first-child{
   border-top-left-radius: 5px;
@@ -116,20 +119,17 @@
                   </td>
                   <td>
                     <div class="row m-0">
-                      <div class="col s4">
+                      <div class="col s12 m6 p-1">
                         <button type="button" class="btn btn-small tipped green scale-in-center" data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)" 
                           @click="refreshThis(api.info.title,api._id);">
                           <i class=" material-icons white-text">refresh</i>
                         </button>
                       </div>
-                      <div class="col s4">
+                      <div class="col s12 m6 p-1">
                         <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text tipped"
                         data-tippy-info="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
                           <i class="material-icons white-text">check</i>
                       </button>
-                      </div>
-                      <div class="col s12">
-                        
                       </div>
                     </div>
                   </td>
@@ -411,8 +411,8 @@
       this.getStatus(this.api);
     },
     template: `<div class="pillStatus apiStatus pointer" style="float: none !important;">
-                <div><small>Uptime</small></div>
-                <div class="white-text center-align" :class='clss'><small v-text="status"></small></div>
+                <div>Uptime</div>
+                <div class="white-text center-align" :class='clss' v-text="status"></div>
               </div>`
   });
 
@@ -464,8 +464,8 @@
       this.getStatus(this.api);
     },
     template: `<div class="pillStatus urlStatus pointer" style="float: none !important;">
-                <div><small>Source</small></div>
-                <div class="white-text center-align" :class='clss'><small v-text="status"></small></div>
+                <div>Source</div>
+                <div class="white-text center-align" :class='clss' v-text="status"></div>
               </div>`
   });
 
@@ -955,7 +955,7 @@
                     <thead>
                       <tr>
                         <td colspan="2" class='grey-text center'>
-                          <b>Source URL & Metadata Status</b>
+                          <b>API Metadata Source URL Status</b>
                         </td>
                       </tr>
                     </thead>
@@ -1019,7 +1019,7 @@
                       <thead>
                         <tr>
                           <td colspan="2" class='grey-text center'>
-                            <b>Overall API Endpoint Status</b>
+                            <b>Overall API Endpoint Uptime Status</b>
                           </td>
                         </tr>
                       </thead>
