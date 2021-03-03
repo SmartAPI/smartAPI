@@ -4,41 +4,32 @@
 {% include "header.html" %}
 {% raw %}
 <style>
-  .apisCont{
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 0px !important;
-  }
-  .apisCont div:first-child{
-    flex-basis: 30%;
-    flex-grow: 1;
-  }
-  .apisCont div{
-    flex-basis: 50%;
-    flex-grow: 1;
-  }
-  .apisCont div:last-child{
-    flex-basis: 20%;
-    flex-grow: 0;
-  }
-  .statusTable tr td{
-    padding: 2px;
-    font-size: .8rem;
-    color: rgb(100, 100, 100);
-  }
-  .statusTable tr{
-    background-color: rgba(59, 59, 59, .05);
-    border-bottom: 1px solid rgb(185, 185, 185);
-  }
-  .statusTable tr:last-child{
-    border-bottom: none;
-  }
-  .resultsContainer{
-    max-height: 700px;
-    overflow-y: scroll;
-  }
+.zoom7{
+  zoom: .7;
+}
+.pillStatus{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: stretch;
+  margin: 5px;
+}
+.pillStatus div{
+  flex-grow: 1;
+  flex-basis: 50%;
+  align-content: center;
+  padding: 3px;
+}
+.pillStatus div:first-child{
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.pillStatus div:last-child{
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.m-2{
+  margin: 1rem;
+}
 </style>
 <main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3" v-cloak>
   <!-- IF NO USER INFO DISPLAY LOGIN-->
@@ -90,116 +81,82 @@
           <div class="p-1 col s12">
             <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-light) 2px solid;"/>
           </div>
-          
-          <div class="col s12">
-            <ul class="tabs transparent">
-              <li class="tab col s3 transparent">
-                <a class="white-text textShadow " href="#contributions">
-                  APIs <span class="l-blue-text">({{total}})</span>
-                </a>
-              </li>
-            </ul>
-          </div>
 
-          <div id="contributions" class="col s12 card-panel" style="padding:0;">
-              <div class="s12">
-                <ul class="collection resultsContainer">
-                  <li class="collection-item" v-for="(api,index) in results" style="margin-bottom:0px;padding: 0px;">
-                    <div class="row" style="padding: 0px; margin-bottom:0px;">
-                      <div class="col s12 apisCont">
-                        <div style="padding-left: 10px;">
-                          <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
-                            <h5 class="left-align" style="font-size: 1.24rem;">
-                              <b>{{ api.info.title }}</b>
-                              <small>
-                                <span class="black-text">V.{{api.info.version}}</span>
-                              </small>
-                            </h5>
-                          </a>
-                          
-                          <h6 class="left-align">
-                            <a href="#" class='popularity pointer blue-text' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
-                              <small><i class="fa fa-bar-chart"></i> User Interactions</small>
-                            </a>
-                          </h6>
-                          
-                        </div>
-                        <div class="row m-0">
-                          <div class="col s4">
-                            <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id" 
-                            data-tippy-content="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
-                          </div>
-                          <div class="col s4">
-                            <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text" 
-                            data-tippy-content="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
-                              <i class="material-icons white-text">check</i>
-                          </button>
-                          </div>
-                          <div class="col s4">
-                            <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn btn-small scale-in-center red white-text modal-trigger" 
-                            data-tippy-content="<b class='red-text'>Delete</b> <br/>(Delete API metadata from SmartAPI registry permanently - cannot be undone)">
-                              <i class="material-icons white-text">delete_forever</i>
-                            </a>
-                          </div>
-                          <div class="col s12">
-                            <h6 class="center-align">
-                              <small class="indigo-text"><i class="fa fa-clock-o" aria-hidden="true"></i> Last Updated </small>
-                              <small>
-                                <b class="green-text"> {{ convertDate(api._meta.last_updated) }}</b>
-                              </small>
-                            </h6>
-                          </div>
-                        </div>
-                        <div>
-                          <table class="statusTable">
-                            <tbody>
-                              <tr>
-                                <td>Specification</td>
-                                <td>
-                                  <span v-if=" api.hasOwnProperty('openapi')" style="font-size:75%" class="smallFont badge green white-text" data-tippy-content="<b class='green-text'>OpenAPI 3</b> Specification">
-                                    OAS3
-                                  </span>
-                                  <span v-else-if=" api.hasOwnProperty('swagger')" style="font-size:75%" class="smallFont badge blue white-text" data-tippy-content="<b class='blue-text'>Swagger 2</b> Specification">
-                                    Swagger2
-                                  </span>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Uptime Status</td>
-                                <td>
-                                  <status :api='api'></status>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>Source Status</td>
-                                <td>
-                                  <source-status :api='api'></source-status>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+          <div class="col s12 card-panel">
+            <table class="striped highlight responsive-table">
+              <thead>
+                <tr class="grey-text">
+                    <th>Name</th>
+                    <th>Last Updated</th>
+                    <th>Refresh | Validate</th>
+                    <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(api,index) in results" :key="index">
+                  <td>
+                    <h6 class="left-align">
+                      <b>{{ api.info.title }}</b>
+                      <small>
+                        <span class="grey-text">V.{{api.info.version}}</span>
+                      </small>
+                      <small v-if="api.hasOwnProperty('openapi')" class="green-text">
+                        OAS3
+                      </small>
+                      <small v-else-if="api.hasOwnProperty('swagger')" class="blue-text">
+                        Swagger2
+                      </small>
+                      <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
+                        <small><i class="tiny material-icons">settings</i> Settings</small>
+                      </a>
+                    </h6>
+                    
+                  </td>
+                  <td>
+                    <small>
+                      <b class="green-text"> {{ convertDate(api._meta.last_updated) }}</b>
+                    </small>
+                  </td>
+                  <td>
+                    <div class="row m-0">
+                      <div class="col s4">
+                        <refresh class="zoom7" :refresh='refreshingThis' :title='api.info.title' :id="api._id"
+                        data-tippy-content="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
+                      </div>
+                      <div class="col s4">
+                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text zoom7"
+                        data-tippy-content="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
+                          <i class="material-icons white-text">check</i>
+                      </button>
+                      </div>
+                      <div class="col s12">
+                        
                       </div>
                     </div>
-                  </li>
-                  <div v-if="apis.length === 0">
-                    <small class="center-align grey lighten-3 padding20">
-                      <span class="grey-text smallFont">No Contributions Yet</span><br>
-                    </small>
-                  </div>
-                </ul>
-              </div>
+                  </td>
+                  <td>
+                    <status :api='api'></status>
+                    <source-status :api='api'></source-status>
+                  </td>
+                </tr>
+                <tr v-if="apis.length === 0">
+                  <td colspan="4" class="center-align">
+                    <h4>No Contributions Yet</h4><br>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
         </div>
     </div>
   </div>
 
-  <div class="grey lighten-5 padding20 blue-text center">
-      <small>
+  <div class="blue-grey lighten-2 padding20 white-text center">
+      <p>
         <i class="material-icons">error_outline</i> Did you know you can set a custom slug for your API's documentation? It's easy! Just click on any API on your dashboard and go to the <em>Settings</em> tab.<br />
         Use the <em>Custom Slug Registration Wizard</em> and get a custom URL for your API's documentation. E.g. <b>&lt;slug&gt;.smart-api.info</b>
-      </small>
+      </p>
   </div>
 
   <!-- Modal for Deletion Confirmation -->
@@ -228,7 +185,8 @@
         <div class="col s12">
           <ul class="tabs transparent">
             <li class="tab col s3"><a href="#test1" class="active blue-text">About</a></li>
-            <li class="tab col s3"><a class="blue-text" href="#test2"><i class="tiny material-icons">settings</i> Settings</a></li>
+            <li class="tab col s3"><a class="blue-text" href="#test2">Slug Registration</a></li>
+            <li class="tab col s3"><a class="blue-text" href="#test3" @click="renderUserInteractions(apis[selectedAPIIndex].info.title)">User Interactions</a></li>
           </ul>
         </div>
 
@@ -270,8 +228,8 @@
                 <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
                 <div class='grey lighten-3 p-1 indigo-text'><small v-text="apis[selectedAPIIndex]._id"></small></div>
               </div>
-              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Documentation</a>
-              <a :href="'/registry?q='+apis[selectedAPIIndex]._id" class="btn indigo">View API On SmartAPI Registry</a>
+              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue m-2">View API Documentation</a>
+              <a :href="'/registry?q='+apis[selectedAPIIndex]._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
             </li>
             <template v-for='link in checkForAPIInfoLink(apis[selectedAPIIndex])'>
               <li  class="collection-item blue-grey lighten-4">
@@ -288,6 +246,16 @@
               <a v-if="apis[selectedAPIIndex].info.termsOfService" :href="apis[selectedAPIIndex].info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
               <a v-if="apis[selectedAPIIndex].termsOfService" :href="apis[selectedAPIIndex].termsOfService" target="_blank" class="blue-text">Terms of Service</a>
 
+            </li>
+            <li class="collection-item deep-orange lighten-2">
+              <h5>Danger Zone</h5>
+              <p>
+                Delete API metadata from SmartAPI registry permanently. This action cannot be undone.
+              </p>
+              <button type="button" @click="deleteForever(apis[selectedAPIIndex].info.title, apis[selectedAPIIndex]._id)" class="btn btn-small red white-text" 
+              data-tippy-content="<b class='red-text'>Delete Forever</b>">
+                Delete API
+              </button>
             </li>
           </ul>
         </div>
@@ -361,6 +329,23 @@
             </div>
           </div>
         </div>
+
+        <div id="test3" class="col s12 white">
+          <div v-if="selectedAPIIndex || selectedAPIIndex === 0" class="row">
+            <div class="col s12 m12 l12 center-align">
+              <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
+            </div>
+            <div>
+              <h6 class="blue-text" v-text='apis[selectedAPIIndex].info.title'></h6>
+              <canvas id="myChart" width="400" height="400"></canvas>
+              <div>
+                <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
       <a href="#!" style="position: absolute; top:1%; right: 5%; font-size: 2em;" class="red-text modal-action modal-close">&times;</a>
     </div>
@@ -426,7 +411,10 @@
     mounted: function(){
       this.getStatus(this.api);
     },
-    template: `<span class="badge apiStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
+    template: `<div class="pillStatus apiStatus pointer" style="float: none !important;">
+                <div><small>Uptime</small></div>
+                <div class="white-text center-align" :class='clss'><small v-text="status"></small></div>
+              </div>`
   });
 
   Vue.component('source-status', {
@@ -476,7 +464,10 @@
     mounted: function(){
       this.getStatus(this.api);
     },
-    template: `<span class="badge urlStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
+    template: `<div class="pillStatus urlStatus pointer" style="float: none !important;">
+                <div><small>Source</small></div>
+                <div class="white-text center-align" :class='clss'><small v-text="status"></small></div>
+              </div>`
   });
 
   
@@ -545,6 +536,30 @@
           }
         },
         methods:{
+          renderUserInteractions(name){
+              let self = this;
+              let data = self.getHitsFor(name);
+              var ctx = document.getElementById('myChart');
+
+              new Chart(ctx, {
+                  'type': 'bar',
+                  'data': data,
+                  'options': {
+                    'legend': { display: false },
+                    'title': {
+                      display: true,
+                      text: 'User Interactions (Last 30 days)'
+                    },
+                    'scales': {
+                      yAxes: [{
+                          ticks: {
+                              precision:0
+                          }
+                      }],
+                  },
+                  }
+              });
+          },
           validate(url){
             let self = this;
             if (url) {
@@ -556,7 +571,6 @@
                   data: bodyFormData,
                   headers: { "Content-Type": "multipart/form-data" },
                 }).then(res=>{
-                console.log(res.data)
                 swal({
                     imageUrl: '/static/img/api-sucess.svg',
                     imageWidth: 300,
@@ -646,12 +660,6 @@
           },
           compiledMarkdown: function (mdtext) {
               return marked(mdtext, { sanitize: true })
-          },
-          deleteAPI: function(title, id){
-            // api information sent to modal for confirmation to be deleted
-            var self = this;
-            self.confirmModal.title= title;
-            self.confirmModal.id = id;
           },
           deleteForever: function(title, apiID){
             // ID for api to be deleted forever
@@ -950,145 +958,77 @@
         mounted: function(){
           let self = this;
 
-           self.showLoading();
-           self.getAnalytics();
-           self.getUserInfo();
-           // tabs
-           $('ul.tabs').tabs();
-           // modals
-           $('.modal').modal({dismissible: true});
-
-           tippy( '#tippyParent', {
-            target: '.specVersion',
-            content: `<div class="white" style="padding:0px;">
-                        <table>
-                          <tbody>
-                            <tr>
-                              <td class='green-text center'>
-                                <b>OAS3</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                The OpenAPI Specification (OAS) (new version) defines a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. <a href="https://swagger.io/specification/" target="_blank">Learn more</a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class='blue-text center'>
-                                <b>Swagger2</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                Swagger (older version) allows you to describe the structure of your APIs so that machines can read them. <a href="https://swagger.io/specification/" target="_blank">Learn more</a>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>`,
-            placement: 'left',
-            theme:'light',
-            sticky:true,
-            interactive:true,
-          });
-
-
-          tippy( '#dashApp', {
-            target:'.popularity',
-            content: 'Loading...',
-            animateFill: false,
-            animation: 'fade',
-            theme:'light',
-            trigger:'click',
-            onShow(instance) {
-              let name = instance.reference.dataset.tippyName;
-              instance.setContent('<h6 class="blue-text">'+name+'</h6><canvas id="myChart" width="400" height="400"></canvas><div><small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small></div>')
-            },
-            onShown(instance){
-              let name = instance.reference.dataset.tippyName;
-              let data = self.getHitsFor(name);
-              var ctx = document.getElementById('myChart');
-
-              new Chart(ctx, {
-                  'type': 'bar',
-                  'data': data,
-                  'options': {
-                    'legend': { display: false },
-                    'title': {
-                      display: true,
-                      text: 'User Interactions (Last 30 days)'
-                    },
-                    'scales': {
-                      yAxes: [{
-                          ticks: {
-                              precision:0
-                          }
-                      }],
-                  },
-                  }
-              });
-            }
-          });
+          self.showLoading();
+          self.getAnalytics();
+          self.getUserInfo();
+          // tabs
+          $('ul.tabs').tabs();
+          // modals
+          $('.modal').modal({dismissible: true});
 
           tippy( '#top-2', {
-        target: '.urlStatus',
-        content: `<div class="white" style="padding:0px;">
-                    <table>
-                      <thead>
-                        <tr>
-                          <td colspan="2" class='grey-text center'>
-                            <b>Source URL & Metadata Status</b>
-                          </td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class='green-text center'>
-                            <b>OK</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL is working and returns valid metadata.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='orange-text center'>
-                            <b>NOT FOUND</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL returns not found.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='red-text center'>
-                            <b>INVALID</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL works but contains invalid metadata.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='purple-text center'>
-                            <b>BROKEN</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL is broken.</small>
-                          </td>
-                        </tr>
-                        <tr class="cyan lighten-5">
-                          <td colspan='2' class='blue-grey-text'>
-                            <p>
-                              <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
-                            </p>
-                            <p>
-                              <b>Need help?</b> Click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
-                            </p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>`,
-        placement: 'left',
-        theme:'light',
-        trigger:'click',
-        sticky:true,
-        interactive:true,
-      });
+      target: '.urlStatus',
+      content: `<div class="white" style="padding:0px;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <td colspan="2" class='grey-text center'>
+                          <b>Source URL & Metadata Status</b>
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class='green-text center'>
+                          <b>OK</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL is working and returns valid metadata.</small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='orange-text center'>
+                          <b>NOT FOUND</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL returns not found.</small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='red-text center'>
+                          <b>INVALID</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL works but contains invalid metadata.</small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='purple-text center'>
+                          <b>BROKEN</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL is broken.</small>
+                        </td>
+                      </tr>
+                      <tr class="cyan lighten-5">
+                        <td colspan='2' class='blue-grey-text'>
+                          <p>
+                            <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
+                          </p>
+                          <p>
+                            <b>Need help?</b> Click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>`,
+      placement: 'left',
+      theme:'light',
+      trigger:'click',
+      sticky:true,
+      interactive:true,
+    });
 
           tippy( '#top', {
         target: '.apiStatus',
