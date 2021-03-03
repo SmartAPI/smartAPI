@@ -120,12 +120,12 @@
                   <td>
                     <div class="row m-0">
                       <div class="col s4">
-                        <refresh class="zoom7" :refresh='refreshingThis' :title='api.info.title' :id="api._id"
-                        data-tippy-content="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
+                        <refresh class="zoom7 tipped" :refresh='refreshingThis' :title='api.info.title' :id="api._id"
+                        data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
                       </div>
                       <div class="col s4">
-                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text zoom7"
-                        data-tippy-content="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
+                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text zoom7 tipped"
+                        data-tippy-info="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
                           <i class="material-icons white-text">check</i>
                       </button>
                       </div>
@@ -966,6 +966,18 @@
           // modals
           $('.modal').modal({dismissible: true});
 
+          tippy('#dashApp',{
+            target: '.tipped',
+            placement: 'left-end',
+            theme:'light',
+            sticky:true,
+            interactive:true,
+            onShow(instance) {
+              let msg = instance.reference.dataset.tippyInfo;
+              instance.setContent("<div class='p-1'>"+msg+"</div>")
+            },
+          });
+
           tippy( '#top-2', {
       target: '.urlStatus',
       content: `<div class="white" style="padding:0px;">
@@ -1023,7 +1035,7 @@
                     </tbody>
                   </table>
                 </div>`,
-      placement: 'left',
+                placement: 'left-end',
       theme:'light',
       trigger:'click',
       sticky:true,
@@ -1077,7 +1089,7 @@
                       </tbody>
                     </table>
                   </div>`,
-        placement: 'left',
+                  placement: 'left-end',
         theme:'light',
         trigger:'click',
         sticky:true,
