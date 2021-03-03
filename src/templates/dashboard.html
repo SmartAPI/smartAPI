@@ -618,13 +618,11 @@
           },
           getApis: function(){
             var self=this;
+
             self.apis=[];
-            var params = {
-                "params": {
-                    'fields': 'info,_meta,tags,openapi,swagger,_status'
-                }
-            };
-            axios.get("/api/query?size=100&q=_meta.username:"+self.userInfo.login,params).then(function(response){
+            let url = "/api/query?size=100&q=_meta.username:"+self.userInfo.login
+
+            axios.get(`${url}&timestamp=${new Date().getTime()}`).then(function(response){
                   self.apis = _.sortBy(response.data.hits,'info.title');
                   self.total = response.data.total;
                   self.hideLoading();
@@ -678,9 +676,9 @@
                 })
               }
             }).catch(error=>{
+              //error deleting
               throw(error);
             });
-            
             self.getApis();
 
           },
