@@ -4,9 +4,6 @@
 {% include "header.html" %}
 {% raw %}
 <style>
-.zoom7{
-  zoom: .7;
-}
 .pillStatus{
   display: flex;
   justify-content: space-evenly;
@@ -120,11 +117,13 @@
                   <td>
                     <div class="row m-0">
                       <div class="col s4">
-                        <refresh class="zoom7 tipped" :refresh='refreshingThis' :title='api.info.title' :id="api._id"
-                        data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
+                        <button type="button" class="btn btn-small tipped green scale-in-center" data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)" 
+                          @click="refreshThis(api.info.title,api._id);">
+                          <i class=" material-icons white-text">refresh</i>
+                        </button>
                       </div>
                       <div class="col s4">
-                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text zoom7 tipped"
+                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text tipped"
                         data-tippy-info="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
                           <i class="material-icons white-text">check</i>
                       </button>
@@ -470,35 +469,6 @@
               </div>`
   });
 
-  
-  Vue.component('refresh', {
-    data: function(){
-      return{
-        counter:30,
-        currentlyRefreshing: false,
-        text: 'refresh'
-      }
-    },
-    props: ['refresh', 'title', 'id'],
-    methods:{
-      getText: function(){
-        return this.text;
-      }
-    },
-    mounted: function(){
-      tippy('[data-tippy-content]',{
-        placement: 'top',
-        theme:'light',
-        onShow(instance) {
-          let msg = instance.reference.dataset.tippyContent;
-          instance.setContent('<div style="padding:5px;"><h6 class="blue-text">'+msg+'</h6></div>')
-        },
-      });
-    },
-    template: `<a class="btn btn-small" :disabled='currentlyRefreshing' @click="refresh(title,id);" :class="currentlyRefreshing ? 'grey' : 'green scale-in-center' ">
-                <i class=" material-icons white-text">refresh</i>
-              </a>`
-  });
 
     var app = new Vue({
         el: '#dashApp',
@@ -750,7 +720,7 @@
                 break;
             }
           },
-          refreshingThis: function(title, id){
+          refreshThis: function(title, id){
             var self = this;
             self.showLoading();
             axios.put('/api/metadata/'+id).then(res=>{
@@ -968,13 +938,13 @@
 
           tippy('#dashApp',{
             target: '.tipped',
-            placement: 'left-end',
+            placement: 'top',
             theme:'light',
             sticky:true,
             interactive:true,
             onShow(instance) {
               let msg = instance.reference.dataset.tippyInfo;
-              instance.setContent("<div class='p-1'>"+msg+"</div>")
+              instance.setContent("<div class='p-1 blue-text'>"+msg+"</div>")
             },
           });
 
