@@ -25,12 +25,15 @@
   }
   .statusTable tr td{
     padding: 2px;
-    font-size: smaller;
+    font-size: .8rem;
     color: rgb(100, 100, 100);
   }
   .statusTable tr{
-    background-color: rgba(0,0,0,.06);
+    background-color: rgba(59, 59, 59, .05);
     border-bottom: 1px solid rgb(185, 185, 185);
+  }
+  .statusTable tr:last-child{
+    border-bottom: none;
   }
   .resultsContainer{
     max-height: 700px;
@@ -48,7 +51,7 @@
     </a>
   </div>
   <!-- LOADING -->
-  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+  <div v-if="loading" id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
     <div class="center-align" style="padding-top: 300px;">
       <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
       <h3 class="white-text logoFont">Loading...</h3>
@@ -191,12 +194,14 @@
         </div>
     </div>
   </div>
+
   <div class="grey lighten-5 padding20 blue-text center">
       <small>
         <i class="material-icons">error_outline</i> Did you know you can set a custom slug for your API's documentation? It's easy! Just click on any API on your dashboard and go to the <em>Settings</em> tab.<br />
         Use the <em>Custom Slug Registration Wizard</em> and get a custom URL for your API's documentation. E.g. <b>&lt;slug&gt;.smart-api.info</b>
       </small>
   </div>
+
   <!-- Modal for Deletion Confirmation -->
   <div id="modal1" class="modal center-align">
     <div class="modal-content">
@@ -339,7 +344,7 @@
                   <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
                   <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
                   <br />
-                  <span v-if="myShortName.length <= 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
+                  <span v-if="myShortName.length < 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
                   <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length <= 3 && invalidChars"/>
                   <span v-if="invalidChars" class="red-text"><i class="tiny material-icons">warning</i> Invalid Characters</span>
                   <span v-if="takenSlug" class="orange-text"><i class="tiny material-icons">warning</i> Taken Slug</span>
@@ -360,8 +365,6 @@
       <a href="#!" style="position: absolute; top:1%; right: 5%; font-size: 2em;" class="red-text modal-action modal-close">&times;</a>
     </div>
   </div>
-
-
 </main>
 
 
@@ -370,7 +373,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="https://unpkg.com/vuex"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
@@ -380,53 +382,6 @@
 
 
 <script>
-
-  const store = new Vuex.Store({
-      state: {
-        'analytics':Object,
-        'tags':Array
-      },
-      strict: true,
-      mutations: {
-        saveAnalytics(state,payload){
-          state.analytics = payload['analytics'];
-        },
-      },
-      getters:{
-        // exposed as store.getters.nameOfGetter
-        getHitsFor: (state) => (apiname) => {
-          let data={'labels':[],'datasets':[]};
-          let label = '';
-          let dataArray=[];
-
-          for (var i = 0; i < state.analytics.length; i++) {
-            if (state.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
-              label = state.analytics[i][0].toUpperCase();
-              if (label == "EXPANDED") {
-                label = "VIEWS"
-              }
-              data.labels.push(label);
-              let number = state.analytics[i][2];
-              dataArray.push(number)
-            }
-
-          }
-          data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
-          // console.log('user interactions...',data)
-          return data
-        },
-        getTags:(state)=>{
-          let pop = []
-          for (var i = 0; i < state.analytics.length; i++) {
-            if (state.analytics[i][0] ==='tag') {
-              pop.push({'name':state.analytics[i][1],'active':false,'count':state.analytics[i][2]})
-            }
-          }
-          return pop;
-        }
-
-      }
-    });
 
   Vue.component('status', {
     data: function(){
@@ -525,46 +480,21 @@
   });
 
   
-  // Refresh Button Component
   Vue.component('refresh', {
     data: function(){
       return{
-        //timeout before being able to refresh again
         counter:30,
-        //bind to disable attr while waiting
         currentlyRefreshing: false,
         text: 'refresh'
       }
     },
-    // declare the props
     props: ['refresh', 'title', 'id'],
-    // like data, the prop can be used inside templates and
-    // is also made available in the vm as this.message
     methods:{
-      countDown: function(){
-        this.counter --;
-        if( this.counter > 0 ){
-          setTimeout(this.countDown,1000);
-          this.currentlyRefreshing = true;
-          this.text =this.counter+'...';
-          var thisElement =$(this.$el);
-          thisElement[0].text=this.text;
-        }
-        else if ( this.counter === 0){
-          this.currentlyRefreshing = false;
-          this.counter = 30;
-          this.text = `<i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>`;
-          var thing =$(this.$el);
-          thing[0].innerHTML=this.text;
-        }
-      },
       getText: function(){
         return this.text;
-        //console.log(this.text);
       }
     },
     mounted: function(){
-      // mounted logic
       tippy('[data-tippy-content]',{
         placement: 'top',
         theme:'light',
@@ -574,12 +504,11 @@
         },
       });
     },
-    template: `<a class="btn btn-small" :disabled='currentlyRefreshing' @click="refresh(title,id); countDown()" :class="currentlyRefreshing ? 'grey' : 'green scale-in-center' ">
+    template: `<a class="btn btn-small" :disabled='currentlyRefreshing' @click="refresh(title,id);" :class="currentlyRefreshing ? 'grey' : 'green scale-in-center' ">
                 <i class=" material-icons white-text">refresh</i>
               </a>`
   });
 
-  // Main Dashboard Component
     var app = new Vue({
         el: '#dashApp',
         data: function(){
@@ -596,14 +525,18 @@
             confirmDelete: true,
             searchQuery:'',
             searchResults:[],
-            sortASC: true,
             myShortName:'',
             availableShortName: false,
             hasShortName: false,
             createOrEditMode: false,
             invalidChars: false,
             takenSlug: false,
-            selectedAPIIndex:''
+            selectedAPIIndex:'',
+            loading: false,
+            // analytics
+            analytics: Object,
+            tags: Array
+
           }
         },
         computed:{
@@ -683,13 +616,6 @@
                 timer:1000})
             }
           },
-          getDetailsSearch(apiInfo){
-            for (var i = 0; i < this.apis.length; i++) {
-              if (this.apis[i]._id === apiInfo._id) {
-                this.selectedAPIIndex = i;
-              }
-            }
-          },
           getApis: function(){
             var self=this;
             self.apis=[];
@@ -737,19 +663,7 @@
               //sucessful deletion
               self.hideLoading();
               if( response.data.success ){
-                const toast = swal.mixin({
-                  toast: true,
-                  position: 'top',
-                  showConfirmButton: false,
-                  timer: 2000
-                });
-
-                toast({
-                  type: 'success',
-                  title: title+' was deleted!'
-                })
-                self.apis=[];
-                self.getApis();
+                window.location.reload()
               }else if( !response.data.success ){
                 const toast = swal.mixin({
                   toast: true,
@@ -764,9 +678,9 @@
                 })
               }
             }).catch(error=>{
-              //error deleting
               throw(error);
             });
+            
             self.getApis();
 
           },
@@ -856,16 +770,10 @@
             self.getApis();
           },
           showLoading: function(){
-            $('#loading-overlay').show();
+            this.loading = true;
           },
           hideLoading: function(){
-            $('#loading-overlay').hide();
-          },
-          sortApisByName: function(){
-            var self = this;
-            self.sortASC = !self.sortASC;
-            //var sortedAPIS = _.sortBy(self.apis,'info.title');
-            //return sortedAPIS;
+            this.loading = false;
           },
           getDetails: function(index){
             var self = this;
@@ -922,7 +830,7 @@
           setShortname: function(){
             //claim it button clicked
             var self = this;
-            $('#loadingCog').hide();
+            self.loading = false;
             axios.put('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+'?slug='+self.myShortName).then(response=>{
               if( response.data.success ){
                 self.apis[self.selectedAPIIndex]._meta.slug= response.data[self.apis[self.selectedAPIIndex]._id+'._meta.slug'];
@@ -942,9 +850,9 @@
 
                 self.createOrEditMode = false;
                 self.hasShortName = true;
-                $('#loadingCog').show();
+                self.loading = true;
               }else if( !response.data.success ){
-                $('#loadingCog').hide();
+                self.loading = false;
                 const toast = swal.mixin({
                   toast: true,
                   position: 'top',
@@ -964,7 +872,7 @@
           deleteSlug: function(){
             //delete it button clicked
             var self = this;
-            $('#loadingCog').hide();
+            self.loading = false;
             axios.delete('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+"?slug="+self.apis[self.selectedAPIIndex]._meta.slug).then(response=>{
               if( response.data.success ){
                 self.apis[self.selectedAPIIndex]._meta.slug= '';
@@ -981,9 +889,9 @@
                 })
                 self.createOrEditMode = false;
                 self.hasShortName = false;
-                $('#loadingCog').show();
+                self.loading = true;
               }else if( !response.data.success ){
-                $('#loadingCog').hide();
+                self.loading = false;
                 const toast = swal.mixin({
                   toast: true,
                   position: 'top',
@@ -1014,31 +922,43 @@
             var self = this;
             axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
               if (res.data.rows) {
-                var payload = {};
-                payload["analytics"] = res.data.rows;
-                store.commit('saveAnalytics',payload);
+                self.analytics = res.data.rows;
               }
-               // self.popularTags = _.orderBy(store.getters.getTags, ['name'],['desc'])
-
             }).catch(err=>{
               throw err;
             });
-          }
+          },
+          getHitsFor(apiname){
+            var self = this;
+            let data={'labels':[],'datasets':[]};
+            let label = '';
+            let dataArray=[];
+
+            for (var i = 0; i < self.analytics.length; i++) {
+              if (self.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
+                label = self.analytics[i][0].toUpperCase();
+                if (label == "EXPANDED") {
+                  label = "VIEWS"
+                }
+                data.labels.push(label);
+                let number = self.analytics[i][2];
+                dataArray.push(number)
+              }
+            }
+            data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
+            return data
+          },
         },
         mounted: function(){
-           // JQuery Initializations
-           this.showLoading();
-           this.getAnalytics();
-           this.getUserInfo();
+          let self = this;
+
+           self.showLoading();
+           self.getAnalytics();
+           self.getUserInfo();
            // tabs
            $('ul.tabs').tabs();
-
            // modals
            $('.modal').modal({dismissible: true});
-           // notifications
-           $('.tooltipped').tooltip({delay: 50});
-
-           $('.collapsible').collapsible();
 
            tippy( '#tippyParent', {
             target: '.specVersion',
@@ -1084,7 +1004,7 @@
             },
             onShown(instance){
               let name = instance.reference.dataset.tippyName;
-              let data = store.getters.getHitsFor(name);
+              let data = self.getHitsFor(name);
               var ctx = document.getElementById('myChart');
 
               new Chart(ctx, {
@@ -1229,17 +1149,15 @@
 
         },
         watch: {
-          // whenever input changes
-          inputApiName: function (input,old) {
+          inputApiName: function (input) {
             if(input.trim() === this.confirmModal.title){
               this.confirmDelete = false;
             }
             else{
               this.confirmDelete = true;
-              //Materialize.toast(this.inputApiName+' Does Not Match API Name', 4000,'rounded orange white-text');
             }
           },
-          searchQuery: function(query,old){
+          searchQuery: function(query){
             if(!query){
               this.searchResults = [];
             }else{
@@ -1247,17 +1165,7 @@
               this.searchResults = result;
             }
           },
-          sortASC: function(sort,old){
-            var self = this;
-            if (!sort) {
-              self.apis = _.sortBy(self.apis,'info.title');
-              $("#sortName").text('A-Z');
-            }else if (sort){
-              self.apis = _.sortBy(self.apis,'info.title').reverse();
-              $("#sortName").text('Z-A');
-            }
-          },
-          myShortName: function(shortname,old){
+          myShortName: function(shortname){
             var self = this;
             self.myShortName = self.myShortName.toLowerCase();
             var re = /[^a-zA-Z0-9\-\_\~]/;
@@ -1265,10 +1173,10 @@
             if (re.test(self.myShortName) ) {
               self.invalidChars = true;
             }
-            if( !re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50 ) {
+            if( !re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50 ) {
                 self.takenSlug = false;
                 self.evaluateShortname();
-            }else if(re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50){
+            }else if(re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50){
               self.invalidChars = true;
               self.availableShortName = false;
             }else{
