@@ -106,7 +106,7 @@
                 <small>Filters Most Active <br />(Last 30 days)</small>
               </div>
               <template v-for="(pop,index) in popularTags">
-                  <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="pushHistory();googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
+                  <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
                   {{index+1}} <small><span v-text="pop.type == 'tags' ? '#' : '@'"></span> <span v-text="pop.name"></span></small>
                 </a>
               </template>
@@ -188,7 +188,7 @@
                   <a class="blue btn" href="/registry">clear</a>
               </div>
           </form>
-          <div class="col s12 l10">
+          <div class="col s12 l10" id="myAPITipCont">
               <div class="row search-results" id="tippyParentCopy">
                   <div class="col s12" id="tippyParent">
                       <div class="blue-grey-text">
@@ -522,77 +522,6 @@ const store = new Vuex.Store({
               <div class="blue-grey-text">Source Status</div>
               <div v-text="status" :class='clss'></div>
             </div>`
-});
-
-  Vue.component('my-api', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-      issues: true
-    }
-  },
-  props: ['api_status'],
-  methods:{
-    getStatus(status){
-      let self = this;
-      if (status) {
-        switch (status) {
-          case 200:
-            self.status = "OK";
-            self.clss = 'green';
-            self.issues = false;
-            break;
-          case 299:
-            self.status = "OK";
-            self.clss = 'green';
-            break;
-          case 499:
-            self.status = "INVALID";
-            self.clss = 'red';
-            break;
-          case 599:
-            self.status = "BROKEN";
-            self.clss = 'purple';
-            break;
-          case 404:
-            self.status = "NOT FOUND";
-            self.clss = 'orange';
-            break;
-          default:
-          self.status = stat;
-          self.clss = 'black';
-        }
-      }else{
-        self.status = 'N/A';
-          self.clss = 'grey darken-1';
-      }
-    },
-  },
-  mounted: function(){
-    let self = this;
-
-    self.getStatus(self.api_status);
-
-    tippy( '#app', {
-    target: '.myAPI',
-    content: 'Loading...',
-    animateFill: false,
-    animation: 'fade',
-    theme:'light',
-    onShow(instance) {
-      let ok = !self.issues;
-      let cls = ok ? "blue-text" : "red-text";
-      let msg = ok ? "This API is registered by you." : "API metadata cannot be synchronized with its source URL due to an error. <br>Fix the issue and refresh it from your dashboard.";
-      
-      instance.setContent('<div style="padding:5px;"><h6 class="'+cls+'">'+msg+'</h6><h6 class="blue-text"><b>Click to go to your dashboard</b></h6></div>')
-    },
-  });
-
-  },
-  template: `<a href="/dashboard" class="versionBadge light-blue myAPI pointer">
-              My&nbsp;API <span v-if="issues" class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
-            </a>`
 });
 
   Vue.component('apicontainer', {
@@ -930,7 +859,13 @@ const store = new Vuex.Store({
             <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
               Swagger2
             </span>
-            <my-api v-if="userInfo && api._meta.username === userInfo.login" :api_status="api?._status?.refresh_status || 'n/a'"></my-api>
+            <a v-if="userInfo && api._meta.username === userInfo.login" 
+              :data-tippy-status="api?._status?.refresh_status || 'n/a' "
+                href="/dashboard" class="versionBadge light-blue pointer tipped">
+              My&nbsp;API 
+              <span v-if="api?._status?.refresh_status && api?._status?.refresh_status !== 200" 
+              class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
+            </a>
             <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
               <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
             </a>
@@ -975,7 +910,7 @@ const store = new Vuex.Store({
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags">
-              <a  :href="'registry?tags='+tag.name" @click="pushHistory();googleAnalytics('Registry_Tag', tag.name)" class="link">
+              <a  :href="'registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -1656,9 +1591,6 @@ const store = new Vuex.Store({
               }
             }
           },
-          pushHistory(){
-            // window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
-          }
       },
       created: function () {
           this.getUserInfo();
@@ -1673,20 +1605,30 @@ const store = new Vuex.Store({
             store.commit('saveContext',payload);
           }
 
-
       },
-      mounted:function(){
-        var self = this;
+      mounted: function(){
+      var self = this;
 
-        window.onpopstate = function(event) {
-          // console.log("%c State "+JSON.stringify(event.state),'color:limegreen')
-          // console.log("%c Current Location "+document.location,'color:lightyellow')
-          self.refreshApis();
-        };
+      window.onpopstate = function(event) {
+        self.refreshApis();
+      };
 
-        this.getAnalytics();
+      this.getAnalytics();
 
-        tippy( '#tippyParentCopy', {
+      tippy('#myAPITipCont',{
+            target: '.tipped',
+            placement: 'top',
+            theme:'light',
+            sticky:true,
+            interactive:true,
+            onShow(instance) {
+              let status = instance.reference.dataset.tippyStatus;
+              let msg = status == 200 ? 'This API belongs to you. Manage it on your <a href="/dashboard">dashboard</a>.' : '<b class="red-text">API metadata cannot be synchronized with its source URL due to an error.</b> <br>Fix the issue and refresh it from your <a href="/dashboard">dashboard</a>.'
+              instance.setContent("<div class='p-1 blue-text left-align'>"+msg+"</div>")
+            },
+          });
+
+      tippy( '#tippyParentCopy', {
           target: '.copyBtn',
           content:'Copied',
           animateFill: false,
@@ -1694,7 +1636,7 @@ const store = new Vuex.Store({
           theme:'light',
           trigger:'click'});
 
-          tippy( '#top-2', {
+      tippy( '#top-2', {
         target: '.urlStatus',
         content: `<div class="white" style="padding:0px;">
                     <table>
@@ -1758,7 +1700,7 @@ const store = new Vuex.Store({
         interactive:true,
       });
 
-          tippy( '#top', {
+      tippy( '#top', {
         target: '.apiStatus',
         content: `<div class="white" style="padding:0px;">
                     <table>
