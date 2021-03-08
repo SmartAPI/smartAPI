@@ -1,5 +1,7 @@
 ''' SmartAPI Configuration '''
 
+from copy import deepcopy
+
 from biothings.web.settings.default import QUERY_KWARGS
 
 from config_key import *
@@ -15,15 +17,14 @@ from config_key import *
 # *****************************************************************************
 # User Input Control
 # *****************************************************************************
+QUERY_KWARGS = deepcopy(QUERY_KWARGS)
 QUERY_KWARGS['*']['authors'] = {'type': list, 'group': 'esqb'}
 QUERY_KWARGS['*']['tags'] = {'type': list, 'group': 'esqb'}
 
 # *****************************************************************************
 # Elasticsearch
 # *****************************************************************************
-ES_INDICES = {
-    'metadata': 'smartapi_docs'
-}
+ES_INDICES = {'metadata': 'smartapi_docs'}
 
 # *****************************************************************************
 # Tornado URL Patterns
@@ -31,6 +32,7 @@ ES_INDICES = {
 APP_LIST = [
     (r'/api/?', 'handlers.api.APIHandler'),
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
+    (r'/api/annotation/(.+)/?', 'biothings.web.handlers.BiothingHandler', {"biothing_type": "metadata"}),
     (r'/api/validate/?', 'handlers.api.ValidateHandler'),
     (r'/api/metadata/?', 'handlers.api.APIHandler'),
     (r'/api/metadata/(.+)/?', 'handlers.api.APIHandler'),
