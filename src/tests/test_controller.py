@@ -369,7 +369,7 @@ def test_refresh_status():
     assert mygene.webdoc.status is None
     assert 'components' not in mygene
 
-    mygene.webdoc.update(File(200, MYGENE_FULL))  # new content
+    mygene.webdoc.update(File(200, MYGENE_FULL, None, None))  # new content
 
     assert mygene.webdoc.status == 299  # updated
     assert 'components' in mygene
@@ -383,7 +383,7 @@ def test_refresh_status():
     assert mygene_doc._status.refresh_status == 299
     assert 'components' in mygene_doc
 
-    mygene.webdoc.update(File(200, MYGENE_FULL))  # no change
+    mygene.webdoc.update(File(200, MYGENE_FULL, None, None))  # no change
 
     assert mygene.webdoc.status == 200  # latest
     assert 'components' in mygene
@@ -396,7 +396,7 @@ def test_refresh_status():
     assert mygene_doc._status.refresh_status == 200
     assert 'components' in mygene_doc
 
-    mygene.webdoc.update(File(404))  # link broken
+    mygene.webdoc.update(File(404, None, None, None))  # link broken
 
     assert mygene.webdoc.status == 404
     assert 'components' in mygene  # do not affect main copy
@@ -408,7 +408,7 @@ def test_refresh_status():
     assert mygene_doc._status.refresh_status == 404
     assert 'components' in mygene_doc
 
-    mygene.webdoc.update(File(200, MYGENE_FULL))  # link back working
+    mygene.webdoc.update(File(200, MYGENE_FULL, None, None))  # link back working
 
     assert mygene.webdoc.status == 200  # latest
     assert 'components' in mygene
@@ -420,7 +420,7 @@ def test_refresh_status():
     assert mygene_doc._status.refresh_status == 200
     assert 'components' in mygene_doc
 
-    mygene.webdoc.update(File(200, b'{"openapi":"3.0.0"}'))  # invalid
+    mygene.webdoc.update(File(200, b'{"openapi":"3.0.0"}', None, None))  # invalid
 
     assert mygene.webdoc.status == 499  # invalid
     assert 'components' in mygene  # do not affect main copy
