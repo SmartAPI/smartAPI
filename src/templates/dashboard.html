@@ -3,6 +3,34 @@
 {% block content %}
 {% include "header.html" %}
 {% raw %}
+<style>
+.pillStatus{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: stretch;
+  margin: 5px;
+}
+.pillStatus div{
+  flex-grow: 1;
+  flex-basis: 50%;
+  align-content: center;
+  padding: 3px 6px;
+  text-align: center;
+  font-size: .8em !important;
+  color: #434849;
+}
+.pillStatus div:first-child{
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.pillStatus div:last-child{
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.m-2{
+  margin: 1rem;
+}
+</style>
 <main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3" v-cloak>
   <!-- IF NO USER INFO DISPLAY LOGIN-->
   <div v-if="!userInfo.login" class="padding20 card-panel white center-align">
@@ -14,7 +42,7 @@
     </a>
   </div>
   <!-- LOADING -->
-  <div id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
+  <div v-if="loading" id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
     <div class="center-align" style="padding-top: 300px;">
       <object width="100px"  alt="Loading" data="/static/img/fly.gif" class=""></object>
       <h3 class="white-text logoFont">Loading...</h3>
@@ -53,103 +81,83 @@
           <div class="p-1 col s12">
             <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-light) 2px solid;"/>
           </div>
-          
-          <div class="col s12">
-            <ul class="tabs transparent">
-              <li class="tab col s3 transparent">
-                <a class="white-text textShadow " href="#contributions">
-                  APIs <span class="l-blue-text">({{total}})</span>
-                </a>
-              </li>
-            </ul>
-          </div>
 
-          <div id="contributions" class="col s12 card-panel" style="padding:0;">
-              <div class="s12">
-                <ul class="collection resultsContainer">
-                  <li class="collection-item" v-for="(api,index) in results" style="margin-bottom:0px;padding: 0px;">
-                    <div class="row" style="padding: 0px; margin-bottom:0px;">
-                      <div class="col s12 row" style="padding: 0px; 
-                      margin-bottom:0px;
-                      display: flex;
-                      align-items: center;
-                      flex-wrap: wrap;">
-                        <div class="col s6 m3 p-1">
-                          <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
-                            <h6><b>{{ api.info.title }}</b></h6>
-                          </a>
-                          <small>
-                            <span class="grey-text smallFont">V.{{api.info.version}}</span>
-                          </small>
-                        </div>
-                        <div class="col s6 m3 p-1">
-                          <h6>
-                            <small class="grey-text"><i class="fa fa-clock-o" aria-hidden="true"></i> Last Updated </small>
-                          </h6>
-                          <small>
-                            <span class="green-text"> {{ convertDate(api._meta.last_updated) }}</span>
-                          </small>
-                        </div>
-                        <div class="col s4 m2 p-1">
-                          <refresh :refresh='refreshingThis' :title='api.info.title' :id="api._id" 
-                          data-tippy-content="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)"></refresh>
-                        </div>
-                        <div class="col s4 m2 p-1">
-                          <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text" 
-                          data-tippy-content="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
-                            <i class="material-icons white-text">check</i>
+          <div class="col s12 card-panel">
+            <table class="striped highlight responsive-table">
+              <thead>
+                <tr class="grey-text">
+                    <th>Name</th>
+                    <th>Last Updated</th>
+                    <th>Refresh | Validate</th>
+                    <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(api,index) in results" :key="index">
+                  <td>
+                    <h6 class="left-align">
+                      <b>{{ api.info.title }}</b>
+                      <small>
+                        <span class="grey-text">V.{{api.info.version}}</span>
+                      </small>
+                      <small v-if="api.hasOwnProperty('openapi')" class="green-text">
+                        OAS3
+                      </small>
+                      <small v-else-if="api.hasOwnProperty('swagger')" class="blue-text">
+                        Swagger2
+                      </small>
+                      <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
+                        <small><i class="tiny material-icons">settings</i> Settings</small>
+                      </a>
+                    </h6>
+                    
+                  </td>
+                  <td>
+                    <small>
+                      <b class="green-text"> {{ convertDate(api._meta.last_updated) }}</b>
+                    </small>
+                  </td>
+                  <td>
+                    <div class="row m-0">
+                      <div class="col s12 m6 p-1">
+                        <button type="button" class="btn btn-small tipped green scale-in-center" data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)" 
+                          @click="refreshThis(api.info.title,api._id);">
+                          <i class=" material-icons white-text">refresh</i>
                         </button>
-                        </div>
-                        <div class="col s4 m2 p-1">
-                          <a href="#modal1" @click="deleteAPI(api.info.title, api._id)" class="btn btn-small scale-in-center red white-text modal-trigger" 
-                          data-tippy-content="<b class='red-text'>Delete</b> <br/>(Delete API metadata from SmartAPI registry permanently - cannot be undone)">
-                            <i class="material-icons white-text">delete_forever</i>
-                          </a>
-                        </div>
                       </div>
-                      <div class="col s12 row" style="padding: 0px; margin-bottom:0px;background-color: rgba(0, 0, 0, .05);">
-                        <div class="col s6 m3">
-                          <a href="#" class='popularity pointer blue-text' :data-tippy-name='api.info.title' :data-tippy-id='api._id'>
-                            <small><i class="fa fa-bar-chart"></i> User Interactions</small>
-                          </a>
-                        </div>
-                        <div class="col s6 m3">
-                          <small>Specification </small>
-                          <span v-if=" api.hasOwnProperty('openapi')" style="font-size:75%" class="smallFont badge green white-text" data-tippy-content="<b class='green-text'>OpenAPI 3</b> Specification">
-                            OAS3
-                          </span>
-                          <span v-else-if=" api.hasOwnProperty('swagger')" style="font-size:75%" class="smallFont badge blue white-text" data-tippy-content="<b class='blue-text'>Swagger 2</b> Specification">
-                            Swagger2
-                          </span>
-                        </div>
-                        <div class="col s6 m3">
-                          <small>API Status </small> <status :api='api'></status>
-                        </div>
-                        <div class="col s6 m3">
-                          <small>Source Status </small>
-                          <source-status :api='api'></source-status>
-                        </div>
+                      <div class="col s12 m6 p-1">
+                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text tipped"
+                        data-tippy-info="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
+                          <i class="material-icons white-text">check</i>
+                      </button>
                       </div>
                     </div>
-                  </li>
-                  <div v-if="apis.length === 0">
-                    <small class="center-align grey lighten-3">
-                      <span class="grey-text smallFont">No Contributions Yet</span><br>
-                    </small>
-                  </div>
-                </ul>
-              </div>
+                  </td>
+                  <td>
+                    <status :api='api'></status>
+                    <source-status :api='api'></source-status>
+                  </td>
+                </tr>
+                <tr v-if="apis.length === 0">
+                  <td colspan="4" class="center-align">
+                    <h4>No Contributions Yet</h4><br>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
         </div>
     </div>
   </div>
-  <div class="grey lighten-5 padding20 blue-text center">
-      <small>
+
+  <div class="blue-grey lighten-2 padding20 white-text center">
+      <p>
         <i class="material-icons">error_outline</i> Did you know you can set a custom slug for your API's documentation? It's easy! Just click on any API on your dashboard and go to the <em>Settings</em> tab.<br />
         Use the <em>Custom Slug Registration Wizard</em> and get a custom URL for your API's documentation. E.g. <b>&lt;slug&gt;.smart-api.info</b>
-      </small>
+      </p>
   </div>
+
   <!-- Modal for Deletion Confirmation -->
   <div id="modal1" class="modal center-align">
     <div class="modal-content">
@@ -176,7 +184,8 @@
         <div class="col s12">
           <ul class="tabs transparent">
             <li class="tab col s3"><a href="#test1" class="active blue-text">About</a></li>
-            <li class="tab col s3"><a class="blue-text" href="#test2"><i class="tiny material-icons">settings</i> Settings</a></li>
+            <li class="tab col s3"><a class="blue-text" href="#test2">Slug Registration</a></li>
+            <li class="tab col s3"><a class="blue-text" href="#test3" @click="renderUserInteractions(apis[selectedAPIIndex].info.title)">User Interactions</a></li>
           </ul>
         </div>
 
@@ -214,7 +223,12 @@
                 </div>
                 <hr />
               </template>
-              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue">View API Doc</a>
+              <div class="d-flex padding20" style="justify-content: center;">
+                <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
+                <div class='grey lighten-3 p-1 indigo-text'><small v-text="apis[selectedAPIIndex]._id"></small></div>
+              </div>
+              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue m-2">View API Documentation</a>
+              <a :href="'/registry?q='+apis[selectedAPIIndex]._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
             </li>
             <template v-for='link in checkForAPIInfoLink(apis[selectedAPIIndex])'>
               <li  class="collection-item blue-grey lighten-4">
@@ -231,6 +245,16 @@
               <a v-if="apis[selectedAPIIndex].info.termsOfService" :href="apis[selectedAPIIndex].info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
               <a v-if="apis[selectedAPIIndex].termsOfService" :href="apis[selectedAPIIndex].termsOfService" target="_blank" class="blue-text">Terms of Service</a>
 
+            </li>
+            <li class="collection-item deep-orange lighten-2">
+              <h5>Danger Zone</h5>
+              <p>
+                Delete API metadata from SmartAPI registry permanently. This action cannot be undone.
+              </p>
+              <button type="button" @click="deleteForever(apis[selectedAPIIndex].info.title, apis[selectedAPIIndex]._id)" class="btn btn-small red white-text" 
+              data-tippy-content="<b class='red-text'>Delete Forever</b>">
+                Delete API
+              </button>
             </li>
           </ul>
         </div>
@@ -287,7 +311,7 @@
                   <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
                   <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
                   <br />
-                  <span v-if="myShortName.length <= 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
+                  <span v-if="myShortName.length < 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
                   <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length <= 3 && invalidChars"/>
                   <span v-if="invalidChars" class="red-text"><i class="tiny material-icons">warning</i> Invalid Characters</span>
                   <span v-if="takenSlug" class="orange-text"><i class="tiny material-icons">warning</i> Taken Slug</span>
@@ -304,12 +328,27 @@
             </div>
           </div>
         </div>
+
+        <div id="test3" class="col s12 white">
+          <div v-if="selectedAPIIndex || selectedAPIIndex === 0" class="row">
+            <div class="col s12 m12 l12 center-align">
+              <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
+            </div>
+            <div>
+              <h6 class="blue-text" v-text='apis[selectedAPIIndex].info.title'></h6>
+              <canvas id="myChart" width="400" height="400"></canvas>
+              <div>
+                <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
       </div>
       <a href="#!" style="position: absolute; top:1%; right: 5%; font-size: 2em;" class="red-text modal-action modal-close">&times;</a>
     </div>
   </div>
-
-
 </main>
 
 
@@ -318,7 +357,6 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="https://unpkg.com/vuex"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
@@ -329,205 +367,109 @@
 
 <script>
 
-const store = new Vuex.Store({
-    state: {
-      'analytics':Object,
-      'tags':Array
-    },
-    strict: true,
-    mutations: {
-      saveAnalytics(state,payload){
-        state.analytics = payload['analytics'];
-      },
-    },
-    getters:{
-      // exposed as store.getters.nameOfGetter
-      getHitsFor: (state) => (apiname) => {
-        let data={'labels':[],'datasets':[]};
-        let label = '';
-        let dataArray=[];
-
-        for (var i = 0; i < state.analytics.length; i++) {
-          if (state.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
-            label = state.analytics[i][0].toUpperCase();
-            if (label == "EXPANDED") {
-              label = "VIEWS"
-            }
-            data.labels.push(label);
-            let number = state.analytics[i][2];
-            dataArray.push(number)
-          }
-
-        }
-        data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
-        // console.log('user interactions...',data)
-        return data
-      },
-      getTags:(state)=>{
-        let pop = []
-        for (var i = 0; i < state.analytics.length; i++) {
-          if (state.analytics[i][0] ==='tag') {
-            pop.push({'name':state.analytics[i][1],'active':false,'count':state.analytics[i][2]})
-          }
-        }
-        return pop;
+  Vue.component('status', {
+    data: function(){
+      return{
+        status:'',
+        clss:'',
       }
-
-    }
-  });
-
-Vue.component('status', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-    }
-  },
-  props: ['api'],
-  methods:{
-    getStatus(api){
-      let self = this;
-      if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('uptime_status')) {
-        let stat = api['_status']['uptime_status'];
-        switch (stat) {
-          case 'unknown':
-            self.status = 'UNKNOWN';
-            self.clss = 'orange';
-            break;
-          case 'good':
-            self.status = 'PASS';
-            self.clss = 'green';
-            break;
-          case 'bad':
-            self.status = 'BAD';
-            self.clss = 'red';
-            break;
-          case 'incompatible':
-            self.status = 'INCOMPATIBLE';
-            self.clss = 'blue';
-            break;
-          default:
+    },
+    props: ['api'],
+    methods:{
+      getStatus(api){
+        let self = this;
+        if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('uptime_status')) {
+          let stat = api['_status']['uptime_status'];
+          switch (stat) {
+            case 'unknown':
+              self.status = 'UNKNOWN';
+              self.clss = 'orange';
+              break;
+            case 'good':
+              self.status = 'PASS';
+              self.clss = 'green';
+              break;
+            case 'bad':
+              self.status = 'BAD';
+              self.clss = 'red';
+              break;
+            case 'incompatible':
+              self.status = 'INCOMPATIBLE';
+              self.clss = 'blue';
+              break;
+            default:
+            self.status = 'N/A';
+            self.clss = 'grey';
+          }
+        }else{
           self.status = 'N/A';
           self.clss = 'grey';
         }
-      }else{
-        self.status = 'N/A';
-        self.clss = 'grey';
-      }
-    },
-  },
-  mounted: function(){
-    this.getStatus(this.api);
-  },
-  template: `<span class="badge apiStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
-});
-
-Vue.component('source-status', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-    }
-  },
-  props: ['api'],
-  methods:{
-    getStatus(api){
-      let self = this;
-      if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('refresh_status')) {
-        let stat = api['_status']['refresh_status'];
-        switch (stat) {
-          case 200:
-            self.status = "OK";
-            self.clss = 'green';
-            break;
-          case 299:
-            self.status = "OK";
-            self.clss = 'green';
-            break;
-          case 499:
-            self.status = "INVALID";
-            self.clss = 'red';
-            break;
-          case 599:
-            self.status = "BROKEN";
-            self.clss = 'purple';
-            break;
-          case 404:
-            self.status = "NOT FOUND";
-            self.clss = 'orange';
-            break;
-          default:
-          self.status = stat;
-          self.clss = 'black';
-        }
-      }else{
-        self.status = 'N/A';
-        self.clss = 'grey darken-1';
-      }
-    },
-  },
-  mounted: function(){
-    this.getStatus(this.api);
-  },
-  template: `<span class="badge urlStatus white-text" style="font-size:75%" :class='clss' v-text="status"></span>`
-});
-
-
-  // Refresh Button Component
-  Vue.component('refresh', {
-    data: function(){
-      return{
-        //timeout before being able to refresh again
-        counter:30,
-        //bind to disable attr while waiting
-        currentlyRefreshing: false,
-        text: 'refresh'
-      }
-    },
-    // declare the props
-    props: ['refresh', 'title', 'id'],
-    // like data, the prop can be used inside templates and
-    // is also made available in the vm as this.message
-    methods:{
-      countDown: function(){
-        this.counter --;
-        if( this.counter > 0 ){
-          setTimeout(this.countDown,1000);
-          this.currentlyRefreshing = true;
-          this.text =this.counter+'...';
-          var thisElement =$(this.$el);
-          thisElement[0].text=this.text;
-        }
-        else if ( this.counter === 0){
-          this.currentlyRefreshing = false;
-          this.counter = 30;
-          this.text = `<i class=" material-icons white-text"  @mouseenter="$event.target.classList.add('rotate')" @mouseleave="$event.target.classList.remove('rotate')">refresh</i>`;
-          var thing =$(this.$el);
-          thing[0].innerHTML=this.text;
-        }
       },
-      getText: function(){
-        return this.text;
-        //console.log(this.text);
-      }
     },
     mounted: function(){
-      // mounted logic
-      tippy('[data-tippy-content]',{
-        placement: 'top',
-        theme:'light',
-        onShow(instance) {
-          let msg = instance.reference.dataset.tippyContent;
-          instance.setContent('<div style="padding:5px;"><h6 class="blue-text">'+msg+'</h6></div>')
-        },
-      });
+      this.getStatus(this.api);
     },
-    template: `<a class="btn btn-small" :disabled='currentlyRefreshing' @click="refresh(title,id); countDown()" :class="currentlyRefreshing ? 'grey' : 'green scale-in-center' ">
-                <i class=" material-icons white-text">refresh</i>
-              </a>`
+    template: `<div class="pillStatus apiStatus pointer" style="float: none !important;">
+                <div>Uptime</div>
+                <div class="white-text center-align" :class='clss' v-text="status"></div>
+              </div>`
   });
 
-  // Main Dashboard Component
+  Vue.component('source-status', {
+    data: function(){
+      return{
+        status:'',
+        clss:'',
+      }
+    },
+    props: ['api'],
+    methods:{
+      getStatus(api){
+        let self = this;
+        if (api.hasOwnProperty('_status') && api['_status'].hasOwnProperty('refresh_status')) {
+          let stat = api['_status']['refresh_status'];
+          switch (stat) {
+            case 200:
+              self.status = "OK";
+              self.clss = 'green';
+              break;
+            case 299:
+              self.status = "OK";
+              self.clss = 'green';
+              break;
+            case 499:
+              self.status = "INVALID";
+              self.clss = 'red';
+              break;
+            case 599:
+              self.status = "BROKEN";
+              self.clss = 'purple';
+              break;
+            case 404:
+              self.status = "NOT FOUND";
+              self.clss = 'orange';
+              break;
+            default:
+            self.status = stat;
+            self.clss = 'black';
+          }
+        }else{
+          self.status = 'N/A';
+          self.clss = 'grey darken-1';
+        }
+      },
+    },
+    mounted: function(){
+      this.getStatus(this.api);
+    },
+    template: `<div class="pillStatus urlStatus pointer" style="float: none !important;">
+                <div>Source</div>
+                <div class="white-text center-align" :class='clss' v-text="status"></div>
+              </div>`
+  });
+
+
     var app = new Vue({
         el: '#dashApp',
         data: function(){
@@ -544,14 +486,18 @@ Vue.component('source-status', {
             confirmDelete: true,
             searchQuery:'',
             searchResults:[],
-            sortASC: true,
             myShortName:'',
             availableShortName: false,
             hasShortName: false,
             createOrEditMode: false,
             invalidChars: false,
             takenSlug: false,
-            selectedAPIIndex:''
+            selectedAPIIndex:'',
+            loading: false,
+            // analytics
+            analytics: Object,
+            tags: Array
+
           }
         },
         computed:{
@@ -560,15 +506,46 @@ Vue.component('source-status', {
           }
         },
         methods:{
+          renderUserInteractions(name){
+              let self = this;
+              let data = self.getHitsFor(name);
+              var ctx = document.getElementById('myChart');
+
+              new Chart(ctx, {
+                  'type': 'bar',
+                  'data': data,
+                  'options': {
+                    'legend': { display: false },
+                    'title': {
+                      display: true,
+                      text: 'User Interactions (Last 30 days)'
+                    },
+                    'scales': {
+                      yAxes: [{
+                          ticks: {
+                              precision:0
+                          }
+                      }],
+                  },
+                  }
+              });
+          },
           validate(url){
             let self = this;
             if (url) {
-              axios.post('/api/validate',{'url':url}).then(res=>{
-                console.log(res.data)
+              var bodyFormData = new FormData();
+              bodyFormData.append('url', url);
+              axios({
+                  method: "post",
+                  url: '/api/validate',
+                  data: bodyFormData,
+                  headers: { "Content-Type": "multipart/form-data" },
+                }).then(res=>{
                 swal({
                     imageUrl: '/static/img/api-sucess.svg',
                     imageWidth: 300,
                     title: 'Great! Everything looks good!',
+                    footer: "<h5 class='green-text'>" + res.data.details + "</h5>"
                   })
               }).catch(err=>{
                 if(err.hasOwnProperty('response') && err.response.hasOwnProperty('data')){
@@ -623,25 +600,17 @@ Vue.component('source-status', {
                 timer:1000})
             }
           },
-          getDetailsSearch(apiInfo){
-            for (var i = 0; i < this.apis.length; i++) {
-              if (this.apis[i]._id === apiInfo._id) {
-                this.selectedAPIIndex = i;
-              }
-            }
-          },
           getApis: function(){
             var self=this;
+
             self.apis=[];
-            var params = {
-                "params": {
-                    'fields': 'info,_meta,tags,openapi,swagger,_status'
-                }
-            };
-            axios.get("/api/query?size=100&q=_meta.username:"+self.userInfo.login,params).then(function(response){
-                  self.apis = response.data.hits;
+            let url = "/api/query?size=100&q=_meta.username:"+self.userInfo.login
+
+            axios.get(`${url}&timestamp=${new Date().getTime()}`).then(function(response){
+                  self.apis = _.sortBy(response.data.hits,'info.title');
                   self.total = response.data.total;
                   self.hideLoading();
+
               }).catch(err=>{
                 const toast = swal.mixin({
                   toast: true,
@@ -662,12 +631,6 @@ Vue.component('source-status', {
           compiledMarkdown: function (mdtext) {
               return marked(mdtext, { sanitize: true })
           },
-          deleteAPI: function(title, id){
-            // api information sent to modal for confirmation to be deleted
-            var self = this;
-            self.confirmModal.title= title;
-            self.confirmModal.id = id;
-          },
           deleteForever: function(title, apiID){
             // ID for api to be deleted forever
             var self = this;
@@ -676,19 +639,7 @@ Vue.component('source-status', {
               //sucessful deletion
               self.hideLoading();
               if( response.data.success ){
-                const toast = swal.mixin({
-                  toast: true,
-                  position: 'top',
-                  showConfirmButton: false,
-                  timer: 2000
-                });
-
-                toast({
-                  type: 'success',
-                  title: title+' was deleted!'
-                })
-                self.apis=[];
-                self.getApis();
+                window.location.reload()
               }else if( !response.data.success ){
                 const toast = swal.mixin({
                   toast: true,
@@ -747,7 +698,7 @@ Vue.component('source-status', {
                   imageWidth: 200,
                   confirmButtonText: 'OK',
                   html: "<h5 class='red-text'>New version found but there's validation errors.</h5>",
-                  footer: "<p>Try loading your newest version into this <a href='/editor'>editor</a>, or try to add as a new API to see detailed validation error.</p>"
+                  footer: "<p>Click on <b class='indigo-text'>Validate Only</b> to see validation results. Once they are resolved you can <b class='green-text'>Refresh</b> and synchronize your metadata to its latest version.</p>"
                 })
                 break;
 
@@ -769,7 +720,7 @@ Vue.component('source-status', {
                 break;
             }
           },
-          refreshingThis: function(title, id){
+          refreshThis: function(title, id){
             var self = this;
             self.showLoading();
             axios.put('/api/metadata/'+id).then(res=>{
@@ -795,16 +746,10 @@ Vue.component('source-status', {
             self.getApis();
           },
           showLoading: function(){
-            $('#loading-overlay').show();
+            this.loading = true;
           },
           hideLoading: function(){
-            $('#loading-overlay').hide();
-          },
-          sortApisByName: function(){
-            var self = this;
-            self.sortASC = !self.sortASC;
-            //var sortedAPIS = _.sortBy(self.apis,'info.title');
-            //return sortedAPIS;
+            this.loading = false;
           },
           getDetails: function(index){
             var self = this;
@@ -861,7 +806,7 @@ Vue.component('source-status', {
           setShortname: function(){
             //claim it button clicked
             var self = this;
-            $('#loadingCog').hide();
+            self.loading = false;
             axios.put('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+'?slug='+self.myShortName).then(response=>{
               if( response.data.success ){
                 self.apis[self.selectedAPIIndex]._meta.slug= response.data[self.apis[self.selectedAPIIndex]._id+'._meta.slug'];
@@ -881,9 +826,9 @@ Vue.component('source-status', {
 
                 self.createOrEditMode = false;
                 self.hasShortName = true;
-                $('#loadingCog').show();
+                self.loading = true;
               }else if( !response.data.success ){
-                $('#loadingCog').hide();
+                self.loading = false;
                 const toast = swal.mixin({
                   toast: true,
                   position: 'top',
@@ -903,7 +848,7 @@ Vue.component('source-status', {
           deleteSlug: function(){
             //delete it button clicked
             var self = this;
-            $('#loadingCog').hide();
+            self.loading = false;
             axios.delete('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+"?slug="+self.apis[self.selectedAPIIndex]._meta.slug).then(response=>{
               if( response.data.success ){
                 self.apis[self.selectedAPIIndex]._meta.slug= '';
@@ -920,9 +865,9 @@ Vue.component('source-status', {
                 })
                 self.createOrEditMode = false;
                 self.hasShortName = false;
-                $('#loadingCog').show();
+                self.loading = true;
               }else if( !response.data.success ){
-                $('#loadingCog').hide();
+                self.loading = false;
                 const toast = swal.mixin({
                   toast: true,
                   position: 'top',
@@ -953,164 +898,119 @@ Vue.component('source-status', {
             var self = this;
             axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
               if (res.data.rows) {
-                var payload = {};
-                payload["analytics"] = res.data.rows;
-                store.commit('saveAnalytics',payload);
+                self.analytics = res.data.rows;
               }
-               // self.popularTags = _.orderBy(store.getters.getTags, ['name'],['desc'])
-
             }).catch(err=>{
               throw err;
             });
-          }
+          },
+          getHitsFor(apiname){
+            var self = this;
+            let data={'labels':[],'datasets':[]};
+            let label = '';
+            let dataArray=[];
+
+            for (var i = 0; i < self.analytics.length; i++) {
+              if (self.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
+                label = self.analytics[i][0].toUpperCase();
+                if (label == "EXPANDED") {
+                  label = "VIEWS"
+                }
+                data.labels.push(label);
+                let number = self.analytics[i][2];
+                dataArray.push(number)
+              }
+            }
+            data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
+            return data
+          },
         },
         mounted: function(){
-           // JQuery Initializations
-           this.showLoading();
-           this.getAnalytics();
-           this.getUserInfo();
-           // tabs
-           $('ul.tabs').tabs();
+          let self = this;
 
-           // modals
-           $('.modal').modal({dismissible: true});
-           // notifications
-           $('.tooltipped').tooltip({delay: 50});
+          self.showLoading();
+          self.getAnalytics();
+          self.getUserInfo();
+          // tabs
+          $('ul.tabs').tabs();
+          // modals
+          $('.modal').modal({dismissible: true});
 
-           $('.collapsible').collapsible();
-
-           tippy( '#tippyParent', {
-            target: '.specVersion',
-            content: `<div class="white" style="padding:0px;">
-                        <table>
-                          <tbody>
-                            <tr>
-                              <td class='green-text center'>
-                                <b>OAS3</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                The OpenAPI Specification (OAS) (new version) defines a standard, language-agnostic interface to RESTful APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. <a href="https://swagger.io/specification/" target="_blank">Learn more</a>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class='blue-text center'>
-                                <b>Swagger2</b>
-                              </td>
-                              <td class="blue-grey-text">
-                                Swagger (older version) allows you to describe the structure of your APIs so that machines can read them. <a href="https://swagger.io/specification/" target="_blank">Learn more</a>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>`,
-            placement: 'left',
+          tippy('#dashApp',{
+            target: '.tipped',
+            placement: 'top',
             theme:'light',
-            trigger:'click',
             sticky:true,
             interactive:true,
-          });
-
-
-          tippy( '#dashApp', {
-            target:'.popularity',
-            content: 'Loading...',
-            animateFill: false,
-            animation: 'fade',
-            theme:'light',
-            trigger:'click',
             onShow(instance) {
-              let name = instance.reference.dataset.tippyName;
-              instance.setContent('<h6 class="blue-text">'+name+'</h6><canvas id="myChart" width="400" height="400"></canvas><div><small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small></div>')
+              let msg = instance.reference.dataset.tippyInfo;
+              instance.setContent("<div class='p-1 blue-text'>"+msg+"</div>")
             },
-            onShown(instance){
-              let name = instance.reference.dataset.tippyName;
-              let data = store.getters.getHitsFor(name);
-              var ctx = document.getElementById('myChart');
-
-              new Chart(ctx, {
-                  'type': 'bar',
-                  'data': data,
-                  'options': {
-                    'legend': { display: false },
-                    'title': {
-                      display: true,
-                      text: 'User Interactions (Last 30 days)'
-                    },
-                    'scales': {
-                      yAxes: [{
-                          ticks: {
-                              precision:0
-                          }
-                      }],
-                  },
-                  }
-              });
-            }
           });
 
           tippy( '#top-2', {
-        target: '.urlStatus',
-        content: `<div class="white" style="padding:0px;">
-                    <table>
-                      <thead>
-                        <tr>
-                          <td colspan="2" class='grey-text center'>
-                            <b>Source URL & Metadata Status</b>
-                          </td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class='green-text center'>
-                            <b>OK</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL is working and returns valid metadata.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='orange-text center'>
-                            <b>NOT FOUND</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL returns not found.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='red-text center'>
-                            <b>INVALID</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL works but contains invalid metadata.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='purple-text center'>
-                            <b>BROKEN</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL is broken.</small>
-                          </td>
-                        </tr>
-                        <tr class="cyan lighten-5">
-                          <td colspan='2' class='blue-grey-text'>
-                            <p>
-                              <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
-                            </p>
-                            <p>
-                              <b>Need help?</b> Click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
-                            </p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>`,
-        placement: 'left',
-        theme:'light',
-        trigger:'click',
-        sticky:true,
-        interactive:true,
-      });
+      target: '.urlStatus',
+      content: `<div class="white" style="padding:0px;">
+                  <table>
+                    <thead>
+                      <tr>
+                        <td colspan="2" class='grey-text center'>
+                          <b>API Metadata Source URL Status</b>
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class='green-text center'>
+                          <b>OK</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL is working and returns valid metadata.</small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='orange-text center'>
+                          <b>NOT FOUND</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL returns not found.</small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='red-text center'>
+                          <b>INVALID</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL works but contains invalid metadata.</small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class='purple-text center'>
+                          <b>BROKEN</b>
+                        </td>
+                        <td class="black-text">
+                          <small>Source URL is broken.</small>
+                        </td>
+                      </tr>
+                      <tr class="cyan lighten-5">
+                        <td colspan='2' class='blue-grey-text'>
+                          <p>
+                            <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
+                          </p>
+                          <p>
+                            <b>Need help?</b> Click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>`,
+                placement: 'left-end',
+      theme:'light',
+      trigger:'click',
+      sticky:true,
+      interactive:true,
+    });
 
           tippy( '#top', {
         target: '.apiStatus',
@@ -1119,7 +1019,7 @@ Vue.component('source-status', {
                       <thead>
                         <tr>
                           <td colspan="2" class='grey-text center'>
-                            <b>Overall API Endpoint Status</b>
+                            <b>Overall API Endpoint Uptime Status</b>
                           </td>
                         </tr>
                       </thead>
@@ -1159,7 +1059,7 @@ Vue.component('source-status', {
                       </tbody>
                     </table>
                   </div>`,
-        placement: 'left',
+                  placement: 'left-end',
         theme:'light',
         trigger:'click',
         sticky:true,
@@ -1169,17 +1069,15 @@ Vue.component('source-status', {
 
         },
         watch: {
-          // whenever input changes
-          inputApiName: function (input,old) {
+          inputApiName: function (input) {
             if(input.trim() === this.confirmModal.title){
               this.confirmDelete = false;
             }
             else{
               this.confirmDelete = true;
-              //Materialize.toast(this.inputApiName+' Does Not Match API Name', 4000,'rounded orange white-text');
             }
           },
-          searchQuery: function(query,old){
+          searchQuery: function(query){
             if(!query){
               this.searchResults = [];
             }else{
@@ -1187,17 +1085,7 @@ Vue.component('source-status', {
               this.searchResults = result;
             }
           },
-          sortASC: function(sort,old){
-            var self = this;
-            if (!sort) {
-              self.apis = _.sortBy(self.apis,'info.title');
-              $("#sortName").text('A-Z');
-            }else if (sort){
-              self.apis = _.sortBy(self.apis,'info.title').reverse();
-              $("#sortName").text('Z-A');
-            }
-          },
-          myShortName: function(shortname,old){
+          myShortName: function(shortname){
             var self = this;
             self.myShortName = self.myShortName.toLowerCase();
             var re = /[^a-zA-Z0-9\-\_\~]/;
@@ -1205,10 +1093,10 @@ Vue.component('source-status', {
             if (re.test(self.myShortName) ) {
               self.invalidChars = true;
             }
-            if( !re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50 ) {
+            if( !re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50 ) {
                 self.takenSlug = false;
                 self.evaluateShortname();
-            }else if(re.test(self.myShortName) && shortname.length > 3 && shortname.length <= 50){
+            }else if(re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50){
               self.invalidChars = true;
               self.availableShortName = false;
             }else{

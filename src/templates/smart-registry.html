@@ -106,7 +106,7 @@
                 <small>Filters Most Active <br />(Last 30 days)</small>
               </div>
               <template v-for="(pop,index) in popularTags">
-                  <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="pushHistory();googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
+                  <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
                   {{index+1}} <small><span v-text="pop.type == 'tags' ? '#' : '@'"></span> <span v-text="pop.name"></span></small>
                 </a>
               </template>
@@ -122,7 +122,7 @@
                     <div class="collection">
                       <div class="colllection-item padding20">
                         <template v-for="tag in tags">
-                          <a class="getBTEApis chip" :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" href="#!"  @click.prevent="tag.active = !tag.active;search(query); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
+                          <a class="chip" :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" href="#!"  @click.prevent="tag.active = !tag.active;search(query); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
                         </template>
                       </div>
                     </div>
@@ -136,7 +136,7 @@
                     <div class="collection">
                       <div class="colllection-item padding20">
                         <template v-for="author in authors" >
-                          <a :class="{ active: author.active, blue: author.active }" href="#!" class="getBTEApis chip" @click.prevent="author.active = !author.active;search(query); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
+                          <a :class="{ active: author.active, blue: author.active }" href="#!" class="chip" @click.prevent="author.active = !author.active;search(query); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
                         </template>
                       </div>
                     </div>
@@ -147,14 +147,14 @@
           <form class="col s12 l10 center-align" @submit.prevent="search(query)" id="api_search_form">
             <template v-if='specialTagsUI'>
               <div  class="col s12 l3 input-field center-align">
-                <a class='tooltipped' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
-                  <img v-if="specialTagsUI" width="auto" style="max-height: 40px; max-width:100%;" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
+                <a class='tooltipped p-1' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
+                  <img v-if="specialTagsUI" width="70%" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
                 </a>
                 <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">
-                  <a class="blue-text d-block" href="/portal/translator">
-                    Go to portal <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                  <a class="btn blue white-text d-block" href="/portal/translator" style="margin: 5px 0px;">
+                    Go to portal
                   </a>
-                  <a class="purple-text d-block" href="/portal/translator/metakg">
+                  <a class="btn purple white-text d-block" href="/portal/translator/metakg">
                     <i class="fa fa-connectdevelop" aria-hidden="true"></i>Search MetaKG Graph <i class="fa fa-chevron-right" aria-hidden="true"></i>
                   </a>
                 </div>
@@ -188,12 +188,12 @@
                   <a class="blue btn" href="/registry">clear</a>
               </div>
           </form>
-          <div class="col s12 l10">
+          <div class="col s12 l10" id="myAPITipCont">
               <div class="row search-results" id="tippyParentCopy">
                   <div class="col s12" id="tippyParent">
                       <div class="blue-grey-text">
                           <div class="row">
-                            <div class="col s5 m10">
+                            <div class="col s5 m10" v-if="total && total > 0">
                               Total APIs: <span class="blue-text">{{total}}</span>
                               <button :data-clipboard-text='shareURL' @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );" v-if="shareURLButtonVisible" class="smallButton grey copyBtn" title='Copy to clipboard'>
                                 <i class="fa fa-clipboard" aria-hidden="true"></i> Copy Search URL
@@ -210,7 +210,7 @@
                             </div>
                           </div>
                       </div>
-                      <template v-if="total === 0">
+                      <template v-if="total && total === 0">
                         <div class="card">
                           <div class="card-content center">
                             <i class="fa fa-exclamation-circle fa-2x grey-text" aria-hidden="true"></i>
@@ -218,8 +218,8 @@
                           </div>
                         </div>
                       </template>
-                      <template v-for="(api,index) in paginatedApis">
-                        <apicontainer :api="api" :key="index"></apicontainer>
+                      <template v-for="api in paginatedApis">
+                        <apicontainer :api="api" :key="api._id"></apicontainer>
                       </template>
                       <div class="row">
                           <div class="col s12 m6 l6">
@@ -275,14 +275,12 @@
       'metric1':'registry-item'
     }
   });
-</script>
-<script>
+  
 const store = new Vuex.Store({
     state: {
       'analytics':Object,
       'tags':Array,
       'userInfo': Object,
-      'bteapis' : [],
       'apis': [],
       'tags': [],
       'authors': [],
@@ -292,7 +290,7 @@ const store = new Vuex.Store({
     strict: true,
     mutations: {
       saveAnalytics(state,payload){
-        state.analytics = payload['analytics'];
+        state.analytics = Object.freeze(payload['analytics']);
         let pop = []
         for (var i = 0; i < state.analytics.length; i++) {
           if (state.analytics[i][0] ==='tag') {
@@ -318,11 +316,8 @@ const store = new Vuex.Store({
         state.userInfo = payload['user'];
         // console.log('USER',state.userInfo)
       },
-      saveBTEApis(state,payload){
-        state.bteapis= payload['apis'];
-      },
       saveApis(state,payload){
-        state.apis= payload['apis'];
+        state.apis= Object.freeze(payload['apis']);
         // console.log('APIS',state.apis)
       },
       saveTags(state,payload){
@@ -362,17 +357,9 @@ const store = new Vuex.Store({
             state.apis = _.sortBy(state.apis,'info.title').reverse();
             break;
           case 'Recently Updated':
-            // state.apis = _.sortBy(state.apis,'._meta.timestamp').reverse();
             state.apis = _.orderBy(state.apis, (o) => {
-              return moment(o['_meta']['timestamp']).format('YYYYMMDD')
+              return moment(o['_meta']['last_updated']).format('YYYYMMDD')
             }, ['desc'] );
-            // console.log('%c Date Sort Results','color:limegreen')
-            // for (let i = 0; i < state.apis.length; i++) {
-            //   let element = state.apis[i];
-            //   let time = moment(element['_meta']['timestamp']).format("L")
-            //   console.log(time)
-              
-            // }
             break;
           default:
             state.apis = _.sortBy(state.apis,'info.title');
@@ -404,9 +391,6 @@ const store = new Vuex.Store({
       },
       getUser:(state)=>{
         return state.userInfo
-      },
-      getBTEApis:(state)=>{
-        return state.bteapis
       },
       getApis:(state)=>{
         return state.apis
@@ -527,87 +511,17 @@ const store = new Vuex.Store({
     this.getStatus(this.api);
   },
   template: `<div v-if="api && api['_status']" class="urlStatus" title="Click to learn more">
-              <div class="blue-grey-text">Source Status</div>
+              <div class="blue-grey-text">Source</div>
               <div v-text="status" :class='clss'></div>
             </div>`
-});
-
-Vue.component('my-api', {
-  data: function(){
-    return{
-      status:'',
-      clss:'',
-      issues: true
-    }
-  },
-  props: ['api', 'userInfo'],
-  methods:{
-    getStatus(api){
-      let self = this;
-      if (api?._status?.refresh_status) {
-        let stat = api['_status']['refresh_status'];
-        switch (stat) {
-          case 200:
-            self.status = "OK";
-            self.clss = 'green';
-            self.issues = false;
-            break;
-          case 299:
-            self.status = "OK";
-            self.clss = 'green';
-            break;
-          case 499:
-            self.status = "INVALID";
-            self.clss = 'red';
-            break;
-          case 599:
-            self.status = "BROKEN";
-            self.clss = 'purple';
-            break;
-          case 404:
-            self.status = "NOT FOUND";
-            self.clss = 'orange';
-            break;
-          default:
-          self.status = stat;
-          self.clss = 'black';
-        }
-      }else{
-        self.status = 'N/A';
-          self.clss = 'grey darken-1';
-      }
-    },
-  },
-  mounted: function(){
-    let self = this;
-
-    self.getStatus(self.api);
-
-    tippy( '#app', {
-    target: '.myAPI',
-    content: 'Loading...',
-    animateFill: false,
-    animation: 'fade',
-    theme:'light',
-    onShow(instance) {
-      let ok = !self.issues;
-      let cls = ok ? "blue-text" : "red-text";
-      let msg = ok ? "This API is registered by you." : "API metadata cannot be synchronized with its source URL due to an error. <br>Fix the issue and refresh it from your dashboard.";
-      
-      instance.setContent('<div style="padding:5px;"><h6 class="'+cls+'">'+msg+'</h6><h6 class="blue-text"><b>Click to go to your dashboard</b></h6></div>')
-    },
-  });
-
-  },
-  template: `<a href="/dashboard" v-if="userInfo && api._meta.username === userInfo.login " class="versionBadge light-blue myAPI pointer">
-              My&nbsp;API <span v-if="issues" class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
-            </a>`
 });
 
   Vue.component('apicontainer', {
     data: function(){
       return{
-        showDetails:false
+        showDetails:false,
+        overLimit: false,
+        pathTotal: 0
       }
     },
     props: ['api'],
@@ -726,6 +640,11 @@ Vue.component('my-api', {
                 }
               }
           }
+          self.pathTotal = operations.length
+          if (self.pathTotal > 20 ) {
+            operations = operations.slice(0,19);
+            self.overLimit = true
+          }
           return operations;
       },
       validateFields(path){
@@ -747,7 +666,6 @@ Vue.component('my-api', {
       },
       search: function (query) {
           var self = this;
-          // self.context= {{Context}};
           if (!self.context.Special && !query){
             query = $('#search_query').val();
             query = query || "__all__";
@@ -768,28 +686,20 @@ Vue.component('my-api', {
               if (Object.keys(filters).length !== 0){
                 params["params"]["filters"] = filters;
               }
-              // self.loading_start();
-              // Share search URL
               self.buildShareURL(query);
 
               $(".context").unmark();
               self.total = 0;
               axios.get('/api/query?size=500', params).then(function (response) {
-                  // self.loading_end();
                   $(".context").unmark();
 
                   var payload = {};
                   payload["apis"] = response.data.hits;
                   store.commit('saveApis',payload);
 
-                  // self.handleContext(self.context);
                   self.total = response.data.total;
-                  // self.page = 1;
-                  // self.calculatePages();
               }).catch(err=>{
                 throw err;
-                // self.loading_end();
-
               });
           }
       },
@@ -901,9 +811,6 @@ Vue.component('my-api', {
       userInfo:function(){
         return store.getters.getUser
       },
-      bteapis: function(){
-        return store.getters.getBTEApis
-      },
       apis: function(){
         return store.getters.getApis
       },
@@ -934,13 +841,16 @@ Vue.component('my-api', {
             <span v-else-if=" api.hasOwnProperty('swagger') " class="versionBadge blue">
               Swagger2
             </span>
-            <my-api :api="api" :userInfo="userInfo"></my-api>
-            <a title="This API is being used by BioThings Explorer" style="cursor: pointer !important;" v-if="isUsedByBTE(api.info.title)" target="_blank" href="https://biothings.io/explorer">
-              <img height="28px;" src="http://biothings.io/static/img/biothings-explorer-256.png"/>
+            <a v-if="userInfo && api._meta.username === userInfo.login" 
+              :data-tippy-status="api?._status?.refresh_status || 'n/a' "
+                href="/dashboard" class="versionBadge light-blue pointer tipped">
+              My&nbsp;API 
+              <span v-if="api?._status?.refresh_status && ![200, 299, '200', '299'].includes(api?._status?.refresh_status)" 
+              class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
             </a>
 
             <div v-if="api && api['_status']" class="apiStatus" title="Click to learn more">
-              <div class="blue-grey-text">Status</div>
+              <div class="blue-grey-text">Uptime</div>
               <template v-if="api['_status'] && api['_status']['uptime_status'] ==='bad'">
                 <div class="red">
                   FAIL
@@ -979,7 +889,7 @@ Vue.component('my-api', {
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags">
-              <a  :href="'registry?tags='+tag.name" @click="pushHistory();googleAnalytics('Registry_Tag', tag.name)" class="link">
+              <a  :href="'registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -988,7 +898,7 @@ Vue.component('my-api', {
       </div>
       <!-- TOGGLE DETAILS -->
       <div class="card-action grey lighten-3" v-if="apis.length > 1" :class="showDetails?'blue':'grey'">
-          <a style="border-radius: 20px;" class="btn getBTEApis" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" href="#" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></a>
+          <a style="border-radius: 20px;" class="btn" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" href="#" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></a>
       </div>
       <div class="card-content detailsBack" v-if="showDetails || apis.length === 1">
         <div class="row">
@@ -1079,35 +989,39 @@ Vue.component('my-api', {
           </div>
 
           <div class="col s12 left" style="padding:20px;">
-            <a class="btn green getBTEApis" style="margin:5px;"
+            <a class="btn green" style="margin:5px;"
                v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
                View API Documentation
             </a>
-            <a class="btn blue getBTEApis" style="margin:5px;"
+            <a class="btn blue" style="margin:5px;"
                v-bind:href='"/editor/"+api._id'>
                Edit <i class="fa fa-pencil" aria-hidden="true"></i>
             </a>
           </div>
         </div>
+        <div>
           <template v-if=" api.hasOwnProperty('openapi') ">
-            <h5 class="left grey-text">(<span v-text="getOperations(api).length"></span>) Operations</h5>
-            <table  class="bordered grey lighten-5" style="margin: 20px 0px;">
+            <h5 class="grey-text">(<span v-text="pathTotal"></span>) Operations</h5>
+            <h6 v-if="overLimit">
+              <small class="grey-text">This is just a preview. For a full list click on <b class="green-text">View API Documentation</b> link above.</small> 
+            </h6>
+            <table class="striped white" style="margin: 20px 0px;">
               <col width="10%">
               <col width="30%">
               <col width="60%">
-                <tr v-for="operation in getOperations(api)">
-                  <td class="center" style="white-space: pre-wrap; word-break: break-word;padding:3px; border-radius: 0px !important;" :class="operationStyling(operation.method)">
-                    <small ><span v-text="operation.method"></span></small>
+              <tbody>
+                <tr v-for="operation in getOperations(api)" :key="operation.path">
+                  <td class="center-align" :class="operationStyling(operation.method)" v-text="operation.method">
                   </td>
-                  <td style="white-space: pre-wrap; word-break: break-word;padding:3px;">
-                    <small class="blue-text bold"><span v-text="operation.path"></span></small>
+                  <td class="blue-text bold" v-text="operation.path">
                   </td>
-                  <td class="blue-grey-text" style="padding:3px;">
-                    <small><span v-text="operation.summary"></span></small>
+                  <td class="blue-grey-text" v-text="operation.summary">
                   </td>
                 </tr>
+              </tbody>
             </table>
           </template>
+        </div>
       </div>
     </div>
     `
@@ -1118,7 +1032,7 @@ Vue.component('my-api', {
       store: store,
       data: function(){
         return {
-            total: 0,
+            total: Number,
             query: '',
             page: 1,
             pages: 1,
@@ -1144,18 +1058,6 @@ Vue.component('my-api', {
         }
       },
       methods: {
-          getBTEapis(){
-            var self = this;
-            axios.get('https://biothings.io/explorer_beta/api/v2/metadata/apis').then(res=>{
-              if (res.data.api) {
-                var payload = {};
-                payload["apis"] = res.data.api;
-                store.commit('saveBTEApis',payload);
-              }
-            }).catch(err=>{
-              throw err;
-            });
-          },
           googleAnalytics(category, label){
             // console.log('category',category,label)
             // gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
@@ -1532,7 +1434,7 @@ Vue.component('my-api', {
               switch (tagname) {
                 case 'translator':
                   self.specialTagName = 'NCATS Biomedical Data Translator';
-                  self.specialTagImage = '/static/img/ncats-logo.png';
+                  self.specialTagImage = '/static/img/TranslatorLogo.JPG';
                   self.specialTagURL = 'https://ncats.nih.gov/translator';
                   break;
                   case 'nihdatacommons' || 'NIHdatacommons':
@@ -1657,37 +1559,42 @@ Vue.component('my-api', {
               }
             }
           },
-          pushHistory(){
-            // window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
-          }
       },
       created: function () {
           this.getUserInfo();
-          // this.getBTEapis();
           $(".button-collapse").sideNav();
           $('.collapsible').collapsible();
           this.loadFilters();
-          // this.context = {{Context}};
           if ({{Context}}) {
             var payload = {};
             payload["context"] = {{Context}};
             store.commit('saveContext',payload);
           }
 
-
       },
-      mounted:function(){
-        var self = this;
+      mounted: function(){
+      var self = this;
 
-        window.onpopstate = function(event) {
-          // console.log("%c State "+JSON.stringify(event.state),'color:limegreen')
-          // console.log("%c Current Location "+document.location,'color:lightyellow')
-          self.refreshApis();
-        };
+      window.onpopstate = function(event) {
+        self.refreshApis();
+      };
 
-        this.getAnalytics();
+      this.getAnalytics();
 
-        tippy( '#tippyParentCopy', {
+      tippy('#myAPITipCont',{
+            target: '.tipped',
+            placement: 'top',
+            theme:'light',
+            sticky:true,
+            interactive:true,
+            onShow(instance) {
+              let status = instance.reference.dataset.tippyStatus;
+              let msg = [200, 299, '200', '299'].includes(status) ? 'This API belongs to you. Manage it on your <a href="/dashboard">dashboard</a>.' : '<b class="red-text">API metadata cannot be synchronized with its source URL due to an error.</b> <br>Fix the issue and refresh it from your <a href="/dashboard">dashboard</a>.'
+              instance.setContent("<div class='p-1 blue-text left-align'>"+msg+"</div>")
+            },
+          });
+
+      tippy( '#tippyParentCopy', {
           target: '.copyBtn',
           content:'Copied',
           animateFill: false,
@@ -1695,14 +1602,14 @@ Vue.component('my-api', {
           theme:'light',
           trigger:'click'});
 
-          tippy( '#top-2', {
+      tippy( '#top-2', {
         target: '.urlStatus',
         content: `<div class="white" style="padding:0px;">
                     <table>
                       <thead>
                         <tr>
                           <td colspan="2" class='grey-text center'>
-                            <b>Source URL & Metadata Status</b>
+                            <b>API Metadata Source URL Status</b>
                           </td>
                         </tr>
                       </thead>
@@ -1759,14 +1666,14 @@ Vue.component('my-api', {
         interactive:true,
       });
 
-          tippy( '#top', {
+      tippy( '#top', {
         target: '.apiStatus',
         content: `<div class="white" style="padding:0px;">
                     <table>
                       <thead>
                         <tr>
                           <td colspan="2" class='grey-text center'>
-                            <b>Overall API Endpoint Status</b>
+                            <b>Overall API Endpoint Uptime Status</b>
                           </td>
                         </tr>
                       </thead>
