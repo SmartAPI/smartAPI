@@ -215,26 +215,40 @@
                           </div>
                         </div>
                       </template>
-                      <template v-for="api in paginatedApis">
+                      <template v-for="api in apis">
                         <apicontainer :api="api" :key="api._id"></apicontainer>
                       </template>
                       <div class="row">
-                          <div class="col s12 m6 l6">
-                              <ul class="pagination">
+                          <div class="col s12 m10 l10">
+                            <div class="row">
+                              <div class="col s2">
+                                <ul class="pagination">
                                   <li :class="{ disabled: page <= 1 }">
-                                      <a href="#" @click.prevent="prevPage()"><i class="material-icons">chevron_left</i> Previous</a>
-                                  </li>
-                                  <li :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
-                                      <a href="#" @click.prevent="page = n">{{n}}</a>
-                                  </li>
-                                  <li :class="{ disabled: page >= pages }">
-                                      <a href="#" @click.prevent="nextPage()">Next <i class="material-icons">chevron_right</i></a>
+                                      <a href="#" @click.prevent="prevPage(); search()"><i class="material-icons">chevron_left</i> Previous</a>
                                   </li>
                               </ul>
+                              </div>
+                              <div class="col s8">
+                                <ul class="pagination">
+                                  <li :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
+                                      <a href="#" @click.prevent="page = n; search()">{{n}}</a>
+                                  </li>
+                              </ul>
+                              </div>
+                              <div class="col s2">
+                                <ul class="pagination">
+                                  <li :class="{ disabled: page >= pages }">
+                                      <a href="#" @click.prevent="nextPage(); search()">Next <i class="material-icons">chevron_right</i></a>
+                                  </li>
+                              </ul>
+                              </div>
+                            </div>
+                              
                           </div>
-                          <div class="col s12 m6 l6 right-align">
+                          <div class="col s12 m2 l2 right-align">
                               Per page:
-                              <select class="perPage" v-model="perPage" @change="calculatePages" id="perPage">
+                              <select class="perPage" v-model="perPage" @change="calculatePages; search()" id="perPage">
+                                  <option value="10">10</option>
                                   <option value="20">20</option>
                                   <option value="50">50</option>
                                   <option value="100">100</option>
@@ -1033,7 +1047,7 @@ const store = new Vuex.Store({
             query: '',
             page: 1,
             pages: 1,
-            perPage: 20,
+            perPage: 10,
             keywords:'',
             specialTagsUI: false,
             specialTagName: '',
@@ -1130,7 +1144,7 @@ const store = new Vuex.Store({
           },
           refreshApis: function(){
               var self = this;
-              let url = "/api/query?size=500"
+              let url = "/api/query?"
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -1143,6 +1157,8 @@ const store = new Vuex.Store({
                   "params": {
                       "q": encodeURIComponent(query),
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
+                      'size': self.perPage,
+                      'from': self.page == 1 ? self.page-1 : (self.page * self.perPage) -1
                   }
               }
               var filters = self.getQueryFilters();
@@ -1308,7 +1324,7 @@ const store = new Vuex.Store({
           },
           search: function () {
               var self = this;
-              let url = '/api/query?size=500'
+              let url = '/api/query?'
               let query = self.query.trim();
               // self.context= {{Context}};
               if (!self.context.Special && !query){
@@ -1324,7 +1340,9 @@ const store = new Vuex.Store({
                   var config = {
                       "params": {
                           "q": encodeURIComponent(query),
-                          'fields': 'info,_meta,_status,paths,tags,openapi,swagger',                         
+                          'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
+                          'size': self.perPage,
+                          'from': self.page == 1 ? self.page-1 : (self.page * self.perPage ) -1           
                       },
                   };
                   var filters = this.getQueryFilters();
@@ -1356,7 +1374,6 @@ const store = new Vuex.Store({
 
                       self.handleContext(self.context);
                       self.total = response.data.total;
-                      self.page = 1;
                       self.calculatePages();
                   }).catch(err=>{
                     throw err;
@@ -1365,7 +1382,10 @@ const store = new Vuex.Store({
               }
           },
           calculatePages: function () {
-              this.pages = Math.ceil(this.apis && this.apis.length / this.perPage);
+              this.pages = Math.ceil(this.total / this.perPage);
+              if(this.page > this.pages){
+                this.page = this.pages
+              }
           },
           prevPage: function () {
               if (this.page > 1)
@@ -1724,12 +1744,6 @@ const store = new Vuex.Store({
         this.getKeywords();
       },
       computed: {
-          paginatedApis: function () {
-              var start = (this.page - 1) * this.perPage,
-                  end = start + this.perPage;
-              // return this.apis && this.apis.slice(start, end);
-              return store.getters.getPaginatedApis(start, end);
-          },
           userInfo: function(){
             return store.getters.getUser
           },
@@ -1797,7 +1811,7 @@ const store = new Vuex.Store({
           }else {
             self.listCap = 20;
           }
-        }
+        },
       }
   });
 </script>
