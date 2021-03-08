@@ -125,10 +125,10 @@ class APIHandler(BaseHandler):
 
     kwargs = {
         'GET': {
-            # 'fields': {'type': list, 'default': []},
             'format': {'type': str, 'default': 'json'},
             'from_': {'type': int, 'default': 0, 'alias': 'from'},
-            'size': {'type': int, 'default': 10},
+            'size': {'type': int, 'default': 5, 'max': 10},  # SmartAPI document size can be large.
+            'raw': {'type': int, 'default': 0}
         },
         'PUT': {
             'slug': {'type': str, 'default': None},
@@ -143,7 +143,7 @@ class APIHandler(BaseHandler):
 
     def get(self, _id=None):
         """
-        Get one API or ALL
+        Retrieve API(s).
         """
         if _id is None:
             docs = SmartAPI.get_all(
@@ -151,15 +151,30 @@ class APIHandler(BaseHandler):
                 size=self.args.size)
             raise Finish([dict(doc) for doc in docs])
 
+        # Route A: Elasticsearch version
+        # ---------------------------------------
+        if self.args.raw == 1:
+            self.redirect('/api/annotation/{}'.format(_id))
+            return
+
         try:
             doc = SmartAPI.get(_id)
         except NotFoundError:
             raise HTTPError(404)
-        else:
-            self.format = self.args.format
-            # Use OrderedDict to ensure key
-            # orders during YAML serialization
-            self.finish(OrderedDict(doc))
+
+        # Route B: Exactly as user submitted
+        # ---------------------------------------
+        if self.args.raw == 2:
+            self.set_header('Content-Type', 'text/plain')
+            self.finish(doc.raw)
+            return
+
+        # Route C: Formatted content equivalence
+        # ---------------------------------------
+        self.format = self.args.format
+        # Use OrderedDict to ensure key
+        # orders during YAML serialization
+        self.finish(OrderedDict(doc))
 
     @github_authenticated
     async def post(self):
