@@ -13,6 +13,11 @@
     admin.backup()
     admin.restore(filename)
 
+    # update all documents
+    admin.refresh()
+    # check all uptime status
+    admin.check()
+
     See below for additional usage.
 
 """
