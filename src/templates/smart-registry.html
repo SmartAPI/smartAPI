@@ -40,7 +40,7 @@
                             style="padding:2px;"
                             :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
                             href="#!"
-                            @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            @click.prevent="toggleTag(tag,'tag');search(); googleAnalytics('Registry_Tag', tag.name)">
                           <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                         </a>
                       </template>
@@ -51,7 +51,7 @@
                             style="padding:2px;"
                             :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
                             href="#!"
-                            @click.prevent="toggleTag(tag,'tag');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            @click.prevent="toggleTag(tag,'tag');search(); googleAnalytics('Registry_Tag', tag.name)">
                           <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                         </a>
                       </template>
@@ -80,7 +80,7 @@
                             style="padding:2px;"
                             :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
                             href="#!"
-                            @click.prevent="toggleTag(tag,'author');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            @click.prevent="toggleTag(tag,'author');search(); googleAnalytics('Registry_Tag', tag.name)">
                           <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                         </a>
                       </template>
@@ -91,7 +91,7 @@
                             style="padding:2px;"
                             :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
                             href="#!"
-                            @click.prevent="toggleTag(tag,'author');search(query); googleAnalytics('Registry_Tag', tag.name)">
+                            @click.prevent="toggleTag(tag,'author');search(); googleAnalytics('Registry_Tag', tag.name)">
                           <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                         </a>
                       </template>
@@ -122,7 +122,7 @@
                     <div class="collection">
                       <div class="colllection-item padding20">
                         <template v-for="tag in tags">
-                          <a class="chip" :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" href="#!"  @click.prevent="tag.active = !tag.active;search(query); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
+                          <a class="chip" :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" href="#!"  @click.prevent="tag.active = !tag.active;search(); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
                         </template>
                       </div>
                     </div>
@@ -136,7 +136,7 @@
                     <div class="collection">
                       <div class="colllection-item padding20">
                         <template v-for="author in authors" >
-                          <a :class="{ active: author.active, blue: author.active }" href="#!" class="chip" @click.prevent="author.active = !author.active;search(query); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
+                          <a :class="{ active: author.active, blue: author.active }" href="#!" class="chip" @click.prevent="author.active = !author.active;search(); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
                         </template>
                       </div>
                     </div>
@@ -144,18 +144,15 @@
                 </li>
               </ul>
           </div>
-          <form class="col s12 l10 center-align" @submit.prevent="search(query)" id="api_search_form">
+          <form class="col s12 l10 center-align" @submit.prevent="search()" id="api_search_form">
             <template v-if='specialTagsUI'>
               <div  class="col s12 l3 input-field center-align">
                 <a class='tooltipped p-1' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
-                  <img v-if="specialTagsUI" width="70%" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
+                  <img v-if="specialTagsUI" width="60%" height="auto" :src="specialTagImage"  :alt="specialTagName"/>
                 </a>
                 <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">
-                  <a class="btn blue white-text d-block" href="/portal/translator" style="margin: 5px 0px;">
-                    Go to portal
-                  </a>
-                  <a class="btn purple white-text d-block" href="/portal/translator/metakg">
-                    <i class="fa fa-connectdevelop" aria-hidden="true"></i>Search MetaKG Graph <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                  <a class="purple-text d-block" href="/portal/translator/">
+                    Go to portal <i class="fa fa-chevron-right" aria-hidden="true"></i>
                   </a>
                 </div>
               </div>
@@ -172,15 +169,15 @@
               <div class="col s12 selected-tags">
                   <div class="chip" v-for="tag in tags" v-if="tag.active" :class="{ green: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
                     {{tag.name}}
-                      <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="toggleTag(tag,'tag');search(query)">close</i>
+                      <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="toggleTag(tag,'tag');search()">close</i>
                   </div>
                   <div class="chip" v-for="author in authors" v-if="author.active">
                       {{author.name}}
-                      <i class="close material-icons" @click="toggleTag(author,'author');search(query)">close</i>
+                      <i class="close material-icons" @click="toggleTag(author,'author');search()">close</i>
                   </div>
                   <div class="chip" v-for="pop in popularTags" v-if="pop.active">
                       {{pop.name}}
-                      <i class="close material-icons" @click="pop.active = false;search(query)">close</i>
+                      <i class="close material-icons" @click="pop.active = false;search()">close</i>
                   </div>
               </div>
               <div class="col s12">
@@ -1309,9 +1306,10 @@ const store = new Vuex.Store({
             window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
             this.shareURLButtonVisible = true;
           },
-          search: function (query) {
+          search: function () {
               var self = this;
               let url = '/api/query?size=500'
+              let query = self.query.trim();
               // self.context= {{Context}};
               if (!self.context.Special && !query){
                 query = $('#search_query').val();
