@@ -44,6 +44,11 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
 
         return search
 
+    def default_match_query(self, q, scopes, options):
+        search = super().default_match_query(q, scopes, options)
+        search = search.source(exclude=['_raw'])
+        return search
+
 
 class SmartAPIResultTransform(ESResultTransform):
 
@@ -56,8 +61,7 @@ class SmartAPIResultTransform(ESResultTransform):
             doc.pop('_node', None)    # added when using explain
             doc.pop('_shard', None)   # added when using explain
 
-            # OVERRIDE
-            # TODO TEST CASES
+            # OVERRIDE STARTS HERE
             try:
                 doc['paths'] = {
                     item['path']: item['pathitem']
