@@ -1127,7 +1127,7 @@ const store = new Vuex.Store({
                       "q": encodeURIComponent(query),
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                       'size': self.perPage,
-                      'from': self.page == 1 ? self.page-1 : (self.page * self.perPage) -1
+                      'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )  
                   }
               }
               var filters = self.getQueryFilters();
@@ -1295,6 +1295,11 @@ const store = new Vuex.Store({
               var self = this;
               let url = '/api/query?'
               let query = self.query.trim();
+              // reset results
+              store.commit('saveApis',{'apis': []});
+              self.total = 0;
+              //unmark keywords
+              $(".context").unmark();
               // self.context= {{Context}};
               if (!self.context.Special && !query){
                 query = $('#search_query').val();
@@ -1313,7 +1318,7 @@ const store = new Vuex.Store({
                           "q": encodeURIComponent(query),
                           'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                           'size': self.perPage,
-                          'from': self.page == 1 ? self.page-1 : (self.page * self.perPage ) -1           
+                          'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )          
                       },
                   };
                   var filters = this.getQueryFilters();
@@ -1344,11 +1349,6 @@ const store = new Vuex.Store({
                       //no matching sort
                       break;
                   }
-
-                  $(".context").unmark();
-
-                  self.total = 0;
-
                   axios.get(url, config).then(function (response) {
                       self.loading_end();
                       $(".context").unmark();
@@ -1356,12 +1356,6 @@ const store = new Vuex.Store({
                       var payload = {};
                       payload["apis"] = response.data.hits;
                       store.commit('saveApis',payload);
-                      // preserve sorting with search
-                      if (self.sort !== "Search Relevance") {
-                        var payload = {};
-                        payload["type"] = self.sort
-                        store.commit('sort',payload)
-                      }
 
                       // self.handleContext(self.context);
                       self.total = response.data.total;
@@ -1374,8 +1368,12 @@ const store = new Vuex.Store({
           },
           calculatePages: function () {
               this.pages = Math.ceil(this.total / this.perPage);
+              console.log("____________")
+              console.log('total', this.total)
+              console.log('per page', this.perPage)
+              console.log('pages', this.pages)
               if(this.page > this.pages){
-                this.page = this.pages
+                this.page = 1
               }
           },
           prevPage: function () {
