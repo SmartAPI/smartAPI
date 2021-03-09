@@ -465,7 +465,7 @@
         } else if (state.input_selected.length && !state.output_selected.length) {
           //OUTPUT
           filteredOptions.forEach(op => outputs.add(op['association']['output_type']) );
-          state.output_autocomplete = [...inputs]
+          state.output_autocomplete = [...outputs]
         } else {
           filteredOptions.forEach(op => {
             outputs.add(op['association']['output_type'])
