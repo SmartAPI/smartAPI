@@ -197,9 +197,9 @@
                               </button>
                             </div>
                             <div class="col s5 m2">
-                              <select class="browser-default" @change='sortResults($event)'>
-                                <option value="" disabled selected>Sort By</option>
-                                <option value="Search Relevance">Relevance</option>
+                              <select class="browser-default" v-model="sort" @change='search()'>
+                                <option value="" disabled>Sort By</option>
+                                <option value="Relevance" selected>Relevance</option>
                                 <option value="Alphabetically A-Z">Alphabetically A-Z</option>
                                 <option value="Alphabetically Z-A">Alphabetically Z-A</option>
                                 <option value="Recently Updated">Recently Updated</option>
@@ -356,24 +356,6 @@ const store = new Vuex.Store({
           if (state.authors[i].name === tag.name) {
             Vue.set(state.authors[i],'active',!state.authors[i]['active'])
           }
-        }
-      },
-      sort(state,payload){
-        let type = payload['type'];
-        switch (type) {
-          case 'Alphabetically A-Z':
-            state.apis = _.sortBy(state.apis,'info.title');
-            break;
-          case 'Alphabetically Z-A':
-            state.apis = _.sortBy(state.apis,'info.title').reverse();
-            break;
-          case 'Recently Updated':
-            state.apis = _.orderBy(state.apis, (o) => {
-              return moment(o['_meta']['last_updated']).format('YYYYMMDD')
-            }, ['desc'] );
-            break;
-          default:
-            state.apis = _.sortBy(state.apis,'info.title');
         }
       },
       savePopularTags(state,payload){
@@ -1323,7 +1305,9 @@ const store = new Vuex.Store({
                 // self.handleSpecialTags(self.context.Tags[0]);
               }
               if (query) {
+
                   self.googleAnalytics('Registry_Searches',query)
+
                   var config = {
                       "params": {
                           "q": encodeURIComponent(query),
@@ -1342,8 +1326,29 @@ const store = new Vuex.Store({
                   // Share search URL
                   self.buildShareURL(query);
 
+                  // sort
+                  switch (self.sort) {
+                    case 'Relevance':
+                      //default behavior
+                      break;
+                    case 'Alphabetically A-Z':
+                      url = url+'&sort=info.title.raw'
+                      break;
+                    case 'Alphabetically Z-A':
+                      url = url+'&sort=-info.title.raw'
+                      break;
+                    case 'Recently Updated':
+                      url = url+'&sort=_meta.last_updated'
+                      break;
+                    default:
+                      //no matching sort
+                      break;
+                  }
+
                   $(".context").unmark();
+
                   self.total = 0;
+
                   axios.get(url, config).then(function (response) {
                       self.loading_end();
                       $(".context").unmark();
@@ -1738,16 +1743,6 @@ const store = new Vuex.Store({
           },
       },
       watch:{
-        sort: function(sort){
-          var self = this;
-          if (sort  === 'Search Relevance') {
-            self.search();
-          }else {
-            var payload = {};
-            payload["type"] = sort
-            store.commit('sort',payload)
-          }
-        },
         tagsearch:function(q){
           var self = this;
 
