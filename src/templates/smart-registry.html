@@ -215,8 +215,8 @@
                           </div>
                         </div>
                       </template>
-                      <template v-for="api in paginatedApis">
-                        <apicontainer :api="api" :key="api._id"></apicontainer>
+                      <template v-for="api in apis">
+                        <api-container :api="api" :total="total" :key="api._id"></api-container>
                       </template>
                       <div class="row">
                           <div class="col s12 m10 l10">
@@ -224,21 +224,21 @@
                               <div class="col s2">
                                 <ul class="pagination">
                                   <li :class="{ disabled: page <= 1 }">
-                                      <a href="#" @click.prevent="prevPage();"><i class="material-icons">chevron_left</i> Previous</a>
+                                      <a href="#" @click.prevent="prevPage(); search()"><i class="material-icons">chevron_left</i> Previous</a>
                                   </li>
                               </ul>
                               </div>
                               <div class="col s8">
                                 <ul class="pagination">
                                   <li :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages">
-                                      <a href="#" @click.prevent="page = n;">{{n}}</a>
+                                      <a href="#" @click.prevent="page = n; search()">{{n}}</a>
                                   </li>
                               </ul>
                               </div>
                               <div class="col s2">
                                 <ul class="pagination">
                                   <li :class="{ disabled: page >= pages }">
-                                      <a href="#" @click.prevent="nextPage();">Next <i class="material-icons">chevron_right</i></a>
+                                      <a href="#" @click.prevent="nextPage(); search()">Next <i class="material-icons">chevron_right</i></a>
                                   </li>
                               </ul>
                               </div>
@@ -247,7 +247,7 @@
                           </div>
                           <div class="col s12 m2 l2 right-align">
                               Per page:
-                              <select class="perPage" v-model="perPage" @change="calculatePages;" id="perPage">
+                              <select class="perPage" v-model="perPage" @change="calculatePages; search()" id="perPage">
                                   <option value="10">10</option>
                                   <option value="20">20</option>
                                   <option value="50">50</option>
@@ -527,7 +527,7 @@ const store = new Vuex.Store({
             </div>`
 });
 
-  Vue.component('apicontainer', {
+  Vue.component('api-container', {
     data: function(){
       return{
         showDetails:false,
@@ -535,7 +535,7 @@ const store = new Vuex.Store({
         pathTotal: 0
       }
     },
-    props: ['api'],
+    props: ['api', 'total'],
     methods:{
       isUsedByBTE(name){
         var self = this;
@@ -664,15 +664,6 @@ const store = new Vuex.Store({
           return path;
         }else if (path === "PARAMETERS") {
             return 'GET';
-        }
-      },
-      matchTagAndSearch: function(tagName){
-        var self = this;
-        for (var i = 0; i < self.tags.length; i++) {
-          if (self.tags[i].name === tagName) {
-            self.tags[i].active = true;
-            self.search(self.tags[i].name);
-          }
         }
       },
       search: function (query) {
@@ -822,9 +813,6 @@ const store = new Vuex.Store({
       userInfo:function(){
         return store.getters.getUser
       },
-      apis: function(){
-        return store.getters.getApis
-      },
       tags: function(){
         return store.getters.getTags
       },
@@ -843,8 +831,7 @@ const store = new Vuex.Store({
     <div class="card-content ">
           <span class="card-title">
             <span class="blue-grey-text bold" v-text="api.info.title"></span>
-            <span class="versionBadge grey">
-              V.<span v-text="api.info.version"></span>
+            <span class="versionBadge grey" v-text="'V.'+api.info.version">
             </span>
             <span v-if=" api.hasOwnProperty('openapi') " class="versionBadge green">
               OAS3
@@ -908,10 +895,10 @@ const store = new Vuex.Store({
           </div>
       </div>
       <!-- TOGGLE DETAILS -->
-      <div class="card-action grey lighten-3" v-if="apis.length > 1" :class="showDetails?'blue':'grey'">
+      <div class="card-action grey lighten-3" v-if="total > 1" :class="showDetails?'blue':'grey'">
           <a style="border-radius: 20px;" class="btn" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" href="#" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></a>
       </div>
-      <div class="card-content detailsBack" v-if="showDetails || apis.length === 1">
+      <div class="card-content detailsBack" v-if="showDetails || total === 1">
         <div class="row">
           <div class="col s12 right-align">
             <small class="grey-text">Updated: </small><small class="white-text"><span v-text="getDate(api._meta.timestamp)"></span> </span></small>
@@ -921,7 +908,7 @@ const store = new Vuex.Store({
             <h5 class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></h5>
           </div>
           <div class="col s12">
-            <table class="apiDetails">
+            <table class="apiDetails responsive-table">
               <colgroup>
                 <col span="1" style="width:25%">
                 <col span="1" style="width:75%">
@@ -999,10 +986,10 @@ const store = new Vuex.Store({
             </table>
           </div>
 
-          <div class="col s12 left" style="padding:20px;">
+          <div class="col s12" style="padding:20px;">
             <a class="btn green" style="margin:5px;"
                v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
-               View API Documentation
+               <span class="hide-on-small-only">View API</span> Documentation
             </a>
             <a class="btn blue" style="margin:5px;"
                v-bind:href='"/editor/"+api._id'>
@@ -1016,7 +1003,7 @@ const store = new Vuex.Store({
             <h6 v-if="overLimit">
               <small class="grey-text">This is just a preview. For a full list click on <b class="green-text">View API Documentation</b> link above.</small> 
             </h6>
-            <table class="striped white" style="margin: 20px 0px;">
+            <table class="striped responsive-table white" style="margin: 20px 0px;">
               <col width="10%">
               <col width="30%">
               <col width="60%">
@@ -1144,7 +1131,7 @@ const store = new Vuex.Store({
           },
           refreshApis: function(){
               var self = this;
-              let url = "/api/query?size=500"
+              let url = "/api/query?"
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -1157,8 +1144,8 @@ const store = new Vuex.Store({
                   "params": {
                       "q": encodeURIComponent(query),
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
-                      // 'size': self.perPage,
-                      // 'from': self.page == 1 ? self.page-1 : (self.page * self.perPage) -1
+                      'size': self.perPage,
+                      'from': self.page == 1 ? self.page-1 : (self.page * self.perPage) -1
                   }
               }
               var filters = self.getQueryFilters();
@@ -1324,7 +1311,7 @@ const store = new Vuex.Store({
           },
           search: function () {
               var self = this;
-              let url = '/api/query?size=500'
+              let url = '/api/query?'
               let query = self.query.trim();
               // self.context= {{Context}};
               if (!self.context.Special && !query){
@@ -1333,7 +1320,7 @@ const store = new Vuex.Store({
               }
               else if (self.context.Special && !query) {
                 query = query || "__all__";
-                self.handleSpecialTags(self.context.Tags[0]);
+                // self.handleSpecialTags(self.context.Tags[0]);
               }
               if (query) {
                   self.googleAnalytics('Registry_Searches',query)
@@ -1341,14 +1328,13 @@ const store = new Vuex.Store({
                       "params": {
                           "q": encodeURIComponent(query),
                           'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
-                          // 'size': self.perPage,
-                          // 'from': self.page == 1 ? self.page-1 : (self.page * self.perPage ) -1           
+                          'size': self.perPage,
+                          'from': self.page == 1 ? self.page-1 : (self.page * self.perPage ) -1           
                       },
                   };
                   var filters = this.getQueryFilters();
                   if (Object.keys(filters).length !== 0){
                     for (const param in filters) {
-                      // config["params"][param] = filters[param]
                       url += "&"+param+"="+encodeURIComponent(filters[param])
                     }
                   }
@@ -1372,7 +1358,7 @@ const store = new Vuex.Store({
                         store.commit('sort',payload)
                       }
 
-                      self.handleContext(self.context);
+                      // self.handleContext(self.context);
                       self.total = response.data.total;
                       self.calculatePages();
                   }).catch(err=>{
@@ -1434,7 +1420,6 @@ const store = new Vuex.Store({
               }
           },
           handleContext: function(context){
-            // console.log(context);
             if (context.Special) {
               this.handleSpecialTags(this.context.Tags[0]);
             }
@@ -1467,8 +1452,6 @@ const store = new Vuex.Store({
               }
               for (var i = 0; i < self.tags.length; i++) {
                 if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-                  // Do not mutate outside Vuex
-                  // self.tags[i].active = true;                
                   var payload = {};
                   payload["tag"] = self.tags[i]
                   store.commit('toggleTag',payload);
@@ -1566,15 +1549,6 @@ const store = new Vuex.Store({
                   break;
               default:
                 return false
-            }
-          },
-          matchTagAndSearch: function(tagName){
-            var self = this;
-            for (var i = 0; i < self.tags.length; i++) {
-              if (self.tags[i].name === tagName) {
-                self.toggleTag(self.tags[i].name,'tag')
-                self.search();
-              }
             }
           },
       },
@@ -1744,11 +1718,6 @@ const store = new Vuex.Store({
         this.getKeywords();
       },
       computed: {
-          paginatedApis: function () {
-              var start = (this.page - 1) * this.perPage,
-                  end = start + this.perPage;
-              return store.getters.getPaginatedApis(start, end);
-          },
           userInfo: function(){
             return store.getters.getUser
           },
