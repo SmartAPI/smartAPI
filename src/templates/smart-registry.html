@@ -715,7 +715,6 @@
             page: 1,
             pages: 1,
             perPage: 10,
-            keywords:'',
             specialTagsUI: false,
             specialTagName: '',
             specialTagImage: '',
@@ -736,10 +735,10 @@
             userInfo: {},
             context: Object,
             popularTags: [],
-            'tags':Array,
-            'apis': [],
-            'tags': [],
-            'authors': [],
+            tags:Array,
+            apis: [],
+            tags: [],
+            authors: [],
         }
       },
       methods: {
@@ -769,30 +768,8 @@
               gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
             }
           },
-          sortResults(e){
-            this.sort = e.target.value;
-          },
-          showHideDetails: function(event){
-            //toggle show/hide text on details link per card
-            let text = $(event.target).text().trim().toLowerCase();
-            if(text === 'show details'){
-              event.target.innerHTML = 'hide details';
-            }
-            else if(text === 'hide details'){
-              event.target.innerHTML = 'show details';
-            }
-          },
-          loading_start: function(){
-              this.loading = true;
-          },
-          loading_end: function(){
-              this.loading = false;
-          },
-          getKeywords: function(){
-            var self= this;
-            // Read the keyword
-            self.keywords = $("input[name='query']").val();
-            self.mark(self.keywords);
+          highlightQuery: function(){
+            this.mark(this.query);
           },
           mark: function(kw){
             //unmark and mark current search
@@ -803,7 +780,7 @@
               }
             });
           },
-          refreshApis: function(){
+          initialAPILoad: function(){
               var self = this;
               let url = "/api/query?"
               self.handleContext(self.context);
@@ -828,17 +805,17 @@
                   url += "&"+param+"="+encodeURIComponent(filters[param])
                 }
               }
-              self.loading_start();
+              self.loading = true;
               axios.get(url, config).then(function(response){
-                  self.loading_end();
+                  self.loading = false;
 
                   self.apis = response.data.hits;
 
                   self.total = response.data.total;
                   self.calculatePages();
               }).catch(err=>{
+                self.loading = false;
                 throw err;
-                self.loading_end();
               });
           },
           loadFilters: function (){
@@ -865,7 +842,7 @@
                       self.authors = authors;
                       //When all filters all loaded
                       //share url params depend on filters being loaded
-                      self.refreshApis();
+                      self.initialAPILoad();
                   });
 
               });
@@ -983,10 +960,9 @@
               self.total = 0;
               //unmark keywords
               $(".context").unmark();
-              // self.context= {{Context}};
+
               if (!self.context.Special && !query){
-                query = $('#search_query').val();
-                query = query || "__all__";
+                query = "__all__";
               }
               else if (self.context.Special && !query) {
                 query = query || "__all__";
@@ -1010,7 +986,7 @@
                       url += "&"+param+"="+encodeURIComponent(filters[param])
                     }
                   }
-                  self.loading_start();
+                  self.loading = true;
                   // Share search URL
                   self.buildShareURL(query);
 
@@ -1033,15 +1009,15 @@
                       break;
                   }
                   axios.get(url, config).then(function (response) {
-                      self.loading_end();
+                      self.loading = false;
                       $(".context").unmark();
                       self.apis = response.data.hits;
                       // self.handleContext(self.context);
                       self.total = response.data.total;
                       self.calculatePages();
                   }).catch(err=>{
+                    self.loading = false;
                     throw err;
-                    self.loading_end();
                   });
               }
           },
@@ -1255,7 +1231,7 @@
         var self = this;
 
         window.onpopstate = function(event) {
-          self.refreshApis();
+          self.initialAPILoad();
         };
 
         this.getAnalytics();
@@ -1402,10 +1378,7 @@
       },
       updated: function(){
         // Highlight matches in results
-        this.getKeywords();
-      },
-      computed: {
-
+        this.highlightQuery();
       },
       watch:{
         tagsearch:function(q){
