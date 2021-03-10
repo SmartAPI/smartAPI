@@ -519,28 +519,12 @@ const store = new Vuex.Store({
     },
     props: ['api', 'total'],
     methods:{
-      isUsedByBTE(name){
-        var self = this;
-        if (self.bteapis && self.bteapis.includes(name) ) {
-          return true
-        }else{
-          return false
-        }
-      },
       compiledMarkdown: function (mdtext) {
           return marked(mdtext, { sanitize: true })
       },
       getDate(timestamp){
         var date = moment(timestamp).format("LL");
         return date;
-      },
-      checkForName: function(api){
-        if (_.get(api, 'info.contact.name')) {
-          return [api.info.contact.name];
-        }
-        else{
-          return ['Name Unavailable'];
-        }
       },
       googleAnalytics(category, label){
         // console.log('category',category,label)
@@ -648,148 +632,6 @@ const store = new Vuex.Store({
             return 'GET';
         }
       },
-      search: function (query) {
-          var self = this;
-          if (!self.context.Special && !query){
-            query = $('#search_query').val();
-            query = query || "__all__";
-          }
-          else if (self.context.Special && !query) {
-            query = query || "__all__";
-            self.handleSpecialTags(self.context.Tags[0]);
-          }
-          if (query) {
-              self.googleAnalytics('Registry_Searches',query)
-              var params = {
-                  "params": {
-                      "q": encodeURIComponent(query),
-                      'fields': 'info,_meta,_status,paths.path,paths.pathitem.get.summary,paths.pathitem.post.summary,paths.pathitem.delete.summary,paths.pathitem.patch.summary,paths.pathitem.put.summary,paths.pathitem.head.summary,paths.pathitem.put.summary,options.pathitem.head.summary,paths.pathitem.put.summary,paths.pathitem.trace.summary,paths.pathitem.get.description,paths.pathitem.post.description,paths.pathitem.delete.description,paths.pathitem.patch.description,paths.pathitem.put.description,paths.pathitem.head.description,paths.pathitem.put.description,options.pathitem.head.description,paths.pathitem.put.description,paths.pathitem.trace.description,tags,openapi,swagger,'
-                  }
-              };
-              var filters = this.getQueryFilters();
-              if (Object.keys(filters).length !== 0){
-                params["params"]["filters"] = filters;
-              }
-              self.buildShareURL(query);
-
-              $(".context").unmark();
-              self.total = 0;
-              axios.get('/api/query?size=500', params).then(function (response) {
-                  $(".context").unmark();
-
-                  var payload = {};
-                  payload["apis"] = response.data.hits;
-                  store.commit('saveApis',payload);
-
-                  self.total = response.data.total;
-              }).catch(err=>{
-                throw err;
-              });
-          }
-      },
-      getQueryFilters: function(){
-        var self = this;
-          var filters = [];
-          var authorFilters = [];
-          var finalFilters = {};
-          self.tags.forEach(function(item){
-            if (item.active)
-                filters.push(item.name);
-            });
-          if (filters.length > 0){
-            finalFilters['tags.name.raw'] = filters;
-          }
-
-          self.popularTags.forEach(function(item){
-            if (item.active && !filters.includes(item.name))
-                filters.push(item.name);
-            });
-          if (filters.length > 0){
-            finalFilters['tags.name.raw'] = filters.concat(filters);
-          }
-
-          self.authors.forEach(function(item){
-            if (item.active){
-              authorFilters.push(item.name);
-            }
-            });
-          if (authorFilters.length){
-            finalFilters['info.contact.name.raw'] = authorFilters;
-          }
-
-          return finalFilters;
-      },
-      toggleTag(tag,type){
-
-        switch (type) {
-          case 'author':
-          var payload = {};
-          payload["author"] = tag;
-          store.commit('toggleAuthor',payload);
-            break;
-            case 'tag':
-            console.log(tag)
-            var payload = {};
-            payload["tag"] = tag;
-            store.commit('toggleTag',payload);
-              break;
-          default:
-            return false
-        }
-      },
-      buildShareURL: function(q){
-        var filters = [];
-        var authorFilters = [];
-        var finalFilters = '';
-        var finalAuthorFilters ='';
-        var finalURL = window.location.origin+window.location.pathname;
-        // Collect TAGS
-        this.tags.forEach(function(item){
-          if (item.active)
-              filters.push(item.name);
-          });
-        // Collect Owners
-        this.authors.forEach(function(item){
-          if (item.active){
-            authorFilters.push(item.name);
-          }
-        });
-        //Detect QUERY
-        if (q !== '__all__') {
-          finalURL = finalURL+'?q='+q;
-          //if any tags are actuve
-          if(authorFilters.length || filters.length){
-            finalURL = finalURL+"&";
-          }
-        }
-        //if tags active but no query
-        else if(authorFilters.length || filters.length){
-          finalURL = finalURL+"?";
-        }
-        // if BOTH filters exists
-        if (filters.length && authorFilters.length) {
-          finalFilters = filters.join(',')
-          finalURL = finalURL+"tags="+finalFilters;
-
-          finalAuthorFilters = authorFilters.join(',')
-          finalURL = finalURL+"&owners="+finalAuthorFilters;
-        }
-        // if Owners Exist but no Tags
-        else if (!filters.length && authorFilters.length) {
-          finalAuthorFilters = authorFilters.join(',')
-          finalURL = finalURL+"owners="+finalAuthorFilters;
-        }
-        // if Tags exists but no owners
-        else if (filters.length && !authorFilters.length) {
-          finalFilters = filters.join(',')
-          finalURL = finalURL+"tags="+finalFilters;
-        }
-
-        this.shareURL =finalURL;
-        //HTML5 change url history
-        window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
-        this.shareURLButtonVisible = true;
-      },
     },
     computed:{
       userInfo:function(){
@@ -896,18 +738,16 @@ const store = new Vuex.Store({
                 <col span="1" style="width:75%">
               </colgroup>
               <tbody>
-                <template v-for='name in checkForName(api)'>
-                  <tr v-if="name != 'Name Unavailable'">
-                    <td>
-                      <small class="white-text">Created By</small>
-                    </td>
-                    <td>
-                      <small class="white-text">
-                        <i class="fa fa-user" aria-hidden="true"></i> <span v-text="name"></span>
-                      </small>
-                    </td>
-                  </tr>
-                </template>
+                <tr>
+                  <td>
+                    <small class="white-text">Created By</small>
+                  </td>
+                  <td>
+                    <small class="white-text">
+                      <i class="fa fa-user" aria-hidden="true"></i> <span v-text="api?.info?.contact?.name || 'Name Unavailable'"></span>
+                    </small>
+                  </td>
+                </tr>
                 <tr>
                   <td>
                     <small class="white-text">Registered by</small>
@@ -1368,10 +1208,10 @@ const store = new Vuex.Store({
           },
           calculatePages: function () {
               this.pages = Math.ceil(this.total / this.perPage);
-              console.log("____________")
-              console.log('total', this.total)
-              console.log('per page', this.perPage)
-              console.log('pages', this.pages)
+              // console.log("____________")
+              // console.log('total', this.total)
+              // console.log('per page', this.perPage)
+              // console.log('pages', this.pages)
               if(this.page > this.pages){
                 this.page = 1
               }
