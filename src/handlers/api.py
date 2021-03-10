@@ -223,6 +223,10 @@ class SmartAPIHandler(BaseHandler, SmartAPIReadOnlyHandler):
             await self._notify(smartapi)
 
     async def _notify(self, smartapi):
+
+        if self.settings.get('debug'):
+            return
+
         client = AsyncHTTPClient()
         kwargs = {
             "_id": smartapi._id,
