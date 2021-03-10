@@ -111,7 +111,7 @@
               </div>
             </div>
           </template>
-          <template v-for="item in results" :key="item.association.smartapi.id">
+          <template v-for="(item, index) in results" :key="item.association.smartapi.id+index">
             <div class="collection-item resultRow row" @mouseenter="highlightRow(item)"
               @mouseleave="unhighlightRow(item)" style="padding: 3px;">
               <div class="col s12 left">
@@ -298,12 +298,12 @@ export default {
       },
       async loadKG() {
         var self = this;
-
-        let meta_kg = new kg();
-        //load meta-kg API graph with reasoner APIs
         const t0 = performance.now();
+
+        let meta_kg = new kg.MetaKG()
+        //load meta-kg API graph with reasoner APIs
         /*eslint-disable */
-        await meta_kg.constructMetaKG();
+        await meta_kg.constructMetaKG(false, {component: "KP"});
         /*eslint-enable */
         const t1 = performance.now();
         self.apisLoaded = true;
@@ -413,56 +413,11 @@ export default {
 
         this.$store.commit('pushPill', payload2);
 
+        // TODO not working because watcher not detecting changes
+
       },
       recenterGraph() {
         this.$store.dispatch('recenterGraph')
-      },
-      checkforQuery: function () {
-        var self = this;
-        var url_string = window.location.href
-        var url = new URL(url_string);
-
-        var q = url.searchParams.get("q");
-        if (q) {
-          this.query = q;
-        }
-
-        var tags = url.searchParams.get("tags");
-        if (tags) {
-          if (tags.includes(',')) {
-            tags = tags.split(',')
-          } else {
-            tags = [tags]
-          }
-          for (var i = 0; i < tags.length; i++) {
-            for (var x = 0; x < self.tags.length; x++) {
-              if (self.tags[x].name === tags[i]) {
-                var payload = {};
-                payload["tag"] = self.tags[x];
-                this.$store.commit('toggleTag', payload);
-              }
-            }
-          }
-        }
-
-        var owners = url.searchParams.get("owners");
-        if (owners) {
-          if (owners.includes(',')) {
-            owners = owners.split(',')
-          } else {
-            owners = [owners]
-          }
-          for (var ii = 0; ii < owners.length; ii++) {
-            for (var xx = 0; xx < self.authors.length; xx++) {
-              if (self.authors[xx].name === owners[ii]) {
-                var payload2 = {};
-                payload2["author"] = self.authors[xx];
-                this.$store.commit('toggleAuthor', payload2);
-              }
-            }
-          }
-        }
-
       },
       copy() {
         this.$swal.fire({

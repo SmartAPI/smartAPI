@@ -171,18 +171,18 @@ export const metakg = {
             let ref = ele.popperRef();
             ele.tippy = tippy(document.createElement('div'), {
             getReferenceClientRect: ref.getBoundingClientRect,
-            content: function(){ // function can be better for performance
-                var div = document.createElement('div');
-                div.innerHTML = ele.id();
-                return div;
-            },
             hideOnClick: false,
             placement:'top-start',
             trigger: 'manual', // mandatory
             arrow: true,
             interactive: true,
+            allowHTML: true,
             theme:'light',
+            animation: false,
             appendTo: document.body, // or append dummyDomEle to document.body
+            onShow: function(instance){
+                instance.setContent('<div class="blue-text p-1 text-center">'+ele.id()+'</div>')
+            }
             });
         }
 
@@ -190,17 +190,21 @@ export const metakg = {
             let ref = ele.popperRef();
             ele.tippy = tippy(document.createElement('div'), {
             getReferenceClientRect: ref.getBoundingClientRect,
-            content:`<div><h6 class="center">`+ele.data('api_name')+`</h6><b class="grey darken-2 badgepill">`+ele.data('source')+
-            `</b> <b class="purple-text">`+ele.data('predicate')+
-            `</b> <b class="orange darken-2 badgepill">`+ele.data('target')+
-            `</b></div>`,
             hideOnClick: false,
             trigger: 'manual', // mandatory
             placement:'top-start',
             arrow: true,
+            animation: false,
+            allowHTML: true,
             interactive: true,
             theme:'light',
-            appendTo: document.body // or append dummyDomEle to document.body
+            appendTo: document.body, // or append dummyDomEle to document.body
+            onShow: function(instance){
+                instance.setContent(`<div class="p-1 text-center"><h6 class="center">`+ele.data('api_name')+`</h6><b class="grey darken-2 badgepill">`+ele.data('source')+
+                `</b> <b class="purple-text">`+ele.data('predicate')+
+                `</b> <b class="orange darken-2 badgepill">`+ele.data('target')+
+                `</b></div>`)
+            }
             });
         }
 
@@ -262,7 +266,7 @@ export const metakg = {
         } else if (state.input_selected.length && !state.output_selected.length) {
             //OUTPUT
             filteredOptions.forEach(op => outputs.add(op['association']['output_type']) );
-            state.output_autocomplete = [...inputs]
+            state.output_autocomplete = [...outputs]
         } else {
             filteredOptions.forEach(op => {
             outputs.add(op['association']['output_type'])

@@ -52,7 +52,7 @@
                             <router-link to="/privacy" class="footerLink">Privacy</router-link>
                         </li>
                         <li>
-                            <a class="footerLink" href="/documentation"><i class="material-icons">subdirectory_arrow_right</i> Documentation</a>
+                            <router-link to="/documentation" class="footerLink">Documentation</router-link>
                         </li>
                         <li>
                             <router-link to="/branding" class="footerLink">Branding</router-link>
@@ -72,7 +72,7 @@
                             <router-link to="/editor" class="footerLink">Editor</router-link>
                         </li>
                         <li>
-                            <a class="footerLink" href="/guide"><i class="material-icons">subdirectory_arrow_right</i> Guide</a>
+                            <router-link to="/guide" class="footerLink">Guide</router-link>
                         </li>
                         <li>
                             <router-link to="/faq" class="footerLink">FAQ</router-link>

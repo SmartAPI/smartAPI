@@ -2,7 +2,18 @@
   <div>
         <div class="pillBox lighten-4" :class="getBackClass()">
           <form @submit.prevent="handlePillSubmit" style="display:inline;">
-            <input style="width: 100%;" :disabled="loading" v-model='q' :class="getBackClass()" class="browser-default pill-input lighten-4" type="text" name="search" :id="type" :placeholder="loading?'Please wait':'Search'" :list="type+'list'" autocomplete="off">
+            <input 
+            style="width: 100%;" 
+            :disabled="loading" 
+            v-model='q' 
+            :class="getBackClass()" 
+            class="browser-default pill-input lighten-4" 
+            type="text" 
+            name="search" 
+            :id="type" 
+            :placeholder="loading?'Please wait':'Search'" 
+            :list="type+'list'" 
+            autocomplete="off">
             <datalist :id="type+'list'"></datalist>
           </form>
         </div>
@@ -36,7 +47,6 @@ export default {
           var payload = {};
           payload["type"] = self.type;
           payload["q"] = self.q;
-          console.log('sending', self.q)
           this.$store.commit('pushPill', payload);
         } else {
           this.$swal.fire({
@@ -53,6 +63,9 @@ export default {
         payload2["q"] = self.selected;
 
         this.$store.commit('saveInput', payload2);
+        //temp fix
+        this.$store.dispatch('handle_metaKG_Query_New')
+        this.$store.dispatch('buildURL');
         self.q = ''
         // this.$store.dispatch('handle_metaKG_Query_New')
       },
@@ -64,7 +77,9 @@ export default {
         payload["q"] = item;
 
         this.$store.commit('removePill', payload);
-        // this.$store.dispatch('handle_metaKG_Query_New')
+        //temp fix
+        this.$store.dispatch('handle_metaKG_Query_New')
+        this.$store.dispatch('buildURL');
       },
       getBackClass() {
         var self = this;
@@ -105,13 +120,10 @@ export default {
       },
       selected: function (s) {
         var self = this;
+
+        console.log('selected changed', s)
         // load example by watching selected
-        var payload = {};
-        payload["name"] = self.type;
-        payload["q"] = s;
-
-        this.$store.commit('saveInput', payload);
-
+        this.$store.commit('saveInput', {"name": self.type, "q":s});
         this.$store.dispatch('handle_metaKG_Query_New')
         this.$store.dispatch('buildURL');
 

@@ -33,9 +33,8 @@ export default {
         convertMarkdownToHtml: function(){
             let self = this;
             axios.get(self.url).then(response=>{
-
                 var md = new Remarkable('full');
-                
+            
                 md.set({
                   html:         true,        // Enable HTML tags in source
                   breaks:       true,        // Convert '\n' in paragraphs into <br>
