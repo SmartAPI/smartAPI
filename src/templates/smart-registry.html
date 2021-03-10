@@ -216,7 +216,7 @@
                         </div>
                       </template>
                       <template v-for="api in apis">
-                        <api-container :api="api" :total="total" :key="api._id"></api-container>
+                        <api-container :api="api" :total="total" :user="userInfo" :key="api._id"></api-container>
                       </template>
                       <div class="row">
                           <div class="col s12 m10 l10">
@@ -265,14 +265,12 @@
 {% include "footer.html" %}
 {% endblock %}
 {% block extra_scripts %}
-<script src="https://unpkg.com/vuex"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
 <script src="/static/js/clipboard.js"></script>
 <script src="/static/js/moment.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script src="https://unpkg.com/tippy.js@3/dist/tippy.all.min.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-139873613-1"></script>
 <script>
@@ -281,132 +279,8 @@
   gtag('js', new Date());
   gtag('config', 'UA-139873613-1', {
     'custom_map': {
-      // 'dimension1': 'registrytag','dimension2':'registryapi','dimension3':'registryurl','dimension4':'registrysearch',
       'dimension5':'registryResults',
       'metric1':'registry-item'
-    }
-  });
-  
-const store = new Vuex.Store({
-    state: {
-      'analytics':Object,
-      'tags':Array,
-      'userInfo': Object,
-      'apis': [],
-      'tags': [],
-      'authors': [],
-      'popularTags':[],
-      'context': Object
-    },
-    strict: true,
-    mutations: {
-      saveAnalytics(state,payload){
-        state.analytics = Object.freeze(payload['analytics']);
-        let pop = []
-        for (var i = 0; i < state.analytics.length; i++) {
-          if (state.analytics[i][0] ==='tag') {
-            let name = state.analytics[i][1];
-            if(!name.includes(' ')){
-              pop.push({'name':name,'active':false,'count':state.analytics[i][2],'type':'tags'})
-            }else{
-              pop.push({'name':name,'active':false,'count':state.analytics[i][2],'type':'owners'})
-            }
-          }
-        }
-        state.popularTags = pop;
-      },
-      resetTags(state){
-        for (let index = 0; index < state.tags.length; index++) {
-          state.tags[index]['active'] = false 
-        }
-        for (let index = 0; index < state.authors.length; index++) {
-          state.authors[index]['active'] = false 
-        }
-      },
-      saveUserInfo(state,payload){
-        state.userInfo = payload['user'];
-        // console.log('USER',state.userInfo)
-      },
-      saveApis(state,payload){
-        state.apis= Object.freeze(payload['apis']);
-        // console.log('APIS',state.apis)
-      },
-      saveTags(state,payload){
-        state.tags= payload['tags'];
-        // console.log('tags',state.tags)
-      },
-      saveAuthors(state,payload){
-        state.authors= payload['authors'];
-        // console.log('authors',state.authors)
-      },
-      saveContext(state,payload){
-        state.context= payload['context'];
-      },
-      toggleTag(state,payload){
-        let tag= payload['tag'];
-        for (var i = 0; i < state.tags.length; i++) {
-          if (state.tags[i].name === tag.name) {
-            Vue.set(state.tags[i],'active',!state.tags[i]['active'])
-          }
-        }
-      },
-      toggleAuthor(state,payload){
-        let tag= payload['author'];
-        for (var i = 0; i < state.authors.length; i++) {
-          if (state.authors[i].name === tag.name) {
-            Vue.set(state.authors[i],'active',!state.authors[i]['active'])
-          }
-        }
-      },
-      savePopularTags(state,payload){
-        state.popularTags= payload['popularTags'];
-      },
-    },
-    getters:{
-      // exposed as store.getters.nameOfGetter
-      getHitsFor: (state) => (apiname) => {
-        let data={'labels':[],'datasets':[]};
-        let label = '';
-        let dataArray=[];
-
-        for (var i = 0; i < state.analytics.length; i++) {
-          if (state.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
-            label = state.analytics[i][0].toUpperCase();
-            data.labels.push(label);
-            let number = state.analytics[i][2];
-            dataArray.push(number)
-          }
-
-        }
-        data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
-        // console.log('user interactions...',data)
-        return data
-      },
-      getUser:(state)=>{
-        return state.userInfo
-      },
-      getApis:(state)=>{
-        return state.apis
-      },
-      getPaginatedApis: (state) => (start,end) =>{
-        if (state.apis) {
-          return state.apis.slice(start, end);
-        }else{
-          return []
-        }
-      },
-      getTags: (state)=>{
-        return state.tags
-      },
-      getAuthors: (state)=>{
-        return state.authors
-      },
-      getPopularTags: (state)=>{
-        return state.popularTags
-      },
-      getContext: (state)=>{
-        return state.context
-      }
     }
   });
 
@@ -517,7 +391,7 @@ const store = new Vuex.Store({
         pathTotal: 0
       }
     },
-    props: ['api', 'total'],
+    props: ['api', 'total', 'user'],
     methods:{
       compiledMarkdown: function (mdtext) {
           return marked(mdtext, { sanitize: true })
@@ -633,23 +507,6 @@ const store = new Vuex.Store({
         }
       },
     },
-    computed:{
-      userInfo:function(){
-        return store.getters.getUser
-      },
-      tags: function(){
-        return store.getters.getTags
-      },
-      authors: function(){
-        return store.getters.getAuthors
-      },
-      popularTags: function(){
-        return store.getters.getPopularTags
-      },
-      context: function(){
-        return store.getters.getContext
-      },
-    },
     template: `
     <div class="card context">
     <div class="card-content ">
@@ -665,7 +522,7 @@ const store = new Vuex.Store({
             </span>
             <span v-if="api?.info?.['x-trapi']?.version" class="versionBadge pink lighten-2" v-text="'TRAPI '+api?.info?.['x-trapi']?.version">
             </span>
-            <a v-if="userInfo && api._meta.username === userInfo.login" 
+            <a v-if="user && api._meta.username === user.login" 
               :data-tippy-status="api?._status?.refresh_status || 'n/a' "
                 href="/dashboard" class="versionBadge light-blue pointer tipped">
               My&nbsp;API 
@@ -851,7 +708,6 @@ const store = new Vuex.Store({
 
   var app = new Vue({
       el: '#app',
-      store: store,
       data: function(){
         return {
             total: Number,
@@ -876,7 +732,14 @@ const store = new Vuex.Store({
             listAll:false,
             listCap:20,
             ownersNotFound: [],
-            tagsNotFound: []
+            tagsNotFound: [],
+            userInfo: {},
+            context: Object,
+            popularTags: [],
+            'tags':Array,
+            'apis': [],
+            'tags': [],
+            'authors': [],
         }
       },
       methods: {
@@ -908,19 +771,6 @@ const store = new Vuex.Store({
           },
           sortResults(e){
             this.sort = e.target.value;
-          },
-          handleDescriptionClick(event, show){
-            if (show) {
-              event.target.style.maxHeight = 'none';
-              if (event.target.children[1]) {
-                event.target.children[1].hidden = true;
-              }
-            }else{
-              event.target.style.maxHeight = '200px';
-              if (event.target.children[1]) {
-                event.target.children[1].hidden = false;
-              }
-            }
           },
           showHideDetails: function(event){
             //toggle show/hide text on details link per card
@@ -975,18 +825,14 @@ const store = new Vuex.Store({
               var filters = self.getQueryFilters();
               if (Object.keys(filters).length !== 0){
                 for (const param in filters) {
-                  // config["params"][param] = filters[param]
                   url += "&"+param+"="+encodeURIComponent(filters[param])
                 }
               }
-              // console.log("%c "+url, "color: limegreen")
               self.loading_start();
               axios.get(url, config).then(function(response){
                   self.loading_end();
 
-                  var payload = {};
-                  payload["apis"] = response.data.hits;
-                  store.commit('saveApis',payload);
+                  self.apis = response.data.hits;
 
                   self.total = response.data.total;
                   self.calculatePages();
@@ -1005,9 +851,7 @@ const store = new Vuex.Store({
                   let tags = _.map(temp_data, function(item){
                       return {'name':item.key, 'count': item.doc_count, 'active': false};
                   });
-                  var payload = {};
-                  payload["tags"] = tags;
-                  store.commit('saveTags',payload);
+                  self.tags = tags;
 
                   axios.get('/api/suggestion?field=info.contact.name').then(function(response){
                       let temp_data = []
@@ -1018,10 +862,7 @@ const store = new Vuex.Store({
                           return {'name':item.key, 'count': item.doc_count, 'active': false};
                       });
 
-                      var payload = {};
-                      payload["authors"] = authors;
-                      store.commit('saveAuthors',payload);
-
+                      self.authors = authors;
                       //When all filters all loaded
                       //share url params depend on filters being loaded
                       self.refreshApis();
@@ -1138,7 +979,7 @@ const store = new Vuex.Store({
               let url = '/api/query?'
               let query = self.query.trim();
               // reset results
-              store.commit('saveApis',{'apis': []});
+              self.apis = [];
               self.total = 0;
               //unmark keywords
               $(".context").unmark();
@@ -1194,11 +1035,7 @@ const store = new Vuex.Store({
                   axios.get(url, config).then(function (response) {
                       self.loading_end();
                       $(".context").unmark();
-
-                      var payload = {};
-                      payload["apis"] = response.data.hits;
-                      store.commit('saveApis',payload);
-
+                      self.apis = response.data.hits;
                       // self.handleContext(self.context);
                       self.total = response.data.total;
                       self.calculatePages();
@@ -1228,13 +1065,7 @@ const store = new Vuex.Store({
           },
           getUserInfo: function(){
             var self= this;
-            axios.get('/user').then(response=>{
-              var payload = {};
-              payload["user"] = response.data;
-              store.commit('saveUserInfo',payload);
-            }).catch(err=>{
-              throw err;
-            })
+            axios.get('/user').then(response=>{self.userInfo = response.data}).catch(err=>{throw err});
           },
           handleRegularTags: function(rTags){
             var self = this;
@@ -1242,10 +1073,7 @@ const store = new Vuex.Store({
               for (var i = 0; i < rTags.length; i++) {
                 for (var x = 0; x < self.tags.length; x++) {
                   if (rTags[i].toLowerCase() === self.tags[x].name.toLowerCase()) {
-                    // self.tags[x].active = true;
-                    var payload = {};
-                    payload["tag"] = self.tags[x].name.toLowerCase();
-                    store.commit('toggleTag',payload);
+                    self.toggleThisTag(self.tags[x])
                   }
                 }
               }
@@ -1256,10 +1084,7 @@ const store = new Vuex.Store({
               for (var i = 0; i < rTags.length; i++) {
                 for (var x = 0; x < self.authors.length; x++) {
                   if (rTags[i].toLowerCase() === self.authors[x].name.toLowerCase()) {
-                    // self.authors[x].active = true;
-                    var payload = {};
-                    payload["author"] = self.authors[x].name.toLowerCase();
-                    store.commit('toggleAuthor',payload);
+                    self.toggleThisAuthor(self.authors[x])
                   }
                 }
               }
@@ -1298,8 +1123,7 @@ const store = new Vuex.Store({
               for (var i = 0; i < self.tags.length; i++) {
                 if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
                   var payload = {};
-                  payload["tag"] = self.tags[i]
-                  store.commit('toggleTag',payload);
+                  self.toggleThisTag(self.tags[i])
                  }
               }            
           },
@@ -1325,9 +1149,7 @@ const store = new Vuex.Store({
                 for (var x = 0; x < self.tags.length; x++) {
                   if (self.tags[x].name === tags[i]) {
                     tags.splice(i, 1)
-                    var payload = {};
-                    payload["tag"] = self.tags[x];
-                    store.commit('toggleTag',payload);
+                    self.toggleThisTag(self.tags[x])
                   }
                 }
               }
@@ -1348,9 +1170,7 @@ const store = new Vuex.Store({
                 for (var x = 0; x < self.authors.length; x++) {
                   if (self.authors[x].name === owners[i]) {
                     owners.splice(i, 1)
-                    var payload = {};
-                    payload["author"] = self.authors[x];
-                    store.commit('toggleAuthor',payload);
+                    self.toggleThisAuthor(self.authors[x]);
                   }
                 }
               }
@@ -1371,8 +1191,19 @@ const store = new Vuex.Store({
             axios.get('https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
               if (res.data.rows) {
                 var payload = {};
-                payload["analytics"] = res.data.rows;
-                store.commit('saveAnalytics',payload);
+                let analytics = res.data.rows;
+                let pop = []
+                for (var i = 0; i < analytics.length; i++) {
+                  if (analytics[i][0] ==='tag') {
+                    let name = analytics[i][1];
+                    if(!name.includes(' ')){
+                      pop.push({'name':name,'active':false,'count':analytics[i][2],'type':'tags'})
+                    }else{
+                      pop.push({'name':name,'active':false,'count':analytics[i][2],'type':'owners'})
+                    }
+                  }
+                }
+                self.popularTags = pop;
               }
 
             }).catch(err=>{
@@ -1380,182 +1211,193 @@ const store = new Vuex.Store({
             });
           },
           toggleTag(tag,type){
-
+            let self = this;
             switch (type) {
               case 'author':
-              var payload = {};
-              payload["author"] = tag;
-              store.commit('toggleAuthor',payload);
+                self.toggleThisAuthor(tag)
                 break;
-                case 'tag':
-                var payload = {};
-                payload["tag"] = tag;
-                store.commit('toggleTag',payload);
-                  break;
+              case 'tag':
+                self.toggleThisTag(tag)
+                break;
               default:
                 return false
             }
           },
+          toggleThisTag(tag){
+            let self = this;
+            for (var i = 0; i < self.tags.length; i++) {
+              if (self.tags[i].name === tag.name) {
+                Vue.set(self.tags[i],'active',!self.tags[i]['active'])
+              }
+            }
+          },
+          toggleThisAuthor(author){
+            let self = this;
+            for (var i = 0; i < self.authors.length; i++) {
+              if (self.authors[i].name === author.name) {
+                Vue.set(self.authors[i],'active',!self.authors[i]['active'])
+              }
+            }
+          },
       },
       created: function () {
-          this.getUserInfo();
+          let self = this;
+          self.getUserInfo();
           $(".button-collapse").sideNav();
           $('.collapsible').collapsible();
-          this.loadFilters();
+          self.loadFilters();
           if ({{Context}}) {
-            var payload = {};
-            payload["context"] = {{Context}};
-            store.commit('saveContext',payload);
+            self.context = {{Context}};
           }
 
       },
       mounted: function(){
-      var self = this;
+        var self = this;
 
-      window.onpopstate = function(event) {
-        self.refreshApis();
-      };
+        window.onpopstate = function(event) {
+          self.refreshApis();
+        };
 
-      this.getAnalytics();
+        this.getAnalytics();
 
-      tippy('#myAPITipCont',{
-            target: '.tipped',
-            placement: 'top',
+        tippy('#myAPITipCont',{
+              target: '.tipped',
+              placement: 'top',
+              theme:'light',
+              sticky:true,
+              interactive:true,
+              onShow(instance) {
+                let status = instance.reference.dataset.tippyStatus;
+                let msg = [200, 299, '200', '299'].includes(status) ? 'This API belongs to you. Manage it on your <a href="/dashboard">dashboard</a>.' : '<b class="red-text">API metadata cannot be synchronized with its source URL due to an error.</b> <br>Fix the issue and refresh it from your <a href="/dashboard">dashboard</a>.'
+                instance.setContent("<div class='p-1 blue-text left-align'>"+msg+"</div>")
+              },
+            });
+
+        tippy( '#tippyParentCopy', {
+            target: '.copyBtn',
+            content:'Copied',
+            animateFill: false,
+            animation: 'fade',
             theme:'light',
-            sticky:true,
-            interactive:true,
-            onShow(instance) {
-              let status = instance.reference.dataset.tippyStatus;
-              let msg = [200, 299, '200', '299'].includes(status) ? 'This API belongs to you. Manage it on your <a href="/dashboard">dashboard</a>.' : '<b class="red-text">API metadata cannot be synchronized with its source URL due to an error.</b> <br>Fix the issue and refresh it from your <a href="/dashboard">dashboard</a>.'
-              instance.setContent("<div class='p-1 blue-text left-align'>"+msg+"</div>")
-            },
-          });
+            trigger:'click'});
 
-      tippy( '#tippyParentCopy', {
-          target: '.copyBtn',
-          content:'Copied',
-          animateFill: false,
-          animation: 'fade',
+        tippy( '#top-2', {
+          target: '.urlStatus',
+          content: `<div class="white" style="padding:0px;">
+                      <table>
+                        <thead>
+                          <tr>
+                            <td colspan="2" class='grey-text center'>
+                              <b>API Metadata Source URL Status</b>
+                            </td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class='green-text center'>
+                              <b>OK</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Source URL is working and returns valid metadata.</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class='orange-text center'>
+                              <b>NOT FOUND</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Source URL returns not found.</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class='red-text center'>
+                              <b>INVALID</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Source URL works but contains invalid metadata.</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class='purple-text center'>
+                              <b>BROKEN</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Source URL is broken.</small>
+                            </td>
+                          </tr>
+                          <tr class="cyan lighten-5">
+                            <td colspan='2' class='blue-grey-text'>
+                              <p>
+                                <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
+                              </p>
+                              <p>
+                                <b>Need help?</b> From your <a href="/dashboard">User Dashboard</a> &gt; <b class='indigo-text'>Validate Only</b> to see issues then <b class='green-text'>Refresh</b> once all issues have been resolved.
+                              </p>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>`,
+          placement: 'left',
           theme:'light',
-          trigger:'click'});
+          trigger:'click',
+          sticky:true,
+          interactive:true,
+        });
 
-      tippy( '#top-2', {
-        target: '.urlStatus',
-        content: `<div class="white" style="padding:0px;">
-                    <table>
-                      <thead>
-                        <tr>
-                          <td colspan="2" class='grey-text center'>
-                            <b>API Metadata Source URL Status</b>
-                          </td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class='green-text center'>
-                            <b>OK</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL is working and returns valid metadata.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='orange-text center'>
-                            <b>NOT FOUND</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL returns not found.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='red-text center'>
-                            <b>INVALID</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL works but contains invalid metadata.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='purple-text center'>
-                            <b>BROKEN</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Source URL is broken.</small>
-                          </td>
-                        </tr>
-                        <tr class="cyan lighten-5">
-                          <td colspan='2' class='blue-grey-text'>
-                            <p>
-                              <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
-                            </p>
-                            <p>
-                              <b>Need help?</b> From your <a href="/dashboard">User Dashboard</a> &gt; <b class='indigo-text'>Validate Only</b> to see issues then <b class='green-text'>Refresh</b> once all issues have been resolved.
-                            </p>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>`,
-        placement: 'left',
-        theme:'light',
-        trigger:'click',
-        sticky:true,
-        interactive:true,
-      });
-
-      tippy( '#top', {
-        target: '.apiStatus',
-        content: `<div class="white" style="padding:0px;">
-                    <table>
-                      <thead>
-                        <tr>
-                          <td colspan="2" class='grey-text center'>
-                            <b>Overall API Endpoint Uptime Status</b>
-                          </td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class='green-text center'>
-                            <b>PASS</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Your OpenAPI V3 API endpoints provide examples and all return code 200.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='red-text center'>
-                            <b>FAIL</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
-                          </td>
-                        </tr>
-                        <tr> 
-                          <td class='orange-text center'>
-                            <b>UNKNOWN</b>
-                          </td>
-                          <td class="black-text">
-                            <small>None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.</small>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class='blue-text center'>
-                            <b>INCOMPATIBLE</b>
-                          </td>
-                          <td class="black-text">
-                            <small>Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.</small>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>`,
-        placement: 'left',
-        theme:'light',
-        trigger:'click',
-        sticky:true,
-        interactive:true,
-      });
+        tippy( '#top', {
+          target: '.apiStatus',
+          content: `<div class="white" style="padding:0px;">
+                      <table>
+                        <thead>
+                          <tr>
+                            <td colspan="2" class='grey-text center'>
+                              <b>Overall API Endpoint Uptime Status</b>
+                            </td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td class='green-text center'>
+                              <b>PASS</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Your OpenAPI V3 API endpoints provide examples and all return code 200.</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class='red-text center'>
+                              <b>FAIL</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
+                            </td>
+                          </tr>
+                          <tr> 
+                            <td class='orange-text center'>
+                              <b>UNKNOWN</b>
+                            </td>
+                            <td class="black-text">
+                              <small>None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.</small>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td class='blue-text center'>
+                              <b>INCOMPATIBLE</b>
+                            </td>
+                            <td class="black-text">
+                              <small>Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.</small>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>`,
+          placement: 'left',
+          theme:'light',
+          trigger:'click',
+          sticky:true,
+          interactive:true,
+        });
 
       },
       updated: function(){
@@ -1563,24 +1405,7 @@ const store = new Vuex.Store({
         this.getKeywords();
       },
       computed: {
-          userInfo: function(){
-            return store.getters.getUser
-          },
-          apis: function(){
-            return store.getters.getApis
-          },
-          tags: function(){
-            return store.getters.getTags
-          },
-          authors: function(){
-            return store.getters.getAuthors
-          },
-          popularTags: function(){
-            return store.getters.getPopularTags
-          },
-          context: function(){
-            return store.getters.getContext
-          },
+
       },
       watch:{
         tagsearch:function(q){
