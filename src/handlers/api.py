@@ -10,8 +10,8 @@ import logging
 from collections import OrderedDict
 
 import certifi
-from biothings.web.handlers import BaseAPIHandler
-from biothings.web.handlers.exceptions import BadRequest
+from biothings.web.handlers import BaseAPIHandler, BiothingHandler
+from biothings.web.handlers.exceptions import BadRequest, EndRequest
 from controller import ControllerError, NotFoundError, SmartAPI
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
@@ -117,19 +117,62 @@ class ValidateHandler(BaseHandler):
             })
 
 
-class APIHandler(BaseHandler):
-    """
-    Handle CRUD ops for api metadata based on
-    openapi v3 or swagger v2
-    """
+class SmartAPIReadOnlyHandler(BiothingHandler):
+
+    def pre_query_builder_hook(self, options):
+        options = super().pre_query_builder_hook(options)
+
+        if options.esqb.q:
+            # id query cannot perform pagination
+            options.esqb.pop('size', None)
+            options.esqb.pop('from', None)
+        else:
+            # perform get_all if no particular id is given
+            options.esqb.q = options.esqb.q or '__all__'
+            options.esqb.scopes = None  # not a match query
+
+        return options
+
+    def pre_transform_hook(self, options, res):
+
+        # raw == 1 is reserved for adding underscore fields
+        if options.control.raw == 2:
+            raise Finish(res)
+
+        return res
+
+    def pre_finish_hook(self, options, res):
+
+        if isinstance(res, dict):
+
+            # get all
+            # --------------
+            if options.esqb.q == '__all__':
+                return self.pre_finish_hook(options, res['hits'])
+
+            # get one
+            # --------------
+            if not res.get('hits'):
+                template = self.web_settings.ID_NOT_FOUND_TEMPLATE
+                reason = template.format(bid=options.esqb.q)
+                raise EndRequest(404, reason=reason)
+
+            res = res['hits'][0]
+            res.pop('_score', None)
+            res = OrderedDict(res)
+
+        elif isinstance(res, list):
+            for hit in res:
+                hit.pop('_score', None)
+            res = [OrderedDict(hit) for hit in res]
+
+        return res
+
+
+class SmartAPIHandler(BaseHandler, SmartAPIReadOnlyHandler):
 
     kwargs = {
-        'GET': {
-            'format': {'type': str, 'default': 'json'},
-            'from_': {'type': int, 'default': 0, 'alias': 'from'},
-            'size': {'type': int, 'default': 5, 'max': 10},  # SmartAPI document size can be large.
-            'raw': {'type': int, 'default': 0}
-        },
+        '*': BiothingHandler.kwargs['*'],
         'PUT': {
             'slug': {'type': str, 'default': None},
         },
@@ -139,42 +182,8 @@ class APIHandler(BaseHandler):
         },
     }
 
-    name = "smartapi"
-
-    def get(self, _id=None):
-        """
-        Retrieve API(s).
-        """
-        if _id is None:
-            docs = SmartAPI.get_all(
-                from_=self.args.from_,
-                size=self.args.size)
-            raise Finish([dict(doc) for doc in docs])
-
-        # Route A: Elasticsearch version
-        # ---------------------------------------
-        if self.args.raw == 1:
-            self.redirect('/api/annotation/{}'.format(_id))
-            return
-
-        try:
-            doc = SmartAPI.get(_id)
-        except NotFoundError:
-            raise HTTPError(404)
-
-        # Route B: Exactly as user submitted
-        # ---------------------------------------
-        if self.args.raw == 2:
-            self.set_header('Content-Type', 'text/plain')
-            self.finish(doc.raw)
-            return
-
-        # Route C: Formatted content equivalence
-        # ---------------------------------------
-        self.format = self.args.format
-        # Use OrderedDict to ensure key
-        # orders during YAML serialization
-        self.finish(OrderedDict(doc))
+    async def prepare(self):
+        await super().prepare()
 
     @github_authenticated
     async def post(self):

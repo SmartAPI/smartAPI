@@ -2,6 +2,8 @@
 from biothings.utils.web.es_dsl import AsyncSearch
 from biothings.web.pipeline import ESQueryBuilder, ESResultTransform
 
+from controller import OpenAPI, Swagger
+
 
 class SmartAPIQueryBuilder(ESQueryBuilder):
 
@@ -62,6 +64,12 @@ class SmartAPIResultTransform(ESResultTransform):
             doc.pop('_shard', None)   # added when using explain
 
             # OVERRIDE STARTS HERE
+
+            if options.raw == 0:
+                for key in list(doc.keys()):
+                    if key.startswith('_'):
+                        doc.pop(key)
+
             try:
                 doc['paths'] = {
                     item['path']: item['pathitem']
@@ -69,3 +77,31 @@ class SmartAPIResultTransform(ESResultTransform):
                 }
             except Exception:
                 pass
+
+            # field filtering
+            if options._source:
+                fields = {field.split('.')[0] for field in options._source}
+                for key in list(doc.keys()):
+                    if key not in fields:
+                        doc.pop(key)
+
+            # field ordering
+            if not options.sorted:
+
+                if 'openapi' in doc:
+                    _doc = OpenAPI(doc)
+                    _doc.order()
+                    # meta fields appear first
+                    for key in list(doc.keys()):
+                        if not key.startswith('_'):
+                            doc.pop(key)
+                    doc.update(_doc)
+
+                elif 'swagger' in doc:
+                    _doc = Swagger(doc)
+                    _doc.order()
+                    # meta fields appear first
+                    for key in list(doc.keys()):
+                        if not key.startswith('_'):
+                            doc.pop(key)
+                    doc.update(_doc)
