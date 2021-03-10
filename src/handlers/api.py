@@ -128,7 +128,7 @@ class SmartAPIReadOnlyHandler(BiothingHandler):
             options.esqb.pop('from', None)
         else:
             # perform get_all if no particular id is given
-            options.esqb.q = options.esqb.q or '__all__'
+            options.esqb.q = '__all__'
             options.esqb.scopes = None  # not a match query
 
         return options
