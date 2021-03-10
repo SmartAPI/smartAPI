@@ -29,6 +29,7 @@ ANNOTATION_KWARGS['GET']['size']['max'] = 10
 ANNOTATION_KWARGS['GET']['raw']['type'] = int
 ANNOTATION_KWARGS['GET']['raw']['default'] = 0
 ANNOTATION_KWARGS['GET']['raw']['group'] = ('control', 'transform')
+ANNOTATION_KWARGS['GET']['raw']['alias'] = 'meta'
 ANNOTATION_KWARGS['GET']['from'] = deepcopy(QUERY_KWARGS['GET']['from'])
 ANNOTATION_KWARGS['GET']['from']['default'] = 0
 ANNOTATION_KWARGS['GET']['from']['alias'] = ('skip', 'from_')
