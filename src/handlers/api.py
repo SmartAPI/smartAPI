@@ -159,12 +159,12 @@ class SmartAPIReadOnlyHandler(BiothingHandler):
 
             res = res['hits'][0]
             res.pop('_score', None)
-            res = OrderedDict(res)
+            res = OrderedDict(res) # for YAML serialization
 
         elif isinstance(res, list):
             for hit in res:
                 hit.pop('_score', None)
-            res = [OrderedDict(hit) for hit in res]
+            res = [OrderedDict(hit) for hit in res] # for YAML serialization
 
         return res
 
