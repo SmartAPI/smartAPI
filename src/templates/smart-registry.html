@@ -192,7 +192,7 @@
                           <div class="row">
                             <div class="col s5 m10">
                               <template v-if="total && total > 0">
-                                <span class="blue-text" v-text="'Total APIs:'+total"></span>
+                                <span class="blue-text" v-text="'Total APIs: '+total"></span>
                                 <button :data-clipboard-text='shareURL' @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );" v-if="shareURLButtonVisible" class="smallButton grey copyBtn" title='Copy to clipboard'>
                                   <i class="fa fa-clipboard" aria-hidden="true"></i> Copy Search URL
                                 </button>
@@ -485,9 +485,9 @@
               for (endpoint in api.paths) {
                 const item = api.paths[endpoint];
                 for(var method in item) {
-                  if (item[method].hasOwnProperty('summary')) {
+                  if (Object.prototype.hasOwnProperty.call(item[method], "summary")) {
                     operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': item[method]['summary'], 'path': endpoint })
-                  }else if (item[method].hasOwnProperty('description')) {
+                  }else if (Object.prototype.hasOwnProperty.call(item[method], "description")) {
                     operations.push({'method': self.validateFields(method.toUpperCase()), 'summary': item[method]['description'], 'path': endpoint })
                   }
                 }
@@ -681,7 +681,7 @@
           </div>
         </div>
         <div>
-          <template v-if=" api.hasOwnProperty('openapi') ">
+          <template v-if="api?.openapi">
             <h5 class="grey-text">(<span v-text="pathTotal"></span>) Operations</h5>
             <h6 v-if="overLimit">
               <small class="grey-text">This is just a preview. For a full list click on <b class="green-text">View API Documentation</b> link above.</small> 
