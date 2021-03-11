@@ -51,11 +51,6 @@ ANNOTATION_KWARGS['GET']['raw']['type'] = int
 ANNOTATION_KWARGS['GET']['raw']['default'] = 0
 ANNOTATION_KWARGS['GET']['raw']['group'] = ('control', 'transform')
 ANNOTATION_KWARGS['GET']['raw']['alias'] = 'meta'
-# to hide the unnecessary _raw field in response in all times, and to meaningfully
-# provide field filtering for a transformed paths field, here it moves the filtering
-# from database to result transform stage and only support first level keys. if a
-# dotfield notation is provided, it's automatically parsed to use its first level.
-ANNOTATION_KWARGS['GET']['_source']['group'] = 'transform'
 # since there's internal field ordering for OpenAPI and Swagger documents, by default
 # turn off the alphabetical ordering of keys defaulted in most biothings applictaions.
 ANNOTATION_KWARGS['GET']['_sorted']['default'] = False
