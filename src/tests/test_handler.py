@@ -110,6 +110,11 @@ class SmartAPIEndpoint(BiothingsTestCase):
     def evil_user(self):
         return self.cookie_header('eviluser01')
 
+    def get_app(self):
+        app = super().get_app()
+        app.settings['debug'] = True
+        return app
+
 
 class TestValidate(SmartAPIEndpoint):
 

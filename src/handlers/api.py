@@ -10,8 +10,8 @@ import logging
 from collections import OrderedDict
 
 import certifi
-from biothings.web.handlers import BaseAPIHandler
-from biothings.web.handlers.exceptions import BadRequest
+from biothings.web.handlers import BaseAPIHandler, BiothingHandler
+from biothings.web.handlers.exceptions import BadRequest, EndRequest
 from controller import ControllerError, NotFoundError, SmartAPI
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
@@ -78,30 +78,64 @@ class BaseHandler(BaseAPIHandler):
 
 class ValidateHandler(BaseHandler):
     """
-    Validate Swagger/OpenAPI document.
-    Accepts URL in form data, JSON/YAML body.
+    Validate a Swagger/OpenAPI document.
+    Support three types of requests.
+
+    GET /api/validate?url=<url>
+
+    POST /api/validate
+    url=<url>
+
+    POST /api/validate
+    {
+        "openapi": "3.0.0",
+        ...
+    }
     """
 
     name = "validator"
     kwargs = {
+        "GET": {
+            "url": {"type": str, "location": "query", "required": True}
+        },
         "POST": {
             "url": {"type": str, "location": "form"}
         }
     }
 
+    # TODO
+    # maybe this module should return 200 for all retrievable files?
+    # when a document doesn't pass validation, maybe it's better to
+    # indicate it by a field "passed": True/False instead of sharing
+    # the same status code as missing a url parameter here.
+
+    async def get(self):
+
+        if self.request.body:
+            raise BadRequest(details="GET takes no request body.")
+
+        raw = await self.download(self.args.url)
+        self.validate(raw)
+
     async def post(self):
 
         if self.args.url:
-
-            try:
-                file = await download_async(self.args.url)
-            except DownloadError as err:
-                raise BadRequest(details=str(err))
-            else:  # other file info irrelevent for validation
-                raw = file.raw
-
+            raw = await self.download(self.args.url)
         else:  # then treat the request body as raw
             raw = self.request.body
+
+        self.validate(raw)
+
+    async def download(self, url):
+
+        try:
+            file = await download_async(url)
+        except DownloadError as err:
+            raise BadRequest(details=str(err))
+        else:  # other file info irrelevent for validation
+            return file.raw
+
+    def validate(self, raw):
 
         try:
             smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
@@ -117,19 +151,62 @@ class ValidateHandler(BaseHandler):
             })
 
 
-class APIHandler(BaseHandler):
-    """
-    Handle CRUD ops for api metadata based on
-    openapi v3 or swagger v2
-    """
+class SmartAPIReadOnlyHandler(BiothingHandler):
+
+    def pre_query_builder_hook(self, options):
+        options = super().pre_query_builder_hook(options)
+
+        if options.esqb.q:
+            # id query cannot perform pagination
+            options.esqb.pop('size', None)
+            options.esqb.pop('from', None)
+        else:
+            # perform get_all if no particular id is given
+            options.esqb.q = '__all__'
+            options.esqb.scopes = None  # not a match query
+
+        return options
+
+    def pre_transform_hook(self, options, res):
+
+        # raw == 1 is reserved for adding underscore fields
+        if options.control.raw == 2:
+            raise Finish(res)
+
+        return res
+
+    def pre_finish_hook(self, options, res):
+
+        if isinstance(res, dict):
+
+            # get all
+            # --------------
+            if options.esqb.q == '__all__':
+                return self.pre_finish_hook(options, res['hits'])
+
+            # get one
+            # --------------
+            if not res.get('hits'):
+                template = self.web_settings.ID_NOT_FOUND_TEMPLATE
+                reason = template.format(bid=options.esqb.q)
+                raise EndRequest(404, reason=reason)
+
+            res = res['hits'][0]
+            res.pop('_score', None)
+            res = OrderedDict(res)  # for YAML serialization
+
+        elif isinstance(res, list):
+            for hit in res:
+                hit.pop('_score', None)
+            res = [OrderedDict(hit) for hit in res]  # for YAML serialization
+
+        return res
+
+
+class SmartAPIHandler(BaseHandler, SmartAPIReadOnlyHandler):
 
     kwargs = {
-        'GET': {
-            # 'fields': {'type': list, 'default': []},
-            'format': {'type': str, 'default': 'json'},
-            'from_': {'type': int, 'default': 0, 'alias': 'from'},
-            'size': {'type': int, 'default': 10},
-        },
+        '*': BiothingHandler.kwargs['*'],
         'PUT': {
             'slug': {'type': str, 'default': None},
         },
@@ -138,28 +215,6 @@ class APIHandler(BaseHandler):
             'dryrun': {'type': bool, 'default': False},
         },
     }
-
-    name = "smartapi"
-
-    def get(self, _id=None):
-        """
-        Get one API or ALL
-        """
-        if _id is None:
-            docs = SmartAPI.get_all(
-                from_=self.args.from_,
-                size=self.args.size)
-            raise Finish([dict(doc) for doc in docs])
-
-        try:
-            doc = SmartAPI.get(_id)
-        except NotFoundError:
-            raise HTTPError(404)
-        else:
-            self.format = self.args.format
-            # Use OrderedDict to ensure key
-            # orders during YAML serialization
-            self.finish(OrderedDict(doc))
 
     @github_authenticated
     async def post(self):
@@ -202,6 +257,10 @@ class APIHandler(BaseHandler):
             await self._notify(smartapi)
 
     async def _notify(self, smartapi):
+
+        if self.settings.get('debug'):
+            return
+
         client = AsyncHTTPClient()
         kwargs = {
             "_id": smartapi._id,

@@ -1,4 +1,4 @@
-biothings[web_extra]==0.9.0
+biothings[web_extra]==0.9.1
 
 # document validation
 jsonschema==3.2.0
