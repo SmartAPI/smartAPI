@@ -4,7 +4,7 @@
     <div class="testBack padding20">
     <nav>
         <div class="nav-wrapper blue">
-            <ul id="nav-mobile" class="right">
+            <ul id="nav-mobile" class="left">
             <li class="collection-item noBorder transparent">
                 <a href="#!" class="link" @click="url = ''">
                 Introduction <i class="fa fa-chevron-right" aria-hidden="true"></i>
@@ -16,7 +16,7 @@
                 id="extBtn"
                 class="link"
                 @click="url='https://raw.githubusercontent.com/SmartAPI/smartAPI/master/README.md'">
-                Get Started <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                Getting Started <i class="fa fa-chevron-right" aria-hidden="true"></i>
                 </a>
             </li>
             <li class="collection-item noBorder transparent">

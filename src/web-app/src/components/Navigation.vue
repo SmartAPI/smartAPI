@@ -8,7 +8,7 @@
       <a class="lighter" href="/registry" :class="{'route-active': current == 'Registry'}">Registry</a>
       <router-link to="/editor" :class="{'route-active': current == 'Editor'}">Editor</router-link>
       <router-link to="/faq" :class="{'route-active': current == 'FAQ'}">FAQ</router-link>
-      <!-- <Login></Login> -->
+      <Login></Login>
     </div>
     <a href="javascript:void(0);" class="btn blue hide-on-med-and-up" @click="toggleShow">
       MENU
@@ -19,7 +19,7 @@
         <a class="lighter" href="/registry" :class="{'route-active': current == 'Registry'}">Registry</a>
         <router-link to="/editor" :class="{'route-active': current == 'Editor'}">Editor</router-link>
         <router-link to="/faq" :class="{'route-active': current == 'FAQ'}">FAQ</router-link>
-        <!-- <Login></Login> -->
+        <Login></Login>
       </div>
     </div>
     
@@ -27,12 +27,12 @@
 </template>
 
 <script>
-// import Login from './Login.vue';
+import Login from './Login.vue';
 
 export default {
   name: 'Navigation',
   components:{
-    // Login,
+    Login,
   },
   data: function(){
     return{

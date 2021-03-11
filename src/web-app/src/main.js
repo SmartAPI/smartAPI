@@ -11,6 +11,7 @@ import store from './store'
 // Plugins
 import VueSweetalert2 from 'vue-sweetalert2';
 import VueFinalModal from 'vue-final-modal'
+import VueParticles from 'vue-particles'
 // Global CSS
 import 'sweetalert2/dist/sweetalert2.min.css';
 import 'materialize-css/dist/css/materialize.css'
@@ -26,7 +27,11 @@ const app = createApp(App);
 // vue dev tools on inspector
 // app.config.devtools = true
 
-app.use(store).use(router).use(VueSweetalert2).use(VueFinalModal());
+app.use(store)
+.use(router)
+.use(VueSweetalert2)
+.use(VueFinalModal())
+.use(VueParticles);
 
 // global registration
 app.component("Image", Image);

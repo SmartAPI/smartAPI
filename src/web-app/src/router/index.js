@@ -60,11 +60,19 @@ const routes = [
     name: 'Guide',
     component: () => import('../views/Guide.vue')
   },
+  {
+    path: '/dashboard',
+    name: 'DashBoard',
+    component: () => import('../views/DashBoard.vue')
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior() {
+    return { x: 0, y: 0 };
+  },
 })
 
 export default router

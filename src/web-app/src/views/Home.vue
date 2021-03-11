@@ -1,8 +1,23 @@
 <template>
   <main id="index-app">
     <div class="section mainBackgroundParticle heroContainer" id="index-banner">
-      <div id="particles-js">
-        <div class="center-align indexChild container" >
+      <vue-particles color="#ffffff"
+        :particleOpacity="1"
+        linesColor="#ffffff"
+        :particlesNumber="30"
+        shapeType="circle"
+        :particleSize="5"
+        :linesWidth="2"
+        :lineLinked="true"
+        :lineOpacity="1"
+        :linesDistance="300"
+        :moveSpeed=".5"
+        :hoverEffect="true"
+        hoverMode="grab"
+        :clickEffect="true"
+        clickMode="push">
+      </vue-particles>
+      <div class="center-align indexChild container" >
             <Image img_width="40%" img_name="logo-small.svg" class="hide-on-med-only hide-on-large-only"></Image>
             <Image img_width="60%" img_name="logo-medium.svg" class="hide-on-small-only hide-on-large-only"></Image>
             <Image img_width="100%" img_name="logo-large.svg" class="hide-on-small-only hide-on-med-only" :style="{maxWidth: '500px'}"></Image>
@@ -13,17 +28,16 @@
               BUILDING A CONNECTED NETWORK OF FAIR APIS
             </h5>
         </div>
-      </div>
     </div>
     <!-- new to SmartAPI-->
-    <div class="whiteBack" style="overflow: hidden;">
-      <div class="container-fluid center blue-grey darken-4 white-text padding20">
+    <div class="blue-grey darken-4" style="overflow: hidden; padding:50px 10px;">
+      <div class="container-fluid center white-text padding20">
         <h5 class="shine">New to <span class="logoFont">SmartAPI</span>?</h5>
         <p class="lighter">
           Follow this step-by-step guide to help you contribute to SmartAPI for the first time
         </p>
         <br />
-        <a class="clearButton" href="/guide">Start Here</a>
+        <router-link to="/guide" class="clearButton">Start Here</router-link>
       </div>
     </div>
 
@@ -49,67 +63,49 @@
     <div style="margin-bottom:0px;" id="topicsBox" class="row blue-grey">
 
         <div class="col s12 m6 l4 center-align padding20 topic" id="registryBox" @mouseenter="animatedIcons('registryIcon')">
-            <a href="/registry" >
-                <Image alt="icon" class="margin10" img_width="70px" img_name="search.svg" id="registryIcon"></Image>
-                <br>
-                <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Registry</h4>
-                <span class="clearButton hide-on-small-only">Registry</span>
-            </a>
+            <Image alt="icon" class="margin10" img_width="70px" img_name="search.svg" id="registryIcon"></Image>
+            <br>
+            <router-link to="/registry" class="clearButton">Registry</router-link>
             <p class="l-blue-text" >
                 Search the registry of SmartAPIs
             </p>
         </div>
         <div class="col s12 m6 l4 center-align padding20 topic" id="editBox" @mouseenter="animatedIcons('editIcon')">
-            <a href="/editor" >
-                <Image alt="icon" class="margin10" img_width="70px" img_name="edit.svg" id="editIcon"></Image>
-                <br>
-                <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Editor</h4>
-                <span class="clearButton hide-on-small-only">Editor</span>
-          </a>
+            <Image alt="icon" class="margin10" img_width="70px" img_name="edit.svg" id="editIcon"></Image>
+            <br>
+            <router-link to="/editor" class="clearButton">Editor</router-link>
             <p class="l-blue-text" >
                 Author your own SmartAPI metadata
             </p>
         </div>
         <div class="col s12 m6 l4 center-align padding20 topic" id="apiBox" @mouseenter="animatedIcons('apiIcon')">
-            <a href="/ui/27a5b60716c3a401f2c021a5b718c5b1" >
-                <Image alt="icon" class="margin10" img_width="70px" img_name="api.svg" id="apiIcon"></Image>
-                <br>
-                <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">API</h4>
-                <span class="clearButton hide-on-small-only">API</span>
-          </a>
+            <Image alt="icon" class="margin10" img_width="70px" img_name="api.svg" id="apiIcon"></Image>
+            <br>
+            <router-link to="/ui/27a5b60716c3a401f2c021a5b718c5b1" class="clearButton">API</router-link>
             <p class="l-blue-text" >
                 Learn about and access the SmartAPI services
             </p>
         </div>
         <div class="col s12 m6 l4 center-align padding20 topic" id="specBox" @mouseenter="animatedIcons('specIcon')">
-            <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" >
-                <Image alt="icon" class="margin10" img_width="70px" img_name="spec.svg" id="specIcon"></Image>
-                <br>
-                <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Specification</h4>
-                <span class="clearButton hide-on-small-only">Specification</span>
-          </a>
+            <Image alt="icon" class="margin10" img_width="70px" img_name="spec.svg" id="specIcon"></Image>
+            <br>
+            <a class="clearButton" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md" >Specification</a>
             <p class="l-blue-text" >
                 SmartAPI metadata specification to start your API
             </p>
         </div>
         <div class="col s12 m6 l4 center-align padding20 topic" id="guideBox" @mouseenter="animatedIcons('guideIcon')">
-            <a href="/guide" >
-                <Image alt="icon" class="margin10" img_width="70px" img_name="guide.svg" id="guideIcon"></Image>
-                <br>
-                <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Guide</h4>
-                <span class="clearButton hide-on-small-only">Guide</span>
-          </a>
+            <Image alt="icon" class="margin10" img_width="70px" img_name="guide.svg" id="guideIcon"></Image>
+            <br>
+            <router-link to="/guide" class="clearButton">Guide</router-link>
             <p class="l-blue-text" >
                 Contribute to SmartAPI for the first time
             </p>
         </div>
         <div class="col s12 m6 l4 center-align padding20 topic" id="groupBox" @mouseenter="animatedIcons('groupIcon')">
-            <a href="https://goo.gl/D4e0xL" target="_blank">
-                <Image alt="icon" class="margin10" img_width="70px" img_name="group.svg" id="groupIcon"></Image>
-                <br>
-                <h4 style="text-decoration: underline; text-transform: uppercase;" class="hide-on-med-and-up show-on-small white-text">Working Group</h4>
-                <span class="clearButton hide-on-small-only">Working Group</span>
-            </a>
+            <Image alt="icon" class="margin10" img_width="70px" img_name="group.svg" id="groupIcon"></Image>
+            <br>
+            <a href="https://goo.gl/D4e0xL" target="_blank" class="clearButton">Working Group</a>
             <p class="l-blue-text" >
                 Join the API Interoperability working group
             </p>
@@ -168,122 +164,8 @@ import $ from 'jquery'
 
 export default {
   name: 'Home',
-  components: {
 
-  },
-  data: function(){
-    return{
-      'particle_config': {
-        "particles": {
-          "number": {
-            "value": 30,
-          },
-          "color": {
-            "value": "#ffffff"
-          },
-          "shape": {
-            "type": "circle",
-            "stroke": {
-              "width": 0,
-              "color": "#000000"
-            },
-            "polygon": {
-              "nb_sides": 5
-            },
-          },
-          "opacity": {
-            "value": 1,
-            "random": false,
-            "anim": {
-              "enable": false,
-              "speed": 1,
-              "opacity_min": 0.1,
-              "sync": false
-            }
-          },
-          "size": {
-            "value": 3,
-            "random": true,
-            "anim": {
-              "enable": false,
-              "speed": 1,
-              "size_min": 0.1,
-              "sync": false
-            }
-          },
-          "line_linked": {
-            "enable": true,
-            "distance": 300,
-            "color": "#8AC5E5",
-            "opacity": 1,
-            "width": 2
-          },
-          "move": {
-            "enable": true,
-            "speed": .5,
-            "direction": "none",
-            "random": false,
-            "straight": false,
-            "out_mode": "out",
-            "bounce": false,
-            "attract": {
-              "enable": false,
-              "rotateX": 600,
-              "rotateY": 1200
-            }
-          }
-        },
-        "interactivity": {
-          "detect_on": "canvas",
-          "events": {
-            "onhover": {
-              "enable": false,
-              "mode": "repulse"
-            },
-            "onclick": {
-              "enable": true,
-              "mode": "repulse"
-            },
-            "resize": true
-          },
-          "modes": {
-            "grab": {
-              "distance": 800,
-              "line_linked": {
-                "opacity": 1
-              }
-            },
-            "bubble": {
-              "distance": 800,
-              "size": 80,
-              "duration": 2,
-              "opacity": 1,
-              "speed": 3
-            },
-            "repulse": {
-              "distance": 100,
-              "duration": .7
-            },
-            "push": {
-              "particles_nb": 4
-            },
-            "remove": {
-              "particles_nb": 2
-            }
-          }
-        },
-        "retina_detect": true
-      }
-    }
-  },
   methods: {
-    particlesInit(){
-      try {
-        window.particlesJS("particles-js", this.particle_config);
-      } catch (error) {
-        console.log('%c Particles failed to load','color:coral')
-      }
-    },
     animatedIcons(id){
       new Vivus(id, {duration: 50});
     },
@@ -304,8 +186,6 @@ export default {
     },
   },
   mounted: function(){
-    let self = this;
-    self.particlesInit();
     new Vivus('whatIs', {duration: 200, type: 'oneByOne'});
     this.checkCookieNotification();
   }
