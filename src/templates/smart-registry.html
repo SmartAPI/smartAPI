@@ -390,7 +390,8 @@
       return{
         showDetails:false,
         overLimit: false,
-        pathTotal: 0
+        pathTotal: 0,
+        bt_tag: Object
       }
     },
     props: ['api', 'total', 'user'],
@@ -509,6 +510,9 @@
         }
       },
     },
+    mounted: function(){
+      this.bt_tag = this.api['tags'].find(element => element.name == 'biothings');
+    },
     template: `
     <div class="card context">
     <div class="card-content ">
@@ -523,6 +527,9 @@
               Swagger2
             </span>
             <span v-if="api?.info?.['x-trapi']?.version" class="versionBadge pink lighten-2" v-text="'TRAPI '+api?.info?.['x-trapi']?.version">
+            </span>
+            <span v-if="bt_tag" class="versionBadge grey darken-2">
+              BioThings API
             </span>
             <a v-if="user && api._meta.username === user.login" 
               :data-tippy-status="api?._status?.refresh_status || 'n/a' "
