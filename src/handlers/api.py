@@ -78,30 +78,64 @@ class BaseHandler(BaseAPIHandler):
 
 class ValidateHandler(BaseHandler):
     """
-    Validate Swagger/OpenAPI document.
-    Accepts URL in form data, JSON/YAML body.
+    Validate a Swagger/OpenAPI document.
+    Support three types of requests.
+
+    GET /api/validate?url=<url>
+
+    POST /api/validate
+    url=<url>
+
+    POST /api/validate
+    {
+        "openapi": "3.0.0",
+        ...
+    }
     """
 
     name = "validator"
     kwargs = {
+        "GET": {
+            "url": {"type": str, "location": "query", "required": True}
+        },
         "POST": {
             "url": {"type": str, "location": "form"}
         }
     }
 
+    # TODO
+    # maybe this module should return 200 for all retrievable files?
+    # when a document doesn't pass validation, maybe it's better to
+    # indicate it by a field "passed": True/False instead of sharing
+    # the same status code as missing a url parameter here.
+
+    async def get(self):
+
+        if self.request.body:
+            raise BadRequest(details="GET takes no request body.")
+
+        raw = await self.download(self.args.url)
+        self.validate(raw)
+
     async def post(self):
 
         if self.args.url:
-
-            try:
-                file = await download_async(self.args.url)
-            except DownloadError as err:
-                raise BadRequest(details=str(err))
-            else:  # other file info irrelevent for validation
-                raw = file.raw
-
+            raw = await self.download(self.args.url)
         else:  # then treat the request body as raw
             raw = self.request.body
+
+        self.validate(raw)
+
+    async def download(self, url):
+
+        try:
+            file = await download_async(url)
+        except DownloadError as err:
+            raise BadRequest(details=str(err))
+        else:  # other file info irrelevent for validation
+            return file.raw
+
+    def validate(self, raw):
 
         try:
             smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
