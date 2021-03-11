@@ -144,6 +144,16 @@ class Format(UserDict):
     def validate(self):
         validate(self.data, self.SCHEMAS)
 
+    def transform(self):
+        if isinstance(self.data.get('paths'), dict):
+            self.data['paths'] = [
+                {
+                    "path": key,
+                    "pathitem": val
+                }
+                for key, val in self.data['paths'].items()
+            ]
+
     def clean(self):
         self.data = OrderedDict({
             k: v for k, v in self.data.items()
@@ -159,17 +169,6 @@ class OpenAPI(Format):
         'paths', 'components'
     )
     SCHEMAS = openapis
-
-    def clean(self):
-        super().clean()
-        if isinstance(self.data.get('paths'), dict):
-            self.data['paths'] = [
-                {
-                    "path": key,
-                    "pathitem": val
-                }
-                for key, val in self.data['paths'].items()
-            ]
 
 
 class Swagger(Format):
@@ -539,6 +538,9 @@ class SmartAPI(AbstractWebEntity, Mapping):
         # it's actually hard to retrospectively make sure all previously
         # submitted API document always meet our latest requirements
 
+        _doc = self._validate_dispatch()
+        _doc.transform()
+
         if self.slug:
             _id = self.find(self.slug)
             if _id and _id != self._id:  # another doc same slug.
@@ -549,7 +551,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         # it's possible to have two documents with the same slug
         # registered. but it should be rare enough in reality.
 
-        doc = APIDoc(**self)
+        doc = APIDoc(**_doc)
         doc.meta.id = self._id
 
         doc._meta.url = self.url
