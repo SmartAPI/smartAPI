@@ -540,6 +540,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         _doc = self._validate_dispatch()
         _doc.transform()
+        _doc.clean()
 
         if self.slug:
             _id = self.find(self.slug)
