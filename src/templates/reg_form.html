@@ -8,7 +8,7 @@
       <h5 class="text_h3 blue-grey-text-text">
         You Must Be Logged In To Register An API
       </h5>
-      <a href="/oauth" class="btn green">
+      <a :href="'/oauth?next='+ window.location.pathname" class="btn green">
         Login
       </a>
     </div>
