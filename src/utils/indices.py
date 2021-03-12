@@ -12,9 +12,8 @@ def exists():
 
 def setup():
     """
-    Setup Elasticsearch Index.
-    Primary index with dynamic template.
-    Secondary index with static mappings.
+    Setup Elasticsearch Index with dynamic template.
+    Run it on an open index to update dynamic mapping.
     """
     _dirname = os.path.dirname(__file__)
     with open(os.path.join(_dirname, 'mapping.json'), 'r') as file:
@@ -22,11 +21,12 @@ def setup():
 
     if not exists():
         APIDoc.init()
-        elastic = Elasticsearch()
-        elastic.indices.put_mapping(
-            index=APIDoc.Index.name,
-            body=mapping
-        )
+
+    elastic = Elasticsearch()
+    elastic.indices.put_mapping(
+        index=APIDoc.Index.name,
+        body=mapping
+    )
 
 
 def delete():
