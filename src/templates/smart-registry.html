@@ -511,7 +511,9 @@
       },
     },
     mounted: function(){
-      this.bt_tag = this.api['tags'].find(element => element.name == 'biothings');
+      if(Object.prototype.hasOwnProperty.call(this.api, "tags")){
+        this.bt_tag = this.api?.['tags'].find(element => element.name == 'biothings');
+      }
     },
     template: `
     <div class="card context">
@@ -528,7 +530,7 @@
             </span>
             <span v-if="api?.info?.['x-trapi']?.version" class="versionBadge pink lighten-2" v-text="'TRAPI '+api?.info?.['x-trapi']?.version">
             </span>
-            <span v-if="bt_tag" class="versionBadge grey darken-2">
+            <span v-if="bt_tag && bt_tag.name == 'biothings' " class="versionBadge grey darken-2">
               BioThings API
             </span>
             <a v-if="user && api._meta.username === user.login" 
@@ -578,7 +580,7 @@
           </template>
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
-            <template v-for="(tag,index) in api.tags">
+            <template v-for="(tag,index) in api.tags" :key="tag.name">
               <a  :href="'?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
