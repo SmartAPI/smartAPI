@@ -209,7 +209,7 @@
                             </div>
                           </div>
                       </div>
-                      <template v-if="total && total === 0">
+                      <template v-if="total == 0">
                         <div class="card">
                           <div class="card-content center">
                             <i class="fa fa-exclamation-circle fa-2x grey-text" aria-hidden="true"></i>
@@ -581,7 +581,7 @@
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags" :key="tag.name">
-              <a  :href="'?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
+              <a :href="'?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -1109,8 +1109,7 @@
               }
               for (var i = 0; i < self.tags.length; i++) {
                 if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-                  var payload = {};
-                  self.toggleThisTag(self.tags[i])
+                  Vue.set(self.tags[i], 'active', true)   
                  }
               }            
           },
@@ -1135,8 +1134,8 @@
               for (var i = 0; i < tags.length; i++) {
                 for (var x = 0; x < self.tags.length; x++) {
                   if (self.tags[x].name === tags[i]) {
+                    Vue.set(self.tags[x],'active',true)
                     tags.splice(i, 1)
-                    self.toggleThisTag(self.tags[x])
                   }
                 }
               }
@@ -1157,7 +1156,7 @@
                 for (var x = 0; x < self.authors.length; x++) {
                   if (self.authors[x].name === owners[i]) {
                     owners.splice(i, 1)
-                    self.toggleThisAuthor(self.authors[x]);
+                    Vue.set(self.authors[x],'active',true)
                   }
                 }
               }
@@ -1213,10 +1212,10 @@
           toggleThisTag(tag){
             let self = this;
             for (var i = 0; i < self.tags.length; i++) {
-              if (self.tags[i].name === tag.name) {
-                Vue.set(self.tags[i],'active',!self.tags[i]['active'])
+                if (self.tags[i].name === tag.name) {
+                  Vue.set(self.tags[i],'active',!self.tags[i]['active'])
+                }
               }
-            }
           },
           toggleThisAuthor(author){
             let self = this;
