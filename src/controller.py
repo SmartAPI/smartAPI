@@ -568,7 +568,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._status.refresh_ts = self.webdoc.timestamp
 
         doc._raw = decoder.compress(self.raw)
-        doc.save()
+        doc.save(skip_empty=False)
 
         return self._id
 

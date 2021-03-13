@@ -1,8 +1,11 @@
 
+from base64 import b64decode
+
 from biothings.utils.web.es_dsl import AsyncSearch
 from biothings.web.pipeline import ESQueryBuilder, ESResultTransform
 
 from controller import OpenAPI, Swagger
+from utils import decoder
 
 
 class SmartAPIQueryBuilder(ESQueryBuilder):
@@ -48,7 +51,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
 
     def default_match_query(self, q, scopes, options):
         search = super().default_match_query(q, scopes, options)
-        search = search.source(exclude=['_raw'], include=options._source)
+        search = search.source(include=options._source or ['_raw'])
         return search
 
     def _apply_extras(self, search, options):
@@ -102,18 +105,23 @@ class SmartAPIResultTransform(ESResultTransform):
 
             # OVERRIDE STARTS HERE
 
+            if "_raw" in doc:
+                _raw = b64decode(doc['_raw'])
+                _raw = decoder.decompress(_raw)
+                _raw = decoder.to_dict(_raw)
+                doc.clear()
+                doc.update(_raw)
+
             if options.raw == 0:
                 for key in list(doc.keys()):
                     if key.startswith('_'):
                         doc.pop(key)
 
-            try:
+            if isinstance(doc['paths'], list):
                 doc['paths'] = {
-                    item['path']: item['pathitem']
+                    item['path']: item.get('pathitem', {})
                     for item in doc['paths']
                 }
-            except Exception:
-                pass
 
             # NOTE
             # Root field filtering in transform stage (if necessary)

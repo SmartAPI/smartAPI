@@ -42,11 +42,10 @@ class APIDoc(Document):
     _raw = Binary()
 
     info = Object()
-    paths = Nested(
-        multi=True,
+    paths = Object(
         properties={
             "path": Text(),
-            "pathitem": Nested(multi=True)
+            "pathitem": Object()
         })
     tags = Object(multi=True)
     openapi = Text()
