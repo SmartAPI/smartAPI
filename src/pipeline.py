@@ -106,10 +106,9 @@ class SmartAPIResultTransform(ESResultTransform):
             # OVERRIDE STARTS HERE
 
             if "_raw" in doc:
-                _raw = b64decode(doc['_raw'])
+                _raw = b64decode(doc.pop('_raw'))
                 _raw = decoder.decompress(_raw)
                 _raw = decoder.to_dict(_raw)
-                doc.clear()
                 doc.update(_raw)
 
             if options.raw == 0:
