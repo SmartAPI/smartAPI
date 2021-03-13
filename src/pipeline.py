@@ -117,7 +117,7 @@ class SmartAPIResultTransform(ESResultTransform):
                     if key.startswith('_'):
                         doc.pop(key)
 
-            if isinstance(doc['paths'], list):
+            if isinstance(doc.get('paths'), list):
                 doc['paths'] = {
                     item['path']: item.get('pathitem', {})
                     for item in doc['paths']
