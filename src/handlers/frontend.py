@@ -299,5 +299,6 @@ APP_LIST = [
     (r"/privacy/?", TemplateHandler, {"filename": "privacy.html"}),
     (r"/branding/?", TemplateHandler, {"filename": "brand.html"}),
     (r"/guide/?", TemplateHandler, {"filename": "guide.html"}),
+    (r"/portal/translator/summary?", TemplateHandler, {"filename": "portal-summary.html"}),
 
 ]
