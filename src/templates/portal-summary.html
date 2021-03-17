@@ -72,7 +72,7 @@
                         data: this.tabledata, 
                         layout:"fitColumns",
                         columns: [
-                            {title:"Name", field:"name", formatter:"textarea"},
+                            {title:"API", field:"name", formatter:"textarea"},
                             {title:this.summary_type.replaceAll('_',' '), field:"label", formatter:"textarea"},
                         ],
                         rowClick:function(e, row){ 
@@ -269,7 +269,7 @@
                     }],
                     labels: Object.keys(statuses_sorted)
                 };
-                self.drawPieChart(data);
+                self.drawDoughnutChart(data);
             },
             hasFieldAndTag(field, tag){
                 let self = this;
