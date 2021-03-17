@@ -204,6 +204,8 @@
                 let self = this;
                 let statuses = {}
 
+                console.log('%c Field '+field, 'color:yellow')
+
                 self.data.forEach(item => {
                     if(Object.prototype.hasOwnProperty.call(item['_status'], field)){
                         //table data
@@ -230,6 +232,8 @@
                         }else{
                             statuses[item['_status'][field]] = 1
                         }
+                    }else{
+                        console.log('%c SKIPPING '+field, 'color:purple')
                     }
                 })                
 
@@ -441,6 +445,7 @@
                         this.byComponentsIn('x-translator');
                         break;
                     case 'Uptime_Status_Test':
+                        console.log('%c Handling '+type, 'color:orange')
                         this.byStatus('uptime_status');
                         this.tipClass = 'apiStatus'
                         break;
