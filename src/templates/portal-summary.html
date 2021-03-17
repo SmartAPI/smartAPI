@@ -139,9 +139,9 @@
                 );
 
                 //console.log(`%c Teams in ${field}: `, 'color:cyan')
-                for (const team in teams_sorted) {
+                // for (const team in teams_sorted) {
                     //console.log(`%c 👥 ${team}: `+teams_sorted[team], 'color:lightblue')
-                }
+                // }
                 //console.log('----------------------------')
 
                 let data = {
@@ -192,9 +192,9 @@
                 );
 
                 //console.log(`%c Teams in ${field}: `, 'color:lightpink')
-                for (const c in components_sorted) {
+                // for (const c in components_sorted) {
                     //console.log(`%c 🧵 ${c}: `+components_sorted[c], 'color:pink')
-                }
+                // }
                 //console.log('----------------------------')
 
                 let data = {
@@ -217,7 +217,10 @@
                         self.tabledata.push({
                             id: item['_id'], 
                             name: item['info']['title'], 
-                            label: item['_status'][field]
+                            label: item['_status'][field] == '200' ? 'OK' : 
+                                    item['_status'][field] == '299' ? 'OK' :
+                                    item['_status'][field] == '404' ? 'Not Found' :
+                                    item['_status'][field] == '499' ? 'Invalid' : 'Broken'
                         })
                         if(item['_status'][field] in statuses){
                             statuses[item['_status'][field]]++
@@ -258,9 +261,9 @@
                 }
 
                 //console.log(`%c By Status ${field}: `, 'color:violet')
-                for (const c in statuses_sorted) {
-                    //console.log(`%c 📊 ${c}: `+statuses_sorted[c], 'color:hotpink')
-                }
+                // for (const c in statuses_sorted) {
+                //     console.log(`%c 📊 ${c}: `+statuses_sorted[c], 'color:hotpink')
+                // }
                 //console.log('----------------------------')
 
                 let data = {
@@ -270,11 +273,8 @@
                     }],
                     labels: Object.keys(statuses_sorted)
                 };
-                if(field == 'refresh_status'){
-                    self.drawPieChart(data);
-                }else{
-                    self.drawDoughnutChart(data);
-                }
+
+                self.drawPieChart(data);
             },
             hasFieldAndTag(field, tag){
                 let self = this;
@@ -445,7 +445,79 @@
 
                 self.loading = false;
             },
-            initTips(){
+            handleSummary(type){
+                //console.log('%c Summary Type: '+type, 'color:white; background-color:black;padding:2px;')
+                switch (type) {
+                    case 'x-translator_Compliant':
+                        this.hasFieldAndTag('x-translator', 'translator');
+                        break;
+                    case 'x-trapi_Compliant':
+                        this.hasFieldAndTag('x-trapi', 'trapi');
+                        break;
+                    case 'By_Teams':
+                        this.byTeamsIn('x-translator');
+                        break;
+                    case 'By_Component':
+                        this.byComponentsIn('x-translator');
+                        break;
+                    case 'Uptime_Status':
+                        this.byStatus('uptime_status');
+                        this.tipClass = 'apiStatus'
+                        break;
+                    case 'Source_Status':
+                        this.byStatus('refresh_status');
+                        this.tipClass = 'urlStatus'
+                        break;
+                    default:
+                        break;
+                }
+            }
+        },
+        mounted: function(){
+            this.handleSummary(this.summary_type);
+        },
+        template: `<div class="chart">
+                    <div v-show="loading" class="center-align loader">
+                        <div class="center-align">
+                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                        </div>
+                    </div>
+                    <canvas :id="summary_type" width="100%" height="auto" :class="tipClass"></canvas>
+                    <div class="p-1">
+                        <button class="smallButton" :class="showDetails ? 'green white-text':'grey' " @click="showDetails = !showDetails; makeTable()">Details</button>
+                    </div>
+                    <div v-show="showDetails" :id="summary_type+'table'"></div>
+                   </div>`
+    });
+
+  var app = new Vue({
+      el: '#summary',
+      data: function(){
+        return {
+            summaries: Array,
+            totalAPIs: 0
+        }
+      },
+      methods: {
+        getSummaries(url){
+            let self = this;
+            axios.get(url).then(res=>{
+                //console.log('ALL RES', res.data)
+                self.data = res.data.hits
+                self.totalAPIs = res.data.total
+                Vue.set(self, 'summaries', [
+                    {'name': 'x-translator_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
+                    {'name': 'x-trapi_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
+                    {'name': 'By_Teams', 'colors': 'random'},
+                    {'name': 'By_Component', 'colors': 'random'},
+                    {'name': 'Uptime_Status', 'colors': ["#5ed668", "#ffc107","#0277bd","#ff5722"]},
+                    {'name': 'Source_Status', 'colors': ["#5ed668","#ffc107","#e65a78","#9c27b0"]},
+                ])
+            }).catch(err=>{
+                throw err;
+            });
+        },
+        initTips(){
                 tippy( '#summary', {
                     target: '.urlStatus',
                     content: `<div class="white" style="padding:0px;">
@@ -564,80 +636,6 @@
                     interactive:true,
                 });
             },
-            handleSummary(type){
-                //console.log('%c Summary Type: '+type, 'color:white; background-color:black;padding:2px;')
-                switch (type) {
-                    case 'x-translator_Compliant':
-                        this.hasFieldAndTag('x-translator', 'translator');
-                        break;
-                    case 'x-trapi_Compliant':
-                        this.hasFieldAndTag('x-trapi', 'trapi');
-                        break;
-                    case 'By_Teams':
-                        this.byTeamsIn('x-translator');
-                        break;
-                    case 'By_Component':
-                        this.byComponentsIn('x-translator');
-                        break;
-                    case 'Uptime_Status':
-                        this.byStatus('uptime_status');
-                        this.initTips();
-                        this.tipClass = 'apiStatus'
-                        break;
-                    case 'Source_Status':
-                        this.byStatus('refresh_status');
-                        this.initTips();
-                        this.tipClass = 'urlStatus'
-                        break;
-                    default:
-                        break;
-                }
-            }
-        },
-        mounted: function(){
-            this.handleSummary(this.summary_type);
-        },
-        template: `<div class="chart">
-                    <div v-show="loading" class="center-align loader">
-                        <div class="center-align">
-                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-                        </div>
-                    </div>
-                    <canvas :id="summary_type" width="100%" height="auto" :class="tipClass"></canvas>
-                    <div class="p-1">
-                        <button class="smallButton" :class="showDetails ? 'green white-text':'grey' " @click="showDetails = !showDetails; makeTable()">Details</button>
-                    </div>
-                    <div v-show="showDetails" :id="summary_type+'table'"></div>
-                   </div>`
-    });
-
-  var app = new Vue({
-      el: '#summary',
-      data: function(){
-        return {
-            summaries: Array,
-            totalAPIs: 0
-        }
-      },
-      methods: {
-        getSummaries(url){
-            let self = this;
-            axios.get(url).then(res=>{
-                //console.log('ALL RES', res.data)
-                self.data = res.data.hits
-                self.totalAPIs = res.data.total
-                Vue.set(self, 'summaries', [
-                    {'name': 'x-translator_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
-                    {'name': 'x-trapi_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
-                    {'name': 'By_Teams', 'colors': 'random'},
-                    {'name': 'By_Component', 'colors': 'random'},
-                    {'name': 'Uptime_Status', 'colors': ["#5ed668", "#ffc107","#0277bd","#ff5722"]},
-                    {'name': 'Source_Status', 'colors': ["#5ed668","#ffc107","#e65a78","#9c27b0"]},
-                ])
-            }).catch(err=>{
-                throw err;
-            });
-        },
         getPortalData(portal){
             let self = this;
             let url = ''
@@ -654,6 +652,7 @@
       },
       mounted: function(){
           this.getPortalData('translator');
+          this.initTips();
       }
   });
   </script>
