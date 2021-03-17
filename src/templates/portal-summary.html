@@ -269,7 +269,11 @@
                     }],
                     labels: Object.keys(statuses_sorted)
                 };
-                self.drawDoughnutChart(data);
+                if(field == 'refresh_status'){
+                    self.drawPieChart(data);
+                }else{
+                    self.drawDoughnutChart(data);
+                }
             },
             hasFieldAndTag(field, tag){
                 let self = this;
