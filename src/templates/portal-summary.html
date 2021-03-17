@@ -204,8 +204,6 @@
                 let self = this;
                 let statuses = {}
 
-                console.log('%c Field '+field, 'color:yellow')
-
                 self.data.forEach(item => {
                     if(Object.prototype.hasOwnProperty.call(item['_status'], field)){
                         //table data
@@ -219,7 +217,6 @@
                                         item['_status'][field] == '499' ? 'Invalid' : 'Broken'
                             })
                         }else{
-                            console.log('adding td', item['_status'][field])
                             self.tabledata.push({
                                 id: item['_id'], 
                                 name: item['info']['title'], 
@@ -232,9 +229,6 @@
                         }else{
                             statuses[item['_status'][field]] = 1
                         }
-                    }else{
-                        console.log('%c SKIPPING '+field, 'color:purple')
-                        console.log('item', item)
                     }
                 })                
 
@@ -263,9 +257,6 @@
                     statuses = with_labels
                 }
 
-                console.log('td before', self.tabledata)
-                console.log('stats', statuses)
-
                 let data = {
                     datasets: [{
                         data: Object.values(statuses),
@@ -274,7 +265,6 @@
                     labels: Object.keys(statuses)
                 };
 
-                console.log('%c Render '+field, 'color:red')
                 self.drawPieChart(data);
             },
             hasFieldAndTag(field, tag){
@@ -446,7 +436,6 @@
                         this.byComponentsIn('x-translator');
                         break;
                     case 'Uptime_Status_Test':
-                        console.log('%c Handling '+type, 'color:orange')
                         this.byStatus('uptime_status');
                         this.tipClass = 'apiStatus'
                         break;
