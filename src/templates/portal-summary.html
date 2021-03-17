@@ -230,6 +230,8 @@
                         }
                     }
                 })
+
+                console.log('statuses', statuses)
                 
 
                 if (field == 'refresh_status') {
@@ -270,6 +272,8 @@
                     }],
                     labels: Object.keys(statuses)
                 };
+
+                console.log('data', data)
 
                 self.drawPieChart(data);
             },
@@ -373,6 +377,11 @@
                             position: 'top',
                             labels: {
                                 fontColor: "grey"
+                            }
+                        },
+                        animation: {
+                            onComplete: (e) => {
+                                console.log('done Pie',e);
                             }
                         }
                     }
@@ -484,7 +493,7 @@
         getSummaries(url){
             let self = this;
             axios.get(url).then(res=>{
-                //console.log('ALL RES', res.data)
+                console.log('ALL RES', res.data)
                 self.data = res.data.hits
                 self.totalAPIs = res.data.total
                 Vue.set(self, 'summaries', [
