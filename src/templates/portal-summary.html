@@ -66,7 +66,7 @@
         props: ['data', 'summary_type', 'colors'],
         methods:{
             makeTable(){
-                console.log('td', this.tabledata)
+                console.log('Table Data Final', this.tabledata)
                 if(this.showDetails){
                     var table = new Tabulator("#"+this.summary_type+'table', {
                         height:300, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically
@@ -217,6 +217,7 @@
                                         item['_status'][field] == '499' ? 'Invalid' : 'Broken'
                             })
                         }else{
+                            console.log('adding td', item['_status'][field])
                             self.tabledata.push({
                                 id: item['_id'], 
                                 name: item['info']['title'], 
@@ -256,6 +257,9 @@
                     }
                     statuses = with_labels
                 }
+
+                console.log('td before', self.tabledata)
+                console.log('stats', statuses)
 
                 let data = {
                     datasets: [{
