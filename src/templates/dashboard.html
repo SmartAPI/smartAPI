@@ -845,7 +845,7 @@
             //delete it button clicked
             var self = this;
             self.loading = false;
-            axios.put('/api/metadata/'+self.selectedAPI._id+"?slug=''").then(response=>{
+            axios.put('/api/metadata/'+self.selectedAPI._id+"?slug=").then(response=>{
               if( response.data.success ){
                 self.selectedAPI._meta.slug= '';
                 const toast = swal.mixin({
