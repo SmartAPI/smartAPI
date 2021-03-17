@@ -51,7 +51,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
 
     def default_match_query(self, q, scopes, options):
         search = super().default_match_query(q, scopes, options)
-        search = search.source(include=options._source or ['_raw'])
+        search = search.source(include=options._source or ['_*'])
         return search
 
     def _apply_extras(self, search, options):
