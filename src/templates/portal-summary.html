@@ -214,14 +214,24 @@
 
                 self.data.forEach(item => {
                     if(Object.prototype.hasOwnProperty.call(item['_status'], field)){
-                        self.tabledata.push({
-                            id: item['_id'], 
-                            name: item['info']['title'], 
-                            label: item['_status'][field] == '200' ? 'OK' : 
-                                    item['_status'][field] == '299' ? 'OK' :
-                                    item['_status'][field] == '404' ? 'Not Found' :
-                                    item['_status'][field] == '499' ? 'Invalid' : 'Broken'
-                        })
+                        //table data
+                        if (field == 'refresh_status'){
+                            self.tabledata.push({
+                                id: item['_id'], 
+                                name: item['info']['title'], 
+                                label: item['_status'][field] == '200' ? 'OK' : 
+                                        item['_status'][field] == '299' ? 'OK' :
+                                        item['_status'][field] == '404' ? 'Not Found' :
+                                        item['_status'][field] == '499' ? 'Invalid' : 'Broken'
+                            })
+                        }else{
+                            self.tabledata.push({
+                                id: item['_id'], 
+                                name: item['info']['title'], 
+                                label: item['_status'][field]
+                            })
+                        }
+                        //chart data
                         if(item['_status'][field] in statuses){
                             statuses[item['_status'][field]]++
                         }else{
@@ -229,49 +239,45 @@
                         }
                     }
                 })
-
-                statuses_sorted = Object.fromEntries(
-                    Object.entries(statuses).sort(([,a],[,b]) => a-b).reverse()
-                );
                 
 
                 if (field == 'refresh_status') {
                     // assign UI used names
                     let with_labels = {'OK': 0, 'Not Found': 0, 'Invalid':0, 'Broken':0}
-                    for (const key in statuses_sorted) {
+                    for (const key in statuses) {
                         switch (key) {
                             case '200':
-                                with_labels['OK'] += statuses_sorted[key]
+                                with_labels['OK'] += statuses[key]
                                 break;
                             case '299':
-                                with_labels['OK'] += statuses_sorted[key]
+                                with_labels['OK'] += statuses[key]
                                 break;
                             case '404':
-                                with_labels['Not Found'] += statuses_sorted[key]
+                                with_labels['Not Found'] += statuses[key]
                                 break;
                             case '499':
-                                with_labels['Invalid'] += statuses_sorted[key]
+                                with_labels['Invalid'] += statuses[key]
                                 break;
                             default:
-                                with_labels['Broken'] += statuses_sorted[key]
+                                with_labels['Broken'] += statuses[key]
                                 break;
                         }
                     }
-                    statuses_sorted = with_labels
+                    statuses = with_labels
                 }
 
                 //console.log(`%c By Status ${field}: `, 'color:violet')
-                // for (const c in statuses_sorted) {
-                //     console.log(`%c 📊 ${c}: `+statuses_sorted[c], 'color:hotpink')
+                // for (const c in statuses) {
+                //     console.log(`%c 📊 ${c}: `+statuses[c], 'color:hotpink')
                 // }
                 //console.log('----------------------------')
 
                 let data = {
                     datasets: [{
-                        data: Object.values(statuses_sorted),
-                        'backgroundColor': self.colors == 'random' ? self.getRandomColors(Object.keys(statuses_sorted).length) : self.colors
+                        data: Object.values(statuses),
+                        'backgroundColor': self.colors == 'random' ? self.getRandomColors(Object.keys(statuses).length) : self.colors
                     }],
-                    labels: Object.keys(statuses_sorted)
+                    labels: Object.keys(statuses)
                 };
 
                 self.drawPieChart(data);
@@ -510,7 +516,7 @@
                     {'name': 'x-trapi_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
                     {'name': 'By_Teams', 'colors': 'random'},
                     {'name': 'By_Component', 'colors': 'random'},
-                    {'name': 'Uptime_Status', 'colors': ["#5ed668", "#ffc107","#0277bd"]},
+                    {'name': 'Uptime_Status', 'colors': ["#5ed668", "#ffc107","#0277bd","#ff5722"]},
                     {'name': 'Source_Status', 'colors': ["#5ed668","#ffc107","#e65a78","#9c27b0"]},
                 ])
             }).catch(err=>{
