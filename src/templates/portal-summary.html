@@ -10,7 +10,7 @@
         flex-wrap: wrap;
         align-items: stretch;
     }
-    .chartContainer div.chart{
+    .chartContainer div > canvas{
         flex-basis: 40%;
         min-width: 300px;
         max-width: 350px;
@@ -57,7 +57,6 @@
     Vue.component('summary-chart', {
         data: function(){
         return{
-            loading: false,
             tipClass:'',
             showDetails: false,
             tabledata:[],
@@ -103,9 +102,6 @@
             byTeamsIn(field){
                 let self = this;
                 let teams = {}
-
-                self.loading = true;
-
                 //console.log('By Teams in: '+field)
 
                 self.data.forEach(item => {
@@ -156,9 +152,6 @@
             byComponentsIn(field){
                 let self = this;
                 let components = {}
-
-                self.loading = true;
-
                 //console.log('By Components in: '+field)
 
                 self.data.forEach(item => {
@@ -209,8 +202,6 @@
             byStatus(field){
                 let self = this;
                 let statuses = {}
-
-                self.loading = true;
 
                 self.data.forEach(item => {
                     if(Object.prototype.hasOwnProperty.call(item['_status'], field)){
@@ -294,8 +285,6 @@
                 let noTF_label = `❌ Tagged "${tag}" ❌ Ext -${field}`
                 let noTyesF_label = `❌ Tagged "${tag}" ✅ Ext -${field}`
 
-                self.loading = true;
-
                 //console.log('%c Checking for Field/Tag: '+field+" / "+tag, 'color:green')
 
                 self.data.forEach(item => {
@@ -365,8 +354,6 @@
                         }
                     }
                 });
-
-                self.loading = false;
             },
             drawPieChart(data){
                 let self = this;
@@ -390,8 +377,6 @@
                         }
                     }
                 });
-
-                self.loading = false;
             },
             drawHorBarChart(data){
                 let self = this;
@@ -419,8 +404,6 @@
                         },
                     }
                 });
-
-                self.loading = false;
             },
             drawBarChart(data){
                 let self = this;
@@ -448,8 +431,6 @@
                         },
                     }
                 });
-
-                self.loading = false;
             },
             handleSummary(type){
                 //console.log('%c Summary Type: '+type, 'color:white; background-color:black;padding:2px;')
@@ -482,12 +463,7 @@
         mounted: function(){
             this.handleSummary(this.summary_type);
         },
-        template: `<div class="chart">
-                    <div v-show="loading" class="center-align loader">
-                        <div class="center-align">
-                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-                        </div>
-                    </div>
+        template: `<div>
                     <canvas :id="summary_type" width="100%" height="auto" :class="tipClass"></canvas>
                     <div class="p-1">
                         <button class="smallButton" :class="showDetails ? 'green white-text':'grey' " @click="showDetails = !showDetails; makeTable()">Details</button>
