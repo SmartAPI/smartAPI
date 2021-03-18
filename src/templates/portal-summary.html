@@ -75,17 +75,21 @@
                 filtered = this.tableData.filter(d => d.label == label);
                 this.filter = label;
                 this.showDetails = true;
-                this.makeTable(filtered);
+                this.makeTable(filtered, true);
             },
-            makeTable(data){
+            makeTable(data, hideSecondCol){
                 if(this.showDetails){
                     var table = new Tabulator("#"+this.summary_type+'table', {
                         height:300, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically
                         data: data, 
                         layout:"fitColumns",
                         columns: [
-                            {title:"API", field:"name", formatter:"textarea"},
-                            {title:this.summary_type.replaceAll('_',' '), field:"label", formatter:"textarea"},
+                            {title:"API", field:"name", formatter:function(cell){
+                                var value = cell.getValue();
+                                cell.getElement().style.whiteSpace = "pre-wrap";
+                                return "<b class='blue-text'>" + value + " <i class='material-icons tiny blue-text'>launch</i></b>";
+                            }},
+                            hideSecondCol ? {title:'', visible: false} : {title:this.summary_type.replaceAll('_',' '), field:"label", formatter:"textarea"},
                         ],
                         rowClick:function(e, row){ 
                             var a = document.createElement("a");
@@ -145,12 +149,6 @@
                 teams_sorted = Object.fromEntries(
                     Object.entries(teams).sort(([,a],[,b]) => a-b).reverse()
                 );
-
-                //console.log(`%c Teams in ${field}: `, 'color:cyan')
-                // for (const team in teams_sorted) {
-                    //console.log(`%c 👥 ${team}: `+teams_sorted[team], 'color:lightblue')
-                // }
-                //console.log('----------------------------')
 
                 let data = {
                     datasets: [{
@@ -341,7 +339,7 @@
                     'options': {
                         'title': {
                             display: true,
-                            text: self.summary_type.replace('_',' '),
+                            text: self.summary_type.replace('_',' ') + " ("+data.datasets[0].data.reduce((a, b) => a + b, 0)+")",
                             fontColor: 'black',
                             fontSize: '20'
                         },
@@ -354,6 +352,8 @@
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
                                 self.handleChartClick(item[0]._view.label)
+                            }else{
+                                self.showDetails = false
                             }
                         },
                     }
@@ -369,13 +369,15 @@
                     'options': {
                         'title': {
                             display: true,
-                            text: self.summary_type.replace('_',' '),
+                            text: self.summary_type.replace('_',' ')+ " ("+data.datasets[0].data.reduce((a, b) => a + b, 0)+")",
                             fontColor: 'black',
                             fontSize: '20'
                         },
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
                                 self.handleChartClick(item[0]._view.label)
+                            }else{
+                                self.showDetails = false
                             }
                         },
                     }
@@ -391,7 +393,7 @@
                     'options': {
                         'title': {
                             display: true,
-                            text: self.summary_type.replaceAll('_',' '),
+                            text: self.summary_type.replaceAll('_',' ')+ " ("+data.datasets[0].data.reduce((a, b) => a + b, 0)+")",
                             fontColor: 'black',
                             fontSize: '20'
                         },
@@ -408,6 +410,8 @@
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
                                 self.handleChartClick(item[0]._view.label)
+                            }else{
+                                self.showDetails = false
                             }
                         },
                     }
@@ -423,7 +427,7 @@
                     'options': {
                         'title': {
                             display: true,
-                            text: self.summary_type.replaceAll('_',' '),
+                            text: self.summary_type.replaceAll('_',' ')+ " ("+data.datasets[0].data.reduce((a, b) => a + b, 0)+")",
                             fontColor: 'black',
                             fontSize: '20'
                         },
@@ -440,6 +444,8 @@
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
                                 self.handleChartClick(item[0]._view.label)
+                            }else{
+                                self.showDetails = false
                             }
                         },
                     }
