@@ -66,14 +66,16 @@
             tipClass:'',
             showDetails: false,
             tableData:[],
-            filter: ''
+            filter: '',
+            bgColor:''
         }
         },
         props: ['data', 'summary_type', 'colors'],
         methods:{
-            handleChartClick(label){
+            handleChartClick(label, color){
                 filtered = this.tableData.filter(d => d.label == label);
                 this.filter = label;
+                this.bgColor = color;
                 this.showDetails = true;
                 this.makeTable(filtered, true);
             },
@@ -351,7 +353,7 @@
                         },
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-                                self.handleChartClick(item[0]._view.label)
+                                self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
                             }else{
                                 self.showDetails = false
                             }
@@ -375,7 +377,7 @@
                         },
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-                                self.handleChartClick(item[0]._view.label)
+                                self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
                             }else{
                                 self.showDetails = false
                             }
@@ -409,7 +411,7 @@
                         },
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-                                self.handleChartClick(item[0]._view.label)
+                                self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
                             }else{
                                 self.showDetails = false
                             }
@@ -443,7 +445,7 @@
                         },
                         onClick: function (e, item) {
                             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-                                self.handleChartClick(item[0]._view.label)
+                                self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
                             }else{
                                 self.showDetails = false
                             }
@@ -488,9 +490,9 @@
                         <button class="smallButton" 
                         :class="showDetails ? 'red white-text-imp':'grey' " 
                         v-text="showDetails? 'Close' : 'Details' "
-                        @click="showDetails = !showDetails; makeTable(tableData);filter='All' "></button>
+                        @click="showDetails = !showDetails; makeTable(tableData);filter='All'; bgColor='grey' "></button>
                     </div>
-                    <h6 class="white-text grey darken-2 p-1" v-show="filter && showDetails" v-text="filter"></h6>
+                    <h6 class="white-text p-1" :style="{backgroundColor: bgColor}" v-show="filter && showDetails" v-text="filter"></h6>
                     <div v-show="showDetails" :id="summary_type+'table'"></div>
                    </div>`
     });
