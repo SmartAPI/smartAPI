@@ -65,15 +65,14 @@
         return{
             tipClass:'',
             showDetails: false,
-            tabledata:[],
-            columns:[],
+            tableData:[],
             filter: ''
         }
         },
         props: ['data', 'summary_type', 'colors'],
         methods:{
             handleChartClick(label){
-                filtered = this.tabledata.filter(d => d.label == label);
+                filtered = this.tableData.filter(d => d.label == label);
                 this.filter = label;
                 this.showDetails = true;
                 this.makeTable(filtered);
@@ -119,7 +118,7 @@
 
                 self.data.forEach(item => {
                     if(Object.prototype.hasOwnProperty.call(item['info'], field) && Object.prototype.hasOwnProperty.call(item['info'][field], 'team')){
-                        self.tabledata.push({
+                        self.tableData.push({
                             id: item['_id'], 
                             name: item['info']['title'], 
                             label: item['info'][field]['team'].toString()
@@ -169,7 +168,7 @@
 
                 self.data.forEach(item => {
                     if(Object.prototype.hasOwnProperty.call(item['info'], field) && Object.prototype.hasOwnProperty.call(item['info'][field], 'component')){
-                        self.tabledata.push({
+                        self.tableData.push({
                             id: item['_id'], 
                             name: item['info']['title'], 
                             label: item['info'][field]['component']
@@ -220,7 +219,7 @@
                     if(Object.prototype.hasOwnProperty.call(item['_status'], field)){
                         //table data
                         if (field == 'refresh_status'){
-                            self.tabledata.push({
+                            self.tableData.push({
                                 id: item['_id'], 
                                 name: item['info']['title'], 
                                 label: item['_status'][field] == '200' ? 'OK' : 
@@ -229,7 +228,7 @@
                                         item['_status'][field] == '499' ? 'Invalid' : 'Broken'
                             })
                         }else{
-                            self.tabledata.push({
+                            self.tableData.push({
                                 id: item['_id'], 
                                 name: item['info']['title'], 
                                 label: item['_status'][field]
@@ -296,21 +295,21 @@
                     && JSON.stringify(item['tags']).includes(tag)){
                       if(Object.prototype.hasOwnProperty.call(item['info'], field)){
                         yesTF++
-                        self.tabledata.push({
+                        self.tableData.push({
                             id: item['_id'], 
                             name: item['info']['title'], 
                             label: yesTF_label})
                       }else{
                         yesTnoF++
-                        self.tabledata.push({id: item['_id'], name: item['info']['title'], label: yesTnoF_label})
+                        self.tableData.push({id: item['_id'], name: item['info']['title'], label: yesTnoF_label})
                       }
                     }else{
                       if(Object.prototype.hasOwnProperty.call(item['info'], field)){
                         noTyesF++
-                        self.tabledata.push({id: item['_id'], name: item['info']['title'], label: noTyesF_label})
+                        self.tableData.push({id: item['_id'], name: item['info']['title'], label: noTyesF_label})
                       }else{
                         noTF++
-                        self.tabledata.push({id: item['_id'], name: item['info']['title'], label: noTF_label})
+                        self.tableData.push({id: item['_id'], name: item['info']['title'], label: noTF_label})
                       }
                     }
                 })
@@ -336,7 +335,7 @@
                 let self = this;
                 var ctx = document.getElementById(this.summary_type);
 
-                let mychart = new Chart(ctx, {
+                new Chart(ctx, {
                     'type': 'doughnut',
                     'data': data,
                     'options': {
@@ -483,7 +482,7 @@
                         <button class="smallButton" 
                         :class="showDetails ? 'red white-text-imp':'grey' " 
                         v-text="showDetails? 'Close' : 'Details' "
-                        @click="showDetails = !showDetails; makeTable(tabledata);filter='All' "></button>
+                        @click="showDetails = !showDetails; makeTable(tableData);filter='All' "></button>
                     </div>
                     <h6 class="white-text grey darken-2 p-1" v-show="filter && showDetails" v-text="filter"></h6>
                     <div v-show="showDetails" :id="summary_type+'table'"></div>
