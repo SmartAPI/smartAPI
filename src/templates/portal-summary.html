@@ -492,8 +492,10 @@
                         v-text="showDetails? 'Close' : 'Details' "
                         @click="showDetails = !showDetails; makeTable(tableData);filter='All'; bgColor='grey' "></button>
                     </div>
-                    <h6 class="white-text p-1" :style="{backgroundColor: bgColor}" v-show="filter && showDetails" v-text="filter"></h6>
-                    <div v-show="showDetails" :id="summary_type+'table'"></div>
+                    <div class="p-1">
+                        <h6 class="white-text p-1" :style="{backgroundColor: bgColor}" v-show="filter && showDetails" v-text="filter"></h6>
+                        <div v-show="showDetails" :id="summary_type+'table'"></div>
+                    </div>
                    </div>`
     });
 
