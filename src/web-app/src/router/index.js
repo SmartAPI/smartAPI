@@ -46,6 +46,11 @@ const routes = [
     component: () => import('../views/Portal.vue')
   },
   {
+    path: '/portal/:name?/summary',
+    name: 'Summary',
+    component: () => import('../views/Summary.vue')
+  },
+  {
     path: '/portal/translator/metakg',
     name: 'MetaKG',
     component: () => import('../views/MetaKG.vue')
@@ -70,11 +75,17 @@ const routes = [
     name: 'DashBoard',
     component: () => import('../views/DashBoard.vue')
   },
+  {
+    path: '/registry',
+    name: 'Registry',
+    component: () => import('../views/Registry.vue')
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+  linkActiveClass: "route-active",
   scrollBehavior() {
     return { x: 0, y: 0 };
   },

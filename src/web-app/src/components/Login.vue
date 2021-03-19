@@ -1,9 +1,9 @@
 <template>
   <template v-if="loggedIn">
-    <a class='dashboard_link' href='/dashboard' :class="{'route-active': current == 'Dashboard'}">
+    <router-link class='dashboard_link' to='/dashboard'>
         <img class='user_img' :src='userInfo.avatar_url' :alt='userInfo.login'>
         dashboard
-    </a>
+    </router-link>
     <a href="/logout?next='/'">
         <b class="red-text">Logout</b>
     </a>
@@ -25,9 +25,6 @@ export default {
         ])
     },
     computed:{
-        current: function(){
-        return this.$route.name
-        },
         ...mapGetters([
             'loggedIn',
             'userInfo'
@@ -41,15 +38,20 @@ export default {
 
 <style scoped lang="scss">
 
+    .route-active{
+        color: white;
+        background:rgb(19, 19, 19);
+        background-size: 100% 100%;
+    }
+
     .dashboard_link{
-        background: rgb(51, 51, 51);
         border-radius: 4px;
         display: flex;
         align-items: center;
         padding: 5px 10px;
         transition: all .4s;
         &:hover{
-            background: #3F85BB;
+            background: rgb(24, 24, 24);
         }
     }
     

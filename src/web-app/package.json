@@ -25,6 +25,7 @@
     "remarkable": "^2.0.1",
     "swagger-editor": "^3.15.7",
     "swagger-ui": "^3.45.1",
+    "tabulator-tables": "^4.9.3",
     "tippy.js": "^6.3.1",
     "vivus": "^0.4.5",
     "vue": "^3.0.0",

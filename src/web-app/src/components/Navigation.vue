@@ -4,10 +4,10 @@
       <Image img_width="200" alt="SmartAPI Logo" img_name="header-logo.png"></Image>
     </router-link>
     <div id="myLinks" class="hide-on-small-only">
-      <router-link to="/add-api" :class="{'route-active': current == 'RegiterAPI'}">Add an API</router-link>
-      <a class="lighter" href="/registry" :class="{'route-active': current == 'Registry'}">Registry</a>
-      <router-link to="/editor" :class="{'route-active': current == 'Editor'}">Editor</router-link>
-      <router-link to="/faq" :class="{'route-active': current == 'FAQ'}">FAQ</router-link>
+      <router-link to="/add-api">Add an API</router-link>
+      <router-link to="/registry">Registry</router-link>
+      <router-link to="/editor">Editor</router-link>
+      <router-link to="/faq">FAQ</router-link>
       <Login></Login>
     </div>
     <a href="javascript:void(0);" class="btn blue hide-on-med-and-up" @click="toggleShow">
@@ -15,10 +15,10 @@
     </a>
     <div id="myLinksMobile" :class="[show ? 'show-on-small' : 'hide']">
       <div>
-        <router-link to="/add-api" :class="{'route-active': current == 'RegiterAPI'}">Add an API</router-link>
-        <a class="lighter" href="/registry" :class="{'route-active': current == 'Registry'}">Registry</a>
-        <router-link to="/editor" :class="{'route-active': current == 'Editor'}">Editor</router-link>
-        <router-link to="/faq" :class="{'route-active': current == 'FAQ'}">FAQ</router-link>
+        <router-link to="/add-api">Add an API</router-link>
+        <router-link to="/registry">Registry</router-link>
+        <router-link to="/editor">Editor</router-link>
+        <router-link to="/faq">FAQ</router-link>
         <Login></Login>
       </div>
     </div>
@@ -44,15 +44,14 @@ export default {
       this.show = !this.show
     }
   },
-  computed:{
-    current: function(){
-      return this.$route.name
-    }
-  },
 }
 </script>
 
 <style lang="scss">
+
+  .route-active{
+    color: white;
+  }
 
   .topnav {
     overflow: hidden;

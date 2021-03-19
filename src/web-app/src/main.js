@@ -47,6 +47,11 @@ app.use(store)
     }
   });
 
+  // 'custom_map': {
+  //   'dimension5':'registryResults',
+  //   'metric1':'registry-item'
+  // }
+
 // global registration
 app.component("Image", Image);
 app.component("VModal", VModal);

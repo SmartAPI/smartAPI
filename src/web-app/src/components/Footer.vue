@@ -66,7 +66,7 @@
                             <router-link to="/add-api" class="footerLink">Add an API</router-link>
                         </li>
                         <li>
-                            <a class="footerLink" href="/registry"><i class="material-icons">subdirectory_arrow_right</i> Registry</a>
+                            <router-link to="/registry" class="footerLink">Registry</router-link>
                         </li>
                         <li>
                             <router-link to="/editor" class="footerLink">Editor</router-link>

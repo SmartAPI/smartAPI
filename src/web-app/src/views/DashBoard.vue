@@ -907,29 +907,6 @@ export default {
 </script>
 
 <style lang='css'>
-    .pillStatus{
-    display: flex;
-    justify-content: space-evenly;
-    align-items: stretch;
-    margin: 5px;
-    }
-    .pillStatus div{
-    flex-grow: 1;
-    flex-basis: 50%;
-    align-content: center;
-    padding: 3px 6px;
-    text-align: center;
-    font-size: .8em !important;
-    color: #434849;
-    }
-    .pillStatus div:first-child{
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    }
-    .pillStatus div:last-child{
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    }
     .m-2{
     margin: 1rem;
     }

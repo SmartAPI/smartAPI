@@ -20,6 +20,10 @@
       <div class="col s12 m4">
         <Image img_name="ncats-logo-1.png" img_height="77"></Image>
       </div>
+      <div class="col s12 padding20 center-align grey lighten-2">
+        <p>View a summary of all the APIs used by this portal.</p>
+        <router-link to="/portal/translator/summary" class="btn blue">Portal Summary</router-link>
+      </div>
     </div>
     <div v-else>
       <h1 class="blue-text bold flow-text">
