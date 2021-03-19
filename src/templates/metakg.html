@@ -115,7 +115,7 @@
               </div>
             </div>
           </template>
-          <template v-for="item in results">
+          <template v-for="(item, index) in results" :key="item.association.smartapi.id+index">
             <div class="collection-item resultRow row" @mouseenter="highlightRow(item)"
               @mouseleave="unhighlightRow(item)" style="padding: 3px;">
               <div class="col s12 left">
@@ -189,7 +189,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.min.js"></script>
 <script src="/static/js/clipboard.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/@biothings-explorer/smartapi-kg@2.2.10/bundle.js"></script>
+<script type="text/javascript" src=" https://unpkg.com/@biothings-explorer/smartapi-kg@3.1.1/bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.15.1/cytoscape.min.js"
   integrity="sha256-oYPiLQ2sL4jlYuCJE3rDZFD0OUy8t1fL6U0wIWyqUf8=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js"></script>
@@ -1340,10 +1340,10 @@
       async loadKG() {
         var self = this;
 
-        let meta_kg = new kg();
+        let meta_kg = new MetaKG();
         //load meta-kg API graph with reasoner APIs
         const t0 = performance.now();
-        await meta_kg.constructMetaKG(includeReasoner = true);
+        await meta_kg.constructMetaKG(includeReasoner = true, {component: 'KP'});
         const t1 = performance.now();
         self.apisLoaded = true;
         //performance check

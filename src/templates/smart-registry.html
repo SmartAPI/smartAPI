@@ -201,7 +201,7 @@
                             <div class="col s5 m2">
                               <select class="browser-default" v-model="sort" @change='search()'>
                                 <option value="" disabled>Sort By</option>
-                                <option value="Relevance" selected>Relevance</option>
+                                <option value="Relevance" selected>Most Relevant</option>
                                 <option value="Alphabetically A-Z">Alphabetically A-Z</option>
                                 <option value="Alphabetically Z-A">Alphabetically Z-A</option>
                                 <option value="Recently Updated">Recently Updated</option>
@@ -209,7 +209,7 @@
                             </div>
                           </div>
                       </div>
-                      <template v-if="total && total === 0">
+                      <template v-if="total == 0">
                         <div class="card">
                           <div class="card-content center">
                             <i class="fa fa-exclamation-circle fa-2x grey-text" aria-hidden="true"></i>
@@ -511,7 +511,9 @@
       },
     },
     mounted: function(){
-      this.bt_tag = this.api['tags'].find(element => element.name == 'biothings');
+      if(Object.prototype.hasOwnProperty.call(this.api, "tags")){
+        this.bt_tag = this.api?.['tags'].find(element => element.name == 'biothings');
+      }
     },
     template: `
     <div class="card context">
@@ -528,7 +530,7 @@
             </span>
             <span v-if="api?.info?.['x-trapi']?.version" class="versionBadge pink lighten-2" v-text="'TRAPI '+api?.info?.['x-trapi']?.version">
             </span>
-            <span v-if="bt_tag" class="versionBadge grey darken-2">
+            <span v-if="bt_tag && bt_tag.name == 'biothings' " class="versionBadge grey darken-2">
               BioThings API
             </span>
             <a v-if="user && api._meta.username === user.login" 
@@ -578,8 +580,8 @@
           </template>
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
-            <template v-for="(tag,index) in api.tags">
-              <a  :href="'?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
+            <template v-for="(tag,index) in api.tags" :key="tag.name">
+              <a :href="'?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
                 <small>#<span v-text="tag.name"></span></small>
               </a>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -1107,8 +1109,7 @@
               }
               for (var i = 0; i < self.tags.length; i++) {
                 if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-                  var payload = {};
-                  self.toggleThisTag(self.tags[i])
+                  Vue.set(self.tags[i], 'active', true)   
                  }
               }            
           },
@@ -1133,8 +1134,8 @@
               for (var i = 0; i < tags.length; i++) {
                 for (var x = 0; x < self.tags.length; x++) {
                   if (self.tags[x].name === tags[i]) {
+                    Vue.set(self.tags[x],'active',true)
                     tags.splice(i, 1)
-                    self.toggleThisTag(self.tags[x])
                   }
                 }
               }
@@ -1155,7 +1156,7 @@
                 for (var x = 0; x < self.authors.length; x++) {
                   if (self.authors[x].name === owners[i]) {
                     owners.splice(i, 1)
-                    self.toggleThisAuthor(self.authors[x]);
+                    Vue.set(self.authors[x],'active',true)
                   }
                 }
               }
@@ -1211,10 +1212,10 @@
           toggleThisTag(tag){
             let self = this;
             for (var i = 0; i < self.tags.length; i++) {
-              if (self.tags[i].name === tag.name) {
-                Vue.set(self.tags[i],'active',!self.tags[i]['active'])
+                if (self.tags[i].name === tag.name) {
+                  Vue.set(self.tags[i],'active',!self.tags[i]['active'])
+                }
               }
-            }
           },
           toggleThisAuthor(author){
             let self = this;

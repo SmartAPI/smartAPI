@@ -138,6 +138,14 @@ def check_uptime():
         smartapi.save()
 
 
+def resave():
+    # when index mappings are changed
+    logger = logging.getLogger("resave")
+    for smartapi in SmartAPI.get_all(1000):
+        logger.info(smartapi._id)
+        smartapi.save()
+
+
 restore = restore_from_file
 backup = backup_to_file
 

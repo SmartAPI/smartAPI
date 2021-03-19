@@ -2,9 +2,17 @@
 {% include "smartapi-head.html" %}
 {% block content %}
 {% include "header.html" %}
-<main id="registerAPI" class="blue-grey dashboardBack row m-0 darken-2">
+<main id="registerAPI" class="blue-grey dashboardBack row m-0 darken-2" v-cloak>
   <div class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
-    <div id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
+    <div v-if="!userInfo?.login" class="padding20 card-panel white center-align">
+      <h5 class="text_h3 blue-grey-text-text">
+        You Must Be Logged In To Register An API
+      </h5>
+      <a :href="'/oauth?next='+ window.location.pathname" class="btn green">
+        Login
+      </a>
+    </div>
+    <div v-if="userInfo && userInfo?.login" id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
       <object width="200px"  alt="SmartAPI" data="/static/img/api-welcome.svg" class=""></object>
       <h3 class="center blue-grey-text flow-text">Register your API metadata</h3>
         <form @submit.prevent="handleSubmit()">
@@ -48,7 +56,8 @@
       data: function(){
         return {
           url:'',
-          dry_run: false
+          dry_run: false,
+          userInfo: Object
         }
       },
       computed:{
@@ -57,6 +66,14 @@
         }
       },
       methods: {
+        getUserInfo: function(){
+          var self= this;
+          axios.get('/user').then(response=>{
+            self.userInfo = response.data;
+          }).catch(err=>{
+            throw err;
+          })
+        },
         handleSubmit: function(){
           let self = this;
           if(self.ready){
@@ -135,6 +152,7 @@
         }
       },
       mounted: function(){
+        this.getUserInfo()
         // 'url': {'type': str, 'required': True},
         // 'dryrun': {'type': bool, 'default': False},
       }

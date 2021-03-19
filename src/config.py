@@ -80,6 +80,7 @@ API_PREFIX = 'api'
 # Biothings SDK Settings
 # *****************************************************************************
 ACCESS_CONTROL_ALLOW_METHODS = 'HEAD,GET,POST,DELETE,PUT,OPTIONS'
+ANNOTATION_DEFAULT_SCOPES = ['_id', '_meta.slug']
 ES_QUERY_BUILDER = "pipeline.SmartAPIQueryBuilder"
 ES_RESULT_TRANSFORM = "pipeline.SmartAPIResultTransform"
 DISABLE_CACHING = True

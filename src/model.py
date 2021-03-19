@@ -42,11 +42,10 @@ class APIDoc(Document):
     _raw = Binary()
 
     info = Object()
-    paths = Nested(
-        multi=True,
+    paths = Object(
         properties={
             "path": Text(),
-            "pathitem": Nested(multi=True)
+            "pathitem": Object()
         })
     tags = Object(multi=True)
     openapi = Text()
@@ -70,10 +69,11 @@ class APIDoc(Document):
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
-            "mapping.ignore_malformed": True
+            "mapping.ignore_malformed": True,
+            "mapping.total_fields.limit": 2500
         }
 
-    @ classmethod
+    @classmethod
     def exists(cls, value, field="_id"):
         """
         Return the first matching document's _id or None.
@@ -85,7 +85,7 @@ class APIDoc(Document):
             return next(iter(search)).meta.id
         return None
 
-    @ classmethod
+    @classmethod
     def aggregate(cls, field="tags.name"):
         """
         Perform terms aggregation on a keyword field.

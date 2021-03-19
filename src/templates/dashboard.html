@@ -37,7 +37,7 @@
     <h5 class="text_h3 blue-grey-text-text">
       You Must Be Signed In To Use Your Dashboard
     </h5>
-    <a href="/oauth" class="btn green">
+    <a :href="'/oauth?next='+ window.location.pathname" class="btn green">
       Login
     </a>
   </div>
@@ -88,12 +88,13 @@
                 <tr class="grey-text">
                     <th>Name</th>
                     <th>Last Updated</th>
-                    <th>Refresh | Validate</th>
+                    <th>Refresh</th>
+                    <th>Validate</th>
                     <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(api,index) in results" :key="index">
+                <tr v-for="(api,index) in results" :key="api.info.title+index">
                   <td>
                     <h6 class="left-align">
                       <b>{{ api.info.title }}</b>
@@ -106,7 +107,7 @@
                       <small v-else-if="api.hasOwnProperty('swagger')" class="blue-text">
                         Swagger2
                       </small>
-                      <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
+                      <a href="#modal2" class="modal-trigger" @click="getDetails(api)">
                         <small><i class="tiny material-icons">settings</i> Settings</small>
                       </a>
                     </h6>
@@ -118,20 +119,16 @@
                     </small>
                   </td>
                   <td>
-                    <div class="row m-0">
-                      <div class="col s12 m6 p-1">
-                        <button type="button" class="btn btn-small tipped green scale-in-center" data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)" 
-                          @click="refreshThis(api.info.title,api._id);">
-                          <i class=" material-icons white-text">refresh</i>
-                        </button>
-                      </div>
-                      <div class="col s12 m6 p-1">
-                        <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text tipped"
+                    <button type="button" class="btn tipped green" data-tippy-info="<b class='green-text'>Refresh</b> <br/>(Manually update API metadata when a valid change is detected)" 
+                      @click="refreshThis(api.info.title,api._id);">
+                      <i class=" material-icons white-text">refresh</i>
+                    </button>
+                  </td>
+                  <td>
+                    <button type="button" @click="validate(api._meta.url)" class="btn indigo white-text tipped"
                         data-tippy-info="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
                           <i class="material-icons white-text">check</i>
                       </button>
-                      </div>
-                    </div>
                   </td>
                   <td>
                     <status :api='api'></status>
@@ -179,41 +176,41 @@
   <!-- Details Modal -->
 
   <div id="modal2" class="modal center-align">
-    <div  class="modal-content" style="padding-top:45px;">
+    <div v-if="selectedAPI && selectedAPI.info" class="modal-content" style="padding-top:45px;">
       <div class="row">
         <div class="col s12">
           <ul class="tabs transparent">
-            <li class="tab col s3"><a href="#test1" class="active blue-text">About</a></li>
-            <li class="tab col s3"><a class="blue-text" href="#test2">Slug Registration</a></li>
-            <li class="tab col s3"><a class="blue-text" href="#test3" @click="renderUserInteractions(apis[selectedAPIIndex].info.title)">User Interactions</a></li>
+            <li class="tab col s3" @click="tabSelected = 1"><a href="#test1" class="active blue-text">About</a></li>
+            <li class="tab col s3" @click="tabSelected = 2"><a class="blue-text" href="#test2">Slug Registration</a></li>
+            <li class="tab col s3" @click="tabSelected = 3"><a class="blue-text" href="#test3" @click="renderUserInteractions(selectedAPI.info.title)">User Interactions</a></li>
           </ul>
         </div>
 
-        <div id="test1" class="col s12">
-          <ul v-if="selectedAPIIndex || selectedAPIIndex === 0" class="collection with-header" style="border: none;">
+        <div v-show="tabSelected == 1" id="test1" class="col s12">
+          <ul v-if="selectedAPI" class="collection with-header" style="border: none;">
 
             <li class="collection-header padding20">
               <object width="100px"  alt="SmartAPI" data="/static/img/logo-medium.svg" class="hide-on-small-only"></object>
               <h2 class="blue-text flow-text">
-                {{apis[selectedAPIIndex].info.title}}
-                <span class="versionBadge grey hide-on-small-only">Version {{apis[selectedAPIIndex].info.version}}</span>
-                <span v-if=" apis[selectedAPIIndex].hasOwnProperty('openapi') " class="versionBadge green hide-on-small-only">
+                {{selectedAPI.info.title}}
+                <span class="versionBadge grey hide-on-small-only">Version {{selectedAPI.info.version}}</span>
+                <span v-if=" selectedAPI.hasOwnProperty('openapi') " class="versionBadge green hide-on-small-only">
                   OAS3
                 </span>
-                <span v-else-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') " class="versionBadge blue hide-on-small-only">
+                <span v-else-if=" selectedAPI.hasOwnProperty('swagger') " class="versionBadge blue hide-on-small-only">
                   Swagger2
                 </span>
                 <template class="show-on-small hide-on-med-and-up">
-                  <span v-if=" apis[selectedAPIIndex].hasOwnProperty('openapi') " class="versionBadge green hide-on-med-and-up">
+                  <span v-if=" selectedAPI.hasOwnProperty('openapi') " class="versionBadge green hide-on-med-and-up">
                     V3
                   </span>
-                  <span v-else-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') " class="versionBadge blue hide-on-med-and-up">
+                  <span v-else-if=" selectedAPI.hasOwnProperty('swagger') " class="versionBadge blue hide-on-med-and-up">
                     V2
                   </span>
                 </template>
               </h2>
               <hr />
-              <template v-if=" apis[selectedAPIIndex].hasOwnProperty('swagger') ">
+              <template v-if=" selectedAPI.hasOwnProperty('swagger') ">
                 <div class="yellow lighten-5 smallFont padding20">
                   APIs in Swagger V2 specification will experience limited functionality. <br />We recommend you update your metadata to OpenAPI V3 specification.
                   <br />
@@ -225,12 +222,12 @@
               </template>
               <div class="d-flex padding20" style="justify-content: center;">
                 <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
-                <div class='grey lighten-3 p-1 indigo-text'><small v-text="apis[selectedAPIIndex]._id"></small></div>
+                <div class='grey lighten-3 p-1 indigo-text'><small v-text="selectedAPI._id"></small></div>
               </div>
-              <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue m-2">View API Documentation</a>
-              <a :href="'/registry?q='+apis[selectedAPIIndex]._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
+              <a :href="'/ui/'+selectedAPI._id" class="btn blue m-2">View API Documentation</a>
+              <a :href="'/registry?q='+selectedAPI._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
             </li>
-            <template v-for='link in checkForAPIInfoLink(apis[selectedAPIIndex])'>
+            <template v-for='link in checkForAPIInfoLink(selectedAPI)'>
               <li  class="collection-item blue-grey lighten-4">
                 <a class="link blue-grey-text underlined" :href="link" target="_blank">
                  More Info
@@ -238,12 +235,12 @@
               </li>
             </template>
             <li class="collection-item padding20 blue-grey lighten-5">
-              <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(apis[selectedAPIIndex].info.description || '')"></p>
+              <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(selectedAPI.info.description || '')"></p>
             </li>
             <li class="collection-item blue-grey lighten-5">
-              <i v-if="apis[selectedAPIIndex].info.termsOfService || apis[selectedAPIIndex].termsOfService" class="material-icons tiny blue-text">info_outline</i>
-              <a v-if="apis[selectedAPIIndex].info.termsOfService" :href="apis[selectedAPIIndex].info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
-              <a v-if="apis[selectedAPIIndex].termsOfService" :href="apis[selectedAPIIndex].termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+              <i v-if="selectedAPI.info.termsOfService || selectedAPI.termsOfService" class="material-icons tiny blue-text">info_outline</i>
+              <a v-if="selectedAPI.info.termsOfService" :href="selectedAPI.info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+              <a v-if="selectedAPI.termsOfService" :href="selectedAPI.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
 
             </li>
             <li class="collection-item deep-orange lighten-2">
@@ -251,7 +248,7 @@
               <p>
                 Delete API metadata from SmartAPI registry permanently. This action cannot be undone.
               </p>
-              <button type="button" @click="deleteForever(apis[selectedAPIIndex].info.title, apis[selectedAPIIndex]._id)" class="btn btn-small red white-text" 
+              <button type="button" @click="deleteForever(selectedAPI.info.title, selectedAPI._id)" class="btn btn-small red white-text" 
               data-tippy-content="<b class='red-text'>Delete Forever</b>">
                 Delete API
               </button>
@@ -259,8 +256,8 @@
           </ul>
         </div>
 
-        <div id="test2" class="col s12 white">
-          <div v-if="selectedAPIIndex || selectedAPIIndex === 0" class="row">
+        <div v-show="tabSelected == 2" id="test2" class="col s12 white">
+          <div v-if="selectedAPI" class="row">
             <div class="col s12 m12 l12 center-align">
               <h3 class="flow-text blue-grey-text padding20">Slug Registration Wizard</h3>
             </div>
@@ -288,7 +285,7 @@
                 If you visit to link below, it will take users to your API documentation.
               </p>
               <p class="green-text flow-text">
-                 <a :href=" 'http://'+apis[selectedAPIIndex]._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{apis[selectedAPIIndex]._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+                 <a :href=" 'http://'+selectedAPI._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{selectedAPI._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                  <br />
                  <hr />
                  <a class="btn green smallFont margin20" @click.prevent='createOrEditMode = !createOrEditMode'>Edit Slug</a>
@@ -329,13 +326,13 @@
           </div>
         </div>
 
-        <div id="test3" class="col s12 white">
-          <div v-if="selectedAPIIndex || selectedAPIIndex === 0" class="row">
+        <div v-show="tabSelected == 3" id="test3" class="col s12 white">
+          <div v-if="selectedAPI" class="row">
             <div class="col s12 m12 l12 center-align">
               <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
             </div>
             <div>
-              <h6 class="blue-text" v-text='apis[selectedAPIIndex].info.title'></h6>
+              <h6 class="blue-text" v-text='selectedAPI.info.title'></h6>
               <canvas id="myChart" width="400" height="400"></canvas>
               <div>
                 <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
@@ -480,6 +477,7 @@
               id:''
             },
             selectedAPI:{},
+            tabSelected: 1,
             inputApiName:'',
             apis:[],
             total: Number,
@@ -492,7 +490,6 @@
             createOrEditMode: false,
             invalidChars: false,
             takenSlug: false,
-            selectedAPIIndex:'',
             loading: false,
             // analytics
             analytics: Object,
@@ -751,12 +748,11 @@
           hideLoading: function(){
             this.loading = false;
           },
-          getDetails: function(index){
+          getDetails: function(api){
             var self = this;
-            //modal will show the apis index of the item clicked
-            self.selectedAPIIndex = index;
+            self.selectedAPI = api;
             //hasShortName sets display for slug registration view
-            if (self.apis[index]._meta.slug) {
+            if (self.selectedAPI?._meta?.slug) {
               self.hasShortName=true;
             }else{
               self.hasShortName=false;
@@ -807,9 +803,9 @@
             //claim it button clicked
             var self = this;
             self.loading = false;
-            axios.put('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+'?slug='+self.myShortName).then(response=>{
+            axios.put('/api/metadata/'+self.selectedAPI._id+'?slug='+self.myShortName).then(response=>{
               if( response.data.success ){
-                self.apis[self.selectedAPIIndex]._meta.slug= response.data[self.apis[self.selectedAPIIndex]._id+'._meta.slug'];
+                self.selectedAPI._meta.slug= self.myShortName;
                 self.myShortName = '';
 
                 const toast = swal.mixin({
@@ -849,9 +845,9 @@
             //delete it button clicked
             var self = this;
             self.loading = false;
-            axios.delete('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+"?slug="+self.apis[self.selectedAPIIndex]._meta.slug).then(response=>{
+            axios.put('/api/metadata/'+self.selectedAPI._id+"?slug=").then(response=>{
               if( response.data.success ){
-                self.apis[self.selectedAPIIndex]._meta.slug= '';
+                self.selectedAPI._meta.slug= '';
                 const toast = swal.mixin({
                   toast: true,
                   position: 'top',
@@ -931,8 +927,6 @@
           self.showLoading();
           self.getAnalytics();
           self.getUserInfo();
-          // tabs
-          $('ul.tabs').tabs();
           // modals
           $('.modal').modal({dismissible: true});
 
@@ -1040,7 +1034,7 @@
                             <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
                           </td>
                         </tr>
-                        <tr> 
+                        <tr> 
                           <td class='orange-text center'>
                             <b>UNKNOWN</b>
                           </td>

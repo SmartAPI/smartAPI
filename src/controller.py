@@ -540,7 +540,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         _doc = self._validate_dispatch()
         _doc.transform()
-        _doc.clean()
 
         if self.slug:
             _id = self.find(self.slug)
@@ -569,7 +568,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._status.refresh_ts = self.webdoc.timestamp
 
         doc._raw = decoder.compress(self.raw)
-        doc.save()
+        doc.save(skip_empty=False)
 
         return self._id
 
