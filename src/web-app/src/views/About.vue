@@ -102,7 +102,7 @@
   </section>
 
  
-  <VModal v-model="showModal" @confirm="confirm">
+  <VModal v-model="showModal" @confirm="showModal = false">
     <template v-slot:title>{{ 'About ' + selectedPerson.name || 'About' }}</template>
     <div v-if='selectedPerson'  class="white row p-1">
       <div class="col s12 m4 l4">
@@ -182,12 +182,6 @@ export default {
         compiledMarkdown: function (mdtext) {
             return marked(mdtext)
         },
-        confirm() {
-          this.showModal = false
-        },
-        cancel() {
-          this.showModal = false
-        }
       },
       computed:{
         ...mapGetters([

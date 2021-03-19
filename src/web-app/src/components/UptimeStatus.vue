@@ -55,6 +55,7 @@ export default {
         /*eslint-disable */
         tippy('.uptime-status', {
             placement: 'left-end',
+            appendTo: document.body,
             theme:'light',
             interactive:true,
             trigger:'click',

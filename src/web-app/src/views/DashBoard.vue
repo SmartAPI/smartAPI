@@ -18,7 +18,7 @@
     </div>
     <!-- Loading END -->
     <!-- IF USER INFO DISPLAY DASHBOARD -->
-    <div id="tippyParent" v-if="loggedIn" class="row" style="margin-bottom: 0; width: 100%;min-height:70vh;">
+    <div v-if="loggedIn" class="row" style="margin-bottom: 0; width: 100%;min-height:70vh;">
         <div class="col s12 padding20 blue">
             <div class="dashboard-header blue">
                 <Image 
@@ -54,7 +54,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(api,index) in results" :key="index">
+                    <tr v-for="(api,index) in results" :key="api.info.title+index">
                     <td>
                         <h6 class="left-align">
                         <b>{{ api.info.title }}</b>
@@ -67,7 +67,7 @@
                         <small v-else-if="api?.swagger" class="blue-text">
                             Swagger2
                         </small>
-                        <a href="#modal2" class="modal-trigger" @click="getDetails(index)">
+                        <a href="#modal2" class="modal-trigger" @click="getDetails(api)">
                             <small><i class="tiny material-icons">settings</i> Settings</small>
                         </a>
                         </h6>
@@ -116,44 +116,44 @@
     </div>
 
 
-    <VModal v-model="showModal" @confirm="confirm">
+    <VModal v-model="showModal" @confirm="showModal = false">
         <template v-slot:title>Settings</template>
-        <div id="modal2" class="modal center-align">
-        <div  class="modal-content" style="padding-top:45px;">
+        <div class="center-align">
+            <div v-if="selectedAPI && selectedAPI?.info?.title" style="padding-top:45px;">
             <div class="row">
                 <div class="col s12">
                 <ul class="tabs transparent">
-                    <li class="tab col s3"><a href="#test1" class="active blue-text">About</a></li>
-                    <li class="tab col s3"><a class="blue-text" href="#test2">Slug Registration</a></li>
-                    <li class="tab col s3"><a class="blue-text" href="#test3" @click="renderUserInteractions(apis[selectedAPIIndex].info.title)">User Interactions</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">About</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 2"><a class="blue-text" href="#test2">Slug Registration</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="#test3" @click="renderUserInteractions(selectedAPI.info.title)">User Interactions</a></li>
                 </ul>
                 </div>
 
-                <div id="test1" class="col s12">
-                <ul v-if="selectedAPIIndex || selectedAPIIndex === 0" class="collection with-header" style="border: none;">
+                <div v-show="tabSelected == 1" id="test1" class="col s12">
+                <ul class="collection with-header" style="border: none;">
 
                     <li class="collection-header padding20">
                     <Image img_width="100px"  alt="SmartAPI" img_name="logo-medium.svg" class="hide-on-small-only"></Image>
                     <h2 class="blue-text flow-text">
-                        {{apis[selectedAPIIndex].info.title}}
-                        <span class="versionBadge grey hide-on-small-only">Version {{apis[selectedAPIIndex].info.version}}</span>
-                        <span v-if=" apis[selectedAPIIndex]?.openapi " class="versionBadge green hide-on-small-only">
+                        {{selectedAPI.info.title}}
+                        <span class="versionBadge grey hide-on-small-only">Version {{selectedAPI.info.version}}</span>
+                        <span v-if=" selectedAPI?.openapi " class="versionBadge green hide-on-small-only">
                         OAS3
                         </span>
-                        <span v-else-if=" apis[selectedAPIIndex]?.swagger " class="versionBadge blue hide-on-small-only">
+                        <span v-else-if=" selectedAPI?.swagger " class="versionBadge blue hide-on-small-only">
                         Swagger2
                         </span>
                         <template class="show-on-small hide-on-med-and-up">
-                        <span v-if=" apis[selectedAPIIndex]?.openapi " class="versionBadge green hide-on-med-and-up">
+                        <span v-if=" selectedAPI?.openapi " class="versionBadge green hide-on-med-and-up">
                             V3
                         </span>
-                        <span v-else-if=" apis[selectedAPIIndex]?.swagger " class="versionBadge blue hide-on-med-and-up">
+                        <span v-else-if=" selectedAPI?.swagger " class="versionBadge blue hide-on-med-and-up">
                             V2
                         </span>
                         </template>
                     </h2>
                     <hr />
-                    <template v-if=" apis[selectedAPIIndex]?.swagger ">
+                    <template v-if=" selectedAPI?.swagger ">
                         <div class="yellow lighten-5 smallFont padding20">
                         APIs in Swagger V2 specification will experience limited functionality. <br />We recommend you update your metadata to OpenAPI V3 specification.
                         <br />
@@ -165,12 +165,12 @@
                     </template>
                     <div class="d-flex padding20" style="justify-content: center;">
                         <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
-                        <div class='grey lighten-3 p-1 indigo-text'><small v-text="apis[selectedAPIIndex]._id"></small></div>
+                        <div class='grey lighten-3 p-1 indigo-text'><small v-text="selectedAPI._id"></small></div>
                     </div>
-                    <a :href="'/ui/'+apis[selectedAPIIndex]._id" class="btn blue m-2">View API Documentation</a>
-                    <a :href="'/registry?q='+apis[selectedAPIIndex]._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
+                    <a :href="'/ui/'+selectedAPI._id" class="btn blue m-2">View API Documentation</a>
+                    <a :href="'/registry?q='+selectedAPI._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
                     </li>
-                    <template v-for='link in checkForAPIInfoLink(apis[selectedAPIIndex])' :key="link">
+                    <template v-for='link in checkForAPIInfoLink(selectedAPI)' :key="link">
                     <li class="collection-item blue-grey lighten-4">
                         <a class="link blue-grey-text underlined" :href="link" target="_blank">
                         More Info
@@ -178,12 +178,12 @@
                     </li>
                     </template>
                     <li class="collection-item padding20 blue-grey lighten-5">
-                    <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(apis[selectedAPIIndex].info.description || '')"></p>
+                    <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(selectedAPI.info.description || '')"></p>
                     </li>
                     <li class="collection-item blue-grey lighten-5">
-                    <i v-if="apis[selectedAPIIndex].info.termsOfService || apis[selectedAPIIndex].termsOfService" class="material-icons tiny blue-text">info_outline</i>
-                    <a v-if="apis[selectedAPIIndex].info.termsOfService" :href="apis[selectedAPIIndex].info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
-                    <a v-if="apis[selectedAPIIndex].termsOfService" :href="apis[selectedAPIIndex].termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+                    <i v-if="selectedAPI.info.termsOfService || selectedAPI.termsOfService" class="material-icons tiny blue-text">info_outline</i>
+                    <a v-if="selectedAPI.info.termsOfService" :href="selectedAPI.info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
+                    <a v-if="selectedAPI.termsOfService" :href="selectedAPI.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
 
                     </li>
                     <li class="collection-item deep-orange lighten-2">
@@ -191,7 +191,7 @@
                     <p>
                         Delete API metadata from SmartAPI registry permanently. This action cannot be undone.
                     </p>
-                    <button type="button" @click="deleteForever(apis[selectedAPIIndex].info.title, apis[selectedAPIIndex]._id)" class="btn btn-small red white-text" 
+                    <button type="button" @click="deleteForever(selectedAPI.info.title, selectedAPI._id)" class="btn btn-small red white-text" 
                     data-tippy-content="<b class='red-text'>Delete Forever</b>">
                         Delete API
                     </button>
@@ -199,8 +199,8 @@
                 </ul>
                 </div>
 
-                <div id="test2" class="col s12 white">
-                <div v-if="selectedAPIIndex || selectedAPIIndex === 0" class="row">
+                <div v-show="tabSelected == 2" id="test2" class="col s12 white">
+                <div class="row">
                     <div class="col s12 m12 l12 center-align">
                     <h3 class="flow-text blue-grey-text padding20">Slug Registration Wizard</h3>
                     </div>
@@ -228,7 +228,7 @@
                         If you visit to link below, it will take users to your API documentation.
                     </p>
                     <div class="green-text flow-text">
-                        <a :href=" 'http://'+apis[selectedAPIIndex]._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{apis[selectedAPIIndex]._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+                        <a :href=" 'http://'+selectedAPI._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{selectedAPI._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                         <br />
                         <hr />
                         <a class="btn green smallFont margin20" @click.prevent='createOrEditMode = !createOrEditMode'>Edit Slug</a>
@@ -269,13 +269,13 @@
                 </div>
                 </div>
 
-                <div id="test3" class="col s12 white">
-                <div v-if="selectedAPIIndex || selectedAPIIndex === 0" class="row">
+                <div v-show="tabSelected == 3" id="test3" class="col s12 white">
+                <div class="row">
                     <div class="col s12 m12 l12 center-align">
                     <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
                     </div>
                     <div>
-                    <h6 class="blue-text" v-text='apis[selectedAPIIndex].info.title'></h6>
+                    <h6 class="blue-text" v-text='selectedAPI.info.title'></h6>
                     <canvas id="myChart" width="400" height="400"></canvas>
                     <div>
                         <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
@@ -299,7 +299,6 @@ import {sortBy, get} from 'lodash'
 import tippy from 'tippy.js';
 import axios from 'axios'
 import marked from 'marked'
-import {Tabs} from 'materialize-css'
 
 import UptimeStatus from '../components/UptimeStatus.vue';
 import SourceStatus from '../components/SourceStatus.vue';
@@ -316,778 +315,88 @@ export default {
             title:'',
             id:''
         },
-        selectedAPI:{},
+        selectedAPI:Object,
+        tabSelected: 1,
         inputApiName:'',
         apis:[
             {
-"_id": "9c7027eec7ba101587f74e4b2ca2f7d2",
-"_meta": {
-"date_created": "2019-10-22T04:25:26.584170+00:00",
-"last_updated": "2021-03-11T08:01:15.409916+00:00",
-"url": "https://raw.githubusercontent.com/achave11/workflow-execution-service-schemas/wes_smartapi/openapi/workflow_execution_service.openapi.yaml",
-"username": "achave11"
-},
-"_score": 1,
-"_status": {
-"refresh_status": 200,
-"refresh_ts": "2021-03-11T08:01:15+00:00",
-"uptime_status": "unknown",
-"uptime_ts": "2021-03-11T08:07:21.638654"
-},
-"components": {
-"schemas": {
-"DefaultWorkflowEngineParameter": {
-"description": "A message that allows one to describe default parameters for a workflow\nengine.",
-"properties": {
-"default_value": {
-"description": "The stringified version of the default parameter. e.g. \"2.45\".",
-"type": "string"
-},
-"type": {
-"description": "Describes the type of the parameter, e.g. float.",
-"type": "string"
-}
-},
-"type": "object"
-},
-"ErrorResponse": {
-"description": "An object that can optionally include information about the error.",
-"properties": {
-"msg": {
-"description": "A detailed error message.",
-"type": "string"
-},
-"status_code": {
-"description": "The integer representing the HTTP status code (e.g. 200, 404).",
-"type": "integer"
-}
-},
-"type": "object"
-},
-"Log": {
-"properties": {
-"cmd": {
-"items": {
-"type": "string"
-},
-"title": "The command line that was run",
-"type": "array"
-},
-"end_time": {
-"title": "When the command completed",
-"type": "string"
-},
-"exit_code": {
-"format": "int32",
-"title": "Exit code of the program",
-"type": "integer"
-},
-"name": {
-"title": "The task or workflow name",
-"type": "string"
-},
-"start_time": {
-"title": "When the command was executed",
-"type": "string"
-},
-"stderr": {
-"title": "Sample of stderr (not guaranteed to be entire log)",
-"type": "string"
-},
-"stdout": {
-"title": "Sample of stdout (not guaranteed to be entire log)",
-"type": "string"
-}
-},
-"title": "Log and other info",
-"type": "object"
-},
-"ServiceInfo": {
-"description": "A message containing useful information about the running service, including supported versions and\ndefault settings.",
-"properties": {
-"auth_instructions_url": {
-"description": "A URL that will help a in generating the tokens necessary to run a workflow using this\nservice.",
-"type": "string"
-},
-"default_workflow_engine_parameters": {
-"description": "Each workflow engine can present additional parameters that can be sent to the\nworkflow engine. This message will list the default values, and their types for each\nworkflow engine.",
-"items": {
-"$ref": "#/components/schemas/DefaultWorkflowEngineParameter"
-},
-"type": "array"
-},
-"supported_filesystem_protocols": {
-"description": "The filesystem protocols supported by this service, currently these may include common\nprotocols such as 'http', 'https', 'sftp', 's3', 'gs', 'file', 'synapse', or others as\nsupported by this service.",
-"items": {
-"type": "string"
-},
-"type": "array"
-},
-"supported_wes_versions": {
-"items": {
-"type": "string"
-},
-"title": "The version(s) of the WES schema supported by this service",
-"type": "array"
-},
-"system_state_counts": {
-"additionalProperties": {
-"format": "int64",
-"type": "integer"
-},
-"description": "The system statistics, key is the statistic, value is the count of workflows in that state.\nSee the State enum for the possible keys.",
-"type": "object"
-},
-"tags": {
-"additionalProperties": {
-"type": "string"
-},
-"title": "A key-value map of arbitrary, extended metadata outside the scope of the above but useful\nto report back",
-"type": "object"
-},
-"workflow_engine_versions": {
-"additionalProperties": {
-"type": "string"
-},
-"title": "The engine(s) used by this WES service, key is engine name e.g. Cromwell and value is version",
-"type": "object"
-},
-"workflow_type_versions": {
-"additionalProperties": {
-"$ref": "#/components/schemas/WorkflowTypeVersion"
-},
-"title": "A map with keys as the workflow format type name (currently only CWL and WDL are used\nalthough a service may support others) and value is a workflow_type_version object which\nsimply contains an array of one or more version strings",
-"type": "object"
-}
-},
-"type": "object"
-},
-"State": {
-"default": "UNKNOWN",
-"description": "- UNKNOWN: The state of the task is unknown.\n\nThis provides a safe default for messages where this field is missing,\nfor example, so that a missing field does not accidentally imply that\nthe state is QUEUED.\n - QUEUED: The task is queued.\n - INITIALIZING: The task has been assigned to a worker and is currently preparing to run.\nFor example, the worker may be turning on, downloading input files, etc.\n - RUNNING: The task is running. Input files are downloaded and the first Executor\nhas been started.\n - PAUSED: The task is paused.\n\nAn implementation may have the ability to pause a task, but this is not required.\n - COMPLETE: The task has completed running. Executors have exited without error\nand output files have been successfully uploaded.\n - EXECUTOR_ERROR: The task encountered an error in one of the Executor processes. Generally,\nthis means that an Executor exited with a non-zero exit code.\n - SYSTEM_ERROR: The task was stopped due to a system error, but not from an Executor,\nfor example an upload failed due to network issues, the worker's ran out\nof disk space, etc.\n - CANCELED: The task was canceled by the user.",
-"enum": [
-"UNKNOWN",
-"QUEUED",
-"INITIALIZING",
-"RUNNING",
-"PAUSED",
-"COMPLETE",
-"EXECUTOR_ERROR",
-"SYSTEM_ERROR",
-"CANCELED"
-],
-"title": "Enumeration of states for a given workflow request",
-"type": "string"
-},
-"WesObject": {
-"additionalProperties": true,
-"description": "An arbitrary structured object.",
-"type": "object"
-},
-"WorkflowDescription": {
-"properties": {
-"state": {
-"$ref": "#/components/schemas/State",
-"title": "REQUIRED"
-},
-"workflow_id": {
-"title": "REQUIRED",
-"type": "string"
-}
-},
-"title": "Small description of workflows, returned by server during listing",
-"type": "object"
-},
-"WorkflowListResponse": {
-"description": "The service will return a workflow_list_response when receiving a successful workflow_list_request.",
-"properties": {
-"next_page_token": {
-"description": "A token, which when provided in a workflow_list_request, allows one to retrieve the next page\nof results.",
-"type": "string"
-},
-"workflows": {
-"description": "A list of workflows that the service has executed or is executing.",
-"items": {
-"$ref": "#/components/schemas/WorkflowDescription"
-},
-"type": "array"
-}
-},
-"type": "object"
-},
-"WorkflowLog": {
-"properties": {
-"outputs": {
-"$ref": "#/components/schemas/WesObject",
-"title": "the outputs"
-},
-"request": {
-"$ref": "#/components/schemas/WorkflowRequest",
-"description": "The original request message used to initiate this execution."
-},
-"state": {
-"$ref": "#/components/schemas/State",
-"title": "state"
-},
-"task_logs": {
-"items": {
-"$ref": "#/components/schemas/Log"
-},
-"title": "the logs, and other key info like timing and exit code, for each step in the workflow",
-"type": "array"
-},
-"workflow_id": {
-"title": "workflow ID",
-"type": "string"
-},
-"workflow_log": {
-"$ref": "#/components/schemas/Log",
-"title": "the logs, and other key info like timing and exit code, for the overall run of this workflow"
-}
-},
-"type": "object"
-},
-"WorkflowRequest": {
-"description": "To execute a workflow, send a workflow request including all the details needed to begin downloading\nand executing a given workflow.",
-"properties": {
-"tags": {
-"additionalProperties": {
-"type": "string"
-},
-"title": "OPTIONAL\nA key-value map of arbitrary metadata outside the scope of the workflow_params but useful to track with this workflow request",
-"type": "object"
-},
-"workflow_descriptor": {
-"description": "OPTIONAL\nThe workflow CWL or WDL document, must provide either this or workflow_url. By combining\nthis message with a workflow_type_version offered in ServiceInfo, one can initialize\nCWL, WDL, or a base64 encoded gzip of the required workflow descriptors. When files must be\ncreated in this way, the `workflow_url` should be set to the path of the main\nworkflow descriptor.",
-"type": "string"
-},
-"workflow_engine_parameters": {
-"additionalProperties": {
-"type": "string"
-},
-"description": "OPTIONAL\nAdditional parameters can be sent to the workflow engine using this field. Default values\nfor these parameters are provided at the ServiceInfo endpoint.",
-"type": "object"
-},
-"workflow_params": {
-"$ref": "#/components/schemas/WesObject",
-"description": "REQUIRED\nThe workflow parameterization document (typically a JSON file), includes all parameterizations for the workflow\nincluding input and output file locations."
-},
-"workflow_type": {
-"title": "REQUIRED\nThe workflow descriptor type, must be \"CWL\" or \"WDL\" currently (or another alternative supported by this WES instance)",
-"type": "string"
-},
-"workflow_type_version": {
-"title": "REQUIRED\nThe workflow descriptor type version, must be one supported by this WES instance",
-"type": "string"
-},
-"workflow_url": {
-"description": "OPTIONAL\nThe workflow CWL or WDL document, must provide either this or workflow_descriptor. When a base64 encoded gzip of\nworkflow descriptor files is offered, the `workflow_url` should be set to the relative path\nof the main workflow descriptor.",
-"type": "string"
-}
-},
-"type": "object"
-},
-"WorkflowRunId": {
-"properties": {
-"workflow_id": {
-"title": "workflow ID",
-"type": "string"
-}
-},
-"type": "object"
-},
-"WorkflowStatus": {
-"properties": {
-"state": {
-"$ref": "#/components/schemas/State",
-"title": "state"
-},
-"workflow_id": {
-"title": "workflow ID",
-"type": "string"
-}
-},
-"type": "object"
-},
-"WorkflowTypeVersion": {
-"description": "Available workflow types supported by a given instance of the service.",
-"properties": {
-"workflow_type_version": {
-"description": "an array of one or more acceptable types for the Workflow Type. For\nexample, to send a base64 encoded WDL gzip, one could would offer\n\"base64_wdl1.0_gzip\". By setting this value, and the path of the main WDL\nto be executed in the workflow_url to \"main.wdl\" in the WorkflowRequest.",
-"items": {
-"type": "string"
-},
-"type": "array"
-}
-},
-"type": "object"
-}
-}
-},
-"info": {
-"contact": {
-"email": "davidcs@ucsc.edu",
-"name": "David Steinberg"
-},
-"description": "A minimal common API which allows users to make workflow requests programmatically, adding the ability to scale up.",
-"termsOfService": "https://www.ga4gh.org/policies/termsandconditions.html",
-"title": "Sandbox Workflow Execution Service",
-"version": "0.2.1",
-"x-implementationLanguage": "en"
-},
-"openapi": "3.0.0",
-"paths": {
-"/service-info": {
-"get": {
-"operationId": "GetServiceInfo",
-"responses": {
-"200": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ServiceInfo"
-}
-}
-},
-"description": ""
-},
-"400": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is malformed."
-},
-"401": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is unauthorized."
-},
-"403": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requester is not authorized to perform this action."
-},
-"500": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "An unexpected error occurred."
-}
-},
-"summary": "Get information about Workflow Execution Service.  May include information related (but\nnot limited to) the workflow descriptor formats, versions supported, the WES API versions supported, and information about general the service availability.",
-"tags": [
-"WorkflowExecutionService"
-],
-"x-swagger-router-controller": "ga4gh.wes.server"
-}
-},
-"/workflows": {
-"get": {
-"operationId": "ListWorkflows",
-"parameters": [
-{
-"description": "OPTIONAL\nNumber of workflows to return in a page.",
-"in": "query",
-"name": "page_size",
-"required": false,
-"schema": {
-"format": "int64",
-"type": "integer"
-}
-},
-{
-"description": "OPTIONAL\nToken to use to indicate where to start getting results. If unspecified, returns the first\npage of results.",
-"in": "query",
-"name": "page_token",
-"required": false,
-"schema": {
-"type": "string"
-}
-},
-{
-"description": "OPTIONAL\nFor each key, if the key's value is empty string then match workflows that are tagged with\nthis key regardless of value.",
-"in": "query",
-"name": "tag_search",
-"required": false,
-"schema": {
-"type": "string"
-}
-}
-],
-"responses": {
-"200": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/WorkflowListResponse"
-}
-}
-},
-"description": ""
-},
-"400": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is malformed."
-},
-"401": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is unauthorized."
-},
-"403": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requester is not authorized to perform this action."
-},
-"500": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "An unexpected error occurred."
-}
-},
-"summary": "List the workflows, this endpoint will list the workflows in order of oldest to newest.\nThere is no guarantee of live updates as the user traverses the pages, the behavior should be\ndecided (and documented) by each implementation.\nTo monitor a given execution, use GetWorkflowStatus or GetWorkflowLog.",
-"tags": [
-"WorkflowExecutionService"
-],
-"x-swagger-router-controller": "ga4gh.wes.server"
-},
-"post": {
-"operationId": "RunWorkflow",
-"requestBody": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/WorkflowRequest"
-}
-}
-},
-"required": true
-},
-"responses": {
-"200": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/WorkflowRunId"
-}
-}
-},
-"description": ""
-},
-"400": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is malformed."
-},
-"401": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is unauthorized."
-},
-"403": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requester is not authorized to perform this action."
-},
-"500": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "An unexpected error occurred."
-}
-},
-"summary": "Run a workflow, this endpoint will allow you to create a new workflow request and\nretrieve its tracking ID to monitor its progress.  An important assumption in this\nendpoint is that the workflow_params JSON will include parameterizations along with\ninput and output files.  The latter two may be on S3, Google object storage, local filesystems,\netc.  This specification makes no distinction.  However, it is assumed that the submitter\nis using URLs that this system both understands and can access. For Amazon S3, this could\nbe accomplished by given the credentials associated with a WES service access to a\nparticular bucket.  The details are important for a production system and user on-boarding\nbut outside the scope of this spec.",
-"tags": [
-"WorkflowExecutionService"
-],
-"x-swagger-router-controller": "ga4gh.wes.server"
-}
-},
-"/workflows/{workflow_id}": {
-"delete": {
-"operationId": "CancelJob",
-"parameters": [
-{
-"in": "path",
-"name": "workflow_id",
-"required": true,
-"schema": {
-"type": "string"
-}
-}
-],
-"responses": {
-"200": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/WorkflowRunId"
-}
-}
-},
-"description": ""
-},
-"401": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is unauthorized."
-},
-"403": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requester is not authorized to perform this action."
-},
-"404": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requested Workflow wasn't found."
-},
-"500": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "An unexpected error occurred."
-}
-},
-"summary": "Cancel a running workflow.",
-"tags": [
-"WorkflowExecutionService"
-],
-"x-swagger-router-controller": "ga4gh.wes.server"
-},
-"get": {
-"operationId": "GetWorkflowLog",
-"parameters": [
-{
-"in": "path",
-"name": "workflow_id",
-"required": true,
-"schema": {
-"type": "string"
-}
-}
-],
-"responses": {
-"200": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/WorkflowLog"
-}
-}
-},
-"description": ""
-},
-"401": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is unauthorized."
-},
-"403": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requester is not authorized to perform this action."
-},
-"404": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requested Workflow found."
-},
-"500": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "An unexpected error occurred."
-}
-},
-"summary": "Get detailed info about a running workflow.",
-"tags": [
-"WorkflowExecutionService"
-],
-"x-swagger-router-controller": "ga4gh.wes.server"
-}
-},
-"/workflows/{workflow_id}/status": {
-"get": {
-"operationId": "GetWorkflowStatus",
-"parameters": [
-{
-"in": "path",
-"name": "workflow_id",
-"required": true,
-"schema": {
-"type": "string"
-}
-}
-],
-"responses": {
-"200": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/WorkflowStatus"
-}
-}
-},
-"description": ""
-},
-"401": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The request is unauthorized."
-},
-"403": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requester is not authorized to perform this action."
-},
-"404": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "The requested Workflow wasn't found."
-},
-"500": {
-"content": {
-"application/json": {
-"schema": {
-"$ref": "#/components/schemas/ErrorResponse"
-}
-}
-},
-"description": "An unexpected error occurred."
-}
-},
-"summary": "Get quick status info about a running workflow.",
-"tags": [
-"WorkflowExecutionService"
-],
-"x-swagger-router-controller": "ga4gh.wes.server"
-}
-}
-},
-"servers": [
-{
-"url": "http://wes.ucsc-cgp-dev.org:8080/ga4gh/wes/v1"
-}
-],
-"tags": [
-{
-"description": "A shared virtual space where scientists can work with the digital objects of biomedical research such as data and analytical tools.",
-"name": "NIHdatacommons"
-}
-]
-}
+                "_id": "9c7027eec7ba101587f74e4b2ca2f7d2",
+                "_meta": {
+                "date_created": "2019-10-22T04:25:26.584170+00:00",
+                "last_updated": "2021-03-11T08:01:15.409916+00:00",
+                "url": "https://raw.githubusercontent.com/achave11/workflow-execution-service-schemas/wes_smartapi/openapi/workflow_execution_service.openapi.yaml",
+                "username": "achave11"
+                },
+                "_score": 1,
+                "_status": {
+                "refresh_status": 200,
+                "refresh_ts": "2021-03-11T08:01:15+00:00",
+                "uptime_status": "unknown",
+                "uptime_ts": "2021-03-11T08:07:21.638654"
+                },
+                "info": {
+                "contact": {
+                "email": "davidcs@ucsc.edu",
+                "name": "David Steinberg"
+                },
+                "description": "A minimal common API which allows users to make workflow requests programmatically, adding the ability to scale up.",
+                "termsOfService": "https://www.ga4gh.org/policies/termsandconditions.html",
+                "title": "Sandbox Workflow Execution Service",
+                "version": "0.2.1",
+                "x-implementationLanguage": "en"
+                },
+                "openapi": "3.0.0",
+                "servers": [
+                {
+                "url": "http://wes.ucsc-cgp-dev.org:8080/ga4gh/wes/v1"
+                }
+                ],
+                "tags": [
+                {
+                "description": "A shared virtual space where scientists can work with the digital objects of biomedical research such as data and analytical tools.",
+                "name": "NIHdatacommons"
+                }
+                ]
+            },
+            {
+                "_id": "9c7027eec7ba101587f74e4b2ca2f7dfds2",
+                "_meta": {
+                "date_created": "2019-10-22T04:25:26.584170+00:00",
+                "last_updated": "2021-03-11T08:01:15.409916+00:00",
+                "url": "https://raw.githubusercontent.com/achave11/workflow-execution-service-schemas/wes_smartapi/openapi/workflow_execution_service.openapi.yaml",
+                "username": "achave11"
+                },
+                "_score": 1,
+                "_status": {
+                "refresh_status": 599,
+                "refresh_ts": "2021-03-11T08:01:15+00:00",
+                "uptime_status": "bad",
+                "uptime_ts": "2021-03-11T08:07:21.638654"
+                },
+                "info": {
+                "contact": {
+                "email": "davidcs@ucsc.edu",
+                "name": "David Steinberg"
+                },
+                "description": "A minimal common API which allows users to make workflow requests programmatically, adding the ability to scale up.",
+                "termsOfService": "https://www.ga4gh.org/policies/termsandconditions.html",
+                "title": "Test 2",
+                "version": "0.2.1",
+                "x-implementationLanguage": "en"
+                },
+                "openapi": "3.0.0",
+                "servers": [
+                {
+                "url": "http://wes.ucsc-cgp-dev.org:8080/ga4gh/wes/v1"
+                }
+                ],
+                "tags": [
+                {
+                "description": "A shared virtual space where scientists can work with the digital objects of biomedical research such as data and analytical tools.",
+                "name": "NIHdatacommons"
+                }
+                ]
+            }
         ],
         total: 0,
         confirmDelete: true,
@@ -1099,7 +408,6 @@ export default {
         createOrEditMode: false,
         invalidChars: false,
         takenSlug: false,
-        selectedAPIIndex:'',
         loading: false,
         // analytics
         analytics: Object,
@@ -1109,7 +417,7 @@ export default {
     },
     computed:{
         results: function(){
-        return this.searchResults.length ? this.searchResults : this.apis;
+            return this.searchResults.length ? this.searchResults : this.apis;
         },
         ...mapGetters([
             'loggedIn',
@@ -1117,9 +425,6 @@ export default {
         ])
     },
     methods:{
-        confirm() {
-          this.showModal = false
-        },
         renderUserInteractions(name){
             let self = this;
             let data = self.getHitsFor(name);
@@ -1370,16 +675,14 @@ export default {
         hideLoading: function(){
         this.loading = false;
         },
-        getDetails: function(index){
-        var elems = document.querySelectorAll('.tabs');
-        Tabs.init(elems);
-
+        getDetails: function(api){
         var self = this;
         self.showModal = true;
         //modal will show the apis index of the item clicked
-        self.selectedAPIIndex = index;
+        self.selectedAPI = api;
+        console.log('api', self.selectedAPI)
         //hasShortName sets display for slug registration view
-        if (self.apis[index]._meta.slug) {
+        if (api._meta.slug) {
             self.hasShortName=true;
         }else{
             self.hasShortName=false;
@@ -1429,9 +732,9 @@ export default {
         //claim it button clicked
         var self = this;
         self.loading = false;
-        axios.put('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+'?slug='+self.myShortName).then(response=>{
+        axios.put('/api/metadata/'+self.selectedAPI._id+'?slug='+self.myShortName).then(response=>{
             if( response.data.success ){
-            self.apis[self.selectedAPIIndex]._meta.slug= response.data[self.apis[self.selectedAPIIndex]._id+'._meta.slug'];
+            self.selectedAPI._meta.slug= self.myShortName;
             self.myShortName = '';
 
             const toast = self.$swal.mixin({
@@ -1471,9 +774,9 @@ export default {
         //delete it button clicked
         var self = this;
         self.loading = false;
-        axios.delete('/api/metadata/'+self.apis[self.selectedAPIIndex]._id+"?slug="+self.apis[self.selectedAPIIndex]._meta.slug).then(response=>{
+        axios.put('/api/metadata/'+self.selectedAPI._id+"?slug=").then(response=>{
             if( response.data.success ){
-            self.apis[self.selectedAPIIndex]._meta.slug= '';
+            self.selectedAPI._meta.slug= '';
             const toast = self.$swal.mixin({
                 toast: true,
                 position: 'top',
@@ -1546,6 +849,7 @@ export default {
         /*eslint-disable */
         tippy('.tipped',{
             placement: 'top',
+            appendTo: document.body,
             theme:'light',
             interactive:true,
             animation: false,
@@ -1560,40 +864,43 @@ export default {
     },
     watch: {
         inputApiName: function (input) {
-        if(input.trim() === this.confirmModal.title){
-            this.confirmDelete = false;
-        }
-        else{
-            this.confirmDelete = true;
-        }
+            if(input.trim() === this.confirmModal.title){
+                this.confirmDelete = false;
+            }
+            else{
+                this.confirmDelete = true;
+            }
+        },
+        selectedAPI: function (api) {
+            console.log('API is', api?.info?.title)
         },
         searchQuery: function(query){
-        if(!query){
-            this.searchResults = [];
-        }else{
-            let result = this.apis.filter(o => o.info.title.toLowerCase().includes(query.toLowerCase()));
-            this.searchResults = result;
-        }
+            if(!query){
+                this.searchResults = [];
+            }else{
+                let result = this.apis.filter(o => o.info.title.toLowerCase().includes(query.toLowerCase()));
+                this.searchResults = result;
+            }
         },
         myShortName: function(shortname){
-        var self = this;
-        self.myShortName = self.myShortName.toLowerCase();
-        /*eslint-disable */
-        var re = /[^a-zA-Z0-9\-\_\~]/;
-        /*eslint-enable */
-        self.invalidChars = false;
-        if (re.test(self.myShortName) ) {
-            self.invalidChars = true;
-        }
-        if( !re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50 ) {
-            self.takenSlug = false;
-            self.evaluateShortname();
-        }else if(re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50){
-            self.invalidChars = true;
-            self.availableShortName = false;
-        }else{
-            self.availableShortName = false;
-        }
+            var self = this;
+            self.myShortName = self.myShortName.toLowerCase();
+            /*eslint-disable */
+            var re = /[^a-zA-Z0-9\-\_\~]/;
+            /*eslint-enable */
+            self.invalidChars = false;
+            if (re.test(self.myShortName) ) {
+                self.invalidChars = true;
+            }
+            if( !re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50 ) {
+                self.takenSlug = false;
+                self.evaluateShortname();
+            }else if(re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50){
+                self.invalidChars = true;
+                self.availableShortName = false;
+            }else{
+                self.availableShortName = false;
+            }
         }
     }
 }

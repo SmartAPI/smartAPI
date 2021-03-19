@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import tippy from 'tippy.js';
+
 export default {
     name: "SourceStatus",
     data: function(){
@@ -112,6 +114,7 @@ export default {
                 </table>
             </div>`,
             placement: 'left-end',
+            appendTo: document.body,
             theme:'light',
             interactive:true,
             trigger:'click',

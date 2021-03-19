@@ -36,6 +36,11 @@ const routes = [
     component: () => import('../views/Editor.vue')
   },
   {
+    path: '/ui/:smartapi_id?',
+    name: 'UI',
+    component: () => import('../views/UI.vue')
+  },
+  {
     path: '/portal/:name?',
     name: 'Portal',
     component: () => import('../views/Portal.vue')

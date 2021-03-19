@@ -185,14 +185,12 @@ import ClipboardJS from "clipboard"
 import tippy from 'tippy.js';
 import axios from 'axios'
 
-import Image from '../components/Image.vue';
 import PillBox from '../components/PillBox.vue';
 
 const kg = require("@biothings-explorer/smartapi-kg")
 
 export default {
   components: { 
-      Image,
       PillBox
   },
     name: 'MetaKG',
