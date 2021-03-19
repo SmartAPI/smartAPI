@@ -1343,7 +1343,7 @@
         let meta_kg = new MetaKG();
         //load meta-kg API graph with reasoner APIs
         const t0 = performance.now();
-        await meta_kg.constructMetaKG(includeReasoner = true);
+        await meta_kg.constructMetaKG(includeReasoner = true, {component: 'KP'});
         const t1 = performance.now();
         self.apisLoaded = true;
         //performance check
