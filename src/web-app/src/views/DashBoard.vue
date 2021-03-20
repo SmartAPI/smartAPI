@@ -90,7 +90,7 @@
                             <i class="material-icons white-text">check</i>
                         </button>
                     </td>
-                    <td>
+                    <td class="right-align">
                         <UptimeStatus :api='api'></UptimeStatus>
                         <SourceStatus :api='api'></SourceStatus>
                     </td>
@@ -676,17 +676,16 @@ export default {
         this.loading = false;
         },
         getDetails: function(api){
-        var self = this;
-        self.showModal = true;
-        //modal will show the apis index of the item clicked
-        self.selectedAPI = api;
-        console.log('api', self.selectedAPI)
-        //hasShortName sets display for slug registration view
-        if (api._meta.slug) {
-            self.hasShortName=true;
-        }else{
-            self.hasShortName=false;
-        }
+            var self = this;
+            self.showModal = true;
+            //modal will show the apis index of the item clicked
+            self.selectedAPI = api;
+            //hasShortName sets display for slug registration view
+            if (api._meta.slug) {
+                self.hasShortName=true;
+            }else{
+                self.hasShortName=false;
+            }
         },
         checkForAPIInfoLink: function(api){
         // console.log(api);
@@ -905,19 +904,3 @@ export default {
     }
 }
 </script>
-
-<style lang='css'>
-    .m-2{
-    margin: 1rem;
-    }
-    .dashboard-header{
-        display: flex;
-        justify-content: space-evenly;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-    .dash-photo{
-        box-shadow: 5px 5px 5px #273238;
-        border: white 2px solid;
-    }
-</style>

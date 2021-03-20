@@ -1308,6 +1308,22 @@ mark {
   content: "Please wait..."
 }
 
+.m-2{
+  margin: 1rem;
+}
+
+.dashboard-header{
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.dash-photo{
+    box-shadow: 5px 5px 5px #273238;
+    border: white 2px solid;
+}
+
 .d-flex {
   display: flex
 }

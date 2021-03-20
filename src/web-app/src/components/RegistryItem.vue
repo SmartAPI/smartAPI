@@ -1,5 +1,5 @@
 <template>
-  <div class="card context">
+  <div class="card">
     <div class="card-content ">
           <span class="card-title">
             <span class="blue-grey-text bold" v-text="api.info.title"></span>
@@ -103,7 +103,7 @@
                   </td>
                   <td>
                     <a class="link" target="_blank" v-bind:href='api._meta.url'>
-                      <small><span v-text="_.truncate(api._meta.url)"></span> <i class="fa fa-external-link" aria-hidden="true"></i></small>
+                      <small><span v-text="truncate(api._meta.url)"></span> <i class="fa fa-external-link" aria-hidden="true"></i></small>
                     </a>
                     <button class="smallButton grey copyBtn" :data-clipboard-text="api._meta.url">
                         <i class="fa fa-clipboard" aria-hidden="true"></i>
@@ -174,6 +174,7 @@
 import SourceStatus from '../components/SourceStatus.vue';
 import UptimeStatus from '../components/UptimeStatus.vue';
 import CollapsibleText from '../components/CollapsibleText.vue';
+import {truncate} from 'lodash'
 
 import marked from 'marked'
 import moment from 'moment'
@@ -195,6 +196,9 @@ export default {
     },
     props: ['api', 'total', 'user'],
     methods:{
+      truncate(text){
+        return truncate(text)
+      },
       compiledMarkdown: function (mdtext) {
           return marked(mdtext)
       },
@@ -204,29 +208,29 @@ export default {
       },
       googleAnalytics(category, label){
         // console.log('category',category,label)
-        // this.$gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+        // this.$gtag.event('click', {'event_category':'general','event_label':label,'event_value':1})
 
         switch (category) {
           case 'Registry_Tag':
-            this.$gtag('event','click',{'event_category':'tag','event_label':label,'event_value':1})
+            this.$gtag.event('click', {'event_category':'tag','event_label':label,'event_value':1})
             break;
           case 'Registry_Author':
-            this.$gtag('event','click',{'event_category':'author','event_label':label,'event_value':1})
+            this.$gtag.event('click', {'event_category':'author','event_label':label,'event_value':1})
             break;
           case 'Registry_APIs':
-            this.$gtag('event','click',{'event_category':'expanded','event_label':label,'event_value':1})
+            this.$gtag.event('click', {'event_category':'expanded','event_label':label,'event_value':1})
             break;
           case 'Registry_SharedURL':
-            this.$gtag('event','click',{'event_category':'shared','event_label':label,'event_value':1})
+            this.$gtag.event('click', {'event_category':'shared','event_label':label,'event_value':1})
             break;
           case 'Registry_Searches':
-            this.$gtag('event','click',{'event_category':'searched','event_label':label,'event_value':1})
+            this.$gtag.event('click', {'event_category':'searched','event_label':label,'event_value':1})
             break;
           case 'Registry_Documentation':
-            this.$gtag('event','click',{'event_category':'documentation','event_label':label,'event_value':1})
+            this.$gtag.event('click', {'event_category':'documentation','event_label':label,'event_value':1})
             break;
           default:
-          this.$gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+          this.$gtag.event('click', {'event_category':'general','event_label':label,'event_value':1})
         }
       },
       operationStyling: function(op){

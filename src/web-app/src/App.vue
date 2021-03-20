@@ -4,7 +4,7 @@
   </teleport>
   <Navigation></Navigation>
   <div id="modals-go-here"></div>
-  <router-view/>
+  <router-view :key="$route.path"/>
   <Footer></Footer>
 </template>
 

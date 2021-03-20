@@ -169,7 +169,7 @@ export default {
         ClipboardJS.isSupported();
 
         tippy('.copyBtn', {
-            content: '<div class="white scale-in-center p-1">Copied!</div>',
+            content: '<div class="white p-1">Copied!</div>',
             trigger: 'click',
             allowHTML: true,
         });

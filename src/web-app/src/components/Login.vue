@@ -40,7 +40,7 @@ export default {
 
     .route-active{
         color: white;
-        background:rgb(19, 19, 19);
+        background: linear-gradient(to bottom, rgba(143, 196, 0, 1) 0, rgba(105, 181, 0, 1)100%);
         background-size: 100% 100%;
     }
 
@@ -50,9 +50,6 @@ export default {
         align-items: center;
         padding: 5px 10px;
         transition: all .4s;
-        &:hover{
-            background: rgb(24, 24, 24);
-        }
     }
     
     .user_img{

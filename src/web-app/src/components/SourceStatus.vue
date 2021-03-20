@@ -1,5 +1,5 @@
 <template>
-    <div class="pillStatus urlStatus pointer source-status" style="float: none !important;">
+    <div class="pillStatus urlStatus pointer source-status">
         <div>Source</div>
         <div class="white-text center-align" :class='clss' v-text="status"></div>
     </div>

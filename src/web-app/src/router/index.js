@@ -76,7 +76,7 @@ const routes = [
     component: () => import('../views/DashBoard.vue')
   },
   {
-    path: '/registry',
+    path: '/registry/:portal_name?',
     name: 'Registry',
     component: () => import('../views/Registry.vue')
   },

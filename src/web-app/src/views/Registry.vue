@@ -12,8 +12,8 @@
             <h5 class="blue-text center"> Filters</h5>
             <ul class="collapsible">
               <li>
-                <div class="collapsible-header blue-grey white-text">
-                  <small>Tags ({{tags.length}})</small>
+                <div class="collapsible-header blue white-text">
+                  <span>Tags (<b>{{tags.length}}</b>)</span>
                 </div>
                 <div class="collapsible-body noPadding">
                   <div class="collection">
@@ -55,8 +55,8 @@
               </li>
 
               <li>
-                <div class="collapsible-header blue-grey white-text">
-                  <small>Owners ({{authors.length}})</small>
+                <div class="collapsible-header blue white-text">
+                  <span>Owners (<b>{{authors.length}}</b>)</span>
                 </div>
                 <div class="collapsible-body noPadding">
                   <div class="collection">
@@ -101,8 +101,8 @@
             </ul>
 
             <ul class="collection" style="margin-top:100px;" v-show="popularTags && popularTags.length > 5">
-              <div class="collection-header orange-text center">
-                <small>Filters Most Active <br />(Last 30 days)</small>
+              <div class="collection-header grey lighten-3 orange-text">
+                <span>Filters Most Active <br />(Last 30 days)</span>
               </div>
               <template v-for="(pop,index) in popularTags" :key="pop+index">
                   <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
@@ -110,6 +110,15 @@
                 </a>
               </template>
             </ul>
+
+            <ul class="collection" style="margin-top:50px;">
+              <div class="collection-header grey lighten-3 purple-text p-1">
+                <span>Portals</span>
+              </div>
+              <router-link class="collection-item left-align" to='/registry/translator'>Translator</router-link>
+              <router-link class="collection-item left-align" to='/registry/nihdatacommons'>NIH Data Commons</router-link>
+            </ul>
+
         </div>
           <div class="col s12 hide-on-med-and-up show-on-small-only">
               <ul class="collapsible">
@@ -147,12 +156,14 @@
             <template v-if='specialTagsUI'>
               <div  class="col s12 l3 input-field center-align">
                 <a class='tooltipped p-1' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
-                  <img v-if="specialTagsUI" height="70px" width="auto" :src="specialTagImage"  :alt="specialTagName"/>
+                    <template v-if="specialTagsUI && portal_name">
+                        <Image style="max-width:200px" img_height="auto" img_width="100%" :img_name="specialTagImage" :alt="specialTagName"></Image>
+                    </template>
                 </a>
                 <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">
-                  <a class="purple-text d-block" href="/portal/translator/">
+                  <router-link class="purple-text d-block" :to="'/portal/'+portal_name">
                     Go to portal <i class="fa fa-chevron-right" aria-hidden="true"></i>
-                  </a>
+                  </router-link>
                 </div>
               </div>
               <div class="input-field col s12 l6">
@@ -222,9 +233,11 @@
                           </div>
                         </div>
                       </template>
-                      <template v-for="api in apis" :key="api._id">
-                        <RegistryItem :api="api" :total="total" :user="userInfo"></RegistryItem>
-                      </template>
+                      <div class="highlight_container">
+                          <template v-for="api in apis" :key="api._id">
+                            <RegistryItem :api="api" :total="total" :user="userInfo"></RegistryItem>
+                        </template>
+                      </div>
                       <div class="row">
                           <div class="col s12 m10 l10">
                             <div class="row">
@@ -275,7 +288,7 @@ import RegistryItem from '../components/RegistryItem.vue';
 
 import tippy from 'tippy.js'
 import axios from 'axios'
-import $ from 'jquery'
+import Mark from 'mark.js'
 import ClipboardJS from "clipboard"
 import {map, isEmpty, filter} from 'lodash'
 import {Collapsible} from 'materialize-css'
@@ -316,45 +329,40 @@ export default {
             tags:Array,
             apis: [],
             authors: [],
+            highlighter: null,
+            portal_name: ''
         }
       },
       methods: {
           googleAnalytics(category, label){
             // console.log('category',category,label)
-            // this.$gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+            // this.$gtag.event('click',{'event_category':'general','event_label':label,'event_value':1})
             switch (category) {
               case 'Registry_Tag':
-                this.$gtag('event','click',{'event_category':'tag','event_label':label,'event_value':1})
+                this.$gtag.event('click',{'event_category':'tag','event_label':label,'event_value':1})
                 break;
               case 'Registry_Author':
-                this.$gtag('event','click',{'event_category':'author','event_label':label,'event_value':1})
+                this.$gtag.event('click',{'event_category':'author','event_label':label,'event_value':1})
                 break;
               case 'Registry_APIs':
-                this.$gtag('event','click',{'event_category':'expanded','event_label':label,'event_value':1})
+                this.$gtag.event('click',{'event_category':'expanded','event_label':label,'event_value':1})
                 break;
               case 'Registry_SharedURL':
-                this.$gtag('event','click',{'event_category':'shared','event_label':label,'event_value':1})
+                this.$gtag.event('click',{'event_category':'shared','event_label':label,'event_value':1})
                 break;
               case 'Registry_Searches':
-                this.$gtag('event','click',{'event_category':'searched','event_label':label,'event_value':1})
+                this.$gtag.event('click',{'event_category':'searched','event_label':label,'event_value':1})
                 break;
               case 'Registry_Documentation':
-                this.$gtag('event','click',{'event_category':'documentation','event_label':label,'event_value':1})
+                this.$gtag.event('click',{'event_category':'documentation','event_label':label,'event_value':1})
                 break;
               default:
-              this.$gtag('event','click',{'event_category':'general','event_label':label,'event_value':1})
+              this.$gtag.event('click',{'event_category':'general','event_label':label,'event_value':1})
             }
           },
-          highlightQuery: function(){
-            this.mark(this.query);
-          },
-          mark: function(){
-            //unmark and mark current search
-            // $(".context").unmark({
-            //   done: function() {
-            //     $(".context").mark(kw);
-            //   }
-            // });
+          mark: function(keyword){
+            this.highlighter.unmark();
+            this.highlighter.mark(keyword);
           },
           initialAPILoad: function(){
               var self = this;
@@ -529,13 +537,13 @@ export default {
           },
           search: function () {
               var self = this;
-              let url = '/api/query?'
+              let url = 'https://smart-api.info/api/query?'
               let query = self.query.trim();
               // reset results
               self.apis = [];
               self.total = 0;
               //unmark keywords
-              $(".context").unmark();
+              self.highlighter.unmark();
 
               if (!self.context.Special && !query){
                 query = "__all__";
@@ -586,7 +594,7 @@ export default {
                   }
                   axios.get(url, config).then(function (response) {
                       self.loading = false;
-                      $(".context").unmark();
+                      self.highlighter.unmark();
                       self.apis = response.data.hits;
                       // self.handleContext(self.context);
                       self.total = response.data.total;
@@ -655,12 +663,12 @@ export default {
               switch (tagname) {
                 case 'translator':
                   self.specialTagName = 'NCATS Biomedical Data Translator';
-                  self.specialTagImage = '/static/img/TranslatorLogo.JPG';
+                  self.specialTagImage = 'TranslatorLogo.jpg';
                   self.specialTagURL = 'https://ncats.nih.gov/translator';
                   break;
                   case 'nihdatacommons' || 'NIHdatacommons':
                     self.specialTagName = 'NIH Data Commons';
-                    self.specialTagImage = '/static/img/nih-logo.png';
+                    self.specialTagImage = 'nih-logo.png';
                     self.specialTagURL = 'https://commonfund.nih.gov/commons';
                     break;
                 default:
@@ -788,19 +796,26 @@ export default {
           },
       },
       created: function () {
-          let self = this;
-        
-        var elems = document.querySelectorAll('.collapsible');
-        Collapsible.init(elems);
-          
-          self.loadFilters();
-        //   if ({{Context}}) {
-        //     self.context = {{Context}};
-        //   }
-
+            this.loadFilters();
+            this.getAnalytics();
+            this.$gtag.customMap({ 'dimension5': 'registryResults' })
+            this.$gtag.customMap({ 'metric1': 'registry-item' })
       },
       mounted: function(){
         var self = this;
+
+        var elems = document.querySelectorAll('.collapsible');
+        Collapsible.init(elems);
+
+        if (Object.prototype.hasOwnProperty.call(self.$route.params, 'portal_name')) {
+            self.portal_name = self.$route.params['portal_name'].toLowerCase()
+            self.context = {
+                'Special': true,
+                'Tags': [self.portal_name]
+            }
+          }
+
+        self.highlighter = new Mark(document.querySelector(".highlight_container"))
 
         new ClipboardJS('.copyBtn');
         ClipboardJS.isSupported();
@@ -808,11 +823,8 @@ export default {
         window.onpopstate = function() {
           self.initialAPILoad();
         };
-
-        this.getAnalytics();
-
+        
         /*eslint-disable */
-
         tippy('.tipped',{
               placement: 'top',
               theme:'light',
@@ -829,13 +841,11 @@ export default {
             animation: 'fade',
             theme:'light',
             trigger:'click'});
-
         /*eslint-enable */
-
       },
       updated: function(){
         // Highlight matches in results
-        this.highlightQuery();
+        this.mark(this.query);
       },
       watch:{
         tagsearch:function(q){
@@ -887,5 +897,7 @@ export default {
 </script>
 
 <style>
-
+    mark{
+        color: rgb(255, 71, 71);
+    }
 </style>

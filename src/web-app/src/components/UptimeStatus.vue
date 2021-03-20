@@ -1,7 +1,7 @@
 <template>
-    <div class="pillStatus apiStatus pointer uptime-status" style="float: none !important;">
-        <div>Uptime</div>
-        <div class="white-text center-align" :class='clss' v-text="status"></div>
+    <div class="pillStatus apiStatus pointer uptime-status">
+        <div> Uptime </div>
+        <div class="white-text center-align" :class='clss'>{{ status }}</div>
     </div>
 </template>
 
