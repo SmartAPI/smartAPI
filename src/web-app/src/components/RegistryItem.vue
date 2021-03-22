@@ -23,7 +23,7 @@
               <span v-if="api?._status?.refresh_status && ![200, 299, '200', '299'].includes(api?._status?.refresh_status)" 
               class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
             </a>
-            <UptimeStatus :api='api'></UptimeStatus>
+            <UptimeStatus class="right" :api='api'></UptimeStatus>
 
           </span>
           <template v-if="api.info.description && api.info.description.length > 500">

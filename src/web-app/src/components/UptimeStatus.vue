@@ -1,7 +1,11 @@
 <template>
-    <div class="pillStatus apiStatus pointer uptime-status">
-        <div> Uptime </div>
-        <div class="white-text center-align" :class='clss'>{{ status }}</div>
+    <div class="apiStatus pointer uptime-status" :class="'us'+badgeID">
+        <div>
+            <small>Uptime</small>
+        </div>
+        <div class="white-text center-align" :class='clss'>
+            <small>{{ status }}</small>
+        </div>
     </div>
 </template>
 
@@ -53,7 +57,7 @@ export default {
     mounted: function(){
         this.getStatus(this.api);
         /*eslint-disable */
-        tippy('.uptime-status', {
+        tippy('.us'+this.badgeID, {
             placement: 'left-end',
             appendTo: document.body,
             theme:'light',

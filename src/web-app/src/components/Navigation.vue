@@ -7,6 +7,7 @@
       <router-link to="/add-api">Add an API</router-link>
       <router-link to="/registry">Registry</router-link>
       <router-link to="/editor">Editor</router-link>
+      <router-link to="/portal">Portals</router-link>
       <router-link to="/faq">FAQ</router-link>
       <Login></Login>
     </div>
@@ -18,6 +19,7 @@
         <router-link to="/add-api">Add an API</router-link>
         <router-link to="/registry">Registry</router-link>
         <router-link to="/editor">Editor</router-link>
+        <router-link to="/portal">Portals</router-link>
         <router-link to="/faq">FAQ</router-link>
         <Login></Login>
       </div>

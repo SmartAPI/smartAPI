@@ -1180,7 +1180,7 @@ mark {
 }
 
 .apiStatus {
-  float: right;
+  margin: 10px;
   outline: none !important;
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -1201,8 +1201,8 @@ mark {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#cccccc', GradientType=0);
   display: inline;
   font-weight: bold;
-  padding: 4px;
-  font-size: .5em;
+  font-size: 12px;
+  padding: 4px 8px;
   border-bottom-left-radius: 5px;
   border-top-left-radius: 5px;
   -moz-user-select: none;
@@ -1216,8 +1216,9 @@ mark {
   color: white;
   margin-left: -6px !important;
   display: inline;
-  padding: 4px;
-  font-size: .5em;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 8px;
   border-bottom-right-radius: 5px;
   border-top-right-radius: 5px;
   -moz-user-select: none;
@@ -1227,17 +1228,21 @@ mark {
   user-select: none
 }
 
-.apiStatus div:last-child {
+.tippy-box[data-theme~=light]{
+  box-shadow: 2px 2px black 10px !important;
+}
+
+/* .apiStatus div:last-child {
   display: inline;
   padding: 4px;
-  font-size: .5em;
+  font-size: 12px;
   font-weight: bold;
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none
-}
+} */
 
 .tippy-tooltip, .tippy-content, .tippy-backdrop, .tippy-popper {
   border-radius: 0 !important

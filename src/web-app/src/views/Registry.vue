@@ -101,7 +101,7 @@
             </ul>
 
             <ul class="collection" style="margin-top:100px;" v-show="popularTags && popularTags.length > 5">
-              <div class="collection-header grey lighten-3 orange-text">
+              <div class="collection-header grey lighten-3 orange-text p-1 center-align">
                 <span>Filters Most Active <br />(Last 30 days)</span>
               </div>
               <template v-for="(pop,index) in popularTags" :key="pop+index">
@@ -112,7 +112,7 @@
             </ul>
 
             <ul class="collection" style="margin-top:50px;">
-              <div class="collection-header grey lighten-3 purple-text p-1">
+              <div class="collection-header grey lighten-3 purple-text p-1 center-align">
                 <span>Portals</span>
               </div>
               <router-link class="collection-item left-align" to='/registry/translator'>Translator</router-link>

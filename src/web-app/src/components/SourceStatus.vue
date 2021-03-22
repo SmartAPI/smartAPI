@@ -1,7 +1,11 @@
 <template>
-    <div class="pillStatus urlStatus pointer source-status">
-        <div>Source</div>
-        <div class="white-text center-align" :class='clss' v-text="status"></div>
+    <div class="apiStatus pointer source-status" :class="'ss'+badgeID">
+        <div>
+            <small>Source</small>
+        </div>
+        <div class="white-text center-align" :class='clss'>
+            <small>{{status}}</small>
+        </div>
     </div>
 </template>
 
@@ -14,6 +18,7 @@ export default {
         return{
         status:'',
         clss:'',
+        badgeID: Math.floor(Math.random()*90000) + 10000
         }
     },
     props: ['api'],
@@ -57,7 +62,7 @@ export default {
         this.getStatus(this.api);
 
         /*eslint-disable */
-        tippy( '.source-status', {
+        tippy( '.ss'+this.badgeID, {
             content: `<div class="white" style="padding:0px;">
                 <table>
                 <thead>

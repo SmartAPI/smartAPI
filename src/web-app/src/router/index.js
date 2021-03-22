@@ -41,19 +41,32 @@ const routes = [
     component: () => import('../views/UI.vue')
   },
   {
-    path: '/portal/:name?',
-    name: 'Portal',
-    component: () => import('../views/Portal.vue')
-  },
-  {
-    path: '/portal/:name?/summary',
-    name: 'Summary',
-    component: () => import('../views/Summary.vue')
-  },
-  {
-    path: '/portal/translator/metakg',
-    name: 'MetaKG',
-    component: () => import('../views/MetaKG.vue')
+    path: '/portal',
+    name:'PortalNav',
+    component: () => import('../views/PortalNav.vue'),
+    children:[
+      {
+        path: '',
+        name:'PortalHome',
+        component: () => import('../views/PortalHome.vue')
+      },
+      {
+        path: ':name',
+        name:'Portal',
+        component: () => import('../views/Portal.vue'),
+        props: true
+      },
+      {
+        path: ':name/summary',
+        name:'Summary',
+        component: () => import('../views/Summary.vue'),
+      },
+      {
+        path: ':name/metakg',
+        name:'MetaKG',
+        component: () => import('../views/MetaKG.vue'),
+      },
+    ]
   },
   {
     path: '/branding',
