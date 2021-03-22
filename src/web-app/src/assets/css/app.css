@@ -1180,7 +1180,6 @@ mark {
 }
 
 .apiStatus {
-  margin: 10px;
   outline: none !important;
   -moz-user-select: none;
   -khtml-user-select: none;

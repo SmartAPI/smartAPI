@@ -91,7 +91,7 @@
                         </button>
                     </td>
                     <td class="right-align">
-                        <UptimeStatus :api='api'></UptimeStatus>
+                        <UptimeStatus :style="{marginBottom:'10px'}" :api='api'></UptimeStatus>
                         <SourceStatus :api='api'></SourceStatus>
                     </td>
                     </tr>
