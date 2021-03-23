@@ -73,7 +73,7 @@
         props: ['data', 'summary_type', 'colors'],
         methods:{
             handleChartClick(label, color){
-                filtered = this.tableData.filter(d => d.label == label);
+                filtered = this.tableData.filter(d => d.label == label || d.label.includes(label));
                 this.filter = label;
                 this.bgColor = color;
                 this.showDetails = true;
@@ -129,7 +129,7 @@
                             name: item['info']['title'], 
                             label: item['info'][field]['team'].toString()
                         })
-                        if(typeof item['info'][field]['team'] !== 'string'){
+                        if(item['info'][field]['team'].constructor !== String){
                             item['info'][field]['team'].forEach(team => {
                                 if(team in teams){
                                     teams[team]++
