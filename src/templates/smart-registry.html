@@ -804,7 +804,7 @@
               
               var config = {
                   "params": {
-                      "q": encodeURIComponent(query),
+                      "q": query,
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                       'size': self.perPage,
                       'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )  
@@ -985,7 +985,7 @@
 
                   var config = {
                       "params": {
-                          "q": encodeURIComponent(query),
+                          "q": query,
                           'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                           'size': self.perPage,
                           'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )          
