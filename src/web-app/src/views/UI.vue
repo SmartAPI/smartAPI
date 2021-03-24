@@ -1,6 +1,6 @@
 <template>
   <main id="ui-app" class="indexBackground uiBack" style="width: 100%;">
-    <template v-if="api">
+    <template v-if="api && api.info">
       <MetaHead :title="'SmartAPI | '+ api?.info?.title" :description="api?.info?.description"></MetaHead>
     </template>
     <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
@@ -27,6 +27,21 @@ export default {
         loadSwaggerUI: function(dataurl){
           let self = this;
 
+          const HideEmptyTagsPlugin = () => {
+            return {
+              statePlugins: {
+                spec: {
+                  wrapSelectors: {
+                    taggedOperations: (ori) => (...args) => {
+                      return ori(...args)
+                        .filter(tagMeta => tagMeta.get("operations") && tagMeta.get("operations").size > 0)
+                    }
+                  }
+                }
+              }
+            }
+          };
+
           const ui = SwaggerUI({
               url: dataurl,
               dom_id: '#swagger-ui',
@@ -37,7 +52,7 @@ export default {
               plugins: [
                 SwaggerUI.plugins.DownloadUrl,
                 // plug-in to hide empty tags
-                // HideEmptyTagsPlugin
+                HideEmptyTagsPlugin
               ],
               onComplete:()=>{
                 $("hgroup.main").after('<a class="blue" style="padding:5px; border-radius:5px; border:1px grey solid; color:white !important; text-decoration:none;" href="/registry?q='+self.apiID+'">View on SmartAPI Registry</a>');
@@ -70,7 +85,3 @@ export default {
       }
 }
 </script>
-
-<style>
-    @import "../assets/css/swagger.css";
-</style>
