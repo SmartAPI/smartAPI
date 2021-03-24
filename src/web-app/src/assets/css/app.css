@@ -528,6 +528,10 @@ h1, h2, h3, h4, h5 {
   overflow: scroll
 }
 
+table tr{
+  border-bottom: none !important;
+}
+
 .footerList li {
   border-bottom: #607d8b dotted 1px
 }
