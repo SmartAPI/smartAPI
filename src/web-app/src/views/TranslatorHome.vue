@@ -86,7 +86,7 @@
             <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_3</i> Register your API</h5>
           </div>
           <p>
-            Once you are ready and <router-link to="/add_api">register</router-link> your KP API it will be listed on the <router-link to="/registry/translator">SmartAPI registy</router-link> and
+            Once you are ready and <router-link to="/add-api">register</router-link> your KP API it will be listed on the <router-link to="/registry/translator">SmartAPI registy</router-link> and
             your API will be visible to other users. Eg. <router-link to="/registry?q=59dce17363dce279d389100834e43648">MyGene.info API</router-link>
           </p>
           <p>
