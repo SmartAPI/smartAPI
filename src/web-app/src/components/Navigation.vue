@@ -45,7 +45,7 @@ export default {
     toggleShow() {
       this.show = !this.show
     }
-  },
+  }
 }
 </script>
 

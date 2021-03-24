@@ -1,8 +1,6 @@
 <template>
     <div class="card portal-card hoverable" :style="{width: width, margin:'10px'}">
-        <div class="card-image">
-            <Image :img_name="image" img_width="100%"></Image>
-        </div>
+        <Pikaboo :image="image"></Pikaboo>
         <div class="card-content blue-grey-text">
         <span class="card-title">{{title}}</span>
         <p v-html="description"></p>
@@ -14,8 +12,13 @@
 </template>
 
 <script>
+import Pikaboo from './Pikaboo.vue';
+
 export default {
     name: 'Card',
+    components:{
+        Pikaboo
+    },
     props:{
         width:{
             type: String,

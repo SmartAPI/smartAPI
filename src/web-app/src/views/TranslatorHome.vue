@@ -72,10 +72,10 @@
             </li>
           </ul>
           <p>
-            You can use this <a href="/editor">editor</a> build to write/edit your API metadata. You can start with an existing metadata example from <a target="_blank" rel="noreferrer" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml">mygene.info</a> API. The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
+            You can use this <router-link to="/editor">editor</router-link> build to write/edit your API metadata. You can start with an existing metadata example from <a target="_blank" rel="noreferrer" href="https://github.com/NCATS-Tangerine/translator-api-registry/blob/master/mygene.info/openapi_minimum.yml">mygene.info</a> API. The editor automatically validates your API metadata and gives a live preview of auto-generated API documentation.
           </p>
           <p>
-            This guide can also <a href="/guide">guide</a> through the process/tools on how to create your OpenAPI v3 API metadata or how to upgrade an existing Swagger v2 API metadata to OpenAPI v3.
+            This guide can also <router-link to="/guide">guide</router-link> through the process/tools on how to create your OpenAPI v3 API metadata or how to upgrade an existing Swagger v2 API metadata to OpenAPI v3.
           </p>
 
         </section>
@@ -86,8 +86,8 @@
             <h5 class="white-text meta_grad rounded-right padding20"><i class="material-icons">filter_3</i> Register your API</h5>
           </div>
           <p>
-            Once you are ready and <a href="/add_api">register</a> your KP API it will be listed on the <a href="/registry/translator">SmartAPI registy</a> and
-            your API will be visible to other users. Eg. <a href="/registry?q=59dce17363dce279d389100834e43648">MyGene.info API</a>
+            Once you are ready and <router-link to="/add_api">register</router-link> your KP API it will be listed on the <router-link to="/registry/translator">SmartAPI registy</router-link> and
+            your API will be visible to other users. Eg. <router-link to="/registry?q=59dce17363dce279d389100834e43648">MyGene.info API</router-link>
           </p>
           <p>
             The registry provides useful information and operation documentation, API status, editing tools and many other neat features!
@@ -96,7 +96,7 @@
             <Image alt="registry pluses" img_name="registry_plus-01.png" img_width="90%"></Image>
           </div>
           <div class="center">
-            <a class="btn blue btn-large" href="/registry/translator">Registry</a>
+            <router-link class="btn blue btn-large" to="/registry/translator">Registry</router-link>
           </div>
         </section>
       </div>
@@ -108,7 +108,7 @@
           <Image img_name="metakg-01.png" img_width="150px"></Image>
           <h1>META-KG</h1>
           <p class="center">
-            <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
+            <router-link class="btn green btn-large" to="/portal/translator/metakg">Try it</router-link>
           </p>
         </div>
         <p>
@@ -132,11 +132,11 @@
         </div>
         <p>
           Meta-KG would then find all connections with <i>predicate</i> “affects” and <i>output_type</i> “Gene” and give you a list of APIs which can give you that type of results.
-          <a href="/portal/translator/metakg?predicate=affects&output_type=Gene">View example</a>
+          <router-link to="/portal/translator/metakg?predicate=affects&output_type=Gene">View example</router-link>
         </p>
         <Image img_name="graph_example.jpg" img_width="100%" alt="graph example" class="rounded"></Image>
         <p class="center">
-          <a class="btn green btn-large" href="/portal/translator/metakg">Try it</a>
+          <router-link class="btn green btn-large" to="/portal/translator/metakg">Try it</router-link>
         </p>
       </div>
     </div>

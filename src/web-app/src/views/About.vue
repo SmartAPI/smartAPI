@@ -120,7 +120,7 @@
         </div>
         <p class="grey-text smallFont">
           Search SmartAPI for contributions by {{selectedPerson.name}} {{selectedPerson.lastname}}<br />
-          <a class="btn blue smallFont margin20" :href="'/registry?q='+selectedPerson.name+' '+selectedPerson.lastname"><i class="fa fa-search" aria-hidden="true"></i> Search</a>
+          <router-link class="btn blue smallFont margin20" :to="'/registry?q='+selectedPerson.name+' '+selectedPerson.lastname"><i class="fa fa-search" aria-hidden="true"></i> Search</router-link>
         </p>
       </div>
       <div class="col s12 m8 l8">

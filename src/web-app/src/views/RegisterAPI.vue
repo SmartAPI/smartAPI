@@ -19,14 +19,14 @@
                <p class="blue-grey-text center">
               Use our guide to help you through the process of adding an API.
               <br /><br />
-              <a href="/guide" class="btn blue">GUIDE</a>
+              <router-link to="/guide" class="btn blue">GUIDE</router-link>
               </p>
               <blockquote class="padding20 grey-text">
               Swagger V2 can be submitted, however it will not experience full functionality on SmartAPI and BioThings Explorer.
               <br />
               <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
               <br />
-              <a href="/guide"><i class="fa fa-info-circle" aria-hidden="true"></i> Upgrade your Metadata</a>
+              <router-link to="/guide"><i class="fa fa-info-circle" aria-hidden="true"></i> Upgrade your Metadata</router-link>
               </blockquote>
               </form>
       </div>
@@ -77,7 +77,7 @@ export default {
                     imageUrl: '/static/img/api-sucess.svg',
                     imageWidth: 300,
                     title: 'Great! You are done!',
-                    html: "You can view your API documentation <b><a href='/registry?q="+res.data._id+"'>HERE</a></b>",
+                    html: "You can view your API documentation <b><router-link to='/registry?q="+res.data._id+"'>HERE</router-link></b>",
                   })
                 }
               }
@@ -87,7 +87,7 @@ export default {
                 if(Object.prototype.hasOwnProperty.call(err.response.data, "error") && err.response.data.error == "Conflict"){
                 swal({
                   title: "Wait a second...",
-                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
+                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <router-link to="/dashboard">user dashboard</router-link></p>',
                   imageUrl: '/static/img/api-overwrite.svg',
                   imageWidth: 300,
                   confirmButtonText: 'OK',
@@ -96,7 +96,7 @@ export default {
               else if(Object.prototype.hasOwnProperty.call(err.response.data, "details") && err.response.data.details == "API exists"){
                 swal({
                   title: "Wait a second...",
-                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
+                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <router-link to="/dashboard">user dashboard</router-link></p>',
                   imageUrl: '/static/img/api-fail.svg',
                   imageWidth: 300,
                   confirmButtonText: 'OK',

@@ -169,6 +169,15 @@ export default {
             let self = this;
             let statuses = {}
 
+            if(field == 'uptime_status'){
+                statuses = {
+                    'good' : 0,
+                    'unknown' : 0,
+                    'incompatible' : 0,
+                    'fail' : 0,
+                }
+            }
+
             self.data.forEach(item => {
                 if(Object.prototype.hasOwnProperty.call(item['_status'], field)){
                     //table data
@@ -276,7 +285,7 @@ export default {
                 labels: []
             };
 
-            yesTF ? (data.datasets[0].data.push(yesTF), data.labels.push(yesTF_label),data.datasets[0].backgroundColor.push('#5ed668')) : false
+            yesTF ? (data.datasets[0].data.push(yesTF), data.labels.push(yesTF_label),data.datasets[0].backgroundColor.push('#20c96a')) : false
             yesTnoF ? (data.datasets[0].data.push(yesTnoF), data.labels.push(yesTnoF_label),data.datasets[0].backgroundColor.push("#ffbf47")) : false
             noTyesF ? (data.datasets[0].data.push(noTyesF), data.labels.push(noTyesF_label),data.datasets[0].backgroundColor.push("#925ed6")) : false
             if (self.summary_type !== 'x-trapi_Compliant') {

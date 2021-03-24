@@ -16,13 +16,13 @@
             <span v-if="bt_tag && bt_tag.name == 'biothings' " class="versionBadge grey darken-2">
               BioThings API
             </span>
-            <a v-if="user && api._meta.username === user.login" 
+            <router-link v-if="user && api._meta.username === user.login" 
               :data-tippy-status="api?._status?.refresh_status || 'n/a' "
-                href="/dashboard" class="versionBadge light-blue pointer tipped">
+                to="/dashboard" class="versionBadge light-blue pointer tipped">
               My&nbsp;API 
               <span v-if="api?._status?.refresh_status && ![200, 299, '200', '299'].includes(api?._status?.refresh_status)" 
               class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
-            </a>
+            </router-link>
             <UptimeStatus class="right" :api='api'></UptimeStatus>
 
           </span>
@@ -35,9 +35,9 @@
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags" :key="tag.name">
-              <a :href="'?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="link">
+              <router-link :to="'/registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="blue-text">
                 <small>#<span v-text="tag.name"></span></small>
-              </a>
+              </router-link>
               <span v-if="index !== api.tags.length-1">, </span>
             </template>
           </div>
@@ -120,9 +120,9 @@
                     <small class="white-text">SmartAPI Registry URL</small>
                   </td>
                   <td>
-                    <a class="link" target="_blank" v-bind:href='"?q="+api._id'>
+                    <router-link class="link" target="_blank" :to='"/registry?q="+api._id'>
                       <small><span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q=<span v-text="api._id"></span> </span></small>
-                    </a>
+                    </router-link>
                     <button class="smallButton grey copyBtn" :data-clipboard-text="'http://smart-api.info/registry?q='+api._id">
                         <i class="fa fa-clipboard" aria-hidden="true"></i>
                     </button>
@@ -133,14 +133,14 @@
           </div>
 
           <div class="col s12" style="padding:20px;">
-            <a class="btn green" style="margin:5px;"
-               v-bind:href='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
+            <router-link class="btn green" style="margin:5px;"
+               :to='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
                <span class="hide-on-small-only">View API</span> Documentation
-            </a>
-            <a class="btn blue" style="margin:5px;"
-               v-bind:href='"/editor/"+api._id'>
+            </router-link>
+            <router-link class="btn blue" style="margin:5px;"
+               :to='"/editor/"+api._id'>
                Edit <i class="fa fa-pencil" aria-hidden="true"></i>
-            </a>
+            </router-link>
           </div>
         </div>
         <div>

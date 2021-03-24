@@ -159,7 +159,7 @@
                         <br />
                         <a target="_blank" class="underlined" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
                         <br />
-                        <a href="/guide" class="green-text underlined">Use our guide to help you convert your API to OpenAPI V3 specification.</a>
+                        <router-link to="/guide" class="green-text underlined">Use our guide to help you convert your API to OpenAPI V3 specification.</router-link>
                         </div>
                         <hr />
                     </template>
@@ -167,8 +167,8 @@
                         <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
                         <div class='grey lighten-3 p-1 indigo-text'><small v-text="selectedAPI._id"></small></div>
                     </div>
-                    <a :href="'/ui/'+selectedAPI._id" class="btn blue m-2">View API Documentation</a>
-                    <a :href="'/registry?q='+selectedAPI._id" class="btn indigo m-2">View API On SmartAPI Registry</a>
+                    <router-link :to="'/ui/'+selectedAPI._id" class="btn blue m-2">View API Documentation</router-link>
+                    <router-link :to="'/registry?q='+selectedAPI._id" class="btn indigo m-2">View API On SmartAPI Registry</router-link>
                     </li>
                     <template v-for='link in checkForAPIInfoLink(selectedAPI)' :key="link">
                     <li class="collection-item blue-grey lighten-4">

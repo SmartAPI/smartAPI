@@ -40,7 +40,9 @@ export default {
     data: function(){
         return {
             summaries: Array,
-            totalAPIs: 0
+            totalAPIs: 0,
+            colorList: ['#20c96a', '#2c98f0', '#4bc0c0', '#8d5bd4', '#ff9f3f', '#224b80', '#ffcd56', '#ff6384', '#d8823e', '#3e6fd8',
+            '#0890aa', '#60878f', '#6354b4', '#e66822', '#c4b5ad', '#dd4aba']
         }
       },
       methods: {
@@ -51,12 +53,12 @@ export default {
                 self.data = res.data.hits
                 self.totalAPIs = res.data.total
                 self.summaries = [
-                    {'name': 'x-translator_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
-                    {'name': 'x-trapi_Compliant', 'colors': ["#5ed668", "#ffbf47","#925ed6","#e65a78"]},
-                    {'name': 'By_Teams', 'colors': 'random'},
-                    {'name': 'By_Component', 'colors': 'random'},
-                    {'name': 'Uptime_Status', 'colors': ["#5ed668","#ffc107","#0277bd","#ff5722"]},
-                    {'name': 'Source_Status', 'colors': ["#5ed668","#ffc107","#e65a78","#9c27b0"]},
+                    {'name': 'x-translator_Compliant', 'colors': ["#20c96a", "#ffbf47","#925ed6","#e65a78"]},
+                    {'name': 'x-trapi_Compliant', 'colors': ["#20c96a", "#ffbf47","#925ed6","#e65a78"]},
+                    {'name': 'By_Teams', 'colors': self.colorList},
+                    {'name': 'By_Component', 'colors': self.colorList},
+                    {'name': 'Uptime_Status', 'colors': ["#20c96a","#ffc107","#0277bd","#ff5722"]},
+                    {'name': 'Source_Status', 'colors': ["#20c96a","#ffc107","#e65a78","#9c27b0"]},
                 ]
             }).catch(err=>{
                 throw err;

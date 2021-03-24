@@ -206,7 +206,7 @@
                     </ul>
                     <router-link to="/editor" class="btn-large editor green margin20">Editor</router-link>
                     <p class="grey-text left-align ">
-                        Note: This <a target="_blank" href="http://smart-api.info/openapi-gui/">OpenAPI GUI</a>
+                        Note: This <a target="_blank" href="https://mermade.github.io/openapi-gui/">OpenAPI GUI</a>
                         interface can also be useful for creating your API metadata from scratch. But be aware
                         that this interface does not support
                         any <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md">SmartAPI extensions</a>
