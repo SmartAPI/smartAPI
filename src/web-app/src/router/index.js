@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import axios from 'axios'
 
 const routes = [
   {
@@ -102,6 +103,28 @@ const router = createRouter({
   scrollBehavior() {
     return { x: 0, y: 0 };
   },
+})
+
+router.beforeEach((to, from, next) => {
+
+  if (to.name === 'Home') {
+    const slug = window.location.host.split('.')[0]
+
+    if(!['www', 'dev', 'smart-api', 'localhost:8000', 'localhost:8080'].includes(slug)){
+
+      axios.get(' http://dev.smart-api.info/api/metadata/'+slug+'?fields=_id&raw=1').then(res=>{
+
+          if(Object.prototype.hasOwnProperty.call(res.data, "_id")){
+            next({name:'UI', params: {smartapi_id : res.data._id}})
+          }else next()
+
+        }).catch(err=>{
+          next()
+          throw err;
+        });
+    }else next()
+
+  }else next()
 })
 
 export default router

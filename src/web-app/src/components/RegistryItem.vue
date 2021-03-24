@@ -44,7 +44,7 @@
       </div>
       <!-- TOGGLE DETAILS -->
       <div class="card-action grey lighten-3" v-if="total > 1" :class="showDetails?'blue':'grey'">
-          <a style="border-radius: 20px;" class="btn" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" href="#" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></a>
+          <button style="border-radius: 20px;" class="btn" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></button>
       </div>
       <div class="card-content detailsBack" v-if="showDetails || total === 1">
         <div class="row">

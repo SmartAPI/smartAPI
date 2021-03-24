@@ -81,7 +81,6 @@ export default {
         this.apiID = this.$route.params.smartapi_id;
         this.loadSwaggerUI('https://smart-api.info/api/metadata/'+this.apiID+'?format=yaml');
         this.getMetadata('https://smart-api.info/api/metadata/'+this.apiID);
-
       }
 }
 </script>
