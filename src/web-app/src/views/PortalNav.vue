@@ -1,5 +1,8 @@
 <template>
   <div class="white">
+      <MetaHead
+        :title="selected ? 'SmartAPI | '+selected.toUpperCase() : 'SmartAPI | Portals'"
+        ></MetaHead>
       <div style="min-height: 90vh">
             <nav>
                 <div class="nav-wrapper purple white-text">

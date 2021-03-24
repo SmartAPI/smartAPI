@@ -1,6 +1,6 @@
 <template>
 <main id="about-app" class="white" style="width: 100%;">
-
+  <MetaHead title="SmartAPI | About"></MetaHead>
   <section class="container center padding20">
     <Image img_width="40%" img_name="logo-small-text.svg" class="hide-on-med-only hide-on-large-only"></Image>
     <Image img_width="45%" img_name="logo-medium-text.svg" class="hide-on-small-only hide-on-large-only"></Image>

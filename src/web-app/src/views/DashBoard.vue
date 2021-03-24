@@ -1,5 +1,6 @@
 <template>
   <main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3" v-cloak>
+    <MetaHead title="SmartAPI | My Dashboard"></MetaHead>
     <!-- IF NO USER INFO DISPLAY LOGIN-->
     <div v-if="!loggedIn" class="padding20 card-panel white center-align">
         <h5 class="text_h3 blue-grey-text-text">

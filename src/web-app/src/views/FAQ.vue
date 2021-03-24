@@ -1,5 +1,6 @@
 <template>
     <main id="faq-app" class="white w-100 padding20">
+        <MetaHead title="SmartAPI | FAQ"></MetaHead>
     <div class="container-fluid center">
         <div class="white faqHero blue-text">
         <Image alt="faq" img_name="faq.svg" img_width='40%' class="responsive-img" style="max-width:300px;"></Image>

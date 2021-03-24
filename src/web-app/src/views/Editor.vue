@@ -1,5 +1,6 @@
 <template>
 <main id="editor-app" class="white">
+    <MetaHead title="SmartAPI | API Editor"></MetaHead>
     <div id="swagger-editor" class="grey lighten-4"></div>
 </main>
 </template>

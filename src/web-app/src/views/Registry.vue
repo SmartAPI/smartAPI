@@ -1,6 +1,7 @@
 <template>
   <main class="white">
   <div id="app" style="height: 100%;" class="white container-fluid" v-cloak>
+    <MetaHead title="SmartAPI | API Registry"></MetaHead>
     <!-- Loading Screen -->
     <div v-show="loading" class="center-align loader">
       <div class="center-align">

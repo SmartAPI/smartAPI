@@ -1,5 +1,6 @@
 <template>
   <main id="registerAPI" class="blue-grey dashboardBack row m-0 darken-2">
+    <MetaHead title="SmartAPI | Register Your API"></MetaHead>
   <div class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
       <div id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
       <Image img_width="200px"  alt="SmartAPI" img_name="api-welcome.svg"></Image>

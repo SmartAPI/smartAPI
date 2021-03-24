@@ -1,5 +1,8 @@
 <template>
   <main id="index-app">
+    <MetaHead
+    title="SmartAPI | Home"
+    ></MetaHead>
     <div class="section mainBackgroundParticle heroContainer" id="index-banner">
       <vue-particles color="#ffffff"
         :particleOpacity="1"

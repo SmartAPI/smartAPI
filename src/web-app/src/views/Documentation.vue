@@ -1,5 +1,6 @@
 <template>
   <main id="docs-app" style="width: 100%;">
+      <MetaHead title="SmartAPI | Documentation"></MetaHead>
   <div class="row">
     <div class="testBack padding20">
     <nav>

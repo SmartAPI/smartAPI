@@ -1,5 +1,6 @@
 <template>
   <main id="docapp" class="blue-grey testBack" >
+      <MetaHead title="SmartAPI | Guide"></MetaHead>
     <!-- PROGRESS BAR -->
     <div v-if="selection" class="progress padding20" style="background-color: var(--blue-medium);">
         <div class="determinate light-blue lighten-4" :style="{width: progressText}" >{{progressText || '0%'}}</div>

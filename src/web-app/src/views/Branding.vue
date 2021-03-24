@@ -1,5 +1,6 @@
 <template>
   <main id="brand-app" class="white" style="width: 100%;">
+    <MetaHead title="SmartAPI | Branding"></MetaHead>
   <div class="full-width brandBack"></div>
   <div class="container center-align">
     <h3 class="blue-grey-text">Branding</h3>

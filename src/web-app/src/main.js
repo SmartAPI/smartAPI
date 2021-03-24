@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import Image from './components/Image'
 import VModal from './components/VModal'
+import MetaHead from './components/MetaHead'
 // PWA
 import './registerServiceWorker'
 // Companion Libs
@@ -35,19 +36,13 @@ app.use(store)
 .use(VueFinalModal())
 .use(VueParticles)
 .use(VueGtag, {
-    property: {
-      id: "UA-139873613-1",
-    //   params: {
-    //     user_id: "12345",
-    //     send_page_view: false,
-    //     linker: {
-    //       domain: ['example.com']
-    //     }
-    //   }
-    }
-  });
+  property: {
+    id: "UA-139873613-1"
+  }
+});
 
 // global registration
 app.component("Image", Image);
 app.component("VModal", VModal);
+app.component("MetaHead", MetaHead);
 app.mount('#app');

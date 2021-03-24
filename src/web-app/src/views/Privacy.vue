@@ -1,5 +1,6 @@
 <template>
   <main id="privacy-app" class="white" style="width: 100%;">
+    <MetaHead title="SmartAPI | Privacy"></MetaHead>
   <div class="container padding20">
       <div>
         <h3 class="blue-text center">Privacy Notice for SmartAPI</h3>
