@@ -801,10 +801,11 @@
               if(!self.query){
                 query="__all__"
               }
+
+              url += "q="+query
               
               var config = {
                   "params": {
-                      "q": query,
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                       'size': self.perPage,
                       'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )  
@@ -981,11 +982,12 @@
               }
               if (query) {
 
+                  url += "q="+query
+
                   self.googleAnalytics('Registry_Searches',query)
 
                   var config = {
                       "params": {
-                          "q": query,
                           'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                           'size': self.perPage,
                           'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )          
