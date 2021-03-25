@@ -54,6 +54,10 @@
   background-color: white
 }
 
+.align-items-center{
+  align-items: center;
+}
+
 .noBorder {
   border: none !important
 }

@@ -2,7 +2,7 @@
   <main class="white">
   <!-- MAIN SECTIONS -->
   <section class="center grey lighten-3 d-flex justify-content-around padding20 flex-wrap">
-    <div class="row">
+    <div class="row d-flex justify-content-center" style="align-items:stretch;">
       <div class="col s12 m4 d-flex justify-content-center align-items-center">
         <Image img_name="TranslatorLogo.jpg" img_height="77px"></Image>
       </div>
@@ -15,11 +15,12 @@
       <div class="col s12 m4 d-flex justify-content-center align-items-center">
         <Image img_name="ncats-logo-1.png" img_height="77"></Image>
       </div>
-      <div class="col s12 padding20 center-align">
-        <p>View a summary of all the APIs used by this portal.</p>
+      
+    </div>
+    <div class="col s12 padding20 center-align">
+        <h5>View a summary of all the APIs used by this portal.</h5>
         <router-link to="/portal/translator/summary" class="btn blue">Portal Summary</router-link>
       </div>
-    </div>
   </section>
 
   <div class="d-flex align-items-stretch row flex-wrap m-0">
