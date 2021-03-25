@@ -60,7 +60,7 @@
                     </ul>
                 </div>
                 <div class="col s6 m4">
-                    <h5 class="white-text">SmartAPI Info</h5>
+                    <h5 class="white-text">API Management</h5>
                     <ul>
                         <li>
                             <router-link to="/add-api" class="footerLink">Add an API</router-link>
@@ -113,9 +113,7 @@
 </template>
 
 <script>
-import Image from './Image.vue';
 export default {
-  components: { Image },
   name: 'Footer',
   mounted: ()=>{
     var currentTime = new Date()
