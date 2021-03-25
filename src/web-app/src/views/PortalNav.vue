@@ -9,7 +9,7 @@
                 <ul>
                     <li><router-link to="/portal">Portals Home</router-link></li>
                 </ul>
-                <router-link v-if="selected" :to="'/portal/'+selected" class="brand-logo center caps tracking-in-expand">{{selected}}</router-link>
+                <router-link v-if="selected" :to="'/portal/'+selected" class="brand-logo center caps">{{selected}}</router-link>
                 </div>
             </nav>
             <router-view></router-view>
