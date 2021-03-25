@@ -187,7 +187,7 @@ import axios from 'axios'
 
 import PillBox from '../components/PillBox.vue';
 
-const kg = require("@biothings-explorer/smartapi-kg")
+const MetaKG  = require("@biothings-explorer/smartapi-kg")
 
 export default {
   components: { 
@@ -298,10 +298,10 @@ export default {
         var self = this;
         const t0 = performance.now();
 
-        let meta_kg = new kg.MetaKG()
+        let meta_kg = new MetaKG.default()
         //load meta-kg API graph with reasoner APIs
         /*eslint-disable */
-        await meta_kg.constructMetaKG(false, {component: "KP"});
+        await meta_kg.constructMetaKG(true, {component: "KP"});
         /*eslint-enable */
         const t1 = performance.now();
         self.apisLoaded = true;
