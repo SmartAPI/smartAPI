@@ -82,28 +82,28 @@
       <div class="downloadBox">
         <Image img_width="100px" img_name="download.svg" alt="logo"></Image>
         <span class="blue-text smallFont">Full Package</span>
-        <a class="smallButton" href="../assets/img/logos.zip" download="../assets/img/logos.zip">
+        <a class="smallButton" href="img/logos.zip" download="logos.zip">
         <i class="fa fa-download" aria-hidden="true"></i>
         </a>
       </div>
       <div class="downloadBox">
         <Image img_width="100px" img_name="logo-small-text.svg" alt="logo"></Image>
         <span class="blue-text smallFont">Logo (SM) SVG</span>
-        <a class="smallButton" href="../assets/img/logo-small.svg" download="../assets/img/logo-small.svg">
+        <a class="smallButton" href="img/logo-small.svg" download="logo-small.svg">
         <i class="fa fa-download" aria-hidden="true"></i>
         </a>
       </div>
       <div class="downloadBox">
         <Image img_width="100px" img_name="logo-medium-text.svg" alt="logo"></Image>
         <span class="blue-text smallFont">Logo (MD) SVG</span>
-        <a class="smallButton" href="../assets/img/logo-medium.svg" download="../assets/img/logo-medium.svg">
+        <a class="smallButton" href="img/logo-medium.svg" download="logo-medium.svg">
         <i class="fa fa-download" aria-hidden="true"></i>
         </a>
       </div>
       <div class="downloadBox">
         <Image img_width="100px" img_name="logo-large-text.svg" alt="logo"></Image>
         <span class="blue-text smallFont">Logo (LG) SVG</span>
-        <a class="smallButton" href="../assets/img/logo-large.svg" download="../assets/img/logo-large.svg">
+        <a class="smallButton" href="img/logo-large.svg" download="logo-large.svg">
         <i class="fa fa-download" aria-hidden="true"></i>
         </a>
       </div>
