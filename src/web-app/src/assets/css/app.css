@@ -69,6 +69,13 @@
   background-repeat: no-repeat
 }
 
+.cloudsBack {
+  background-image: url('../img/clouds.svg');
+  background-position: bottom center;
+  background-size: cover;
+  background-repeat: no-repeat
+}
+
 .margin20 {
   margin: 20px !important
 }

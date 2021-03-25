@@ -1,23 +1,23 @@
 <template>
-  <main id="registerAPI" class="grey lighten-3 docBack row m-0">
+  <main id="registerAPI" class="blue-grey darken-3 row m-0">
     <MetaHead title="SmartAPI | Register Your API"></MetaHead>
-  <div class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
-      <div id="submitBox" class="container center-align white padding20 z-depth-5" style="border-radius: 10px;">
-      <Owl></Owl>
-      <h3 class="center blue-grey-text flow-text">Register your API metadata</h3>
-      <form @submit.prevent="handleSubmit()">
+  <div v-if="loggedIn" class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
+    <div id="submitBox" class="container center-align white z-depth-5  light-blue lighten-4" style="border-radius: 10px;">
+      <div class="cloudsBack padding20">
+        <Owl></Owl>
+        <h3 class="center blue-grey-text flow-text">Register your API metadata</h3>
+      </div>
+      <form @submit.prevent="handleSubmit()" class="white">
           <input 
           placeholder="Enter the URL to your raw API Metadata here" 
           class="browser-default margin20 validate register_input" 
           style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;" 
           v-model="url" name="url" type="url">
           <div class="padding20">
-              <input 
-              type="checkbox" 
-              id="dry_run" 
-              name="dryrun" 
-              v-model="dry_run"/>
-              <label for="dry_run">Dry run only. API won't actually saved.</label>
+              <button class="smallButton" style="margin-right:10px; color:white !important;" :class="[dry_run ? 'green': 'grey darken-1']" @click="dry_run = !dry_run">
+                <b>Dry Run</b>
+              </button>
+              <label for="dry_run">Click for dry run only. API won't actually saved.</label>
               </div>
               <button :class="[ready?'':'hide']" :disabled="!ready" class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
               <p class="center blue-text">
@@ -30,16 +30,24 @@
               <br /><br />
               <router-link to="/guide" class="btn blue">GUIDE</router-link>
               </p>
-              <blockquote class="padding20 grey-text">
+              <div class="padding20 grey darken-3 white-text">
               Swagger V2 can be submitted, however it will not experience full functionality on SmartAPI and BioThings Explorer.
               <br />
               <a target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">Learn More about OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
               <br />
               <router-link to="/guide"><i class="fa fa-info-circle" aria-hidden="true"></i> Upgrade your Metadata</router-link>
-              </blockquote>
+              </div>
               </form>
-      </div>
-      </div>
+        </div>
+  </div>
+  <div v-if="!loggedIn" class="padding20 card-panel white center-align">
+        <h5 class="text_h3 blue-grey-text-text">
+        You Must Be Signed In To Register an API
+        </h5>
+        <a href="/oauth" class="btn green">
+        Login
+        </a>
+    </div>
 </main>
 </template>
 
@@ -47,6 +55,7 @@
 import axios from 'axios';
 import swal from 'vue-sweetalert2'
 import Owl from '../components/Owl3D.vue';
+import { mapGetters } from 'vuex'
 
 export default {
     name: "RegisterAPI",
@@ -62,7 +71,10 @@ export default {
       computed:{
         ready: function(){
           return this.url ? true : false;
-        }
+        },
+        ...mapGetters([
+            'loggedIn'
+        ])
       },
       methods: {
         handleSubmit: function(){
