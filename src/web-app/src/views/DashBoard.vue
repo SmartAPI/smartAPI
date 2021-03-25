@@ -1,5 +1,5 @@
 <template>
-  <main id="dashApp" style="padding-top:20px;min-height:90vh;" class="blue-grey darken-3" v-cloak>
+  <main id="dashApp" style="min-height:90vh;" class="blue-grey darken-3 docBack" v-cloak>
     <MetaHead title="SmartAPI | My Dashboard"></MetaHead>
     <!-- IF NO USER INFO DISPLAY LOGIN-->
     <div v-if="!loggedIn" class="padding20 card-panel white center-align">
@@ -20,20 +20,20 @@
     <!-- Loading END -->
     <!-- IF USER INFO DISPLAY DASHBOARD -->
     <div v-if="loggedIn" class="row" style="margin-bottom: 0; width: 100%;min-height:70vh;">
-        <div class="col s12 padding20 blue">
-            <div class="dashboard-header blue">
-                <Image 
-                id="dashboardPhoto" 
-                img_width="100px" 
-                :img_name="'user-default.png'" 
-                class="responsive-img circle dash-photo" 
-                :alt="userInfo.login"></Image>
-                <div>
-                    <h5 v-if="userInfo?.name" class="white-text">Hello, {{ userInfo?.name.split(" ")[0] || userInfo.login }}!</h5>
-                    <p><a target="_blank" class="white-text" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
-                </div>
+        <div class="col s12 padding20">
+            <div class="dashboard-header">
                 <div class="center-align white-text">
-                    <b v-text="'APIs Registered: '+total"></b>
+                    <h6>
+                        <Image 
+                        id="dashboardPhoto" 
+                        img_width="80px" 
+                        :img_name="'user-default.png'" 
+                        class="responsive-img circle dash-photo" 
+                        :alt="userInfo.login"></Image>
+                    </h6>
+                    <h5 v-if="userInfo?.name">Hello, {{ userInfo?.name.split(" ")[0] || userInfo.login }}!</h5>
+                    <p><a target="_blank" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
+                    <b class="grey-text"> APIs Registered: <span class="white-text">{{total}}</span></b>
                 </div>
             </div>
         </div>
@@ -109,7 +109,7 @@
         </div>
     </div>
 
-    <div class="blue-grey lighten-2 padding20 white-text center">
+    <div class="blue-grey darken-2 padding20 white-text center">
         <p>
             <i class="material-icons">error_outline</i> Did you know you can set a custom slug for your API's documentation? It's easy! Just click on any API on your dashboard and go to the <em>Settings</em> tab.<br />
             Use the <em>Custom Slug Registration Wizard</em> and get a custom URL for your API's documentation. E.g. <b>&lt;slug&gt;.smart-api.info</b>

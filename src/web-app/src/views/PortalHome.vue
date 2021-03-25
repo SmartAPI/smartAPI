@@ -1,6 +1,9 @@
 <template>
-  <div>
-      <h1 class="grey-text center-align">SmartAPI Portals</h1>
+  <div class="dashboardBack" style="min-height:90vh;">
+      <div class="center-align">
+          <Image img_width="100px"  alt="SmartAPI" img_name="api-welcome.svg"></Image>
+      </div>
+      <h1 class="grey-text center-align m-0 p-1">SmartAPI Portals</h1>
       <div class="d-flex justify-content-center align-items-center container">
         <template v-for="portal in portals" :key="portal.title">
             <Card 

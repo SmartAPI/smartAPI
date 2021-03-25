@@ -1,14 +1,22 @@
 <template>
-  <main id="registerAPI" class="blue-grey dashboardBack row m-0 darken-2">
+  <main id="registerAPI" class="grey lighten-3 docBack row m-0">
     <MetaHead title="SmartAPI | Register Your API"></MetaHead>
   <div class="section no-pad-bot single_section col l12 s12" style="margin-bottom: 10% !important; margin-top: 5%;">
-      <div id="submitBox" class="container center-align white hoverable padding20 z-depth-5" style="border-radius: 10px;">
-      <Image img_width="200px"  alt="SmartAPI" img_name="api-welcome.svg"></Image>
+      <div id="submitBox" class="container center-align white padding20 z-depth-5" style="border-radius: 10px;">
+      <Owl></Owl>
       <h3 class="center blue-grey-text flow-text">Register your API metadata</h3>
       <form @submit.prevent="handleSubmit()">
-          <input placeholder="Enter the URL to your raw API Metadata here" v-model="url" name="url" type="url" class="validate register_input">
+          <input 
+          placeholder="Enter the URL to your raw API Metadata here" 
+          class="browser-default margin20 validate register_input" 
+          style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;" 
+          v-model="url" name="url" type="url">
           <div class="padding20">
-              <input type="checkbox" class="browser-default" id="dry_run" name="dryrun" v-model="dry_run"/>
+              <input 
+              type="checkbox" 
+              id="dry_run" 
+              name="dryrun" 
+              v-model="dry_run"/>
               <label for="dry_run">Dry run only. API won't actually saved.</label>
               </div>
               <button :class="[ready?'':'hide']" :disabled="!ready" class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
@@ -38,6 +46,7 @@
 <script>
 import axios from 'axios';
 import swal from 'vue-sweetalert2'
+import Owl from '../components/Owl3D.vue';
 
 export default {
     name: "RegisterAPI",
@@ -46,6 +55,9 @@ export default {
           url:'',
           dry_run: false
         }
+      },
+      components:{
+        Owl
       },
       computed:{
         ready: function(){

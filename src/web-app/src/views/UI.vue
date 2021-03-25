@@ -3,6 +3,15 @@
     <template v-if="api && api.info">
       <MetaHead :title="'SmartAPI | '+ api?.info?.title" :description="api?.info?.description"></MetaHead>
     </template>
+    <div v-if="api && api._id" class="grey darken-2 d-flex justify-content-around align-items-center p-1">
+      <div class="d-flex justify-content-around align-items-center p-1">
+        <SourceStatus style="margin-right:25px" :api="api"></SourceStatus>
+        <UptimeStatus :api="api"></UptimeStatus>
+      </div>
+      <div class="p-1">
+        <small class="white-text tracking-in-expand"> Last updated {{ convertDate(api?._meta?.last_updated) }}</small>
+      </div>
+    </div>
     <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
   </main>
 </template>
@@ -10,7 +19,9 @@
 <script>
 import SwaggerUI from 'swagger-ui'
 import axios from 'axios'
-import $ from 'jquery'
+import moment from 'moment';
+import UptimeStatus from '../components/UptimeStatus.vue';
+import SourceStatus from '../components/SourceStatus.vue';
 
 import "swagger-ui/dist/swagger-ui.css"
 
@@ -23,7 +34,16 @@ export default {
           api : Object
         }
       },
+      components:{
+        SourceStatus,
+        UptimeStatus
+      },
       methods: {
+        convertDate: function(timestamp){
+          var date = new Date(timestamp);
+          date = moment(date).format('LLL');
+          return date;
+        },
         loadSwaggerUI: function(dataurl){
           let self = this;
 
@@ -55,13 +75,13 @@ export default {
                 HideEmptyTagsPlugin
               ],
               onComplete:()=>{
-                $("hgroup.main").after('<a class="blue" style="padding:5px; border-radius:5px; border:1px grey solid; color:white !important; text-decoration:none;" href="/registry?q='+self.apiID+'">View on SmartAPI Registry</a>');
+                document.querySelector('hgroup.main').insertAdjacentHTML('afterend', '<a class="blue" style="padding:5px; border-radius:5px; border:1px grey solid; color:white !important; text-decoration:none;" href="/registry?q='+self.apiID+'">View on SmartAPI Registry</a>');
 
-                let servers_selected = $("div.servers label select").val();
+                let servers_selected = document.querySelector('div.servers label select').value;
                 // console.log("severs", servers_selected)
                 if (servers_selected) {
                   if (servers_selected.includes('http:') && window.location.protocol == 'https:') {
-                    $("div.servers label select").after('<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>')
+                    document.querySelector('div.servers label select').insertAdjacentHTML('afterend', '<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>')
                   }
                 }
               }
@@ -78,11 +98,11 @@ export default {
         }
       },
       mounted: function(){
-        this.loadSwaggerUI('https://smart-api.info/api/metadata/'+this.apiID+'?format=yaml');
+        this.loadSwaggerUI('https://smart-api.info/api/metadata/'+this.apiID);
       },
       beforeMount: function(){
         this.apiID = this.$route.params.smartapi_id;
-        this.getMetadata('https://smart-api.info/api/metadata/'+this.apiID);
+        this.getMetadata('https://dev.smart-api.info/api/metadata/'+this.apiID+'?raw=1');
       }
 }
 </script>

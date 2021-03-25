@@ -210,18 +210,6 @@ a.middle-indicator-text {
   font-size: 1em
 }
 
-.mainBack {
-  background-color: #cfeefb;
-  background-image: url('../img/net-pattern.svg');
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: top left;
-  position: relative;
-  width: 100% !important;
-  margin: 0 auto;
-  background-attachment: fixed
-}
-
 .dashboardBack {
   background-image: url('../img/net.svg');
   background-repeat: no-repeat;
