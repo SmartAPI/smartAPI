@@ -194,6 +194,7 @@ export default {
       PillBox
   },
     name: 'MetaKG',
+    props: ["component"],
     data: function () {
       return {
         'cy': null,
@@ -301,7 +302,7 @@ export default {
         let meta_kg = new MetaKG.default()
         //load meta-kg API graph with reasoner APIs
         /*eslint-disable */
-        await meta_kg.constructMetaKG(true, {component: "KP"});
+        await meta_kg.constructMetaKG(true, {component: self.component ? self.component : 'KP'});
         /*eslint-enable */
         const t1 = performance.now();
         self.apisLoaded = true;

@@ -63,9 +63,10 @@ const routes = [
         component: () => import('../views/Summary.vue'),
       },
       {
-        path: ':name/metakg',
+        path: ':name/metakg/:component?',
         name:'MetaKG',
         component: () => import('../views/MetaKG.vue'),
+        props: true
       },
     ]
   },
@@ -108,7 +109,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 
   if (to.name === 'Home') {
-    
+
     const slug = window.location.host.split('.')[0]
 
     if(!['www', 'dev', 'smart-api', 'localhost:8000', 'localhost:8080'].includes(slug)){
