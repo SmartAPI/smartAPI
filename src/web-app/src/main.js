@@ -4,8 +4,9 @@ import App from './App.vue'
 import Image from './components/Image'
 import VModal from './components/VModal'
 import MetaHead from './components/MetaHead'
-// PWA
-import './registerServiceWorker'
+// PWA disabled for now
+// import './registerServiceWorker'
+
 // Companion Libs
 import router from './router'
 import store from './store'

@@ -60,15 +60,7 @@ class UserInfoHandler(BaseHandler):
 
 class LoginHandler(BaseHandler):
     def get(self):
-        xsrf = self.xsrf_token
-        login_file = "login.html"
-        login_template = templateEnv.get_template(login_file)
-        path = GITHUB_CALLBACK_PATH
-        _next = self.get_argument("next", "/")
-        if _next != "/":
-            path += "?next={}".format(_next)
-        login_output = login_template.render(path=path, xsrf=xsrf)
-        self.write(login_output)
+        self.redirect(self.get_argument("next", "/"))
 
 
 class LogoutHandler(BaseHandler):
@@ -120,12 +112,10 @@ APP_LIST = [
     (r"/login/?", LoginHandler),
     (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
-    (r"/css/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/css'}),
-    (r"/js/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/js'}),
-    (r"/img/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/img'}),
-    (r"/fonts/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/fonts'}),
-    (r'/manifest\.json', Filehandler, {'path': STATICPATH }),
-    (r'/service-workert\.js', Filehandler, {'path': STATICPATH }),
+    (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/css'}),
+    (r"/js/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/js'}),
+    (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/img'}),
+    (r"/fonts/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/fonts'}),
     (r'/favicon\.ico', Filehandler, {'path': STATICPATH + '/img/icons' }),
     # in case of reload SPA can handle proper routing
     (r"/(.+)?", MainHandler),

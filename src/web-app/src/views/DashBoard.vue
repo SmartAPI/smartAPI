@@ -224,52 +224,52 @@
                     <a v-if='createOrEditMode' @click.prevent='createOrEditMode = !createOrEditMode' class="red btn">Cancel</a>
                     </div>
                     <div v-if='hasShortName' class="col s12 m12 l12">
-                    <p>
-                        <i class="fa fa-check-circle-o green-text fa-5x" aria-hidden="true"></i>
-                    </p>
-                    <p class="grey-text">
-                        You have registered your custom slug!
-                        <br />
-                        If you visit to link below, it will take users to your API documentation.
-                    </p>
-                    <div class="green-text flow-text">
-                        <a :href=" 'http://'+selectedAPI._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{selectedAPI._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
-                        <br />
-                        <hr />
-                        <a class="btn green smallFont margin20" @click.prevent='createOrEditMode = !createOrEditMode'>Edit Slug</a>
-                        <a v-if="hasShortName" class="btn red smallFont margin20" @click.prevent='deleteSlug'>Delete Slug</a>
-                    </div>
-                    </div>
-                    <div v-if="createOrEditMode" style="width: 100%; display: flex; align-items: center;justify-content: center; flex-wrap: wrap;">
-                    <div class="left-align padding20 grey-text" style="flex: 1; min-width: 100%;">
-                        Slug length must be 4-50 characters (a-z) and/or numbers (0-9). Slugs will be converted to lower case. URL protected characters not allowed.
-                    </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <input autocomplete="false" v-model='myShortName' placeholder="Enter your slug here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
-                    </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <p id="availabilityResults" v-bind:class="{'green-text': availableShortName, 'red-text': !availableShortName }">
-                        <span v-if="myShortName" class="grey-text">http://</span>
-                        <span v-if="myShortName">{{myShortName}}</span>
-                        <span v-if="myShortName" class="grey-text">.smart-api.info</span>
-                        <span v-if="!myShortName" class="grey-text">Check Slug Availability</span>
-                        <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
-                        <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
-                        <br />
-                        <span v-if="myShortName.length < 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
-                        <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length <= 3 && invalidChars"/>
-                        <span v-if="invalidChars" class="red-text"><i class="tiny material-icons">warning</i> Invalid Characters</span>
-                        <span v-if="takenSlug" class="orange-text"><i class="tiny material-icons">warning</i> Taken Slug</span>
+                        <p>
+                            <i class="fa fa-check-circle-o green-text fa-5x" aria-hidden="true"></i>
                         </p>
+                        <p class="grey-text">
+                            You have registered your custom slug!
+                            <br />
+                            If you visit to link below, it will take users to your API documentation.
+                        </p>
+                        <div class="green-text flow-text">
+                            <a :href=" 'http://'+selectedAPI._meta.slug+'.smart-api.info'" target="_blank" class="green-text link">http://<b>{{selectedAPI._meta.slug}}</b>.smart-api.info <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
+                            <br />
+                            <hr />
+                            <a class="btn green smallFont margin20" @click.prevent='createOrEditMode = !createOrEditMode'>Edit Slug</a>
+                            <a v-if="hasShortName" class="btn red smallFont margin20" @click.prevent='deleteSlug'>Delete Slug</a>
+                        </div>
                     </div>
-                    <div style="flex: 1; min-width: 200px;">
-                        <a @click.prevent="setShortname" :disabled='!availableShortName && !hasShortName' :class="!availableShortName ? 'btn grey' : 'green btn pulse' " >Set Slug</a>
-                    </div>
+                    <div v-if="createOrEditMode && !hasShortName" style="width: 100%; display: flex; align-items: center;justify-content: center; flex-wrap: wrap;">
+                        <div class="left-align padding20 grey-text" style="flex: 1; min-width: 100%;">
+                            Slug length must be 4-50 characters (a-z) and/or numbers (0-9). Slugs will be converted to lower case. URL protected characters not allowed.
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <input autocomplete="false" v-model='myShortName' placeholder="Enter your slug here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <p id="availabilityResults" v-bind:class="{'green-text': availableShortName, 'red-text': !availableShortName }">
+                            <span v-if="myShortName" class="grey-text">http://</span>
+                            <span v-if="myShortName">{{myShortName}}</span>
+                            <span v-if="myShortName" class="grey-text">.smart-api.info</span>
+                            <span v-if="!myShortName" class="grey-text">Check Slug Availability</span>
+                            <i v-if='availableShortName && myShortName' class="fa fa-thumbs-up green-text" aria-hidden="true"></i>
+                            <i v-if='!availableShortName && myShortName' class="fa fa-thumbs-down red-text" aria-hidden="true"></i>
+                            <br />
+                            <span v-if="myShortName.length < 3 && myShortName.length > 0" class="amber-text"><i class="tiny material-icons">warning</i> Too Short</span>
+                            <span v-if="myShortName.length >50" class="orange-text"><i class="tiny material-icons">warning</i> Too Long</span><br v-if="myShortName.length <= 3 && invalidChars"/>
+                            <span v-if="invalidChars" class="red-text"><i class="tiny material-icons">warning</i> Invalid Characters</span>
+                            <span v-if="takenSlug" class="orange-text"><i class="tiny material-icons">warning</i> Taken Slug</span>
+                            </p>
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <button type="button" class="btn" @click.prevent="setShortname" :disabled='!availableShortName && !hasShortName' :class="!availableShortName ? 'grey' : 'green white-text' " >Set Slug</button>
+                        </div>
 
-                    <div id="shortNameSuccess" class="center-align padding20 green smallFont" style="flex: 1; min-width: 100%; display: none;">
-                        <h5 class="white-text"><i class="fa fa-check white-text" aria-hidden="true"></i> Slug Registered</h5>
-                        <a href="#!" class="btn green modal-action modal-close">Close</a>
-                    </div>
+                        <div id="shortNameSuccess" class="center-align padding20 green smallFont" style="flex: 1; min-width: 100%; display: none;">
+                            <h5 class="white-text"><i class="fa fa-check white-text" aria-hidden="true"></i> Slug Registered</h5>
+                            <a href="#!" class="btn green modal-action modal-close">Close</a>
+                        </div>
                     </div>
                 </div>
                 </div>
@@ -438,11 +438,7 @@ export default {
             }
             });
         } else {
-            self.$swal.fire({type:'error',
-            toast:true,
-            title: 'Missing URL',
-            showConfirmButton:false,
-            timer:1000})
+            alert('URL is required')
         }
         },
         getApis: function(){
@@ -457,19 +453,9 @@ export default {
                 self.hideLoading();
 
             }).catch(err=>{
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 2000
-            });
-            self.hideLoading();
-
-            toast({
-                type: 'error',
-                title: 'Failed to load APIS'
-            })
-            throw err;
+                alert('failed to load APIs')
+                self.hideLoading();
+                throw err;
             });
 
         },
@@ -486,17 +472,13 @@ export default {
             if( response.data.success ){
             window.location.reload()
             }else if( !response.data.success ){
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
-            toast({
-                type: 'error',
-                title: 'Failed to delete '+title
-            })
+                self.$swal({
+                    title: "Oh no!",
+                    confirmButtonText: 'OK',
+                    imageUrl: require('../assets/img/api-error.svg'),
+                    imageWidth: 200,
+                    html: title + " failed to delete."
+                })
             }
         }).catch(error=>{
             //error deleting
@@ -506,15 +488,9 @@ export default {
 
         },
         showMessage(title, status){
-        const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 4000
-            });
         switch (status) {
             case 'updated':
-            self.$swal({
+            this.$swal({
                 title: "Sweet!",
                 confirmButtonText: 'OK',
                 imageUrl: require('../assets/img/api-sucess.svg'),
@@ -525,7 +501,7 @@ export default {
             break;
 
             case 'not_modified':
-            self.$swal({
+            this.$swal({
                 title: "Hmmm...",
                 imageUrl: require('../assets/img/api-thinking.svg'),
                 imageWidth: 200,
@@ -536,7 +512,7 @@ export default {
             break;
 
             case 'invalid':
-            self.$swal({
+            this.$swal({
                 title: "Oops!",
                 confirmButtonText: 'OK',
                 imageUrl: require('../assets/img/api-fail.svg'),
@@ -547,7 +523,7 @@ export default {
             break;
 
             case 'nofile':
-            self.$swal({
+            this.$swal({
                 title: "Oh no!",
                 confirmButtonText: 'OK',
                 imageUrl: require('../assets/img/api-error.svg'),
@@ -556,12 +532,10 @@ export default {
                 footer: "<p>This issue can only be resolved by restoring your source file or deleting this API and re-registering as a new API with a working source file.</p>"
             })
             break;
-        
+    
             default:
-            toast({
-                title: 'NAME: <b>' + title + '</b> - STATUS: ' + status
-                })
-            break;
+                alert(title,status)
+                break;
         }
         },
         refreshThis: function(title, id){
@@ -579,16 +553,13 @@ export default {
             if (err?.response?.data?.status) {
             self.showMessage(title, err.response.data.status)
             } else {
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 4000
-            });
-            toast({
-                type: 'error',
-                title: title+' failed to refresh'
-            })
+                this.$swal({
+                    title: "Oh no!",
+                    confirmButtonText: 'OK',
+                    imageUrl: require('../assets/img/api-error.svg'),
+                    imageWidth: 200,
+                    html: title + " failed to refresh."
+                })
             }
             self.hideLoading();
             throw(err);
@@ -602,15 +573,14 @@ export default {
         this.loading = false;
         },
         getDetails: function(api){
-            var self = this;
-            self.showModal = true;
+            this.showModal = true;
             //modal will show the apis index of the item clicked
-            self.selectedAPI = api;
+            this.selectedAPI = api;
             //hasShortName sets display for slug registration view
-            if (api._meta.slug) {
-                self.hasShortName=true;
+            if (this.selectedAPI?._meta?.slug.length) {
+                this.hasShortName=true;
             }else{
-                self.hasShortName=false;
+                this.hasShortName=false;
             }
         },
         checkForAPIInfoLink: function(api){
@@ -659,37 +629,45 @@ export default {
         self.loading = false;
         axios.put('/api/metadata/'+self.selectedAPI._id+'?slug='+self.myShortName).then(response=>{
             if( response.data.success ){
-            self.selectedAPI._meta.slug= self.myShortName;
-            self.myShortName = '';
+                self.selectedAPI._meta.slug= self.myShortName;
+                self.myShortName = '';
+                self.createOrEditMode = false;
+                self.hasShortName = true;
+                self.loading = true;
 
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
-            toast({
-                type: 'success',
-                title:'Slug was registered'
-            })
-
-            self.createOrEditMode = false;
-            self.hasShortName = true;
-            self.loading = true;
+                self.$swal.fire({
+                    type:'success',
+                    title: "Slug Registered",
+                    html:
+                        "Hold on while we update your dashboard in <strong></strong> seconds...",
+                    timer: 3000,
+                    onBeforeOpen: () => {
+                        const content = self.$swal.getContent()
+                        content.querySelector.bind(content)
+                        self.$swal.showLoading()
+                        setInterval(() => {
+                        self.$swal.getContent().querySelector('strong')
+                            .textContent = (self.$swal.getTimerLeft() / 1000)
+                            .toFixed(0)
+                        }, 100)
+                    },
+                    onClose: () => {
+                        //reload
+                        self.$router.go()
+                        self.selectedAPI = {}
+                    }
+                });
+                    
+                
             }else if( !response.data.success ){
             self.loading = false;
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
-            toast({
-                type: 'error',
-                title:response.data.error
-            })
+                self.$swal({
+                    title: "Oh no!",
+                    confirmButtonText: 'OK',
+                    imageUrl: require('../assets/img/api-error.svg'),
+                    imageWidth: 200,
+                    html: response.data?.error
+                })
             }
         }).catch(error=>{
             throw error;
@@ -701,36 +679,31 @@ export default {
         self.loading = false;
         axios.put('/api/metadata/'+self.selectedAPI._id+"?slug=").then(response=>{
             if( response.data.success ){
-            self.selectedAPI._meta.slug= '';
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
-            toast({
-                type: 'success',
-                title:'Slug was deleted'
-            })
-            self.createOrEditMode = false;
-            self.hasShortName = false;
-            self.loading = true;
+                self.selectedAPI._meta.slug= '';
+                self.createOrEditMode = false;
+                self.hasShortName = false;
+                self.loading = true;
+                //reload
+                self.$router.go()
+                self.selectedAPI = {}
             }else if( !response.data.success ){
             self.loading = false;
-            const toast = self.$swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
-            toast({
-                type: 'error',
-                title:'Slug could not be set'
-            })
+                    self.$swal({
+                        title: "Oh no!",
+                        confirmButtonText: 'OK',
+                        imageUrl: require('../assets/img/api-error.svg'),
+                        imageWidth: 200,
+                        html: 'slug could not be registered'
+                    })
             }
         }).catch(error=>{
+            self.$swal({
+                        title: "Oh no!",
+                        confirmButtonText: 'OK',
+                        imageUrl: require('../assets/img/api-error.svg'),
+                        imageWidth: 200,
+                        html: 'slug could not be registered'
+                    })
             throw error;
         });
         },
@@ -769,7 +742,7 @@ export default {
         let self = this;
         self.showLoading();
         self.getAnalytics();
-        // self.getApis();
+        self.getApis();
 
         /*eslint-disable */
         tippy('.tipped',{

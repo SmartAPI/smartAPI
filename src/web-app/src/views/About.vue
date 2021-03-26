@@ -196,7 +196,7 @@ export default {
 .social-icon{
   margin-right: 5px;
 }
-::v-deep .modal-container {
+.modal-container {
   display: flex;
   justify-content: center;
   align-items: center;
