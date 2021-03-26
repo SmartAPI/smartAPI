@@ -16,10 +16,9 @@
         </div>
     </div>
     <!-- LOADING -->
-    <div v-if="loading" id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">
-        <div class="center-align" style="padding-top: 300px;">
-        <Image img_width="100px"  alt="Loading" img_name="fly.gif" class=""></Image>
-        <h3 class="white-text logoFont">Loading...</h3>
+    <div v-if="loading" id="loading-overlay" class="center-align">
+        <div class="center-align">
+            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
         </div>
     </div>
     <!-- Loading END -->
@@ -388,7 +387,7 @@ export default {
                 headers: { "Content-Type": "multipart/form-data" },
             }).then(res=>{
             self.$swal({
-                imageUrl: '/static/img/api-sucess.svg',
+                imageUrl: require('../assets/img/api-sucess.svg'),
                 imageWidth: 300,
                 title: 'Great! Everything looks good!',
                 footer: "<h5 class='green-text'>" + res.data.details + "</h5>"
@@ -400,7 +399,7 @@ export default {
             self.$swal({
                 title: "Wait a second...",
                 html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
-                imageUrl: '/static/img/api-overwrite.svg',
+                imageUrl: require('../assets/img/api-overwrite.svg'),
                 imageWidth: 300,
                 confirmButtonText: 'OK',
             });
@@ -409,7 +408,7 @@ export default {
             self.$swal({
                 title: "Wait a second...",
                 html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
-                imageUrl: '/static/img/api-fail.svg',
+                imageUrl: require('../assets/img/api-fail.svg'),
                 imageWidth: 300,
                 confirmButtonText: 'OK',
             });
@@ -417,7 +416,7 @@ export default {
             else if(err.response.data?.details && err.response.data.details.includes("Validation Error")){
             self.$swal({
                 title: "Oh no, there's a problem!",
-                imageUrl: '/static/img/api-fail.svg',
+                imageUrl: require('../assets/img/api-fail.svg'),
                 imageWidth: 300,
                 confirmButtonText: 'OK',
                 html:`<h5>Here's what we found:</h5>
@@ -428,7 +427,7 @@ export default {
             else{
             self.$swal({
                 title: "Oops, there's an issue!",
-                imageUrl: '/static/img/api-fail.svg',
+                imageUrl: require('../assets/img/api-fail.svg'),
                 imageWidth: 300,
                 confirmButtonText: 'OK',
                 html:`<h5>Here's what we found:</h5>
@@ -518,7 +517,7 @@ export default {
             self.$swal({
                 title: "Sweet!",
                 confirmButtonText: 'OK',
-                imageUrl: '/static/img/api-sucess.svg',
+                imageUrl: require('../assets/img/api-sucess.svg'),
                 imageWidth: 200,
                 html: "<h5><b>"+title+"</b> was updated!</h5>",
                 footer: "<p>You may look at your latest changes on our <a href='/registry?q="+title+"'>API registry</a>.</p>"
@@ -528,7 +527,7 @@ export default {
             case 'not_modified':
             self.$swal({
                 title: "Hmmm...",
-                imageUrl: '/static/img/api-thinking.svg',
+                imageUrl: require('../assets/img/api-thinking.svg'),
                 imageWidth: 200,
                 confirmButtonText: 'OK',
                 html: "<h5><b>"+title+"</b> has no changes.</h5>",
@@ -540,7 +539,7 @@ export default {
             self.$swal({
                 title: "Oops!",
                 confirmButtonText: 'OK',
-                imageUrl: '/static/img/api-fail.svg',
+                imageUrl: require('../assets/img/api-fail.svg'),
                 imageWidth: 200,
                 html: "<h5 class='red-text'>New version found but there's validation errors.</h5>",
                 footer: "<p>Click on <b class='indigo-text'>Validate Only</b> to see validation results. Once they are resolved you can <b class='green-text'>Refresh</b> and synchronize your metadata to its latest version.</p>"
@@ -551,7 +550,7 @@ export default {
             self.$swal({
                 title: "Oh no!",
                 confirmButtonText: 'OK',
-                imageUrl: '/static/img/api-error.svg',
+                imageUrl: require('../assets/img/api-error.svg'),
                 imageWidth: 200,
                 html: "<h6 class='red-text'>Looks like the source file no longers exists or is not reachable</h6>",
                 footer: "<p>This issue can only be resolved by restoring your source file or deleting this API and re-registering as a new API with a working source file.</p>"

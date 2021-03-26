@@ -14,7 +14,7 @@
           style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;" 
           v-model="url" name="url" type="url">
           <div class="padding20">
-              <button class="smallButton" style="margin-right:10px; color:white !important;" :class="[dry_run ? 'green': 'grey darken-1']" @click="dry_run = !dry_run">
+              <button type="button" class="smallButton" style="margin-right:10px; color:white !important;" :class="[dry_run ? 'green': 'grey darken-1']" @click="dry_run = !dry_run">
                 <b>Dry Run</b>
               </button>
               <label for="dry_run">Click for dry run only. API won't actually saved.</label>
@@ -58,7 +58,6 @@
 
 <script>
 import axios from 'axios';
-import swal from 'vue-sweetalert2'
 import Owl from '../components/Owl3D.vue';
 import { mapGetters } from 'vuex'
 
@@ -83,6 +82,7 @@ export default {
       },
       methods: {
         handleSubmit: function(){
+          
           let self = this;
           if(self.ready){
             let data = {
@@ -92,19 +92,19 @@ export default {
               data['dryrun'] = true;
             }
             axios.post("/api", data).then(res=>{
-              // console.log('response', res.data)
+              console.log('registering', res.data)
               if(res.data.success){
                 if(Object.prototype.hasOwnProperty.call(res.data, "details") && res.data.details.includes("[Dryrun]")){
-                  swal({
-                      imageUrl: '/static/img/api-dryrun.svg',
+                  this.$swal({
+                      imageUrl: require('../assets/img/api-dryrun.svg'),
                       imageWidth: 300,
                       imageAlt: 'Dry Run',
                       title: res.data.details,
                       html: "Because this is a dry run your data has <b>not</b> been saved. If you want to register your API, uncheck 'dry run' and try again.",
                     })
                 }else if(Object.prototype.hasOwnProperty.call(res.data, "_id")){
-                  swal({
-                    imageUrl: '/static/img/api-sucess.svg',
+                  this.$swal({
+                    imageUrl: require('../assets/img/api-sucess.svg'),
                     imageWidth: 300,
                     title: 'Great! You are done!',
                     html: "You can view your API documentation <b><router-link to='/registry?q="+res.data._id+"'>HERE</router-link></b>",
@@ -113,29 +113,29 @@ export default {
               }
             }).catch(err=>{
               if(Object.prototype.hasOwnProperty.call(err, "response") && Object.prototype.hasOwnProperty.call(err.response, "data")){
-                // console.log('[Error]:', err.response)
+                console.log('[Error]:', err.response)
                 if(Object.prototype.hasOwnProperty.call(err.response.data, "error") && err.response.data.error == "Conflict"){
-                swal({
+                this.$swal({
                   title: "Wait a second...",
                   html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <router-link to="/dashboard">user dashboard</router-link></p>',
-                  imageUrl: '/static/img/api-overwrite.svg',
+                  imageUrl: require('../assets/img/api-overwrite.svg'),
                   imageWidth: 300,
                   confirmButtonText: 'OK',
                 });
               }
               else if(Object.prototype.hasOwnProperty.call(err.response.data, "details") && err.response.data.details == "API exists"){
-                swal({
+                this.$swal({
                   title: "Wait a second...",
                   html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <router-link to="/dashboard">user dashboard</router-link></p>',
-                  imageUrl: '/static/img/api-fail.svg',
+                  imageUrl: require('../assets/img/api-fail.svg'),
                   imageWidth: 300,
                   confirmButtonText: 'OK',
                 });
               }
               else if(Object.prototype.hasOwnProperty.call(err.response.data, "details")  && err.response.data.details.includes("Validation Error")){
-                swal({
+                this.$swal({
                   title: "Oh no, there's a problem!",
-                  imageUrl: '/static/img/api-fail.svg',
+                  imageUrl: require('../assets/img/api-fail.svg'),
                   imageWidth: 300,
                   confirmButtonText: 'OK',
                   html:`<h5>Here's what we found:</h5>
@@ -144,9 +144,9 @@ export default {
                 })
               }
               else{
-                swal({
+                this.$swal({
                   title: "Oops, there's an issue!",
-                  imageUrl: '/static/img/api-fail.svg',
+                  imageUrl: require('../assets/img/api-fail.svg'),
                   imageWidth: 300,
                   confirmButtonText: 'OK',
                   html:`<h5>Here's what we found:</h5>

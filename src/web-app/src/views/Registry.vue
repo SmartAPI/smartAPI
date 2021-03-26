@@ -681,7 +681,7 @@ export default {
                     break;
                 default:
                   self.specialTagName = tagname.toUpperCase();
-                  self.specialTagImage = '/static/img/logo-small.png';
+                  self.specialTagImage = 'logo-small.png';
                   self.specialTagURL = 'https://smart-api.info';
               }
               for (var i = 0; i < self.tags.length; i++) {

@@ -374,7 +374,6 @@
                 </tbody>
             </table>
             <div id="submitBox" v-if='todo1 && todo2 && todo3' class="card-panel green padding20" style="border-radius: 20px;">
-                <Image class="margin10" img_width="120px" img_name="owl-fly.gif" id="complete"></Image>
                 <h3 class="white-text flow-text textShadow">You're Ready To Submit Your Metadata!</h3>
                 <router-link to="/add-api" class="clearButton margin20">Add Your API</router-link>
                 <div class="card-panel grey lighten-4 margin20">
