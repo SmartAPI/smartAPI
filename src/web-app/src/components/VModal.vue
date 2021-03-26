@@ -15,9 +15,6 @@
                 <!-- CONTENT GOES HERE -->
             </slot>
         </div>
-        <div class="modal__action">
-            <button class="btn green btn-small" @click="$emit('confirm')">OK</button>
-        </div>
     </vue-final-modal>
 </teleport>
 </template>
