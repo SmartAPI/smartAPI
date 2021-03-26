@@ -9,7 +9,7 @@
     </a>
   </template>
   <template v-else>
-    <a href='/oauth'>
+    <a :href='"/oauth?next="+ nextPath'>
         <b class="green-text">Login</b>
     </a>
   </template>
@@ -28,7 +28,10 @@ export default {
         ...mapGetters([
             'loggedIn',
             'userInfo'
-        ])
+        ]),
+        nextPath: function(){
+            return this.$route.path
+        }
     },
     mounted:function(){
         this.checkUser();
