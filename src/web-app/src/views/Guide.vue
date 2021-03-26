@@ -77,7 +77,7 @@
                 </div>
             </div>
     </div>
-    <div class="card-panel animatedBlue">
+    <div class="card-panel">
         <h5 class="white-text lighter bold">GUIDE</h5>
         <h4 class="white-text lighter">ADD YOUR API</h4>
         <br>

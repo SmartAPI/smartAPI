@@ -40,13 +40,18 @@
               </form>
         </div>
   </div>
-  <div v-if="!loggedIn" class="padding20 card-panel white center-align">
-        <h5 class="text_h3 blue-grey-text-text">
-        You Must Be Logged In To Register an API
-        </h5>
-        <a href="/oauth" class="btn green">
-        Login
-        </a>
+  <div v-if="!loggedIn" class="padding20 card-panel white d-flex justify-content-center align-items-center" style="min-height:80vh;">
+        <div class="center-align">
+          <h5>
+              <Image img_name="api-stop.svg" img_width="250px"></Image>
+          </h5>
+          <h5 class="text_h3 blue-grey-text-text">
+          You Must Be Logged In To Register an API
+          </h5>
+          <a href="/oauth" class="btn green">
+          Login
+          </a>
+        </div>
     </div>
 </main>
 </template>

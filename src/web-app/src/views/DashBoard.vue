@@ -2,13 +2,18 @@
   <main id="dashApp" style="min-height:90vh;" class="blue-grey darken-3 docBack" v-cloak>
     <MetaHead title="SmartAPI | My Dashboard"></MetaHead>
     <!-- IF NO USER INFO DISPLAY LOGIN-->
-    <div v-if="!loggedIn" class="padding20 card-panel white center-align">
-        <h5 class="text_h3 blue-grey-text-text">
-        You Must Be Logged In To Use Your Dashboard
-        </h5>
-        <a href="/oauth" class="btn green">
-        Login
-        </a>
+    <div v-if="!loggedIn" class="padding20 card-panel white d-flex justify-content-center align-items-center" style="min-height:80vh;">
+        <div class="center-align">
+            <h5>
+                <Image img_name="api-stop.svg" img_width="250px"></Image>
+            </h5>
+            <h5 class="text_h3 blue-grey-text-text">
+            You Must Be Logged In To Use Your Dashboard
+            </h5>
+            <a href="/oauth" class="btn green">
+            Login
+            </a>
+        </div>
     </div>
     <!-- LOADING -->
     <div v-if="loading" id="loading-overlay" class="center-align" style="background-color: rgba(18, 52, 84, 0.5); cursor: default;">

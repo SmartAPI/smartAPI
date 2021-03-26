@@ -2,7 +2,7 @@
     <main id="faq-app" class="white w-100 padding20">
         <MetaHead title="SmartAPI | FAQ"></MetaHead>
     <div class="container-fluid center">
-        <div class="white faqHero blue-text">
+        <div class="white blue-text">
         <Image alt="faq" img_name="faq.svg" img_width='40%' class="responsive-img" style="max-width:300px;"></Image>
         <h1 class="bold">FAQ</h1>
         </div>
@@ -58,12 +58,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .faqHero{
-        margin: 20px;
-        padding: 20px;
-        background-image: url('../assets/img/question.jpg');
-        background-size: cover;
-    }
     code {
         background-color: rgba(27,31,35,.05);
         border-radius: 3px;

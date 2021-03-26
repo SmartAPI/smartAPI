@@ -1,6 +1,6 @@
 <template>
-  <div id="smartcard">
-      <canvas id="smartapi" width="240" height="240"></canvas>
+  <div id="smartcard" style="max-height:250px;">
+      <canvas id="smartapi" width="240" height="240" style="max-height:240px; max-width:240px;"></canvas>
   </div>
 </template>
 

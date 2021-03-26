@@ -20,7 +20,6 @@ import 'materialize-css/dist/css/materialize.css'
 import 'material-design-icons/iconfont/material-icons.css'
 import "./assets/css/app.css"
 import "./assets/css/animista.css"
-import "./assets/css/smartapi.css"
 import 'tippy.js/themes/light.css'
 
 

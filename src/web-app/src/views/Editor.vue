@@ -76,6 +76,34 @@ export default {
 }
 </script>
 
-<style>
-    @import "../assets/css/custom-swagger-editor.css";
+<style scoped lang="css">
+    #swagger-editor .topbar{
+    background-color: #3f85bb;
+    }
+
+    * {
+    box-sizing: border-box;
+    }
+
+    .swagger-ui .info .title small{
+    line-height: normal;
+    }
+
+    .container {
+    height: 100%;
+    max-width: 880px;
+    margin-left: auto;
+    margin-right: auto;
+    }
+
+    #editor-wrapper {
+    height: 100%;
+    border:1em solid #000;
+    border:none;
+    }
+
+    .Pane2 {
+    overflow-y: scroll;
+    background-color: white !important;
+    }
 </style>

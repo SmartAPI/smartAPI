@@ -4,7 +4,7 @@
         <img class='user_img' :src='userInfo.avatar_url' :alt='userInfo.login'>
         dashboard
     </router-link>
-    <a href="/logout?next='/'">
+    <a href="/logout?next=/">
         <b class="red-text">Logout</b>
     </a>
   </template>
