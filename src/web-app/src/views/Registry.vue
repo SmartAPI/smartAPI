@@ -372,7 +372,7 @@ export default {
           },
           initialAPILoad: function(){
               var self = this;
-              let url = "https://smart-api.info/api/query?"
+              let url = "/api/query?"
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -411,7 +411,7 @@ export default {
           },
           loadFilters: function (){
               var self = this;
-              axios.get('https://smart-api.info/api/suggestion?field=tags.name').then(function(response){
+              axios.get('/api/suggestion?field=tags.name').then(function(response){
                   let temp_data = []
                   for(let key in response.data){
                     temp_data.push({key: key, doc_count: response.data[key]})
@@ -421,7 +421,7 @@ export default {
                   });
                   self.tags = tags;
 
-                  axios.get('https://smart-api.info/api/suggestion?field=info.contact.name').then(function(response){
+                  axios.get('/api/suggestion?field=info.contact.name').then(function(response){
                       let temp_data = []
                       for(let key in response.data){
                         temp_data.push({key: key, doc_count: response.data[key]})
@@ -544,7 +544,7 @@ export default {
           },
           search: function () {
               var self = this;
-              let url = 'https://smart-api.info/api/query?'
+              let url = '/api/query?'
               let query = self.query.trim();
               // reset results
               self.apis = [];

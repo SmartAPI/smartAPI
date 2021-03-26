@@ -4,7 +4,7 @@
     <!-- IF NO USER INFO DISPLAY LOGIN-->
     <div v-if="!loggedIn" class="padding20 card-panel white center-align">
         <h5 class="text_h3 blue-grey-text-text">
-        You Must Be Signed In To Use Your Dashboard
+        You Must Be Logged In To Use Your Dashboard
         </h5>
         <a href="/oauth" class="btn green">
         Login
@@ -319,86 +319,7 @@ export default {
         selectedAPI:Object,
         tabSelected: 1,
         inputApiName:'',
-        apis:[
-            {
-                "_id": "9c7027eec7ba101587f74e4b2ca2f7d2",
-                "_meta": {
-                "date_created": "2019-10-22T04:25:26.584170+00:00",
-                "last_updated": "2021-03-11T08:01:15.409916+00:00",
-                "url": "https://raw.githubusercontent.com/achave11/workflow-execution-service-schemas/wes_smartapi/openapi/workflow_execution_service.openapi.yaml",
-                "username": "achave11"
-                },
-                "_score": 1,
-                "_status": {
-                "refresh_status": 200,
-                "refresh_ts": "2021-03-11T08:01:15+00:00",
-                "uptime_status": "unknown",
-                "uptime_ts": "2021-03-11T08:07:21.638654"
-                },
-                "info": {
-                "contact": {
-                "email": "davidcs@ucsc.edu",
-                "name": "David Steinberg"
-                },
-                "description": "A minimal common API which allows users to make workflow requests programmatically, adding the ability to scale up.",
-                "termsOfService": "https://www.ga4gh.org/policies/termsandconditions.html",
-                "title": "Sandbox Workflow Execution Service",
-                "version": "0.2.1",
-                "x-implementationLanguage": "en"
-                },
-                "openapi": "3.0.0",
-                "servers": [
-                {
-                "url": "http://wes.ucsc-cgp-dev.org:8080/ga4gh/wes/v1"
-                }
-                ],
-                "tags": [
-                {
-                "description": "A shared virtual space where scientists can work with the digital objects of biomedical research such as data and analytical tools.",
-                "name": "NIHdatacommons"
-                }
-                ]
-            },
-            {
-                "_id": "9c7027eec7ba101587f74e4b2ca2f7dfds2",
-                "_meta": {
-                "date_created": "2019-10-22T04:25:26.584170+00:00",
-                "last_updated": "2021-03-11T08:01:15.409916+00:00",
-                "url": "https://raw.githubusercontent.com/achave11/workflow-execution-service-schemas/wes_smartapi/openapi/workflow_execution_service.openapi.yaml",
-                "username": "achave11"
-                },
-                "_score": 1,
-                "_status": {
-                "refresh_status": 599,
-                "refresh_ts": "2021-03-11T08:01:15+00:00",
-                "uptime_status": "bad",
-                "uptime_ts": "2021-03-11T08:07:21.638654"
-                },
-                "info": {
-                "contact": {
-                "email": "davidcs@ucsc.edu",
-                "name": "David Steinberg"
-                },
-                "description": "A minimal common API which allows users to make workflow requests programmatically, adding the ability to scale up.",
-                "termsOfService": "https://www.ga4gh.org/policies/termsandconditions.html",
-                "title": "Test 2",
-                "version": "0.2.1",
-                "x-implementationLanguage": "en"
-                },
-                "openapi": "3.0.0",
-                "servers": [
-                {
-                "url": "http://wes.ucsc-cgp-dev.org:8080/ga4gh/wes/v1"
-                }
-                ],
-                "tags": [
-                {
-                "description": "A shared virtual space where scientists can work with the digital objects of biomedical research such as data and analytical tools.",
-                "name": "NIHdatacommons"
-                }
-                ]
-            }
-        ],
+        apis:[],
         total: 0,
         confirmDelete: true,
         searchQuery:'',

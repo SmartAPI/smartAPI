@@ -7,7 +7,6 @@
 
 <script>
 import SwaggerEditorBundle from "swagger-editor"
-import $ from 'jquery'
 
 export default {
     name: "Editor",
@@ -34,8 +33,8 @@ export default {
 
           window.editor = editor;
 
-          $('#swagger-editor .topbar-logo__img').attr('src', require('../assets/img/logo-medium.svg'));
-          $(".topbar a[href$='#']").attr('href', 'https://smart-api.info/registry');
+          document.querySelector('#swagger-editor .topbar-logo__img').setAttribute('src', require('../assets/img/logo-medium.svg'));
+          document.querySelector(".topbar a[href$='#']").setAttribute('href', 'https://smart-api.info/registry');
       },
 
     },

@@ -188,7 +188,7 @@ export default {
             let url = ''
             switch (portal.toLowerCase()) {
                 case 'translator':
-                    url = "https://smart-api.info/api/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22"
+                    url = "/api/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22"
                     self.getSummaries(url)
                     break;
                 default:

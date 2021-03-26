@@ -98,11 +98,11 @@ export default {
         }
       },
       mounted: function(){
-        this.loadSwaggerUI('https://smart-api.info/api/metadata/'+this.apiID);
+        this.loadSwaggerUI('/api/metadata/'+this.apiID);
       },
       beforeMount: function(){
         this.apiID = this.$route.params.smartapi_id;
-        this.getMetadata('https://dev.smart-api.info/api/metadata/'+this.apiID+'?raw=1');
+        this.getMetadata('/api/metadata/'+this.apiID+'?raw=1');
       }
 }
 </script>

@@ -42,7 +42,7 @@
   </div>
   <div v-if="!loggedIn" class="padding20 card-panel white center-align">
         <h5 class="text_h3 blue-grey-text-text">
-        You Must Be Signed In To Register an API
+        You Must Be Logged In To Register an API
         </h5>
         <a href="/oauth" class="btn green">
         Login

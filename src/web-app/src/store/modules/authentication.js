@@ -1,4 +1,4 @@
-// import axios from 'axios'
+import axios from 'axios'
 
 export const authentication = {
     state: () => ({ 
@@ -17,14 +17,14 @@ export const authentication = {
      },
     actions: {
         checkUser({ commit}){
-            commit('saveUser', {user: {"name": "Marco Cano", "email": "artofmarco@gmail.com", "login": "marcodarko", "avatar_url": "https://avatars.githubusercontent.com/u/23092057?v=4"}});
-            // axios.get('http://localhost:8000/user').then(response=>{
-            //   console.log('USER', response.data)
-            //   commit('saveUser', {user: response.data})
-            // }).catch(err=>{
-            //   commit('resetUser');
-            //   throw err;
-            // })
+            // for dev only
+            // commit('saveUser', {user: {"name": "Marco Cano", "email": "artofmarco@gmail.com", "login": "marcodarko", "avatar_url": "https://avatars.githubusercontent.com/u/23092057?v=4"}});
+            axios.get('/user').then(response=>{
+              commit('saveUser', {user: response.data})
+            }).catch(err=>{
+              commit('resetUser');
+              throw err;
+            })
         }
      },
     getters: {

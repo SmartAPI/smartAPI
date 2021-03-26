@@ -10,7 +10,6 @@ import tornado.ioloop
 import tornado.web
 import torngithub
 from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
-from jinja2 import Environment, FileSystemLoader
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
 
@@ -18,22 +17,16 @@ from controller import SmartAPI
 
 log = logging.getLogger("smartapi")
 
-
 src_path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
 if src_path not in sys.path:
     sys.path.append(src_path)
 
-TEMPLATE_PATH = os.path.join(src_path, './templates/')
-AVAILABLE_TAGS = ['translator', 'nihdatacommons']
+STATICPATH = os.path.join(src_path, './web-app/dist')
 
 # your Github application Callback
 GITHUB_CALLBACK_PATH = "/oauth"
 GITHUB_SCOPE = ""
 
-# Docs: http://docs.python-guide.org/en/latest/scenarios/web/
-# Load template file templates/site.html
-templateLoader = FileSystemLoader(searchpath=TEMPLATE_PATH)
-templateEnv = Environment(loader=templateLoader, cache_size=0)
 
 
 class BaseHandler(BioThingsBaseHandler):
@@ -43,26 +36,18 @@ class BaseHandler(BioThingsBaseHandler):
             return None
         return json_decode(user_json)
 
-
 class MainHandler(BaseHandler):
-    def get(self):
-        slug = self.request.host.split(".")[0]
-        if slug and slug.lower() not in ['www', 'dev', 'smart-api', 'localhost:8000']:
-            try:
-                api_id = SmartAPI.find(slug)
-                if api_id:
-                    swaggerUI_file = "smartapi-ui.html"
-                    swagger_template = templateEnv.get_template(swaggerUI_file)
-                    swagger_output = swagger_template.render(apiID=api_id)
-                    self.write(swagger_output)
-                    return
-            except Exception:
-                pass
-        index_file = "index.html"
-        index_template = templateEnv.get_template(index_file)
-        index_output = index_template.render()
-        self.write(index_output)
+    def get(self, page=None):
+        self.render(STATICPATH + '/index.html')
 
+class Filehandler(tornado.web.StaticFileHandler):
+    def initialize(self, path):
+        self.dirname, self.filename = os.path.split(path)
+        super(Filehandler, self).initialize(self.dirname)
+
+    def get(self, path=None, include_body=True):
+        # Ignore 'path'.
+        super(Filehandler, self).get(self.filename, include_body)
 
 class UserInfoHandler(BaseHandler):
     def get(self):
@@ -84,25 +69,6 @@ class LoginHandler(BaseHandler):
             path += "?next={}".format(_next)
         login_output = login_template.render(path=path, xsrf=xsrf)
         self.write(login_output)
-
-
-class AddAPIHandler(BaseHandler, torngithub.GithubMixin):
-
-    def get(self):
-        if self.current_user:
-            # self.write('Login User: ' +  self.current_user["name"]
-            #            + '<br> Email: ' + self.current_user["email"]
-            #            + ' <a href="/logout">Logout</a>')
-            template_file = "reg_form.html"
-            reg_template = templateEnv.get_template(template_file)
-            reg_output = reg_template.render()
-            self.write(reg_output)
-        else:
-            path = '/login'
-            _next = self.get_argument("next", self.request.path)
-            if _next != "/":
-                path += "?next={}".format(_next)
-            self.redirect(path)
 
 
 class LogoutHandler(BaseHandler):
@@ -146,135 +112,6 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
         )
 
 
-class RegistryHandler(BaseHandler):
-    def get(self, tag=None):
-        template_file = "smart-registry.html"
-        # template_file = "/smartapi/dist/index.html"
-        reg_template = templateEnv.get_template(template_file)
-        # author filter parsing
-        if self.get_argument('owners', False):
-            owners = [x.strip().lower()
-                      for x in self.get_argument('owners').split(',')]
-        else:
-            owners = []
-        # special url tag
-        if tag:
-            if tag.lower() in AVAILABLE_TAGS:
-                # print("tags: {}".format([tag.lower()]))
-                reg_output = reg_template.render(Context=json.dumps(
-                    {"Tags": [tag.lower()],
-                     "Special": True,
-                     "Owners": owners}))
-            else:
-                raise tornado.web.HTTPError(404)
-        # typical query filter tags
-        elif self.get_argument('tags', False) or \
-                self.get_argument('owners', False):
-            tags = [x.strip().lower()
-                    for x in self.get_argument('tags', "").split(',')]
-            # print("tags: {}".format(tags))
-            reg_output = reg_template.render(
-                Context=json.dumps(
-                    {"Tags": tags,
-                     "Special": False,
-                     "Owners": owners}))
-        else:
-            reg_output = reg_template.render(Context=json.dumps({}))
-        self.write(reg_output)
-
-
-class DocumentationHandler(BaseHandler):
-    def get(self):
-        doc_file = "documentation.html"
-        documentation_template = templateEnv.get_template(doc_file)
-        documentation_output = documentation_template.render()
-        self.write(documentation_output)
-
-
-class DashboardHandler(BaseHandler):
-    def get(self):
-        doc_file = "dashboard.html"
-        dashboard_template = templateEnv.get_template(doc_file)
-        dashboard_output = dashboard_template.render()
-        self.write(dashboard_output)
-
-
-class SwaggerUIHandler(BaseHandler):
-    def get(self, yourApiID=None):
-        if not yourApiID:
-            if self.get_argument('url', False):
-                api_id = self.get_argument('url').split('/')[-1]
-                self.redirect('/ui/{}'.format(api_id), permanent=True)
-            else:
-                raise tornado.web.HTTPError(404)
-            return
-        swaggerUI_file = "smartapi-ui.html"
-        swagger_template = templateEnv.get_template(swaggerUI_file)
-        swagger_output = swagger_template.render(apiID=yourApiID)
-        self.write(swagger_output)
-
-
-class APIEditorHandler(BaseHandler):
-    def get(self, yourApiID=None):
-        if not yourApiID:
-            if self.get_argument('url', False):
-                api_id = self.get_argument('url').split('/')[-1]
-                self.redirect('/editor/{}'.format(api_id), permanent=True)
-            else:
-                # raise tornado.web.HTTPError(404)
-                swaggerEditor_file = "editor.html"
-                swagger_template = templateEnv.get_template(swaggerEditor_file)
-                swagger_output = swagger_template.render(
-                    Context=json.dumps({"Id": '', "Data": False}))
-                self.write(swagger_output)
-            return
-        swaggerEditor_file = "editor.html"
-        swagger_template = templateEnv.get_template(swaggerEditor_file)
-        swagger_output = swagger_template.render(
-            Context=json.dumps({"Id": yourApiID, "Data": True}))
-        self.write(swagger_output)
-
-
-class PortalHandler(BaseHandler):
-
-    def get(self, portal=None):
-        portals = ['translator']
-
-        template_file = "portal.html"
-        reg_template = templateEnv.get_template(template_file)
-
-        if portal in portals:
-            reg_output = reg_template.render(Context=json.dumps(
-                {"portal": portal}))
-        else:
-            raise tornado.web.HTTPError(404)
-        self.write(reg_output)
-
-
-class MetaKGHandler(BaseHandler):
-
-    def get(self):
-        doc_file = "metakg.html"
-        template = templateEnv.get_template(doc_file)
-        output = template.render(Context=json.dumps(
-            {"portal": 'translator'}))
-        self.write(output)
-
-
-class TemplateHandler(BaseHandler):
-
-    def initialize(self, filename, status_code=200):
-
-        self.filename = filename
-        self.status = status_code
-
-    def get(self, **kwargs):
-
-        template = templateEnv.get_template(self.filename)
-        output = template.render(Context=json.dumps(kwargs))
-
-        self.set_status(self.status)
-        self.write(output)
 
 
 APP_LIST = [
@@ -283,22 +120,13 @@ APP_LIST = [
     (r"/login/?", LoginHandler),
     (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
-    (r"/registry/(.+)/?", RegistryHandler),
-    (r"/registry/?", RegistryHandler),
-    (r"/ui/(.+)/?", SwaggerUIHandler),
-    (r"/ui/?", SwaggerUIHandler),
-    (r"/editor/(.+)/?", APIEditorHandler),
-    (r"/editor/?", APIEditorHandler),
-    (r"/portal/translator/metakg/?", MetaKGHandler),
-    (r"/portal/([^/]+)/?", PortalHandler),
-    (r"/add_api/?", TemplateHandler, {"filename": "reg_form.html"}),
-    (r"/documentation/?", TemplateHandler, {"filename": "documentation.html"}),
-    (r"/dashboard/?", TemplateHandler, {"filename": "dashboard.html"}),
-    (r"/about/?", TemplateHandler, {"filename": "about.html"}),
-    (r"/faq/?", TemplateHandler, {"filename": "faq.html"}),
-    (r"/privacy/?", TemplateHandler, {"filename": "privacy.html"}),
-    (r"/branding/?", TemplateHandler, {"filename": "brand.html"}),
-    (r"/guide/?", TemplateHandler, {"filename": "guide.html"}),
-    (r"/portal/translator/summary?", TemplateHandler, {"filename": "portal-summary.html"}),
-
+    (r"/css/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/css'}),
+    (r"/js/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/js'}),
+    (r"/img/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/img'}),
+    (r"/fonts/(.*)",tornado.web.StaticFileHandler, {"path": STATICPATH + '/fonts'}),
+    (r'/manifest\.json', Filehandler, {'path': STATICPATH }),
+    (r'/service-workert\.js', Filehandler, {'path': STATICPATH }),
+    (r'/favicon\.ico', Filehandler, {'path': STATICPATH + '/img/icons' }),
+    # in case of reload SPA can handle proper routing
+    (r"/(.+)?", MainHandler),
 ]
