@@ -9,7 +9,7 @@
 
     <!-- start of INTRO -->
     <div v-if="!selection" class="center-align padding20">
-        <div class=" transparent padding20 dashboardBack">
+        <div class="transparent padding20 dashboardBack">
             <a class="hideOnSmall" target="_blank" href="https://www.openapis.org/">
             <Image img_width="20%"  alt="SmartAPI" img_name="logo-small.svg" class="hide-on-med-only hide-on-large-only"></Image>
             <Image img_width="20%"  alt="SmartAPI" img_name="logo-medium.svg" class="hide-on-small-only hide-on-large-only"></Image>
@@ -77,13 +77,13 @@
                 </div>
             </div>
     </div>
-    <div class="card-panel">
+    <div class="card-panel blue">
         <h5 class="white-text lighter bold">GUIDE</h5>
         <h4 class="white-text lighter">ADD YOUR API</h4>
         <br>
-        <a class="clearButton" @click="select('start')">
+        <button type="button" class="clearButton" @click="select('start')">
             START
-        </a>
+        </button>
     </div>
     <div class="card-panel grey lighten-4">
         <h4 class="blue-text lighter">Resources</h4>
@@ -128,8 +128,8 @@
             <h3 class="text_h3 blue-text tracking-in-expand flow-text">
                 Do You Have <b>OpenAPI</b> Metadata?
             </h3>
-            <a class="btn-large blue" @click="select('yes'); setProgress(10);">YES</a>
-            <a class="btn-large red" @click="select('no'); setProgress(50);">NO</a>
+            <button type="button" class="btn-large blue" @click="select('yes'); setProgress(10);">YES</button>
+            <button type="button" class="btn-large red" @click="select('no'); setProgress(50);">NO</button>
         </div>
 
         <div class="card-panel grey lighten-4">
@@ -137,22 +137,22 @@
             Back to Introduction
         </h3>
         <hr>
-        <a class="btn red" @click="select('start'); setProgress(-10); selection='' ">Go Back</a>
+        <button type="button" class="btn red" @click="select('start'); setProgress(-10); selection='' ">Go Back</button>
 
     </div>
 
     </div>
     <!-- if YES ask for version -->
     <div v-if="selection === 'yes' "  class="center-align container padding20" style="position: relative;">
-        <a @click="select('start'); setProgress(-10)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+        <button type="button" @click="select('start'); setProgress(-10)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></button>
         <div class="card-panel white z-depth-5">
             <Image img_width="200px" img_name="api-thinking.svg" alt='thinking'></Image>
             <br />
             <h3 class="text_h3 blue-text tracking-in-expand flow-text">
             Which Version Do You Have?
             </h3>
-            <a class="waves-effect waves-light btn-large blue" @click="select('2'); setProgress(40);">Version 2</a>
-            <a class="waves-effect waves-light btn-large green" @click="select('3'); setProgress(40);">Version 3</a>
+            <button type="button" class="waves-effect waves-light btn-large blue" @click="select('2'); setProgress(40);">Version 2</button>
+            <button type="button" class="waves-effect waves-light btn-large green" @click="select('3'); setProgress(40);">Version 3</button>
         </div>
         <div class="card-panel grey lighten-4">
             <h3 class="text_h3 blue-text flow-text">Don't Know Which Version You Have?</h3>
@@ -182,8 +182,8 @@
     </div>
     <!-- if NO start from scratch -->
     <!--  -->
-    <div v-if="selection === 'no' "  class="center-align container padding20 white docBack" style="position: relative;">
-        <a @click="select('start'); setProgress(-40)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+    <div v-if="selection === 'no' "  class="center-align container padding20 white" style="position: relative;">
+        <button type="button" @click="select('start'); setProgress(-40)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></button>
         <div class="card-panel transparent ">
             <h3 class="blue-grey-text tracking-in-expand flow-text">Start From Scratch</h3>
             <ul class="collection transparent" style="border: none;">
@@ -229,7 +229,7 @@
 
         </div>
         <!-- if VERSION 2 -->
-        <div v-if="selection === '2' " class="center-align container padding20 docBack white" style="position: relative;">
+        <div v-if="selection === '2' " class="center-align container padding20 white" style="position: relative;">
             <a @click.prevent="select('yes'); setProgress(-40)" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
             <div class="card-panel transparent">
                 <h3 class="blue-grey-text tracking-in-expand flow-text">Version 2</h3>
@@ -292,15 +292,15 @@
                     <li class="collection-item nextBox padding20">
                         <h4 class="white-text flow-text">Done Converting Your Metadata?</h4>
                         <br>
-                        <a class="clearButton" @click="select('3'); setProgress(30);">NEXT</a>
+                        <button type="button" class="clearButton" @click="select('3'); setProgress(30);">NEXT</button>
                     </li>
                 </ul>
     </div>
 
     </div>
     <!-- if VERSION 3 -->
-    <div v-if="selection === '3' "  class="center-align container padding20 white docBack" style="position: relative;">
-        <a @click="select('yes'); setProgress(-40); completeToDo(1);completeToDo(2);completeToDo(3);" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></a>
+    <div v-if="selection === '3' "  class="center-align container padding20 white" style="position: relative;">
+        <button type="button" @click="select('yes'); setProgress(-40); completeToDo(1);completeToDo(2);completeToDo(3);" style="position: absolute; top:0; left: 0; margin:40px; cursor: pointer;"><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i></button>
 
         <div class="card-panel transparent">
             <h3 class="blue-text tracking-in-expand flow-text">Version 3</h3>

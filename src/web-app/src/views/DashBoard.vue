@@ -130,7 +130,7 @@
                 <ul class="tabs transparent">
                     <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">About</a></li>
                     <li class="tab col s3"  @click="tabSelected = 2"><a class="blue-text" href="#test2">Slug Registration</a></li>
-                    <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="#test3" @click="renderUserInteractions(selectedAPI.info.title)">User Interactions</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="#test3">User Interactions</a></li>
                 </ul>
                 </div>
 
@@ -277,14 +277,13 @@
                 <div v-show="tabSelected == 3" id="test3" class="col s12 white">
                 <div class="row">
                     <div class="col s12 m12 l12 center-align">
-                    <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
+                        <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
                     </div>
                     <div>
-                    <h6 class="blue-text" v-text='selectedAPI.info.title'></h6>
-                    <canvas id="myChart" width="400" height="400"></canvas>
-                    <div>
-                        <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
-                    </div>
+                        <SummaryChart :data="[]" summary_type="User_Interactions" :colors="['#20c96a', '#2c98f0', '#4bc0c0', '#8d5bd4']" :apiname='selectedAPI.info.title'></SummaryChart>
+                        <div>
+                            <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
+                        </div>
                     </div>
                 </div>
                 </div>
@@ -298,7 +297,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Chart from 'chart.js';
 import moment from 'moment';
 import {sortBy, get} from 'lodash'
 import tippy from 'tippy.js';
@@ -307,12 +305,14 @@ import marked from 'marked'
 
 import UptimeStatus from '../components/UptimeStatus.vue';
 import SourceStatus from '../components/SourceStatus.vue';
+import SummaryChart from '../components/SummaryChart.vue';
 
 export default {
     name: "DashBoard",
     components:{
         UptimeStatus,
-        SourceStatus
+        SourceStatus,
+        SummaryChart
     },
     data: function(){
     return {
@@ -336,7 +336,6 @@ export default {
         takenSlug: false,
         loading: false,
         // analytics
-        analytics: Object,
         tags: Array,
         showModal: false
         }
@@ -351,30 +350,6 @@ export default {
         ])
     },
     methods:{
-        renderUserInteractions(name){
-            let self = this;
-            let data = self.getHitsFor(name);
-            var ctx = document.getElementById('myChart');
-
-            new Chart(ctx, {
-                'type': 'bar',
-                'data': data,
-                'options': {
-                'legend': { display: false },
-                'title': {
-                    display: true,
-                    text: 'User Interactions (Last 30 days)'
-                },
-                'scales': {
-                    yAxes: [{
-                        ticks: {
-                            precision:0
-                        }
-                    }],
-                },
-                }
-            });
-        },
         validate(url){
         let self = this;
         if (url) {
@@ -635,6 +610,8 @@ export default {
                 self.hasShortName = true;
                 self.loading = true;
 
+                self.$toast.success(`Slug registered`);
+
                 self.$swal.fire({
                     type:'success',
                     title: "Slug Registered",
@@ -706,42 +683,11 @@ export default {
                     })
             throw error;
         });
-        },
-        getAnalytics(){
-        var self = this;
-        axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
-            if (res.data.rows) {
-            self.analytics = res.data.rows;
-            }
-        }).catch(err=>{
-            throw err;
-        });
-        },
-        getHitsFor(apiname){
-        var self = this;
-        let data={'labels':[],'datasets':[]};
-        let label = '';
-        let dataArray=[];
-
-        for (var i = 0; i < self.analytics.length; i++) {
-            if (self.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
-            label = self.analytics[i][0].toUpperCase();
-            if (label == "EXPANDED") {
-                label = "VIEWS"
-            }
-            data.labels.push(label);
-            let number = self.analytics[i][2];
-            dataArray.push(number)
-            }
         }
-        data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
-        return data
-        },
     },
     mounted: function(){
         let self = this;
         self.showLoading();
-        self.getAnalytics();
         self.getApis();
 
         /*eslint-disable */
@@ -768,9 +714,6 @@ export default {
             else{
                 this.confirmDelete = true;
             }
-        },
-        selectedAPI: function (api) {
-            console.log('API is', api?.info?.title)
         },
         searchQuery: function(query){
             if(!query){

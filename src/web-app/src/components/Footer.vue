@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="col s6 m4">
-                    <h5 class="blue-text logoFont">SmartAPI Info</h5>
+                    <h5 class="blue-text logoFont">SmartAPI</h5>
                     <ul>
                         <li>
                             <router-link to="/" class="footerLink">Home</router-link>

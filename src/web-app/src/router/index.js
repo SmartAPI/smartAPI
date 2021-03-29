@@ -76,9 +76,10 @@ const routes = [
     component: () => import('../views/Branding.vue')
   },
   {
-    path: '/documentation',
+    path: '/documentation/:doc?',
     name: 'Documentation',
-    component: () => import('../views/Documentation.vue')
+    component: () => import('../views/Documentation.vue'),
+    props: true
   },
   {
     path: '/guide',

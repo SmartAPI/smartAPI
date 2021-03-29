@@ -17,6 +17,7 @@
 <script>
 import Chart from 'chart.js'
 import Tabulator from 'tabulator-tables';
+import axios from 'axios'
 
 
 export default {
@@ -27,10 +28,11 @@ export default {
             showDetails: false,
             tableData:[],
             filter: '',
-            bgColor:''
+            bgColor:'',
+            analytics: Object,
         }
         },
-    props: ['data', 'summary_type', 'colors'],
+    props: ['data', 'summary_type', 'colors', 'apiname'],
     methods:{
         handleChartClick(label, color){
             let filtered = this.tableData.filter(d => d.label == label);
@@ -294,6 +296,39 @@ export default {
 
             self.drawDoughnutChart(data);
         },
+        byUserInteractions(apiname){
+            let self = this;
+            axios.get('	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw').then(res=>{
+                if (res.data.rows) {
+                    self.analytics = res.data.rows;
+                    let data={'labels':[],'datasets':[]};
+                    let label = '';
+                    let dataArray=[];
+
+                    for (var i = 0; i < self.analytics.length; i++) {
+                        if (self.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
+                        label = self.analytics[i][0].toUpperCase();
+                        if (label == "EXPANDED") {
+                            label = "VIEWS"
+                        }
+                        data.labels.push(label);
+                        let number = self.analytics[i][2];
+                        self.tableData.push({
+                            id: i, 
+                            name: label, 
+                            label: number
+                        })
+                        dataArray.push(number)
+                        }
+                    }
+                    data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
+                    self.drawBarChart(data);
+                }
+            }).catch(err=>{
+                self.$toast.error(`Failed to get user interactions`);
+                throw err;
+            });
+        },
         drawDoughnutChart(data){
             let self = this;
             var ctx = document.getElementById(this.summary_type);
@@ -438,6 +473,9 @@ export default {
                 case 'Source_Status':
                     this.byStatus('refresh_status');
                     this.tipClass = 'urlStatus'
+                    break;
+                case 'User_Interactions':
+                    this.byUserInteractions(this.apiname);
                     break;
                 default:
                     break;

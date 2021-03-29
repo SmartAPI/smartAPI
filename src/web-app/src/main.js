@@ -15,6 +15,7 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import VueFinalModal from 'vue-final-modal'
 import VueParticles from 'vue-particles'
 import VueGtag from "vue-gtag-next";
+import Toaster from '@meforma/vue-toaster';
 // Global CSS
 import 'sweetalert2/dist/sweetalert2.min.css';
 import 'materialize-css/dist/css/materialize.css'
@@ -35,6 +36,7 @@ app.use(store)
 .use(VueSweetalert2)
 .use(VueFinalModal())
 .use(VueParticles)
+.use(Toaster)
 .use(VueGtag, {
   property: {
     id: "UA-139873613-1"
