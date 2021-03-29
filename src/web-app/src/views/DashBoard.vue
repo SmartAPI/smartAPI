@@ -280,7 +280,7 @@
                         <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
                     </div>
                     <div>
-                        <SummaryChart :data="[]" summary_type="User_Interactions" :colors="['#20c96a', '#2c98f0', '#4bc0c0', '#8d5bd4']" :apiname='selectedAPI.info.title'></SummaryChart>
+                        <SummaryChart :key='selectedAPI.info.title' :data="[]" summary_type="User_Interactions" :colors="['#20c96a', '#2c98f0', '#4bc0c0', '#8d5bd4']" :apiname='selectedAPI.info.title'></SummaryChart>
                         <div>
                             <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
                         </div>
