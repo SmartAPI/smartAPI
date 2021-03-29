@@ -4,6 +4,7 @@ import App from './App.vue'
 import Image from './components/Image'
 import VModal from './components/VModal'
 import MetaHead from './components/MetaHead'
+import CopyButton from './components/CopyButton'
 // PWA disabled for now
 // import './registerServiceWorker'
 
@@ -47,4 +48,5 @@ app.use(store)
 app.component("Image", Image);
 app.component("VModal", VModal);
 app.component("MetaHead", MetaHead);
+app.component("CopyButton", CopyButton);
 app.mount('#app');

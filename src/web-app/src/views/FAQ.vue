@@ -14,9 +14,16 @@
             <template v-for="item in section.questions" :key="item.anchor">
             <li :id="item.anchor">
                 <div class="collapsible-header blue-text bold" :value="location+item.anchor">
-                <i class="fa fa-comment" aria-hidden="true"></i> <span v-text="item.question"></span> <a @click="notify" :href="'#'+item.anchor" :data-clipboard-text="'http://smart-api.info/faq#' + item.anchor" class="secondary-content copyBtn"><i class="material-icons small">link</i></a>
+                    <i class="fa fa-comment" aria-hidden="true"></i> <a :href="'#'+item.anchor" v-text="item.question"></a>&nbsp;
+                    <CopyButton copy_msg="URL copied" :copy="'http://smart-api.info/faq#' + item.anchor">
+                        <template v-slot:title>
+                            Copy Link
+                        </template>
+                    </CopyButton>
                 </div>
-                <div class="collapsible-body blue-grey-text flow-text left-align" v-html="item.answer"></div>
+                <div class="collapsible-body blue-grey-text flow-text left-align" v-html="item.answer">
+
+                </div>
             </li>
             </template>
         </ul>
@@ -28,7 +35,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import {Collapsible} from 'materialize-css'
-import ClipboardJS from "clipboard"
 
 export default {
     name: 'FAQ',
@@ -49,9 +55,6 @@ export default {
         this.readURL();
         var elems = document.querySelectorAll('.collapsible');
         Collapsible.init(elems);
-
-        new ClipboardJS('.copyBtn');
-        ClipboardJS.isSupported();
     },
     computed:{
         location: ()=>{

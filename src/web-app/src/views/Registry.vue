@@ -21,7 +21,7 @@
                       <!-- Search Box -->
                       <div class="input-field collection-item">
                         <input v-model="tagsearch" placeholder="Search" id="fs" type="text">
-                        <button @click.prevent="listAll = !listAll" class="smallButton grey copyBtn" >
+                        <button @click.prevent="listAll = !listAll" class="smallButton grey" >
                           <small v-if="!listAll">Show All ({{tags.length - listCap}} more)</small>
                           <small v-if="listAll">Show Less (Only 20)</small>
                         </button>
@@ -64,7 +64,7 @@
                       <!-- Search Box -->
                       <div class="input-field collection-item">
                         <input v-model="ownersearch" placeholder="Search" id="os" type="text">
-                        <button @click.prevent="listAll = !listAll" class="smallButton grey copyBtn" >
+                        <button @click.prevent="listAll = !listAll" class="smallButton grey" >
                           <small v-if="!listAll">Show All ({{authors.length - listCap}} more)</small>
                           <small v-if="listAll">Show Less (Only 20)</small>
                         </button>
@@ -212,9 +212,15 @@
                               <div class="col s5 m10">
                                 <template v-if="total && total > 0">
                                   <span class="blue-text p-1" v-text="'Total APIs: '+total"></span>
-                                  <button :data-clipboard-text='shareURL' @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );" v-if="shareURLButtonVisible" class="smallButton grey copyBtn" title='Copy to clipboard'>
-                                    <i class="fa fa-clipboard" aria-hidden="true"></i> Copy Search URL
-                                  </button>
+                                  <CopyButton 
+                                  v-if="shareURLButtonVisible" 
+                                  @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );"
+                                  copy_msg="URL copied" 
+                                  :copy="shareUR">
+                                      <template v-slot:title>
+                                          Copy Search URL <i class="fa fa-clipboard" aria-hidden="true"></i>
+                                      </template>
+                                  </CopyButton>
                                 </template>
                               </div>
                               <div class="col s5 m2">
@@ -295,7 +301,6 @@ import RegistryItem from '../components/RegistryItem.vue';
 import tippy from 'tippy.js'
 import axios from 'axios'
 import Mark from 'mark.js'
-import ClipboardJS from "clipboard"
 import {map, isEmpty, filter} from 'lodash'
 import {Collapsible} from 'materialize-css'
 import { mapGetters } from 'vuex'
@@ -825,9 +830,6 @@ export default {
 
         self.highlighter = new Mark(document.querySelector(".highlight_container"))
 
-        new ClipboardJS('.copyBtn');
-        ClipboardJS.isSupported();
-
         window.onpopstate = function() {
           self.initialAPILoad();
         };
@@ -843,12 +845,6 @@ export default {
                 instance.setContent("<div class='p-1 blue-text left-align'>"+msg+"</div>")
               },
             });
-
-        tippy( '.copyBtn', {
-            content:'Copied',
-            animation: 'fade',
-            theme:'light',
-            trigger:'click'});
         /*eslint-enable */
       },
       updated: function(){

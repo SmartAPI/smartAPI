@@ -92,9 +92,13 @@
                         <span :id="'id'+api._id" :value="api._id" v-text="api._id"></span> <i class="fa fa-external-link" aria-hidden="true"></i>
                       </small>
                     </a>
-                    <button class="smallButton grey copyBtn" :data-clipboard-text="api._id">
-                        <i class="fa fa-clipboard" aria-hidden="true"></i>
-                    </button>
+                    <CopyButton
+                      copy_msg="API ID copied" 
+                      :copy="api._id">
+                          <template v-slot:title>
+                              Copy API ID <i class="fa fa-clipboard" aria-hidden="true"></i>
+                          </template>
+                      </CopyButton>
                   </td>
                 </tr>
                 <tr>
@@ -105,9 +109,13 @@
                     <a class="link" target="_blank" v-bind:href='api._meta.url'>
                       <small><span v-text="truncate(api._meta.url)"></span> <i class="fa fa-external-link" aria-hidden="true"></i></small>
                     </a>
-                    <button class="smallButton grey copyBtn" :data-clipboard-text="api._meta.url">
-                        <i class="fa fa-clipboard" aria-hidden="true"></i>
-                    </button>
+                    <CopyButton
+                      copy_msg="Source URL copied" 
+                      :copy="api._meta.url">
+                          <template v-slot:title>
+                              Copy Source URL<i class="fa fa-clipboard" aria-hidden="true"></i>
+                          </template>
+                      </CopyButton>
                     <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="user && api._meta.username === user.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
                       target="_blank">
                         <i class="fa fa-pencil" aria-hidden="true"></i>
@@ -123,9 +131,13 @@
                     <router-link class="link" target="_blank" :to='"/registry?q="+api._id'>
                       <small><span :id="'url'+api._id" :value="api._id">http://smart-api.info/registry?q=<span v-text="api._id"></span> </span></small>
                     </router-link>
-                    <button class="smallButton grey copyBtn" :data-clipboard-text="'http://smart-api.info/registry?q='+api._id">
-                        <i class="fa fa-clipboard" aria-hidden="true"></i>
-                    </button>
+                     <CopyButton
+                      copy_msg="Registry URL copied" 
+                      :copy="'http://smart-api.info/registry?q='+api._id">
+                          <template v-slot:title>
+                              Copy Registry URL <i class="fa fa-clipboard" aria-hidden="true"></i>
+                          </template>
+                      </CopyButton>
                   </td>
                 </tr>
               </tbody>

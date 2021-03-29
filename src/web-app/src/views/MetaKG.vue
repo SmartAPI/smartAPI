@@ -181,7 +181,6 @@
 </template>
 
 <script>
-import ClipboardJS from "clipboard"
 import tippy from 'tippy.js';
 import axios from 'axios'
 
@@ -418,15 +417,6 @@ export default {
       recenterGraph() {
         this.$store.dispatch('recenterGraph')
       },
-      copy() {
-        this.$swal.fire({
-          type: 'success',
-          toast: true,
-          title: 'Copied',
-          showConfirmButton: false,
-          timer: 1000
-        });
-      },
       createTips() {
         var self = this;
 
@@ -547,9 +537,6 @@ export default {
         payload['loading'] = true;
         this.$store.commit('toggleLoading', payload)
       }
-
-      new ClipboardJS('.copyBtn');
-      ClipboardJS.isSupported();
 
     }
 }
