@@ -906,6 +906,7 @@ export default {
 
 <style lang="css">
     mark{
+        background-color: transparent;
         color: rgb(255, 71, 71);
     }
 </style>

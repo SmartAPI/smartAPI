@@ -1384,9 +1384,6 @@ a.closebtn:hover{
 .icon-block {
   padding: 0 15px;
 }
-[v-cloak] > * {
-  display:none;
-}
 .loader{
   position: absolute;
   margin:auto;
