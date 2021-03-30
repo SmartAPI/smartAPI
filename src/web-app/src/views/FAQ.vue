@@ -12,7 +12,7 @@
         <h4 class="grey-text" v-text='section.sectionName'></h4>
         <ul class="collapsible">
             <template v-for="item in section.questions" :key="item.anchor">
-            <li>
+            <li :id="item.anchor">
                 <div class="collapsible-header blue-text bold">
                     <i class="fa fa-comment" aria-hidden="true"></i> <a :href="'#'+item.anchor" v-text="item.question"></a>&nbsp;
                     <CopyButton copy_msg="URL copied" :copy="'http://smart-api.info/faq#' + item.anchor">
