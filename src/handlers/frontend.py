@@ -12,6 +12,7 @@ import torngithub
 from biothings.web.handlers import BaseHandler as BioThingsBaseHandler
 from tornado.httputil import url_concat
 from torngithub import json_decode, json_encode
+from tornado.options import options
 
 from controller import SmartAPI
 
@@ -107,16 +108,22 @@ class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
 
 
 APP_LIST = [
-    (r"/", MainHandler),
     (r"/user/?", UserInfoHandler),
     (r"/login/?", LoginHandler),
     (GITHUB_CALLBACK_PATH, GithubLoginHandler),
     (r"/logout/?", LogoutHandler),
+]
+
+STATIC = [
     (r"/css/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/css'}),
     (r"/js/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/js'}),
     (r"/img/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/img'}),
     (r"/fonts/(.*)", tornado.web.StaticFileHandler, {"path": STATICPATH + '/fonts'}),
     (r'/favicon\.ico', Filehandler, {'path': STATICPATH + '/img/icons' }),
-    # in case of reload SPA can handle proper routing
-    (r"/(.+)?", MainHandler),
 ]
+
+if options.debug == True:
+    APP_LIST += STATIC
+# Needs to be last in case of reload SPA can handle proper routing
+APP_LIST.append((r"/(.+)?", MainHandler))
+
