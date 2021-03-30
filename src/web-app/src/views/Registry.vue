@@ -114,7 +114,7 @@
 
             <ul class="collection" style="margin-top:50px;">
               <div class="collection-header purple white-text p-1 center-align">
-                <span>Portals</span>
+                <span>Portal Specific</span>
               </div>
               <router-link class="collection-item left-align" to='/registry/translator'>Translator</router-link>
               <router-link class="collection-item left-align" to='/registry/nihdatacommons'>NIH Data Commons</router-link>

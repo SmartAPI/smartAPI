@@ -51,6 +51,9 @@ export default {
             });
         },
     },
+    mounted:function(){
+      this.convertMarkdownToHtml()
+    },
     watch:{
       url : function(v){
         if(v){

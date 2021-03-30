@@ -95,7 +95,11 @@ export default {
         }
     },
     mounted:function(){
-        this.handleDoc()
+        if(Object.prototype.hasOwnProperty.call(this.$route.query, 'url')){
+            this.url = this.$route.query.url
+        }else{
+            this.handleDoc()
+        }
     }
 }
 </script>

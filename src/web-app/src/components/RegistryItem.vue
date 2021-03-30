@@ -116,7 +116,7 @@
                               Copy Source URL<i class="fa fa-clipboard" aria-hidden="true"></i>
                           </template>
                       </CopyButton>
-                    <a class="smallButton grey" title="Edit metadata source on GitHub" v-if="user && api._meta.username === user.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
+                    <a class="smallButton grey" style="margin-left:5px;" title="Edit metadata source on GitHub" v-if="user && api._meta.username === user.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
                       target="_blank">
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                     </a>

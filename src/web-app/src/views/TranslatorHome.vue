@@ -69,7 +69,7 @@
               <i class="material-icons green-text">done</i> Create your API metadata following the latest <a href="http://spec.openapis.org/oas/v3.0.3" target="_blank" rel="noreferrer">OpenAPI v3 API specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
             </li>
             <li>
-              <i class="material-icons green-text">done</i> Add semantics of your API's inputs and outputs using the SmartAPI extensions. <a class=" green-text" href="#" @click="handleModal('sematic-io')">Learn more</a>.
+              <i class="material-icons green-text">done</i> Add semantics of your API's inputs and outputs using the SmartAPI extensions. <a class=" green-text" href="#" @click="handleModal('semantic-io')">Learn more</a>.
             </li>
           </ul>
           <p>
@@ -142,7 +142,7 @@
       </div>
     </div>
 
-  <VModal v-model="showModal" @confirm="showModal = false">
+  <VModal v-model="showModal">
     <template v-slot:title>Read Me</template>
     <MarkDown :url="mdURL" :editLink="editLink" :key="mdURL"></MarkDown>
   </VModal>
@@ -168,14 +168,13 @@ export default {
   methods: {
         handleModal(anchor){
           var self = this;
-
           switch (anchor) {
             case 'best-practices':
               self.showModal = true;
               self.mdURL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md'
               self.editLink ='https://github.com/SmartAPI/smartAPI/edit/master/docs/CREATE_API.md'
               break;
-            case 'sematic-io':
+            case 'semantic-io':
               self.showModal = true;
               self.mdURL = 'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md'
               self.editLink ='https://github.com/SmartAPI/smartAPI/edit/master/docs/API_METADATA.md'

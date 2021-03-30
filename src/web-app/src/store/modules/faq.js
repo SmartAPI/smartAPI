@@ -54,7 +54,7 @@ export const faq = {
                 {
                     'anchor':'metadata',
                     'question':'How often is API metadata updated automatically?',
-                    'answer':`Our system performs checks for changes in your metadata daily and unless any are found that metadata will not be updated.`
+                    'answer':`Our system performs daily checks for all items on our registry. If your metadata URL works and a change is found we will update the registered metadata automatically, but you can also update it manually via your <a href="/dashboard">dashboard</a> anytime.`
                 },
                 {
                     'anchor':'github-metadata',
