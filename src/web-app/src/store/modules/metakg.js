@@ -502,27 +502,25 @@ export const metakg = {
             let array = ['input_type', 'predicate', 'output_type']
     
             for (var x = 0; x < array.length; x++) {
-                let current_inputtype = array[x]
+                let current_input_type = array[x]
     
-                let type = params.get(current_inputtype);
+                let type = params.get(current_input_type);
                 if (type) {
                 let selections = type.split(',');
     
                 for (var i = 0; i < selections.length; i++) {
                     var payload1 = {};
-                    payload1["type"] = current_inputtype;
+                    payload1["type"] = current_input_type;
                     payload1["q"] = selections[i];
                     commit('pushPill', payload1);
     
                     var payload2 = {};
-                    payload2["name"] = current_inputtype;
+                    payload2["name"] = current_input_type;
                     payload2["q"] = self.selected;
                     commit('saveInput', payload2);
                 }
                 }
             }
-    
-    
         },
         recenterGraph() {
             this.cy.fit();

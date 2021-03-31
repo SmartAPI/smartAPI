@@ -6,7 +6,7 @@
     </div>
     <div class="col s12 m10 center">
       <h6 class="grey-text">
-        This process might take several seconds.
+        This process might take a few seconds.
       </h6>
       <h6 class="white-text">
         <template v-if="!apisLoaded">
@@ -32,11 +32,11 @@
   </div>
   <div class="padding20 grey lighten-3">
     <div class="center">
-      <h3>
+      <h3 class="m-1">
         <img />
-          <Image class="scale-in-center" img_name="metakg-01.png" img_width="50px"
+          <Image class="scale-in-center" img_name="metakg-01.png" img_width="30px"
           style="max-width: 50px; max-height: 50px;" ></Image>
-        Meta-KG
+        Meta-<b>KG</b>
       </h3>
       <small v-show="component" class="center-align red-text" style="margin-right:20px">
         Component: {{component}}
@@ -47,13 +47,13 @@
     </div>
     <hr />
     <!-- META KG SEARCH -->
-    <div class="row">
+    <div class="row m-0">
       <div class="col s12">
         <form class="meta_kg_form">
-          <div class="row">
+          <div class="row m-0">
             <div class="col s12 m4 input-field center">
               <h5 class="white-text">
-                <i class="fa fa-sign-in black-text" aria-hidden="true"></i>
+                <i class="fa fa-circle grey-text" aria-hidden="true"></i>
                 INPUT TYPE
               </h5>
               <div class="center white-text">
@@ -63,7 +63,7 @@
             </div>
             <div class="col s12 m4 input-field center">
               <h5 class="white-text">
-                <i class="fa fa-connectdevelop purple-text" aria-hidden="true"></i>
+                <i class="fa fa-circle purple-text" aria-hidden="true"></i>
                 RELATIONSHIP
               </h5>
               <div class="center white-text">
@@ -81,9 +81,9 @@
               </div>
               <PillBox type="output_type"></PillBox>
             </div>
-            <div class="col s12 center">
+            <div class="col s12 center" style="padding-bottom:8px;">
               <button v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
-                Clear
+                Reset
               </button>
             </div>
           </div>
@@ -92,7 +92,7 @@
       <div class="col s12 m4">
         <div v-show="results && results.length" class="collection-item red-text" style="padding: 1px;">
           <small>
-            {{numberWithCommas(results.length)}} operations
+            <b>{{numberWithCommas(results.length)}}</b> operations
           </small>
         </div>
         <PaginatedList v-if="results && results.length" :content="results" type="MetaKG"></PaginatedList>
@@ -220,17 +220,6 @@ export default {
           self.apisProcessed = true;
         }
       },
-      loading: function (isLoading) {
-        if (!isLoading) {
-          //when done loading check URL for existing extra_params
-          let finalURL = window.location.href
-          let url = new URL(finalURL);
-
-          var payload = {};
-          payload["params"] = url.search.slice(1);
-          this.$store.dispatch('handleParams', payload);
-        }
-      },
       overEdgeLimit: function(v){
         if(v){
           this.$toast.info('Over '+this.edgeLimit+' edge limit');
@@ -278,6 +267,7 @@ export default {
         //send graph data to store for processing
         this.$store.commit('loadMetaKG', {'graph': meta_kg});
         this.$store.commit('drawGraph');
+        this.checkForQuery();
       },
       parseKGData() {
         var self = this;
@@ -387,6 +377,14 @@ export default {
       recenterGraph() {
         this.$store.dispatch('recenterGraph')
       },
+      checkForQuery(){
+          let finalURL = window.location.href
+          let url = new URL(finalURL);
+
+          var payload = {};
+          payload["params"] = url.search.slice(1);
+          this.$store.dispatch('handleParams', payload);
+      }
     },
     mounted: function () {
       var self = this;

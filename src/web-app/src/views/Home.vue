@@ -175,10 +175,12 @@ export default {
       if(!localStorage.getItem("DontShowCookies")) {
         this.$swal({
               toast: true,
+              imageUrl: require('../assets/img/api-cookie.svg'),
+              imageWidth: 200,
               width: '90vw',
               position: 'top',
               showConfirmButton: false,
-              html:'<p>This website uses cookies for analytics purposes. By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
+              html:'<p>This website uses cookies for analytics purposes. <br/>By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
             });
 
         document.getElementById('cookieButton').addEventListener("click", function(){
