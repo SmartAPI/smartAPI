@@ -163,7 +163,6 @@
 <script>
 // @ is an alias to /src
 import Vivus from 'vivus'
-import $ from 'jquery'
 
 export default {
   name: 'Home',
@@ -181,11 +180,13 @@ export default {
               showConfirmButton: false,
               html:'<p>This website uses cookies for analytics purposes. By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
             });
+
+        document.getElementById('cookieButton').addEventListener("click", function(){
+            localStorage.setItem("DontShowCookies", "true");
+            this.$swal.close();
+        });
       }
-      $(document).on("click", "#cookieButton", function() {
-          localStorage.setItem("DontShowCookies", "true");
-          this.$swal.close();
-      });
+      
     },
   },
   mounted: function(){

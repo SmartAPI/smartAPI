@@ -1,5 +1,5 @@
 <template>
-  <main id="docapp" class="blue-grey testBack" >
+  <main id="docapp" class="blue-grey darken-3 testBack" >
       <MetaHead title="SmartAPI | Guide"></MetaHead>
     <!-- PROGRESS BAR -->
     <div v-if="selection" class="progress padding20" style="background-color: var(--blue-medium);">
@@ -9,7 +9,7 @@
 
     <!-- start of INTRO -->
     <div v-if="!selection" class="center-align padding20">
-        <div class="transparent padding20 dashboardBack">
+        <div class="transparent padding20">
             <a class="hideOnSmall" target="_blank" href="https://www.openapis.org/">
             <Image img_width="20%"  alt="SmartAPI" img_name="logo-small.svg" class="hide-on-med-only hide-on-large-only"></Image>
             <Image img_width="20%"  alt="SmartAPI" img_name="logo-medium.svg" class="hide-on-small-only hide-on-large-only"></Image>
@@ -17,7 +17,7 @@
             </a>
 
             <h5 class="white-text flow-text textShadow" style="font-size: 5vw;">
-                <b class="logoFont">SmartAPI</b> and <b>OpenAPI</b>
+                <b class="logoFont">SmartAPI</b> &amp; <b>OpenAPI</b>
             </h5>
             <p class="margin20 padding20 white-text">
             SmartAPI uses OpenAPI-based specification for defining the key API metadata
@@ -25,57 +25,56 @@
             SmartAPIs leverages the Open API specification V3 and JSON-LD to provide
             semantically annotated JSON content that can be treated as Linked Data.
             </p>
-            <a class="btn blue" @click='showInfo'>Learn More</a>
-
-            <div class="flexGuideDad" id="learnMoreBlock" style="display: none; margin-top: 15px;">
-                <div class="flexGuideKid white">
-                    <Image img_width="100px" img_name="openapi-logo.png" class="circle"></Image>
-                    <h4 class="flow-text">What is OpenAPI?</h4>
-                    <p class="blue-grey-text left-align">
-                        The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI)
-                        was created by a consortium of forward-looking industry experts who recognize the immense value
-                        of standardizing how REST APIs are described. As an open governance structure under the Linux Foundation,
-                        the OAI is focused on creating, evolving and promoting a vendor-neutral description format. SmartBear Software
-                        is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
-                    </p>
-                    <p class="blue-grey-text left-align">
-                        APIs form the connecting glue between modern applications.
-                        Nearly every application uses APIs to connect with corporate data sources,
-                        third-party data services or other applications. Creating an open description format
-                        for API services that is vendor-neutral, portable and open is critical to accelerating the
-                        vision of a truly connected world.
-                    </p>
-                    <hr>
-                    <a class="btn blue" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
-                </div>
-                <div class="flexGuideKid light-blue lighten-5">
-                <Image img_width="100px" img_name="logo-medium.svg" class="circle"></Image>
-                    <h4 class="flow-text">What is SmartAPI?</h4>
-                    <p class="blue-grey-text left-align">
-                    The smartAPI project aims to maximize the FAIRness (Findability, Accessibility,
-                    Interoperability and Reusability) of web-based Application Programming Interfaces (APIs).
-                    Rich metadata is essential to properly describe your API so that it becomes discoverable, connected,
-                    and reusable.
-                    </p>
-                    <hr>
-                    <a class="btn blue" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification">SmartAPI Specification</a>
-                </div>
-                <div class="flexGuideKid white">
-                    <Image img_width="100px" img_name="swagger-logo.jpeg" class="circle"></Image>
-                    <h4 class="flow-text">What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?</h4>
-                    <p class="blue-grey-text left-align">
-                        SmartBear donated the Swagger Specification in 2015 as part of the formation of the OpenAPI
-                        Initiative. Following the announcement of the OAI, the Swagger specification was renamed the
-                        OpenAPI Specification and is semantically identical to the specification formerly known as the
-                        Swagger 2.0 specification.
-                    </p>
-                    <p class="blue-grey-text left-align">
-                        OAS – and the Swagger Specification before it – is widely recognized as the most popular
-                        open source framework for defining and creating RESTful APIs, and today tens of thousands of
-                        developers are building thousands of open source repos of tools leveraging the OpenAPI Specification.
-                    </p>
-                </div>
-            </div>
+            <a class="btn blue" @click='learnMore = !learnMore'>Learn More</a>
+    </div>
+    <div v-show="learnMore" class="d-flex justify-content-center" style="display: none; margin-top: 15px;">
+        <div class="p-1 white">
+            <Image img_width="100px" img_name="openapi-logo.png" class="circle"></Image>
+            <h4 class="flow-text">What is OpenAPI?</h4>
+            <p class="blue-grey-text left-align">
+                The <a class="amber-text" target="_blank" href="https://www.openapis.org/">OpenAPI Initiative</a> (OAI)
+                was created by a consortium of forward-looking industry experts who recognize the immense value
+                of standardizing how REST APIs are described. As an open governance structure under the Linux Foundation,
+                the OAI is focused on creating, evolving and promoting a vendor-neutral description format. SmartBear Software
+                is donating the Swagger Specification directly to the OAI as the basis of this Open Specification.
+            </p>
+            <p class="blue-grey-text left-align">
+                APIs form the connecting glue between modern applications.
+                Nearly every application uses APIs to connect with corporate data sources,
+                third-party data services or other applications. Creating an open description format
+                for API services that is vendor-neutral, portable and open is critical to accelerating the
+                vision of a truly connected world.
+            </p>
+            <hr>
+            <a class="btn blue" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
+        </div>
+        <div class="p-1 light-blue lighten-5">
+        <Image img_width="100px" img_name="logo-medium.svg" class="circle"></Image>
+            <h4 class="flow-text">What is SmartAPI?</h4>
+            <p class="blue-grey-text left-align">
+            The smartAPI project aims to maximize the FAIRness (Findability, Accessibility,
+            Interoperability and Reusability) of web-based Application Programming Interfaces (APIs).
+            Rich metadata is essential to properly describe your API so that it becomes discoverable, connected,
+            and reusable.
+            </p>
+            <hr>
+            <a class="btn blue" target="_blank" href="https://github.com/SmartAPI/smartAPI-Specification">SmartAPI Specification</a>
+        </div>
+        <div class="p-1 white">
+            <Image img_width="100px" img_name="swagger-logo.jpeg" class="circle"></Image>
+            <h4 class="flow-text">What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?</h4>
+            <p class="blue-grey-text left-align">
+                SmartBear donated the Swagger Specification in 2015 as part of the formation of the OpenAPI
+                Initiative. Following the announcement of the OAI, the Swagger specification was renamed the
+                OpenAPI Specification and is semantically identical to the specification formerly known as the
+                Swagger 2.0 specification.
+            </p>
+            <p class="blue-grey-text left-align">
+                OAS – and the Swagger Specification before it – is widely recognized as the most popular
+                open source framework for defining and creating RESTful APIs, and today tens of thousands of
+                developers are building thousands of open source repos of tools leveraging the OpenAPI Specification.
+            </p>
+        </div>
     </div>
     <div class="card-panel blue">
         <h5 class="white-text lighter bold">GUIDE</h5>
@@ -472,8 +471,6 @@
 </template>
 
 <script>
-import $ from 'jquery'
-
 import MarkDown from '../components/MarkDown.vue'
 
 
@@ -490,6 +487,7 @@ export default {
             progressText: '',
             url: '',
             showModal: false,
+            learnMore: false
         }
     },
     components:{
@@ -525,9 +523,6 @@ export default {
                 this.progressText = this.progress.toString()+'%';
             }
             }
-        },
-        showInfo: function(){
-            $('#learnMoreBlock').slideToggle('slow');
         },
         completeToDo: function(todo){
             // upon completing and checking all 3 checklists items

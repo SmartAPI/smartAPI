@@ -29,7 +29,6 @@
 </template>
 
 <script>
-import $ from 'jquery'
 export default {
     name: 'PillBox',
     data: function () {
@@ -109,13 +108,12 @@ export default {
         var self = this;
         let html = '';
         if (o.length) {
-          var dataList = $("#" + self.type + 'list');
-          dataList.empty();
+          document.getElementById(self.type + 'list').innerHTML = ''
           for (var i = 0, len = o.length; i < len; i++) {
             let item = o[i]
             html += `<option value="` + item + `">`;
           }
-          $("#" + self.type + 'list').append(html);
+          document.getElementById(self.type + 'list').innerHTML = html
         }
       },
       selected: function (s) {
