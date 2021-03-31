@@ -1,6 +1,7 @@
 import cytoscape from 'cytoscape'
 import popper from 'cytoscape-popper';
 import tippy from 'tippy.js';
+import swal from 'vue-sweetalert2'
 
 cytoscape.use(popper);
 
@@ -28,7 +29,7 @@ export const metakg = {
         "predicate_autocomplete_all": [],
         'overEdgeLimit': false,
         'showAllEdges': true,
-        'maxEdgesRendered': 1000
+        'maxEdgesRendered': 1500
      }),
     strict: true,
     mutations: {
@@ -426,7 +427,7 @@ export const metakg = {
             if (!state.predicate_selected.includes(q)) {
                 state.predicate_selected.push(q)
             } else {
-                this.$swal.fire({
+                swal({
                 type: 'error',
                 toast: true,
                 title: 'Already Selected',
@@ -440,7 +441,7 @@ export const metakg = {
             if (!state.input_selected.includes(q)) {
                 state.input_selected.push(q)
             } else {
-                this.$swal.fire({
+                swal({
                 type: 'error',
                 toast: true,
                 title: 'Already Selected',
@@ -454,7 +455,7 @@ export const metakg = {
             if (!state.output_selected.includes(q)) {
                 state.output_selected.push(q)
             } else {
-                this.$swal.fire({
+                swal({
                 type: 'error',
                 toast: true,
                 title: 'Already Selected',
@@ -692,7 +693,7 @@ export const metakg = {
         a.download = 'meta-kg-graph';
         a.click();
 
-        this.$swal.fire({
+        swal({
             type: 'success',
             toast: true,
             title: 'Success',

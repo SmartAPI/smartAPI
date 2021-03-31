@@ -38,19 +38,12 @@
           style="max-width: 50px; max-height: 50px;" ></Image>
         Meta-KG
       </h3>
-      <p>
-        Search for API operations given a combination of input, output(s),
-        and/or predicates.
-      </p>
-      <p>
-        An <a href="#" @click.prevent="loadExample()">example</a> would be: all
-        operations where the predicate is "treats" and its output is a
-        "Disease".
-      </p>
-      <p style="text-align: right;">
-        <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer"><small>Download
-            Meta-KG dump</small></a>
-      </p>
+      <small v-show="component" class="center-align red-text" style="margin-right:20px">
+        Component: {{component}}
+      </small>
+      <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer">
+        <small>Download Meta-KG dump</small>
+      </a>
     </div>
     <hr />
     <!-- META KG SEARCH -->
@@ -98,44 +91,11 @@
       </div>
       <div class="col s12 m4">
         <div v-show="results && results.length" class="collection-item red-text" style="padding: 1px;">
-          <small v-text="results.length+' operations'"></small>
+          <small>
+            {{numberWithCommas(results.length)}} operations
+          </small>
         </div>
-        <div class="white padding20 resBox collection">
-          <template v-show="results && results.length">
-            <div class="collection-item row" style="padding: 2px;">
-              <div class="col s3">
-                <small>API</small>
-              </div>
-              <div class="col s9">
-                <small>Relationship</small>
-              </div>
-            </div>
-          </template>
-          <template v-for="(item, index) in results" :key="item.association.smartapi.id+index">
-            <div class="collection-item resultRow row" @mouseenter="highlightRow(item)"
-              @mouseleave="unhighlightRow(item)" style="padding: 3px;">
-              <div class="col s12 left">
-                <small class="d-block">
-                  <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
-                    <b v-text="item.association.api_name"></b>
-                    <i @mouseenter="highlightRowAndZoom(item)" @mouseleave="recenterGraph()"
-                      class="fa fa-search-plus pointer blue-grey-text" aria-hidden="true"></i>
-                  </a>
-                  <i class="fa fa-info-circle resultInfo pointer green-text" aria-hidden="true"
-                    style="float: right;"></i>
-                </small>
-                <small class="s-badge lighten-4 grey-text" v-text="item.association.input_type"></small>
-                <small class="blue-text">/</small>
-                <small class="s-badge lighten-5 purple-text" v-text="item.association.predicate"></small>
-                <small class="blue-text">/</small>
-                <small class="s-badge lighten-5 orange-text" v-text="item.association.output_type"></small>
-              </div>
-            </div>
-          </template>
-          <template v-if="results.length == 0 && !loading">
-            <small class="grey-text">No Results</small>
-          </template>
-        </div>
+        <PaginatedList v-if="results && results.length" :content="results" type="MetaKG"></PaginatedList>
       </div>
       <div class="col s12 m8" style="
           overflow: hidden;
@@ -181,19 +141,23 @@
 </template>
 
 <script>
-import tippy from 'tippy.js';
-import axios from 'axios'
-
 import PillBox from '../components/PillBox.vue';
+import PaginatedList from '../components/PaginatedList.vue';
 
 const MetaKG  = require("@biothings-explorer/smartapi-kg")
 
 export default {
   components: { 
-      PillBox
+      PillBox,
+      PaginatedList
   },
     name: 'MetaKG',
-    props: ["component"],
+    props: {
+      component:{
+        type: String,
+        default: 'KP'
+      }
+    },
     data: function () {
       return {
         'cy': null,
@@ -202,7 +166,7 @@ export default {
         'apisProcessed': false,
         'apisLoaded': false,
         'totalApis': 0,
-        'hoverInfo': {}
+        'hoverInfo': {},
       }
     },
     computed: {
@@ -267,14 +231,16 @@ export default {
           this.$store.dispatch('handleParams', payload);
         }
       },
-      results: function () {
-        var self = this;
-        setTimeout(function () {
-          self.createTips();
-        }, 1000);
+      overEdgeLimit: function(v){
+        if(v){
+          this.$toast.info('Over '+this.edgeLimit+' edge limit');
+        }
       }
     },
     methods: {
+      numberWithCommas(x) {
+          return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+      },
       allWithTag: function (name) {
         var payload = {};
         payload["highlight"] = name
@@ -351,7 +317,11 @@ export default {
         }
       },
       reset() {
-        this.$store.commit('reset');
+        let self = this;
+        this.$toast.success('Reseting please wait...');
+        setTimeout(function(){
+          self.$store.commit('reset');
+        }, 1000);  
       },
       getClass(name) {
         switch (name) {
@@ -417,116 +387,6 @@ export default {
       recenterGraph() {
         this.$store.dispatch('recenterGraph')
       },
-      createTips() {
-        var self = this;
-
-        tippy(".resultInfo", {
-          trigger: 'click',
-          placement: 'top-start',
-          interactive: true,
-          animation: 'fade',
-          theme: 'light',
-          onShow(instance) {
-            if (self.hoverInfo) {
-              // hover item info saved to state
-              let info = self.hoverInfo
-              let desc = ""
-              let status = "N/A"
-
-              axios.get("/api/query?size=1&q=_id:"+info.association.smartapi.id+"&fields=info.description,_meta.uptime_status").then(res=>{
-                // console.log(res.data);
-
-                if (res.data.hits.length) {
-                  desc = res.data.hits[0]['info']['description'].substring(0,400)+'...';
-                  if (res.data.hits[0] && res.data.hits[0]['_status'] && res.data.hits[0]['_status']["uptime_status"]) {
-                    status = res.data.hits[0]['_status']['uptime_status']
-                  }else{
-                    status = "N/A"
-                  }
-
-                  instance.setContent(`<div>
-                  <h6>API: <a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">` + info
-                  .association.api_name + `</a></h6>
-                  <p><small>`+desc+`<a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">Learn More</a></small></p>
-                  <b><small>API Status: `+status+`</small></b>
-                  <table>
-                    <tbody>
-                      <tr class="grey lighten-4">
-                        <td>
-                          <small class="grey-text">INPUT/ID TYPE</small>
-                        </td>
-                        <td>
-                          <small>` + info.association.input_type + `/` + info.association.input_id + `</small>
-                        </td>
-                      </tr>
-                      <tr class="purple lighten-4">
-                        <td>
-                          <small class="purple-text">RELATIONSHIP</small>
-                        </td>
-                        <td>
-                          <small>` + info.association.predicate + `</small>
-                        </td>
-                      </tr>
-                      <tr class="orange lighten-4">
-                        <td>
-                          <small class="orange-text">OUTPUT/ID TYPE</small>
-                        </td>
-                        <td>
-                          <small>` + info.association.output_type + `/` + info.association.output_id + `</small>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  </div>`)
-                }else{
-                  instance.setContent(`<div>No details were found on SmartAPI</div>`)
-                }
-
-              }).catch(err=>{
-                
-                instance.setContent(`<div>
-                <h6>API: <a target="_blank" href="/registry?q=` + info.association.smartapi.id + `">` + info
-                .association.api_name + `</a></h6>
-                <p><small>`+desc+`</small></p>
-                <table>
-                  <tbody>
-                    <tr class="grey lighten-4">
-                      <td>
-                        <small class="grey-text">INPUT/ID TYPE</small>
-                      </td>
-                      <td>
-                        <small>` + info.association.input_type + `/` + info.association.input_id + `</small>
-                      </td>
-                    </tr>
-                    <tr class="purple lighten-4">
-                      <td>
-                        <small class="purple-text">RELATIONSHIP</small>
-                      </td>
-                      <td>
-                        <small>` + info.association.predicate + `</small>
-                      </td>
-                    </tr>
-                    <tr class="orange lighten-4">
-                      <td>
-                        <small class="orange-text">OUTPUT/ID TYPE</small>
-                      </td>
-                      <td>
-                        <small>` + info.association.output_type + `/` + info.association.output_id + `</small>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                </div>`);
-
-                throw err;
-
-              });
-              
-            }
-          }
-        });
-      }
-
     },
     mounted: function () {
       var self = this;

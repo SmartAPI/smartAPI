@@ -48,7 +48,7 @@ export default {
           payload["q"] = self.q;
           this.$store.commit('pushPill', payload);
         } else {
-          this.$swal.fire({
+          this.$swal({
             type: 'error',
             toast: true,
             title: 'Not an option',

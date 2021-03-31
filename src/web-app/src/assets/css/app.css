@@ -1030,8 +1030,9 @@ html, body {
 .pill {
   display: inline;
   margin: 4px;
-  padding: 3px;
-  font-size: .8em;
+  padding: 7px;
+  font-size: 1em;
+  font-weight: bold;
   background: var(--blue-medium);
   color: white;
   border: grey solid 2px;
