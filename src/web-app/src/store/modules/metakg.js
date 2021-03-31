@@ -302,7 +302,7 @@ export const metakg = {
             nodes.add(op['association']['input_type']);
             nodes.add(op['association']['output_type']);
 
-            if (state.operationsTotal < state.maxEdgesRendered) {
+            if (i < state.maxEdgesRendered) {
             let edgeName = op['association']['api_name'] + ' : ' + op['association']['predicate'];
 
             let edge = {
@@ -375,7 +375,7 @@ export const metakg = {
             nodes.add(result['association']['input_type'])
             nodes.add(result['association']['output_type'])
 
-            if (state.operationsTotal < state.maxEdgesRendered) {
+            if (i < state.maxEdgesRendered) {
             let edgeName = result['association']['api_name'] + ' : ' + result['association'][
                 'predicate'
             ]

@@ -148,7 +148,7 @@
           <h4>Loading...</h4>
         </div>
         <div v-if="overEdgeLimit" class="orange lighten-4 red-text center p-1">
-          <small>Results contain over <b v-text="edgeLimit"></b> edges, please refine your query to see edges rendered.</small>
+          <small>Results contain over <b v-text="edgeLimit"></b> edges, please refine your query to see all possible edges rendered.</small>
         </div>
         <div v-show="!loading" class="d-flex justify-content-around">
           <small class="pointer grey-text" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
