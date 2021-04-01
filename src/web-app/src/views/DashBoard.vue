@@ -1,5 +1,5 @@
 <template>
-  <main id="dashApp" style="min-height:90vh;" class="blue-grey darken-3 docBack" v-cloak>
+  <main id="dashApp" style="min-height:90vh;" class="grey lighten-3" v-cloak>
     <MetaHead title="SmartAPI | My Dashboard"></MetaHead>
     <!-- IF NO USER INFO DISPLAY LOGIN-->
     <div v-if="!loggedIn" class="padding20 card-panel white d-flex justify-content-center align-items-center" style="min-height:80vh;">
@@ -26,32 +26,32 @@
     <div v-if="loggedIn" class="row" style="margin-bottom: 0; width: 100%;min-height:70vh;">
         <div class="col s12 padding20">
             <div class="dashboard-header">
-                <div class="center-align white-text">
-                    <h6>
-                        <Image 
+                <div class="grey-text dashHead">
+                    <Image 
                         id="dashboardPhoto" 
                         img_width="80px" 
                         :img_name="'user-default.png'" 
                         class="responsive-img circle dash-photo" 
                         :alt="userInfo.login"></Image>
-                    </h6>
-                    <h5 v-if="userInfo?.name">Hello, {{ userInfo?.name.split(" ")[0] || userInfo.login }}!</h5>
-                    <p><a target="_blank" :href="'https://github.com/'+userInfo.login"><i class="tiny fa fa-github-alt white-text"></i> {{userInfo.login}}</a></p>
-                    <b class="grey-text"> APIs Registered: <span class="white-text">{{total}}</span></b>
+                    <h5 v-if="userInfo?.name" style="margin-left:10px;">
+                        <b>
+                            Hello, <a target="_blank" :href="'https://github.com/'+userInfo.login">{{ userInfo?.name.split(" ")[0] || userInfo.login }}</a>!
+                        </b>
+                    </h5>
                 </div>
             </div>
         </div>
         <div class="col s12 center-align">
             <div class="container row" style="margin:auto;">
             <div class="p-1 col s12">
-                <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 blue-grey darken-3 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-light) 2px solid;"/>
+                <input v-model='searchQuery' placeholder="Search by API name" type="text" class="browser-default margin20 grey darken-1 l-blue-text lighter" style="width: 40%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-light) 2px solid;"/>
             </div>
 
             <div class="col s12 card-panel">
                 <table class="striped highlight responsive-table">
                 <thead>
                     <tr class="grey-text">
-                        <th>Name</th>
+                        <th>Name ({{total}})</th>
                         <th>Last Updated</th>
                         <th>Refresh</th>
                         <th>Validate</th>
@@ -413,7 +413,7 @@ export default {
             }
             });
         } else {
-            alert('URL is required')
+            self.$toast.warning('URL is required')
         }
         },
         getApis: function(){
@@ -428,7 +428,7 @@ export default {
                 self.hideLoading();
 
             }).catch(err=>{
-                alert('failed to load APIs')
+                self.$toast.warning('failed to load APIs')
                 self.hideLoading();
                 throw err;
             });
@@ -509,7 +509,7 @@ export default {
             break;
     
             default:
-                alert(title,status)
+                self.$toast.warning(title,status)
                 break;
         }
         },
@@ -746,3 +746,12 @@ export default {
     }
 }
 </script>
+
+<style>
+.dashHead{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+</style>
