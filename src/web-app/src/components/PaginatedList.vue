@@ -16,12 +16,12 @@
                         <option value="100">100 per page</option>
                     </select>
                     <ul class="pagination">
-                        <li :class="{'disabled' : page <= 1}"><a href="#!" @click.prevent="prevPage()">
+                        <li :class="{'disabled' : page <= 1}"><a  @click.prevent="prevPage()">
                             <i class="material-icons">chevron_left</i></a>
                         </li>
                         <template v-if="groupPages">
                             <li v-show="!startCapLimitReached">
-                                <a href="#!" class="page-link p-1" @click.prevent="previousGroup()">Previous 20</a>
+                                <a  class="page-link p-1" @click.prevent="previousGroup()">Previous 20</a>
                             </li>
                         </template>
                         <template v-for="n in pages" :key="n">
@@ -33,10 +33,10 @@
                         </template>
                         <template v-if="groupPages">
                             <li v-show="!endCapLimitReached">
-                                <a href="#!" class="page-link p-1" @click.prevent="nextGroup()">next 20</a>
+                                <a  class="page-link p-1" @click.prevent="nextGroup()">next 20</a>
                             </li>
                         </template>
-                        <li :class="{'disabled' : page >= pages}"><a href="#!"  @click.prevent="nextPage()">
+                        <li :class="{'disabled' : page >= pages}"><a   @click.prevent="nextPage()">
                             <i class="material-icons">chevron_right</i></a>
                         </li>
                     </ul>
