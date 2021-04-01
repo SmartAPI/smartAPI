@@ -144,6 +144,14 @@ export default {
     mounted: function(){
         this.calculatePages();
     },
+    watch:{
+        content:{
+            handler(){
+                this.calculatePages();
+            },
+            deep: true
+        },
+    }
 }
 </script>
 
