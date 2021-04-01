@@ -1,5 +1,5 @@
 <template>
-  <main id="dashApp" style="min-height:90vh;" class="grey lighten-3" v-cloak>
+  <main id="dashApp" style="min-height:90vh;" class="grey lighten-2" v-cloak>
     <MetaHead title="SmartAPI | My Dashboard"></MetaHead>
     <!-- IF NO USER INFO DISPLAY LOGIN-->
     <div v-if="!loggedIn" class="padding20 card-panel white d-flex justify-content-center align-items-center" style="min-height:80vh;">
@@ -50,7 +50,7 @@
             <div class="col s12 card-panel">
                 <table class="striped highlight responsive-table">
                 <thead>
-                    <tr class="grey-text">
+                    <tr style="font-weight: 100; color: #d3d3d3;">
                         <th>Name ({{total}})</th>
                         <th>Last Updated</th>
                         <th>Refresh</th>
@@ -62,16 +62,16 @@
                     <tr v-for="(api,index) in results" :key="api.info.title+index">
                     <td>
                         <h6 class="left-align">
-                        <b>{{ api.info.title }}</b>
+                        <b>{{ api.info.title }}</b>&nbsp;
                         <small>
                             <span class="grey-text">V.{{api.info.version}}</span>
-                        </small>
+                        </small>&nbsp;
                         <small v-if="api?.openapi" class="green-text">
                             OAS3
-                        </small>
+                        </small>&nbsp;
                         <small v-else-if="api?.swagger" class="blue-text">
                             Swagger2
-                        </small>
+                        </small>&nbsp;
                         <a href="#modal2" class="modal-trigger" @click="getDetails(api)">
                             <small><i class="tiny material-icons">settings</i> Settings</small>
                         </a>
@@ -128,9 +128,10 @@
             <div class="row">
                 <div class="col s12">
                 <ul class="tabs transparent">
-                    <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">About</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">Docs</a></li>
                     <li class="tab col s3"  @click="tabSelected = 2"><a class="blue-text" href="#test2">Slug Registration</a></li>
                     <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="#test3">User Interactions</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 4"><a class="blue-text" href="#test3">Delete</a></li>
                 </ul>
                 </div>
 
@@ -138,7 +139,7 @@
                 <ul class="collection with-header" style="border: none;">
 
                     <li class="collection-header padding20">
-                    <Image img_width="100px"  alt="SmartAPI" img_name="logo-medium.svg" class="hide-on-small-only"></Image>
+                    <Image img_width="100px"  alt="SmartAPI" img_name="api-editor.svg" class="hide-on-small-only"></Image>
                     <h2 class="blue-text flow-text">
                         {{selectedAPI.info.title}}
                         <span class="versionBadge grey hide-on-small-only">Version {{selectedAPI.info.version}}</span>
@@ -171,36 +172,18 @@
                     <div class="d-flex padding20" style="justify-content: center;">
                         <div class="blue-grey-text grey lighten-4 p-1"><small>API ID</small></div>
                         <div class='grey lighten-3 p-1 indigo-text'><small v-text="selectedAPI._id"></small></div>
+                        <CopyButton
+                        copy_msg="API ID copied" 
+                        :copy="selectedAPI._id">
+                            <template v-slot:title>
+                                Copy API ID <i class="fa fa-clipboard" aria-hidden="true"></i>
+                            </template>
+                        </CopyButton>
                     </div>
                     <router-link :to="'/ui/'+selectedAPI._id" class="btn blue m-2">View API Documentation</router-link>
                     <router-link :to="'/registry?q='+selectedAPI._id" class="btn indigo m-2">View API On SmartAPI Registry</router-link>
                     </li>
-                    <template v-for='link in checkForAPIInfoLink(selectedAPI)' :key="link">
-                    <li class="collection-item blue-grey lighten-4">
-                        <a class="link blue-grey-text underlined" :href="link" target="_blank">
-                        More Info
-                        </a>
-                    </li>
-                    </template>
-                    <li class="collection-item padding20 blue-grey lighten-5">
-                    <p style="line-height: 1.2em;" class="blue-grey-text flow-text" v-html="compiledMarkdown(selectedAPI.info.description || '')"></p>
-                    </li>
-                    <li class="collection-item blue-grey lighten-5">
-                    <i v-if="selectedAPI.info.termsOfService || selectedAPI.termsOfService" class="material-icons tiny blue-text">info_outline</i>
-                    <a v-if="selectedAPI.info.termsOfService" :href="selectedAPI.info.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
-                    <a v-if="selectedAPI.termsOfService" :href="selectedAPI.termsOfService" target="_blank" class="blue-text">Terms of Service</a>
-
-                    </li>
-                    <li class="collection-item deep-orange lighten-2">
-                    <h5>Danger Zone</h5>
-                    <p>
-                        Delete API metadata from SmartAPI registry permanently. This action cannot be undone.
-                    </p>
-                    <button type="button" @click="deleteForever(selectedAPI.info.title, selectedAPI._id)" class="btn btn-small red white-text" 
-                    data-tippy-content="<b class='red-text'>Delete Forever</b>">
-                        Delete API
-                    </button>
-                    </li>
+                    
                 </ul>
                 </div>
 
@@ -275,17 +258,31 @@
                 </div>
 
                 <div v-show="tabSelected == 3" id="test3" class="col s12 white">
-                <div class="row">
-                    <div class="col s12 m12 l12 center-align">
-                        <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
-                    </div>
-                    <div>
-                        <SummaryChart :key='selectedAPI.info.title' :data="[]" summary_type="User_Interactions" :colors="['#20c96a', '#2c98f0', '#4bc0c0', '#8d5bd4']" :apiname='selectedAPI.info.title'></SummaryChart>
+                    <div class="row">
+                        <div class="col s12 m12 l12 center-align">
+                            <h3 class="flow-text blue-grey-text padding20">User Interactions</h3>
+                        </div>
                         <div>
-                            <small>Views = Viewed API details, Documentation = Viewed API documentation, Searched = Searched API by name</small>
+                            <SummaryChart :key='selectedAPI.info.title' :data="[]" summary_type="User_Interactions" :colors="['#20c96a', '#2c98f0', '#4bc0c0', '#8d5bd4']" :apiname='selectedAPI.info.title'></SummaryChart>
+                            <div>
+                                <small>Views = Viewed API details on regsitry, Documentation = Viewed API documentation, Searched = Searched API by name</small>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div v-show="tabSelected == 4" id="test4" class="col s12 white">
+                    <ul class="collection with-header">
+                        <li class="collection-item deep-orange lighten-2">
+                            <h5>Danger Zone</h5>
+                            <p>
+                                Delete API metadata from SmartAPI registry permanently. This action cannot be undone.
+                            </p>
+                            <button type="button" @click="deleteForever(selectedAPI.info.title, selectedAPI._id)" class="btn btn-small red white-text" 
+                            data-tippy-content="<b class='red-text'>Delete Forever</b>">
+                                Delete API
+                            </button>
+                        </li>
+                    </ul>
                 </div>
               </div>
             </div>
@@ -301,7 +298,6 @@ import moment from 'moment';
 import {sortBy, get} from 'lodash'
 import tippy from 'tippy.js';
 import axios from 'axios'
-import marked from 'marked'
 
 import UptimeStatus from '../components/UptimeStatus.vue';
 import SourceStatus from '../components/SourceStatus.vue';
@@ -413,7 +409,7 @@ export default {
             }
             });
         } else {
-            self.$toast.warning('URL is required')
+            self.$toast.error('URL is required')
         }
         },
         getApis: function(){
@@ -428,14 +424,11 @@ export default {
                 self.hideLoading();
 
             }).catch(err=>{
-                self.$toast.warning('failed to load APIs')
+                self.$toast.error('failed to load APIs')
                 self.hideLoading();
                 throw err;
             });
 
-        },
-        compiledMarkdown: function (mdtext) {
-            return marked(mdtext)
         },
         deleteForever: function(title, apiID){
         // ID for api to be deleted forever
@@ -509,7 +502,7 @@ export default {
             break;
     
             default:
-                self.$toast.warning(title,status)
+                self.$toast.error(title,status)
                 break;
         }
         },
@@ -552,7 +545,7 @@ export default {
             //modal will show the apis index of the item clicked
             this.selectedAPI = api;
             //hasShortName sets display for slug registration view
-            if (this.selectedAPI?._meta?.slug.length) {
+            if (this.selectedAPI?._meta?.slug && this.selectedAPI?._meta?.slug.length) {
                 this.hasShortName=true;
             }else{
                 this.hasShortName=false;
@@ -686,9 +679,8 @@ export default {
         }
     },
     mounted: function(){
-        let self = this;
-        self.showLoading();
-        self.getApis();
+        this.showLoading();
+        this.getApis();
 
         /*eslint-disable */
         tippy('.tipped',{
