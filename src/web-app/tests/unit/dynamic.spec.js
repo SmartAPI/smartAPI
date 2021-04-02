@@ -61,39 +61,54 @@ describe('Footer', () => {
 })
 
 describe('UptimeStatus', () => {
-  it('Uptime badge displays expected status', async () => {
-    //Arrange
-    const options = {
-      props: { 
-        api:{
-          _status:{
-            uptime_status: 'good'
+  it('Uptime badge displays expected status', () => {
+    [
+      {'value': 'good', expect: 'PASS'},
+      {'value': 'unknown', expect: 'UNKNOWN'},
+      {'value': 'bad', expect: 'BAD'},
+      {'value': 'blah', expect: 'N/A'},
+    ].forEach( async (item) => {
+      //Arrange
+      const options = {
+        props: { 
+          api:{
+            _status:{
+              uptime_status: item.value
+            }
           }
         }
       }
-    }
-    const wrapper = mount(UptimeStatus, options)
-    await wrapper.vm.$nextTick();
-    //Assert
-    expect(wrapper.get('.center-align').get('small').text()).toContain('PASS')
+      const wrapper = mount(UptimeStatus, options)
+      await wrapper.vm.$nextTick();
+      //Assert
+      expect(wrapper.get('.center-align').get('small').text()).toContain(item.expect)
+    })
   })
 })
 
 describe('SourceStatus', () => {
-  it('Source badge displays expected status', async () => {
-    //Arrange
-    const options = {
-      props: { 
-        api:{
-          _status:{
-            refresh_status: 499
+  it('Source badge displays expected status', () => {
+    [
+      {'value': 499, expect: 'INVALID'},
+      {'value': 200, expect: 'OK'},
+      {'value': 599, expect: 'BROKEN'},
+      {'value': 404, expect: 'NOT FOUND'},
+      {'value': 999, expect: 'N/A'},
+    ].forEach( async (item) => {
+      //Arrange
+      const options = {
+        props: { 
+          api:{
+            _status:{
+              refresh_status: item.value
+            }
           }
         }
       }
-    }
-    const wrapper = mount(SourceStatus, options)
-    await wrapper.vm.$nextTick();
-    //Assert
-    expect(wrapper.get('.center-align').get('small').text()).toContain('INVALID')
+      const wrapper = mount(SourceStatus, options)
+      await wrapper.vm.$nextTick();
+      //Assert
+      expect(wrapper.get('.center-align').get('small').text()).toContain(item.expect)
+    })
   })
 })
