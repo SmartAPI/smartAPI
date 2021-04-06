@@ -14,7 +14,7 @@ export default {
 				let illo = new Zdog.Illustration({
 					element: '#smartapi',
 					dragRotate: true,
-					// scale:.5
+					scale:1
 				});
 
 				var body = new Zdog.Group({
