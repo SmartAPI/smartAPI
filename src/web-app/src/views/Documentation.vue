@@ -3,36 +3,34 @@
       <MetaHead title="SmartAPI | Documentation"></MetaHead>
   <div class="row">
     <div class="testBack padding20">
-    <nav>
-        <div class="nav-wrapper blue">
-            <ul id="nav-mobile" class="left">
-            <li >
-                <router-link
-                to="/documentation">
-                Introduction
-                </router-link>
-            </li>
-            <li >
-                <router-link
-                to="/documentation/getting-started">
-                Getting Started
-                </router-link>
-            </li>
-            <li >
-                <router-link
-                to="/documentation/smartapi-extensions">
-                SmartAPI Extensions
-                </router-link>
-            </li>
-            <li >
-                <router-link
-                to="/documentation/openapi-specification">
-                OpenAPI Spedcification
-                </router-link>
-            </li>
+        <div class="container grey darken-3">
+            <ul class="d-flex justify-content-center align-items-center flex-wrap p-1">
+                <li class="p-1">
+                    <router-link
+                    to="/documentation">
+                    Introduction
+                    </router-link>
+                </li>
+                <li class="p-1">
+                    <router-link
+                    to="/documentation/getting-started">
+                    <i class="material-icons tiny">brightness_1</i> Getting Started
+                    </router-link>
+                </li>
+                <li class="p-1">
+                    <router-link
+                    to="/documentation/smartapi-extensions">
+                    <i class="material-icons tiny">brightness_1</i> SmartAPI Extensions
+                    </router-link>
+                </li>
+                <li class="p-1">
+                    <router-link
+                    to="/documentation/openapi-specification">
+                    <i class="material-icons tiny">brightness_1</i> OpenAPI Spedcification
+                    </router-link>
+                </li>
             </ul>
-            </div>
-        </nav>
+        </div>
         <div class="container white padding20 contentDocs z-depth-4">
             <templatem v-if='!url'>
                 <h3 class="logoFont blue-text center-align flow-text">SmartAPI Documentation</h3>

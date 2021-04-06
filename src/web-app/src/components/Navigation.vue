@@ -90,6 +90,7 @@ export default {
     a{
       padding: 5px;
       align-self: center;
+      margin-right: 10px;
     }
     a:hover{
         color: white !important;

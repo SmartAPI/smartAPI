@@ -97,16 +97,9 @@
                 <p>Copyright &copy; <span id="year"></span>.
                     <a target="_blank" class="blue-grey-text" href="http://smart-api.info">SmartAPI consortium</a>.
                     All content available via <a target="_blank" rel="license" href="http://creativecommons.org/licenses/by/4.0/">
-                    <i class="fa fa-creative-commons blue-grey-text" aria-hidden="true"></i>
+                    <i class="fa fa-creative-commons blue-grey-text" aria-hidden="true"></i> <i class="fab fa-creative-commons-by"></i>
                     </a>
                 </p>
-
-                <div>
-                    All content available via
-                    <a rel="license" href="https://creativecommons.org/licenses/by/4.0/" title="Creative Commons Attribution 4.0 International license">
-                    CC License
-                    </a>.
-                </div>
             </div>
         </div>
     </footer>

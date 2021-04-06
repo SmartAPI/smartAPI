@@ -112,13 +112,13 @@
               </template>
             </ul>
 
-            <ul class="collection" style="margin-top:50px;">
+            <!-- <ul class="collection" style="margin-top:50px;">
               <div class="collection-header purple white-text p-1 center-align">
                 <span>Portal Specific</span>
               </div>
               <router-link class="collection-item left-align" to='/registry/translator'>Translator</router-link>
               <router-link class="collection-item left-align" to='/registry/nihdatacommons'>NIH Data Commons</router-link>
-            </ul>
+            </ul> -->
 
         </div>
         <div class="col s12 hide-on-med-and-up show-on-small-only">

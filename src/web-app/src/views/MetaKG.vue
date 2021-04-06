@@ -38,10 +38,15 @@
           style="max-width: 50px; max-height: 50px;" ></Image>
         Meta-<b>KG</b>
       </h3>
-      <small v-show="component" class="center-align red-text" style="margin-right:20px">
-        Component: {{component}}
-      </small>
-      <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer">
+      <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
+        Component:
+        <select class="browser-default component-select" v-model='component_select'>
+          <option value="" disabled selected>Switch to Component</option>
+          <option value="KP">KP</option>
+          <option value="ARA">ARA</option>
+        </select>
+      </span>
+      <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer" style="margin-left:20px !important;">
         <small>Download Meta-KG dump</small>
       </a>
     </div>
@@ -90,7 +95,7 @@
         </form>
       </div>
       <div class="col s12 m4">
-        <div v-show="results && results.length" class="collection-item red-text" style="padding: 1px;">
+        <div v-show="results && results.length" class="collection-item green-text" style="padding: 1px;">
           <small>
             <b>{{numberWithCommas(results.length)}}</b> operations
           </small>
@@ -108,7 +113,7 @@
           <h4>Loading...</h4>
         </div>
         <div v-if="overEdgeLimit" class="orange lighten-4 red-text center p-1">
-          <small>Results contain over <b v-text="edgeLimit"></b> edges, please refine your query to see all possible edges rendered.</small>
+          <small>Results contain over <b v-text="edgeLimit"></b> relationship edges, please refine your query to see all possible relationship edges rendered.</small>
         </div>
         <div v-show="!loading" class="d-flex justify-content-around">
           <small class="pointer grey-text" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
@@ -167,6 +172,7 @@ export default {
         'apisLoaded': false,
         'totalApis': 0,
         'hoverInfo': {},
+        'component_select': ''
       }
     },
     computed: {
@@ -224,7 +230,10 @@ export default {
         if(v){
           this.$toast.info('Over '+this.edgeLimit+' edge limit');
         }
-      }
+      },
+      component_select: function(v){
+        this.$router.push({path: '/portal/translator/metakg/'+v})
+      },
     },
     methods: {
       numberWithCommas(x) {
@@ -396,10 +405,20 @@ export default {
         this.$store.commit('toggleLoading', payload)
       }
 
+      self.component_select = self.component ? self.component : 'KP'
+
     }
 }
 </script>
 
 <style>
-
+  .component-select{
+    display: inline-block !important;
+    width: 100px;
+    padding: 2px;
+    height: auto;
+    background: transparent;
+    outline: none;
+    border: none;
+  }
 </style>
