@@ -3,7 +3,7 @@
         <MetaHead title="SmartAPI | FAQ"></MetaHead>
     <div class="container-fluid center">
         <div class="white blue-text">
-        <Image alt="faq" img_name="faq.svg" img_width='40%' class="responsive-img" style="max-width:300px;"></Image>
+        <Image alt="faq" img_name="faq.svg" img_width='200px' class="responsive-img" style="max-width:300px;"></Image>
         <h1 class="bold">FAQ</h1>
         </div>
     </div>
@@ -16,7 +16,7 @@
                 <div class="collapsible-header blue-text bold">
                     <i class="fa fa-comment" aria-hidden="true"></i> <a :href="'#'+item.anchor" v-text="item.question"></a>&nbsp;
                 </div>
-                <div class="collapsible-body blue-grey-text flow-text left-align">
+                <div class="collapsible-body blue-grey-text flow-text left-align" style="padding-top:3px;">
                     <div class="right-align">
                         <CopyButton copy_msg="URL copied" :copy="'http://smart-api.info/faq#' + item.anchor">
                             <template v-slot:title>

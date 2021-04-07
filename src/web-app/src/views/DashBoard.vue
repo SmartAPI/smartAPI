@@ -30,7 +30,8 @@
                     <Image 
                         id="dashboardPhoto" 
                         img_width="80px" 
-                        :img_name="'user-default.png'" 
+                        img_height="80px" 
+                        :img_name="userInfo.avatar_url || 'user-default.png'" 
                         class="responsive-img circle dash-photo" 
                         :alt="userInfo.login"></Image>
                     <h5 v-if="userInfo?.name" style="margin-left:10px;">
@@ -64,7 +65,7 @@
                         <h6 class="left-align">
                         <b>{{ api.info.title }}</b>&nbsp;
                         <small>
-                            <span class="grey-text">V.{{api.info.version}}</span>
+                            <span class="grey-text">V {{api.info.version}}</span>
                         </small>&nbsp;
                         <small v-if="api?.openapi" class="green-text">
                             OAS3
@@ -128,7 +129,7 @@
             <div class="row">
                 <div class="col s12">
                 <ul class="tabs transparent">
-                    <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">Docs</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">API Metadata</a></li>
                     <li class="tab col s3"  @click="tabSelected = 2"><a class="blue-text" href="#test2">Slug Registration</a></li>
                     <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="#test3">User Interactions</a></li>
                     <li class="tab col s3"  @click="tabSelected = 4"><a class="blue-text" href="#test3">Delete</a></li>
@@ -359,7 +360,7 @@ export default {
             }).then(res=>{
             self.$swal({
                 imageUrl: require('../assets/img/api-sucess.svg'),
-                imageWidth: 300,
+                imageWidth: 200,
                 title: 'Great! Everything looks good!',
                 footer: "<h5 class='green-text'>" + res.data.details + "</h5>"
                 })
@@ -371,7 +372,7 @@ export default {
                 title: "Wait a second...",
                 html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
                 imageUrl: require('../assets/img/api-overwrite.svg'),
-                imageWidth: 300,
+                imageWidth: 200,
                 confirmButtonText: 'OK',
             });
             }
@@ -380,7 +381,7 @@ export default {
                 title: "Wait a second...",
                 html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
                 imageUrl: require('../assets/img/api-fail.svg'),
-                imageWidth: 300,
+                imageWidth: 200,
                 confirmButtonText: 'OK',
             });
             }
@@ -388,7 +389,7 @@ export default {
             self.$swal({
                 title: "Oh no, there's a problem!",
                 imageUrl: require('../assets/img/api-fail.svg'),
-                imageWidth: 300,
+                imageWidth: 200,
                 confirmButtonText: 'OK',
                 html:`<h5>Here's what we found:</h5>
                     <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,
@@ -399,7 +400,7 @@ export default {
             self.$swal({
                 title: "Oops, there's an issue!",
                 imageUrl: require('../assets/img/api-fail.svg'),
-                imageWidth: 300,
+                imageWidth: 200,
                 confirmButtonText: 'OK',
                 html:`<h5>Here's what we found:</h5>
                     <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,

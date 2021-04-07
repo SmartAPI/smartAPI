@@ -94,10 +94,10 @@
         <div class="footer-copyright">
             <div class="container blue-grey-text">
                 <hr>
-                <p>Copyright &copy; <span id="year"></span>.
+                <p class="center-align">Copyright &copy; <span id="year"></span>.
                     <a target="_blank" class="blue-grey-text" href="http://smart-api.info">SmartAPI consortium</a>.
-                    All content available via <a target="_blank" rel="license" href="http://creativecommons.org/licenses/by/4.0/">
-                    <i class="fa fa-creative-commons blue-grey-text" aria-hidden="true"></i> <i class="fab fa-creative-commons-by"></i>
+                    All content available via <a target="_blank" rel="license" href="http://creativecommons.org/licenses/by/4.0/">&nbsp;
+                    <img width='60' src='../assets/img/by.svg' alt='ccby'/>
                     </a>
                 </p>
             </div>

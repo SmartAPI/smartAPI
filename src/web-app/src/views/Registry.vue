@@ -160,7 +160,7 @@
                 <div  class="col s12 l3 input-field center-align">
                   <a class='tooltipped p-1' data-position="bottom" :data-tooltip="'Learn More about '+specialTagName" :href="specialTagURL" target="_blank" style="cursor: pointer !important;">
                       <template v-if="specialTagsUI && portal_name">
-                          <Image style="max-width:200px" img_height="auto" img_width="100%" :img_name="specialTagImage" :alt="specialTagName"></Image>
+                          <Image style="max-width:200px" img_height="70px" img_width="auto" :img_name="specialTagImage" :alt="specialTagName"></Image>
                       </template>
                   </a>
                   <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">

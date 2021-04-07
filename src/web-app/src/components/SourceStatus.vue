@@ -1,10 +1,10 @@
 <template>
     <div class="apiStatus pointer source-status" :class="'ss'+badgeID">
         <div>
-            <small>Source</small>
+            Source
         </div>
         <div class="white-text center-align" :class='clss'>
-            <small>{{status}}</small>
+            {{status}}
         </div>
     </div>
 </template>

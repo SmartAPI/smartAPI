@@ -2,8 +2,8 @@
   <div class="card">
     <div class="card-content ">
           <span class="card-title">
-            <span class="blue-grey-text bold" v-text="api.info.title"></span>
-            <span class="versionBadge grey" v-text="'V.'+api.info.version">
+            <span class="blue-grey-text bold" v-text="api.info.title"></span>&nbsp;
+            <span class="versionBadge grey" v-text="'V '+api.info.version">
             </span>
             <span v-if=" api?.openapi " class="versionBadge green">
               OAS3
@@ -46,20 +46,20 @@
       <div class="card-action grey lighten-3" v-if="total > 1" :class="showDetails?'blue':'grey'">
           <button style="border-radius: 20px;" class="btn" :class="showDetails?'grey lighten-3 blue-text':'blue white-text'" @click.prevent="showDetails = !showDetails; googleAnalytics('Registry_APIs',api.info.title)" v-text="showDetails?'HIDE DETAILS':'SHOW DETAILS'"></button>
       </div>
-      <div class="card-content detailsBack" v-if="showDetails || total === 1">
+      <div class="card-content detailsBack" style="padding:5px 20px;" v-if="showDetails || total === 1">
         <div class="row">
           <div class="col s12 right-align">
             <small class="grey-text">Updated: </small><small class="white-text"><span v-text="getDate(api._meta.timestamp)"></span></small>
           </div>
           <div class="col s12 left">
-            <h4 class="white-text bold m" style="display:inline-block;" v-text="api.info.title"></h4>
-            <h5 class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></h5>
+            <h4 class="white-text bold m-0" style="display:inline-block;" v-text="api.info.title"></h4>&nbsp;
+            <small class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></small>
           </div>
           <div class="col s12">
             <table class="apiDetails responsive-table">
               <colgroup>
-                <col span="1" style="width:25%">
-                <col span="1" style="width:75%">
+                <col span="1" style="width:20%">
+                <col span="1" style="width:80%">
               </colgroup>
               <tbody>
                 <tr>
@@ -119,8 +119,8 @@
                     <a class="smallButton grey" style="margin-left:5px;" title="Edit metadata source on GitHub" v-if="user && api._meta.username === user.login && api._meta.url.includes('github')" v-bind:href="buildEditURL(api._meta.url)" 
                       target="_blank">
                         <i class="fa fa-pencil" aria-hidden="true"></i>
-                    </a>
-                    <SourceStatus :api='api'></SourceStatus>
+                    </a>&nbsp;
+                    <SourceStatus style="display:inline-block;" :api='api'></SourceStatus>
                   </td>
                 </tr>
                 <tr>
@@ -158,9 +158,6 @@
         <div>
           <template v-if="api?.openapi">
             <h5 class="grey-text">(<span v-text="pathTotal"></span>) Operations</h5>
-            <h6 v-if="overLimit">
-              <small class="grey-text">This is just a preview. For a full list click on <b class="green-text">View API Documentation</b> link above.</small> 
-            </h6>
             <table class="striped responsive-table white" style="margin: 20px 0px;">
               <col width="10%">
               <col width="30%">
@@ -172,6 +169,14 @@
                   <td class="blue-text bold" v-text="operation.path">
                   </td>
                   <td class="blue-grey-text" v-text="operation.summary">
+                  </td>
+                </tr>
+                <tr v-if="overLimit" class="yellow lighten-4">
+                  <td colspan="3">
+                    <h6 class="center-align grey-text">
+                      This is just a preview of all operations provided. For full documentation <router-link :to='"/ui/"+api._id' @click="googleAnalytics('Registry_Documentation', api.info.title)">
+                        Click Here</router-link>.
+                    </h6>
                   </td>
                 </tr>
               </tbody>

@@ -20,17 +20,17 @@
     <div class="d-flex justify-content-center align-items-center">
       <div class="col s12 padding20 center-align">
         <Image img_name="icon-registry.svg" img_width="100px" alt="registry"></Image>
-        <p>Browse registry of compatible APIs</p>
+        <p>Browse registry of Translator APIs</p>
         <router-link to="/registry/translator" class="btn blue">Registry</router-link>
       </div>
       <div class="col s12 padding20 center-align">
         <Image img_name="icon-summary.svg" img_width="100px" alt="summary"></Image>
-        <p>View a summary of compatible APIs</p>
+        <p>View a summary of Translator APIs</p>
         <router-link to="/portal/translator/summary" class="btn blue">Summary</router-link>
       </div>
       <div class="col s12 padding20 center-align">
         <Image img_name="icon-metakg.svg" img_width="100px" alt="metakg"></Image>
-        <p>Explore Knowledge Graph</p>
+        <p>Explore Translator Knowledge Graph</p>
         <router-link to="/portal/translator/metakg" class="btn blue">MetaKG</router-link>
       </div>
     </div>

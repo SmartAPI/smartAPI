@@ -7,7 +7,7 @@
     <div class="col s12 left">
         <small class="d-block">
             <a target="_blank" rel="noreferrer" :href="'/registry?q='+item.association.smartapi.id">
-            <b v-text="item.association.api_name"></b>
+            <b v-text="item.association.api_name"></b>&nbsp;
             <i @mouseenter="highlightRowAndZoom(item)" @mouseleave="recenterGraph()"
                 class="fa fa-search-plus pointer blue-grey-text" aria-hidden="true"></i>
             </a>

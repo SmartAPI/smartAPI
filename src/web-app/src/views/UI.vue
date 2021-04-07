@@ -3,15 +3,22 @@
     <template v-if="api && api.info">
       <MetaHead :title="'SmartAPI | '+ api?.info?.title" :description="api?.info?.description"></MetaHead>
     </template>
-    <div v-if="api && api._id" class="grey darken-2 d-flex justify-content-around align-items-center p-1">
-      <div class="d-flex justify-content-around align-items-center p-1">
-        <SourceStatus style="margin-right:25px" :api="api"></SourceStatus>
-        <UptimeStatus :api="api"></UptimeStatus>
+    <teleport to="#uiView">
+      <div v-if="api && api._id" class="d-flex justify-content-around align-items-center p-1">
+        <div class="p-1" style="margin-right:10px;">
+          <router-link :to="'/registry?q=' + $route.params.smartapi_id">
+            View on SmartAPI Registry
+          </router-link>
+        </div>
+        <div class="d-flex justify-content-around align-items-center p-1">
+          <SourceStatus style="margin-right:25px" :api="api"></SourceStatus>
+          <UptimeStatus :api="api"></UptimeStatus>
+        </div>
+        <div class="p-1">
+          <small class="white-text tracking-in-expand"> Last updated {{ convertDate(api?._meta?.last_updated) }}</small>
+        </div>
       </div>
-      <div class="p-1">
-        <small class="white-text tracking-in-expand"> Last updated {{ convertDate(api?._meta?.last_updated) }}</small>
-      </div>
-    </div>
+    </teleport>
     <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden;"></div>
   </main>
 </template>
@@ -45,7 +52,6 @@ export default {
           return date;
         },
         loadSwaggerUI: function(dataurl){
-          let self = this;
 
           const HideEmptyTagsPlugin = () => {
             return {
@@ -75,8 +81,6 @@ export default {
                 HideEmptyTagsPlugin
               ],
               onComplete:()=>{
-                document.querySelector('hgroup.main').insertAdjacentHTML('afterend', '<a class="blue" style="padding:5px; border-radius:5px; border:1px grey solid; color:white !important; text-decoration:none;" href="/registry?q='+self.apiID+'">View on SmartAPI Registry</a>');
-
                 let servers_selected = document.querySelector('div.servers label select').value;
                 // console.log("severs", servers_selected)
                 if (servers_selected) {
@@ -106,3 +110,9 @@ export default {
       }
 }
 </script>
+
+<style scoped>
+  .info{
+    margin:10px;
+  }
+</style>

@@ -1,10 +1,10 @@
 <template>
     <div class="apiStatus pointer uptime-status" :class="'us'+badgeID">
         <div>
-            <small>Uptime</small>
+            Uptime
         </div>
         <div class="white-text center-align" :class='clss'>
-            <small>{{ status }}</small>
+            {{ status }}
         </div>
     </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <main id="brand-app" class="white" style="width: 100%;">
+  <main id="brand-app" class="white" style="width: 100%; padding-bottom:100px;">
     <MetaHead title="SmartAPI | Branding"></MetaHead>
   <div class="full-width brandBack"></div>
   <div class="container center-align">
@@ -84,44 +84,30 @@
        <span class="logoFont">SmartAPI</span> uses the font MonoGlyceride by <a href="http://www.tepidmonkey.net/" target="_blank">TepicMonkey.net</a>. <a class='link bold' href='https://www.1001freefonts.com/monoglyceride.font' target='_blank'>Download Here</a>
     </p>
     <hr />
-    <h5 class="blue-grey-text">Logos</h5>
-    <p class="blue-grey-text" style="margin:10px 10%;">
-      <span class="logoFont">SmartAPI</span> has a preferred logo for small, medium and large screens.<br />
-      To maintain consistency on our presence online please make sure the logos of <span class="logoFont">SmartAPI</span> are used correctly across your application/device.
-      <br />
-       When using our logo on medium and up screens the <span class="logoFont">SmartAPI</span> text logo must accompany below the logo images.
-    </p>
-    <Image img_width="80%" img_name="logo-sizes.svg" alt="logo sisez"></Image>
-    <hr />
-    <h5 class="blue-grey-text">Downloads</h5>
-    <div class="swatchParent">
-      <div class="downloadBox">
-        <Image img_width="100px" img_name="download.svg" alt="logo"></Image>
-        <span class="blue-text smallFont">Full Package</span>
-        <a class="smallButton" href="img/logos.zip" download="logos.zip">
-        <i class="fa fa-download" aria-hidden="true"></i>
-        </a>
-      </div>
-      <div class="downloadBox">
-        <Image img_width="100px" img_name="logo-small-text.svg" alt="logo"></Image>
-        <span class="blue-text smallFont">Logo (SM) SVG</span>
-        <a class="smallButton" href="img/logo-small.svg" download="logo-small.svg">
-        <i class="fa fa-download" aria-hidden="true"></i>
-        </a>
-      </div>
-      <div class="downloadBox">
-        <Image img_width="100px" img_name="logo-medium-text.svg" alt="logo"></Image>
-        <span class="blue-text smallFont">Logo (MD) SVG</span>
-        <a class="smallButton" href="img/logo-medium.svg" download="logo-medium.svg">
-        <i class="fa fa-download" aria-hidden="true"></i>
-        </a>
-      </div>
-      <div class="downloadBox">
-        <Image img_width="100px" img_name="logo-large-text.svg" alt="logo"></Image>
-        <span class="blue-text smallFont">Logo (LG) SVG</span>
-        <a class="smallButton" href="img/logo-large.svg" download="logo-large.svg">
-        <i class="fa fa-download" aria-hidden="true"></i>
-        </a>
+    <div class="grey lighten-3">
+      <h5 class="blue-grey-text">Logos</h5>
+      <div class="swatchParent">
+        <!-- <div class="downloadBox center-align">
+          <Image img_width="100px" img_name="download.svg" alt="logo"></Image>
+          <span class="blue-text smallFont">Full Package</span>&nbsp;
+          <a class="smallButton" href="http://www.smart-api.info/img/logos.zip" download>
+          <i class="fa fa-download" aria-hidden="true"></i>
+          </a>
+        </div> -->
+        <div class="downloadBox center-align">
+          <Image img_width="100px" img_name="logo-large-text.svg" alt="logo"></Image>
+          <span class="blue-text smallFont">Logo (Vertical)</span>&nbsp;
+          <a class="smallButton" :href="d2" download>
+          <i class="fa fa-download" aria-hidden="true"></i>
+          </a>
+        </div>
+        <div class="downloadBox center-align">
+          <Image img_width="300px" img_name="header-logo.png" alt="logo"></Image>
+          <span class="blue-text smallFont">Logo (Horizontal)</span>&nbsp;
+          <a class="smallButton" :href="d3" download>
+          <i class="fa fa-download" aria-hidden="true"></i>
+          </a>
+        </div>
       </div>
     </div>
     <hr />
@@ -131,42 +117,16 @@
     <hr />
     <ul class="collection with-header">
         <li class="collection-header"><h4>Image Links</h4></li>
-        <li class="collection-item">
-          <img style='border:0px;' width='64' src='../assets/img/logo-small-64.png' alt='logo 64'/>
+        <li class="collection-item grey lighten-3">
+          <img style='border:0px;' width='200' src='../assets/img/header-logo.png' alt='logo 64'/>
             <div class="file-field input-field">
-              <CopyButton copy_msg="Image Copied!" copy="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='64' src='http://www.smart-api.info../assets/img/logo-small-64.png' alt='SmartAPI'/></a>">
+              <CopyButton copy_msg="Image Copied!" copy="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='64' src='http://www.smart-api.info/img/header-logo.png' alt='SmartAPI'/></a>">
                   <template v-slot:title>
                       Copy Image <i class="fa fa-clipboard" aria-hidden="true"></i>
                   </template>
               </CopyButton>
               <div class="file-path-wrapper">
-                <input type="text" id="link1" value="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='64' src='http://www.smart-api.info../assets/img/logo-small-64.png' alt='SmartAPI'/></a>">
-              </div>
-            </div>
-        </li>
-        <li class="collection-item">
-          <img style='border:0px;' width='32' src='../assets/img/logo-small-32.png' alt='logo 32'/>
-            <div class="file-field input-field">
-              <CopyButton copy_msg="Image Copied!" copy="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='32' src='http://www.smart-api.info../assets/img/logo-small-32.png' alt='SmartAPI'/></a>">
-                  <template v-slot:title>
-                      Copy Image <i class="fa fa-clipboard" aria-hidden="true"></i>
-                  </template>
-              </CopyButton>
-              <div class="file-path-wrapper">
-                <input type="text" id="link2" value="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='32' src='http://www.smart-api.info../assets/img/logo-small-32.png' alt='SmartAPI'/></a>">
-              </div>
-            </div>
-        </li>
-        <li class="collection-item">
-          <img style='border:0px;' width='16' src='../assets/img/logo-small-16.png' alt='logo 16'/>
-            <div class="file-field input-field">
-              <CopyButton copy_msg="Image Copied!" copy="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='16' src='http://www.smart-api.info../assets/img/logo-small-16.png' alt='SmartAPI'/></a>">
-                  <template v-slot:title>
-                      Copy Image <i class="fa fa-clipboard" aria-hidden="true"></i>
-                  </template>
-              </CopyButton>
-              <div class="file-path-wrapper">
-                <input type="text" id="link3" value="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='16' src='http://www.smart-api.info../assets/img/logo-small-16.png' alt='SmartAPI'/></a>">
+                <input type="text" id="link1" value="<a href='http://www.smart-api.info/' alt='_blank'><img style='border:0px;' width='64' src='http://www.smart-api.info/img/logo-small-64.png' alt='SmartAPI'/></a>">
               </div>
             </div>
         </li>
@@ -179,5 +139,11 @@
 
 export default {
     name: 'Branding',
+    data: function(){
+      return {
+        d2: require("../assets/img/logo-large.svg"),
+        d3: require("../assets/img/header-logo.png"),
+      }
+    }
 }
 </script>

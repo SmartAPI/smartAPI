@@ -14,9 +14,10 @@
           style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;" 
           v-model="url" name="url" type="url">
           <div class="padding20">
-              <button type="button" class="smallButton" style="margin-right:10px; color:white !important;" :class="[dry_run ? 'green': 'grey darken-1']" @click="dry_run = !dry_run">
-                <b>Dry Run</b>
-              </button>
+              <div>
+                <input type="checkbox" id="test1" v-model="dry_run"/>
+                <label for="test1">Dry Run</label>
+              </div>
               <label for="dry_run">Click for dry run only. API won't actually saved.</label>
               </div>
               <button :class="[ready?'':'hide']" :disabled="!ready" class="btn waves-effect waves-light blue accent-2" id="submit" type="submit">Submit</button>
@@ -66,7 +67,8 @@ export default {
     data: function(){
         return {
           url:'',
-          dry_run: false
+          dry_run: false, 
+          suggestedURL: ''
         }
       },
       components:{
@@ -79,6 +81,32 @@ export default {
         ...mapGetters([
             'loggedIn'
         ])
+      },
+      watch:{
+        url: function(value){
+          if (value.includes('blob') || value.includes('github.com')) {
+            this.suggestedURL = value.replace('blob/', '')
+            .replace('github.com', 'raw.githubusercontent.com')
+            .replace('www.github.com', 'raw.githubusercontent.com')
+
+            this.$swal({
+              title: 'Link Converted',
+              animation:false,
+              html:
+                '<p>We noticed that was not a raw data link. We have converted it to: </p> ' +
+                '<p><a target="_blank" href="'+this.suggestedURL+'">'+this.suggestedURL+'</a></p>' +
+                '<p>Proceed with this link?</p>',
+              showCancelButton: true,
+              confirmButtonText: 'Yes, use this link!'
+            }).then((result) => {
+              if (result.value) {
+                this.url = this.suggestedURL;
+                this.$toast.success('Link Updated!');
+                this.$swal.close()
+              }
+            });
+          }
+        }
       },
       methods: {
         handleSubmit: function(){
@@ -161,7 +189,3 @@ export default {
       },
 }
 </script>
-
-<style>
-
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <div id="smartcard" style="max-height:250px;">
+  <div id="smartcard" style="max-height:250px; cursor:move;">
       <canvas id="smartapi" width="240" height="240" style="max-height:240px; max-width:240px;"></canvas>
   </div>
 </template>
@@ -1024,27 +1024,27 @@ export default {
 
 				animate();
 
-				let isSpinning = true;
+				let isSpinning = false;
 
 				const update = () => {
-					illo.rotate.y -= isSpinning ? 0.015 : 0;
+					illo.rotate.y -= isSpinning ? 0.008 : 0;
 					illo.updateRenderGraph();
 					requestAnimationFrame(update);
 				};
 
 				update();
 
-				// document.getElementById('smartcard').addEventListener("mouseover", function () {
-				// 	if (!isSpinning) {
-				// 		isSpinning = true;
-				// 	}
-				// }, false);
-				// document.getElementById('smartcard').addEventListener("mouseout", function () {
-				// 	isSpinning = false;
-				// 	illo.rotate.set({
-				// 		y: 0
-				// 	});
-				// }, false);
+				document.getElementById('smartcard').addEventListener("mouseover", function () {
+					if (!isSpinning) {
+						isSpinning = true;
+					}
+				}, false);
+				document.getElementById('smartcard').addEventListener("mouseout", function () {
+					isSpinning = false;
+					illo.rotate.set({
+						y: 0
+					});
+				}, false);
 
 			},
     },

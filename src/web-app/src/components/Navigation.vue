@@ -3,7 +3,7 @@
     <router-link to="/" class="topnav-logo">
       <Image img_width="200" alt="SmartAPI Logo" img_name="header-logo.png"></Image>
     </router-link>
-    <div id="myLinks" class="hide-on-small-only">
+    <div id="myLinks" class="hide-on-small-only" v-if="!uiView">
       <router-link to="/add-api">Add an API</router-link>
       <router-link to="/registry">Registry</router-link>
       <router-link to="/editor">Editor</router-link>
@@ -11,10 +11,13 @@
       <router-link to="/faq">FAQ</router-link>
       <Login></Login>
     </div>
+    <div id="uiView" v-if="uiView">
+      <!-- in UI view status badges will go here -->
+    </div>
     <a href="javascript:void(0);" class="btn blue hide-on-med-and-up" @click="toggleShow">
       MENU
     </a>
-    <div id="myLinksMobile" :class="[show ? 'show-on-small' : 'hide']">
+    <div id="myLinksMobile" :class="[show ? 'show-on-small' : 'hide']" v-if="!uiView">
       <div>
         <router-link to="/add-api">Add an API</router-link>
         <router-link to="/registry">Registry</router-link>
@@ -44,6 +47,11 @@ export default {
   methods:{
     toggleShow() {
       this.show = !this.show
+    }
+  },
+  computed:{
+    uiView:function(){
+      return this.$route.name == 'UI' ? true : false;
     }
   }
 }

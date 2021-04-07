@@ -165,7 +165,7 @@ export default {
                 }],
                 labels: Object.keys(components_sorted)
             };
-            self.drawBarChart(data);
+            self.drawBarChart(data, true);
         },
         byStatus(field){
             let self = this;
@@ -287,9 +287,18 @@ export default {
                 labels: []
             };
 
-            yesTF ? (data.datasets[0].data.push(yesTF), data.labels.push(yesTF_label),data.datasets[0].backgroundColor.push('#20c96a')) : false
-            yesTnoF ? (data.datasets[0].data.push(yesTnoF), data.labels.push(yesTnoF_label),data.datasets[0].backgroundColor.push("#ffbf47")) : false
-            noTyesF ? (data.datasets[0].data.push(noTyesF), data.labels.push(noTyesF_label),data.datasets[0].backgroundColor.push("#925ed6")) : false
+            data.datasets[0].data.push(yesTF)
+            data.labels.push(yesTF_label)
+            data.datasets[0].backgroundColor.push('#20c96a')
+
+            data.datasets[0].data.push(yesTnoF) 
+            data.labels.push(yesTnoF_label)
+            data.datasets[0].backgroundColor.push("#ffbf47")
+
+            data.datasets[0].data.push(noTyesF) 
+            data.labels.push(noTyesF_label)
+            data.datasets[0].backgroundColor.push("#925ed6")
+
             if (self.summary_type !== 'x-trapi_Compliant') {
                 noTF ? (data.datasets[0].data.push(noTF), data.labels.push(noTF_label),data.datasets[0].backgroundColor.push("#e65a78")) : false
             }
@@ -322,7 +331,7 @@ export default {
                         }
                     }
                     data.datasets.push({'label':"Users",'data':dataArray,'backgroundColor': ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],})
-                    self.drawBarChart(data);
+                    self.drawBarChart(data, false);
                 }
             }).catch(err=>{
                 self.$toast.error(`Failed to get user interactions`);
@@ -417,7 +426,7 @@ export default {
                 }
             });
         },
-        drawBarChart(data){
+        drawBarChart(data, includeTotal){
             let self = this;
             var ctx = document.getElementById(this.summary_type);
 
@@ -427,7 +436,7 @@ export default {
                 'options': {
                     'title': {
                         display: true,
-                        text: self.summary_type.replaceAll('_',' ')+ " ("+data.datasets[0].data.reduce((a, b) => a + b, 0)+")",
+                        text: includeTotal ? self.summary_type.replaceAll('_',' ')+ " ("+data.datasets[0].data.reduce((a, b) => a + b, 0)+")" : self.summary_type.replaceAll('_',' '),
                         fontColor: 'black',
                         fontSize: '20'
                     },
