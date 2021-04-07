@@ -53,7 +53,8 @@ class API:
         # default status of API is unknown, since some APIs doesn't provide
         # examples as values for parameters
         self.id = api_doc['_id']  # pylint: disable=invalid-name
-        self.api_status = 'unknown'
+        self._api_status = None
+        self._cors_status = None
         self.name = api_doc['info']['title']
         try:
             self.api_server = api_doc['servers'][0]['url']
@@ -69,6 +70,8 @@ class API:
         '''
             loop through each endpoint and extract parameter & example $ HTTP method information
         '''
+        self._api_status = 'unknown'
+        self._cors_status = 'CORS-unknown'
 
         if not self.api_server:
             return
@@ -93,13 +96,25 @@ class API:
                 else:
                     if response:
                         status = endpoint.check_response_status(response)
+                        self._cors_status = endpoint.check_cors_status(response)
+
                         if status == 200:
-                            self.api_status = 'good'
+                            self._api_status = 'good'
                         else:
-                            self.api_status = 'bad'
+                            self._api_status = 'bad'
+                    else:
+                        status = endpoint.check_response_status(response)
+                        # logger = logging.getLogger("utils.monitor.api_status")
+                        # logger.warning(_endpoint + ": " + str(status))
 
     def __str__(self):
-        return f"{self.id}: {self.api_status} ({self.name})"
+        return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
+
+    def get_api_status():
+        return self._api_status
+    
+    def get_cors_status():
+        return self._cors_status
 
 
 class Endpoint:
@@ -226,3 +241,23 @@ class Endpoint:
 
     def check_response_status(self, response):
         return response.status_code
+    
+    def check_cors_status(self, response):
+        access_control = response.headers['Access-Control-Allow-Origin']
+        if access_control and (access_control != None):
+            return 'CORS-enabled'
+        else:
+            return 'CORS-disabled'
+
+
+import json
+import requests
+
+if __name__ == "__main__":
+    data = requests.get("https://smart-api.info/api/metadata/59dce17363dce279d389100834e43648").json()
+    data['_id'] = "59dce17363dce279d389100834e43648"
+
+    test = API(data)
+    test.check_api_status()
+    output = test.__str__()
+    print(output)
