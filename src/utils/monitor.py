@@ -52,10 +52,16 @@ class API:
     def __init__(self, api_doc):
         # default status of API is unknown, since some APIs doesn't provide
         # examples as values for parameters
-        self.id = api_doc['_id']  # pylint: disable=invalid-name
         self._api_status = None
         self._cors_status = None
-        self.name = api_doc['info']['title']
+        try: 
+            self.name = api_doc['info']['title']
+        except KeyError:
+            self.name = "No name specified"
+        try: 
+            self.id = api_doc['_id'] # pylint: disable=invalid-name
+        except:
+            self.id = "no ID specified"
         try:
             self.api_server = api_doc['servers'][0]['url']
         except KeyError:
@@ -97,13 +103,15 @@ class API:
                     if response:
                         status = endpoint.check_response_status(response)
                         self._cors_status = endpoint.check_cors_status(response)
+                        print("       - Cors status: " + self._cors_status)
 
                         if status == 200:
                             self._api_status = 'good'
                         else:
                             self._api_status = 'bad'
                     else:
-                        status = endpoint.check_response_status(response)
+                        return 'No status here'
+                        # status = endpoint.check_response_status(response)
                         # logger = logging.getLogger("utils.monitor.api_status")
                         # logger.warning(_endpoint + ": " + str(status))
 
@@ -243,21 +251,35 @@ class Endpoint:
         return response.status_code
     
     def check_cors_status(self, response):
-        access_control = response.headers['Access-Control-Allow-Origin']
-        if access_control and (access_control != None):
-            return 'CORS-enabled'
+        try:
+            access_control = response.headers['Access-Control-Allow-Origin']
+            if access_control:
+                return 'CORS-enabled'
+        except KeyError:
+            return 'CORS-disabled'
         else:
             return 'CORS-disabled'
 
 
 import json
 import requests
+import yaml
+import numpy as np
 
 if __name__ == "__main__":
-    data = requests.get("https://smart-api.info/api/metadata/59dce17363dce279d389100834e43648").json()
-    data['_id'] = "59dce17363dce279d389100834e43648"
+    # data = requests.get("https://smart-api.info/api/metadata/59dce17363dce279d389100834e43648").json()
+    # data['_id'] = "59dce17363dce279d389100834e43648"
 
-    test = API(data)
-    test.check_api_status()
-    output = test.__str__()
-    print(output)
+    with open('./smartapi_20210216.json', 'r') as testing_api:
+        testing_apis = json.load(testing_api)
+
+        for api in range(0, 100):
+            print("===== start of api here =====   " + str(api) + ".")
+            api_list = yaml.load(testing_apis[api]['raw'], Loader=yaml.FullLoader)
+            test = API(api_list)
+            test.check_api_status()
+            output = test.__str__()
+            
+            if output != 'No status here':
+                print(output) 
+            print('\n\n')
