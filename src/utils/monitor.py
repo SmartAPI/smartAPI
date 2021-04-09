@@ -110,7 +110,7 @@ class API:
                         else:
                             self._api_status = 'bad'
                     else:
-                        return 'No status here'
+                        print()
                         # status = endpoint.check_response_status(response)
                         # logger = logging.getLogger("utils.monitor.api_status")
                         # logger.warning(_endpoint + ": " + str(status))
@@ -273,13 +273,13 @@ if __name__ == "__main__":
     with open('./smartapi_20210216.json', 'r') as testing_api:
         testing_apis = json.load(testing_api)
 
-        for api in range(0, 100):
+        for api in range(134, 300):
             print("===== start of api here =====   " + str(api) + ".")
             api_list = yaml.load(testing_apis[api]['raw'], Loader=yaml.FullLoader)
             test = API(api_list)
-            test.check_api_status()
+            is_good = test.check_api_status()
             output = test.__str__()
             
-            if output != 'No status here':
+            if is_good != 1:
                 print(output) 
-            print('\n\n')
+            print('\n')
