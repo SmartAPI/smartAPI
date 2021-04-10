@@ -3,7 +3,7 @@
     <template v-if="api && api.info">
       <MetaHead :title="'SmartAPI | '+ api?.info?.title" :description="api?.info?.description"></MetaHead>
     </template>
-    <teleport to="#uiView">
+    <teleport to="#uiView" v-if="ready">
       <div v-if="api && api._id" class="d-flex justify-content-around align-items-center p-1">
         <div class="p-1" style="margin-right:10px;">
           <router-link :to="'/registry?q=' + $route.params.smartapi_id">
@@ -38,7 +38,9 @@ export default {
         return {
           apiID:'',
           name: '',
-          api : Object
+          api : Object, 
+          //ensure nav has mounted for teleport to work
+          ready: false
         }
       },
       components:{
@@ -102,11 +104,12 @@ export default {
         }
       },
       mounted: function(){
-        this.loadSwaggerUI('/api/metadata/'+this.apiID);
+        this.ready = true
+        this.loadSwaggerUI('https://smart-api.info/api/metadata/'+this.apiID);
       },
       beforeMount: function(){
         this.apiID = this.$route.params.smartapi_id;
-        this.getMetadata('/api/metadata/'+this.apiID+'?raw=1');
+        this.getMetadata('https://smart-api.info/api/metadata/'+this.apiID+'?raw=1');
       }
 }
 </script>
