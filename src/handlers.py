@@ -1,29 +1,27 @@
 
-"""
-API handler for SmartAPI
-Validation /api/validate
-Metadata /api/metadata
-Suggestion /api/suggestion
-"""
 import json
 import logging
 from collections import OrderedDict
 
 import certifi
+import tornado.gen
+import torngithub
 from biothings.web.handlers import BaseAPIHandler, BiothingHandler
 from biothings.web.handlers.exceptions import BadRequest, EndRequest
-from controller import ControllerError, NotFoundError, SmartAPI
 from tornado.httpclient import AsyncHTTPClient
+from tornado.httputil import url_concat
 from tornado.web import Finish, HTTPError
 from torngithub import json_encode
+
+from controller import ControllerError, NotFoundError, SmartAPI
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 
 def github_authenticated(func):
-    '''
+    """
     RegistryHandler Decorator
-    '''
+    """
 
     def _(self, *args, **kwargs):
 
@@ -74,6 +72,65 @@ class BaseHandler(BaseAPIHandler):
 
         # DEBUG USAGE
         # return {"login": "tester"}
+
+
+class UserInfoHandler(BaseHandler):
+    def get(self):
+        current_user = self.get_current_user() or {}
+        for key in ['access_token', 'id']:
+            if key in current_user:
+                del current_user[key]
+        self.finish(current_user)
+
+
+class LoginHandler(BaseHandler):
+    def get(self):
+        self.redirect(self.get_argument("next", "/"))
+
+
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.clear_cookie("user")
+        self.redirect(self.get_argument("next", "/"))
+
+
+class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
+
+    GITHUB_SCOPE = ""
+    GITHUB_CALLBACK_PATH = "/oauth"
+
+    @tornado.gen.coroutine
+    def get(self):
+        # we can append next to the redirect uri, so the user gets the
+        # correct URL on login
+        redirect_uri = url_concat(self.request.protocol +
+                                  "://" + self.request.host +
+                                  self.GITHUB_CALLBACK_PATH,
+                                  {"next": self.get_argument('next', '/')})
+
+        # if we have a code, we have been authorized so we can log in
+        if self.get_argument("code", False):
+            user = yield self.get_authenticated_user(
+                redirect_uri=redirect_uri,
+                client_id=self.web_settings.GITHUB_CLIENT_ID,
+                client_secret=self.web_settings.GITHUB_CLIENT_SECRET,
+                code=self.get_argument("code"),
+                callback=lambda: None
+            )
+            if user:
+                logging.info('logged in user from github: %s', str(user))
+                self.set_secure_cookie("user", json_encode(user))
+            else:
+                self.clear_cookie("user")
+            self.redirect(self.get_argument("next", "/"))
+            return
+
+        # otherwise we need to request an authorization code
+        yield self.authorize_redirect(
+            redirect_uri=redirect_uri,
+            client_id=self.web_settings.GITHUB_CLIENT_ID,
+            extra_params={"scope": self.GITHUB_SCOPE, "foo": 1}
+        )
 
 
 class ValidateHandler(BaseHandler):
