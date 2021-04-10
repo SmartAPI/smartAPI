@@ -64,12 +64,11 @@ ES_INDICES = {'metadata': 'smartapi_docs'}
 # Tornado URL Patterns
 # *****************************************************************************
 APP_LIST = [
-    (r'/api/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
-    (r'/api/validate/?', 'handlers.api.ValidateHandler'),
-    (r'/api/metadata/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
-    (r'/api/metadata/(.+)/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
-    (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
+    (r'/api/validate/?', 'handlers.ValidateHandler'),
+    (r'/api/metadata/?', 'handlers.SmartAPIHandler', {"biothing_type": "metadata"}),
+    (r'/api/metadata/(.+)/?', 'handlers.SmartAPIHandler', {"biothing_type": "metadata"}),
+    (r'/api/suggestion/?', 'handlers.ValueSuggestionHandler'),
 ]
 
 # biothings web tester will read this

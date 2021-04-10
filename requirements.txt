@@ -8,7 +8,6 @@ elasticsearch==7.9.1
 elasticsearch-async==6.2.0
 elasticsearch-dsl==7.3.0
 torngithub==0.2.0 
-Jinja2>=2.9.6
 pycurl==7.43.0.4
 tornado==5.1.1
 chardet==3.0.4
