@@ -68,7 +68,7 @@ export default {
         this.apiID = this.smartapi_id;
         this.loadSwaggerEditor('/api/metadata/'+this.apiID+'?format=yaml');
     }else{
-        this.loadSwaggerEditor('https://petstore.swagger.io/v2/swagger.json');
+        this.loadSwaggerEditor('https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml');
     }
 
     }
