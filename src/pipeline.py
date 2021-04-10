@@ -25,12 +25,15 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                 "query": {
                     "dis_max": {
                         "queries": [
-                            {"term": {"info.title": {"value": q, "boost": 2.0}}},
+                            {"term": {"_id": {"value": q, "boost": 10}}},
+                            {"term": {"_meta.slug": {"value": q, "boost": 10}}},
+                            {"match": {"info.title": {"query": q, "boost": 5.0}}},
                             {"term": {"server.url": {"value": q, "boost": 1.1}}},
-                            {"term": {"_id": q}},
-                            {"wildcard": {"info.title": {"value": q + "*"}}},
-                            {"wildcard": {"info.description": {"value": q + "*"}}},
-                            {"query_string": {"query": q}},
+                            # ---------------------------------------------
+                            {"query_string": {"query": q}},  # base score
+                            # ---------------------------------------------
+                            {"wildcard": {"info.title": {"value": q + "*", "boost": 0.8}}},
+                            {"wildcard": {"info.description": {"value": q + "*", "boost": 0.5}}},
                         ]
                     }
                 }
