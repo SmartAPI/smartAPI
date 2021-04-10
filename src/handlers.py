@@ -204,7 +204,7 @@ class ValidateHandler(BaseHandler):
         else:
             self.finish({
                 'success': True,
-                'details': f'Valid {smartapi.version} metadata.'
+                'details': f'valid SmartAPI ({smartapi.version}) metadata.'
             })
 
 
