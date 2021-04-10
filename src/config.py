@@ -64,7 +64,6 @@ ES_INDICES = {'metadata': 'smartapi_docs'}
 # Tornado URL Patterns
 # *****************************************************************************
 APP_LIST = [
-    (r'/api/?', 'handlers.SmartAPIHandler', {"biothing_type": "metadata"}),  # TO REMOVE
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
     (r'/api/validate/?', 'handlers.ValidateHandler'),
     (r'/api/metadata/?', 'handlers.SmartAPIHandler', {"biothing_type": "metadata"}),
