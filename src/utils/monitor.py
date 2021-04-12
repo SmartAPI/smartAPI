@@ -25,14 +25,16 @@ class Cors(Enum):
     UNKNOWN = 'CORS-Unknown'
 
 # provide information on total APIs with CORS support
+# takes in the total count of APIs provided
 class CorsCounter:
 
     def __init__(self, total_api_count):
-        self._enabled = 0
-        self._disabled = 0
-        self._unknown = 0
+        self._enabled = 0       # number of CORS-enabled APIs
+        self._disabled = 0      # number of CORS-disabled APIs     
+        self._unknown = 0       # number of CORS-unknown APIs
         self.total_apis = total_api_count
     
+    # used to increment the correct count
     def increment_count(self, count):
         try:
             if count == -1:
@@ -90,7 +92,7 @@ class API:
         # examples as values for parameters
         self._api_status = None
         self._cors_status = None
-        self._total_cors = 0
+        self._total_cors = 0        # count the number of CORS responses
         try: 
             self.name = api_doc['info']['title']
         except KeyError:
@@ -144,7 +146,7 @@ class API:
 
                         if cors == 0:
                             self._cors_status = Cors.ENABLED.value
-                            self._total_cors += 1
+                            self._total_cors = 1
                         else:
                             self._cors_status = Cors.DISABLED.value
 
