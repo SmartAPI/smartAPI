@@ -60,6 +60,7 @@ def test_openapi():
     assert "/gene" in openapi["paths"]
     assert "/query" in openapi["paths"]
     assert "/metadata" in openapi["paths"]
+    openapi.transform()
     openapi.clean()
     assert aligns(openapi.keys(), OpenAPI.KEYS)
     assert not set(openapi.keys()) - set(OpenAPI.KEYS)

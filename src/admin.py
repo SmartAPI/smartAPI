@@ -13,6 +13,11 @@
     admin.backup()
     admin.restore(filename)
 
+    # update all documents
+    admin.refresh()
+    # check all uptime status
+    admin.check()
+
     See below for additional usage.
 
 """
@@ -130,6 +135,14 @@ def check_uptime():
         logger.info(smartapi._id)
         _status = smartapi.check()
         logger.info(_status)
+        smartapi.save()
+
+
+def resave():
+    # when index mappings are changed
+    logger = logging.getLogger("resave")
+    for smartapi in SmartAPI.get_all(1000):
+        logger.info(smartapi._id)
         smartapi.save()
 
 

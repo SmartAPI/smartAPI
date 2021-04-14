@@ -10,6 +10,14 @@
             }
         },
         {
+            "ignore_examples_field": {
+                "match": "examples",
+                "mapping": {
+                    "enabled": false
+                }
+            }
+        },
+        {
             "ignore_ref_field": {
                 "match": "$ref",
                 "mapping": {
@@ -34,12 +42,20 @@
             }
         },
         {
+            "ignore_default_field": {
+                "match": "default",
+                "mapping": {
+                    "type": "object",
+                    "enabled": false
+                }
+            }
+        },
+        {
             "template_1": {
                 "match": "*",
                 "match_mapping_type": "string",
                 "mapping": {
                     "type": "text",
-                    "index": true,
                     "fields": {
                         "raw": {
                             "type": "keyword"

@@ -144,6 +144,16 @@ class Format(UserDict):
     def validate(self):
         validate(self.data, self.SCHEMAS)
 
+    def transform(self):
+        if isinstance(self.data.get('paths'), dict):
+            self.data['paths'] = [
+                {
+                    "path": key,
+                    "pathitem": val
+                }
+                for key, val in self.data['paths'].items()
+            ]
+
     def clean(self):
         self.data = OrderedDict({
             k: v for k, v in self.data.items()
@@ -159,17 +169,6 @@ class OpenAPI(Format):
         'paths', 'components'
     )
     SCHEMAS = openapis
-
-    def clean(self):
-        super().clean()
-        if isinstance(self.data.get('paths'), dict):
-            self.data['paths'] = [
-                {
-                    "path": key,
-                    "pathitem": val
-                }
-                for key, val in self.data['paths'].items()
-            ]
 
 
 class Swagger(Format):
@@ -540,7 +539,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         # submitted API document always meet our latest requirements
 
         _doc = self._validate_dispatch()
-        _doc.clean()  # only keep indexing fields
+        _doc.transform()
 
         if self.slug:
             _id = self.find(self.slug)
@@ -569,7 +568,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._status.refresh_ts = self.webdoc.timestamp
 
         doc._raw = decoder.compress(self.raw)
-        doc.save()
+        doc.save(skip_empty=False)
 
         return self._id
 
