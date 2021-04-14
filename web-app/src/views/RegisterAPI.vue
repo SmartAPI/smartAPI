@@ -119,7 +119,7 @@ export default {
             if(self.dry_run){
               data['dryrun'] = true;
             }
-            axios.post("/api", data).then(res=>{
+            axios.post("/api/metadata", data).then(res=>{
               console.log('registering', res.data)
               if(res.data.success){
                 if(Object.prototype.hasOwnProperty.call(res.data, "details") && res.data.details.includes("[Dryrun]")){

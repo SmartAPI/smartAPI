@@ -4,6 +4,11 @@
   --blue-dark: #273238
 }
 
+#smartcard{
+  width: 300px;
+  margin: auto;
+}
+
 /* Base for label styling */
 [type="checkbox"]:not(:checked),
 [type="checkbox"]:checked {
@@ -32,7 +37,7 @@
   border: 1px solid #aaa;
   background: #FFF;
   border-radius: .2em;
-  box-shadow: inset 0 1px 3px rgba(0,0,0, .1), 0 0 0 rgba(203, 34, 237, .2);
+  box-shadow: inset 0 1px 3px rgba(0,0,0, .1), 0 0 0 rgba(34, 237, 142, 0.2);
   -webkit-transition: all .275s;
       transition: all .275s;
 }
@@ -40,12 +45,12 @@
 /* checked mark aspect */
 [type="checkbox"]:not(:checked) + label:after,
 [type="checkbox"]:checked + label:after {
-  content: '✕';
+  content: '✔️';
   position: absolute;
   top: .525em;
   left: .18em;
   font-size: 1.375em;
-  color: #CB22ED;
+  color: #22eda9;
   line-height: 0;
   -webkit-transition: all .2s;
       transition: all .2s;
@@ -83,7 +88,7 @@
 /* Accessibility */
 [type="checkbox"]:checked:focus + label:before,
 [type="checkbox"]:not(:checked):focus + label:before {
-  box-shadow: inset 0 1px 3px rgba(0,0,0, .1), 0 0 0 6px rgba(203, 34, 237, .2);
+  box-shadow: inset 0 1px 3px rgba(0,0,0, .1), 0 0 0 6px rgba(34, 237, 176, 0.2);
 }
 
 .side-nav {

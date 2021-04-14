@@ -59,10 +59,6 @@ export default {
 
 <style lang="scss">
 
-  .route-active{
-    color: white;
-  }
-
   .topnav {
     overflow: hidden;
     padding: 4px 10px;
@@ -99,6 +95,7 @@ export default {
       padding: 5px;
       align-self: center;
       margin-right: 10px;
+      transition: color .7s;
     }
     a:hover{
         color: white !important;

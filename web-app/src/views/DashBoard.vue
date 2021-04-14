@@ -27,11 +27,18 @@
         <div class="col s12 padding20">
             <div class="dashboard-header">
                 <div class="grey-text dashHead">
-                    <Image 
+                    <teplate v-if="userInfo && userInfo.avatar_url">
+                        <img width="80" 
+                            height="80" 
+                            :src="userInfo.avatar_url" 
+                            class="responsive-img circle dash-photo"
+                            :alt="userInfo.login">
+                    </teplate>
+                    <Image v-else
                         id="dashboardPhoto" 
                         img_width="80px" 
                         img_height="80px" 
-                        :img_name="userInfo.avatar_url || 'user-default.png'" 
+                        img_name="user-default.png" 
                         class="responsive-img circle dash-photo" 
                         :alt="userInfo.login"></Image>
                     <h5 v-if="userInfo?.name" style="margin-left:10px;">
