@@ -33,6 +33,7 @@
     "vue": "^3.0.0",
     "vue-final-modal": "^1.8.7",
     "vue-gtag-next": "^1.14.0",
+    "vue-meta": "^3.0.0-alpha.2",
     "vue-particles": "^1.0.9",
     "vue-router": "^4.0.0-0",
     "vue-sweetalert2": "^4.2.0",
