@@ -380,6 +380,9 @@ class SmartAPIHandler(BaseHandler, SmartAPIReadOnlyHandler):
 
         if self.args.slug is not None:
 
+            if self.args.slug in {'api'}: #reserved
+                raise BadRequest(details = 'slug is reserved')
+
             try:  # update slug
                 smartapi.slug = self.args.slug or None
                 smartapi.save()
