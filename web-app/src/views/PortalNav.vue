@@ -1,16 +1,13 @@
 <template>
-  <div class="white">
+  <div class="grey lighten-3">
       <MetaHead
         :title="selected ? 'SmartAPI | '+selected.toUpperCase() : 'SmartAPI | Portals'"
         ></MetaHead>
       <div style="min-height: 90vh">
-            <nav>
-                <div class="nav-wrapper purple white-text">
-                <ul>
-                    <li><router-link to="/portal">Portals Home</router-link></li>
-                </ul>
-                </div>
-            </nav>
+            <div class="col s12 padding20 navbar-fixed">
+                <router-link  class="blue-text" to="/portal">Portals</router-link>
+                <router-link v-if="selected" :to="'/portal/'+selected" class="blue-text"> &gt; {{selected}}</router-link>
+            </div>
             <router-view></router-view>
       </div>
   </div>
@@ -31,5 +28,8 @@ export default {
 <style lang="css">
     .caps{
         text-transform: uppercase;
+    }
+    .breadcrumb:before{
+        color: grey;
     }
 </style>

@@ -201,7 +201,7 @@
                     <h3 class="flow-text blue-grey-text padding20">Slug Registration Wizard</h3>
                     </div>
                     <div v-if='!hasShortName' class="col s12 m12 l12 center-align">
-                    <Image class="hide-on-small-only" img_width="250px" img_name="wand.svg" alt='custom slug' style='border-radius: 10px;'></Image>
+                    <Image class="hide-on-small-only" img_width="100px" img_name="wand.svg" alt='custom slug' style='border-radius: 10px;'></Image>
                     <p class="grey-text left-align">
                         Every project has a subdomain that is available to serve its documentation.<br />
                         By default we use your <i>API ID</i>. If you go to <span class="blue-text"><b>your-api-id</b>.smart-api.info</span> it should allow users to view your API documentation.

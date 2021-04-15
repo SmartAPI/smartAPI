@@ -101,7 +101,32 @@
               </li>
             </ul>
 
-            <ul class="collection" style="margin-top:100px;" v-show="popularTags && popularTags.length > 5">
+            <!-- FILTERS -->
+            <div v-if='portal_name == "translator" ' class="p-1 grey lighten-4 rounded grey-text" style="margin-top:10px;">
+              <template v-for="(filters, name) in all_filters" :key="filters">
+                <div v-if="name == 'info.x-translator.component' ">
+                  <small>Components: </small>
+                </div>
+                <div v-if="name == 'info.x-trapi.version' ">
+                  <small>TRAPI Version: </small>
+                </div>
+                <div v-if="name == 'tags.name' ">
+                  <small>API Type: </small>
+                </div>
+                <template v-for="filter in filters" :key="filter.name">
+                  <span 
+                    @click.prevent="filter.active = !filter.active; search()" 
+                    class="chip pointer hoverable d-flex align-items-center"
+                    style="margin-right:5px;" 
+                    :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
+                    <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b v-if="filter.count">({{filter.count}})</b>
+                  </span>
+                </template>
+              </template>
+            </div>
+            <!-- FILTERS END -->
+
+            <ul class="collection" style="margin-top:50px;" v-show="popularTags && popularTags.length > 5">
               <div class="collection-header blue-grey white-text p-1 center-align">
                 <span>Filters Most Active <br />(Last 30 days)</span>
               </div>
@@ -169,31 +194,31 @@
                     </router-link>
                   </div>
                 </div>
-                <div class="input-field col s12 l6">
-                    <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                <div class="col s12 l6">
+                    <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid; margin:10px">
                 </div>
               </template>
               <template v-else>
-                <div class="input-field col s12 l6 offset-l3">
-                    <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                <div class=" col s12 l6 offset-l3">
+                    <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid; margin:10px;">
                 </div>
               </template>
 
                 <div class="col s12 selected-tags">
                     <template v-for="tag in tags" :key="tag">
-                      <div class="chip" v-if="tag.active" :class="{ purple: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
+                      <div class="chip hoverable" v-if="tag.active" :class="{ purple: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), 'white-text': tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() }">
                           {{tag.name}}
                           <i v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()" class="close material-icons" @click="toggleTag(tag,'tag');search()">close</i>
                       </div>
                     </template>
                     <template v-for="author in authors" :key="author">
-                      <div class="chip" v-if="author.active">
+                      <div class="chip hoverable" v-if="author.active">
                           {{author.name}}
                           <i class="close material-icons" @click="toggleTag(author,'author');search()">close</i>
                       </div>
                     </template>
                     <template v-for="pop in popularTags" :key="pop">
-                      <div class="chip"  v-if="pop.active">
+                      <div class="chip hoverable"  v-if="pop.active">
                           {{pop.name}}
                           <i class="close material-icons" @click="pop.active = false;search()">close</i>
                       </div>
@@ -216,7 +241,7 @@
                                   v-if="shareURLButtonVisible" 
                                   @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );"
                                   copy_msg="URL copied" 
-                                  :copy="shareUR">
+                                  :copy="shareURL">
                                       <template v-slot:title>
                                           Copy Search URL <i class="fa fa-clipboard" aria-hidden="true"></i>
                                       </template>
@@ -234,6 +259,7 @@
                               </div>
                             </div>
                         </div>
+                        
                         <template v-if="total == 0">
                           <div class="card">
                             <div class="card-content center">
@@ -341,7 +367,20 @@ export default {
             apis: [],
             authors: [],
             highlighter: null,
-            portal_name: ''
+            portal_name: '',
+            // key is the direct field to be filtered by
+            //value is the final val set to ES
+            all_filters:{
+              //api type
+              'tags.name': [
+                {'name':'BioThings','value':'biothings','active':false, color: '#424242'},
+                {'name':'TRAPI','value':'trapi','active':false, color: '#424242'},
+              ],
+              //special NOT includes multiple values
+              '!tags.name': [
+                {'name':'Other','value':'trapi AND !tags.name:biothings','active':false, color: '#424242'},
+              ],
+            }
         }
       },
       methods: {
@@ -377,7 +416,7 @@ export default {
           },
           initialAPILoad: function(){
               var self = this;
-              let url = "/api/query?"
+              let url = window.location.hostname !== 'localhost' ? "/api/query?" : 'https://smart-api.info/api/query?'
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -416,7 +455,9 @@ export default {
           },
           loadFilters: function (){
               var self = this;
-              axios.get('/api/suggestion?field=tags.name').then(function(response){
+              let tagUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=tags.name" : 'https://smart-api.info/api/suggestion?field=tags.name'
+              let ownerUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=info.contact.name" : 'https://smart-api.info/api/suggestion?field=info.contact.name'
+              axios.get(tagUrl).then(function(response){
                   let temp_data = []
                   for(let key in response.data){
                     temp_data.push({key: key, doc_count: response.data[key]})
@@ -426,7 +467,7 @@ export default {
                   });
                   self.tags = tags;
 
-                  axios.get('/api/suggestion?field=info.contact.name').then(function(response){
+                  axios.get(ownerUrl).then(function(response){
                       let temp_data = []
                       for(let key in response.data){
                         temp_data.push({key: key, doc_count: response.data[key]})
@@ -547,76 +588,132 @@ export default {
             window.history.pushState({"html":'content',"pageTitle":'SmartAPI'},"", finalURL);
             this.shareURLButtonVisible = true;
           },
+          getProjectFilters(){
+            let self = this;
+            let filters ={}
+            
+            for (const key in self.all_filters) {
+              filters[key] = []
+              self.all_filters[key].forEach(item => {
+                if (item.active) {
+                  filters[key].push(item.value);
+                }
+              })
+            }
+            return filters
+          },
+          aggregate(field){
+            let self = this;
+            let url = window.location.hostname !== 'localhost' ? `/api/suggestion?field=${field}` : `https://smart-api.info/api/suggestion?field=${field}`
+            axios.get(url)
+            .then(response => {
+              let complete = []
+              let res = response.data || []
+              for (const [key, value] of Object.entries(res)) {
+                let item = {}
+                item.color = field.includes('trapi') ? '#f06292': '#303f9f'
+                item.active = false
+                item.value = key
+                item.name = key
+                item.count = value
+                complete.push(item)
+              }
+              self.all_filters[field] = complete;
+            }).catch(err=>{
+              throw err;
+            });
+          },
           search: function () {
               var self = this;
-              let url = '/api/query?'
+              let url = window.location.hostname !== 'localhost' ? "/api/query?q=" : 'https://smart-api.info/api/query?q='
               let query = self.query.trim();
               // reset results
               self.apis = [];
               self.total = 0;
+              self.loading = true;
               //unmark keywords
               self.highlighter.unmark();
-
+              //special regsitry
               if (!self.context.Special && !query){
                 query = "__all__";
               }
               else if (self.context.Special && !query) {
                 query = query || "__all__";
-                // self.handleSpecialTags(self.context.Tags[0]);
               }
-              if (query) {
-
-                  self.googleAnalytics('Registry_Searches',query)
-
-                  url += "q=" + query
-
-                  var config = {
-                      "params": {
-                          'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
-                          'size': self.perPage,
-                          'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )          
-                      },
-                  };
-                  var filters = this.getQueryFilters();
-                  if (Object.keys(filters).length !== 0){
-                    for (const param in filters) {
-                      url += "&"+param+"="+encodeURIComponent(filters[param])
-                    }
-                  }
-                  self.loading = true;
-                  // Share search URL
-                  self.buildShareURL(query);
-
-                  // sort
-                  switch (self.sort) {
-                    case 'Relevance':
-                      //default behavior
-                      break;
-                    case 'Alphabetically A-Z':
-                      url = url+'&sort=info.title.raw'
-                      break;
-                    case 'Alphabetically Z-A':
-                      url = url+'&sort=-info.title.raw'
-                      break;
-                    case 'Recently Updated':
-                      url = url+'&sort=_meta.last_updated'
-                      break;
-                    default:
-                      //no matching sort
-                      break;
-                  }
-                  axios.get(url, config).then(function (response) {
-                      self.loading = false;
-                      self.highlighter.unmark();
-                      self.apis = response.data.hits;
-                      // self.handleContext(self.context);
-                      self.total = response.data.total;
-                      self.calculatePages();
-                  }).catch(err=>{
-                    self.loading = false;
-                    throw err;
-                  });
+              //analytics
+              if (query !== "__all__") {
+                self.googleAnalytics('Registry_Searches',query)
               }
+              //pagination
+              var config = {
+                  "params": {
+                      'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
+                      'size': self.perPage,
+                      'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage )          
+                  },
+              };
+
+              //look for existing active filters and 
+              let filters = self.getProjectFilters();
+              //prep active filters found to be added
+              let f_list = []
+              Object.keys(filters ).forEach(field => {
+                //if multiple possible values add OR
+                let val = filters[field ].toString().includes(',') ? "(" + filters[field ].join(' OR ') + ")" : filters[field ]
+                filters[field ] && filters[field ].length ? f_list.push( field  + ':' + val  ) : false;
+              });
+              //add AND condition if multiple filters
+              let field_query = f_list.join(' AND ');
+
+              //form correct query pattern
+              if (field_query && query !== '__all__') {
+                url += field_query + ' AND ' + query
+              }
+              else if (field_query && query == '__all__') {
+                url += field_query
+              }
+              else if (!field_query && query == '__all__') {
+                url += query
+              }
+              //tag ownwer special param filters
+              var tag_filters = this.getQueryFilters();
+              if (Object.keys(tag_filters).length !== 0){
+                for (const param in tag_filters) {
+                  url += "&"+param+"="+encodeURIComponent(tag_filters[param])
+                }
+              }
+
+              // sort
+              switch (self.sort) {
+                case 'Relevance':
+                  //default behavior
+                  break;
+                case 'Alphabetically A-Z':
+                  url = url+'&sort=info.title.raw'
+                  break;
+                case 'Alphabetically Z-A':
+                  url = url+'&sort=-info.title.raw'
+                  break;
+                case 'Recently Updated':
+                  url = url+'&sort=_meta.last_updated'
+                  break;
+                default:
+                  //no matching sort
+                  break;
+              }
+              // Share search URL
+              self.buildShareURL(query);
+
+              axios.get(url, config).then(function (response) {
+                  self.loading = false;
+                  self.highlighter.unmark();
+                  self.apis = response.data.hits;
+                  self.total = response.data.total;
+                  self.calculatePages();
+              }).catch(err=>{
+                self.loading = false;
+                throw err;
+              });
           },
           calculatePages: function () {
               this.pages = Math.ceil(this.total / this.perPage);
@@ -810,6 +907,8 @@ export default {
       },
       created: function () {
             this.loadFilters();
+            this.aggregate('info.x-translator.component');
+            this.aggregate('info.x-trapi.version');
             this.getAnalytics();
             this.$gtag.customMap({ 'dimension5': 'registryResults' })
             this.$gtag.customMap({ 'metric1': 'registry-item' })

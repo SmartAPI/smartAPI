@@ -3,8 +3,11 @@
     <div class="card-content ">
           <span class="card-title">
             <span class="blue-grey-text bold" v-text="api.info.title"></span>&nbsp;
-            <span class="versionBadge grey" v-text="'V '+api.info.version">
+            <span class="versionBadge grey" v-text="api.info.version">
             </span>
+            <UptimeStatus class="right" :api='api'></UptimeStatus>
+          </span>
+          <div>
             <span v-if=" api?.openapi " class="versionBadge green">
               OAS3
             </span>
@@ -13,6 +16,7 @@
             </span>
             <span v-if="api?.info?.['x-trapi']?.version" class="versionBadge pink lighten-2" v-text="'TRAPI '+api?.info?.['x-trapi']?.version">
             </span>
+            <span v-if="api?.info?.['x-translator']?.component" class="versionBadge indigo darken-2">{{api?.info?.['x-translator']?.component}}</span>
             <span v-if="bt_tag && bt_tag.name == 'biothings' " class="versionBadge grey darken-2">
               BioThings API
             </span>
@@ -23,9 +27,7 @@
               <span v-if="api?._status?.refresh_status && ![200, 299, '200', '299'].includes(api?._status?.refresh_status)" 
               class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
             </router-link>
-            <UptimeStatus class="right" :api='api'></UptimeStatus>
-
-          </span>
+          </div>
           <template v-if="api.info.description && api.info.description.length > 500">
             <CollapsibleText :text='api.info.description'></CollapsibleText>
           </template>

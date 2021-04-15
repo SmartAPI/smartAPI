@@ -2,7 +2,7 @@
   <main class="white">
   <!-- MAIN SECTIONS -->
   <section class="center grey lighten-3 d-flex justify-content-around padding20 flex-wrap">
-    <div class="row d-flex justify-content-center" style="align-items:stretch;">
+    <div class="row d-flex justify-content-center flex-wrap" style="align-items:stretch;">
       <div class="col s12 m4 d-flex justify-content-center align-items-center">
         <Image img_name="TranslatorLogo.jpg" img_height="77px"></Image>
       </div>
@@ -17,21 +17,21 @@
       </div>
       
     </div>
-    <div class="d-flex justify-content-center align-items-center">
-      <div class="col s12 padding20 center-align">
+    <div class="d-flex justify-content-center align-items-center flex-wrap">
+      <div class="col s12 padding20 center-align fade-in">
         <Image img_name="icon-registry.svg" img_width="100px" alt="registry"></Image>
         <p>Browse registry of Translator APIs</p>
-        <router-link to="/registry/translator" class="btn blue">Registry</router-link>
+        <router-link to="/registry/translator" class="btn green">Registry</router-link>
       </div>
-      <div class="col s12 padding20 center-align">
+      <div class="col s12 padding20 center-align fade-in">
         <Image img_name="icon-summary.svg" img_width="100px" alt="summary"></Image>
         <p>View a summary of Translator APIs</p>
-        <router-link to="/portal/translator/summary" class="btn blue">Summary</router-link>
+        <router-link to="/portal/translator/summary" class="btn green">Summary</router-link>
       </div>
-      <div class="col s12 padding20 center-align">
+      <div class="col s12 padding20 center-align fade-in">
         <Image img_name="icon-metakg.svg" img_width="100px" alt="metakg"></Image>
         <p>Explore Translator Knowledge Graph</p>
-        <router-link to="/portal/translator/metakg" class="btn blue">MetaKG</router-link>
+        <router-link to="/portal/translator/metakg" class="btn green">MetaKG</router-link>
       </div>
     </div>
   </section>

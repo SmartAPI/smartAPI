@@ -4,9 +4,6 @@
         <div class="chartContainer">
             <div>
                 <Image img_name="TranslatorLogo.jpg" aria-label="NCATS" img_height="77px"></Image>
-                <p>
-                    <router-link to="/portal/translator">Back to Portal</router-link>
-                </p>
                 <h1>Portal Summary</h1>
                 <p>
                     <a href="/registry/translator" v-text="'('+totalAPIs+') Translator APIs'"></a>
