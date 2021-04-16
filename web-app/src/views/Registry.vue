@@ -328,7 +328,7 @@ import RegistryItem from '../components/RegistryItem.vue';
 import tippy from 'tippy.js'
 import axios from 'axios'
 import Mark from 'mark.js'
-import {map, isEmpty, filter} from 'lodash'
+import {isEmpty, filter} from 'lodash'
 import {Collapsible} from 'materialize-css'
 import { mapGetters } from 'vuex'
 
@@ -364,16 +364,9 @@ export default {
             tagsNotFound: [],
             context: Object,
             popularTags: [],
-            tags:Array,
             apis: [],
-            authors: [],
             highlighter: null,
             portal_name: '',
-            // key is the direct field to be filtered by
-            //value is the final val set to ES
-            all_filters:{
-              
-            }
         }
       },
       methods: {
@@ -442,37 +435,6 @@ export default {
               }).catch(err=>{
                 self.loading = false;
                 throw err;
-              });
-          },
-          loadFilters: function (){
-              var self = this;
-              let tagUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=tags.name" : 'https://smart-api.info/api/suggestion?field=tags.name'
-              let ownerUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=info.contact.name" : 'https://smart-api.info/api/suggestion?field=info.contact.name'
-              axios.get(tagUrl).then(function(response){
-                  let temp_data = []
-                  for(let key in response.data){
-                    temp_data.push({key: key, doc_count: response.data[key]})
-                  }
-                  let tags = map(temp_data, function(item){
-                      return {'name':item.key, 'count': item.doc_count, 'active': false};
-                  });
-                  self.tags = tags;
-
-                  axios.get(ownerUrl).then(function(response){
-                      let temp_data = []
-                      for(let key in response.data){
-                        temp_data.push({key: key, doc_count: response.data[key]})
-                      }
-                      let authors = map(temp_data, function(item){
-                          return {'name':item.key, 'count': item.doc_count, 'active': false};
-                      });
-
-                      self.authors = authors;
-                      //When all filters all loaded
-                      //share url params depend on filters being loaded
-                      self.initialAPILoad();
-                  });
-
               });
           },
           getQueryFilters: function(){
@@ -608,27 +570,6 @@ export default {
               })
             }
             return filters
-          },
-          aggregate(field){
-            let self = this;
-            let url = window.location.hostname !== 'localhost' ? `/api/suggestion?field=${field}` : `https://smart-api.info/api/suggestion?field=${field}`
-            axios.get(url)
-            .then(response => {
-              let complete = []
-              let res = response.data || []
-              for (const [key, value] of Object.entries(res)) {
-                let item = {}
-                item.color = field.includes('trapi') ? '#f06292': '#303f9f'
-                item.active = false
-                item.value = key
-                item.name = key
-                item.count = value
-                complete.push(item)
-              }
-              self.all_filters[field] = complete;
-            }).catch(err=>{
-              throw err;
-            });
           },
           search: function () {
               var self = this;
@@ -940,7 +881,6 @@ export default {
           },
       },
       created: function () { 
-        this.loadFilters();
         this.getAnalytics();
         this.$gtag.customMap({ 'dimension5': 'registryResults' })
         this.$gtag.customMap({ 'metric1': 'registry-item' })
@@ -958,6 +898,8 @@ export default {
                 'Tags': [self.portal_name]
             }
           }
+        //set content before initial load
+        self.initialAPILoad();
 
         self.highlighter = new Mark(document.querySelector(".highlight_container"))
 
@@ -981,6 +923,15 @@ export default {
       updated: function(){
         // Highlight matches in results
         this.mark(this.query);
+      },
+      computed:{
+          ...mapGetters([
+              'loggedIn',
+              'userInfo',
+              'tags',
+              'authors',
+              'all_filters'
+          ])
       },
       watch:{
         tagsearch:function(q){
@@ -1021,33 +972,7 @@ export default {
             self.listCap = 20;
           }
         },
-        specialTagsUI: function(v){
-          if (v) {
-            var self = this; 
-            this.aggregate('info.x-translator.component');
-            setTimeout(()=>{
-              //set here to preserve desired order
-              const bt_count = self.tags.find(element => element.name == 'biothings');
-              const trapi_count = self.tags.find(element => element.name == 'trapi');
-              self.all_filters['tags.name'] = [
-                  {'name':'BioThings','value':'biothings','active':false, color: '#424242', count: bt_count.count || false},
-                  {'name':'TRAPI','value':'trapi','active':false, color: '#424242', count: trapi_count.count || false},
-                ]
-              //special NOT includes multiple values
-              self.all_filters['!tags.name'] = [
-                  {'name':'Other','value':'trapi AND !tags.name:biothings','active':false, color: '#424242'},
-                ]
-              self.aggregate('info.x-trapi.version');
-            },1000)
-          }
-        }
       },
-      computed:{
-            ...mapGetters([
-                'loggedIn',
-                'userInfo'
-            ])
-        },
 }
 </script>
 

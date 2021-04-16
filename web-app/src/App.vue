@@ -16,5 +16,10 @@ export default {
     Navigation,
     Footer,
   },
+  mounted:function(){
+    this.$store.dispatch('loadTagFilters');
+    this.$store.dispatch('loadOwnerFilters');
+    this.$store.dispatch('loadTranslatorFilters');
+  }
 }
 </script>

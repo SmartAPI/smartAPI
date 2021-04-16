@@ -4,6 +4,7 @@ import {metakg} from './modules/metakg'
 import {faq} from './modules/faq'
 import {about} from './modules/about'
 import {portals} from './modules/portals'
+import {registry} from './modules/registry'
 
 export default createStore({
   modules: {
@@ -11,6 +12,7 @@ export default createStore({
     metakg,
     faq,
     about,
-    portals
+    portals,
+    registry
   },
 })
