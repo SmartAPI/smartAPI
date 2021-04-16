@@ -14,7 +14,7 @@
             <ul class="collapsible">
               <li>
                 <div class="collapsible-header grey lighten-3 grey-text">
-                  <span>Tags <b class="blue-text">({{tags.length}})</b></span>
+                  <span>Tags <b class="light-blue-text">({{tags.length}})</b></span>
                 </div>
                 <div class="collapsible-body noPadding">
                   <div class="collection">
@@ -57,7 +57,7 @@
 
               <li>
                 <div class="collapsible-header grey lighten-3 grey-text">
-                  <span>Owners <b class="blue-text">({{authors.length}})</b></span>
+                  <span>Owners <b class="light-blue-text">({{authors.length}})</b></span>
                 </div>
                 <div class="collapsible-body noPadding">
                   <div class="collection">
@@ -119,7 +119,7 @@
                     class="chip pointer hoverable d-flex align-items-center"
                     style="margin-right:5px;" 
                     :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
-                    <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="blue-text" v-if="filter.count">({{filter.count}})</b>
+                    <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="light-blue-text" v-if="filter.count">({{filter.count}})</b>
                   </span>
                 </template>
               </template>
