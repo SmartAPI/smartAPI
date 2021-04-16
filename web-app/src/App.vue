@@ -1,7 +1,7 @@
 <template>
   <Navigation></Navigation>
   <div id="modals-go-here"></div>
-  <router-view :key="$route.path"/>
+  <router-view :key="$route.href"/>
   <Footer></Footer>
 </template>
 

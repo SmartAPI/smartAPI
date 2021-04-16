@@ -10,11 +10,11 @@
     </div>
       <div class="row">
         <div class="col l2 s12 hide-on-med-and-down hide-on-small-only sidebar">
-            <h5 class="blue-text center"> Filters</h5>
+            <h6 class="grey-text center lighter"> Filters</h6>
             <ul class="collapsible">
               <li>
-                <div class="collapsible-header blue-grey white-text">
-                  <span>Tags (<b>{{tags.length}}</b>)</span>
+                <div class="collapsible-header grey lighten-3 grey-text">
+                  <span>Tags <b class="blue-text">({{tags.length}})</b></span>
                 </div>
                 <div class="collapsible-body noPadding">
                   <div class="collection">
@@ -56,8 +56,8 @@
               </li>
 
               <li>
-                <div class="collapsible-header blue-grey white-text">
-                  <span>Owners (<b>{{authors.length}}</b>)</span>
+                <div class="collapsible-header grey lighten-3 grey-text">
+                  <span>Owners <b class="blue-text">({{authors.length}})</b></span>
                 </div>
                 <div class="collapsible-body noPadding">
                   <div class="collection">
@@ -105,13 +105,13 @@
             <div v-if='portal_name == "translator" ' class="p-1 grey lighten-4 rounded grey-text" style="margin-top:10px;">
               <template v-for="(filters, name) in all_filters" :key="filters">
                 <div v-if="name == 'info.x-translator.component' ">
-                  <small>Components: </small>
+                  <span>Components: </span>
                 </div>
                 <div v-if="name == 'info.x-trapi.version' ">
-                  <small>TRAPI Version: </small>
+                  <span>TRAPI Version: </span>
                 </div>
                 <div v-if="name == 'tags.name' ">
-                  <small>API Type: </small>
+                  <span>API Type: </span>
                 </div>
                 <template v-for="filter in filters" :key="filter.name">
                   <span 
@@ -119,7 +119,7 @@
                     class="chip pointer hoverable d-flex align-items-center"
                     style="margin-right:5px;" 
                     :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
-                    <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b v-if="filter.count">({{filter.count}})</b>
+                    <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="blue-text" v-if="filter.count">({{filter.count}})</b>
                   </span>
                 </template>
               </template>
@@ -127,7 +127,7 @@
             <!-- FILTERS END -->
 
             <ul class="collection" style="margin-top:50px;" v-show="popularTags && popularTags.length > 5">
-              <div class="collection-header blue-grey white-text p-1 center-align">
+              <div class="collection-header grey lighten-3 grey-text p-1 center-align">
                 <span>Filters Most Active <br />(Last 30 days)</span>
               </div>
               <template v-for="(pop,index) in popularTags" :key="pop+index">
@@ -188,19 +188,20 @@
                           <Image style="max-width:200px" img_height="70px" img_width="auto" :img_name="specialTagImage" :alt="specialTagName"></Image>
                       </template>
                   </a>
-                  <div v-if="specialTagName == 'NCATS Biomedical Data Translator'">
-                    <router-link class="purple-text d-block" :to="'/portal/'+portal_name">
-                      Go to portal <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                  <div v-if="specialTagName == 'NCATS Biomedical Data Translator'" class="d-block">
+                    <small class="purple-text">Visit portal</small>&nbsp;
+                    <router-link class="smallButton" :to="'/portal/'+portal_name">
+                      GO <i class="fa fa-chevron-right purple-text" aria-hidden="true"></i>
                     </router-link>
                   </div>
                 </div>
                 <div class="col s12 l6">
-                    <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid; margin:10px">
+                    <input id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter">
                 </div>
               </template>
               <template v-else>
                 <div class=" col s12 l6 offset-l3">
-                    <input aria-required="false" required='false' id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter" style="width: 80%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid; margin:10px;">
+                    <input id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter">
                 </div>
               </template>
 
@@ -429,16 +430,14 @@ export default {
               var filters = self.getQueryFilters();
               if (Object.keys(filters).length !== 0){
                 for (const param in filters) {
-                  url += "&"+param+"="+encodeURIComponent(filters[param])
+                  url += "&"+param+"="+filters[param]
                 }
               }
               self.loading = true;
               axios.get(url, config).then(function(response){
                   self.loading = false;
-
                   self.apis = response.data.hits;
-
-                  self.total = response.data.total;
+                  self.total = Object.prototype.hasOwnProperty.call(response.data.total, 'value') ? response.data.total.value : response.data.total;
                   self.calculatePages();
               }).catch(err=>{
                 self.loading = false;
@@ -666,12 +665,14 @@ export default {
               }
               else if (!field_query && query == '__all__') {
                 url += query
+              }else{
+                url += query
               }
               //tag ownwer special param filters
               var tag_filters = this.getQueryFilters();
               if (Object.keys(tag_filters).length !== 0){
                 for (const param in tag_filters) {
-                  url += "&"+param+"="+encodeURIComponent(tag_filters[param])
+                  url += "&" + param + "=" + tag_filters[param]
                 }
               }
 
@@ -681,13 +682,13 @@ export default {
                   //default behavior
                   break;
                 case 'Alphabetically A-Z':
-                  url = url+'&sort=info.title.raw'
+                  url += '&sort=info.title.raw'
                   break;
                 case 'Alphabetically Z-A':
-                  url = url+'&sort=-info.title.raw'
+                  url += '&sort=-info.title.raw'
                   break;
                 case 'Recently Updated':
-                  url = url+'&sort=_meta.last_updated'
+                  url += '&sort=_meta.last_updated'
                   break;
                 default:
                   //no matching sort
@@ -700,7 +701,7 @@ export default {
                   self.loading = false;
                   self.highlighter.unmark();
                   self.apis = response.data.hits;
-                  self.total = response.data.total;
+                  self.total = Object.prototype.hasOwnProperty.call(response.data.total, 'value') ? response.data.total.value : response.data.total;
                   self.calculatePages();
               }).catch(err=>{
                 self.loading = false;
@@ -1013,5 +1014,13 @@ export default {
     mark{
         background-color: transparent;
         color: rgb(255, 71, 71);
+    }
+    #search_query{
+      width: 80%; 
+      outline: none; 
+      padding: 10px; 
+      border-radius: 20px; 
+      border:var(--blue-medium) 2px solid; 
+      margin:10px;
     }
 </style>

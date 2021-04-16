@@ -5,7 +5,7 @@
     </router-link>
     <div id="myLinks" class="hide-on-small-only" v-if="!uiView">
       <router-link to="/add-api">Add an API</router-link>
-      <router-link to="/registry">Registry</router-link>
+      <router-link :to="{path:'/registry', query: null}">Registry</router-link>
       <router-link to="/editor">Editor</router-link>
       <router-link to="/portal">Portals</router-link>
       <router-link to="/faq">FAQ</router-link>
@@ -21,7 +21,7 @@
     <div id="myLinksMobile" :class="[show ? 'show-on-small w-100' : 'hide']" v-if="!uiView">
       <div class="fade-in">
         <router-link @click="show = false" to="/add-api">Add an API</router-link>
-        <router-link @click="show = false" to="/registry">Registry</router-link>
+        <router-link @click="show = false" :to="{path:'/registry', query: null}">Registry</router-link>
         <router-link @click="show = false" to="/editor">Editor</router-link>
         <router-link @click="show = false" to="/portal">Portals</router-link>
         <router-link @click="show = false" to="/faq">FAQ</router-link>
