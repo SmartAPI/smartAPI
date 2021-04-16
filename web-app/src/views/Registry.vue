@@ -240,7 +240,7 @@
                                   <span class="blue-text p-1" v-text="'Total APIs: '+total"></span>
                                   <CopyButton 
                                   v-if="shareURLButtonVisible" 
-                                  @click.prevent="googleAnalytics('Registry_SharedURL', window.location.search );"
+                                  @click.prevent="googleAnalytics('Registry_SharedURL', window.location.href );"
                                   copy_msg="URL copied" 
                                   :copy="shareURL">
                                       <template v-slot:title>
@@ -543,6 +543,7 @@ export default {
                 authorFilters.push(item.name);
               }
             });
+
             //Detect QUERY
             if (q !== '__all__') {
               finalURL = finalURL+'?q='+q;
@@ -572,6 +573,21 @@ export default {
             else if (filters.length && !authorFilters.length) {
               finalFilters = filters.join(',')
               finalURL = finalURL+"tags="+finalFilters;
+            }
+            
+            //SPECIAL TRANSLATOR FILTERS
+            let active_filters = {}
+            // Collect Dynamic Filters
+            for (const [filter_name, filters] of Object.entries(this.all_filters)) {
+              filters.forEach(item => {
+                if (item.active) {
+                  Object.prototype.hasOwnProperty.call(active_filters, filter_name) ? active_filters[filter_name].push(item.name) : active_filters[filter_name] = [item.name]
+                }
+              })
+            }
+            // console.log('%c'+JSON.stringify(active_filters, null, 2), 'color: limegreen')
+            for (const [filter_name, filters] of Object.entries(active_filters)) {
+              finalURL += "&" + filter_name + "=" + filters.toString();
             }
 
             this.shareURL =finalURL;
@@ -844,6 +860,29 @@ export default {
               self.tagsNotFound = []
             }
 
+            setTimeout(this.checkDymanicFilters, 1200);
+
+          },
+          checkDymanicFilters(){
+            var url_string = window.location.href
+            var url = new URL(url_string);
+            //SPECIAL TRANSLATOR FILTERS
+            // Collect Dynamic Filters
+            let keys = Object.keys(this.all_filters);
+            keys.forEach(key => {
+              var found = url.searchParams.get(key);
+              if (found) {
+                found = found.includes(',') ? found.split(',') : [found];
+                found.forEach(url_filter_value => {
+                  if (Object.prototype.hasOwnProperty.call(this.all_filters, key) ) {
+                    this.all_filters[key].forEach(f => {
+                      f.name == url_filter_value ? f.active = true : false;
+                    })
+                  }
+                })
+              }
+            })
+            this.search();
           },
           getAnalytics(){
             var self = this;
