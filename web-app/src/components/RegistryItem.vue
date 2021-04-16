@@ -3,8 +3,8 @@
     <div class="card-content ">
           <span class="card-title">
             <span class="blue-grey-text bold" v-text="api.info.title"></span>&nbsp;
-            <span class="versionBadge grey" v-text="api.info.version">
-            </span>
+            <small class="grey-text lighter" v-text="api.info.version">
+            </small>
             <UptimeStatus class="right" :api='api'></UptimeStatus>
           </span>
           <div>
@@ -55,7 +55,7 @@
           </div>
           <div class="col s12 left">
             <h4 class="white-text bold m-0" style="display:inline-block;" v-text="api.info.title"></h4>&nbsp;
-            <small class="grey-text" style="display:inline-block;">V <span v-text="api.info.version"></span></small>
+            <small class="grey-text" style="display:inline-block;"><span v-text="api.info.version"></span></small>
           </div>
           <div class="col s12">
             <table class="apiDetails responsive-table">
