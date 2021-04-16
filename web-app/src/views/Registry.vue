@@ -371,15 +371,7 @@ export default {
             // key is the direct field to be filtered by
             //value is the final val set to ES
             all_filters:{
-              //api type
-              'tags.name': [
-                {'name':'BioThings','value':'biothings','active':false, color: '#424242'},
-                {'name':'TRAPI','value':'trapi','active':false, color: '#424242'},
-              ],
-              //special NOT includes multiple values
-              '!tags.name': [
-                {'name':'Other','value':'trapi AND !tags.name:biothings','active':false, color: '#424242'},
-              ],
+              
             }
         }
       },
@@ -619,6 +611,16 @@ export default {
                 complete.push(item)
               }
               self.all_filters[field] = complete;
+              //set here to preserve desired order
+              self.all_filters['tags.name'] = [
+                  {'name':'BioThings','value':'biothings','active':false, color: '#424242'},
+                  {'name':'TRAPI','value':'trapi','active':false, color: '#424242'},
+                ]
+              //special NOT includes multiple values
+              self.all_filters['!tags.name'] = [
+                  {'name':'Other','value':'trapi AND !tags.name:biothings','active':false, color: '#424242'},
+                ]
+              self.aggregate('info.x-trapi.version');
             }).catch(err=>{
               throw err;
             });
@@ -908,7 +910,7 @@ export default {
       created: function () {
             this.loadFilters();
             this.aggregate('info.x-translator.component');
-            this.aggregate('info.x-trapi.version');
+            
             this.getAnalytics();
             this.$gtag.customMap({ 'dimension5': 'registryResults' })
             this.$gtag.customMap({ 'metric1': 'registry-item' })

@@ -22,7 +22,7 @@ export default {
     props:{
         width:{
             type: String,
-            default: '45%'
+            default: '300px'
         },
         image:{
             type: String,

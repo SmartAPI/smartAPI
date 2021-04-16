@@ -14,16 +14,17 @@
     <div id="uiView" v-if="uiView">
       <!-- in UI view status badges will go here -->
     </div>
-    <a href="javascript:void(0);" class="btn blue hide-on-med-and-up" @click="toggleShow">
-      MENU
+    <a href="javascript:void(0);" class="hide-on-med-and-up" :class="[show ? 'red-text' : 'blue-text']" @click="toggleShow">
+      <i v-if="!show" class="material-icons medium">dehaze</i>
+      <i v-else class="material-icons medium fade-in">clear</i>
     </a>
-    <div id="myLinksMobile" :class="[show ? 'show-on-small' : 'hide']" v-if="!uiView">
-      <div>
-        <router-link to="/add-api">Add an API</router-link>
-        <router-link to="/registry">Registry</router-link>
-        <router-link to="/editor">Editor</router-link>
-        <router-link to="/portal">Portals</router-link>
-        <router-link to="/faq">FAQ</router-link>
+    <div id="myLinksMobile" :class="[show ? 'show-on-small w-100' : 'hide']" v-if="!uiView">
+      <div class="fade-in">
+        <router-link @click="show = false" to="/add-api">Add an API</router-link>
+        <router-link @click="show = false" to="/registry">Registry</router-link>
+        <router-link @click="show = false" to="/editor">Editor</router-link>
+        <router-link @click="show = false" to="/portal">Portals</router-link>
+        <router-link @click="show = false" to="/faq">FAQ</router-link>
         <Login></Login>
       </div>
     </div>
