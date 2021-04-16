@@ -408,7 +408,8 @@ export default {
           },
           initialAPILoad: function(){
               var self = this;
-              let url = window.location.hostname !== 'localhost' ? "/api/query?" : 'https://smart-api.info/api/query?'
+              // let url = window.location.hostname !== 'localhost' ? "/api/query?" : 'https://smart-api.info/api/query?'
+              let url = "/api/query?" 
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -447,8 +448,10 @@ export default {
           },
           loadFilters: function (){
               var self = this;
-              let tagUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=tags.name" : 'https://smart-api.info/api/suggestion?field=tags.name'
-              let ownerUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=info.contact.name" : 'https://smart-api.info/api/suggestion?field=info.contact.name'
+              // let tagUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=tags.name" : 'https://smart-api.info/api/suggestion?field=tags.name'
+              // let ownerUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=info.contact.name" : 'https://smart-api.info/api/suggestion?field=info.contact.name'
+              let tagUrl = "/api/suggestion?field=tags.name"
+              let ownerUrl = "/api/suggestion?field=info.contact.name" 
               axios.get(tagUrl).then(function(response){
                   let temp_data = []
                   for(let key in response.data){
@@ -596,7 +599,8 @@ export default {
           },
           aggregate(field){
             let self = this;
-            let url = window.location.hostname !== 'localhost' ? `/api/suggestion?field=${field}` : `https://smart-api.info/api/suggestion?field=${field}`
+            // let url = window.location.hostname !== 'localhost' ? `/api/suggestion?field=${field}` : `https://smart-api.info/api/suggestion?field=${field}`
+            let url = `/api/suggestion?field=${field}`
             axios.get(url)
             .then(response => {
               let complete = []
@@ -627,7 +631,8 @@ export default {
           },
           search: function () {
               var self = this;
-              let url = window.location.hostname !== 'localhost' ? "/api/query?q=" : 'https://smart-api.info/api/query?q='
+              // let url = window.location.hostname !== 'localhost' ? "/api/query?q=" : 'https://smart-api.info/api/query?q='
+              let url = "/api/query?q="
               let query = self.query.trim();
               // reset results
               self.apis = [];
@@ -910,7 +915,6 @@ export default {
       created: function () {
             this.loadFilters();
             this.aggregate('info.x-translator.component');
-            
             this.getAnalytics();
             this.$gtag.customMap({ 'dimension5': 'registryResults' })
             this.$gtag.customMap({ 'metric1': 'registry-item' })
