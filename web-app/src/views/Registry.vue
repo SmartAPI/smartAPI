@@ -985,9 +985,11 @@ export default {
             this.aggregate('info.x-translator.component');
             setTimeout(()=>{
               //set here to preserve desired order
+              const bt_count = self.tags.find(element => element.name == 'biothings');
+              const trapi_count = self.tags.find(element => element.name == 'trapi');
               self.all_filters['tags.name'] = [
-                  {'name':'BioThings','value':'biothings','active':false, color: '#424242'},
-                  {'name':'TRAPI','value':'trapi','active':false, color: '#424242'},
+                  {'name':'BioThings','value':'biothings','active':false, color: '#424242', count: bt_count.count || false},
+                  {'name':'TRAPI','value':'trapi','active':false, color: '#424242', count: trapi_count.count || false},
                 ]
               //special NOT includes multiple values
               self.all_filters['!tags.name'] = [
