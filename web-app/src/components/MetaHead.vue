@@ -38,7 +38,6 @@ export default {
     document.querySelector("title").innerHTML = this.title
     document.querySelector("meta[name='twitter:title']").setAttribute('content', this.title);
     document.querySelector("meta[property='og:site_name']").setAttribute('content', this.title);
-    document.querySelector("meta[property='fb:app_id']").setAttribute('content', this.title);
     document.querySelector("meta[property='og:title']").setAttribute('content', this.title);
     //desc
     document.querySelector("meta[name='description']").setAttribute('content', this.description);

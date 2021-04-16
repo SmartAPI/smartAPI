@@ -859,8 +859,10 @@ export default {
               self.ownersNotFound = []
               self.tagsNotFound = []
             }
-
-            setTimeout(this.checkDymanicFilters, 1200);
+            //check dynamic filters for special registry
+            if (this.portal_name == 'translator') {
+              setTimeout(this.checkDymanicFilters, 1200);
+            }
 
           },
           checkDymanicFilters(){
