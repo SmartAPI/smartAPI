@@ -30,9 +30,9 @@
       </h6>
     </div>
   </div>
-  <div class="padding20 grey lighten-3">
+  <div class="p-1 grey lighten-3">
     <div class="center">
-      <h3 class="m-1">
+      <h3 style="margin:5px;">
         <img />
           <Image class="scale-in-center" img_name="metakg-01.png" img_width="30px"
           style="max-width: 50px; max-height: 50px;" ></Image>
@@ -240,23 +240,16 @@ export default {
           return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
       },
       allWithTag: function (name) {
-        var payload = {};
-        payload["highlight"] = name
-        this.$store.dispatch('allWithTag', payload)
+        this.$store.dispatch('allWithTag', {highlight: name})
       },
       allWithTagUndo: function () {
         this.$store.dispatch('allWithTagUndo')
       },
       handleME: function (name) {
-        var payload = {};
-        payload["highlight"] = name
-        this.$store.dispatch('highlightThis', payload)
+        this.$store.dispatch('highlightThis', {highlight: name})
       },
       handleML: function (name) {
-
-        var payload = {};
-        payload["unhighlight"] = name
-        this.$store.dispatch('unhighlightThis', payload)
+        this.$store.dispatch('unhighlightThis', {unhighlight: name})
       },
       async loadKG() {
         var self = this;
@@ -271,10 +264,13 @@ export default {
         self.apisLoaded = true;
         //performance check
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c Getting Meta-KG graph took ${seconds} seconds.`, 'color:limegreen');
+        console.log(`%c 🦄 Getting Meta-KG graph took ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
 
         //send graph data to store for processing
-        this.$store.commit('loadMetaKG', {'graph': meta_kg});
+        this.$store.commit('createCy');
+        this.$store.commit('saveMetaKG', {'metakg': meta_kg});
+        this.$store.commit('loadMetaKG', {'res': meta_kg.ops});
+        this.$store.commit('getNewOptions', {'res': meta_kg.ops});
         this.$store.commit('drawGraph');
         this.checkForQuery();
       },
@@ -338,50 +334,21 @@ export default {
         this.$store.dispatch('download');
       },
       highlightRow: function (item) {
-
-        var self = this;
-
-        self.hoverInfo = item
-
-        var payload = {};
-        payload['item'] = item
-        this.$store.dispatch('highlightRow', payload)
+        this.hoverInfo = item
+        this.$store.dispatch('highlightRow', {item: item})
       },
       highlightRowAndZoom: function (item) {
-
-        var self = this;
-
-        self.hoverInfo = item
-
-        var payload = {};
-        payload['item'] = item
-        this.$store.dispatch('highlightRowAndZoom', payload)
+        this.hoverInfo = item
+        this.$store.dispatch('highlightRowAndZoom', {item: item})
       },
       unhighlightRow: function (item) {
-
-        var payload = {};
         let edgeName = item['association']['api_name'] + ' : ' + item['association']['predicate'];
-        payload["unhighlight"] = edgeName;
-        payload['item'] = item;
-        this.$store.dispatch('unhighlightRow', payload)
+        this.$store.dispatch('unhighlightRow', {unhighlight: edgeName, item: item})
       },
       loadExample() {
         this.$store.commit('reset');
-
-        var payload = {};
-        payload["type"] = 'predicate';
-        payload["q"] = 'treats';
-
-        this.$store.commit('pushPill', payload);
-
-        var payload2 = {};
-        payload2["type"] = 'output_type';
-        payload2["q"] = "Disease";
-
-        this.$store.commit('pushPill', payload2);
-
-        // TODO not working because watcher not detecting changes
-
+        this.$store.commit('pushPill', {type: 'predicate', q: 'treats'});
+        this.$store.commit('pushPill', {type: 'output_type', q: 'Disease'});
       },
       recenterGraph() {
         this.$store.dispatch('recenterGraph')
@@ -389,24 +356,15 @@ export default {
       checkForQuery(){
           let finalURL = window.location.href
           let url = new URL(finalURL);
-
-          var payload = {};
-          payload["params"] = url.search.slice(1);
-          this.$store.dispatch('handleParams', payload);
+          this.$store.dispatch('handleParams', {params: url.search.slice(1)});
       }
     },
     mounted: function () {
-      var self = this;
-      if (self.name == 'translator') {
-        self.loadKG();
-
-        let payload = {}
-        payload['loading'] = true;
-        this.$store.commit('toggleLoading', payload)
+      if (this.name == 'translator') {
+        this.loadKG();
+        this.$store.commit('toggleLoading', {loading: true})
       }
-
-      self.component_select = self.component ? self.component : 'KP'
-
+      this.component_select = this.component ? this.component : 'KP'
     }
 }
 </script>

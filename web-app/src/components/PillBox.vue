@@ -45,10 +45,7 @@ export default {
 
         setTimeout(function(){
           if (self.options.includes(self.q)) {
-            var payload = {};
-            payload["type"] = self.type;
-            payload["q"] = self.q;
-            self.$store.commit('pushPill', payload);
+            self.$store.commit('pushPill', {type: self.type, q: self.q});
           } else {
             self.$swal({
               type: 'error',
@@ -65,10 +62,10 @@ export default {
 
           self.$store.commit('saveInput', payload2);
           //temp fix
+          console.log("%c ✅ SUBMIT "+self.type, "color:limegreen")
           self.$store.dispatch('handle_metaKG_Query_New')
           self.$store.dispatch('buildURL');
           self.q = ''
-          // this.$store.dispatch('handle_metaKG_Query_New')
         }, 500)
 
         
@@ -78,19 +75,14 @@ export default {
         self.$toast.success('Updating...');
 
         setTimeout(function(){
-          var payload = {};
-          payload["type"] = self.type;
-          payload["q"] = item;
-
-          self.$store.commit('removePill', payload);
+          self.$store.commit('removePill', {type: self.type, q: item});
+          console.log("%c ❌ REMOVE "+self.type, "color:red")
           self.$store.dispatch('handle_metaKG_Query_New')
           self.$store.dispatch('buildURL');
         }, 500)
       },
       getBackClass() {
-        var self = this;
-
-        switch (self.type) {
+        switch (this.type) {
           case 'predicate':
             return "purple";
           case 'input_type':
@@ -104,8 +96,7 @@ export default {
     },
     computed: {
       options: function () {
-        var self = this;
-        switch (self.type) {
+        switch (this.type) {
           case 'predicate':
             return this.$store.getters.getP_AC
           case 'input_type':
@@ -119,8 +110,7 @@ export default {
 
       },
       selected: function () {
-        var self = this;
-        switch (self.type) {
+        switch (this.type) {
           case 'predicate':
             return this.$store.getters.getP_Selected
           case 'input_type':
@@ -141,9 +131,8 @@ export default {
       q: function (q) {
         //after selecting from datalist automatically send selection
         //if selection exists
-        var self = this;
-        if (q && self.options.includes(q)) {
-          self.handlePillSubmit();
+        if (q && this.options.includes(q)) {
+          this.handlePillSubmit();
         }
       },
       options: function (o) {
@@ -158,15 +147,16 @@ export default {
           document.getElementById(self.type + 'list').innerHTML = html
         }
       },
-      selected:{
-        handler(s){
-          // load example by watching selected
-          this.$store.commit('saveInput', {"name": this.type, "q":s});
-          this.$store.dispatch('handle_metaKG_Query_New')
-          this.$store.dispatch('buildURL');
-        },
-        deep: true
-      },
+      // selected:{
+      //   handler(s){
+      //     // load example by watching selected
+      //     this.$store.commit('saveInput', {"name": this.type, "q":s});
+      //     console.log("%c Q from WATCHER from "+this.type, "color:white; background-color:gold;")
+      //     this.$store.dispatch('handle_metaKG_Query_New')
+      //     this.$store.dispatch('buildURL');
+      //   },
+      //   deep: true
+      // },
     },
 }
 </script>

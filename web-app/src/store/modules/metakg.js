@@ -29,7 +29,7 @@ export const metakg = {
         "predicate_autocomplete_all": [],
         'overEdgeLimit': false,
         'showAllEdges': true,
-        'maxEdgesRendered': 1500
+        'maxEdgesRendered': 1500,
      }),
     strict: true,
     mutations: {
@@ -37,203 +37,128 @@ export const metakg = {
             state.loading = payload['loading'];
         },
         reset(state) {
-        // only clear if it has something or it will trigger a search unnecessarily on other components
-        if (state.predicate_selected.length) {
-            state.predicate_selected = [];
-        }
-        if (state.input_selected.length) {
-            state.input_selected = [];
-        }
-        if (state.output_selected.length) {
-            state.output_selected = [];
-        }
+            // only clear if it has something or it will trigger a search unnecessarily on other components
+            if (state.predicate_selected.length) {
+                state.predicate_selected = [];
+            }
+            if (state.input_selected.length) {
+                state.input_selected = [];
+            }
+            if (state.output_selected.length) {
+                state.output_selected = [];
+            }
 
-        state.predicate = [];
-        state.input_type = [];
-        state.output_type = [];
-        },
+            state.predicate = [];
+            state.input_type = [];
+            state.output_type = [];
+            },
         saveInput(state, payload) {
 
-        let name = payload['name'];
+            let name = payload['name'];
 
-        switch (name) {
-            case 'output_type':
-            state.output_type = payload["q"]
-            break;
-            case 'input_type':
-            state.input_type = payload["q"]
-            break;
-            case 'predicate':
-            state.predicate = payload["q"]
-            break;
-            default:
-            console.log('no match')
-        }
+            switch (name) {
+                case 'output_type':
+                state.output_type = payload["q"]
+                break;
+                case 'input_type':
+                state.input_type = payload["q"]
+                break;
+                case 'predicate':
+                state.predicate = payload["q"]
+                break;
+                default:
+                console.log('no match')
+            }
+        },
+        saveMetaKG(state, payload) {
+            state.meta_kg = payload['metakg']
         },
         drawGraph(state) {
-        const t0 = performance.now();
-        var self = this;
+            const t0 = performance.now();
 
-        this.cy = cytoscape({
-            container: document.getElementById('cy'),
-            elements: state.cyto_data,
-            hideEdgesOnViewport: true,
-            layout: {
-            name: "concentric",
-            avoidOverlap: true,
-            avoidOverlapPadding: 200,
-            minNodeSpacing: 200,
-            },
-            style: [
-            {
-                selector: 'node',
-                style: {
-                'content': 'data(name)',
-                'min-zoomed-font-size': '2em',
-                "text-valign": "bottom",
-                "text-halign": "center",
-                'color': '#3c5f99',
-                'font-size': '3em',
-                'text-outline-width': 4,
-                'text-outline-color': 'white',
-                'background-color': '#9c27b0',
-                'z-index': 1000
-                }
-            },
-            {
-                selector: 'node:selected',
-                style:{
-                'background-color': 'red',
-                }
-            },
-            {
-                selector: 'edge',
-                style:{
-                'curve-style': 'bezier',
-                'line-color': 'lightblue',
-                'target-arrow-shape': 'triangle',
-                'target-arrow-color': '#257FC5',
-                'width': 2,
-                'z-index': 1,
-                }
-            },
-            {
-                selector: 'edge:selected',
-                style:{
-                'z-index': 1000,
-                'color': '#9c27b0',
-                'font-size': '2.5em',
-                'width': 4,
-                'line-color': '#f24141',
-                'target-arrow-color': '#f24141',
-                'arrow-scale': 2
-                }
-            },
-            {
-                selector: '.highlightedTag',
-                style:{
-                'line-color': '#673782',
-                'target-arrow-color': '#f24141',
-                'width': 4,
-                }
-            },
-            {
-                selector: '.highlightedAPI',
-                style:{
-                'line-color': 'red',
-                'target-arrow-color': '#f24141',
-                'width': 4,
-                }
-            },
-            ]
-        });
+            state.cy.layout({
+                name: "concentric",
+                avoidOverlap: true,
+                avoidOverlapPadding: 200,
+                minNodeSpacing: 200,
+            }).run();
 
-        this.cy.$('node').on('grab', function (e) {
-            var ele = e.target;
-            ele.connectedEdges().select()
-        });
-
-        this.cy.on('mouseover', 'edge', function(evt){
-            var edge = evt.target;
-            edge.select()
-        });
-
-        this.cy.on('mouseout', 'edge', function(evt){
-            var edge = evt.target;
-            edge.deselect()
-        });
-
-        this.cy.$('node').on('free', function (e) {
-            var ele = e.target;
-            ele.connectedEdges().unselect()
-        });
-          
-        function makePopper(ele) {
-            let ref = ele.popperRef();
-            ele.tippy = tippy(document.createElement('div'), {
-            getReferenceClientRect: ref.getBoundingClientRect,
-            hideOnClick: false,
-            placement:'top-start',
-            trigger: 'manual', // mandatory
-            arrow: true,
-            interactive: true,
-            allowHTML: true,
-            theme:'light',
-            animation: false,
-            appendTo: document.body, // or append dummyDomEle to document.body
-            onShow: function(instance){
-                instance.setContent('<div class="blue-text p-1 text-center">'+ele.id()+'</div>')
-            }
+            state.cy.on('mouseover', 'edge', function(evt){
+                evt.target.select()
             });
-        }
 
-        function makePopperEdge(ele) {
-            let ref = ele.popperRef();
-            ele.tippy = tippy(document.createElement('div'), {
-            getReferenceClientRect: ref.getBoundingClientRect,
-            hideOnClick: false,
-            trigger: 'manual', // mandatory
-            placement:'top-start',
-            arrow: true,
-            animation: false,
-            allowHTML: true,
-            interactive: true,
-            theme:'light',
-            appendTo: document.body, // or append dummyDomEle to document.body
-            onShow: function(instance){
-                instance.setContent(`<div class="p-1 text-center"><h6 class="center">`+ele.data('api_name')+`</h6><b class="grey darken-2 badgepill">`+ele.data('source')+
-                `</b> <b class="purple-text">`+ele.data('predicate')+
-                `</b> <b class="orange darken-2 badgepill">`+ele.data('target')+
-                `</b></div>`)
-            }
+            state.cy.on('mouseout', 'edge', function(evt){
+                evt.target.deselect()
             });
-        }
 
-        
-        this.cy.ready(function () {
-            self.cy.elements().forEach(function (ele) {           
-            if(!ele.isNode()){
-                makePopperEdge(ele);
-            }else{
-                makePopper(ele);
+            
+            function makePopper(ele) {
+                let ref = ele.popperRef();
+                ele.tippy = tippy(document.createElement('div'), {
+                getReferenceClientRect: ref.getBoundingClientRect,
+                hideOnClick: false,
+                placement:'top-start',
+                trigger: 'manual', // mandatory
+                arrow: true,
+                interactive: true,
+                allowHTML: true,
+                theme:'light',
+                animation: false,
+                appendTo: document.body, // or append dummyDomEle to document.body
+                onShow: function(instance){
+                    instance.setContent('<div class="blue-text p-1 text-center">'+ele.id()+'</div>')
+                }
+                });
             }
+
+            function makePopperEdge(ele) {
+                let ref = ele.popperRef();
+                ele.tippy = tippy(document.createElement('div'), {
+                getReferenceClientRect: ref.getBoundingClientRect,
+                hideOnClick: false,
+                trigger: 'manual', // mandatory
+                placement:'top-start',
+                arrow: true,
+                animation: false,
+                allowHTML: true,
+                interactive: true,
+                theme:'light',
+                appendTo: document.body, // or append dummyDomEle to document.body
+                onShow: function(instance){
+                    instance.setContent(`<div class="p-1 text-center"><h6 class="center">`+ele.data('api_name')+`</h6><b class="black-text">`+ele.data('source')+
+                    `</b> <b class="purple-text">`+ele.data('predicate')+
+                    `</b> <b class="orange-text">`+ele.data('target')+
+                    `</b></div>`)
+                }
+                });
+            }
+
+            state.cy.ready(function () {
+                state.cy.elements().forEach(function (ele) {           
+                if(!ele.isNode()){
+                    makePopperEdge(ele);
+                }else{
+                    makePopper(ele);
+                    // console.log('CON', ele.connectedEdges().length)
+                    ele.data('weight',  (ele.connectedEdges().length * 2) );
+                }
+                });
             });
-        });
 
-        this.cy.elements().unbind('mouseover');
-        this.cy.elements().bind('mouseover', (event) => event.target.tippy.show());
+            state.cy.elements().unbind('mouseover');
+            state.cy.elements().bind('mouseover', (event) => event.target.tippy.show());
 
-        this.cy.elements().unbind('mouseout');
-        this.cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
+            state.cy.elements().unbind('mouseout');
+            state.cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
 
-        this.cy.elements().unbind('drag');
-        this.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
+            state.cy.elements().unbind('drag');
+            state.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
 
-        this.cy.maxZoom(2)
+            state.cy.maxZoom(2)
 
-        const t1 = performance.now();
-        var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c Rendering graph took ${seconds} seconds.`, 'color:yellow');
+            const t1 = performance.now();
+            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+            console.log(`%c Rendering graph took ${seconds} seconds.`, 'color:yellow');
         },
         saveContext(state, payload) {
         state.name = payload['context']['portal'];
@@ -244,179 +169,89 @@ export const metakg = {
         saveOperations(state, payload) {
         state.operations = payload['ops'];
         },
-        getNewOptions(state, payload) {
-        let filteredOptions = payload['res'];
-        const t0 = performance.now();
-        let predicates = new Set();
-        let inputs = new Set();
-        let outputs = new Set();
+        getNewOptions(state) {
+            const t0 = performance.now();
 
-        // PREDICATES
-        if (!state.output_selected.length && !state.input_selected.length) {
-            // restore all options from backup
-            state.predicate_autocomplete = state.predicate_autocomplete_all
-        } else {
-            filteredOptions.forEach(op => predicates.add(op['association']['predicate']) );
-            state.predicate_autocomplete = [...predicates]
-        }
-
-        // INPUT
-        if (state.output_selected.length && !state.input_selected.length) {
-            filteredOptions.forEach(op => inputs.add(op['association']['input_type']) );
-            state.input_autocomplete = [...inputs]
-        } else if (state.input_selected.length && !state.output_selected.length) {
-            //OUTPUT
-            filteredOptions.forEach(op => outputs.add(op['association']['output_type']) );
-            state.output_autocomplete = [...outputs]
-        } else {
-            filteredOptions.forEach(op => {
-            outputs.add(op['association']['output_type'])
-            inputs.add(op['association']['input_type']) 
+            state.output_autocomplete = []
+            state.input_autocomplete = []
+            state.predicate_autocomplete = []
+            
+            state.cy.elements().forEach(ele => {    
+                !ele.isNode() ? state.predicate_autocomplete.push(ele.data('predicate')) : (state.output_autocomplete.push(ele.data('name')), state.input_autocomplete.push(ele.data('name'))) ;
             });
-            state.output_autocomplete = [...outputs]
-            state.input_autocomplete = [...inputs]
-        }
-
-        const t1 = performance.now();
-        var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c (getNewOptions) Calculating input options took ${seconds} seconds.`, 'color:cyan');
+            const t1 = performance.now();
+            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+            console.log(`%c Calculating input options took ${seconds} seconds.`, 'color:cyan');
 
         },
         loadMetaKG(state, payload) {
-        state.meta_kg = payload['graph'];
-        //Initial data Processing
-        const t0 = performance.now();
-        //all nodes and edges
-        let data = [];
-        let nodes = new Set();
-        let oac_set = new Set();
-        let iac_set = new Set();
-        let pac_set = new Set();
-
-        state.operationsTotal = state.meta_kg.ops.length;
-
-        // console.log(state.meta_kg.ops)
-        console.log("OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
-
-        state.meta_kg.ops.forEach((op, i) => {
+            let results = payload['res'];
+            //Initial data Processing
+            const t0 = performance.now();
+            //clear data
+            state.cy.elements().remove();
+            //all nodes and edges
+            let nodes = new Set();
             
-            nodes.add(op['association']['input_type']);
-            nodes.add(op['association']['output_type']);
+            let all_edges = []
 
-            if (i < state.maxEdgesRendered) {
-            let edgeName = op['association']['api_name'] + ' : ' + op['association']['predicate'];
+            state.operationsTotal = results.length;
+    
+            console.log("OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
+    
+            results.forEach((op, i) => {
 
-            let edge = {
-                group: 'edges',
-                data: {
-                id: edgeName + i,
-                name: edgeName,
-                predicate: op['association']['predicate'],
-                output_id: op['association']['output_id'],
-                api_name: op['association']['api_name'],
-                type: op['association']['api_name'],
-                source: op['association']['input_type'],
-                target: op['association']['output_type'],
-                }
-            };
-
-            data.push(edge);
-            state.overEdgeLimit = false
-            }else{
-            state.overEdgeLimit = true
-            }
-
-            // Autocomplete
-            oac_set.add(op['association']['output_type']);
-            iac_set.add(op['association']['input_type']);
-            pac_set.add(op['association']['predicate']);
-
-        });
-
-        state.output_autocomplete = [...oac_set];
-        state.input_autocomplete = [...iac_set];
-        state.predicate_autocomplete = [...pac_set];
-
-
-        nodes.forEach(node => {
-            data.push({ 
-            group: 'nodes',          
-            data: {
-                name: node,
-                id: node
-            }
-            });
-        });
-
-        state.cyto_data = data;
-
-        state.loading = false;
-
-        //save backup of all options for getNewOptions
-        state.predicate_autocomplete_all = state.predicate_autocomplete;
-
-        // starting results on left panel
-        state.results = state.meta_kg.ops;
-
-        const t1 = performance.now();
-        var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c Parsing initial data took ${seconds} seconds.`, 'color:pink');
-        },
-        saveResults(state, payload) {
-        state.results = payload['res']
-        const t0 = performance.now();
-
-        let data = []
-        let nodes = new Set()
-
-        state.operationsTotal = state.results.length;
-        console.log("OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
-
-        state.results.forEach((result, i) => {
-            nodes.add(result['association']['input_type'])
-            nodes.add(result['association']['output_type'])
-
-            if (i < state.maxEdgesRendered) {
-            let edgeName = result['association']['api_name'] + ' : ' + result['association'][
-                'predicate'
-            ]
-
-            let edge = {
-                group: 'edges',
-                data: {
-                id: edgeName + i,
-                name: edgeName,
-                predicate: result['association']['predicate'],
-                output_id: result['association']['output_id'],
-                api_name: result['association']['api_name'],
-                source: result['association']['input_type'],
-                target: result['association']['output_type'],
-                }
-            };
-            data.push(edge)
-            state.overEdgeLimit = false
-            }else{
-            state.overEdgeLimit = true
-            }
-            
-        });
+                nodes.add(op['association']['input_type']);
+                nodes.add(op['association']['output_type']);
+    
+                if (i < state.maxEdgesRendered) {
+                    // console.log('OP', JSON.stringify(op, null, 2))
+                    let edgeName = op['association']['api_name'] + ' : ' + op['association']['predicate'];
         
-        nodes.forEach(node => {
-            data.push({ 
-            group: 'nodes',          
-            data: {
-                name: node,
-                id: node
-            }
+                    let edge = {
+                        ...op,
+                        group: 'edges',
+                        data: {
+                            id: Math.floor(100000 + Math.random() * 900000),
+                            name: edgeName,
+                            predicate: op['association']['predicate'],
+                            output_id: op['association']['output_id'],
+                            api_name: op['association']['api_name'],
+                            type: op['association']['api_name'],
+                            source: op['association']['input_type'],
+                            target: op['association']['output_type'],
+                        }
+                    };
+        
+                    all_edges.push(edge);
+                    state.overEdgeLimit = false
+                }else{
+                    state.overEdgeLimit = true
+                }
+    
             });
-        });
+    
+            nodes.forEach(node => {
+                state.cy.add({ 
+                    group: 'nodes',          
+                    data: {
+                        name: node,
+                        id: node,
+                        weight: 1
+                    }
+                    })
+            });
 
-        state.cyto_data = data
-
-        const t1 = performance.now();
-        var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`(saveResults) Creating new nodes from search took ${seconds} seconds.`);
-
+            all_edges.forEach(edge => {
+                state.cy.add(edge)
+            })
+            state.loading = false;
+            // starting results on left panel
+            state.results = all_edges;
+    
+            const t1 = performance.now();
+            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+            console.log(`%c 🕧 Parsing initial data took ${seconds} seconds.`, 'color:hotpink');
         },
         pushPill(state, payload) {
         let type = payload["type"]
@@ -491,6 +326,77 @@ export const metakg = {
             console.log('NO option removePill')
         }
         },
+        createCy(state){
+            state.cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [],
+                hideEdgesOnViewport: true,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                        'content': 'data(name)',
+                        'min-zoomed-font-size': '2em',
+                        "text-valign": "bottom",
+                        "text-halign": "center",
+                        'color': '#3c5f99',
+                        'font-size': '3em',
+                        'text-outline-width': 4,
+                        'text-outline-color': 'white',
+                        'background-color': '#9c27b0',
+                        'z-index': 1000,
+                        // 'width': 'data(weight)',
+                        // 'height': 'data(weight)'
+                        }
+                    },
+                    {
+                        selector: 'node:selected',
+                        style:{
+                        'background-color': 'red',
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style:{
+                        'curve-style': 'bezier',
+                        'line-color': 'lightblue',
+                        'target-arrow-shape': 'triangle',
+                        'target-arrow-color': '#257FC5',
+                        'width': 4,
+                        'z-index': 1,
+                        }
+                    },
+                    {
+                        selector: 'edge:selected',
+                        style:{
+                        'z-index': 1000,
+                        'color': '#9c27b0',
+                        'font-size': '2.5em',
+                        'width': 4,
+                        'line-color': '#f24141',
+                        'target-arrow-color': '#f24141',
+                        'arrow-scale': 2
+                        }
+                    },
+                    {
+                        selector: '.highlightedTag',
+                        style:{
+                        'line-color': '#673782',
+                        'target-arrow-color': '#f24141',
+                        'width': 4,
+                        }
+                    },
+                    {
+                        selector: '.highlightedAPI',
+                        style:{
+                        'line-color': 'red',
+                        'target-arrow-color': '#f24141',
+                        'width': 4,
+                        }
+                    },
+                ]
+            })
+        }
         
      },
     actions: {
@@ -522,25 +428,25 @@ export const metakg = {
                 }
             }
         },
-        recenterGraph() {
-            this.cy.fit();
+        recenterGraph({state}) {
+            state.cy.fit();
         },
-        highlightThis(payload) {
+        highlightThis({state}, payload) {
         let name = payload['highlight']
-        let found = this.cy.filter(function (element) {
+        let found = state.cy.filter(function (element) {
             if (element.isEdge() && element.data('name').includes(name)) {
             return element;
             }
         });
         found.addClass('highlightedAPI');
         },
-        unhighlightThis() {
-            this.cy.elements().removeClass('highlightedAPI')
+        unhighlightThis({state}) {
+            state.cy.elements().removeClass('highlightedAPI')
         },
-        allWithTag(payload) {
+        allWithTag({state}, payload) {
         let name = payload['highlight']
 
-        let found = this.cy.filter(function (element) {
+        let found = state.cy.filter(function (element) {
             if (element.isEdge() && element.data('tags').includes(name)) {
             return element;
             }
@@ -548,131 +454,70 @@ export const metakg = {
         found.addClass('highlightedTag')
 
         },
-        allWithTagUndo() {
-        this.cy.elements().removeClass('highlightedTag')
+        allWithTagUndo({state}) {
+        state.cy.elements().removeClass('highlightedTag')
         },
-        highlightRowAndZoom({
-        state
-        }, payload) {
-
-        let item = payload['item']
-        let p = item['association']['predicate']
-        let s = item['association']["input_type"]
-        let t = item['association']["output_type"]
-        let o = item['association']["output_id"]
-        let a = item['association']["api_name"]
-
-        if (state.operationsTotal < state.maxEdgesRendered) {
-            let found = this.cy.filter(function (element) {
-            if (element.isEdge() && element.data('predicate') == p) {
-            if (element.source().data('name') == s && element.target().data('name') == t) {
-                if (element.data('output_id') == o && element.data('api_name') == a) {
-                return element;
+        highlightRowAndZoom({state}, payload) {
+            let item = payload['item']
+            if (state.operationsTotal < state.maxEdgesRendered && item.data.id) {
+                let found = state.cy.edges().filter(function( ele ){
+                    return ele.data('id') == item.data.id;
+                });
+                if(found){
+                    found.select()
+                    state.cy.fit(found, 75)
                 }
             }
-            }
-        });
-        found.select()
-        found.connectedNodes().style({
-            'opacity': 1
-        })
-        this.cy.fit(found, 75)
-        }
         },
-        highlightRow({
-        state
-        }, payload) {
-
-        let item = payload['item']
-        let p = item['association']['predicate']
-        let s = item['association']["input_type"]
-        let t = item['association']["output_type"]
-        let o = item['association']["output_id"]
-        let a = item['association']["api_name"]
-
-        if (state.operationsTotal < state.maxEdgesRendered) {
-            let found = this.cy.filter(function (element) {
-            if (element.isEdge() && element.data('predicate') == p) {
-                if (element.source().data('name') == s && element.target().data('name') == t) {
-                if (element.data('output_id') == o && element.data('api_name') == a) {
-                    return element;
-                }
+        highlightRow({state}, payload) {
+            let item = payload['item']
+            if (state.operationsTotal < state.maxEdgesRendered && item.data.id) {
+                let found = state.cy.edges().filter(function( ele ){
+                    return ele.data('id') == item.data.id;
+                });
+                if(found){
+                    found.select()
+                    found[0].tippy.show()
                 }
             }
-            });
-            found.select()
-            found[0].tippy.show()
-            found.connectedNodes().style({
-            'opacity': 1
-            })
-        }
         },
-        unhighlightRow({
-        state
-        }, payload) {
-        // let name = payload['unhighlight']
-        // this.cy.elements().unselect()
-        let item = payload['item']
-        let p = item['association']['predicate']
-        let s = item['association']["input_type"]
-        let t = item['association']["output_type"]
-        let o = item['association']["output_id"]
-        let a = item['association']["api_name"]
-
-        if (state.operationsTotal < state.maxEdgesRendered) {
-            let found = this.cy.filter(function (element) {
-            if (element.isEdge() && element.data('predicate') == p) {
-            if (element.source().data('name') == s && element.target().data('name') == t) {
-                if (element.data('output_id') == o && element.data('api_name') == a) {
-                return element;
+        unhighlightRow({state}, payload) {
+            let item = payload['item']
+            if (state.operationsTotal < state.maxEdgesRendered && item.data.id) {
+                let found = state.cy.edges().filter(function( ele ){
+                    return ele.data('id') == item.data.id;
+                });
+                if(found){
+                    found.unselect()
+                    found[0].tippy.hide()
                 }
             }
+        },
+        handle_metaKG_Query_New({commit, state}) {
+            console.log("HANDLE NEW QUERY")
+            let q = {}
+            if (state.output_type && state.output_type.length) {
+                q['output_type'] = state.output_type
             }
-        });
-        this.cy.filter('node').style({
-            'opacity': 1
-        })
-        found.unselect()
-        found[0].tippy.hide()
-        this.cy.filter('node').style({
-            'opacity': 1
-        })
-        }
+            if (state.predicate && state.predicate.length) {
+                q['predicate'] = state.predicate
+            }
+            if (state.input_type && state.input_type.length) {
+                q['input_type'] = state.input_type
+            }
+
+            console.log("%c Executing new query...", "color:lightblue")
+            console.log(JSON.stringify(q, null, 2))
+
+            let g = state.meta_kg.filter(q);
+
+            if (g) {
+                commit('loadMetaKG', {res: g});
+                commit('getNewOptions', {res: g});
+                commit('drawGraph');
+            }
         },
-        handle_metaKG_Query_New({
-        commit,
-        state
-        }) {
-        console.log("HANDLE NEW QUERY")
-        let q = {}
-        if (state.output_type && state.output_type.length) {
-            q['output_type'] = state.output_type
-        }
-        if (state.predicate && state.predicate.length) {
-            q['predicate'] = state.predicate
-        }
-        if (state.input_type && state.input_type.length) {
-            q['input_type'] = state.input_type
-        }
-
-        console.log("%c Executing new query...", "color:lightblue")
-        console.log(JSON.stringify(q, null, 2))
-
-        let g = state.meta_kg.filter(q);
-
-        if (g) {
-            var payload = {};
-            payload["res"] = g;
-            commit('saveResults', payload);
-
-            var pay = {};
-            pay["res"] = g;
-            commit('getNewOptions', pay);
-
-            commit('drawGraph');
-        }
-        },
-        download() {
+        download({state}) {
 
         let options = {
             "bg": "white",
@@ -681,7 +526,7 @@ export const metakg = {
             "output": 'blob'
         }
 
-        let pic = this.cy.png(options)
+        let pic = state.cy.png(options)
 
         var a = document.createElement("a");
         var file = new Blob([pic], {
@@ -700,9 +545,7 @@ export const metakg = {
         });
 
         },
-        buildURL({
-        state
-        }) {
+        buildURL({state}) {
 
         let base = window.location.origin + window.location.pathname
         let finalURL = window.location.href
@@ -753,58 +596,58 @@ export const metakg = {
     getters: {
         getAPIS: (state) => {
             return state.apis
-          },
-          getName: (state) => {
+        },
+        getName: (state) => {
             return state.name
-          },
-          getI_AC: (state) => {
+        },
+        getI_AC: (state) => {
             return state.input_autocomplete
-          },
-          getP_AC: (state) => {
+        },
+        getP_AC: (state) => {
             return state.predicate_autocomplete
-          },
-          getO_AC: (state) => {
+        },
+        getO_AC: (state) => {
             return state.output_autocomplete
-          },
-          getI_Selected: (state) => {
+        },
+        getI_Selected: (state) => {
             return state.input_selected
-          },
-          getP_Selected: (state) => {
+        },
+        getP_Selected: (state) => {
             return state.predicate_selected
-          },
-          getO_Selected: (state) => {
+        },
+        getO_Selected: (state) => {
             return state.output_selected
-          },
-          getHtml: (state) => {
+        },
+        getHtml: (state) => {
             for (var name in state.portals) {
-              if (name == state.name) {
+                if (name == state.name) {
                 return state.portals[name]
-              }
             }
-          },
-          getResults: (state) => {
+        }
+        },
+        getResults: (state) => {
             return state.results
-          },
-          getCytoData: (state) => {
+        },
+        getCytoData: (state) => {
             return state.cyto_data
-          },
-          getSpread: (state) => {
+        },
+        getSpread: (state) => {
             return state.spread
-          },
-          getTagList: (state) => {
+        },
+        getTagList: (state) => {
             return state.tagList
-          },
-          getAPITotal: (state) => {
+        },
+        getAPITotal: (state) => {
             return state.operationsTotal
-          },
-          getLoading: (state) => {
+        },
+        getLoading: (state) => {
             return state.loading
-          },
-          getOverEdgeLimit: (state) => {
+        },
+        getOverEdgeLimit: (state) => {
             return state.overEdgeLimit
-          },
-          getLimit: (state) => {
+        },
+        getLimit: (state) => {
             return state.maxEdgesRendered
-          },
-     }
-  }
+        },
+    }
+}
