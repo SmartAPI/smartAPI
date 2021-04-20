@@ -29,7 +29,7 @@ export const metakg = {
         'overEdgeLimit': false,
         'showAllEdges': true,
         //set to 0 if no max
-        'maxEdgesRendered': 0,
+        'maxEdgesRendered': 1500,
         'edgeData': [],
         'nodeData':[],
         'showSelfReferenced': false
