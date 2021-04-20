@@ -9,11 +9,10 @@ export const metakg = {
     state: () => ({ 
         'name': 'translator',
         "meta_kg": null,
-        "results": [],
+        "results": Array,
         "output_autocomplete": [],
         "input_autocomplete": [],
         "predicate_autocomplete": [],
-        "cyto_data": [],
         "output_type": [],
         "input_type": [],
         "predicate": [],
@@ -29,12 +28,22 @@ export const metakg = {
         "predicate_autocomplete_all": [],
         'overEdgeLimit': false,
         'showAllEdges': true,
-        'maxEdgesRendered': 1500,
+        //set to 0 if no max
+        'maxEdgesRendered': 0,
+        'edgeData': [],
+        'nodeData':[],
+        'showSelfReferenced': false
      }),
     strict: true,
     mutations: {
         toggleLoading(state, payload) {
             state.loading = payload['loading'];
+        },
+        toggleSelfReferenced(state) {
+            state.showSelfReferenced = !state.showSelfReferenced
+        },
+        setMax(state, payload) {
+            state.maxEdgesRendered = payload['value']
         },
         reset(state) {
             // only clear if it has something or it will trigger a search unnecessarily on other components
@@ -51,7 +60,7 @@ export const metakg = {
             state.predicate = [];
             state.input_type = [];
             state.output_type = [];
-            },
+        },
         saveInput(state, payload) {
 
             let name = payload['name'];
@@ -75,13 +84,77 @@ export const metakg = {
         },
         drawGraph(state) {
             const t0 = performance.now();
-
-            state.cy.layout({
-                name: "concentric",
-                avoidOverlap: true,
-                avoidOverlapPadding: 200,
-                minNodeSpacing: 200,
-            }).run();
+            state.cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: [...state.edgeData, ...state.nodeData],
+                hideEdgesOnViewport: true,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                        'content': 'data(name)',
+                        'min-zoomed-font-size': '2em',
+                        "text-valign": "bottom",
+                        "text-halign": "center",
+                        'color': '#3c5f99',
+                        'font-size': '3em',
+                        'text-outline-width': 4,
+                        'text-outline-color': 'white',
+                        'background-color': '#9c27b0',
+                        'z-index': 1000,
+                        // 'width': 'data(weight)',
+                        // 'height': 'data(weight)'
+                        }
+                    },
+                    {
+                        selector: 'node:selected',
+                        style:{
+                        'background-color': 'red',
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style:{
+                        'curve-style': state.showSelfReferenced ? 'straight' : 'haystack',
+                        'line-color': 'grey',
+                        'opacity':.1,
+                        'target-arrow-shape': 'triangle',
+                        'target-arrow-color': '#257FC5',
+                        'width': 4,
+                        'z-index': 1,
+                        }
+                    },
+                    {
+                        selector: 'edge:selected',
+                        style:{
+                        'z-index': 1000,
+                        'color': '#9c27b0',
+                        'font-size': '2.5em',
+                        'width': 5,
+                        'opacity':1,
+                        'line-color': '#f24141',
+                        'target-arrow-color': '#f24141',
+                        'arrow-scale': 3
+                        }
+                    },
+                    {
+                        selector: '.highlightedTag',
+                        style:{
+                        'line-color': '#673782',
+                        'target-arrow-color': '#f24141',
+                        'width': 4,
+                        }
+                    },
+                    {
+                        selector: '.highlightedAPI',
+                        style:{
+                        'line-color': 'red',
+                        'target-arrow-color': '#f24141',
+                        'width': 4,
+                        }
+                    },
+                ]
+            })
 
             state.cy.on('mouseover', 'edge', function(evt){
                 evt.target.select()
@@ -125,10 +198,10 @@ export const metakg = {
                 theme:'light',
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent(`<div class="p-1 text-center"><h6 class="center">`+ele.data('api_name')+`</h6><b class="black-text">`+ele.data('source')+
-                    `</b> <b class="purple-text">`+ele.data('predicate')+
-                    `</b> <b class="orange-text">`+ele.data('target')+
-                    `</b></div>`)
+                    instance.setContent(`<div class="p-1 text-center"><h6 class="center"><b>`+ele.data('api_name')+`</b></h6><span class="black-text">`+ele.data('source')+
+                    `</span> ➡️ <span class="purple-text">`+ele.data('predicate')+
+                    `</span> ➡️ <span class="orange-text">`+ele.data('target')+
+                    `</span></div>`)
                 }
                 });
             }
@@ -139,8 +212,8 @@ export const metakg = {
                     makePopperEdge(ele);
                 }else{
                     makePopper(ele);
-                    // console.log('CON', ele.connectedEdges().length)
-                    ele.data('weight',  (ele.connectedEdges().length * 2) );
+                    // console.log('NODE WEIGHT '+ele.data('name'), ele.connectedEdges().length)
+                    // ele.data('weight',  (ele.connectedEdges().length * 2) );
                 }
                 });
             });
@@ -151,10 +224,22 @@ export const metakg = {
             state.cy.elements().unbind('mouseout');
             state.cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
 
+            state.cy.elements().bind('click', (event) => {
+                event.target.select()
+                state.cy.fit(event.target, 75)
+            });
+
             state.cy.elements().unbind('drag');
             state.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
 
             state.cy.maxZoom(2)
+
+            state.cy.layout({
+                name: "concentric",
+                avoidOverlap: true,
+                avoidOverlapPadding: 200,
+                minNodeSpacing: 200,
+            }).run();
 
             const t1 = performance.now();
             var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
@@ -162,9 +247,6 @@ export const metakg = {
         },
         saveContext(state, payload) {
         state.name = payload['context']['portal'];
-        },
-        saveCytoData(state, payload) {
-        state.cyto_data = payload['data'];
         },
         saveOperations(state, payload) {
         state.operations = payload['ops'];
@@ -188,70 +270,61 @@ export const metakg = {
             let results = payload['res'];
             //Initial data Processing
             const t0 = performance.now();
-            //clear data
-            state.cy.elements().remove();
             //all nodes and edges
             let nodes = new Set();
-            
             let all_edges = []
+            let all_nodes = []
 
             state.operationsTotal = results.length;
     
             console.log("OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
     
-            results.forEach((op, i) => {
-
+            results.forEach(op => {
                 nodes.add(op['association']['input_type']);
                 nodes.add(op['association']['output_type']);
-    
-                if (i < state.maxEdgesRendered) {
-                    // console.log('OP', JSON.stringify(op, null, 2))
-                    let edgeName = op['association']['api_name'] + ' : ' + op['association']['predicate'];
-        
-                    let edge = {
-                        ...op,
-                        group: 'edges',
-                        data: {
-                            id: Math.floor(100000 + Math.random() * 900000),
-                            name: edgeName,
-                            predicate: op['association']['predicate'],
-                            output_id: op['association']['output_id'],
-                            api_name: op['association']['api_name'],
-                            type: op['association']['api_name'],
-                            source: op['association']['input_type'],
-                            target: op['association']['output_type'],
-                        }
-                    };
-        
-                    all_edges.push(edge);
-                    state.overEdgeLimit = false
-                }else{
-                    state.overEdgeLimit = true
-                }
-    
+
+                let edge = {
+                    ...op,
+                    group: 'edges',
+                    data: {
+                        id: Math.floor(100000 + Math.random() * 900000),
+                        name: op['association']['api_name'] + ' : ' + op['association']['predicate'],
+                        predicate: op['association']['predicate'],
+                        output_id: op['association']['output_id'],
+                        api_name: op['association']['api_name'],
+                        type: op['association']['api_name'],
+                        source: op['association']['input_type'],
+                        target: op['association']['output_type'],
+                    }
+                };
+                all_edges.push(edge);
             });
-    
+
+            all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
+            state.overEdgeLimit = state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
+
+
             nodes.forEach(node => {
-                state.cy.add({ 
+                let n = { 
                     group: 'nodes',          
                     data: {
                         name: node,
                         id: node,
                         weight: 1
                     }
-                    })
+                }
+                all_nodes.push(n)
             });
 
-            all_edges.forEach(edge => {
-                state.cy.add(edge)
-            })
+            state.edgeData = all_edges
+            state.nodeData = all_nodes
             state.loading = false;
             // starting results on left panel
             state.results = all_edges;
     
             const t1 = performance.now();
             var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-            console.log(`%c 🕧 Parsing initial data took ${seconds} seconds.`, 'color:hotpink');
+            console.log(`%c 🕧 Creating graph data took ${seconds} seconds.`, 'color:hotpink');
         },
         pushPill(state, payload) {
         let type = payload["type"]
@@ -326,78 +399,6 @@ export const metakg = {
             console.log('NO option removePill')
         }
         },
-        createCy(state){
-            state.cy = cytoscape({
-                container: document.getElementById('cy'),
-                elements: [],
-                hideEdgesOnViewport: true,
-                style: [
-                    {
-                        selector: 'node',
-                        style: {
-                        'content': 'data(name)',
-                        'min-zoomed-font-size': '2em',
-                        "text-valign": "bottom",
-                        "text-halign": "center",
-                        'color': '#3c5f99',
-                        'font-size': '3em',
-                        'text-outline-width': 4,
-                        'text-outline-color': 'white',
-                        'background-color': '#9c27b0',
-                        'z-index': 1000,
-                        // 'width': 'data(weight)',
-                        // 'height': 'data(weight)'
-                        }
-                    },
-                    {
-                        selector: 'node:selected',
-                        style:{
-                        'background-color': 'red',
-                        }
-                    },
-                    {
-                        selector: 'edge',
-                        style:{
-                        'curve-style': 'bezier',
-                        'line-color': 'lightblue',
-                        'target-arrow-shape': 'triangle',
-                        'target-arrow-color': '#257FC5',
-                        'width': 4,
-                        'z-index': 1,
-                        }
-                    },
-                    {
-                        selector: 'edge:selected',
-                        style:{
-                        'z-index': 1000,
-                        'color': '#9c27b0',
-                        'font-size': '2.5em',
-                        'width': 4,
-                        'line-color': '#f24141',
-                        'target-arrow-color': '#f24141',
-                        'arrow-scale': 2
-                        }
-                    },
-                    {
-                        selector: '.highlightedTag',
-                        style:{
-                        'line-color': '#673782',
-                        'target-arrow-color': '#f24141',
-                        'width': 4,
-                        }
-                    },
-                    {
-                        selector: '.highlightedAPI',
-                        style:{
-                        'line-color': 'red',
-                        'target-arrow-color': '#f24141',
-                        'width': 4,
-                        }
-                    },
-                ]
-            })
-        }
-        
      },
     actions: {
         handleParams({commit}, payload) {
@@ -628,9 +629,6 @@ export const metakg = {
         getResults: (state) => {
             return state.results
         },
-        getCytoData: (state) => {
-            return state.cyto_data
-        },
         getSpread: (state) => {
             return state.spread
         },
@@ -648,6 +646,12 @@ export const metakg = {
         },
         getLimit: (state) => {
             return state.maxEdgesRendered
+        },
+        showSelfReferenced: (state) => {
+            return state.showSelfReferenced
+        },
+        getLimitBool: (state) => {
+            return state.maxEdgesRendered ? true : false
         },
     }
 }

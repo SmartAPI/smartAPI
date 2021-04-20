@@ -4,7 +4,7 @@
         :title="selected ? 'SmartAPI | '+selected.toUpperCase() : 'SmartAPI | Portals'"
         ></MetaHead>
       <div style="min-height: 90vh">
-            <div class="col s12 padding20 navbar-fixed">
+            <div class="w-100 p-1">
                 <router-link  class="blue-text" to="/portal">Portals</router-link>
                 <router-link v-if="selected" :to="'/portal/'+selected" class="blue-text"> &gt; {{selected}}</router-link>
             </div>

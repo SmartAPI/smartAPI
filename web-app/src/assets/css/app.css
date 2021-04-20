@@ -700,8 +700,8 @@ html, body {
   border-radius: 20px !important;
   border: 0;
   cursor: pointer !important;
-  background-color: #d1d1d1 !important;
-  color: grey !important;
+  background-color: #d1d1d1;
+  color: grey;
   transition: all .5s
 }
 
@@ -1040,6 +1040,10 @@ html, body {
   margin: 1rem;
 }
 
+.m-1{
+  margin: .5rem;
+}
+
 .dashboard-header{
     display: flex;
     justify-content: space-evenly;
@@ -1053,6 +1057,10 @@ html, body {
 
 .d-flex {
   display: flex
+}
+
+.d-inline-block{
+  display: inline-block;
 }
 
 .flex-wrap {
@@ -1073,12 +1081,6 @@ html, body {
 
 .flex {
   flex: 1
-}
-
-#cy {
-  width: 65vw;
-  height: 600px;
-  display: block
 }
 
 .pointer {

@@ -6,38 +6,24 @@
     </div>
     <div class="col s12 m10 center">
       <h6 class="grey-text">
-        This process might take a few seconds.
+        This process might take a several seconds.
       </h6>
       <h6 class="white-text">
-        <template v-if="!apisLoaded">
-          <i class="fa fa-cog fa-spin fa-fw"></i>
-          Getting API metadata..
-        </template>
-        <template v-else>
-          <i class="fa fa-check green-text" aria-hidden="true"></i>
-          API metadata loaded
-        </template>
+        <i class="fa fa-cog fa-spin fa-fw"></i> Getting API metadata..
       </h6>
       <h6 class="white-text">
-        <template v-if="!apisProcessed">
-          <i class="fa fa-cog fa-spin fa-fw"></i>
-          Processing operations from metadata...
-        </template>
-        <template v-else>
-          <i class="fa fa-check green-text" aria-hidden="true"></i>
-          Processed <span v-text="operationsTotal"></span> operations
-        </template>
+        <i class="fa fa-cog fa-spin fa-fw"></i> Processing operations from metadata...
       </h6>
     </div>
   </div>
   <div class="p-1 grey lighten-3">
-    <div class="center">
-      <h3 style="margin:5px;">
+    <div class="center-align" style="margin-bottom:8px;">
+      <h6 style="margin:5px; display:inline;">
         <img />
           <Image class="scale-in-center" img_name="metakg-01.png" img_width="30px"
           style="max-width: 50px; max-height: 50px;" ></Image>
         Meta-<b>KG</b>
-      </h3>
+      </h6>
       <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
         Component:
         <select class="browser-default component-select" v-model='component_select'>
@@ -50,51 +36,66 @@
         <small>Download Meta-KG dump</small>
       </a>
     </div>
-    <hr />
     <!-- META KG SEARCH -->
     <div class="row m-0">
       <div class="col s12">
         <form class="meta_kg_form">
           <div class="row m-0">
             <div class="col s12 m4 input-field center">
-              <h5 class="white-text">
+              <h6 class="white-text lighter" style="margin:2px">
                 <i class="fa fa-circle grey-text" aria-hidden="true"></i>
                 INPUT TYPE
-              </h5>
-              <div class="center white-text">
-                <small>(1 or Many)</small>
-              </div>
+              </h6>
               <PillBox type="input_type"></PillBox>
             </div>
             <div class="col s12 m4 input-field center">
-              <h5 class="white-text">
+              <h6 class="white-text lighter" style="margin:2px">
                 <i class="fa fa-circle purple-text" aria-hidden="true"></i>
                 RELATIONSHIP
-              </h5>
-              <div class="center white-text">
-                <small>(1 or Many)</small>
-              </div>
+              </h6>
               <PillBox type="predicate"></PillBox>
             </div>
             <div class="col s12 m4 input-field center">
-              <h5 class="white-text">
+              <h6 class="white-text lighter" style="margin:2px">
                 <i class="fa fa-circle orange-text" aria-hidden="true"></i>
                 OUTPUT TYPE
-              </h5>
-              <div class="center white-text">
-                <small>(1 or Many)</small>
-              </div>
+              </h6>
               <PillBox type="output_type"></PillBox>
             </div>
-            <div class="col s12 center" style="padding-bottom:8px;">
-              <button v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
+            <div class="col s12 center-align">
+              <button style="margin-bottom:5px;" v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
                 Reset
               </button>
             </div>
           </div>
         </form>
       </div>
-      <div class="col s12 m4">
+      
+      <div class="col s12">
+        <div class="metakg-menu w-100">
+          <!-- METAKG MENU -->
+          <template v-if="overEdgeLimit">
+            <p class="red-text p-1">Results contain over <b v-text="edgeLimit"></b> relationship edges, please refine your query to see all possible relationship edges rendered.</p>
+          </template>
+          <button class="pointer smallButton m-1 right" @click="download">
+            <i class="fa fa-download" aria-hidden="true"></i> Download Image
+          </button>
+          <button class="pointer smallButton m-1 right" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
+              aria-hidden="true"></i> Reset Zoom
+          </button>
+          <template v-if="results.length == 0">
+            <p class="red-text p-1">No Results, Please Refine Your Query</p>
+          </template>
+          <button class="smallButton white-text m-1" :class="[!showOperations ? 'blue' : 'red']" @click.prevent="showOperations = !showOperations">
+            {{showOperations ? 'Hide Operations':'Show Operations ('+numberWithCommas(results.length)+')'}}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex">
+      <!-- GRAPH and RESULTS-->
+      <div class="col m4 operations-menu p-1" v-if="showOperations">
         <div v-show="results && results.length" class="collection-item green-text" style="padding: 1px;">
           <small>
             <b>{{numberWithCommas(results.length)}}</b> operations
@@ -102,45 +103,42 @@
         </div>
         <PaginatedList v-if="results && results.length" :content="results" type="MetaKG"></PaginatedList>
       </div>
-      <div class="col s12 m8" style="
-          overflow: hidden;
-          border: white solid 2px;
-          margin: auto;
-          background: #f2f2f2;
-          margin-top: 10px;
-        ">
-        <div v-if="loading" class="purple-text padding20 center">
-          <h4>Loading...</h4>
-        </div>
-        <div v-if="overEdgeLimit" class="orange lighten-4 red-text center p-1">
-          <small>Results contain over <b v-text="edgeLimit"></b> relationship edges, please refine your query to see all possible relationship edges rendered.</small>
-        </div>
-        <div v-show="!loading" class="d-flex justify-content-around">
-          <small class="pointer grey-text" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
-              aria-hidden="true"></i> Reset
-            Zoom</small>
-        </div>
-        <div v-if="!loading && results.length == 0" class="deep-orange-text padding20 center">
-          <Image img_name="api-error.svg" img_width="150px" alt="oh no.."></Image>
-          <h4>No Results, Please Refine Your Query</h4>
-        </div>
-        <div id="cy"></div>
-        <div v-show="showTags" id="tags" class="padding20 d-flex flex-wrap">
-          <template v-for="tag in tagList" :key="tag">
-            <small style="margin: 1px;" class="pointer s-badge grey-text" @mouseenter="allWithTag(tag)"
-              @mouseleave="allWithTagUndo(tag)">
-              <i class="fa fa-tag" aria-hidden="true"></i>
-              <span v-text="tag"></span>
-            </small>
-          </template>
-        </div>
-        <div v-show="!loading" class="text-right container d-flex justify-content-around">
-          <small class="pointer grey-text" @click="download">
-            <i class="fa fa-download" aria-hidden="true"></i> Download Image
-          </small>
+      <div id="cy">
+        <div v-if="loading" class="center">
+          <div class="center-align">
+            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+          </div>
         </div>
       </div>
     </div>
+
+    <div class="grey lighten-2 rounded p-1 m-2">
+      <div class="container">
+        <div>
+          <button class="pointer smallButton m-1" @click="showSettings = !showSettings">
+            <i class="fa fa-cog" aria-hidden="true"></i> Performance Settings
+          </button>
+          <div v-if="showSettings" class="p-1 white rounded collection blue-text">
+            <div class="collection-item yellow lighten-3 red-text">
+              Please allow enough time to update after clicking on each setting
+            </div>
+            <div class="collection-item">
+              <input type="checkbox" id="test1" v-model="SR" @click="toggleSR"/>
+              <label for="test1">
+                <small>Check to render relationships by <b class="black-text">self-referencing nodes</b>. This requires a differernt method of rendering impacting performance <b>negatively</b>.</small>
+              </label>
+            </div>
+            <div class="collection-item">
+              <input type="checkbox" id="withLimit" v-model="edgeLimitBool" @click="withLimit = !withLimit"/>
+              <label for="withLimit">
+                <small>Click here to enforce <b class="black-text">max number of edges (1,500)</b> to <b>improve</b> performance</small>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </main>
 </template>
@@ -172,7 +170,11 @@ export default {
         'apisLoaded': false,
         'totalApis': 0,
         'hoverInfo': {},
-        'component_select': ''
+        'component_select': '',
+        'showOperations': false,
+        'SR': false,
+        'withLimit': false,
+        'showSettings': false
       }
     },
     computed: {
@@ -217,9 +219,17 @@ export default {
       },
       edgeLimit: function(){
         return this.$store.getters.getLimit
+      },
+      edgeLimitBool: function(){
+        return this.$store.getters.getLimitBool
       }
     },
     watch: {
+      withLimit: function (v) {
+        v ? this.$store.commit('setMax', {value: 1500}) : this.$store.commit('setMax', {value: 0})
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{this.$store.dispatch('handle_metaKG_Query_New')}, 1000);
+      },
       apis: function (a) {
         var self = this;
         if (a.length) {
@@ -227,7 +237,7 @@ export default {
         }
       },
       overEdgeLimit: function(v){
-        if(v){
+        if(v > 0){
           this.$toast.info('Over '+this.edgeLimit+' edge limit');
         }
       },
@@ -236,6 +246,11 @@ export default {
       },
     },
     methods: {
+      toggleSR(){
+        this.$store.commit('toggleSelfReferenced');
+        this.$toast.success('Updating Display...');
+        setTimeout(()=>{this.$store.commit('drawGraph')}, 1000);
+      },
       numberWithCommas(x) {
           return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
       },
@@ -264,14 +279,14 @@ export default {
         self.apisLoaded = true;
         //performance check
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c 🦄 Getting Meta-KG graph took ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
+        console.log(`%c 🦄 Meta-KG loaded in ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
 
         //send graph data to store for processing
-        this.$store.commit('createCy');
         this.$store.commit('saveMetaKG', {'metakg': meta_kg});
         this.$store.commit('loadMetaKG', {'res': meta_kg.ops});
-        this.$store.commit('getNewOptions', {'res': meta_kg.ops});
         this.$store.commit('drawGraph');
+        this.$store.commit('getNewOptions', {'res': meta_kg.ops});
+        
         this.checkForQuery();
       },
       parseKGData() {
@@ -316,6 +331,7 @@ export default {
         this.$toast.success('Reseting please wait...');
         setTimeout(function(){
           self.$store.commit('reset');
+          self.$store.dispatch('handle_metaKG_Query_New')
         }, 1000);  
       },
       getClass(name) {
@@ -378,5 +394,23 @@ export default {
     background: transparent;
     outline: none;
     border: none;
+  }
+  #cy {
+    width: 90vw;
+    height: 800px;
+    display: block;
+    border: 2px #dddddd solid;
+    background-color:white;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: auto;
+  }
+  .operation-menu{
+    position: absolute;
+    left: 5px;
+    top: 5px;
+  }
+  .metakg-menu{
+    position: relative;
   }
 </style>

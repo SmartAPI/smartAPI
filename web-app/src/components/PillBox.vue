@@ -3,11 +3,10 @@
         <div class="pillBox lighten-4" :class="getBackClass()">
           <form @submit.prevent="handlePillSubmit" style="display:inline;">
             <input 
-            style="width: 100%;" 
             :disabled="loading" 
             v-model='q' 
             :class="getBackClass()" 
-            class="browser-default pill-input lighten-4" 
+            class="browser-default pill-input lighten-4 w-100" 
             type="text" 
             name="search" 
             :id="type" 
@@ -17,9 +16,9 @@
             <datalist :id="type+'list'"></datalist>
           </form>
         </div>
-        <div class="padding20">
+        <div class="p-1">
           <template v-for="pill in selected" :key="pill">
-            <div class="pill" :class="getBackClass()" @click="remove(pill)" >
+            <div class="smallButton white-text d-inline-block m-1" :class="getBackClass()" @click="remove(pill)" >
             <span v-text="pill"></span>&nbsp;<span class="red-text"><b>&times;</b></span>
             </div>
           </template>

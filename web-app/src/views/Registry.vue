@@ -110,7 +110,7 @@
                 <div v-if="name == 'info.x-trapi.version' ">
                   <span>TRAPI Version: </span>
                 </div>
-                <div v-if="name == 'tags.name' ">
+                <div v-if="name == 'tags.name'">
                   <span>API Type: </span>
                 </div>
                 <template v-for="filter in filters" :key="filter.name">

@@ -6,19 +6,27 @@ export const registry = {
         authors: [],
         // key is the direct field to be filtered by
         //value is the final val set to ES
-        all_filters: {}
+        all_filters: {
+            'info.x-translator.component':[],
+            'info.x-trapi.version':[],
+            'tags.name':[]
+        }
     }),
     mutations: {
         saveFilters(state, payload){
             state[payload['type']] = payload['value']
         },
         saveAllFilters(state, payload){
-            state.all_filters[payload['type']] = payload['value']
+            if (payload['type'] == 'tags.name') {
+                state.all_filters[payload['type']].push(payload['value'][0])
+            }else{
+                state.all_filters[payload['type']] = payload['value']
+            }
         },
     },
     actions: {
         loadTagFilters({ commit }){
-            const existing = localStorage.getItem('tags');
+            const existing = sessionStorage.getItem('tags');
             if(!existing){
                 let tagUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=tags.name" : 'https://smart-api.info/api/suggestion?field=tags.name'
                 axios.get(tagUrl).then(function(response){
@@ -26,10 +34,10 @@ export const registry = {
                     for(let key in response.data){
                         temp_data.push({key: key, doc_count: response.data[key]})
                     }
-                    let tags = temp_data.map(item => { return {'name': item.key, 'count': item.doc_count, 'active': false} })
+                    let tags = temp_data.map(item => { return { name: item.key, 'count': item.doc_count, active: false} })
                     commit('saveFilters', {type: 'tags', value: tags})
-                    //save to localStorage
-                    localStorage.setItem('tags',JSON.stringify(tags));
+                    //save to sessionStorage
+                    sessionStorage.setItem('tags',JSON.stringify(tags));
                 });
             }else{
                 commit('saveFilters', {type: 'tags', value: JSON.parse(existing)})
@@ -37,7 +45,7 @@ export const registry = {
             
         },
         loadOwnerFilters({ commit }){
-            const existing = localStorage.getItem('authors');
+            const existing = sessionStorage.getItem('authors');
             if(!existing){
                 let ownerUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=info.contact.name" : 'https://smart-api.info/api/suggestion?field=info.contact.name'
                 axios.get(ownerUrl).then(function(response){
@@ -45,10 +53,10 @@ export const registry = {
                     for(let key in response.data){
                         temp_data.push({key: key, doc_count: response.data[key]})
                     }
-                    let authors = temp_data.map(item => { return {'name': item.key, 'count': item.doc_count, 'active': false} })
+                    let authors = temp_data.map(item => { return { name: item.key, 'count': item.doc_count, active: false} })
                     commit('saveFilters', {type: 'authors', value: authors})
-                    //save to localStorage
-                    localStorage.setItem('authors',JSON.stringify(authors));
+                    //save to sessionStorage
+                    sessionStorage.setItem('authors',JSON.stringify(authors));
                 });
             }else{
                 commit('saveFilters', {type: 'authors', value: JSON.parse(existing)})
@@ -56,7 +64,7 @@ export const registry = {
             
         },
         aggregate({commit}, field){
-            const existing = localStorage.getItem(field);
+            const existing = sessionStorage.getItem(field);
             if(!existing){
                 let url = window.location.hostname !== 'localhost' ? `/api/suggestion?field=${field}` : `https://smart-api.info/api/suggestion?field=${field}`
                 axios.get(url).then(response => {
@@ -72,36 +80,69 @@ export const registry = {
                         complete.push(item)
                     }
                     commit('saveAllFilters', {type: field, value: complete});
-                    localStorage.setItem(field, JSON.stringify(complete));
+                    sessionStorage.setItem(field, JSON.stringify(complete));
                 }).catch(err=>{
                     throw err;
                 });
             }else{
-                commit('saveAllFilters', {type: field, value: JSON.parse(localStorage.getItem(field))});
+                commit('saveAllFilters', {type: field, value: JSON.parse(sessionStorage.getItem(field))});
             }
         },
-        loadTranslatorFilters({state, dispatch, commit}){
+        loadTranslatorFilters({dispatch, commit}){
             dispatch('aggregate', 'info.x-translator.component');
-            setTimeout(()=>{
-                //set here to preserve desired order
-                const bt_count = state.tags.find(element => element.name == 'biothings');
-                const trapi_count = state.tags.find(element => element.name == 'trapi');
+            //set here to preserve desired order
+            let bturl = window.location.hostname !== 'localhost' ? "/api/query?q=tags.name:biothings AND tags.name:translator&size=0" 
+            : 'https://smart-api.info/api/query?q=tags.name:biothings AND tags.name:translator&size=0'
+            axios.get(bturl).then(function(response){
                 commit('saveAllFilters', {
                     type: 'tags.name', 
                     value: [
-                        {'name':'BioThings','value':'biothings','active':false, color: '#424242', count: bt_count.count || false},
-                        {'name':'TRAPI','value':'trapi','active':false, color: '#424242', count: trapi_count.count || false},
+                        { 
+                            name:'BioThings', 
+                            value:'biothings',
+                            active:false, 
+                            color: '#424242', 
+                            count: response.data?.total || false
+                        }
                     ]
                 })
-                //special NOT includes multiple values
+            });
+
+            let trapiurl = window.location.hostname !== 'localhost' ? "/api/query?q=tags.name:trapi AND tags.name:translator&size=0" 
+            : 'https://smart-api.info/api/query?q=tags.name:trapi AND tags.name:translator&size=0'
+            axios.get(trapiurl).then(function(response){
+                commit('saveAllFilters', {
+                    type: 'tags.name', 
+                    value: [
+                        {
+                            name:'TRAPI',
+                            value:'trapi',
+                            active:false,
+                            color: '#424242',
+                            count: response.data?.total || false
+                        }
+                    ]
+                })
+            });
+
+            //special NOT includes multiple values
+            let otherurl = window.location.hostname !== 'localhost' ? "/api/query?q=!tags.name:trapi AND tags.name:translator AND !tags.name:biothings&size=0" 
+            : 'https://smart-api.info/api/query?q=!tags.name:trapi AND tags.name:translator AND !tags.name:biothings&size=0'
+            axios.get(otherurl).then(function(response){
                 commit('saveAllFilters', {
                     type: '!tags.name', 
                     value: [
-                        {'name':'Other','value':'trapi AND !tags.name:biothings','active':false, color: '#424242'},
+                        {name:'Other',
+                        value:'trapi AND !tags.name:biothings',
+                        active:false,
+                        color: '#424242',
+                        count: response.data?.total || false
+                    }
                     ]
                 })
-                dispatch('aggregate', 'info.x-trapi.version')
-            },1000);
+            });
+            
+            dispatch('aggregate', 'info.x-trapi.version')
         }
     },
     getters: {

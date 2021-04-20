@@ -9,7 +9,6 @@
 
 <script>
 import ClipboardJS from "clipboard"
-import tippy from 'tippy.js'
 
 export default {
     name: 'CopyButton',
@@ -52,15 +51,6 @@ export default {
     mounted:function(){
         new ClipboardJS('.copyBtn');
         ClipboardJS.isSupported();
-
-        tippy('.cp'+this.badgeID, {
-            placement: 'top',
-            content: this.tip_msg,
-            appendTo: document.body,
-            theme:'light',
-            animation:false,
-            allowHTML:true
-         });
     }
 
 }
