@@ -98,29 +98,26 @@ export const registry = {
             //set here to preserve desired order
             [
                 {
-                    query: 'tags.name:biothings AND tags.name:translator',
-                    name: 'BiotThings',
+                    query: '/api/query?q=tags.name:translator&tags=%22biothings%22&size=0',
+                    name: 'BioThings',
                     type: 'tags.name', 
-                    value: 'biothings'
+                    value: 'biothings',
                 },
                 {
-                    query: 'tags.name:trapi AND tags.name:translator',
+                    query: '/api/query?q=tags.name:translator&tags=%22trapi%22&size=0',
                     name: 'TRAPI',
                     type: 'tags.name', 
-                    value: 'trapi'
+                    value: 'trapi',
                 },
                 //special NOT includes multiple values
                 {
-                    query: '!tags.name:trapi AND tags.name:translator AND !tags.name:biothings',
+                    query: '/api/query?q=!tags.name:biothings AND !tags.name:trapi&tags=%22translator%22&size=0',
                     name: 'Other',
                     type: '!tags.name', 
-                    value: 'trapi AND !tags.name:biothings'
+                    value: 'trapi AND !tags.name:biothings',
                 }
             ].forEach(item => {
-                // let url = window.location.hostname !== 'localhost' ? `/api/query?q=${item.query}&size=0` 
-                // : `https://smart-api.info/api/query?q=${item.query}&size=0`
-                let url = `/api/query?q=${item.query}&size=0`
-                axios.get(url).then(function(response){
+                axios.get(item.query).then(function(response){
                     commit('saveAllFilters', {
                         type: item.type, 
                         value: [
