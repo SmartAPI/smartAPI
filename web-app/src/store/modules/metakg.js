@@ -179,7 +179,7 @@ export const metakg = {
                 animation: false,
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent('<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+ele.id()+'</h4></div>')
+                    instance.setContent('<div class="purple white-text p-1 center-align"><h4 class="m-1">'+ele.id()+'</h4></div>')
                 }
                 });
             }
@@ -231,14 +231,14 @@ export const metakg = {
             state.cy.elements().unbind('drag');
             state.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
 
-            state.cy.maxZoom(2)
-
             state.cy.layout({
                 name: "concentric",
                 avoidOverlap: true,
                 avoidOverlapPadding: 200,
                 minNodeSpacing: 200,
             }).run();
+
+            state.cy.maxZoom(2)
 
             const t1 = performance.now();
             var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
