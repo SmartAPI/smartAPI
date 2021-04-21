@@ -1,5 +1,6 @@
 <template>
-  <div class="dashboardBack" style="min-height:90vh;">
+  <div class="grey lighten-3" style="min-height:90vh;">
+      <MetaHead title="SmartAPI | Portals"></MetaHead>
       <div class="center-align">
           <Image img_width="100px"  alt="SmartAPI" img_name="api-welcome.svg"></Image>
       </div>

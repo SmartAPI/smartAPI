@@ -43,30 +43,36 @@ const routes = [
   },
   {
     path: '/portal',
-    name:'PortalNav',
-    component: () => import('../views/PortalNav.vue'),
-    children:[
+    name:'EmptyRouterView',
+    component: () => import('../views/EmptyRouterView.vue'),
+    children: [
       {
         path: '',
         name:'PortalHome',
         component: () => import('../views/PortalHome.vue')
       },
       {
-        path: ':name',
-        name:'Portal',
-        component: () => import('../views/Portal.vue'),
-        props: true
-      },
-      {
-        path: ':name/summary',
-        name:'Summary',
-        component: () => import('../views/Summary.vue'),
-      },
-      {
-        path: ':name/metakg/:component?',
-        name:'MetaKG',
-        component: () => import('../views/MetaKG.vue'),
-        props: true
+        path: 'translator',
+        name:'EmptyRouterView',
+        component: () => import('../views/EmptyRouterView.vue'),
+        children: [
+          {
+            path: '',
+            name:'TranslatorHome',
+            component: () => import('../views/TranslatorHome.vue'),
+          },
+          {
+            path: 'summary',
+            name:'Summary',
+            component: () => import('../views/Summary.vue'),
+          },
+          {
+            path: 'metakg/:component?',
+            name:'MetaKG',
+            component: () => import('../views/MetaKG.vue'),
+            props: true
+          },
+        ]
       },
     ]
   },

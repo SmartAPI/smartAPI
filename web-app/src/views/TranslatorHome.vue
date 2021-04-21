@@ -1,6 +1,7 @@
 <template>
   <main class="white">
   <!-- MAIN SECTIONS -->
+  <MetaHead title="SmartAPI | Translator"></MetaHead>
   <section class="center grey lighten-3 d-flex justify-content-around padding20 flex-wrap">
     <div class="row d-flex justify-content-center flex-wrap" style="align-items:stretch;">
       <div class="col s12 m4 d-flex justify-content-center align-items-center">

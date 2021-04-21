@@ -3,10 +3,12 @@
     <div id="summary2" class="container grey lighten-2 padding20 center-align">
         <div class="chartContainer">
             <div>
-                <Image img_name="TranslatorLogo.jpg" aria-label="NCATS" img_height="77px"></Image>
+                <router-link to="/portal/translator">
+                    <Image img_name="TranslatorLogo.jpg" aria-label="NCATS" img_height="77px"></Image>
+                </router-link>
                 <h1>Portal Summary</h1>
                 <p>
-                    <a href="/registry/translator" v-text="'('+totalAPIs+') Translator APIs'"></a>
+                    <router-link to="/registry/translator" v-text="'('+totalAPIs+') Translator APIs'"></router-link>
                 </p>
                 
             </div>
@@ -180,23 +182,13 @@ export default {
                 });
                 /*eslint-enable */
             },
-        getPortalData(portal){
-            let self = this;
-            let url = ''
-            switch (portal.toLowerCase()) {
-                case 'translator':
-                    url = "/api/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22"
-                    self.getSummaries(url)
-                    break;
-                default:
-                    alert(`Portal ${this.$route.params.name} does not exist`)
-                    url = ''
-                    break;
-            }
+        getPortalData(){
+            let url = "/api/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22"
+            this.getSummaries(url)
         }
       },
       mounted: function(){
-          this.getPortalData(this.$route.params.name);
+          this.getPortalData();
           this.initTips();
       }
 }
