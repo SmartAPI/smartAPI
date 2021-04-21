@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import axios from 'axios'
+// import getRoutesXML from './sitemap.js'
+
 
 const routes = [
   {
@@ -135,5 +137,7 @@ router.beforeEach((to, from, next) => {
 
   }else next()
 })
+
+// console.log('XML', getRoutesXML(router))
 
 export default router
