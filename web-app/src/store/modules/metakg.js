@@ -94,16 +94,16 @@ export const metakg = {
                         style: {
                         'content': 'data(name)',
                         'min-zoomed-font-size': '2em',
-                        "text-valign": "bottom",
+                        "text-valign": "center",
                         "text-halign": "center",
                         'color': '#3c5f99',
-                        'font-size': '3em',
+                        'font-size': '4em',
                         'text-outline-width': 4,
                         'text-outline-color': 'white',
                         'background-color': '#9c27b0',
                         'z-index': 1000,
-                        // 'width': 'data(weight)',
-                        // 'height': 'data(weight)'
+                        'width': 'data(weight)',
+                        'height': 'data(weight)'
                         }
                     },
                     {
@@ -120,7 +120,7 @@ export const metakg = {
                         'opacity':.1,
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': '#257FC5',
-                        'width': 4,
+                        'width': 10,
                         'z-index': 1,
                         }
                     },
@@ -130,11 +130,11 @@ export const metakg = {
                         'z-index': 1000,
                         'color': '#9c27b0',
                         'font-size': '2.5em',
-                        'width': 5,
+                        'width': 15,
                         'opacity':1,
                         'line-color': '#f24141',
                         'target-arrow-color': '#f24141',
-                        'arrow-scale': 3
+                        'arrow-scale': 10
                         }
                     },
                     {
@@ -142,7 +142,7 @@ export const metakg = {
                         style:{
                         'line-color': '#673782',
                         'target-arrow-color': '#f24141',
-                        'width': 4,
+                        'width': 10,
                         }
                     },
                     {
@@ -150,7 +150,7 @@ export const metakg = {
                         style:{
                         'line-color': 'red',
                         'target-arrow-color': '#f24141',
-                        'width': 4,
+                        'width': 10,
                         }
                     },
                 ]
@@ -179,7 +179,7 @@ export const metakg = {
                 animation: false,
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent('<div class="blue-text p-1 text-center">'+ele.id()+'</div>')
+                    instance.setContent('<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+ele.id()+'</h4></div>')
                 }
                 });
             }
@@ -198,7 +198,7 @@ export const metakg = {
                 theme:'light',
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent(`<div class="p-1 text-center"><h6 class="center"><b>`+ele.data('api_name')+`</b></h6><span class="black-text">`+ele.data('source')+
+                    instance.setContent(`<div class="p-1 text-center"><h6 class="center-align"><a target="_blank" href="http://smart-api.info/registry?q=`+ele.data('smartapi_id')+`">`+ele.data('api_name')+`</a></h6><span class="black-text">`+ele.data('source')+
                     `</span> ➡️ <span class="purple-text">`+ele.data('predicate')+
                     `</span> ➡️ <span class="orange-text">`+ele.data('target')+
                     `</span></div>`)
@@ -212,8 +212,7 @@ export const metakg = {
                     makePopperEdge(ele);
                 }else{
                     makePopper(ele);
-                    // console.log('NODE WEIGHT '+ele.data('name'), ele.connectedEdges().length)
-                    // ele.data('weight',  (ele.connectedEdges().length * 2) );
+                    ele.data('weight', ele.connectedEdges().length ?  (ele.connectedEdges().length+150) : 150) ;
                 }
                 });
             });
@@ -251,20 +250,43 @@ export const metakg = {
         saveOperations(state, payload) {
         state.operations = payload['ops'];
         },
-        getNewOptions(state) {
+        getNewOptions(state, payload) {
+            let filteredOptions = payload['res'];
             const t0 = performance.now();
-
-            state.output_autocomplete = []
-            state.input_autocomplete = []
-            state.predicate_autocomplete = []
-            
-            state.cy.elements().forEach(ele => {    
-                !ele.isNode() ? state.predicate_autocomplete.push(ele.data('predicate')) : (state.output_autocomplete.push(ele.data('name')), state.input_autocomplete.push(ele.data('name'))) ;
-            });
+            let predicates = new Set();
+            let inputs = new Set();
+            let outputs = new Set();
+    
+            // PREDICATES
+            if (!state.output_selected.length && !state.input_selected.length) {
+                // restore all options from backup
+                state.predicate_autocomplete = state.predicate_autocomplete_all.sort()
+            } else {
+                filteredOptions.forEach(op => predicates.add(op['association']['predicate']) );
+                state.predicate_autocomplete = [...predicates].sort()
+            }
+    
+            // INPUT
+            if (state.output_selected.length && !state.input_selected.length) {
+                filteredOptions.forEach(op => inputs.add(op['association']['input_type']) );
+                state.input_autocomplete = [...inputs].sort()
+            } else if (state.input_selected.length && !state.output_selected.length) {
+                //OUTPUT
+                filteredOptions.forEach(op => outputs.add(op['association']['output_type']) );
+                state.output_autocomplete = [...outputs].sort()
+            } else {
+                filteredOptions.forEach(op => {
+                outputs.add(op['association']['output_type'])
+                inputs.add(op['association']['input_type']) 
+                });
+                state.output_autocomplete = [...outputs].sort()
+                state.input_autocomplete = [...inputs].sort()
+            }
+    
             const t1 = performance.now();
             var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-            console.log(`%c Calculating input options took ${seconds} seconds.`, 'color:cyan');
-
+            console.log(`%c (getNewOptions) Calculating input options took ${seconds} seconds.`, 'color:cyan');
+    
         },
         loadMetaKG(state, payload) {
             let results = payload['res'];
@@ -274,6 +296,11 @@ export const metakg = {
             let nodes = new Set();
             let all_edges = []
             let all_nodes = []
+
+            //AC
+            let oac_set = new Set();
+            let iac_set = new Set();
+            let pac_set = new Set();
 
             state.operationsTotal = results.length;
     
@@ -295,10 +322,22 @@ export const metakg = {
                         type: op['association']['api_name'],
                         source: op['association']['input_type'],
                         target: op['association']['output_type'],
+                        smartapi_id: op['association']['smartapi']['id'],
                     }
                 };
                 all_edges.push(edge);
+                // Autocomplete
+                oac_set.add(op['association']['output_type']);
+                iac_set.add(op['association']['input_type']);
+                pac_set.add(op['association']['predicate']);
             });
+
+            state.output_autocomplete = [...oac_set];
+            state.input_autocomplete = [...iac_set];
+            state.predicate_autocomplete = [...pac_set];
+
+            //save backup of all options for getNewOptions
+            state.predicate_autocomplete_all = state.predicate_autocomplete;
 
             all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
             state.overEdgeLimit = state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
