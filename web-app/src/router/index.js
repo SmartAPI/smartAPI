@@ -1,110 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/Home.vue'
 import axios from 'axios'
-// import getRoutesXML from './sitemap.js'
+import {routes} from './routes.js'
 
-
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  },
-  {
-    path: '/faq',
-    name: 'FAQ',
-    component: () => import('../views/FAQ.vue')
-  },
-  {
-    path: '/privacy',
-    name: 'Privacy',
-    component: () => import('../views/Privacy.vue')
-  },
-  {
-    path: '/add-api',
-    name: 'RegisterAPI',
-    component: () => import('../views/RegisterAPI.vue')
-  },
-  {
-    path: '/editor/:smartapi_id?',
-    name: 'Editor',
-    component: () => import('../views/Editor.vue')
-  },
-  {
-    path: '/ui/:smartapi_id?',
-    name: 'UI',
-    component: () => import('../views/UI.vue')
-  },
-  {
-    path: '/portal',
-    name:'EmptyRouterView',
-    component: () => import('../views/EmptyRouterView.vue'),
-    children: [
-      {
-        path: '',
-        name:'PortalHome',
-        component: () => import('../views/PortalHome.vue')
-      },
-      {
-        path: 'translator',
-        name:'EmptyRouterView',
-        component: () => import('../views/EmptyRouterView.vue'),
-        children: [
-          {
-            path: '',
-            name:'TranslatorHome',
-            component: () => import('../views/TranslatorHome.vue'),
-          },
-          {
-            path: 'summary',
-            name:'Summary',
-            component: () => import('../views/Summary.vue'),
-          },
-          {
-            path: 'metakg/:component?',
-            name:'MetaKG',
-            component: () => import('../views/MetaKG.vue'),
-            props: true
-          },
-        ]
-      },
-    ]
-  },
-  {
-    path: '/branding',
-    name: 'Branding',
-    component: () => import('../views/Branding.vue')
-  },
-  {
-    path: '/documentation/:doc?',
-    name: 'Documentation',
-    component: () => import('../views/Documentation.vue'),
-    props: true
-  },
-  {
-    path: '/guide',
-    name: 'Guide',
-    component: () => import('../views/Guide.vue')
-  },
-  {
-    path: '/dashboard',
-    name: 'DashBoard',
-    component: () => import('../views/DashBoard.vue')
-  },
-  {
-    path: '/registry/:portal_name?',
-    name: 'Registry',
-    component: () => import('../views/Registry.vue')
-  },
-]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -137,7 +34,5 @@ router.beforeEach((to, from, next) => {
 
   }else next()
 })
-
-// console.log('XML', getRoutesXML(router))
 
 export default router
