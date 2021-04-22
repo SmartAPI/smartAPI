@@ -96,10 +96,10 @@ export const metakg = {
                         'min-zoomed-font-size': '2em',
                         "text-valign": "center",
                         "text-halign": "center",
-                        'color': '#3c5f99',
+                        'color': 'white',
                         'font-size': '4em',
                         'text-outline-width': 4,
-                        'text-outline-color': 'white',
+                        'text-outline-color': '#9c27b0',
                         'background-color': '#9c27b0',
                         'z-index': 1000,
                         'width': 'data(weight)',
@@ -109,7 +109,7 @@ export const metakg = {
                     {
                         selector: 'node:selected',
                         style:{
-                        'background-color': 'red',
+                        'background-color': 'lightblue',
                         }
                     },
                     {
@@ -134,7 +134,7 @@ export const metakg = {
                         'opacity':1,
                         'line-color': '#f24141',
                         'target-arrow-color': '#f24141',
-                        'arrow-scale': 10
+                        'arrow-scale': 1
                         }
                     },
                     {
