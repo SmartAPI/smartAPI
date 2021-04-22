@@ -242,7 +242,7 @@ export default {
         }
       },
       component_select: function(v){
-        this.$router.push({path: '/portal/translator/metakg/'+v})
+        this.$router.push({path: '/portal/translator/metakg/'+v, query: this.$route.query})
       },
     },
     methods: {
@@ -287,7 +287,7 @@ export default {
         this.$store.commit('drawGraph');
         this.$store.commit('getNewOptions', {'res': meta_kg.ops});
         
-        this.checkForQuery();
+        setTimeout(()=>{this.checkForQuery()}, 1000)
       },
       parseKGData() {
         var self = this;

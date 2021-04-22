@@ -440,11 +440,10 @@ export const metakg = {
         },
      },
     actions: {
-        handleParams({commit}, payload) {
+        handleParams({commit, dispatch}, payload) {
+            let found = false;
             let params = payload['params']
-    
             params = new URLSearchParams(params);
-    
             let array = ['input_type', 'predicate', 'output_type']
     
             for (var x = 0; x < array.length; x++) {
@@ -459,14 +458,19 @@ export const metakg = {
                     payload1["type"] = current_input_type;
                     payload1["q"] = selections[i];
                     commit('pushPill', payload1);
-    
+                    
                     var payload2 = {};
                     payload2["name"] = current_input_type;
-                    payload2["q"] = self.selected;
+                    payload2["q"] = selections[i];
                     commit('saveInput', payload2);
+
+                    found = true
+                    console.log('✨ Activating Existing Query ✨', payload1)
                 }
                 }
             }
+
+            found ? dispatch('handle_metaKG_Query_New'): false;
         },
         recenterGraph({state}) {
             state.cy.fit();
