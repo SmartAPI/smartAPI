@@ -62,8 +62,8 @@ export default {
           self.$store.commit('saveInput', payload2);
           //temp fix
           console.log("%c ✅ SUBMIT "+self.type, "color:limegreen")
-          self.$store.dispatch('handle_metaKG_Query_New')
-          self.$store.dispatch('buildURL');
+          // self.$store.dispatch('handle_metaKG_Query_New')
+          // self.$store.dispatch('buildURL');
           self.q = ''
         }, 500)
 
@@ -76,8 +76,8 @@ export default {
         setTimeout(function(){
           self.$store.commit('removePill', {type: self.type, q: item});
           console.log("%c ❌ REMOVE "+self.type, "color:red")
-          self.$store.dispatch('handle_metaKG_Query_New')
-          self.$store.dispatch('buildURL');
+          // self.$store.dispatch('handle_metaKG_Query_New')
+          // self.$store.dispatch('buildURL');
         }, 500)
       },
       getBackClass() {
@@ -146,16 +146,16 @@ export default {
           document.getElementById(self.type + 'list').innerHTML = html
         }
       },
-      // selected:{
-      //   handler(s){
-      //     // load example by watching selected
-      //     this.$store.commit('saveInput', {"name": this.type, "q":s});
-      //     console.log("%c Q from WATCHER from "+this.type, "color:white; background-color:gold;")
-      //     this.$store.dispatch('handle_metaKG_Query_New')
-      //     this.$store.dispatch('buildURL');
-      //   },
-      //   deep: true
-      // },
+      selected:{
+        handler(s){
+          // load example by watching selected
+          this.$store.commit('saveInput', {"name": this.type, "q":s});
+          console.log("%c Q from WATCHER from "+this.type, "color:white; background-color:"+this.getBackClass()+";")
+          this.$store.dispatch('handle_metaKG_Query_New')
+          this.$store.dispatch('buildURL');
+        },
+        deep: true
+      },
     },
 }
 </script>
