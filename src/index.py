@@ -30,6 +30,7 @@ if __name__ == '__main__':
         (r"/login/?", "handlers.LoginHandler"),
         (r"/oauth", "handlers.GithubLoginHandler"),
         (r"/logout/?", "handlers.LogoutHandler"),
+        (r'/sitemap.xml()', "tornado.web.StaticFileHandler", {'path': '../web-app/dist/sitemap.xml'}),
         (r"/((?:img|css|js|fonts)/.*)", "tornado.web.StaticFileHandler", {
             "path": "../web-app/dist/"
         })], {
