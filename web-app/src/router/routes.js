@@ -1,6 +1,7 @@
 const axios = require('axios');
 
 function getSmartAPI_IDs(){
+    axios.defaults.proxy = false;
     return axios.get('http://smart-api.info/api/query?&q=__all__&fields=_id&size=1000').then(res=>{
         return res.data.hits.map(item => item._id)
     }).catch(err=>{
