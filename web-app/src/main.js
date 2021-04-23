@@ -43,7 +43,8 @@ app.use(store)
     id: "UA-139873613-1"
   }
 });
-
+// dev base api url
+app.config.globalProperties.$apiUrl = process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info/api' : '/api';
 // global registration
 app.component("Image", Image);
 app.component("VModal", VModal);

@@ -119,7 +119,8 @@ export default {
             if(self.dry_run){
               data['dryrun'] = true;
             }
-            axios.post("/api/metadata", data).then(res=>{
+            let url = this.$apiUrl + "/metadata"
+            axios.post(url, data).then(res=>{
               console.log('registering', res.data)
               if(res.data.success){
                 if(Object.prototype.hasOwnProperty.call(res.data, "details") && res.data.details.includes("[Dryrun]")){
@@ -135,7 +136,7 @@ export default {
                     imageUrl: require('../assets/img/api-sucess.svg'),
                     imageWidth: 300,
                     title: 'Great! You are done!',
-                    html: "You can view your API documentation <b><router-link to='/registry?q="+res.data._id+"'>HERE</router-link></b>",
+                    html: "You can view your API documentation <b><a href='/registry?q="+res.data._id+"'>HERE</a></b>",
                   })
                 }
               }
@@ -145,7 +146,7 @@ export default {
                 if(Object.prototype.hasOwnProperty.call(err.response.data, "error") && err.response.data.error == "Conflict"){
                 this.$swal({
                   title: "Wait a second...",
-                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <router-link to="/dashboard">user dashboard</router-link></p>',
+                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
                   imageUrl: require('../assets/img/api-overwrite.svg'),
                   imageWidth: 300,
                   confirmButtonText: 'OK',
@@ -154,7 +155,7 @@ export default {
               else if(Object.prototype.hasOwnProperty.call(err.response.data, "details") && err.response.data.details == "API exists"){
                 this.$swal({
                   title: "Wait a second...",
-                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <router-link to="/dashboard">user dashboard</router-link></p>',
+                  html:'<h3>Looks like this API already exists</h3><p>If you are the owner of this API you can refresh it via the <a href="/dashboard">user dashboard</a></p>',
                   imageUrl: require('../assets/img/api-fail.svg'),
                   imageWidth: 300,
                   confirmButtonText: 'OK',

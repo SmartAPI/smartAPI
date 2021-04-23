@@ -402,8 +402,7 @@ export default {
           },
           initialAPILoad: function(){
               var self = this;
-              // let url = window.location.hostname !== 'localhost' ? "/api/query?" : 'https://smart-api.info/api/query?'
-              let url = "/api/query?"
+              let url = this.$apiUrl + "/query?"
               self.handleContext(self.context);
               //check for existing query in url string
               self.checkforQuery();
@@ -574,8 +573,7 @@ export default {
           },
           search: function () {
               var self = this;
-              // let url = window.location.hostname !== 'localhost' ? "/api/query?q=" : 'https://smart-api.info/api/query?q='
-              let url = "/api/query?q="
+              let url = this.$apiUrl + "/query?q="
               let query = self.query.trim();
               // reset results
               self.apis = [];
