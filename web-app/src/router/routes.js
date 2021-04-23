@@ -63,30 +63,6 @@ export const routes = [
         }
     },
     {
-        path: '/editor/:smartapi_id?',
-        name: 'Editor',
-        component: () => import('../views/Editor.vue'),
-        meta: {
-                sitemap: {
-                    // Slugs can also be provided asynchronously
-                    // The callback must always return an array
-                    slugs: async () => await getSmartAPI_IDs(),
-                }
-            }
-    },
-    {
-        path: '/ui/:smartapi_id?',
-        name: 'UI',
-        component: () => import('../views/UI.vue'),
-        meta: {
-                sitemap: {
-                    // Slugs can also be provided asynchronously
-                    // The callback must always return an array
-                    slugs: async () => await getSmartAPI_IDs(),
-                }
-            }
-    },
-    {
         path: '/portal',
         name:'EmptyRouterView',
         component: () => import('../views/EmptyRouterView.vue'),
@@ -180,11 +156,36 @@ export const routes = [
         name: 'Registry',
         component: () => import('../views/Registry.vue'),
         meta: {
+            sitemap: {
+                slugs: [
+                    '',
+                    'translator',
+                    'nihdatacommons',
+                ],
+            }
+        }
+    },
+    {
+        path: '/ui/:smartapi_id?',
+        name: 'UI',
+        component: () => import('../views/UI.vue'),
+        meta: {
                 sitemap: {
-                    slugs: [
-                        'translator',
-                        'nihdatacommons',
-                    ],
+                    // Slugs can also be provided asynchronously
+                    // The callback must always return an array
+                    slugs: async () => await getSmartAPI_IDs(),
+                }
+            }
+    },
+    {
+        path: '/editor/:smartapi_id?',
+        name: 'Editor',
+        component: () => import('../views/Editor.vue'),
+        meta: {
+                sitemap: {
+                    // Slugs can also be provided asynchronously
+                    // The callback must always return an array
+                    slugs: async () => await getSmartAPI_IDs(),
                 }
             }
     },
@@ -193,5 +194,5 @@ export const routes = [
         name: '404',
         component: () => import('../views/404.vue'),
         meta: { sitemap: { ignoreRoute: true } }
-      }
+    }
 ]
