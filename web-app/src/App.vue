@@ -1,5 +1,8 @@
 <template>
   <Navigation></Navigation>
+  <!-- <metainfo>
+    <template v-slot:title="{ content }">{{ content }} - Yay!</template>
+  </metainfo> -->
   <div id="modals-go-here"></div>
   <router-view :key="$route.href"/>
   <Footer></Footer>

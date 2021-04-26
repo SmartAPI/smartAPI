@@ -16,7 +16,7 @@
             </span>
             <span v-if="api?.info?.['x-trapi']?.version" class="versionBadge pink lighten-2" v-text="'TRAPI '+api?.info?.['x-trapi']?.version">
             </span>
-            <span v-if="api?.info?.['x-translator']?.component" class="versionBadge indigo darken-2">{{api?.info?.['x-translator']?.component}}</span>
+            <span v-if="api?.info?.['x-translator']?.component" class="versionBadge indigo darken-2">Translator: {{api?.info?.['x-translator']?.component}}</span>
             <span v-if="bt_tag && bt_tag.name == 'biothings' " class="versionBadge grey darken-2">
               BioThings API
             </span>
