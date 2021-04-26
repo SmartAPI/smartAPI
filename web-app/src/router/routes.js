@@ -9,7 +9,7 @@ function getSmartAPI_IDs(){
         return res.data.hits.map(item => item._id)
     }).catch(err=>{
         console.log(err)
-        return []
+        return ['']
     })
 }
 
@@ -95,6 +95,7 @@ export const routes = [
                 meta: {
                         sitemap: {
                             slugs: [
+                                '',
                                 'KP',
                                 'ARA',
                             ],
@@ -185,7 +186,7 @@ export const routes = [
                 sitemap: {
                     // Slugs can also be provided asynchronously
                     // The callback must always return an array
-                    slugs: async () => await getSmartAPI_IDs(),
+                    slugs: [''],
                 }
             }
     },
