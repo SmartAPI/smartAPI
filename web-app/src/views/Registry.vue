@@ -94,8 +94,6 @@
                             </a>
                         </template>
                       </template>
-                      
-
                   </div>
                 </div>
               </li>
@@ -103,25 +101,50 @@
 
             <!-- FILTERS -->
             <div v-if='portal_name == "translator" ' class="p-1 grey lighten-4 rounded grey-text" style="margin-top:10px;">
-              <template v-for="(filters, name) in all_filters" :key="filters">
-                <div v-if="name == 'info.x-translator.component' ">
-                  <span>Components: </span>
-                </div>
-                <div v-if="name == 'info.x-trapi.version' ">
-                  <span>TRAPI Version: </span>
-                </div>
-                <div v-if="name == 'tags.name'">
-                  <span>API Type: </span>
-                </div>
-                <template v-for="filter in filters" :key="filter.name">
-                  <span 
-                    @click.prevent="filter.active = !filter.active; search()" 
-                    class="chip pointer hoverable d-flex align-items-center"
-                    style="margin-right:5px;" 
-                    :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
-                    <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="light-blue-text" v-if="filter.count">({{filter.count}})</b>
-                  </span>
-                </template>
+              <div>
+                <span>Components:</span>
+              </div>
+              <template v-for="filter in all_filters['info.x-translator.component']" :key="filter.name">
+                <span 
+                  @click.prevent="filter.active = !filter.active; search()" 
+                  class="chip pointer hoverable d-flex align-items-center"
+                  style="margin-right:5px;" 
+                  :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
+                  <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="light-blue-text" v-if="filter.count">({{filter.count}})</b>
+                </span>
+              </template>
+              <div>
+                <span>API Type:</span>
+              </div>
+              <template v-for="filter in all_filters['tags.name']" :key="filter.name">
+                <span 
+                  @click.prevent="filter.active = !filter.active; search()" 
+                  class="chip pointer hoverable d-flex align-items-center"
+                  style="margin-right:5px;" 
+                  :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
+                  <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="light-blue-text" v-if="filter.count">({{filter.count}})</b>
+                </span>
+              </template>
+              <template v-for="filter in all_filters['!tags.name']" :key="filter.name">
+                <span 
+                  @click.prevent="filter.active = !filter.active; search()" 
+                  class="chip pointer hoverable d-flex align-items-center"
+                  style="margin-right:5px;" 
+                  :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
+                  <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="light-blue-text" v-if="filter.count">({{filter.count}})</b>
+                </span>
+              </template>
+              <div>
+                <span>TRAPI Version:</span>
+              </div>
+              <template v-for="filter in all_filters['info.x-trapi.version']" :key="filter.name">
+                <span 
+                  @click.prevent="filter.active = !filter.active; search()" 
+                  class="chip pointer hoverable d-flex align-items-center"
+                  style="margin-right:5px;" 
+                  :class="[filter.active ? 'blue white-text' : 'grey lighten-2']">
+                  <i class="material-icons tiny" :style="{color: filter.color}">brightness_1</i>&nbsp;{{filter.name}}&nbsp;<b class="light-blue-text" v-if="filter.count">({{filter.count}})</b>
+                </span>
               </template>
             </div>
             <!-- FILTERS END -->
@@ -136,14 +159,6 @@
                 </a>
               </template>
             </ul>
-
-            <!-- <ul class="collection" style="margin-top:50px;">
-              <div class="collection-header purple white-text p-1 center-align">
-                <span>Portal Specific</span>
-              </div>
-              <router-link class="collection-item left-align" to='/registry/translator'>Translator</router-link>
-              <router-link class="collection-item left-align" to='/registry/nihdatacommons'>NIH Data Commons</router-link>
-            </ul> -->
 
         </div>
         <div class="col s12 hide-on-med-and-up show-on-small-only">
