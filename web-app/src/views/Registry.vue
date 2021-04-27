@@ -31,7 +31,7 @@
                         <a  v-if="tagsearch.length" class="collection-item"
                             style="padding:2px;"
                             :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
-                            href="#!"
+                            href="javascript:void(0)"
                             @click.prevent="toggleTag(tag,'tag');search(); googleAnalytics('Registry_Tag', tag.name)">
                           <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                         </a>
@@ -43,7 +43,7 @@
                                 class="collection-item"
                                 style="padding:2px;"
                                 :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
-                                href="#!"
+                                href="javascript:void(0)"
                                 @click.prevent="toggleTag(tag,'tag');search(); googleAnalytics('Registry_Tag', tag.name)">
                             <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                             </a>
@@ -75,7 +75,7 @@
                             <a  class="collection-item"
                                 style="padding:2px;"
                                 :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
-                                href="#!"
+                                href="javascript:void(0)"
                                 @click.prevent="toggleTag(tag,'author');search(); googleAnalytics('Registry_Tag', tag.name)">
                             <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                             </a>
@@ -88,7 +88,7 @@
                                 class="collection-item"
                                 style="padding:2px;"
                                 :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}"
-                                href="#!"
+                                href="javascript:void(0)"
                                 @click.prevent="toggleTag(tag,'author');search(); googleAnalytics('Registry_Tag', tag.name)">
                             <small>{{tag.name}}  <span class="bold">({{tag.count}})</span></small>
                             </a>
@@ -171,7 +171,7 @@
                   <div class="collection">
                     <div class="colllection-item padding20">
                       <template v-for="tag in tags" :key="tag">
-                        <a class="chip" :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" href="#!"  @click.prevent="tag.active = !tag.active;search(); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
+                        <a class="chip" :class="{ disable: tag.name.toLowerCase() === specialTagOriginalName.toLowerCase(), active: tag.active, blue: tag.active  && tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase(), green: tag.active  && tag.name.toLowerCase() === specialTagOriginalName.toLowerCase() , 'white-text': tag.active}" href="javascript:void(0)"  @click.prevent="tag.active = !tag.active;search(); googleAnalytics('Registry_Tag', tag.name)">{{tag.name}}  <span class="bold">({{tag.count}})</span></a>
                       </template>
                     </div>
                   </div>
@@ -185,7 +185,7 @@
                   <div class="collection">
                     <div class="colllection-item padding20">
                       <template v-for="author in authors" :key="author">
-                        <a :class="{ active: author.active, blue: author.active }" href="#!" class="chip" @click.prevent="author.active = !author.active;search(); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
+                        <a :class="{ active: author.active, blue: author.active }" href="javascript:void(0)" class="chip" @click.prevent="author.active = !author.active;search(); googleAnalytics('Registry_Author', author.name)">{{author.name}}  <span class="bold">({{author.count}})</span> <span class="red-text" v-if="userInfo && author.name === userInfo.name">(Me)</span></a>
                       </template>
                     </div>
                   </div>
@@ -295,21 +295,21 @@
                                 <div class="col s2">
                                   <ul class="pagination">
                                     <li :class="{ disabled: page <= 1 }">
-                                        <a href="#" @click.prevent="prevPage(); search()"><i class="material-icons">chevron_left</i> Previous</a>
+                                        <a href="javascript:void(0)" @click.prevent="prevPage(); search()"><i class="material-icons">chevron_left</i> Previous</a>
                                     </li>
                                 </ul>
                                 </div>
                                 <div class="col s8">
                                   <ul class="pagination">
                                     <li :class="{ active: page == n, blue: page == n, 'white-text': page == n  }" v-for="n in pages" :key="n">
-                                        <a href="#" @click.prevent="page = n; search()">{{n}}</a>
+                                        <a href="javascript:void(0)" @click.prevent="page = n; search()">{{n}}</a>
                                     </li>
                                 </ul>
                                 </div>
                                 <div class="col s2">
                                   <ul class="pagination">
                                     <li :class="{ disabled: page >= pages }">
-                                        <a href="#" @click.prevent="nextPage(); search()">Next <i class="material-icons">chevron_right</i></a>
+                                        <a href="javascript:void(0)" @click.prevent="nextPage(); search()">Next <i class="material-icons">chevron_right</i></a>
                                     </li>
                                 </ul>
                                 </div>

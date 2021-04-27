@@ -60,7 +60,7 @@
                 <i class="material-icons green-text">done</i> Build a ReasonerStdAPI, follow the instructions <a target="_blank" rel="noreferrer" href="https://github.com/NCATS-Tangerine/NCATS-ReasonerStdAPI">here <i class="fa fa-external-link-square" aria-hidden="true"></i></a>.
               </li>
             </ul>
-            Regardless the type of APIs you are implementing, we recommend to follow these <a class=" green-text" href="#" @click="handleModal('best-practices')">API best-practices</a>.
+            Regardless the type of APIs you are implementing, we recommend to follow these <a class=" green-text" href="javascript:void(0)" @click="handleModal('best-practices')">API best-practices</a>.
           </p>
           <p>
             <b>Tip: </b>You may consider using <a href="https://docs.biothings.io/en/latest/" target="_blank" rel="noreferrer">BioThings SDK <i class="fa fa-external-link-square" aria-hidden="true"></i></a> to build your KP APIs. BioThings SDK will create a high-quality APIs following all these best-practices by default. If you need the help, please <a href="mailto:biothings@googlegroups.com">contact</a> BioThings team (aka "Service Provider" KP team in Translator).
@@ -83,7 +83,7 @@
               <i class="material-icons green-text">done</i> Create your API metadata following the latest <a href="http://spec.openapis.org/oas/v3.0.3" target="_blank" rel="noreferrer">OpenAPI v3 API specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>
             </li>
             <li>
-              <i class="material-icons green-text">done</i> Add semantics of your API's inputs and outputs using the SmartAPI extensions. <a class=" green-text" href="#" @click="handleModal('semantic-io')">Learn more</a>.
+              <i class="material-icons green-text">done</i> Add semantics of your API's inputs and outputs using the SmartAPI extensions. <a class=" green-text" href="javascript:void(0)" @click="handleModal('semantic-io')">Learn more</a>.
             </li>
           </ul>
           <p>

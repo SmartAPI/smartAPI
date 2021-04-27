@@ -79,7 +79,7 @@
             <Image v-else :img_name="organization.image" img_width="400" :alt="organization.name"></Image>
           </div>
           <template v-for='person in organization.members' :key='person.name'>
-            <div href="#modal1" class="contributor-box contributor modal-trigger" @click='popUpDetails(person)'>
+            <div href="javascript:void(0)" class="contributor-box contributor modal-trigger" @click='popUpDetails(person)'>
               <img class="circle scale-in-center squarePic" width="70%"  :src="person.image" :alt="person.name"/>
               <p class="bold blue-text">{{person.name}} {{person.lastname}}</p>
               <p class="blue-grey-text smallFont">{{person.title}}</p>

@@ -28,7 +28,7 @@
                             <li 
                             v-if="n >= startCap && n <= endCap" 
                             :class="{ 'active': page == n, 'blue': page == n, 'white-text': page == n  }">
-                                <a href="#" class="page-link p-1" @click.prevent="page = n" v-text="n"></a>
+                                <a href="javascript:void(0)" class="page-link p-1" @click.prevent="page = n" v-text="n"></a>
                             </li>
                         </template>
                         <template v-if="groupPages">

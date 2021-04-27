@@ -27,13 +27,13 @@
         <div class="col s12 padding20">
             <div class="dashboard-header">
                 <div class="grey-text dashHead">
-                    <teplate v-if="userInfo && userInfo.avatar_url">
+                    <template v-if="userInfo && userInfo.avatar_url">
                         <img width="80" 
                             height="80" 
                             :src="userInfo.avatar_url" 
                             class="responsive-img circle dash-photo"
                             :alt="userInfo.login">
-                    </teplate>
+                    </template>
                     <Image v-else
                         id="dashboardPhoto" 
                         img_width="80px" 
@@ -80,9 +80,9 @@
                         <small v-else-if="api?.swagger" class="blue-text">
                             Swagger2
                         </small>&nbsp;
-                        <a href="#modal2" class="modal-trigger" @click="getDetails(api)">
-                            <small><i class="tiny material-icons">settings</i> Settings</small>
-                        </a>
+                        <button class="smallButton" @click="getDetails(api)">
+                            settings
+                        </button>
                         </h6>
                         
                     </td>
@@ -136,10 +136,10 @@
             <div class="row">
                 <div class="col s12">
                 <ul class="tabs transparent">
-                    <li class="tab col s3"  @click="tabSelected = 1"><a href="#test1" class="active blue-text">API Metadata</a></li>
-                    <li class="tab col s3"  @click="tabSelected = 2"><a class="blue-text" href="#test2">Slug Registration</a></li>
-                    <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="#test3">User Interactions</a></li>
-                    <li class="tab col s3"  @click="tabSelected = 4"><a class="blue-text" href="#test3">Delete</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 1"><a href="javascript:void(0);" class="active blue-text">API Metadata</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 2"><a class="blue-text" href="javascript:void(0);">Slug Registration</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 3"><a class="blue-text" href="javascript:void(0);">User Interactions</a></li>
+                    <li class="tab col s3"  @click="tabSelected = 4"><a class="blue-text" href="javascript:void(0);">Delete</a></li>
                 </ul>
                 </div>
 
@@ -259,7 +259,7 @@
 
                         <div id="shortNameSuccess" class="center-align padding20 green smallFont" style="flex: 1; min-width: 100%; display: none;">
                             <h5 class="white-text"><i class="fa fa-check white-text" aria-hidden="true"></i> Slug Registered</h5>
-                            <a href="#!" class="btn green modal-action modal-close">Close</a>
+                            <a href="javascript:void(0)" class="btn green modal-action modal-close">Close</a>
                         </div>
                     </div>
                 </div>
@@ -552,6 +552,7 @@ export default {
             this.showModal = true;
             //modal will show the apis index of the item clicked
             this.selectedAPI = api;
+            this.tabSelected = 1;
             //hasShortName sets display for slug registration view
             if (this.selectedAPI?._meta?.slug && this.selectedAPI?._meta?.slug.length) {
                 this.hasShortName=true;
