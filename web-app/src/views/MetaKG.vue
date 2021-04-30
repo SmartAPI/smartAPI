@@ -1,6 +1,6 @@
 <template>
   <main id="meta-app" class="white" style="width: 100%;" v-cloak>
-  <div class="loadBlock row" v-if="loading && !apisProcessed">
+  <div class="loadBlock row" v-if="loading">
     <div class="col s12 m2 center d-flex align-items-center">
       <i class="fa fa-cog fa-spin fa-fw fa-3x"></i>
     </div>
@@ -18,6 +18,9 @@
   </div>
   <div class="p-1 grey lighten-3">
     <div class="center-align" style="margin-bottom:8px;">
+      <router-link to="/portal/translator" class="red-text">
+        Back to Portal
+      </router-link>
       <h6 style="margin:5px; display:inline;">
         <img />
           <Image class="scale-in-center" img_name="metakg-01.png" img_width="30px"
@@ -77,12 +80,14 @@
           <template v-if="overEdgeLimit">
             <p class="red-text p-1">Results contain over <b v-text="edgeLimit"></b> relationship edges, please refine your query to see all possible relationship edges rendered.</p>
           </template>
-          <button class="pointer smallButton m-1 right" @click="download">
-            <i class="fa fa-download" aria-hidden="true"></i> Download Image
-          </button>
-          <button class="pointer smallButton m-1 right" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
-              aria-hidden="true"></i> Reset Zoom
-          </button>
+          <template v-if="usingCytoscape">
+            <button class="pointer smallButton m-1 right" @click="download">
+              <i class="fa fa-download" aria-hidden="true"></i> Download Image
+            </button>
+            <button class="pointer smallButton m-1 right" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
+                aria-hidden="true"></i> Reset Zoom
+            </button>
+          </template>
           <template v-if="results.length == 0">
             <p class="red-text p-1">No Results, Please Refine Your Query</p>
           </template>
@@ -95,7 +100,7 @@
 
     <div class="d-flex">
       <!-- GRAPH and RESULTS-->
-      <div class="col m4 operations-menu p-1" v-if="showOperations">
+      <div v-if="showOperations" class="col m4 operations-menu p-1">
         <div v-show="results && results.length" class="collection-item green-text" style="padding: 1px;">
           <small>
             <b>{{numberWithCommas(results.length)}}</b> operations
@@ -103,20 +108,21 @@
         </div>
         <PaginatedList v-if="results && results.length" :content="results" type="MetaKG"></PaginatedList>
       </div>
-      <div id="cy">
+      <div id="cy" v-if="usingCytoscape">
         <div v-if="loading" class="center">
           <div class="center-align">
             <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
           </div>
         </div>
       </div>
+      <div v-else id="3d-graph"></div>
     </div>
 
     <div class="grey lighten-2 rounded p-1 m-2">
       <div class="container">
         <div>
           <button class="pointer smallButton m-1" @click="showSettings = !showSettings">
-            <i class="fa fa-cog" aria-hidden="true"></i> Performance Settings
+            <i class="fa fa-cog" aria-hidden="true"></i> Display Settings
           </button>
           <div v-if="showSettings" class="p-1 white rounded collection blue-text">
             <div class="collection-item yellow lighten-3 red-text">
@@ -131,7 +137,13 @@
             <div class="collection-item">
               <input type="checkbox" id="withLimit" v-model="edgeLimitBool" @click="withLimit = !withLimit"/>
               <label for="withLimit">
-                <small>Click here to enforce <b class="black-text">max number of edges (1,500)</b> to <b>improve</b> performance</small>
+                <small>Click here to enforce <b class="black-text">max number of edges (1,500)</b> to <b>improve</b> performance.</small>
+              </label>
+            </div>
+            <div class="collection-item">
+              <input type="checkbox" id="usingCytoscape" v-model="usingCytoscape"/>
+              <label for="usingCytoscape">
+                <small>Click here to render the results using CytoscapeJS instead of using a 3D Model.</small>
               </label>
             </div>
           </div>
@@ -146,6 +158,7 @@
 <script>
 import PillBox from '../components/PillBox.vue';
 import PaginatedList from '../components/PaginatedList.vue';
+import { mapGetters } from 'vuex'
 
 const MetaKG  = require("@biothings-explorer/smartapi-kg")
 
@@ -163,14 +176,8 @@ export default {
     },
     data: function () {
       return {
-        'cy': null,
-        'showAPIS': false,
-        'showTags': false,
-        'apisProcessed': false,
-        'apisLoaded': false,
-        'totalApis': 0,
         'hoverInfo': {},
-        'component_select': '',
+        'component_select': 'KP',
         'showOperations': false,
         'SR': false,
         'withLimit': false,
@@ -178,63 +185,35 @@ export default {
       }
     },
     computed: {
-      name: function () {
-        return this.$store.getters.getName
-      },
-      loading: function () {
-        return this.$store.getters.getLoading
-      },
-      apis: function () {
-        return this.$store.getters.getAPIS
-      },
-      operationsTotal: function () {
-        return this.$store.getters.getAPITotal
-      },
-      portal_info: function () {
-        return this.$store.getters.getHtml
-      },
-      results: function () {
-        return this.$store.getters.getResults
-      },
-      i_ac: function () {
-        return this.$store.getters.getI_AC
-      },
-      o_ac: function () {
-        return this.$store.getters.getO_AC
-      },
-      p_ac: function () {
-        return this.$store.getters.getP_AC
-      },
-      cyto_data: function () {
-        return this.$store.getters.getCytoData
-      },
-      spread: function () {
-        return this.$store.getters.getSpread
-      },
-      tagList: function () {
-        return this.$store.getters.getTagList
-      },
-      overEdgeLimit: function(){
-        return this.$store.getters.getOverEdgeLimit
-      },
+      ...mapGetters([
+        'loading',
+        'overEdgeLimit',
+        'results'
+      ]),
       edgeLimit: function(){
         return this.$store.getters.getLimit
       },
       edgeLimitBool: function(){
         return this.$store.getters.getLimitBool
+      },
+      usingCytoscape: {
+        get () {
+          return this.$store.getters.usingCytoscape
+        },
+        set (v) {
+          return this.$store.commit('setRenderer', {value: v})
+        }
       }
     },
     watch: {
       withLimit: function (v) {
         v ? this.$store.commit('setMax', {value: 1500}) : this.$store.commit('setMax', {value: 0})
         this.$toast.success('Updating Results...');
-        setTimeout(()=>{this.$store.dispatch('handle_metaKG_Query_New')}, 1000);
+        setTimeout(()=>{this.$store.dispatch('handleQuery')}, 1000);
       },
-      apis: function (a) {
-        var self = this;
-        if (a.length) {
-          self.apisProcessed = true;
-        }
+      usingCytoscape: function () {
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{this.$store.dispatch('handleQuery')}, 1000);
       },
       overEdgeLimit: function(v){
         if(v > 0){
@@ -249,22 +228,10 @@ export default {
       toggleSR(){
         this.$store.commit('toggleSelfReferenced');
         this.$toast.success('Updating Display...');
-        setTimeout(()=>{this.$store.commit('drawGraph')}, 1000);
+        setTimeout(()=>{this.$store.dispatch('draw')}, 1000);
       },
       numberWithCommas(x) {
           return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-      },
-      allWithTag: function (name) {
-        this.$store.dispatch('allWithTag', {highlight: name})
-      },
-      allWithTagUndo: function () {
-        this.$store.dispatch('allWithTagUndo')
-      },
-      handleME: function (name) {
-        this.$store.dispatch('highlightThis', {highlight: name})
-      },
-      handleML: function (name) {
-        this.$store.dispatch('unhighlightThis', {unhighlight: name})
       },
       async loadKG() {
         var self = this;
@@ -276,98 +243,52 @@ export default {
         await meta_kg.constructMetaKG(true, {component: self.component ? self.component : 'KP'});
         /*eslint-enable */
         const t1 = performance.now();
-        self.apisLoaded = true;
         //performance check
         var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
         console.log(`%c 🦄 Meta-KG loaded in ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
 
         //send graph data to store for processing
         this.$store.commit('saveMetaKG', {'metakg': meta_kg});
-        this.$store.commit('loadMetaKG', {'res': meta_kg.ops});
-        this.$store.commit('drawGraph');
-        this.$store.commit('getNewOptions', {'res': meta_kg.ops});
-        
-        setTimeout(()=>{this.checkForQuery()}, 1000)
-      },
-      parseKGData() {
-        var self = this;
-        let data = [];
 
-        if (self.ops) {
+        // this.$store.commit('createGraphData', {'res': meta_kg.ops});
+        // this.$store.dispatch('draw');
+        // this.$store.commit('getNewOptions', {'res': meta_kg.ops});
+        // setTimeout(()=>{this.checkForQuery()}, 1000)
 
-          for (var i = 0; i < self.ops.length; i++) {
-            let node1 = { //a
-              data: {
-                id: self.ops[i]['association']['input_type']
-              }
-            };
-            data.push(node1)
-
-            let node2 = { //b
-              data: {
-                id: self.ops[i]['association']['output_type']
-              }
-            };
-            data.push(node2)
-
-            let edgeName = self.ops[i]['association']['api_name'] + ':' + self.ops[i]['association']['predicate']
-
-            let edge = { // edge ab
-              data: {
-                id: edgeName + i,
-                source: self.ops[i]['association']['input_type'],
-                target: self.ops[i]['association']['output_type']
-              }
-            };
-            data.push(edge)
-
-
-          }
-          console.log('data', data)
-        }
+        //just let this handle whole initial flow
+        this.checkForQuery()
       },
       reset() {
         let self = this;
         this.$toast.success('Reseting please wait...');
         setTimeout(function(){
           self.$store.commit('reset');
-          self.$store.dispatch('handle_metaKG_Query_New')
+          self.$store.dispatch('handleQuery')
         }, 1000);  
       },
-      getClass(name) {
-        switch (name) {
-          case "MyGene.info API":
-            return 'blue'
-          case "MyChem.info API":
-            return 'orange'
-          case "MyVariant.info API":
-            return 'green'
-          default:
-            return ''
-        }
-      },
       download() {
-        this.$store.dispatch('download');
+        if (this.usingCytoscape) this.$store.dispatch('download');
       },
       highlightRow: function (item) {
-        this.hoverInfo = item
-        this.$store.dispatch('highlightRow', {item: item})
+        if (this.usingCytoscape) {
+          this.hoverInfo = item
+          this.$store.dispatch('highlightRow', {item: item})
+        }
       },
       highlightRowAndZoom: function (item) {
-        this.hoverInfo = item
-        this.$store.dispatch('highlightRowAndZoom', {item: item})
+        if (this.usingCytoscape) {
+          this.hoverInfo = item
+          this.$store.dispatch('highlightRowAndZoom', {item: item})
+        }
       },
       unhighlightRow: function (item) {
-        let edgeName = item['association']['api_name'] + ' : ' + item['association']['predicate'];
-        this.$store.dispatch('unhighlightRow', {unhighlight: edgeName, item: item})
-      },
-      loadExample() {
-        this.$store.commit('reset');
-        this.$store.commit('pushPill', {type: 'predicate', q: 'treats'});
-        this.$store.commit('pushPill', {type: 'output_type', q: 'Disease'});
+        if (this.usingCytoscape) {
+          let edgeName = item['association']['api_name'] + ' : ' + item['association']['predicate'];
+          this.$store.dispatch('unhighlightRow', {unhighlight: edgeName, item: item})
+        }
       },
       recenterGraph() {
-        this.$store.dispatch('recenterGraph')
+        if (this.usingCytoscape) this.$store.dispatch('recenterGraph')
       },
       checkForQuery(){
           let finalURL = window.location.href
@@ -376,11 +297,9 @@ export default {
       }
     },
     mounted: function () {
-      if (this.name == 'translator') {
-        this.loadKG();
-        this.$store.commit('toggleLoading', {loading: true})
-      }
+      this.$store.commit('toggleLoading', {loading: true})
       this.component_select = this.component ? this.component : 'KP'
+      this.loadKG();
     }
 }
 </script>
@@ -412,5 +331,17 @@ export default {
   }
   .metakg-menu{
     position: relative;
+  }
+  #3d-graph{
+    width: 90vw;
+    height: 800px;
+  }
+  .node-label {
+    font-size: 12px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    background-color: rgba(82, 17, 112, 0.7) !important;
+    color: white;
+    user-select: none;
   }
 </style>

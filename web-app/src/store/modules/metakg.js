@@ -2,27 +2,25 @@ import cytoscape from 'cytoscape'
 import popper from 'cytoscape-popper';
 import tippy from 'tippy.js';
 import swal from 'vue-sweetalert2'
+import ForceGraph3D from '3d-force-graph';
+import {CSS2DRenderer, CSS2DObject} from 'three-css2drender'
 
 cytoscape.use(popper);
 
 export const metakg = {
     state: () => ({ 
-        'name': 'translator',
         "meta_kg": null,
-        "results": Array,
+        "results": [],
         "output_autocomplete": [],
         "input_autocomplete": [],
         "predicate_autocomplete": [],
         "output_type": [],
         "input_type": [],
         "predicate": [],
-        "apis": {},
         'cy': null,
         "predicate_selected": [],
         "input_selected": [],
         "output_selected": [],
-        "spread": false,
-        "tagList": [],
         "operationsTotal": 0,
         "loading": false,
         "predicate_autocomplete_all": [],
@@ -32,7 +30,8 @@ export const metakg = {
         'maxEdgesRendered': 1500,
         'edgeData': [],
         'nodeData':[],
-        'showSelfReferenced': false
+        'showSelfReferenced': false,
+        'usingCytoscape': false
      }),
     strict: true,
     mutations: {
@@ -44,6 +43,9 @@ export const metakg = {
         },
         setMax(state, payload) {
             state.maxEdgesRendered = payload['value']
+        },
+        setRenderer(state, payload) {
+            state.usingCytoscape = payload['value']
         },
         reset(state) {
             // only clear if it has something or it will trigger a search unnecessarily on other components
@@ -83,6 +85,70 @@ export const metakg = {
             state.meta_kg = payload['metakg']
         },
         drawGraph(state) {
+            let data = {
+                nodes: state.nodeData.map(d=>d.data),
+                links: state.edgeData.map(d=>d.data)
+            }
+            const elem = document.getElementById('3d-graph');
+            // console.log("DATA", data)
+            const Graph = ForceGraph3D({
+                extraRenderers: [new CSS2DRenderer()]
+            })
+            Graph(elem);
+            Graph.forceEngine('ngraph')
+                .cooldownTicks(10)
+                .nodeAutoColorBy('user')
+                .graphData(data)
+                .width(1200)
+                .nodeResolution(16)
+                .height(900)
+                .backgroundColor('white')
+                .nodeThreeObject(node => {
+                    const nodeEl = document.createElement('div');
+                    nodeEl.textContent = node.id;
+                    nodeEl.style.color = '#f2f2f2';
+                    nodeEl.className = 'node-label';
+                    return new CSS2DObject(nodeEl);
+                })
+                .nodeThreeObjectExtend(true)
+                .enableNavigationControls(true)
+                // TODO not working or wonky movement
+                // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
+                // .onNodeClick(node => {
+                //     // Aim at node from outside it
+                //     console.log('NODE', node)
+                //     if(node?.__threeObj?.position?.x){
+                //         const distance = 80;
+                //         const distRatio = 1 + distance/Math.hypot(node.__threeObj.position.x, node.__threeObj.position.y, node.__threeObj.position.z);
+                //         Graph.cameraPosition(
+                //             { x: node.__threeObj.position.x * distRatio, y: node.__threeObj.position.y * distRatio, z: node.__threeObj.position.z * distRatio }, // new position
+                //             node, // lookAt ({ x, y, z })
+                //             2000  // ms transition duration
+                //         );
+                //     }
+                // })
+                // .enableNodeDrag(true)
+                // .onNodeDragEnd(node => {
+                //     if(node?.__threeObj?.position?.x){
+                //         node.fx = node?.__threeObj?.position?.x;
+                //         node.fy = node?.__threeObj?.position?.y;
+                //         node.fz = node?.__threeObj?.position?.z;
+                //     }
+                // })
+                .onLinkHover(node => elem.style.cursor = node ? 'pointer' : null)
+                .onLinkClick(link => {
+                    window.open('/registry?q='+link.smartapi_id, '_blank');
+                });
+
+            if(state.showSelfReferenced){
+                Graph.linkDirectionalArrowLength(1)
+                .linkDirectionalArrowRelPos(1)
+                .linkCurvature(0.25)
+            }
+            // fit to canvas when engine stops
+            Graph.onEngineStop(() => Graph.zoomToFit(500));
+        },
+        drawGraphCyto(state) {
             const t0 = performance.now();
             state.cy = cytoscape({
                 container: document.getElementById('cy'),
@@ -288,7 +354,7 @@ export const metakg = {
             console.log(`%c (getNewOptions) Calculating input options took ${seconds} seconds.`, 'color:cyan');
     
         },
-        loadMetaKG(state, payload) {
+        createGraphData(state, payload) {
             let results = payload['res'];
             //Initial data Processing
             const t0 = performance.now();
@@ -296,11 +362,17 @@ export const metakg = {
             let nodes = new Set();
             let all_edges = []
             let all_nodes = []
-
             //AC
             let oac_set = new Set();
             let iac_set = new Set();
             let pac_set = new Set();
+            // color nodes to match active query
+            var getNodeColor = name => {
+                if (state.input_type.includes(name)) return 'grey';
+                else if (state.output_type.includes(name)) return 'orange';
+                //inactive color
+                else return '#df4bfc'
+            }
 
             state.operationsTotal = results.length;
     
@@ -310,12 +382,18 @@ export const metakg = {
                 nodes.add(op['association']['input_type']);
                 nodes.add(op['association']['output_type']);
 
+                let html = `<div class="p-1 text-center white rounded z-depth-3"><h6 class="center-align">`+
+                    `<a target="_blank" href="http://smart-api.info/registry?q=`+op['association']['smartapi']['id']+`">`+op['association']['api_name']+`</a>`+
+                    `</h6><span class="black-text">`+op['association']['input_type']+
+                    `</span> ➡️ <span class="purple-text">`+op['association']['predicate']+
+                    `</span> ➡️ <span class="orange-text">`+op['association']['output_type']+
+                    `</span></div>`
+
                 let edge = {
                     ...op,
                     group: 'edges',
                     data: {
                         id: Math.floor(100000 + Math.random() * 900000),
-                        name: op['association']['api_name'] + ' : ' + op['association']['predicate'],
                         predicate: op['association']['predicate'],
                         output_id: op['association']['output_id'],
                         api_name: op['association']['api_name'],
@@ -323,44 +401,69 @@ export const metakg = {
                         source: op['association']['input_type'],
                         target: op['association']['output_type'],
                         smartapi_id: op['association']['smartapi']['id'],
+                        color:'#bf4eff'
                     }
                 };
+                // edge hover tip
+                edge.data.name = state.usingCytoscape ? op['association']['api_name'] + ' : ' + op['association']['predicate'] : html;
                 all_edges.push(edge);
                 // Autocomplete
                 oac_set.add(op['association']['output_type']);
                 iac_set.add(op['association']['input_type']);
                 pac_set.add(op['association']['predicate']);
             });
-
+            // autocomplete options
             state.output_autocomplete = [...oac_set];
             state.input_autocomplete = [...iac_set];
             state.predicate_autocomplete = [...pac_set];
-
             //save backup of all options for getNewOptions
             state.predicate_autocomplete_all = state.predicate_autocomplete;
-
-            all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
             state.overEdgeLimit = state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
 
-
+            //create node data
             nodes.forEach(node => {
                 let n = { 
                     group: 'nodes',          
                     data: {
-                        name: node,
                         id: node,
-                        weight: 1
+                        weight: 1,
+                        color: getNodeColor(node)
                     }
                 }
+                n.data.name = state.usingCytoscape ? node : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+node+'</h4></div>';
                 all_nodes.push(n)
             });
-
+            // cap edges if max
+            all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
+            // if max only include nodes on chosen edges
+            if (state.maxEdgesRendered) {
+                let min_nodes = new Set()
+                let min_final = []
+                all_edges.forEach(edge => {
+                    min_nodes.add(edge.data.source)
+                    min_nodes.add(edge.data.target)
+                })
+                let temp = [...min_nodes]
+                temp.forEach(item => {
+                    let n = {
+                        group: 'nodes',          
+                        data: {
+                            id: item,
+                            weight: 1,
+                            color: getNodeColor(item)
+                        }
+                    }
+                    n.data.name = state.usingCytoscape ? item : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+item+'</h4></div>';
+                    min_final.push(n)
+                })
+                all_nodes = min_final
+            }
+            // final data
             state.edgeData = all_edges
             state.nodeData = all_nodes
             state.loading = false;
             // starting results on left panel
             state.results = all_edges;
-    
             const t1 = performance.now();
             var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
             console.log(`%c 🕧 Creating graph data took ${seconds} seconds.`, 'color:hotpink');
@@ -440,8 +543,11 @@ export const metakg = {
         },
      },
     actions: {
+        draw({commit, state}){
+            state.usingCytoscape ? commit('drawGraphCyto') : commit('drawGraph');
+        },
         handleParams({commit, dispatch}, payload) {
-            let found = false;
+            // let found = false;
             let params = payload['params']
             params = new URLSearchParams(params);
             let array = ['input_type', 'predicate', 'output_type']
@@ -464,13 +570,14 @@ export const metakg = {
                     payload2["q"] = selections[i];
                     commit('saveInput', payload2);
 
-                    found = true
+                    // found = true
                     console.log('✨ Activating Existing Query ✨', payload1)
                 }
                 }
             }
 
-            found ? dispatch('handle_metaKG_Query_New'): false;
+            // found ? dispatch('handleQuery'): false;
+            dispatch('handleQuery')
         },
         recenterGraph({state}) {
             state.cy.fit();
@@ -486,20 +593,6 @@ export const metakg = {
         },
         unhighlightThis({state}) {
             state.cy.elements().removeClass('highlightedAPI')
-        },
-        allWithTag({state}, payload) {
-        let name = payload['highlight']
-
-        let found = state.cy.filter(function (element) {
-            if (element.isEdge() && element.data('tags').includes(name)) {
-            return element;
-            }
-        });
-        found.addClass('highlightedTag')
-
-        },
-        allWithTagUndo({state}) {
-        state.cy.elements().removeClass('highlightedTag')
         },
         highlightRowAndZoom({state}, payload) {
             let item = payload['item']
@@ -537,7 +630,7 @@ export const metakg = {
                 }
             }
         },
-        handle_metaKG_Query_New({commit, state}) {
+        handleQuery({commit, state, dispatch}) {
             console.log("HANDLE NEW QUERY")
             let q = {}
             if (state.output_type && state.output_type.length) {
@@ -556,9 +649,9 @@ export const metakg = {
             let g = state.meta_kg.filter(q);
 
             if (g) {
-                commit('loadMetaKG', {res: g});
+                commit('createGraphData', {res: g});
                 commit('getNewOptions', {res: g});
-                commit('drawGraph');
+                dispatch('draw');
             }
         },
         download({state}) {
@@ -638,12 +731,6 @@ export const metakg = {
         },
      },
     getters: {
-        getAPIS: (state) => {
-            return state.apis
-        },
-        getName: (state) => {
-            return state.name
-        },
         getI_AC: (state) => {
             return state.input_autocomplete
         },
@@ -662,29 +749,16 @@ export const metakg = {
         getO_Selected: (state) => {
             return state.output_selected
         },
-        getHtml: (state) => {
-            for (var name in state.portals) {
-                if (name == state.name) {
-                return state.portals[name]
-            }
-        }
-        },
-        getResults: (state) => {
+        results: (state) => {
             return state.results
-        },
-        getSpread: (state) => {
-            return state.spread
-        },
-        getTagList: (state) => {
-            return state.tagList
         },
         getAPITotal: (state) => {
             return state.operationsTotal
         },
-        getLoading: (state) => {
+        loading: (state) => {
             return state.loading
         },
-        getOverEdgeLimit: (state) => {
+        overEdgeLimit: (state) => {
             return state.overEdgeLimit
         },
         getLimit: (state) => {
@@ -695,6 +769,9 @@ export const metakg = {
         },
         getLimitBool: (state) => {
             return state.maxEdgesRendered ? true : false
+        },
+        usingCytoscape: (state) => {
+            return state.usingCytoscape
         },
     }
 }
