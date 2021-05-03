@@ -85,7 +85,7 @@ export default {
           case 'predicate':
             return "purple";
           case 'input_type':
-            return "grey";
+            return "indigo";
           case 'output_type':
             return "orange";
           default:

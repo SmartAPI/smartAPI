@@ -135,14 +135,16 @@ export const metakg = {
                 //         node.fz = node?.__threeObj?.position?.z;
                 //     }
                 // })
+                .linkLabel('html')
                 .onLinkHover(node => elem.style.cursor = node ? 'pointer' : null)
                 .onLinkClick(link => {
                     window.open('/registry?q='+link.smartapi_id, '_blank');
                 });
 
             if(state.showSelfReferenced){
-                Graph.linkDirectionalArrowLength(1)
-                .linkDirectionalArrowRelPos(1)
+                Graph
+                // .linkDirectionalArrowLength(1)
+                // .linkDirectionalArrowRelPos(1)
                 .linkCurvature(0.25)
             }
             // fit to canvas when engine stops
@@ -368,7 +370,7 @@ export const metakg = {
             let pac_set = new Set();
             // color nodes to match active query
             var getNodeColor = name => {
-                if (state.input_type.includes(name)) return 'grey';
+                if (state.input_type.includes(name)) return '#3f51b5 ';
                 else if (state.output_type.includes(name)) return 'orange';
                 //inactive color
                 else return '#df4bfc'
@@ -382,9 +384,9 @@ export const metakg = {
                 nodes.add(op['association']['input_type']);
                 nodes.add(op['association']['output_type']);
 
-                let html = `<div class="p-1 text-center white rounded z-depth-3"><h6 class="center-align">`+
+                let html = `<div class="p-1 center-align white rounded z-depth-3"><h6 class="center-align">`+
                     `<a target="_blank" href="http://smart-api.info/registry?q=`+op['association']['smartapi']['id']+`">`+op['association']['api_name']+`</a>`+
-                    `</h6><span class="black-text">`+op['association']['input_type']+
+                    `</h6><span class="indigo-text">`+op['association']['input_type']+
                     `</span> ➡️ <span class="purple-text">`+op['association']['predicate']+
                     `</span> ➡️ <span class="orange-text">`+op['association']['output_type']+
                     `</span></div>`
@@ -394,6 +396,8 @@ export const metakg = {
                     group: 'edges',
                     data: {
                         id: Math.floor(100000 + Math.random() * 900000),
+                        name: op['association']['api_name'] + ' : ' + op['association']['predicate'],
+                        html: html,
                         predicate: op['association']['predicate'],
                         output_id: op['association']['output_id'],
                         api_name: op['association']['api_name'],
@@ -405,7 +409,6 @@ export const metakg = {
                     }
                 };
                 // edge hover tip
-                edge.data.name = state.usingCytoscape ? op['association']['api_name'] + ' : ' + op['association']['predicate'] : html;
                 all_edges.push(edge);
                 // Autocomplete
                 oac_set.add(op['association']['output_type']);
@@ -580,7 +583,7 @@ export const metakg = {
             dispatch('handleQuery')
         },
         recenterGraph({state}) {
-            state.cy.fit();
+            if (state.usingCytoscape) state.cy.fit();
         },
         highlightThis({state}, payload) {
         let name = payload['highlight']

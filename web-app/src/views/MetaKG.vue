@@ -46,7 +46,7 @@
           <div class="row m-0">
             <div class="col s12 m4 input-field center">
               <h6 class="white-text lighter" style="margin:2px">
-                <i class="fa fa-circle grey-text" aria-hidden="true"></i>
+                <i class="fa fa-circle indigo-text" aria-hidden="true"></i>
                 INPUT TYPE
               </h6>
               <PillBox type="input_type"></PillBox>
@@ -98,15 +98,17 @@
       </div>
     </div>
 
-    <div class="d-flex">
+    <div class="d-flex justify-content-center graph-cont">
       <!-- GRAPH and RESULTS-->
       <div v-if="showOperations" class="col m4 operations-menu p-1">
-        <div v-show="results && results.length" class="collection-item green-text" style="padding: 1px;">
-          <small>
-            <b>{{numberWithCommas(results.length)}}</b> operations
-          </small>
+        <div class="right-align">
+          <span class="pointer red-text" @click="showOperations = false">close &times;</span>
         </div>
-        <PaginatedList v-if="results && results.length" :content="results" type="MetaKG"></PaginatedList>
+        <template v-for="item in results" :key="item.id">
+          <div class="m-1" @mouseenter="highlightRow(item)" @mouseleave="unhighlightRow(item)" >
+            <small v-html="item.data.html"></small>
+          </div>
+        </template>
       </div>
       <div id="cy" v-if="usingCytoscape">
         <div v-if="loading" class="center">
@@ -157,7 +159,6 @@
 
 <script>
 import PillBox from '../components/PillBox.vue';
-import PaginatedList from '../components/PaginatedList.vue';
 import { mapGetters } from 'vuex'
 
 const MetaKG  = require("@biothings-explorer/smartapi-kg")
@@ -165,7 +166,6 @@ const MetaKG  = require("@biothings-explorer/smartapi-kg")
 export default {
   components: { 
       PillBox,
-      PaginatedList
   },
     name: 'MetaKG',
     props: {
@@ -324,17 +324,21 @@ export default {
     overflow: hidden;
     margin: auto;
   }
-  .operation-menu{
+  .operations-menu{
+    max-height: 1000px;
+    overflow-y: scroll;
+    background-color: rgba(137, 32, 179, 0.2);
     position: absolute;
     left: 5px;
     top: 5px;
+    z-index: 100;
+  }
+  .graph-cont{
+    position: relative;
+    overflow: hidden;
   }
   .metakg-menu{
     position: relative;
-  }
-  #3d-graph{
-    width: 90vw;
-    height: 800px;
   }
   .node-label {
     font-size: 12px;
@@ -343,5 +347,8 @@ export default {
     background-color: rgba(82, 17, 112, 0.7) !important;
     color: white;
     user-select: none;
+  }
+  .scene-tooltip{
+    z-index: 1000;
   }
 </style>
