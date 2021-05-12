@@ -24,6 +24,21 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         elif ":" in q or " AND " in q or " OR " in q:
             search = search.query('query_string', query=q)
 
+        # term search
+        elif q.startswith('"') and q.endswith('"'):
+            query = {
+                "query": {
+                    "dis_max": {
+                        "queries": [
+                            {"match": {"info.title": {"query": q, "boost": 1.5, "operator": "AND"}}},
+                            {"query_string": {"query": q, "default_operator": "AND"}}  # base score
+                        ]
+                    }
+                }
+            }
+            search = AsyncSearch()
+            search = search.update_from_dict(query)
+
         else:  # simple text search
             query = {
                 "query": {
