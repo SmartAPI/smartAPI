@@ -25,13 +25,16 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
             search = search.query('query_string', query=q)
 
         # term search
-        elif q.startswith('"') and q.endswith('"'):
+        elif q.strip().startswith('"') \
+                and q.strip().endswith('"'):
             query = {
                 "query": {
                     "dis_max": {
                         "queries": [
-                            {"match": {"info.title": {"query": q, "boost": 1.5, "operator": "AND"}}},
-                            {"query_string": {"query": q, "default_operator": "AND"}}  # base score
+                            {"term": {"_id": {"value": q.strip(), "boost": 5}}},
+                            {"term": {"_meta.slug": {"value": q.strip(), "boost": 3}}},
+                            {"match": {"info.title": {"query": q.strip(), "boost": 1.5, "operator": "AND"}}},
+                            {"query_string": {"query": q.strip(), "default_operator": "AND"}}  # base score
                         ]
                     }
                 }
