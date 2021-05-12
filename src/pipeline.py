@@ -31,8 +31,8 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                         "queries": [
                             {"term": {"_id": {"value": q, "boost": 5}}},
                             {"term": {"_meta.slug": {"value": q, "boost": 3}}},
-                            {"match": {"info.title": {"query": q, "boost": 1.2}}},
-                            {"term": {"server.url": {"value": q, "boost": 1.1}}},
+                            {"match": {"info.title": {"query": q, "boost": 1.5}}},
+                            {"term": {"servers.url": {"value": q, "boost": 1.1}}},
                             # ---------------------------------------------
                             {"query_string": {"query": q}},  # base score
                             # ---------------------------------------------
