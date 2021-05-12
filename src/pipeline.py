@@ -20,35 +20,28 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         elif q == '__any__' and self.allow_random_query:
             search = search.query('function_score', random_score={})
 
-        # override
-        else:
-            # elasticsearch syntax
-            if ":" in q or " AND " in q or " OR " in q:
-                query = {
-                    "query": {
-                        "query_string": {
-                            "query": q
-                        }
+        # elasticsearch query string syntax
+        elif ":" in q or " AND " in q or " OR " in q:
+            search = search.query('query_string', query=q)
+
+        else:  # simple text search
+            query = {
+                "query": {
+                    "dis_max": {
+                        "queries": [
+                            {"term": {"_id": {"value": q, "boost": 10}}},
+                            {"term": {"_meta.slug": {"value": q, "boost": 10}}},
+                            {"match": {"info.title": {"query": q, "boost": 5.0}}},
+                            {"term": {"server.url": {"value": q, "boost": 1.1}}},
+                            # ---------------------------------------------
+                            {"query_string": {"query": q}},  # base score
+                            # ---------------------------------------------
+                            {"wildcard": {"info.title": {"value": q + "*", "boost": 0.8}}},
+                            {"wildcard": {"info.description": {"value": q + "*", "boost": 0.5}}},
+                        ]
                     }
                 }
-            else:  # simple text
-                query = {
-                    "query": {
-                        "dis_max": {
-                            "queries": [
-                                {"term": {"_id": {"value": q, "boost": 10}}},
-                                {"term": {"_meta.slug": {"value": q, "boost": 10}}},
-                                {"match": {"info.title": {"query": q, "boost": 5.0}}},
-                                {"term": {"server.url": {"value": q, "boost": 1.1}}},
-                                # ---------------------------------------------
-                                {"query_string": {"query": q}},  # base score
-                                # ---------------------------------------------
-                                {"wildcard": {"info.title": {"value": q + "*", "boost": 0.8}}},
-                                {"wildcard": {"info.description": {"value": q + "*", "boost": 0.5}}},
-                            ]
-                        }
-                    }
-                }
+            }
             search = AsyncSearch()
             search = search.update_from_dict(query)
 
