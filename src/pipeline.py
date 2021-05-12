@@ -33,7 +33,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                     "dis_max": {
                         "queries": [
                             {"term": {"_id": {"value": q.strip('"'), "boost": 5}}},
-                            {"term": {"_meta.slug": {"value": q.strip('"'), "boost": 3}}},
+                            {"term": {"_meta.slug": {"value": q.strip('"'), "boost": 5}}},
                             {"match": {"info.title": {"query": q, "boost": 1.5, "operator": "AND"}}},
                             {"query_string": {"query": q, "default_operator": "AND"}}  # base score
                         ]
@@ -49,7 +49,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                     "dis_max": {
                         "queries": [
                             {"term": {"_id": {"value": q, "boost": 5}}},
-                            {"term": {"_meta.slug": {"value": q, "boost": 3}}},
+                            {"term": {"_meta.slug": {"value": q, "boost": 5}}},
                             {"match": {"info.title": {"query": q, "boost": 1.5}}},
                             {"term": {"servers.url": {"value": q, "boost": 1.1}}},
                             # ---------------------------------------------
