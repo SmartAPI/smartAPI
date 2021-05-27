@@ -37,7 +37,7 @@
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags" :key="tag.name">
-              <router-link :to="'/registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="blue-text">
+              <router-link :to="$route.path + '?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="blue-text">
                 <small>#<span v-text="tag.name"></span></small>
               </router-link>
               <span v-if="index !== api.tags.length-1">, </span>

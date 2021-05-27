@@ -137,7 +137,7 @@
               <div>
                 <span>TRAPI Version:</span>
               </div>
-              <template v-for="filter in all_filters['info.x-trapi.version']" :key="filter.name">
+              <template v-for="filter in all_filters['info.x-trapi.version.raw']" :key="filter.name">
                 <span 
                   @click.prevent="filter.active = !filter.active; search()" 
                   class="chip pointer hoverable d-flex align-items-center"
@@ -154,9 +154,9 @@
                 <span>Filters Most Active <br />(Last 30 days)</span>
               </div>
               <template v-for="(pop,index) in popularTags" :key="pop+index">
-                  <a v-if="index < 10" :href="pop.type == 'tags'?'/registry?tags='+pop.name:'/registry?owners='+pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
+                  <a v-if="index < 10" :href="pop.type == 'tags' ? $route.path + '?tags=' + pop.name : $route.path + '?owners=' + pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
                   {{index+1}} <small><span v-text="pop.type == 'tags' ? '#' : '@'"></span> <span v-text="pop.name"></span></small>
-                </a>
+                  </a>
               </template>
             </ul>
 
@@ -623,7 +623,8 @@ export default {
               Object.keys(filters ).forEach(field => {
                 //if multiple possible values add OR
                 let val = filters[field ].toString().includes(',') ? "(" + filters[field ].join(' OR ') + ")" : filters[field ]
-                filters[field ] && filters[field ].length ? f_list.push( field  + ':' + val  ) : false;
+                let finalValue = val.includes("(") || val.includes('trapi AND !tags.name:biothings') ? val : '"' + val + '"'
+                filters[field ] && filters[field ].length ? f_list.push( field  + ':' + finalValue  ) : false;
               });
               //add AND condition if multiple filters
               let field_query = f_list.join(' AND ');

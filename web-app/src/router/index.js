@@ -24,6 +24,12 @@ router.beforeEach((to, from, next) => {
 
           if(Object.prototype.hasOwnProperty.call(res.data, "_id")){
             next({name:'UI', params: {smartapi_id : res.data._id}})
+            try {
+              //hack to change url back to home
+              history.pushState({}, '', '/');
+            } catch (e) {
+              console.log(`unable to change url because ${e}`)
+            }
           }else next()
 
         }).catch(err=>{

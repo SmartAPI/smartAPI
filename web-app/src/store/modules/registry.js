@@ -28,9 +28,7 @@ export const registry = {
         loadTagFilters({ commit }){
             const existing = sessionStorage.getItem('tags');
             if(!existing){
-                // let tagUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=tags.name" 
-                // : 'https://smart-api.info/api/suggestion?field=tags.name'
-                let tagUrl = "/api/suggestion?field=tags.name"
+                let tagUrl = process.env.NODE_ENV == 'development' ? 'https://smart-api.info' + "/api/suggestion?field=tags.name" : "/api/suggestion?field=tags.name"
                 axios.get(tagUrl).then(function(response){
                     let temp_data = []
                     for(let key in response.data){
@@ -49,9 +47,7 @@ export const registry = {
         loadOwnerFilters({ commit }){
             const existing = sessionStorage.getItem('authors');
             if(!existing){
-                // let ownerUrl = window.location.hostname !== 'localhost' ? "/api/suggestion?field=info.contact.name" 
-                // : 'https://smart-api.info/api/suggestion?field=info.contact.name'
-                let ownerUrl = "/api/suggestion?field=info.contact.name" 
+                let ownerUrl = process.env.NODE_ENV == 'development' ? 'https://smart-api.info' + "/api/suggestion?field=info.contact.name" : "/api/suggestion?field=info.contact.name" 
                 axios.get(ownerUrl).then(function(response){
                     let temp_data = []
                     for(let key in response.data){
@@ -70,8 +66,7 @@ export const registry = {
         aggregate({commit}, field){
             const existing = sessionStorage.getItem(field);
             if(!existing){
-                // let url = window.location.hostname !== 'localhost' ? `/api/suggestion?field=${field}` : `https://smart-api.info/api/suggestion?field=${field}`
-                let url = `/api/suggestion?field=${field}`
+                let url = process.env.NODE_ENV == 'development' ? `https://smart-api.info/api/suggestion?field=${field}` : `/api/suggestion?field=${field}`
                 axios.get(url).then(response => {
                     let complete = []
                     let res = response.data || []
@@ -117,7 +112,8 @@ export const registry = {
                     value: 'trapi AND !tags.name:biothings',
                 }
             ].forEach(item => {
-                axios.get(item.query).then(function(response){
+                let url =  process.env.NODE_ENV == 'development' ? 'https://smart-api.info' + item.query : item.query
+                axios.get(url).then(function(response){
                     commit('saveAllFilters', {
                         type: item.type, 
                         value: [
@@ -133,7 +129,7 @@ export const registry = {
                 });
             })
             
-            dispatch('aggregate', 'info.x-trapi.version')
+            dispatch('aggregate', 'info.x-trapi.version.raw')
         }
     },
     getters: {
