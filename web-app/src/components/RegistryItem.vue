@@ -37,7 +37,7 @@
           <hr style="border: dotted 1px #e8e8e8 !important;"/>
           <div class="full-width grey-text">
             <template v-for="(tag,index) in api.tags" :key="tag.name">
-              <router-link :to="'/registry?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="blue-text">
+              <router-link :to="$route.path + '?tags='+tag.name" @click="googleAnalytics('Registry_Tag', tag.name)" class="blue-text">
                 <small>#<span v-text="tag.name"></span></small>
               </router-link>
               <span v-if="index !== api.tags.length-1">, </span>
@@ -82,6 +82,9 @@
                     <small class="white-text">
                       <a :href="'https://github.com/'+api._meta.username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.username"></span></a>
                     </small>
+                    <router-link class="CopyButton copyBtn pointer" :to="{path: $route.path, query: {q: '_meta.username:' + api._meta.username}}">
+                      More APIs by this user
+                    </router-link>
                   </td>
                 </tr>
                 <tr>
