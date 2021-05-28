@@ -82,6 +82,9 @@
                     <small class="white-text">
                       <a :href="'https://github.com/'+api._meta.username" target="_blank" rel="nonreferrer"><i class="fa fa-user" aria-hidden="true"></i> <span v-text="api._meta.username"></span></a>
                     </small>
+                    <router-link class="CopyButton copyBtn pointer" :to="{path: $route.path, query: {q: '_meta.username:' + api._meta.username}}">
+                      More APIs by this user
+                    </router-link>
                   </td>
                 </tr>
                 <tr>
