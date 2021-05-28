@@ -242,7 +242,7 @@
                 </div>
                 <div class="col s12">
                     <button type="submit" @click="googleAnalytics('Registry_Searches',query)" class="waves-effect waves-light blue btn">search</button>&nbsp;&nbsp;&nbsp;
-                    <a class="blue btn" href="/registry">clear</a>
+                    <a class="blue btn" :href="$route.path">clear</a>
                 </div>
             </form>
             <div class="col s12" id="myAPITipCont">
@@ -579,8 +579,10 @@ export default {
             for (const key in self.all_filters) {
               filters[key] = []
               self.all_filters[key].forEach(item => {
+                // console.log('Filter ' + key, JSON.stringify(item, null, 2))
                 if (item.active) {
-                  filters[key].push(item.value);
+                  // console.log('%c Active Filter ' + JSON.stringify(item, null, 2), 'color:orange')
+                  filters[key].push(item.es_value);
                 }
               })
             }
@@ -620,14 +622,17 @@ export default {
               let filters = self.getProjectFilters();
               //prep active filters found to be added
               let f_list = []
-              Object.keys(filters ).forEach(field => {
-                //if multiple possible values add OR
-                let val = filters[field ].toString().includes(',') ? "(" + filters[field ].join(' OR ') + ")" : filters[field ]
-                let finalValue = val.includes("(") || val.includes('trapi AND !tags.name:biothings') ? val : '"' + val + '"'
-                filters[field ] && filters[field ].length ? f_list.push( field  + ':' + finalValue  ) : false;
+              Object.keys(filters).forEach(field => {
+                // console.log(field,filters[field])
+                //ready value
+                let value = filters[field].length && filters[field].length > 1 ?
+                "(" + filters[field].join(' OR ') + ")" : filters[field]
+                // console.log('%c VALUE OF ACTIVE ' + JSON.stringify(value, null, 2), 'color:yellow')
+                //if active add es_value to list of filters
+                filters[field] && filters[field].length ? f_list.push( value ) : false;
               });
               //add AND condition if multiple filters
-              let field_query = f_list.join(' AND ');
+              let field_query = f_list.join(' OR ');
 
               //form correct query pattern
               if (field_query && query !== '__all__') {
@@ -648,6 +653,39 @@ export default {
                   url += "&" + param + "=" + tag_filters[param]
                 }
               }
+
+              // //look for existing active filters and 
+              // let filters = self.getProjectFilters();
+              // //prep active filters found to be added
+              // let f_list = []
+              // Object.keys(filters ).forEach(field => {
+              //   //if multiple possible values add OR
+              //   let val = filters[field ].toString().includes(',') ? "(" + filters[field ].join(' OR ') + ")" : filters[field ]
+              //   let finalValue = val.includes("(") || val.includes('trapi AND !tags.name:biothings') ? val : '"' + val + '"'
+              //   filters[field ] && filters[field ].length ? f_list.push( field  + ':' + finalValue  ) : false;
+              // });
+              // //add AND condition if multiple filters
+              // let field_query = f_list.join(' AND ');
+
+              // //form correct query pattern
+              // if (field_query && query !== '__all__') {
+              //   url += field_query + ' AND ' + query
+              // }
+              // else if (field_query && query == '__all__') {
+              //   url += field_query
+              // }
+              // else if (!field_query && query == '__all__') {
+              //   url += query
+              // }else{
+              //   url += query
+              // }
+              // //tag ownwer special param filters
+              // var tag_filters = this.getQueryFilters();
+              // if (Object.keys(tag_filters).length !== 0){
+              //   for (const param in tag_filters) {
+              //     url += "&" + param + "=" + tag_filters[param]
+              //   }
+              // }
 
               // sort
               switch (self.sort) {

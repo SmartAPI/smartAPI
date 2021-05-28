@@ -66,7 +66,7 @@ export const registry = {
         aggregate({commit}, field){
             const existing = sessionStorage.getItem(field);
             if(!existing){
-                let url = process.env.NODE_ENV == 'development' ? `https://smart-api.info/api/suggestion?field=${field}` : `/api/suggestion?field=${field}`
+                let url = process.env.NODE_ENV == 'development' ? `https://dev.smart-api.info/api/suggestion?field=${field}` : `/api/suggestion?field=${field}`
                 axios.get(url).then(response => {
                     let complete = []
                     let res = response.data || []
@@ -77,6 +77,8 @@ export const registry = {
                         item.value = key
                         item.name = key
                         item.count = value
+                        item.es_value = field + ":" + key
+
                         complete.push(item)
                     }
                     commit('saveAllFilters', {type: field, value: complete});
@@ -97,12 +99,14 @@ export const registry = {
                     name: 'BioThings',
                     type: 'tags.name', 
                     value: 'biothings',
+                    es_value: 'tags.name:biothings'
                 },
                 {
                     query: '/api/query?q=tags.name:translator&tags=%22trapi%22&size=0',
                     name: 'TRAPI',
                     type: 'tags.name', 
                     value: 'trapi',
+                    es_value: 'tags.name:trapi'
                 },
                 //special NOT includes multiple values
                 {
@@ -110,9 +114,10 @@ export const registry = {
                     name: 'Other',
                     type: '!tags.name', 
                     value: 'trapi AND !tags.name:biothings',
+                    es_value: '(!tags.name:trapi AND !tags.name:biothings)'
                 }
             ].forEach(item => {
-                let url =  process.env.NODE_ENV == 'development' ? 'https://smart-api.info' + item.query : item.query
+                let url =  process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info' + item.query : item.query
                 axios.get(url).then(function(response){
                     commit('saveAllFilters', {
                         type: item.type, 
@@ -122,7 +127,8 @@ export const registry = {
                                 value: item.value,
                                 active:false, 
                                 color: '#424242', 
-                                count: response.data?.total || false
+                                count: response.data?.total || false,
+                                es_value: item.es_value
                             }
                         ]
                     })

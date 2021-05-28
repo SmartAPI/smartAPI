@@ -17,14 +17,17 @@ export const authentication = {
      },
     actions: {
         checkUser({ commit}){
-            // for dev only
-            // commit('saveUser', {user: {"name": "Marco Cano", "email": "artofmarco@gmail.com", "login": "marcodarko", "avatar_url": "https://avatars.githubusercontent.com/u/23092057?v=4"}});
-            axios.get('/user').then(response=>{
-              commit('saveUser', {user: response.data})
-            }).catch(err=>{
-              commit('resetUser');
-              throw err;
-            })
+            if (process.env.NODE_ENV == 'development') {
+                // for dev only
+                commit('saveUser', {user: {"name": "Marco Cano", "email": "artofmarco@gmail.com", "login": "marcodarko", "avatar_url": "https://avatars.githubusercontent.com/u/23092057?v=4"}});
+            } else {
+                axios.get('/user').then(response=>{
+                    commit('saveUser', {user: response.data})
+                  }).catch(err=>{
+                    commit('resetUser');
+                    throw err;
+                  })
+            }
         }
      },
     getters: {
