@@ -1,24 +1,17 @@
-biothings[web_extra]==0.9.1
+git+git://github.com/biothings/biothings.api@0.10.x#egg=biothings[web_extra]
 
 # document validation
 jsonschema==3.2.0
 
 # web handling
-elasticsearch==7.9.1
-elasticsearch-async==6.2.0
-elasticsearch-dsl==7.3.0
 torngithub==0.2.0 
 pycurl==7.43.0.4
-tornado==5.1.1
 chardet==3.0.4
 
 aiocron==1.4
 
 # gitdb version specified because gitdb.utils.compat not available in newest version
 gitdb==4.0.5
-
-# s3 backup
-boto3==1.16.2
 
 # local issuer certificate
 certifi

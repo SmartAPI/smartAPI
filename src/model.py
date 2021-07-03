@@ -8,8 +8,7 @@ import os
 from elasticsearch_dsl import *
 
 
-# parse environment variables
-ES_HOST = os.getenv('ES_HOST', 'localhost:9200')
+ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_docs'
 
 # create a default connection

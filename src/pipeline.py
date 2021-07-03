@@ -1,33 +1,89 @@
 
 from base64 import b64decode
+from enum import Enum
+from typing import OrderedDict
 
-from biothings.utils.web.es_dsl import AsyncSearch
-from biothings.web.pipeline import ESQueryBuilder, ESResultTransform
+from biothings.web.query import (
+    AsyncESQueryPipeline,
+    ESQueryBuilder,
+    ESResultFormatter)
+from elasticsearch_dsl import Search
 
 from controller import OpenAPI, Swagger
 from utils import decoder
 
 
+# There are three types of cases supported:
+# 1. match_all query for /api/metadata
+# 2. match query for /api/metadata/_id
+# 3. query string query for /api/metadata/query
+class _CASE(Enum):
+    GET_ALL = 1
+    GET_ID = 2
+    QUERY = 3
+
+
+class SmartAPIQueryPipeline(AsyncESQueryPipeline):
+
+    # in addition to document retrival,
+    # the smartapi fetch endpoint also supports
+    # listing all documents through pagination.
+    # (match_all)
+
+    async def search(self, q, **options):
+
+        # raw == 1 means keeping _meta field
+        # as oppposed to the default value 0
+        if options.get('raw') == 1:
+            # do not trigger the RawResultInterrupt
+            # supported by 'raw' parameter in query engine.
+            # any value >1 still keeps that behavior.
+            options['raw'] = None
+
+        return await super().search(q, **options)
+
+    async def fetch(self, id=None, **options):
+
+        # id is None means listing all documents
+        # with pagination parameters size and from.
+
+        # Get Id
+        if id is not None:
+            # ignore match_all params.
+            options.pop('size', None)
+            options.pop('from', None)
+            options['case'] = _CASE.GET_ID
+
+            res = await super().fetch(id, **options)
+            return OrderedDict(res)  # for YAML serialization
+
+        # Match All
+        # the score field is the same, and trivial for
+        # a match_all query, exclude it in the result.
+        options['score'] = False
+        options['case'] = _CASE.GET_ALL
+        res = await self.search(id, **options)
+        return [OrderedDict(hit) for hit in res['hits']]
+
+
 class SmartAPIQueryBuilder(ESQueryBuilder):
+
+    # About _raw field translation:
+    # In use cases 1 and 2, it is expected to present
+    # live-decoded original documents from _raw field
+    # unless the user specifies _source to return.
 
     def default_string_query(self, q, options):
 
-        search = AsyncSearch()
+        search = Search()
         q = q.strip()
 
-        if q == '__all__':
-            search = search.query()
-
-        elif q == '__any__' and self.allow_random_query:
-            search = search.query('function_score', random_score={})
-
         # elasticsearch query string syntax
-        elif ":" in q or " AND " in q or " OR " in q:
+        if ":" in q or " AND " in q or " OR " in q:
             search = search.query('query_string', query=q)
 
         # term search
-        elif q.startswith('"') \
-                and q.endswith('"'):
+        elif q.startswith('"') and q.endswith('"'):
             query = {
                 "query": {
                     "dis_max": {
@@ -40,7 +96,6 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                     }
                 }
             }
-            search = AsyncSearch()
             search = search.update_from_dict(query)
 
         else:  # simple text search
@@ -61,11 +116,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                     }
                 }
             }
-            search = AsyncSearch()
             search = search.update_from_dict(query)
-
-        search = search.params(rest_total_hits_as_int=True)
-        search = search.source(exclude=['_raw'], include=options._source)
 
         if options.authors:  # '"Chunlei Wu"'
             search = search.filter('terms', info__contact__name__raw=options.authors)
@@ -75,12 +126,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
 
         return search
 
-    def default_match_query(self, q, scopes, options):
-        search = super().default_match_query(q, scopes, options)
-        search = search.source(include=options._source or ['_*'])
-        return search
-
-    def _apply_extras(self, search, options):
+    def apply_extras(self, search, options):
         """
         Process non-query options and customize their behaviors.
         Customized aggregation syntax string is translated here.
@@ -110,6 +156,12 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         #     if 'all' not in options._source:
         #         search = search.source(options._source)
         # -------------------------------------------------------
+        case = options.get('case', _CASE.QUERY)
+        if case == _CASE.QUERY:  # decoding _raw is too slow for multi-hit queries.
+            search = search.source(exclude=['_raw'], include=options._source)
+        else:  # decodes all fields from _raw by default. include other _fields.
+            search = search.source(include=options._source or ['_*'])
+        # -------------------------------------------------------
 
         for key, value in options.items():
             if key in ('from', 'size', 'explain', 'version'):
@@ -118,18 +170,11 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         return search
 
 
-class SmartAPIResultTransform(ESResultTransform):
+class SmartAPIResultTransform(ESResultFormatter):
 
     def transform_hit(self, path, doc, options):
 
         if path == '':
-            doc.pop('_index')
-            doc.pop('_type', None)    # not available by default on es7
-            doc.pop('sort', None)     # added when using sort
-            doc.pop('_node', None)    # added when using explain
-            doc.pop('_shard', None)   # added when using explain
-
-            # OVERRIDE STARTS HERE
 
             if "_raw" in doc:
                 _raw = b64decode(doc.pop('_raw'))

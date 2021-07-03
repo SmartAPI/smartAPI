@@ -3,7 +3,7 @@
 from threading import Thread
 
 from aiocron import crontab
-from biothings.web.index_base import main
+from biothings.web.launcher import main
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
@@ -28,9 +28,10 @@ if __name__ == '__main__':
     main([
         (r"/user/?", "handlers.UserInfoHandler"),
         (r"/login/?", "handlers.LoginHandler"),
-        (r"/oauth", "handlers.GithubLoginHandler"),
+        # (r"/oauth", "handlers.GithubLoginHandler"),
         (r"/logout/?", "handlers.LogoutHandler"),
-        (r'/sitemap.xml()', "tornado.web.StaticFileHandler", {'path': '../web-app/dist/sitemap.xml'}),
+        (r'/sitemap.xml()', "tornado.web.StaticFileHandler", {
+            'path': '../web-app/dist/sitemap.xml'}),
         (r"/((?:img|css|js|fonts)/.*)", "tornado.web.StaticFileHandler", {
             "path": "../web-app/dist/"
         })], {

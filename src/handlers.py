@@ -1,21 +1,28 @@
 
 import json
 import logging
-from collections import OrderedDict
 
 import certifi
-import tornado.gen
-import torngithub
+# import torngithub
 from biothings.web.handlers import BaseAPIHandler, BiothingHandler
-from biothings.web.handlers.exceptions import BadRequest, EndRequest
+from biothings.web.handlers.exceptions import BadRequest
+# from torngithub import json_encode
+from tornado.escape import to_basestring
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httputil import url_concat
 from tornado.web import Finish, HTTPError
-from torngithub import json_encode
 
 from controller import ControllerError, NotFoundError, SmartAPI
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
+
+
+def json_encode(value):
+    return json.dumps(value).replace("</", "<\\/")
+
+
+def json_decode(value):
+    return json.loads(to_basestring(value))
 
 
 def github_authenticated(func):
@@ -39,6 +46,7 @@ class BaseHandler(BaseAPIHandler):
     """
     Base SmartAPI Handler
     """
+    cache = 0
 
     async def prepare(self):
 
@@ -94,43 +102,43 @@ class LogoutHandler(BaseHandler):
         self.redirect(self.get_argument("next", "/"))
 
 
-class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
+# class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
 
-    GITHUB_SCOPE = ""
-    GITHUB_CALLBACK_PATH = "/oauth"
+#     GITHUB_SCOPE = ""
+#     GITHUB_CALLBACK_PATH = "/oauth"
 
-    @tornado.gen.coroutine
-    def get(self):
-        # we can append next to the redirect uri, so the user gets the
-        # correct URL on login
-        redirect_uri = url_concat(self.request.protocol +
-                                  "://" + self.request.host +
-                                  self.GITHUB_CALLBACK_PATH,
-                                  {"next": self.get_argument('next', '/')})
+#     @tornado.gen.coroutine
+#     def get(self):
+#         # we can append next to the redirect uri, so the user gets the
+#         # correct URL on login
+#         redirect_uri = url_concat(self.request.protocol +
+#                                   "://" + self.request.host +
+#                                   self.GITHUB_CALLBACK_PATH,
+#                                   {"next": self.get_argument('next', '/')})
 
-        # if we have a code, we have been authorized so we can log in
-        if self.get_argument("code", False):
-            user = yield self.get_authenticated_user(
-                redirect_uri=redirect_uri,
-                client_id=self.web_settings.GITHUB_CLIENT_ID,
-                client_secret=self.web_settings.GITHUB_CLIENT_SECRET,
-                code=self.get_argument("code"),
-                callback=lambda: None
-            )
-            if user:
-                logging.info('logged in user from github: %s', str(user))
-                self.set_secure_cookie("user", json_encode(user))
-            else:
-                self.clear_cookie("user")
-            self.redirect(self.get_argument("next", "/"))
-            return
+#         # if we have a code, we have been authorized so we can log in
+#         if self.get_argument("code", False):
+#             user = yield self.get_authenticated_user(
+#                 redirect_uri=redirect_uri,
+#                 client_id=self.web_settings.GITHUB_CLIENT_ID,
+#                 client_secret=self.web_settings.GITHUB_CLIENT_SECRET,
+#                 code=self.get_argument("code"),
+#                 callback=lambda: None
+#             )
+#             if user:
+#                 logging.info('logged in user from github: %s', str(user))
+#                 self.set_secure_cookie("user", json_encode(user))
+#             else:
+#                 self.clear_cookie("user")
+#             self.redirect(self.get_argument("next", "/"))
+#             return
 
-        # otherwise we need to request an authorization code
-        yield self.authorize_redirect(
-            redirect_uri=redirect_uri,
-            client_id=self.web_settings.GITHUB_CLIENT_ID,
-            extra_params={"scope": self.GITHUB_SCOPE, "foo": 1}
-        )
+#         # otherwise we need to request an authorization code
+#         yield self.authorize_redirect(
+#             redirect_uri=redirect_uri,
+#             client_id=self.web_settings.GITHUB_CLIENT_ID,
+#             extra_params={"scope": self.GITHUB_SCOPE, "foo": 1}
+#         )
 
 
 class ValidateHandler(BaseHandler):
@@ -189,7 +197,7 @@ class ValidateHandler(BaseHandler):
             file = await download_async(url)
         except DownloadError as err:
             raise BadRequest(details=str(err))
-        else:  # other file info irrelevent for validation
+        else:  # other file info irrelevant for validation
             return file.raw
 
     def validate(self, raw):
@@ -208,59 +216,7 @@ class ValidateHandler(BaseHandler):
             })
 
 
-class SmartAPIReadOnlyHandler(BiothingHandler):
-
-    def pre_query_builder_hook(self, options):
-        options = super().pre_query_builder_hook(options)
-
-        if options.esqb.q:
-            # id query cannot perform pagination
-            options.esqb.pop('size', None)
-            options.esqb.pop('from', None)
-        else:
-            # perform get_all if no particular id is given
-            options.esqb.q = '__all__'
-            options.esqb.scopes = None  # not a match query
-
-        return options
-
-    def pre_transform_hook(self, options, res):
-
-        # raw == 1 is reserved for adding underscore fields
-        if options.control.raw == 2:
-            raise Finish(res)
-
-        return res
-
-    def pre_finish_hook(self, options, res):
-
-        if isinstance(res, dict):
-
-            # get all
-            # --------------
-            if options.esqb.q == '__all__':
-                return self.pre_finish_hook(options, res['hits'])
-
-            # get one
-            # --------------
-            if not res.get('hits'):
-                template = self.web_settings.ID_NOT_FOUND_TEMPLATE
-                reason = template.format(bid=options.esqb.q)
-                raise EndRequest(404, reason=reason)
-
-            res = res['hits'][0]
-            res.pop('_score', None)
-            res = OrderedDict(res)  # for YAML serialization
-
-        elif isinstance(res, list):
-            for hit in res:
-                hit.pop('_score', None)
-            res = [OrderedDict(hit) for hit in res]  # for YAML serialization
-
-        return res
-
-
-class SmartAPIHandler(BaseHandler, SmartAPIReadOnlyHandler):
+class SmartAPIHandler(BaseHandler, BiothingHandler):
 
     kwargs = {
         '*': BiothingHandler.kwargs['*'],
@@ -380,8 +336,8 @@ class SmartAPIHandler(BaseHandler, SmartAPIReadOnlyHandler):
 
         if self.args.slug is not None:
 
-            if self.args.slug in {'api'}: #reserved
-                raise BadRequest(details = 'slug is reserved')
+            if self.args.slug in {'api'}:  # reserved
+                raise BadRequest(details='slug is reserved')
 
             try:  # update slug
                 smartapi.slug = self.args.slug or None
