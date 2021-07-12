@@ -305,7 +305,7 @@ export default {
                 for(var method2 in item) {
                   if (Object.prototype.hasOwnProperty.call(item[method2], "summary")) {
                     operations.push({'method': self.validateFields(method2.toUpperCase()), 'summary': item[method2]['summary'], 'path': endpoint })
-                  }else if (Object.prototype.hasOwnProperty.call(item[method], "description")) {
+                  }else if (Object.prototype.hasOwnProperty.call(item[method2], "description")) {
                     operations.push({'method': self.validateFields(method2.toUpperCase()), 'summary': item[method2]['description'], 'path': endpoint })
                   }
                 }
