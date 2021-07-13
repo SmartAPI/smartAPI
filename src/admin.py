@@ -27,6 +27,7 @@ import logging
 from datetime import datetime
 
 import boto3
+from filelock import FileLock, Timeout
 
 from controller import SmartAPI
 from utils import indices
@@ -152,11 +153,27 @@ backup = backup_to_file
 refresh = refresh_document
 check = check_uptime
 
+# only one process should perform backup routines
+_lock = FileLock(".lock", timeout=0)
+try:  # it will be released upon exit
+    _lock.acquire()
+except Timeout:
+    pass
+
 
 def routine():
     logger = logging.getLogger("routine")
-    logger.info("backup_to_s3()")
-    backup_to_s3()
+
+    try:
+        # if previously acquired,
+        # it won't block here
+        _lock.acquire()
+    except Timeout:
+        logging.warning("Skips backup.")
+    else:
+        logger.info("backup_to_s3()")
+        backup_to_s3()
+
     logger.info("refresh_document()")
     refresh_document()
     logger.info("check_uptime()")
