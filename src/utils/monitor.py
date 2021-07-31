@@ -1,5 +1,9 @@
 """
     API Uptime Monitor
+    
+    Author:
+        Kevin Xin
+        Amiteshk Sharma
 
     Status:
         Good,
@@ -19,6 +23,8 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
 
 # enums class to represent outcomes for cors check
+
+
 class Cors(Enum):
     ENABLED = 'CORS-Enabled'
     DISABLED = 'CORS-Disabled'
@@ -26,14 +32,16 @@ class Cors(Enum):
 
 # provide information on total APIs with CORS support
 # takes in the total count of APIs provided
+
+
 class CorsCounter:
 
     def __init__(self, total_api_count):
         self._enabled = 0       # number of CORS-enabled APIs
-        self._disabled = 0      # number of CORS-disabled APIs     
+        self._disabled = 0      # number of CORS-disabled APIs
         self._unknown = 0       # number of CORS-unknown APIs
         self.total_apis = total_api_count
-    
+
     # used to increment the correct count
     def increment_count(self, count):
         try:
@@ -49,12 +57,10 @@ class CorsCounter:
 
     def __str__(self):
         enabled = f"The total number of CORS-enabled APIs out of ({self.total_apis}): ({self._enabled})\n"
-        disabled = f"The total number of CORS-disabled APIs out of ({self.total_apis}): ({self._disabled})\n" 
-        unknown = f"The total number of CORS-unknown APIs out of ({self.total_apis}): ({self._unknown})\n" 
+        disabled = f"The total number of CORS-disabled APIs out of ({self.total_apis}): ({self._disabled})\n"
+        unknown = f"The total number of CORS-unknown APIs out of ({self.total_apis}): ({self._unknown})\n"
 
         return enabled + disabled + unknown
-
-        
 
 
 class DictQuery(dict):
@@ -93,12 +99,12 @@ class API:
         self._api_status = None
         self._cors_status = None
         self._total_cors = 0        # count the number of CORS responses
-        try: 
+        try:
             self.name = api_doc['info']['title']
         except KeyError:
             self.name = "No name specified"
-        try: 
-            self.id = api_doc['_id'] # pylint: disable=invalid-name
+        try:
+            self.id = api_doc['_id']  # pylint: disable=invalid-name
         except:
             self.id = "no ID specified"
         try:
@@ -142,7 +148,6 @@ class API:
                     if response:
                         status = endpoint.check_response_status(response)
                         cors = endpoint.check_cors_status(response)
-                        print("       - Cors status: " + str(cors))
 
                         if cors == 0:
                             self._cors_status = Cors.ENABLED.value
@@ -154,21 +159,16 @@ class API:
                             self._api_status = 'good'
                         else:
                             self._api_status = 'bad'
-                    else:
-                        print("       - No response: " + "500")
-                        # status = endpoint.check_response_status(response)
-                        # logger = logging.getLogger("utils.monitor.api_status")
-                        # logger.warning(_endpoint + ": " + str(status))
 
     def __str__(self):
         return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
 
     def get_api_status(self):
         return self._api_status
-    
+
     def get_cors_status(self):
         return self._cors_status
-    
+
     def get_total_cors(self):
         if self._cors_status == 'CORS-Unknown':
             return -1
@@ -300,7 +300,7 @@ class Endpoint:
 
     def check_response_status(self, response):
         return response.status_code
-    
+
     def check_cors_status(self, response):
         try:
             access_control = response.headers['Access-Control-Allow-Origin']
@@ -310,36 +310,3 @@ class Endpoint:
             return 1
         else:
             return 1
-
-
-import json
-import requests
-import yaml
-import numpy as np
-
-if __name__ == "__main__":
-    # data = requests.get("https://smart-api.info/api/metadata/59dce17363dce279d389100834e43648").json()
-    # data['_id'] = "59dce17363dce279d389100834e43648"
-
-    with open('./smartapi_20210216.json', 'r') as testing_api:
-        testing_apis = json.load(testing_api)
-        to_arr = np.array(testing_apis)
-        api_count = len(to_arr)
-        counter = CorsCounter(api_count)
-        for api in range(0, len(to_arr)):
-            if api == 133:
-                continue
-            print("===== start of api here =====   " + str(api) + ".")
-            api_list = yaml.load(to_arr[api]['raw'], Loader=yaml.FullLoader)
-            test = API(api_list)
-            test.check_api_status()
-            output = test.__str__()
-            total_cors = test.get_total_cors()
-
-            counter.increment_count(total_cors)
-            
-            print(output) 
-            print('\n')
-
-        count_out = counter.__str__()
-        print(count_out)
