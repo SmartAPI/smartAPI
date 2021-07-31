@@ -10,13 +10,51 @@
 """
 
 import logging
-
+from enum import Enum
 import requests
 
 # pylint:disable=import-error, ungrouped-imports
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
+
+# enums class to represent outcomes for cors check
+class Cors(Enum):
+    ENABLED = 'CORS-Enabled'
+    DISABLED = 'CORS-Disabled'
+    UNKNOWN = 'CORS-Unknown'
+
+# provide information on total APIs with CORS support
+# takes in the total count of APIs provided
+class CorsCounter:
+
+    def __init__(self, total_api_count):
+        self._enabled = 0       # number of CORS-enabled APIs
+        self._disabled = 0      # number of CORS-disabled APIs     
+        self._unknown = 0       # number of CORS-unknown APIs
+        self.total_apis = total_api_count
+    
+    # used to increment the correct count
+    def increment_count(self, count):
+        try:
+            if count == -1:
+                self._unknown += 1
+            elif count > 0:
+                self._enabled += 1
+            else:
+                self._disabled += 1
+        except TypeError:
+            logger = logging.getLogger('CorsCounter.CorsStatus')
+            logger.error('Please pass in a int. ')
+
+    def __str__(self):
+        enabled = f"The total number of CORS-enabled APIs out of ({self.total_apis}): ({self._enabled})\n"
+        disabled = f"The total number of CORS-disabled APIs out of ({self.total_apis}): ({self._disabled})\n" 
+        unknown = f"The total number of CORS-unknown APIs out of ({self.total_apis}): ({self._unknown})\n" 
+
+        return enabled + disabled + unknown
+
+        
 
 
 class DictQuery(dict):
@@ -52,9 +90,17 @@ class API:
     def __init__(self, api_doc):
         # default status of API is unknown, since some APIs doesn't provide
         # examples as values for parameters
-        self.id = api_doc['_id']  # pylint: disable=invalid-name
-        self.api_status = 'unknown'
-        self.name = api_doc['info']['title']
+        self._api_status = None
+        self._cors_status = None
+        self._total_cors = 0        # count the number of CORS responses
+        try: 
+            self.name = api_doc['info']['title']
+        except KeyError:
+            self.name = "No name specified"
+        try: 
+            self.id = api_doc['_id'] # pylint: disable=invalid-name
+        except:
+            self.id = "no ID specified"
         try:
             self.api_server = api_doc['servers'][0]['url']
         except KeyError:
@@ -69,6 +115,8 @@ class API:
         '''
             loop through each endpoint and extract parameter & example $ HTTP method information
         '''
+        self._api_status = 'unknown'
+        self._cors_status = Cors.UNKNOWN.value
 
         if not self.api_server:
             return
@@ -93,13 +141,39 @@ class API:
                 else:
                     if response:
                         status = endpoint.check_response_status(response)
-                        if status == 200:
-                            self.api_status = 'good'
+                        cors = endpoint.check_cors_status(response)
+                        print("       - Cors status: " + str(cors))
+
+                        if cors == 0:
+                            self._cors_status = Cors.ENABLED.value
+                            self._total_cors = 1
                         else:
-                            self.api_status = 'bad'
+                            self._cors_status = Cors.DISABLED.value
+
+                        if status == 200:
+                            self._api_status = 'good'
+                        else:
+                            self._api_status = 'bad'
+                    else:
+                        print("       - No response: " + "500")
+                        # status = endpoint.check_response_status(response)
+                        # logger = logging.getLogger("utils.monitor.api_status")
+                        # logger.warning(_endpoint + ": " + str(status))
 
     def __str__(self):
-        return f"{self.id}: {self.api_status} ({self.name})"
+        return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
+
+    def get_api_status(self):
+        return self._api_status
+    
+    def get_cors_status(self):
+        return self._cors_status
+    
+    def get_total_cors(self):
+        if self._cors_status == 'CORS-Unknown':
+            return -1
+
+        return self._total_cors
 
 
 class Endpoint:
@@ -226,3 +300,46 @@ class Endpoint:
 
     def check_response_status(self, response):
         return response.status_code
+    
+    def check_cors_status(self, response):
+        try:
+            access_control = response.headers['Access-Control-Allow-Origin']
+            if access_control:
+                return 0
+        except KeyError:
+            return 1
+        else:
+            return 1
+
+
+import json
+import requests
+import yaml
+import numpy as np
+
+if __name__ == "__main__":
+    # data = requests.get("https://smart-api.info/api/metadata/59dce17363dce279d389100834e43648").json()
+    # data['_id'] = "59dce17363dce279d389100834e43648"
+
+    with open('./smartapi_20210216.json', 'r') as testing_api:
+        testing_apis = json.load(testing_api)
+        to_arr = np.array(testing_apis)
+        api_count = len(to_arr)
+        counter = CorsCounter(api_count)
+        for api in range(0, len(to_arr)):
+            if api == 133:
+                continue
+            print("===== start of api here =====   " + str(api) + ".")
+            api_list = yaml.load(to_arr[api]['raw'], Loader=yaml.FullLoader)
+            test = API(api_list)
+            test.check_api_status()
+            output = test.__str__()
+            total_cors = test.get_total_cors()
+
+            counter.increment_count(total_cors)
+            
+            print(output) 
+            print('\n')
+
+        count_out = counter.__str__()
+        print(count_out)
