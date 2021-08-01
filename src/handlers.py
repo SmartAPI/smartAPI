@@ -5,7 +5,6 @@ import logging
 import certifi
 # import torngithub
 from biothings.web.handlers import BaseAPIHandler, BiothingHandler
-from biothings.web.handlers.exceptions import BadRequest
 # from torngithub import json_encode
 from tornado.escape import to_basestring
 from tornado.httpclient import AsyncHTTPClient
@@ -177,7 +176,7 @@ class ValidateHandler(BaseHandler):
     async def get(self):
 
         if self.request.body:
-            raise BadRequest(details="GET takes no request body.")
+            raise HTTPError(400, reason="GET takes no request body.")
 
         raw = await self.download(self.args.url)
         self.validate(raw)
@@ -196,7 +195,7 @@ class ValidateHandler(BaseHandler):
         try:
             file = await download_async(url)
         except DownloadError as err:
-            raise BadRequest(details=str(err))
+            raise HTTPError(400, reason=str(err))
         else:  # other file info irrelevant for validation
             return file.raw
 
@@ -208,7 +207,7 @@ class ValidateHandler(BaseHandler):
             smartapi.validate()
 
         except (ControllerError, AssertionError) as err:
-            raise BadRequest(details=str(err))
+            raise HTTPError(400, reason=str(err))
         else:
             self.finish({
                 'success': True,
@@ -241,14 +240,14 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         try:
             file = await download_async(self.args.url)
         except DownloadError as err:
-            raise BadRequest(details=str(err)) from err
+            raise HTTPError(400, reason=str(err)) from err
 
         try:
             smartapi = SmartAPI(self.args.url)
             smartapi.raw = file.raw
             smartapi.validate()
         except (ControllerError, AssertionError) as err:
-            raise BadRequest(details=str(err)) from err
+            raise HTTPError(400, reason=str(err)) from err
 
         if self.args.dryrun:
             raise Finish({
@@ -261,7 +260,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             smartapi.refresh(file)  # populate webdoc meta
             _id = smartapi.save()
         except ControllerError as err:
-            raise BadRequest(details=str(err)) from err
+            raise HTTPError(400, reason=str(err)) from err
         else:
             self.finish({
                 'success': True,
@@ -337,14 +336,14 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         if self.args.slug is not None:
 
             if self.args.slug in {'api'}:  # reserved
-                raise BadRequest(details='slug is reserved')
+                raise HTTPError(400, reason='slug is reserved')
 
             try:  # update slug
                 smartapi.slug = self.args.slug or None
                 smartapi.save()
 
             except (ControllerError, ValueError) as err:
-                raise BadRequest(details=str(err)) from err
+                raise HTTPError(400, reason=str(err)) from err
 
             self.finish({'success': True})
 
@@ -382,7 +381,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         try:
             _id = smartapi.delete()
         except ControllerError as err:
-            raise BadRequest(details=str(err)) from err
+            raise HTTPError(400, reason=str(err)) from err
 
         self.finish({'success': True, '_id': _id})
 
