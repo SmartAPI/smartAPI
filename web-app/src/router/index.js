@@ -16,6 +16,11 @@ router.beforeEach((to, from, next) => {
 
   if (to.name === 'Home') {
 
+    if (window.location.hostname == 't.biothings.io' || 
+    window.location.host == 't.biothings.io') {
+      next({name:'UI', params: {smartapi_id : 'f7943e6167166b3ea9e4b8be08f45fa6'}})
+    }else next()
+
     const slug = window.location.host.split('.')[0]
 
     if(!['www', 'dev', 'smart-api', 'localhost:8000', 'localhost:8080'].includes(slug)){
