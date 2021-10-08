@@ -137,7 +137,7 @@ class API:
                 endpoint_doc['method'] = 'POST'
                 endpoint_doc['params'] = _endpoint_info.get('post').get('parameters')
                 endpoint_doc['requestbody'] = _endpoint_info['post'].get('requestBody')
-            if endpoint_doc.get('params'):
+            if endpoint_doc.get('params') or endpoint_doc.get('requestbody'):
                 endpoint = Endpoint(endpoint_doc)
                 try:
                     response = endpoint.make_api_call()
@@ -233,28 +233,41 @@ class Endpoint:
         elif self.method == "POST":
             data = {}
             example = None
-            for _param in self.params:
-                if 'example' in _param:
-                    if _param['in'] == 'path':
-                        url = url.replace('{' + _param['name'] + '}', _param['example'])
-                    elif _param['in'] == 'query':
-                        data = {_param['name']: _param['example']}
-                    try:
-                        response = requests.post(url,
-                                                 data=data,
-                                                 timeout=10,
-                                                 verify=False,
-                                                 headers=headers)
-                        return response
-                    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                        pass
-                elif 'required' in _param and _param['required'] is True:
-                    example = True
-            if self.requestbody:
+            if self.params:
+                for _param in self.params:
+                    if 'example' in _param:
+                        if _param['in'] == 'path':
+                            url = url.replace('{' + _param['name'] + '}', _param['example'])
+                        elif _param['in'] == 'query':
+                            data = {_param['name']: _param['example']}
+                        try:
+                            response = requests.post(url,
+                                                    data=data,
+                                                    timeout=10,
+                                                    verify=False,
+                                                    headers=headers)
+                            return response
+                        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+                            pass
+                    elif 'required' in _param and _param['required'] is True:
+                        example = True
+            elif self.requestbody:
                 content = self.requestbody.get('content')
                 if content and 'application/json' in content:
                     schema = content.get('application/json').get('schema')
-                    if schema:
+                    example = content.get('application/json').get('example')
+                    if example:
+                        logger.debug(url)
+                        try:
+                            response = requests.post(url,
+                                                        timeout=10,
+                                                        json=example,
+                                                        verify=False,
+                                                        headers=headers)
+                            return response
+                        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
+                            pass
+                    elif schema:
                         example = schema.get('example')
                         ref = schema.get('$ref')
                         if example:
