@@ -99,6 +99,7 @@ class API:
         self._api_status = None
         self._cors_status = None
         self._total_cors = 0        # count the number of CORS responses
+        self._uptime_msg = None
         try:
             self.name = api_doc['info']['title']
         except KeyError:
@@ -144,6 +145,8 @@ class API:
                 except Exception as exception:  # pylint: disable=broad-except
                     logger = logging.getLogger("utils.monitor")
                     logger.error(exception)
+                    # exception error message
+                    self._uptime_msg = _endpoint + ": " + type(exception).__name__
                 else:
                     if response:
                         status = endpoint.check_response_status(response)
@@ -156,15 +159,17 @@ class API:
                             self._cors_status = Cors.DISABLED.value
 
                         if status == 200:
+                            self._uptime_msg = 'Everything looks good!'
                             self._api_status = 'good'
                         else:
+                            self._uptime_msg = _endpoint +': Something is wrong here'
                             self._api_status = 'bad'
 
     def __str__(self):
         return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
 
     def get_api_status(self):
-        return self._api_status
+        return self._api_status, self._uptime_msg
 
     def get_cors_status(self):
         return self._cors_status
@@ -190,7 +195,8 @@ class Endpoint:
 
     def make_api_call(self):
         headers = {
-            'User-Agent': 'SmartAPI API status monitor'
+            'User-Agent': 'SmartAPI API status monitor',
+            'Content-Type': 'application/json'
         }
         url = self.endpoint_name
         logger = logging.getLogger("utils.uptime.endpoint.make_api_call")
@@ -209,78 +215,37 @@ class Endpoint:
                     # parameter in query
                     elif _param['in'] == 'query':
                         params = {_param['name']: _param['example']}
-                    try:
-                        response = requests.get(url,
+                    response = requests.get(url,
                                                 params=params,
                                                 verify=False,
                                                 timeout=10,
                                                 headers=headers)
-                        return response
-                    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                        pass
+                    return response
                 elif 'required' in _param and _param['required'] is True:
                     example = True
             if not example:
-                try:
-                    response = requests.get(url,
+                response = requests.get(url,
                                             timeout=10,
                                             verify=False,
                                             headers=headers)
-                    return response
-                except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                    pass
+                return response
         # handle API endpoint which use POST HTTP method
         elif self.method == "POST":
-            data = {}
+            params = {}
             example = None
-            if self.params:
-                for _param in self.params:
-                    if 'example' in _param:
-                        if _param['in'] == 'path':
-                            url = url.replace('{' + _param['name'] + '}', _param['example'])
-                        elif _param['in'] == 'query':
-                            data = {_param['name']: _param['example']}
-                        try:
-                            response = requests.post(url,
-                                                    data=data,
-                                                    timeout=10,
-                                                    verify=False,
-                                                    headers=headers)
-                            return response
-                        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                            pass
-                    elif 'required' in _param and _param['required'] is True:
-                        example = True
-            elif self.requestbody:
+            # get example
+            if self.requestbody:
                 content = self.requestbody.get('content')
                 if content and 'application/json' in content:
                     schema = content.get('application/json').get('schema')
                     example = content.get('application/json').get('example')
                     if example:
                         logger.debug(url)
-                        try:
-                            response = requests.post(url,
-                                                        timeout=10,
-                                                        json=example,
-                                                        verify=False,
-                                                        headers=headers)
-                            return response
-                        except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                            pass
                     elif schema:
                         example = schema.get('example')
                         ref = schema.get('$ref')
                         if example:
                             logger.debug(url)
-                            try:
-                                response = requests.post(url,
-                                                         timeout=10,
-                                                         json=example,
-                                                         verify=False,
-                                                         headers=headers)
-                                return response
-                            except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                                pass
                         elif ref:
                             logger.debug(url)
                             if ref.startswith('#/components/'):
@@ -289,27 +254,51 @@ class Endpoint:
                                 logger.debug('component path: %s', component_path)
                                 example = DictQuery(self.components).get(component_path)
                                 logger.debug('example %s', example)
-                                if example:
-                                    try:
-                                        response = requests.post(url,
-                                                                 timeout=10,
-                                                                 json=example,
-                                                                 verify=False,
-                                                                 headers=headers)
-                                        logger.debug(response)
-                                        return response
-                                    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                                        pass
+            # get params
+            if self.params:
+                for _param in self.params:
+                    if 'example' in _param:
+                        if _param['in'] == 'path':
+                            url = url.replace('{' + _param['name'] + '}', _param['example'])
+                        elif _param['in'] == 'query':
+                            params[_param['name']] = _param['example']
+                    elif 'required' in _param and _param['required'] is True:
+                        # not sure what this was for
+                        example = True
 
-            if not example:
-                try:
-                    response = requests.post(url,
-                                             timeout=10,
-                                             verify=False,
-                                             headers=headers)
-                    return response
-                except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-                    pass
+            # case example and params
+            if example and bool(params):
+                response = requests.post(url,
+                                            params=params,
+                                            json=example,
+                                            timeout=10,
+                                            verify=False,
+                                            headers=headers)
+                return response
+            # case example only
+            elif example and not bool(params):
+                response = requests.post(url,
+                                        json=example,
+                                        timeout=10,
+                                        verify=False,
+                                        headers=headers)
+                
+                return response
+            # case params only
+            elif bool(params):
+                response = requests.post(url,
+                                            params=params,
+                                            timeout=10,
+                                            verify=False,
+                                            headers=headers)
+                return response
+            # case url only
+            else:
+                response = requests.post(url,
+                                                timeout=10,
+                                                verify=False,
+                                                headers=headers)
+                return response
 
     def check_response_status(self, response):
         return response.status_code
