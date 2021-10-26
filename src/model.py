@@ -29,7 +29,7 @@ class StatMeta(InnerDoc):
     """ The _status field. """
 
     uptime_status = Keyword()
-    uptime_msg = Text()
+    uptime_msg = Text(index=False)
     uptime_ts = Date()
 
     refresh_status = Integer()
