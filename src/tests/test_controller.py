@@ -321,17 +321,17 @@ def test_delete(myvariant):
 
 def test_uptime_status():
     mygene = SmartAPI.get(MYGENE_ID)
-    assert mygene.uptime.status is None
+    assert mygene.uptime.status[0] is None
 
-    mygene.uptime.update('up')
-    assert mygene.uptime.status == 'up'
+    mygene.uptime.update(('good', None))
+    assert mygene.uptime.status[0] == 'good'
     mygene.save()
     refresh()
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._status.uptime_status == 'up'
+    assert mygene_doc._status.uptime_status == 'good'
 
-    mygene.uptime.update(None)
-    assert mygene.uptime.status is None
+    mygene.uptime.update((None, None))
+    assert mygene.uptime.status[0] is None
     mygene.save()
     refresh()
     mygene_doc = APIDoc.get(MYGENE_ID)
@@ -342,7 +342,7 @@ def test_uptime_update():
 
     mygene = SmartAPI.get(MYGENE_ID)
     mygene.check()  # minimum api document
-    assert mygene.uptime.status == 'unknown'  # TODO VERIFY THIS IS IN FACT CORRECT
+    assert mygene.uptime.status[0] == 'unknown'  # TODO VERIFY THIS IS IN FACT CORRECT
 
     mygene.save()
     refresh()
@@ -352,13 +352,13 @@ def test_uptime_update():
 
     mychem = SmartAPI.get(MYCHEM_ID)
     mychem.check()  # full api document
-    assert mychem.uptime.status == 'good'
+    assert mychem.uptime.status[0] == 'unknown'
 
     mychem.save()
     refresh()
 
     mychem_doc = APIDoc.get(MYCHEM_ID)
-    assert mychem_doc._status.uptime_status == 'good'
+    assert mychem_doc._status.uptime_status == 'unknown'
 
 
 def test_refresh_status():

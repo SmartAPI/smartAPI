@@ -449,7 +449,10 @@ class SmartAPI(AbstractWebEntity, Mapping):
         obj.last_updated = doc._meta.last_updated
 
         obj.uptime = APIMonitorStatus(
-            obj, doc._status.uptime_status,
+            obj, (
+                doc._status.uptime_status, 
+                doc._status.uptime_msg
+            ),
             doc._status.uptime_ts
         )
 
@@ -561,7 +564,9 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._meta.date_created = self.date_created
         doc._meta.last_updated = self.last_updated
 
-        doc._status.uptime_status = self.uptime.status
+        if self.uptime.status:
+            doc._status.uptime_status = self.uptime.status[0]
+            doc._status.uptime_msg = self.uptime.status[1]
         doc._status.uptime_ts = self.uptime.timestamp
 
         doc._status.refresh_status = self.webdoc.status
