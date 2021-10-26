@@ -37,7 +37,11 @@ export default {
                 self.clss = 'green';
                 break;
             case 'bad':
-                self.status = 'BAD';
+                self.status = 'FAIL';
+                self.clss = 'red';
+                break;
+            case 'fail':
+                self.status = 'FAIL';
                 self.clss = 'red';
                 break;
             case 'incompatible':
@@ -56,6 +60,13 @@ export default {
     },
     mounted: function(){
         this.getStatus(this.api);
+        let err_msg = '';
+        let err = this.api?._status?.uptime_msg;
+        if (err && err.includes(":")) {
+            err_msg = err ? `<tr class="red-text pink lighten-5"><td><b><small>`
+            +err.split(':')[0]+`</small></b></td><td><small>Failed because: <br>(`
+            +err.split(':')[1]+`)</small></td></tr>` :``;
+        }
         /*eslint-disable */
         tippy('.us'+this.badgeID, {
             placement: 'left-end',
@@ -93,6 +104,7 @@ export default {
                             <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
                             </td>
                         </tr>
+                        `+err_msg+`
                         <tr> 
                             <td class='orange-text center'>
                             <b>UNKNOWN</b>

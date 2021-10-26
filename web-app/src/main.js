@@ -46,7 +46,7 @@ app.use(store)
   }
 });
 // dev base api url
-app.config.globalProperties.$apiUrl = process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info/api' : '/api';
+app.config.globalProperties.$apiUrl = process.env.NODE_ENV == 'development' ? 'https://smart-api.info/api' : '/api';
 // global registration
 app.component("Image", Image);
 app.component("VModal", VModal);
