@@ -147,6 +147,8 @@ class API:
                     logger.error(exception)
                     # exception error message
                     self._uptime_msg = _endpoint + ": " + type(exception).__name__
+                    self._api_status = 'bad'
+                    break
                 else:
                     if response:
                         status = endpoint.check_response_status(response)
@@ -164,6 +166,7 @@ class API:
                         else:
                             self._uptime_msg = _endpoint +': Something is wrong here'
                             self._api_status = 'bad'
+                            break
 
     def __str__(self):
         return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"

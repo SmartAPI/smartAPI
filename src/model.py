@@ -43,6 +43,7 @@ class APIDoc(Document):
     _raw = Binary()
 
     info = Object()
+    servers = Object()
     paths = Object(
         properties={
             "path": Text(),
