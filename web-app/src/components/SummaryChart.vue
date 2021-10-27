@@ -176,7 +176,7 @@ export default {
                     'good' : 0,
                     'unknown' : 0,
                     'incompatible' : 0,
-                    'fail' : 0,
+                    'bad' : 0,
                 }
             }
 
