@@ -118,55 +118,84 @@ class API:
         self.components = api_doc.get('components')
         self.endpoints_info = api_doc.get('paths')
 
+    def test_endpoint(self, _endpoint, _endpoint_info):
+        endpoint_doc = {'name': '/'.join(s.strip('/') for s in (self.api_server, _endpoint)),
+                            'components': self.components}
+        if 'get' in _endpoint_info:
+            endpoint_doc['method'] = 'GET'
+            endpoint_doc['params'] = _endpoint_info.get('get').get('parameters')
+        elif 'post' in _endpoint_info:
+            endpoint_doc['method'] = 'POST'
+            endpoint_doc['params'] = _endpoint_info.get('post').get('parameters')
+            endpoint_doc['requestbody'] = _endpoint_info['post'].get('requestBody')
+        if endpoint_doc.get('params') or endpoint_doc.get('requestbody'):
+            endpoint = Endpoint(endpoint_doc)
+            try:
+                response = endpoint.make_api_call()
+            except Exception as exception:  # pylint: disable=broad-except
+                logger = logging.getLogger("utils.monitor")
+                logger.error(exception)
+                # exception error message
+                self._uptime_msg = _endpoint + ": " + type(exception).__name__
+                return 'bad'
+            else:
+                if response:
+                    status = endpoint.check_response_status(response)
+                    cors = endpoint.check_cors_status(response)
+
+                    if endpoint.msg:
+                        self._uptime_msg = endpoint.msg
+                    if cors == 0:
+                        self._cors_status = Cors.ENABLED.value
+                        self._total_cors = 1
+                    else:
+                        self._cors_status = Cors.DISABLED.value
+
+                    if status == 200:
+                        return 'good'
+                    else:
+                        self._uptime_msg = _endpoint + ': Got status (' + status + ')'
+                        return 'bad'
+                else:
+                    # endpoint call failure
+                    if endpoint.msg:
+                        self._uptime_msg = endpoint.msg
+                    return 'unknown'
+
     def check_api_status(self):
         '''
             loop through each endpoint and extract parameter & example $ HTTP method information
         '''
         self._api_status = 'unknown'
         self._cors_status = Cors.UNKNOWN.value
+        results = []
 
         if not self.api_server:
             return
 
         for _endpoint, _endpoint_info in self.endpoints_info.items():
-            endpoint_doc = {'name': '/'.join(s.strip('/') for s in (self.api_server, _endpoint)),
-                            'components': self.components}
-            if 'get' in _endpoint_info:
-                endpoint_doc['method'] = 'GET'
-                endpoint_doc['params'] = _endpoint_info.get('get').get('parameters')
-            elif 'post' in _endpoint_info:
-                endpoint_doc['method'] = 'POST'
-                endpoint_doc['params'] = _endpoint_info.get('post').get('parameters')
-                endpoint_doc['requestbody'] = _endpoint_info['post'].get('requestBody')
-            if endpoint_doc.get('params') or endpoint_doc.get('requestbody'):
-                endpoint = Endpoint(endpoint_doc)
-                try:
-                    response = endpoint.make_api_call()
-                except Exception as exception:  # pylint: disable=broad-except
-                    logger = logging.getLogger("utils.monitor")
-                    logger.error(exception)
-                    # exception error message
-                    self._uptime_msg = _endpoint + ": " + type(exception).__name__
-                    self._api_status = 'bad'
+            res = None
+            try:
+                res = self.test_endpoint(_endpoint, _endpoint_info)
+            except Exception as exception: # pylint: disable=broad-except
+                self._uptime_msg = _endpoint + ": " + type(exception).__name__
+                res = 'bad'
+            if res:
+                results.append(res)
+                if res == 'bad':
                     break
-                else:
-                    if response:
-                        status = endpoint.check_response_status(response)
-                        cors = endpoint.check_cors_status(response)
 
-                        if cors == 0:
-                            self._cors_status = Cors.ENABLED.value
-                            self._total_cors = 1
-                        else:
-                            self._cors_status = Cors.DISABLED.value
+        if not 'bad' in results:
+            if 'good' in results:
+                self._uptime_msg = 'Everything looks good!'
+                self._api_status = 'good'
+            else:
+                # msg will be populated during api call
+                self._api_status = 'unknown'
+        else:
+            # msg will be populated during api call
+            self._api_status = 'bad'
 
-                        if status == 200:
-                            self._uptime_msg = 'Everything looks good!'
-                            self._api_status = 'good'
-                        else:
-                            self._uptime_msg = _endpoint +': Something is wrong here'
-                            self._api_status = 'bad'
-                            break
 
     def __str__(self):
         return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
@@ -195,6 +224,7 @@ class Endpoint:
         self.params = endpoint_doc['params']
         self.requestbody = endpoint_doc.get('requestbody')
         self.components = endpoint_doc.get('components')
+        self.msg = None
 
     def make_api_call(self):
         headers = {
@@ -218,19 +248,22 @@ class Endpoint:
                     # parameter in query
                     elif _param['in'] == 'query':
                         params = {_param['name']: _param['example']}
-                    response = requests.get(url,
-                                                params=params,
-                                                verify=False,
-                                                timeout=10,
-                                                headers=headers)
-                    return response
+                    
                 elif 'required' in _param and _param['required'] is True:
                     example = True
-            if not example:
+            if bool(params):
                 response = requests.get(url,
-                                            timeout=10,
-                                            verify=False,
-                                            headers=headers)
+                                        params=params,
+                                        verify=False,
+                                        timeout=20,
+                                        headers=headers)
+                return response
+            else:
+                self.msg = self.endpoint_name + ': ' + 'MissingExample'
+                response = requests.get(url,
+                                        timeout=20,
+                                        verify=False,
+                                        headers=headers)
                 return response
         # handle API endpoint which use POST HTTP method
         elif self.method == "POST":
@@ -265,16 +298,16 @@ class Endpoint:
                             url = url.replace('{' + _param['name'] + '}', _param['example'])
                         elif _param['in'] == 'query':
                             params[_param['name']] = _param['example']
-                    elif 'required' in _param and _param['required'] is True:
-                        # not sure what this was for
-                        example = True
+                    # elif 'required' in _param and _param['required'] is True:
+                    #     # not sure what this was for
+                    #     example = True
 
             # case example and params
             if example and bool(params):
                 response = requests.post(url,
                                             params=params,
                                             json=example,
-                                            timeout=10,
+                                            timeout=20,
                                             verify=False,
                                             headers=headers)
                 return response
@@ -282,23 +315,25 @@ class Endpoint:
             elif example and not bool(params):
                 response = requests.post(url,
                                         json=example,
-                                        timeout=10,
+                                        timeout=20,
                                         verify=False,
                                         headers=headers)
                 
                 return response
             # case params only
             elif bool(params):
+                self.msg = self.endpoint_name + ': ' + 'MissingRequestBody'
                 response = requests.post(url,
                                             params=params,
-                                            timeout=10,
+                                            timeout=20,
                                             verify=False,
                                             headers=headers)
                 return response
             # case url only
             else:
+                self.msg = self.endpoint_name + ': ' + 'MissingRequestBody'
                 response = requests.post(url,
-                                                timeout=10,
+                                                timeout=20,
                                                 verify=False,
                                                 headers=headers)
                 return response
