@@ -63,9 +63,10 @@ export default {
         let err_msg = '';
         let err = this.api?._status?.uptime_msg;
         if (err && err.includes(":")) {
-            err_msg = err ? `<tr class="red-text pink lighten-5"><td><b><small>`
-            +err.split(':')[0]+`</small></b></td><td><small>Failed because: <br>(`
-            +err.split(':')[1]+`)</small></td></tr>` :``;
+            err_msg = err ? `<tr colspan="2" class="red-text pink lighten-5 center">`+
+            `<td colspan="2"><br>"<b>`
+            +err.split(':')[0]+`</b>"`+
+            `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
         }
         /*eslint-disable */
         tippy('.us'+this.badgeID, {
@@ -81,6 +82,7 @@ export default {
                 <div class="white" style="padding:0px;">
                     <table>
                         <thead>
+                        `+err_msg+`
                         <tr>
                             <td colspan="2" class='grey-text center'>
                             <b>Overall API Endpoint Uptime Status</b>
@@ -104,7 +106,6 @@ export default {
                             <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
                             </td>
                         </tr>
-                        `+err_msg+`
                         <tr> 
                             <td class='orange-text center'>
                             <b>UNKNOWN</b>
