@@ -237,11 +237,11 @@ class Endpoint:
         if self.method == 'GET':
             params = {}
             example = None
+            paramsRequired = None
             for _param in self.params:
                 # replace parameter with actual example value to construct
                 # an API call
                 if 'example' in _param:
-                    example = True
                     # parameter in path
                     if _param['in'] == 'path':
                         url = url.replace('{' + _param['name'] + '}', _param['example'])
@@ -250,18 +250,22 @@ class Endpoint:
                         params = {_param['name']: _param['example']}
                     
                 elif 'required' in _param and _param['required'] is True:
-                    example = True
+                    paramsRequired = True
+            # check required params
+            if paramsRequired is True and not bool(params):
+                self.msg = self.endpoint_name + ': ' + 'MissingExample'
+                return False
+
             if bool(params):
                 response = requests.get(url,
                                         params=params,
                                         verify=False,
-                                        timeout=20,
+                                        timeout=30,
                                         headers=headers)
                 return response
             else:
-                self.msg = self.endpoint_name + ': ' + 'MissingExample'
                 response = requests.get(url,
-                                        timeout=20,
+                                        timeout=30,
                                         verify=False,
                                         headers=headers)
                 return response
@@ -290,24 +294,33 @@ class Endpoint:
                                 logger.debug('component path: %s', component_path)
                                 example = DictQuery(self.components).get(component_path)
                                 logger.debug('example %s', example)
+                # check required body
+                bodyRequired = self.requestbody.get('required')
+                if bodyRequired is True and not example:
+                    return False
+
             # get params
             if self.params:
+                paramsRequired = None
                 for _param in self.params:
                     if 'example' in _param:
                         if _param['in'] == 'path':
                             url = url.replace('{' + _param['name'] + '}', _param['example'])
                         elif _param['in'] == 'query':
                             params[_param['name']] = _param['example']
-                    # elif 'required' in _param and _param['required'] is True:
-                    #     # not sure what this was for
-                    #     example = True
+                    elif 'required' in _param and _param['required'] is True:
+                        paramsRequired = True
+                # check required params
+                if paramsRequired is True and not bool(params):
+                    self.msg = self.endpoint_name + ': ' + 'MissingExample'
+                    return False
 
             # case example and params
             if example and bool(params):
                 response = requests.post(url,
                                             params=params,
                                             json=example,
-                                            timeout=20,
+                                            timeout=30,
                                             verify=False,
                                             headers=headers)
                 return response
@@ -315,7 +328,7 @@ class Endpoint:
             elif example and not bool(params):
                 response = requests.post(url,
                                         json=example,
-                                        timeout=20,
+                                        timeout=30,
                                         verify=False,
                                         headers=headers)
                 
@@ -325,7 +338,7 @@ class Endpoint:
                 self.msg = self.endpoint_name + ': ' + 'MissingRequestBody'
                 response = requests.post(url,
                                             params=params,
-                                            timeout=20,
+                                            timeout=30,
                                             verify=False,
                                             headers=headers)
                 return response
@@ -333,7 +346,7 @@ class Endpoint:
             else:
                 self.msg = self.endpoint_name + ': ' + 'MissingRequestBody'
                 response = requests.post(url,
-                                                timeout=20,
+                                                timeout=30,
                                                 verify=False,
                                                 headers=headers)
                 return response
