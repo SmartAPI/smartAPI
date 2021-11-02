@@ -63,10 +63,17 @@ export default {
         let err_msg = '';
         let err = this.api?._status?.uptime_msg;
         if (err && err.includes(":")) {
-            err_msg = err ? `<tr colspan="2" class="red-text pink lighten-5 center">`+
-            `<td colspan="2"><br>"<b>`
-            +err.split(':')[0]+`</b>"`+
-            `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
+            if (err.includes("http")) {
+                err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+                `<td colspan="2"><small>"<b>`
+                +err+`</b>"`+
+                `<br>Please provide examples for endpoints that require them.</small></td></tr>`;
+            } else {
+                err_msg = err ? `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+                `<td colspan="2"><small>"<b>`
+                +err.split(':')[0]+`</b>"`+
+                `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
+            }
         }
         /*eslint-disable */
         tippy('.us'+this.badgeID, {
