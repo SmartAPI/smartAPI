@@ -77,6 +77,8 @@ export default {
 </script>
 
 <style>
+    @import '~swagger-editor/dist/swagger-editor.css';
+    
     #swagger-editor .topbar{
     background-color: #3f85bb;
     }
