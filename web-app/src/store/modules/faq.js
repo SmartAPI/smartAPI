@@ -193,7 +193,7 @@ export const faq = {
                     A transfer of ownership requests can be initiated by filling out a form. You will need the current owner information, recipient information, reason and any other relevant information to this transfer.
                     </p>
                     <p>
-                        If you would like to transfer ownership to someone else or claim ownership of an API please clicking <a target="_blank" rel="noreferrer" href="https://github.com/SmartAPI/smartAPI/issues/new?template=transfer.md">here</a>.
+                        If you would like to transfer ownership to someone else or claim ownership of an API please click <a target="_blank" rel="noreferrer" href="https://github.com/SmartAPI/smartAPI/issues/new?template=transfer.md">here</a>.
                     </p>`
                 },
                 {
