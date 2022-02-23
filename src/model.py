@@ -28,6 +28,7 @@ class StatMeta(InnerDoc):
     """ The _status field. """
 
     uptime_status = Keyword()
+    uptime_msg = Text(index=False)
     uptime_ts = Date()
 
     refresh_status = Integer()
@@ -41,6 +42,7 @@ class APIDoc(Document):
     _raw = Binary()
 
     info = Object()
+    servers = Object()
     paths = Object(
         properties={
             "path": Text(),

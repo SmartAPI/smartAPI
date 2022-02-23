@@ -190,17 +190,17 @@ export const faq = {
                     'anchor':'transfer',
                     'question':'How can I transfer/claim the ownership of an API entry?',
                     'answer':`<p>
-                    Transfer of ownership requests can only come from a registered user, and should be accompanied with a message detailing the rationale for the transfer. Some evidence should be presented that supports your/their claim about ownership (name listed on official website or in API documentation), along with other information to follow up (e.g. full name, email address, phone number, github account). Once reviewed, the current API owner can then transfer the ownership to the other user.
+                    A transfer of ownership requests can be initiated by filling out a form. You will need the current owner information, recipient information, reason and any other relevant information to this transfer.
                     </p>
                     <p>
-                    If you would like to transfer ownership to someone else or claim ownership of an API please <a target="_blank" rel="noreferrer" href="mailto:api-interoperability@googlegroups.com">contact us</a>.
+                        If you would like to transfer ownership to someone else or claim ownership of an API please click <a target="_blank" rel="noreferrer" href="https://github.com/SmartAPI/smartAPI/issues/new?template=transfer.md">here</a>.
                     </p>`
                 },
                 {
                     'anchor':'swagger',
                     'question':'My API uses Swagger V2 specification, does SmartAPI support it?',
                     'answer':`<p>
-                    You can submit Swagger V2 APIs and they will appear on our registry, however they will not experiece full functionality on SmartAPI and BioThings Explorer.
+                    You can submit Swagger V2 APIs and they will appear on our registry, however they will not experience full functionality on SmartAPI and BioThings Explorer.
                     </p>
                     <p>
                     If you use our <a href="/guide">guide</a> you can upgrade your Swagger V2 data to <a target="_blank" rel="noreferrer" rel="noreferrer" href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md">OpenAPI V3 Specification <i class="fa fa-external-link-square" aria-hidden="true"></i></a>

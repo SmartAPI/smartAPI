@@ -37,7 +37,11 @@ export default {
                 self.clss = 'green';
                 break;
             case 'bad':
-                self.status = 'BAD';
+                self.status = 'FAIL';
+                self.clss = 'red';
+                break;
+            case 'fail':
+                self.status = 'FAIL';
                 self.clss = 'red';
                 break;
             case 'incompatible':
@@ -56,6 +60,21 @@ export default {
     },
     mounted: function(){
         this.getStatus(this.api);
+        let err_msg = '';
+        let err = this.api?._status?.uptime_msg;
+        if (err && err.includes(":")) {
+            if (err.includes("http")) {
+                err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+                `<td colspan="2"><small>"<b>`
+                +err+`</b>"`+
+                `<br>Please provide examples for endpoints that require them.</small></td></tr>`;
+            } else {
+                err_msg = err ? `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+                `<td colspan="2"><small>"<b>`
+                +err.split(':')[0]+`</b>"`+
+                `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
+            }
+        }
         /*eslint-disable */
         tippy('.us'+this.badgeID, {
             placement: 'left-end',
@@ -70,6 +89,7 @@ export default {
                 <div class="white" style="padding:0px;">
                     <table>
                         <thead>
+                        `+err_msg+`
                         <tr>
                             <td colspan="2" class='grey-text center'>
                             <b>Overall API Endpoint Uptime Status</b>
