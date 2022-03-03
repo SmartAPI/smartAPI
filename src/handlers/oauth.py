@@ -44,8 +44,8 @@ class GitHubLoginHandler(BaseAPIHandler, GithubOAuth2Mixin):
 
     def _format_user_record(self, user):
         user_data = {}
-        user_data['username'] = user.get('login')
-        if not user_data['username']:
+        user_data['login'] = user.get('login')
+        if not user_data['login']:
             return
         if user.get('name'):
             user_data['name'] = user['name']
