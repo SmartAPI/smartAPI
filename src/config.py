@@ -2,6 +2,7 @@
 from copy import deepcopy
 
 from biothings.web.settings.default import QUERY_KWARGS, ANNOTATION_KWARGS, COMMON_KWARGS
+from biothings.web.auth.authn import DefaultCookieAuthnProvider
 
 from config_key import *
 
@@ -68,14 +69,13 @@ ES_INDICES = {'metadata': 'smartapi_docs'}
 # *****************************************************************************
 APP_LIST = [
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
-    (r'/api/validate/?', 'handlers.ValidateHandler'),
-    (r'/api/metadata/?', 'handlers.SmartAPIHandler', {"biothing_type": "metadata"}),
-    (r'/api/metadata/(.+)/?', 'handlers.SmartAPIHandler', {"biothing_type": "metadata"}),
-    (r'/api/suggestion/?', 'handlers.ValueSuggestionHandler'),
+    (r'/api/validate/?', 'handlers.api.ValidateHandler'),
+    (r'/api/metadata/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
+    (r'/api/metadata/(.+)/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
+    (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
 ]
 
 # biothings web tester will read this
-API_VERSION = ''
 API_PREFIX = 'api'
 
 # *****************************************************************************
@@ -85,3 +85,7 @@ ANNOTATION_DEFAULT_SCOPES = ['_id', '_meta.slug']
 ES_QUERY_PIPELINE = "pipeline.SmartAPIQueryPipeline"
 ES_QUERY_BUILDER = "pipeline.SmartAPIQueryBuilder"
 ES_RESULT_TRANSFORM = "pipeline.SmartAPIResultTransform"
+
+AUTHN_PROVIDERS = [
+    (DefaultCookieAuthnProvider, {})
+    ]
