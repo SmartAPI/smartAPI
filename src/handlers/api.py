@@ -13,13 +13,6 @@ from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 
-def json_encode(value):
-    return json.dumps(value).replace("</", "<\\/")
-
-
-def json_decode(value):
-    return json.loads(to_basestring(value))
-
 
 def github_authenticated(func):
     """
@@ -146,7 +139,7 @@ class ValidateHandler(BaseHandler):
             })
 
 
-class SmartAPIHandler(BaseHandler):
+class SmartAPIHandler(BaseHandler, BiothingHandler):
 
     kwargs = {
         '*': BiothingHandler.kwargs['*'],
