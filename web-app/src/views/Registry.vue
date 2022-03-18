@@ -333,26 +333,6 @@
           </div>
         </div>
       </div>
-      <!-- Translator Funding footer -->
-      <div v-if='portal_name == "translator" ' class="blue lighten-2 row center-align white-text" style="padding:20px;">
-          <h2 class="m-1">Supported with funding from:</h2>
-          <div class="col s6 center-align">
-              <a class="white-text bold" href="https://www.nigms.nih.gov/" target="_blank">
-                <h6><b>The National Institute of General Medical Sciences (NIGMS)</b></h6>
-              </a>
-              <a href="https://ncats.nih.gov/" rel="noreferrer" target="_blank">
-                  <Image img_width="20%" img_name='nigms.png' alt="nigms"></Image>
-              </a>
-          </div>
-          <div class="col s6 center-align">
-              <a class="white-text bold" href="https://ncats.nih.gov/" target="_blank">
-                <h6><b>The National Center for Advancing Translational Sciences (NCATS)</b></h6>
-              </a>
-              <a href="https://ncats.nih.gov/" rel="noreferrer" target="_blank">
-                  <Image img_width="20%" img_name='ncats.png' alt="ncats"></Image>
-              </a>
-          </div>
-      </div>
   </div>
 </main>
 </template>
