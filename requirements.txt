@@ -1,21 +1,25 @@
-git+git://github.com/biothings/biothings.api@0.10.x#egg=biothings[web_extra]
+git+https://github.com/biothings/biothings.api.git@0.11.x#egg=biothings[web_extra]
 
 # document validation
-jsonschema==3.2.0
+jsonschema>=4.4.0
+
 
 # web handling
-torngithub==0.2.0 
-pycurl==7.43.0.4
-chardet==3.0.4
+#torngithub==0.2.0 
+#pycurl==7.43.0.4
+#chardet==3.0.4
 
-aiocron==1.4
+aiocron==1.8
 
 # gitdb version specified because gitdb.utils.compat not available in newest version
-gitdb==4.0.5
+gitdb==4.0.9
 
 # local issuer certificate
 certifi
 
-pytest
+# pytest
 
+# used in admin.py to lock file
 filelock
+# used in admin.py to upload file to s3
+boto3
