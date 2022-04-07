@@ -1,27 +1,17 @@
-
 import json
 import logging
 
-import certifi
-# import torngithub
-from biothings.web.handlers import BaseAPIHandler, BiothingHandler
-# from torngithub import json_encode
-from tornado.escape import to_basestring
-from tornado.httpclient import AsyncHTTPClient
-from tornado.httputil import url_concat
-from tornado.web import Finish, HTTPError
+from biothings.web.auth.authn import BioThingsAuthnMixin
+from biothings.web.handlers import BaseAPIHandler
+from biothings.web.handlers.query import BiothingHandler
 
 from controller import ControllerError, NotFoundError, SmartAPI
+from tornado.escape import to_basestring
+from tornado.httpclient import AsyncHTTPClient
+from tornado.web import Finish, HTTPError
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
-
-def json_encode(value):
-    return json.dumps(value).replace("</", "<\\/")
-
-
-def json_decode(value):
-    return json.loads(to_basestring(value))
 
 
 def github_authenticated(func):
@@ -37,57 +27,30 @@ def github_authenticated(func):
                 status_code=401)
             return
         return func(self, *args, **kwargs)
-
     return _
 
 
-class BaseHandler(BaseAPIHandler):
-    """
-    Base SmartAPI Handler
-    """
-    cache = 0
-
-    async def prepare(self):
-
-        super().prepare()
-
-        # Additionally support GitHub Token Login
-        # Mainly for debug and admin purposes
-
-        if 'Authorization' in self.request.headers:
-            if self.request.headers['Authorization'].startswith('Bearer '):
-                token = self.request.headers['Authorization'].split(' ', 1)[1]
-                http_client = AsyncHTTPClient()
-                try:
-                    response = await http_client.fetch(
-                        "https://api.github.com/user", request_timeout=10,
-                        headers={'Authorization': 'token ' + token}, ca_certs=certifi.where())
-                    user = json.loads(response.body)
-                except Exception as e:  # TODO
-                    logging.warning(e)
-                else:
-                    if 'login' in user:
-                        logging.info('logged in user from github token: %s', user)
-                        self.set_secure_cookie("user", json_encode(user))
-                        self.current_user = user
-
-    def get_current_user(self):
-        user_json = self.get_secure_cookie("user")
-        if not user_json:
-            return None
-        return json.loads(user_json.decode('utf-8'))
-
-        # DEBUG USAGE
-        # return {"login": "tester"}
+class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
+    pass
 
 
 class UserInfoHandler(BaseHandler):
+    """"Handler for /user_info endpoint."""
     def get(self):
-        current_user = self.get_current_user() or {}
-        for key in ['access_token', 'id']:
-            if key in current_user:
-                del current_user[key]
-        self.finish(current_user)
+        # Check for user cookie
+        if self.current_user:
+            self.write(self.current_user)
+        else:
+            # Check for WWW-authenticate header
+            header = self.get_www_authenticate_header()
+            if header:
+                self.clear()
+                self.set_header('WWW-Authenticate', header)
+                self.set_status(401, "Unauthorized")
+                # raising HTTPError will cause headers to be emptied
+                self.finish()
+            else:
+                raise HTTPError(403)
 
 
 class LoginHandler(BaseHandler):
@@ -99,45 +62,6 @@ class LogoutHandler(BaseHandler):
     def get(self):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))
-
-
-# class GithubLoginHandler(BaseHandler, torngithub.GithubMixin):
-
-#     GITHUB_SCOPE = ""
-#     GITHUB_CALLBACK_PATH = "/oauth"
-
-#     @tornado.gen.coroutine
-#     def get(self):
-#         # we can append next to the redirect uri, so the user gets the
-#         # correct URL on login
-#         redirect_uri = url_concat(self.request.protocol +
-#                                   "://" + self.request.host +
-#                                   self.GITHUB_CALLBACK_PATH,
-#                                   {"next": self.get_argument('next', '/')})
-
-#         # if we have a code, we have been authorized so we can log in
-#         if self.get_argument("code", False):
-#             user = yield self.get_authenticated_user(
-#                 redirect_uri=redirect_uri,
-#                 client_id=self.web_settings.GITHUB_CLIENT_ID,
-#                 client_secret=self.web_settings.GITHUB_CLIENT_SECRET,
-#                 code=self.get_argument("code"),
-#                 callback=lambda: None
-#             )
-#             if user:
-#                 logging.info('logged in user from github: %s', str(user))
-#                 self.set_secure_cookie("user", json_encode(user))
-#             else:
-#                 self.clear_cookie("user")
-#             self.redirect(self.get_argument("next", "/"))
-#             return
-
-#         # otherwise we need to request an authorization code
-#         yield self.authorize_redirect(
-#             redirect_uri=redirect_uri,
-#             client_id=self.web_settings.GITHUB_CLIENT_ID,
-#             extra_params={"scope": self.GITHUB_SCOPE, "foo": 1}
-#         )
 
 
 class ValidateHandler(BaseHandler):

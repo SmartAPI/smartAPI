@@ -3,7 +3,6 @@ git+https://github.com/biothings/biothings.api.git@0.11.x#egg=biothings[web_extr
 # document validation
 jsonschema>=4.4.0
 
-
 # web handling
 #torngithub==0.2.0 
 #pycurl==7.43.0.4

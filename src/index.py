@@ -26,10 +26,10 @@ if __name__ == '__main__':
     crontab('0 0 * * *', func=run_routine, start=True)
     IOLoop.current().add_callback(setup)
     main([
-        (r"/user/?", "handlers.UserInfoHandler"),
-        (r"/login/?", "handlers.LoginHandler"),
-        # (r"/oauth", "handlers.GithubLoginHandler"),
-        (r"/logout/?", "handlers.LogoutHandler"),
+        (r"/user/?", "handlers.api.UserInfoHandler"),
+        (r"/login/?", "handlers.api.LoginHandler"),
+        (r"/oauth", "handlers.oauth.GitHubLoginHandler"),
+        (r"/logout/?", "handlers.api.LogoutHandler"),
         (r'/sitemap.xml()', "tornado.web.StaticFileHandler", {
             'path': '../web-app/dist/sitemap.xml'}),
         (r"/((?:img|css|js|fonts)/.*)", "tornado.web.StaticFileHandler", {
