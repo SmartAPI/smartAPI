@@ -4,10 +4,8 @@ git+https://github.com/biothings/biothings.api.git@0.11.x#egg=biothings[web_extr
 jsonschema>=4.4.0
 
 # web handling
-#torngithub==0.2.0 
-#pycurl==7.43.0.4
+pycurl==7.45.1       # to use curl_httpclient in tornado
 #chardet==3.0.4
-
 aiocron==1.8
 
 # gitdb version specified because gitdb.utils.compat not available in newest version
