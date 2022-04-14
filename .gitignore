@@ -26,3 +26,5 @@ smartapi_*.json
 
 .vscode/
 *.sqlite
+
+.lock
