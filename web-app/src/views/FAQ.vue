@@ -71,7 +71,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
     code {
         background-color: rgba(27,31,35,.05);
         border-radius: 3px;

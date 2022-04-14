@@ -17,23 +17,20 @@ export default {
 }
 </script>
 
-<style lang="scss">
-
-    .card{
+<style>
+    .card {
         position: relative;
         overflow: hidden;
-        .pika{
-            width: 50%;
-            opacity: 0;
-            position: absolute;
-            right: -200px;
-            transition: all .5s;
-        }
-        &:hover{
-           .pika{
-            opacity: 1;
-            right: -60px;
-        } 
-        }
+    }
+    .card .pika {
+        width: 50%;
+        opacity: 0;
+        position: absolute;
+        right: -200px;
+        transition: all 0.5s;
+    }
+    .card:hover .pika {
+        opacity: 1;
+        right: -60px;
     }
 </style>

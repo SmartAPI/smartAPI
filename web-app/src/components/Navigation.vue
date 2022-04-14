@@ -58,7 +58,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style>
 
   .topnav {
     overflow: hidden;
@@ -78,28 +78,27 @@ export default {
     color: white;
   }
 
-  .topnav #myLinksMobile div{
+  .topnav #myLinksMobile div {
     display: flex;
     flex-direction: column;
-    a{
-      padding: 5px;
-      align-self: center;
-    }
-    a:hover{
-        color: white !important;
-      }
   }
-
+  .topnav #myLinksMobile div a {
+    padding: 5px;
+    align-self: center;
+  }
+  .topnav #myLinksMobile div a:hover {
+    color: white !important;
+  }
   .topnav #myLinks {
     display: inline-flex;
-    a{
-      padding: 5px;
-      align-self: center;
-      margin-right: 10px;
-      transition: color .7s;
-    }
-    a:hover{
-        color: white !important;
-      }
+  }
+  .topnav #myLinks a {
+    padding: 5px;
+    align-self: center;
+    margin-right: 10px;
+    transition: color 0.7s;
+  }
+  .topnav #myLinks a:hover {
+    color: white !important;
   }
 </style>

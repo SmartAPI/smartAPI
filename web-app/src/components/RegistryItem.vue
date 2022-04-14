@@ -198,7 +198,7 @@ import UptimeStatus from '../components/UptimeStatus.vue';
 import CollapsibleText from '../components/CollapsibleText.vue';
 import {truncate} from 'lodash'
 
-import marked from 'marked'
+import {marked} from 'marked'
 import moment from 'moment'
 
 export default {
