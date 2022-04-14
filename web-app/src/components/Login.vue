@@ -39,7 +39,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 
     .route-active{
         color: white;
