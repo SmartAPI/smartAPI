@@ -22,7 +22,7 @@
     "esm": "^3.2.25",
     "lodash": "^4.17.21",
     "mark.js": "^8.11.1",
-    "marked": "^2.0.0",
+    "marked": "^4.0.10",
     "material-design-icons": "^3.0.1",
     "materialize-css": "^1.0.0-rc.2",
     "moment": "^2.29.1",
