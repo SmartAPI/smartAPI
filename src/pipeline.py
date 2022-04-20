@@ -158,9 +158,9 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         # -------------------------------------------------------
         case = options.get('case', _CASE.QUERY)
         if case == _CASE.QUERY:  # decoding _raw is too slow for multi-hit queries.
-            search = search.source(exclude=['_raw'], include=options._source)
+            search = search.source(excludes=['_raw'], includes=options._source)
         else:  # decodes all fields from _raw by default. include other _fields.
-            search = search.source(include=options._source or ['_*'])
+            search = search.source(includes=options._source or ['_*'])
         # -------------------------------------------------------
 
         for key, value in options.items():
