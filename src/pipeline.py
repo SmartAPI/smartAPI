@@ -118,12 +118,6 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
             }
             search = search.update_from_dict(query)
 
-        if options.authors:  # '"Chunlei Wu"'
-            search = search.filter('terms', info__contact__name__raw=options.authors)
-
-        if options.tags:  # '"chemical", "drug"'
-            search = search.filter('terms', tags__name__raw=options.tags)
-
         return search
 
     def apply_extras(self, search, options):
@@ -131,6 +125,12 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         Process non-query options and customize their behaviors.
         Customized aggregation syntax string is translated here.
         """
+        # apply extra filters from query parameters
+        if options.authors:  # '"Chunlei Wu"'
+            search = search.filter('terms', info__contact__name__raw=options.authors)
+
+        if options.tags:  # '"chemical", "drug"'
+            search = search.filter('terms', tags__name__raw=options.tags)
 
         # add aggregations
         facet_size = options.facet_size or 10
