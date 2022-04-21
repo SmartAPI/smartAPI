@@ -24,8 +24,11 @@
               :data-tippy-status="api?._status?.refresh_status || 'n/a' "
                 to="/dashboard" class="versionBadge light-blue pointer tipped">
               My&nbsp;API 
-              <span v-if="api?._status?.refresh_status && ![200, 299, '200', '299'].includes(api?._status?.refresh_status)" 
-              class="white-text red" style="padding:2px;border-radius: 4px;margin-left: 5px;">&nbsp;&nbsp;!&nbsp;&nbsp;</span>
+              <template v-if="api?._status?.refresh_status && ![200, 299, '200', '299'].includes(api?._status?.refresh_status)">
+                <span class="red white-text" style="padding:2px 4px; border-radius:10px;" :id="'myAPIErr' + api._id">
+                  has issues
+                </span>
+              </template>
             </router-link>
           </div>
           <template v-if="api.info.description && api.info.description.length > 500">
@@ -197,6 +200,7 @@ import SourceStatus from '../components/SourceStatus.vue';
 import UptimeStatus from '../components/UptimeStatus.vue';
 import CollapsibleText from '../components/CollapsibleText.vue';
 import {truncate} from 'lodash'
+import tippy from 'tippy.js'
 
 import {marked} from 'marked'
 import moment from 'moment'
@@ -331,6 +335,40 @@ export default {
       if(Object.prototype.hasOwnProperty.call(this.api, "tags")){
         this.bt_tag = this.api?.['tags'].find(element => element.name == 'biothings');
       }
+       /*eslint-disable */
+        tippy( '#myAPIErr'+this.api._id, {
+            content: `<div class="white" style="padding:0px;">
+                <table>
+                <thead>
+                    <tr>
+                    <td colspan="2" class='grey-text center'>
+                        <b>Oh no! There's issues with your API!</b>
+                    </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="pink lighten-5">
+                    <td colspan='2' class='blue-grey-text'>
+                        <p>
+                        <b>Click on this badge to go to your dashboard</b> 
+                        From there click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
+                        </p>
+                        <p>
+                          Make sure both <b>Uptime</b> and <b>Source</b> badges good statuses.
+                        </p>
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>`,
+            placement: 'left-end',
+            appendTo: document.body,
+            theme:'light',
+            interactive:true,
+            animation: false,
+            allowHTML: true,
+        });
+        /*eslint-enable */
     },
 }
 </script>

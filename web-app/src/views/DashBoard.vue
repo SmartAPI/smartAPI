@@ -236,7 +236,7 @@
                             Slug length must be 4-50 characters (a-z) and/or numbers (0-9). Slugs will be converted to lower case. URL protected characters not allowed.
                         </div>
                         <div style="flex: 1; min-width: 200px;">
-                            <input autocomplete="false" v-model='myShortName' placeholder="Enter your slug here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                            <input autocomplete="false" v-model='myShortName' placeholder="Enter your slug here" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                         </div>
                         <div style="flex: 1; min-width: 200px;">
                             <p id="availabilityResults" v-bind:class="{'green-text': availableShortName, 'red-text': !availableShortName }">
@@ -426,7 +426,7 @@ export default {
         self.apis=[];
         let url = this.$apiUrl + "/query?size=100&q=_meta.username:"+self.userInfo.login
 
-        axios.get(`${url}&timestamp=${new Date().getTime()}`).then(function(response){
+        axios.get(`${url}&timestamp=${new Date().getTime()}&meta=1`).then(function(response){
                 self.apis = sortBy(response.data.hits,'info.title');
                 self.total = response.data.total;
                 self.hideLoading();
@@ -583,15 +583,15 @@ export default {
         },
         evaluateShortname: function(){
         var self = this;
-        axios.get(`/api/query?q=__all__&filters={"_meta.slug":["`+this.myShortName+`"]}&fields=_meta`).then(response=>{
+        axios.get(`/api/query?q=_meta.slug:"`+this.myShortName+`"&fields=_meta&meta=1`).then(response=>{
             //console.log(response.data.hits);
-            if (response.data.total.value) {
-            self.availableShortName = false;
-            self.takenSlug = true;
-            return false;
+            if (response.data.total) {
+                self.availableShortName = false;
+                self.takenSlug = true;
+                return false;
             }else{
-            self.availableShortName = true;
-            self.takenSlug = false;
+                self.availableShortName = true;
+                self.takenSlug = false;
             return true;
             }
         }).catch(error =>{
