@@ -129,6 +129,13 @@ export default {
                             <small>Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.</small>
                             </td>
                         </tr>
+                        <tr class="orange lighten-5">
+                            <td colspan='2' class='blue-grey-text'>
+                                <small>
+                                    <b>UNKNOWN</b> and <b>FAIL</b> statuses can be assigned due to one or more endpoints failing or lacking examples.
+                                </small>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>`)
