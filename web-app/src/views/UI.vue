@@ -11,8 +11,8 @@
           </router-link>
         </div>
         <div class="d-flex justify-content-around align-items-center p-1">
-          <SourceStatus style="margin-right:25px" :api="data.api"></SourceStatus>
-          <UptimeStatus :api="data.api"></UptimeStatus>
+          <SourceStatus style="margin-right:25px" :api="status.value"></SourceStatus>
+          <UptimeStatus :api="status.value"></UptimeStatus>
         </div>
         <div class="p-1">
           <small class="white-text tracking-in-expand"> Last updated {{ convertDate(data.api?._meta?.last_updated) }}</small>
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { reactive, onMounted, onBeforeMount, getCurrentInstance } from 'vue'
+import { reactive, onMounted, onBeforeMount, getCurrentInstance, ref } from 'vue'
 import { useRoute } from 'vue-router';
 // import { useMeta } from 'vue-meta'
 
@@ -46,6 +46,8 @@ export default {
       //ensure nav has mounted for teleport to work
       ready: false
     })
+
+    let status = ref({})
 
     const route = useRoute();
     const app = getCurrentInstance();
@@ -102,7 +104,7 @@ export default {
     let getMetadata = url =>{
       axios.get(url).then(res=>{
           data.api = res.data
-          
+          status.value = res.data
       }).catch(err=>{
         throw err;
       });
@@ -116,7 +118,7 @@ export default {
 
     onMounted(()=> {
         data.ready = true
-        loadSwaggerUI(app.appContext.config.globalProperties.$apiUrl + '/metadata/'+ data.apiID);
+        loadSwaggerUI(app.appContext.config.globalProperties.$apiUrl + '/metadata/'+ data.apiID + '?raw=1');
     })
 
     onBeforeMount(()=>{
@@ -128,7 +130,8 @@ export default {
       data,
       SourceStatus,
       UptimeStatus,
-      convertDate
+      convertDate,
+      status
     }
   }
 }

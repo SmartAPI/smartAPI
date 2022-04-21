@@ -20,8 +20,7 @@
             <span v-if="bt_tag && bt_tag.name == 'biothings' " class="versionBadge grey darken-2">
               BioThings API
             </span>
-            <!-- <router-link v-if="user && api._meta.username === user.login"  -->
-            <router-link  
+            <router-link v-if="user && api._meta.username === user.login" 
               :data-tippy-status="api?._status?.refresh_status || 'n/a' "
                 to="/dashboard" class="versionBadge light-blue pointer tipped">
               My&nbsp;API 
