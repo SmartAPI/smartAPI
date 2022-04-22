@@ -5,7 +5,7 @@
             <span class="blue-grey-text bold" v-text="api.info.title"></span>&nbsp;
             <small class="grey-text lighter" v-text="api.info.version">
             </small>
-            <UptimeStatus class="right" :uptime_status='api?._status?.uptime_status'></UptimeStatus>
+            <UptimeStatus class="right" :uptime_status='api?._status?.uptime_status' :err_msg="api?._status?.uptime_msg"></UptimeStatus>
           </span>
           <div>
             <span v-if=" api?.openapi " class="versionBadge green">

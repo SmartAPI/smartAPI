@@ -104,7 +104,7 @@
                         </button>
                     </td>
                     <td class="right-align">
-                        <UptimeStatus :style="{marginBottom:'10px'}" :uptime_status='api?._status?.uptime_status'></UptimeStatus>
+                        <UptimeStatus :style="{marginBottom:'10px'}" :uptime_status='api?._status?.uptime_status' :err_msg="api?._status?.uptime_msg"></UptimeStatus>
                         <SourceStatus :refresh_status='api?._status?.refresh_status'></SourceStatus>
                     </td>
                     </tr>

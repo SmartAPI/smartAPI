@@ -21,7 +21,7 @@ export default {
         badgeID: Math.floor(Math.random()*90000) + 10000
         }
     },
-    props: ['uptime_status'],
+    props: ['uptime_status', 'err_msg'],
     methods:{
         getStatus(){
         let self = this;
@@ -56,7 +56,7 @@ export default {
     mounted: function(){
         this.getStatus();
         let err_msg = '';
-        let err = this.api?._status?.uptime_msg;
+        let err = this.err_msg;
         if (err && err.includes(":")) {
             if (err.includes("http")) {
                 err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
