@@ -323,12 +323,12 @@ def test_uptime_status():
     mygene = SmartAPI.get(MYGENE_ID)
     assert mygene.uptime.status[0] is None
 
-    mygene.uptime.update(('good', None))
-    assert mygene.uptime.status[0] == 'good'
+    mygene.uptime.update(('pass', None))
+    assert mygene.uptime.status[0] == 'pass'
     mygene.save()
     refresh()
     mygene_doc = APIDoc.get(MYGENE_ID)
-    assert mygene_doc._status.uptime_status == 'good'
+    assert mygene_doc._status.uptime_status == 'pass'
 
     mygene.uptime.update((None, None))
     assert mygene.uptime.status[0] is None

@@ -6,8 +6,8 @@
         Amiteshk Sharma
 
     Status:
-        Good,
-        Bad,
+        Pass,
+        Fail,
         Incompatible,
         Unknown
 
@@ -137,7 +137,7 @@ class API:
                 logger.error(exception)
                 # exception error message
                 self._uptime_msg = _endpoint + ": " + type(exception).__name__
-                return 'bad'
+                return 'fail'
             else:
                 if response:
                     status = endpoint.check_response_status(response)
@@ -152,10 +152,10 @@ class API:
                         self._cors_status = Cors.DISABLED.value
 
                     if status == 200:
-                        return 'good'
+                        return 'pass'
                     else:
                         self._uptime_msg = _endpoint + ': Got status (' + status + ')'
-                        return 'bad'
+                        return 'fail'
                 else:
                     # endpoint call failure
                     if endpoint.msg:
@@ -179,22 +179,22 @@ class API:
                 res = self.test_endpoint(_endpoint, _endpoint_info)
             except Exception as exception: # pylint: disable=broad-except
                 self._uptime_msg = _endpoint + ": " + type(exception).__name__
-                res = 'bad'
+                res = 'fail'
             if res:
                 results.append(res)
-                if res == 'bad':
+                if res == 'fail':
                     break
 
-        if not 'bad' in results:
-            if 'good' in results:
+        if not 'fail' in results:
+            if 'pass' in results:
                 self._uptime_msg = 'Everything looks good!'
-                self._api_status = 'good'
+                self._api_status = 'pass'
             else:
                 # msg will be populated during api call
                 self._api_status = 'unknown'
         else:
             # msg will be populated during api call
-            self._api_status = 'bad'
+            self._api_status = 'fail'
 
 
     def __str__(self):

@@ -208,16 +208,10 @@ export default {
                         })
                     }
                     //chart data
-                    if(item['_status'][field] == 'good'){
-                        statuses['pass']++
-                    }else if(item['_status'][field] == 'bad'){
-                        statuses['fail']++
+                    if(item['_status'][field] in statuses){
+                        statuses[item['_status'][field]]++
                     }else{
-                        if(item['_status'][field] in statuses){
-                            statuses[item['_status'][field]]++
-                        }else{
-                            statuses[item['_status'][field]] = 1
-                        }
+                        statuses[item['_status'][field]] = 1
                     }
                 }
             })                
