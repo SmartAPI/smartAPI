@@ -31,13 +31,9 @@ export default {
                 self.status = 'UNKNOWN';
                 self.clss = 'orange';
                 break;
-            case 'good':
+            case 'pass':
                 self.status = 'PASS';
                 self.clss = 'green';
-                break;
-            case 'bad':
-                self.status = 'FAIL';
-                self.clss = 'red';
                 break;
             case 'fail':
                 self.status = 'FAIL';
