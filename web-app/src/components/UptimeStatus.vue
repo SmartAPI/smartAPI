@@ -21,13 +21,12 @@ export default {
         badgeID: Math.floor(Math.random()*90000) + 10000
         }
     },
-    props: ['api'],
+    props: ['uptime_status'],
     methods:{
-        getStatus(api){
+        getStatus(){
         let self = this;
-        if (api?._status?.uptime_status) {
-            let stat = api['_status']['uptime_status'];
-            switch (stat) {
+        if (self.uptime_status) {
+            switch (self.uptime_status) {
             case 'unknown':
                 self.status = 'UNKNOWN';
                 self.clss = 'orange';
@@ -59,7 +58,7 @@ export default {
         },
     },
     mounted: function(){
-        this.getStatus(this.api);
+        this.getStatus();
         let err_msg = '';
         let err = this.api?._status?.uptime_msg;
         if (err && err.includes(":")) {

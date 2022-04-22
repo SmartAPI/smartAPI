@@ -21,13 +21,12 @@ export default {
         badgeID: Math.floor(Math.random()*90000) + 10000
         }
     },
-    props: ['api'],
+    props: ['refresh_status'],
     methods:{
-        getStatus(api){
+        getStatus(){
         let self = this;
-        if (api?._status?.refresh_status) {
-            let stat = api['_status']['refresh_status'];
-            switch (stat) {
+        if (self.refresh_status) {
+            switch (self.refresh_status) {
             case 200:
                 self.status = "OK";
                 self.clss = 'green';
@@ -49,7 +48,7 @@ export default {
                 self.clss = 'orange';
                 break;
             default:
-            self.status = stat;
+            self.status = self.refresh_status;
             self.clss = 'black';
             }
         }else{
@@ -59,7 +58,7 @@ export default {
         },
     },
     mounted: function(){
-        this.getStatus(this.api);
+        this.getStatus();
 
         /*eslint-disable */
         tippy( '.ss'+this.badgeID, {

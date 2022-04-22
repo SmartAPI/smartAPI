@@ -104,8 +104,8 @@
                         </button>
                     </td>
                     <td class="right-align">
-                        <UptimeStatus :style="{marginBottom:'10px'}" :api='api'></UptimeStatus>
-                        <SourceStatus :api='api'></SourceStatus>
+                        <UptimeStatus :style="{marginBottom:'10px'}" :uptime_status='api?._status?.uptime_status'></UptimeStatus>
+                        <SourceStatus :refresh_status='api?._status?.refresh_status'></SourceStatus>
                     </td>
                     </tr>
                     <tr v-if="total && total == 0">

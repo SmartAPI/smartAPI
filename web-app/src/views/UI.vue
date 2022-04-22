@@ -11,8 +11,8 @@
           </router-link>
         </div>
         <div class="d-flex justify-content-around align-items-center p-1">
-          <SourceStatus style="margin-right:25px" :api="status.value"></SourceStatus>
-          <UptimeStatus :api="status.value"></UptimeStatus>
+          <SourceStatus style="margin-right:25px" :refresh_status="data?.api?._status?.refresh_status"></SourceStatus>
+          <UptimeStatus :uptime_status="data?.api?._status?.uptime_status"></UptimeStatus>
         </div>
         <div class="p-1">
           <small class="white-text tracking-in-expand"> Last updated {{ convertDate(data.api?._meta?.last_updated) }}</small>
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { reactive, onMounted, onBeforeMount, getCurrentInstance, ref } from 'vue'
+import { reactive, onMounted, onBeforeMount, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router';
 // import { useMeta } from 'vue-meta'
 
@@ -38,6 +38,10 @@ import "swagger-ui/dist/swagger-ui.css"
 
 export default {
   name: 'UI',
+  components:{
+    SourceStatus,
+    UptimeStatus,
+  },
   setup(){
     let data = reactive({
       apiID:'',
@@ -46,8 +50,6 @@ export default {
       //ensure nav has mounted for teleport to work
       ready: false
     })
-
-    let status = ref({})
 
     const route = useRoute();
     const app = getCurrentInstance();
@@ -104,7 +106,6 @@ export default {
     let getMetadata = url =>{
       axios.get(url).then(res=>{
           data.api = res.data
-          status.value = res.data
       }).catch(err=>{
         throw err;
       });
@@ -128,8 +129,6 @@ export default {
 
     return{
       data,
-      SourceStatus,
-      UptimeStatus,
       convertDate,
       status
     }

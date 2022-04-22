@@ -63,9 +63,9 @@ describe('Footer', () => {
 describe('UptimeStatus', () => {
   it('Uptime badge displays expected status', () => {
     [
-      {'value': 'good', expect: 'PASS'},
+      {'value': 'pass', expect: 'PASS'},
       {'value': 'unknown', expect: 'UNKNOWN'},
-      {'value': 'bad', expect: 'BAD'},
+      {'value': 'fail', expect: 'BAD'},
       {'value': 'blah', expect: 'N/A'},
     ].forEach( async (item) => {
       //Arrange
