@@ -16,6 +16,7 @@
 import logging
 from enum import Enum
 import requests
+import json
 
 # pylint:disable=import-error, ungrouped-imports
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -319,7 +320,7 @@ class Endpoint:
             if example and bool(params):
                 response = requests.post(url,
                                             params=params,
-                                            json=example,
+                                            json=json.loads(example),
                                             timeout=30,
                                             verify=False,
                                             headers=headers)
@@ -327,7 +328,7 @@ class Endpoint:
             # case example only
             elif example and not bool(params):
                 response = requests.post(url,
-                                        json=example,
+                                        json=json.loads(example),
                                         timeout=30,
                                         verify=False,
                                         headers=headers)
