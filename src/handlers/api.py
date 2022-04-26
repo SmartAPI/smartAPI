@@ -331,3 +331,71 @@ class ValueSuggestionHandler(BaseHandler):
         """
         res = SmartAPI.get_tags(self.args.field)
         self.finish(res)
+
+
+class UptimeHandler(BaseHandler):
+    """
+    Check uptime status for a registered API
+
+    GET /api/uptime?id=<id>
+
+    POST /api/uptime
+    id=<id>
+    """
+
+    kwargs = {
+        "GET": {
+            "id": {"type": str, "location": "query", "required": True}
+        },
+        "POST": {
+            "id": {"type": str, "location": "form", "required": True}
+        }
+    }
+
+    name = 'uptime_checker'
+
+    @github_authenticated
+    def get(self):
+        if self.request.body:
+            raise HTTPError(400, reason="GET takes no request body.")
+
+        if self.args.id:
+            try:
+                smartapi = SmartAPI.get(self.args.id)
+                if smartapi.username != self.current_user['login']:
+                    raise HTTPError(403)
+                status = smartapi.check()
+                smartapi.save()
+            except NotFoundError:
+                raise HTTPError(404)
+            except (ControllerError, AssertionError) as err:
+                raise HTTPError(400, reason=str(err))
+            else:
+                self.finish({
+                    'success': True,
+                    'details': f'Current status is {status}.'
+                })
+        else:
+            raise HTTPError(400, reason="Missing required parameter: id")
+
+    @github_authenticated
+    def post(self):
+
+        if self.args.id:
+            try:
+                smartapi = SmartAPI.get(self.args.id)
+                if smartapi.username != self.current_user['login']:
+                    raise HTTPError(403)
+                status = smartapi.check()
+                smartapi.save()
+            except NotFoundError:
+                raise HTTPError(404)
+            except (ControllerError, AssertionError) as err:
+                raise HTTPError(400, reason=str(err))
+            else:
+                self.finish({
+                    'success': True,
+                    'details': f'Current status is {status}.'
+                })
+        else:
+            raise HTTPError(400, reason="Missing required form field: id")

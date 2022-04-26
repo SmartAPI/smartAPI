@@ -63,6 +63,7 @@
                         <th>Last Updated</th>
                         <th>Refresh</th>
                         <th>Validate</th>
+                        <th>Uptime Check</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -101,6 +102,12 @@
                         <button type="button" @click="validate(api._meta.url)" class="btn btn-small scale-in-center indigo white-text tipped"
                             data-tippy-info="<b class='indigo-text'>Validate Only</b> <br/>(Validate latest API metadata from the source URL)">
                             <i class="material-icons white-text">check</i>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" @click="checkUptime(api._id)" class="btn btn-small scale-in-center deep-purple white-text tipped"
+                            data-tippy-info="<b class='indigo-text'>Check current uptime status">
+                            <i class="material-icons white-text">poll</i>
                         </button>
                     </td>
                     <td class="right-align">
@@ -354,6 +361,44 @@ export default {
         ])
     },
     methods:{
+        checkUptime(id){
+            let self = this;
+            self.showLoading();
+            self.$toast.info(`Please wait`);
+            if (id) {
+                var bodyFormData = new FormData();
+                bodyFormData.append('id', id);
+                axios({
+                    method: "post",
+                    url: '/api/uptime',
+                    data: bodyFormData,
+                    headers: { "Content-Type": "multipart/form-data" },
+                }).then(res=>{
+                    self.hideLoading();
+                    self.$swal({
+                        imageUrl: require('../assets/img/api-sucess.svg'),
+                        imageWidth: 200,
+                        title: 'Your report is ready:',
+                        footer: "<p class='green-text'>" + res.data.details + "</p>"
+                    })
+                }).catch(err=>{
+                if(err?.response?.data){
+                    self.hideLoading();
+                    self.$swal({
+                        title: "Oops, there's an issue!",
+                        imageUrl: require('../assets/img/api-fail.svg'),
+                        imageWidth: 200,
+                        confirmButtonText: 'OK',
+                        html:`<h5>Here's what we found:</h5>
+                            <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,
+                        footer:`<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
+                    })
+                }
+                });
+            } else {
+                self.$toast.error('ID is required')
+            }
+        },
         validate(url){
         let self = this;
         if (url) {

@@ -70,6 +70,7 @@ ES_INDICES = {'metadata': 'smartapi_docs'}
 APP_LIST = [
     (r'/api/query/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metadata"}),
     (r'/api/validate/?', 'handlers.api.ValidateHandler'),
+    (r'/api/uptime/?', 'handlers.api.UptimeHandler'),
     (r'/api/metadata/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
     (r'/api/metadata/(.+)/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
     (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
