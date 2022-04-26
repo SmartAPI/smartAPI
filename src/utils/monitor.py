@@ -324,6 +324,8 @@ class Endpoint:
                                             timeout=30,
                                             verify=False,
                                             headers=headers)
+                if not response.status_code == 200:
+                    self.msg = self.endpoint_name + ': ' + response.reason
                 return response
             # case example only
             elif example and not bool(params):
@@ -332,7 +334,8 @@ class Endpoint:
                                         timeout=30,
                                         verify=False,
                                         headers=headers)
-                
+                if not response.status_code == 200:
+                    self.msg = self.endpoint_name + ': ' + response.reason
                 return response
             # case params only
             elif bool(params):
@@ -342,6 +345,8 @@ class Endpoint:
                                             timeout=30,
                                             verify=False,
                                             headers=headers)
+                if not response.status_code == 200:
+                    self.msg = self.endpoint_name + ': ' + response.reason + ' :MissingRequestBody'
                 return response
             # case url only
             else:
@@ -350,6 +355,8 @@ class Endpoint:
                                                 timeout=30,
                                                 verify=False,
                                                 headers=headers)
+                if not response.status_code == 200:
+                    self.msg = self.endpoint_name + ': ' + response.reason + ' :MissingRequestBody'
                 return response
 
     def check_response_status(self, response):
