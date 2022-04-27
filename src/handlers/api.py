@@ -34,7 +34,13 @@ class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
     pass
 
 
-class UserInfoHandler(BaseHandler):
+class AuthHandler(BaseHandler):
+    def set_cache_header(self, cache_value):
+        # disabel cache for auth-related handlers
+        self.set_header("Cache-Control", "private, max-age=0, no-cache")
+
+
+class UserInfoHandler(AuthHandler):
     """"Handler for /user_info endpoint."""
     def get(self):
         # Check for user cookie
@@ -53,12 +59,12 @@ class UserInfoHandler(BaseHandler):
                 raise HTTPError(403)
 
 
-class LoginHandler(BaseHandler):
+class LoginHandler(AuthHandler):
     def get(self):
         self.redirect(self.get_argument("next", "/"))
 
 
-class LogoutHandler(BaseHandler):
+class LogoutHandler(AuthHandler):
     def get(self):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))
