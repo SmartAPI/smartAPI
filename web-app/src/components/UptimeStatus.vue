@@ -57,18 +57,32 @@ export default {
         this.getStatus();
         let err_msg = '';
         let err = this.err_msg;
-        if (err && err.includes(":")) {
-            if (err.includes("http")) {
-                err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
-                `<td colspan="2"><small>"<b>`
-                +err+`</b>"`+
-                `<br>Please provide examples for endpoints that require them.</small></td></tr>`;
-            } else {
-                err_msg = err ? `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
-                `<td colspan="2"><small>"<b>`
-                +err.split(':')[0]+`</b>"`+
-                `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
-            }
+        // if (err && err.includes(":")) {
+        //     if (err.includes("http")) {
+        //         err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+        //         `<td colspan="2"><small>"<b>`
+        //         +err+`</b>"`+
+        //         `<br>Please provide examples for endpoints that require them.</small></td></tr>`;
+        //     } else {
+        //         err_msg = err ? `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+        //         `<td colspan="2"><small>"<b>`
+        //         +err.split(':')[0]+`</b>"`+
+        //         `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
+        //     }
+        // }
+        if (err && err.includes("Everything looks good!")) {
+            err_msg = ``
+        }else if(err && err.length){
+            let allErrors = '' 
+            err.forEach((e) => {
+                allErrors += `<p class="red-text"><small>${e}</small></p>`
+            });
+            err_msg += `<details class="orange lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;">
+                <summary>
+                <b class="red-text">(${err.length}) Issues</b>
+                </summary>
+                ${allErrors}
+            </details>`
         }
         /*eslint-disable */
         tippy('.us'+this.badgeID, {
@@ -81,7 +95,7 @@ export default {
             allowHTML: true,
             onShow:function (instance) {
                 instance.setContent(`
-                <div class="white" style="padding:0px;">
+                <div class="white" style="padding:0px;overflow:hidden;">
                     <table>
                         <thead>
                         `+err_msg+`
