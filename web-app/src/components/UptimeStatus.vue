@@ -74,15 +74,17 @@ export default {
             err_msg = ``
         }else if(err && err.length){
             let allErrors = '' 
-            err.forEach((e) => {
-                allErrors += `<p class="red-text"><small>${e}</small></p>`
-            });
-            err_msg += `<details class="orange lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;">
-                <summary>
-                <b class="red-text">(${err.length}) Issues</b>
-                </summary>
-                ${allErrors}
-            </details>`
+            if (Array.isArray(err)) {
+                err.forEach((e) => {
+                    allErrors += `<p class="red-text"><small>${e}</small></p>`
+                });
+                err_msg += `<details class="orange lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;">
+                    <summary>
+                    <b class="red-text">(${err.length}) Issues</b>
+                    </summary>
+                    ${allErrors}
+                </details>`
+            }
         }
         /*eslint-disable */
         tippy('.us'+this.badgeID, {
