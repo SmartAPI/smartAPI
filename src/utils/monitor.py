@@ -1,6 +1,6 @@
 """
     API Uptime Monitor
-    
+
     Author:
         Kevin Xin
         Amiteshk Sharma
@@ -124,12 +124,12 @@ class API:
                             'components': self.components}
         if 'get' in _endpoint_info:
             endpoint_doc['method'] = 'GET'
-            endpoint_doc['params'] = _endpoint_info.get('get').get('parameters')
+            endpoint_doc['params'] = _endpoint_info.get('get').get('parameters', {})
         elif 'post' in _endpoint_info:
             endpoint_doc['method'] = 'POST'
             endpoint_doc['params'] = _endpoint_info.get('post').get('parameters')
             endpoint_doc['requestbody'] = _endpoint_info['post'].get('requestBody')
-        if endpoint_doc.get('params') or endpoint_doc.get('requestbody'):
+        if 'params' in endpoint_doc or endpoint_doc.get('requestbody'):
             endpoint = Endpoint(endpoint_doc)
             try:
                 response = endpoint.make_api_call()
@@ -247,7 +247,7 @@ class Endpoint:
                     # parameter in query
                     elif _param['in'] == 'query':
                         params = {_param['name']: _param['example']}
-                    
+
                 elif 'required' in _param and _param['required'] is True:
                     paramsRequired = True
             # check required params
