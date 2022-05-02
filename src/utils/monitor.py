@@ -140,7 +140,7 @@ class API:
                 self._uptime_msg.append(_endpoint + ": " + type(exception).__name__)
                 return 'fail'
             else:
-                if response:
+                if isinstance(response,  requests.models.Response):
                     status = endpoint.check_response_status(response)
                     cors = endpoint.check_cors_status(response)
 
