@@ -5,7 +5,7 @@ function getSmartAPI_IDs(){
         baseURL: 'https://smart-api.info', 
         proxy: false  
     })
-    return axios.get('https://smart-api.info/api/query?&q=__all__&fields=_id&size=1000').then(res=>{
+    return axios.get('https://smart-api.info/api/query?&q=__all__&fields=_id&size=1000&raw=1').then(res=>{
         return res.data.hits.map(item => item._id)
     }).catch(err=>{
         console.log(err)
