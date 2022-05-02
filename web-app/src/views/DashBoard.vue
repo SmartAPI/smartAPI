@@ -471,7 +471,7 @@ export default {
         self.apis=[];
         let url = this.$apiUrl + "/query?size=100&q=_meta.username:"+self.userInfo.login
 
-        axios.get(`${url}&timestamp=${new Date().getTime()}&meta=1`).then(function(response){
+        axios.get(`${url}&timestamp=${new Date().getTime()}&raw=1`).then(function(response){
                 self.apis = sortBy(response.data.hits,'info.title');
                 self.total = response.data.total;
                 self.hideLoading();
@@ -628,7 +628,7 @@ export default {
         },
         evaluateShortname: function(){
         var self = this;
-        axios.get(`/api/query?q=_meta.slug:"`+this.myShortName+`"&fields=_meta&meta=1`).then(response=>{
+        axios.get(`/api/query?q=_meta.slug:"`+this.myShortName+`"&fields=_meta&raw=1`).then(response=>{
             //console.log(response.data.hits);
             if (response.data.total) {
                 self.availableShortName = false;

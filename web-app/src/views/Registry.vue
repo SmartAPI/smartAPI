@@ -433,7 +433,7 @@ export default {
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                       'size': self.perPage,
                       'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage ),
-                      'meta': 1  
+                      'raw': 1  
                   }
               }
               var filters = self.getQueryFilters();
@@ -616,7 +616,7 @@ export default {
                       'fields': 'info,_meta,_status,paths,tags,openapi,swagger',
                       'size': self.perPage,
                       'from': self.page == 1 ? self.page-1 : ((self.page-1) * self.perPage ),
-                      'meta': 1          
+                      'raw': 1          
                   },
               };
 

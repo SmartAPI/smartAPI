@@ -1,11 +1,11 @@
 <template>
 <div class="summary_chart">
-    <div v-if="summary_type == 'Uptime_Status'">
-        <a href="javascript:void(0);" :class="'whatIsUptime' + badgeID"><i class="fa fa-info-circle" aria-hidden="true"></i> What does this mean?</a>
-    </div>
-    <div v-if="summary_type == 'Source_Status'">
-        <a href="javascript:void(0);" :class="'whatIsSource' + badgeID"><i class="fa fa-info-circle" aria-hidden="true"></i> What does this mean?</a>
-    </div>
+    <template v-if="summary_type == 'Uptime_Status'">
+        <a class="moreInfo" href="javascript:void(0);" :class="'whatIsUptime' + badgeID"><i class="fa fa-info-circle" aria-hidden="true" title=" What does this mean?"></i></a>
+    </template>
+    <template v-if="summary_type == 'Source_Status'">
+        <a class="moreInfo" href="javascript:void(0);" :class="'whatIsSource' + badgeID"><i class="fa fa-info-circle" aria-hidden="true" title=" What does this mean?"></i></a>
+    </template>
     <canvas :id="summary_type" width="600" height="600" :class="tipClass"></canvas>
     <div class="p-1">
         <button class="smallButton" style="color: white !important;" 
@@ -646,5 +646,11 @@ export default {
     min-width: 300px;
     max-width: 350px;
     padding: 20px;
+    position: relative;
+}
+.moreInfo{
+    position: absolute;
+    right: 60px;
+    top: 30px;
 }
 </style>
