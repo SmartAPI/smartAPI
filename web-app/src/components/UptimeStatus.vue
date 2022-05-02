@@ -78,11 +78,11 @@ export default {
                 err.forEach((e) => {
                     allErrors += `<li class="red-text"><small>${e}</small></li>`
                 });
-                err_msg += `<details class="orange lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;">
+                err_msg += `<details class="orange lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;word-break: break-all;">
                     <summary>
                     <b class="red-text">(${err.length}) Issues</b>
                     </summary>
-                    <ul>${allErrors}</ul>
+                    <ul class="browser-default" style="list-style: disc; padding: 5px;">${allErrors}</ul>
                 </details>`
             }
         }

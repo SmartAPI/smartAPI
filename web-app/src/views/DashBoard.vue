@@ -58,7 +58,7 @@
             <div class="col s12 card-panel">
                 <table class="striped highlight responsive-table">
                 <thead>
-                    <tr style="font-weight: 100; color: #d3d3d3;">
+                    <tr style="font-weight: 100; color: #d3d3d3; font-size:12px;">
                         <th>Name ({{total}})</th>
                         <th>Last Updated</th>
                         <th>Refresh</th>
