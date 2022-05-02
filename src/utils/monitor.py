@@ -278,8 +278,13 @@ class Endpoint:
                 if content and 'application/json' in content:
                     schema = content.get('application/json').get('schema')
                     example = content.get('application/json').get('example')
-                    if example and type(example) is str:
-                        example = json.loads(example)
+                    # how do I tell if a dict needs to be unescaped?
+                    if (example and type(example) is str) and "{" in example:
+                        try:
+                            example = json.loads(example)
+                        except (json.JSONDecodeError, Exception) as e:
+                            logger.debug('Error decoding example %s', e)
+                            pass
                     if example:
                         logger.debug(url)
                     elif schema:
