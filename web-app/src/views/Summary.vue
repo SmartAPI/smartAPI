@@ -183,7 +183,7 @@ export default {
                 /*eslint-enable */
             },
         getPortalData(){
-            let url = "/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22&meta=1"
+            let url = "/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22&raw=1"
             this.getSummaries(this.$apiUrl + url)
         }
       },
