@@ -370,7 +370,7 @@ export default {
                 bodyFormData.append('id', id);
                 axios({
                     method: "post",
-                    url: '/api/uptime',
+                    url: self.$apiUrl + '/api/uptime',
                     data: bodyFormData,
                     headers: { "Content-Type": "multipart/form-data" },
                 }).then(res=>{
@@ -379,7 +379,7 @@ export default {
                         imageUrl: require('../assets/img/api-sucess.svg'),
                         imageWidth: 200,
                         title: 'Your report is ready:',
-                        footer: "<p class='green-text'>" + res.data.details + "</p>"
+                        html: "<p class='black-text'>" + res.data.details + "</p>"
                     })
                 }).catch(err=>{
                 if(err?.response?.data){
