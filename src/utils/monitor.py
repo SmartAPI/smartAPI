@@ -154,6 +154,10 @@ class API:
 
                     if status == 200:
                         return 'pass'
+                    elif status == 501:
+                        # label the endpoint as "unknown", if the request returns 501 NOT INPLEMENTED
+                        self.logger.debug('%s returns 501 NOT IMPLEMENTED, therefore skipped.', _endpoint)
+                        return 'unknown'
                     else:
                         self._uptime_msg.append(_endpoint + ': Got status (' + status + ')')
                         return 'fail'
