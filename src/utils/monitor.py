@@ -300,6 +300,10 @@ class Endpoint:
                                 logger.debug('component path: %s', component_path)
                                 example = DictQuery(self.components).get(component_path)
                                 logger.debug('example %s', example)
+                elif content and 'application/x-www-form-urlencoded' in content:
+                    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+                    example = content.get('application/x-www-form-urlencoded').get('example')
+
                 # check required body
                 bodyRequired = self.requestbody.get('required')
                 if bodyRequired is True and not example:
