@@ -118,6 +118,7 @@ class API:
             self.api_status = 'incompatible'
         self.components = api_doc.get('components')
         self.endpoints_info = api_doc.get('paths')
+        self.logger = logging.getLogger("utils.monitor")
 
     def test_endpoint(self, _endpoint, _endpoint_info):
         endpoint_doc = {'name': '/'.join(s.strip('/') for s in (self.api_server, _endpoint)),
@@ -134,8 +135,7 @@ class API:
             try:
                 response = endpoint.make_api_call()
             except Exception as exception:  # pylint: disable=broad-except
-                logger = logging.getLogger("utils.monitor")
-                logger.error(exception)
+                self.logger.error(_endpoint, exception)
                 # exception error message
                 self._uptime_msg.append(_endpoint + ": " + type(exception).__name__)
                 return 'fail'
@@ -184,6 +184,7 @@ class API:
             if res:
                 results.append(res)
 
+        self.logger.info("%s", dict(zip(self.endpoints_info.keys(), results)))
         if not 'fail' in results:
             if 'pass' in results:
                 self._uptime_msg = ['Everything looks good!']
@@ -227,8 +228,7 @@ class Endpoint:
 
     def make_api_call(self):
         headers = {
-            'User-Agent': 'SmartAPI API status monitor',
-            'Content-Type': 'application/json'
+            'User-Agent': 'SmartAPI API status monitor'
         }
         url = self.endpoint_name
         logger = logging.getLogger("utils.uptime.endpoint.make_api_call")
@@ -261,13 +261,14 @@ class Endpoint:
                                         verify=False,
                                         timeout=30,
                                         headers=headers)
-                return response
             else:
                 response = requests.get(url,
                                         timeout=30,
                                         verify=False,
                                         headers=headers)
-                return response
+            logger.debug('get: %s, %s, %s, %s', url, params, response, headers)
+            return response
+
         # handle API endpoint which use POST HTTP method
         elif self.method == "POST":
             params = {}
@@ -276,6 +277,7 @@ class Endpoint:
             if self.requestbody:
                 content = self.requestbody.get('content')
                 if content and 'application/json' in content:
+                    headers['Content-Type'] = 'application/json'
                     schema = content.get('application/json').get('schema')
                     example = content.get('application/json').get('example')
                     try:
@@ -327,9 +329,10 @@ class Endpoint:
                                             timeout=30,
                                             verify=False,
                                             headers=headers)
+
                 if not response.status_code == 200:
                     self.msg.append(self.endpoint_name + ': ' + response.reason)
-                return response
+
             # case example only
             elif example and not bool(params):
                 response = requests.post(url,
@@ -339,7 +342,7 @@ class Endpoint:
                                         headers=headers)
                 if not response.status_code == 200:
                     self.msg.append(self.endpoint_name + ': ' + response.reason)
-                return response
+
             # case params only
             elif bool(params):
                 self.msg.append(self.endpoint_name + ': ' + 'MissingRequestBody')
@@ -350,7 +353,7 @@ class Endpoint:
                                             headers=headers)
                 if not response.status_code == 200:
                     self.msg.append(self.endpoint_name + ': ' + 'MissingRequestBody')
-                return response
+
             # case url only
             else:
                 self.msg.append(self.endpoint_name + ': ' + 'MissingRequestBody')
@@ -360,7 +363,9 @@ class Endpoint:
                                             headers=headers)
                 if not response.status_code == 200:
                     self.msg.append(self.endpoint_name + ': ' + 'MissingRequestBody')
-                return response
+
+            logger.debug('post: %s, %s, %s, %s, %s', url, params, example, response, headers)
+            return response
 
     def check_response_status(self, response):
         return response.status_code
