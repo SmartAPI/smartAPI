@@ -370,16 +370,16 @@ export default {
                 bodyFormData.append('id', id);
                 axios({
                     method: "post",
-                    url: self.$apiUrl + '/api/uptime',
+                    url: '/api/uptime',
                     data: bodyFormData,
                     headers: { "Content-Type": "multipart/form-data" },
                 }).then(res=>{
                     self.hideLoading();
                     self.$swal({
-                        imageUrl: require('../assets/img/api-sucess.svg'),
+                        imageUrl: require('../assets/img/api-editor.svg'),
                         imageWidth: 200,
                         title: 'Your report is ready:',
-                        html: "<p class='black-text'>" + res.data.details + "</p>"
+                        html: "<h1>Status: <b>" + res.data.details[0] + "</b></h1><p>Details: </p><p class='blue-text codeBox p-1'><code>" + res.data.details[1] + "</code></p>"
                     })
                 }).catch(err=>{
                 if(err?.response?.data){

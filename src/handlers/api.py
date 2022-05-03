@@ -379,7 +379,7 @@ class UptimeHandler(BaseHandler):
             else:
                 self.finish({
                     'success': True,
-                    'details': f'Current status is {status}.'
+                    'details': status
                 })
         else:
             raise HTTPError(400, reason="Missing required parameter: id")
@@ -401,7 +401,7 @@ class UptimeHandler(BaseHandler):
             else:
                 self.finish({
                     'success': True,
-                    'details': f'Current status is {status}.'
+                    'details': status
                 })
         else:
             raise HTTPError(400, reason="Missing required form field: id")
