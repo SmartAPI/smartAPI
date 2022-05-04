@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
 
       if(!['www', 'dev', 'smart-api', 'localhost:8000', 'localhost:8080'].includes(slug)){
 
-        axios.get('https://smart-api.info//api/metadata/'+slug+'?fields=_id&raw=1').then(res=>{
+        axios.get('https://smart-api.info/api/metadata/'+slug+'?fields=_id&raw=1').then(res=>{
 
             if(Object.prototype.hasOwnProperty.call(res.data, "_id")){
               next({name:'UI', params: {smartapi_id : res.data._id}})
