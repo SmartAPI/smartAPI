@@ -58,9 +58,11 @@
                     "type": "text",
                     "fields": {
                         "raw": {
-                            "type": "keyword"
+                            "type": "keyword",
+                            "ignore_above": 512
                         }
-                    }
+                    },
+                    "copy_to": "all"
                 }
             }
         }
@@ -74,6 +76,9 @@
         },
         "_raw": {
             "type": "binary"
+        },
+        "all": {
+            "type": "text"
         }
     }
 }
