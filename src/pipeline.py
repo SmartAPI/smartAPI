@@ -91,7 +91,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                             {"term": {"_id": {"value": q.strip('"'), "boost": 5}}},
                             {"term": {"_meta.slug": {"value": q.strip('"'), "boost": 5}}},
                             {"match": {"info.title": {"query": q, "boost": 1.5, "operator": "AND"}}},
-                            {"query_string": {"query": q, "default_operator": "AND"}}  # base score
+                            {"query_string": {"query": q, "default_operator": "AND", "default_field": "all"}}  # base score
                         ]
                     }
                 }
@@ -108,7 +108,7 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                             {"match": {"info.title": {"query": q, "boost": 1.5}}},
                             {"term": {"servers.url": {"value": q, "boost": 1.1}}},
                             # ---------------------------------------------
-                            {"query_string": {"query": q}},  # base score
+                            {"query_string": {"query": q, "default_field": "all"}},  # base score
                             # ---------------------------------------------
                             {"wildcard": {"info.title": {"value": q + "*", "boost": 0.8}}},
                             {"wildcard": {"info.description": {"value": q + "*", "boost": 0.5}}},
