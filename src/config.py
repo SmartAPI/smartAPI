@@ -73,6 +73,9 @@ APP_LIST = [
     (r'/api/uptime/?', 'handlers.api.UptimeHandler'),
     (r'/api/metadata/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
     (r'/api/metadata/(.+)/?', 'handlers.api.SmartAPIHandler', {"biothing_type": "metadata"}),
+    (r'/api/fields/?', 'biothings.web.handlers.MetadataFieldHandler'),
+    (r'/api/build/?', 'biothings.web.handlers.MetadataSourceHandler'),
+    (r'/api/status/?', 'biothings.web.handlers.StatusHandler'),
     (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
 ]
 
@@ -89,4 +92,9 @@ ES_RESULT_TRANSFORM = "pipeline.SmartAPIResultTransform"
 
 AUTHN_PROVIDERS = [
     (DefaultCookieAuthnProvider, {})
-    ]
+]
+
+STATUS_CHECK = {
+    "index": "smartapi_docs",
+    "id": "59dce17363dce279d389100834e43648"    # MyGene.info API entry
+}
