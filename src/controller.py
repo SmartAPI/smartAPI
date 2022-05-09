@@ -450,7 +450,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         obj.uptime = APIMonitorStatus(
             obj, (
-                doc._status.uptime_status, 
+                doc._status.uptime_status,
                 doc._status.uptime_msg
             ),
             doc._status.uptime_ts
