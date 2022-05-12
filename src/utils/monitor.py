@@ -166,7 +166,7 @@ class API:
                         return 'fail'
                 else:
                     # endpoint call failure
-                    self._uptime_msg.append("🟠 {}: (skipped)".format(_endpoint))
+                    self._uptime_msg.append("🟠 {}: (skipped) Missing Required Params/Body".format(_endpoint))
                     self.logger.debug("🟠 {}: (skipped) Missing Required Params/Body".format(_endpoint))
                     return 'unknown'
 
