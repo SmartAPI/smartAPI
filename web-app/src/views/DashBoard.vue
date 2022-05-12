@@ -364,7 +364,7 @@ export default {
         checkUptime(id){
             let self = this;
             self.showLoading();
-            self.$toast.info(`Please wait`);
+            self.$toast.warning(`Please wait, this may take a few minutes...`);
             if (id) {
                 var bodyFormData = new FormData();
                 bodyFormData.append('id', id);
@@ -374,12 +374,18 @@ export default {
                     data: bodyFormData,
                     headers: { "Content-Type": "multipart/form-data" },
                 }).then(res=>{
+                    let allErrors = ''
+                    if (res.data.details?.[1]) {
+                        res.data.details?.[1].forEach(e => {
+                            allErrors += `<li><small>${e}</small></li>`
+                        })
+                    }
                     self.hideLoading();
                     self.$swal({
                         imageUrl: require('../assets/img/api-editor.svg'),
                         imageWidth: 200,
                         title: 'Your report is ready:',
-                        html: "<h1>Status: <b>" + res.data.details[0] + "</b></h1><p>Details: </p><p class='blue-text codeBox p-1'><code>" + res.data.details[1] + "</code></p>"
+                        html: "<h1>Status: <b>" + res.data.details[0] + "</b></h1><p>Details: </p><div class='codeBox'><p class='blue-text p-1'><ul class='left-align'>" + allErrors + "</ul></p></div>"
                     })
                 }).catch(err=>{
                 if(err?.response?.data){

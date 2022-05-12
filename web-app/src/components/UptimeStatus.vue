@@ -70,17 +70,15 @@ export default {
         //         `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
         //     }
         // }
-        if (err && err.includes("Everything looks good!")) {
-            err_msg = ``
-        }else if(err && err.length){
+        if(err && err.length){
             let allErrors = '' 
             if (Array.isArray(err)) {
                 err.forEach((e) => {
-                    allErrors += `<li class="red-text"><small>${e}</small></li>`
+                    allErrors += `<li class="blue-text"><small>${e}</small></li>`
                 });
-                err_msg += `<details class="orange lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;word-break: break-all;">
+                err_msg += `<details class="light-blue lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;word-break: break-all;">
                     <summary>
-                    <b class="red-text">(${err.length}) Issues</b>
+                    <b class="blue-text">(${err.length}) Uptime Report</b>
                     </summary>
                     <ul class="browser-default" style="list-style: disc; padding: 5px;">${allErrors}</ul>
                 </details>`
@@ -145,6 +143,11 @@ export default {
                                 <small>
                                     <b>UNKNOWN</b> and <b>FAIL</b> statuses can be assigned due to one or more endpoints failing or lacking examples.
                                 </small>
+                            </td>
+                        </tr>
+                        <tr class="orange lighten-5">
+                            <td colspan="2">
+                                <b><a href="https://github.com/SmartAPI/smartAPI/wiki/SmartAPI-Uptime-Monitoring" target="_blank">Learn more about how SmartAPI monitors uptime</a></b>
                             </td>
                         </tr>
                         </tbody>
