@@ -12,21 +12,28 @@
         Unknown
 
 """
-
-import logging
+from textwrap import shorten
 from enum import Enum
-import requests
 import json
+import logging
+from pprint import pformat
 
+import requests
 # pylint:disable=import-error, ungrouped-imports
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
 
-# enums class to represent outcomes for cors check
+
+logger = logging.getLogger("utils.monitor")
+
+
+def _shorten(s, width=80):     # pylint: disable=invalid-name
+    """a helper function to shorten long string to 80 max-length"""
+    return shorten(s, width=width, placeholder="...")
 
 
 class Cors(Enum):
+    """enums class to represent outcomes for cors check"""
     ENABLED = 'CORS-Enabled'
     DISABLED = 'CORS-Disabled'
     UNKNOWN = 'CORS-Unknown'
@@ -36,15 +43,15 @@ class Cors(Enum):
 
 
 class CorsCounter:
-
+    '''Count CORS status for all registered APIs'''
     def __init__(self, total_api_count):
         self._enabled = 0       # number of CORS-enabled APIs
         self._disabled = 0      # number of CORS-disabled APIs
         self._unknown = 0       # number of CORS-unknown APIs
         self.total_apis = total_api_count
 
-    # used to increment the correct count
     def increment_count(self, count):
+        """used to increment the correct count"""
         try:
             if count == -1:
                 self._unknown += 1
@@ -53,8 +60,7 @@ class CorsCounter:
             else:
                 self._disabled += 1
         except TypeError:
-            logger = logging.getLogger('CorsCounter.CorsStatus')
-            logger.error('Please pass in a int. ')
+            logger.error('CorsCounter.CorsStatus: Please pass in a int. ')
 
     def __str__(self):
         enabled = f"The total number of CORS-enabled APIs out of ({self.total_apis}): ({self._enabled})\n"
@@ -107,7 +113,7 @@ class API:
             self.name = "No name specified"
         try:
             self.id = api_doc['_id']  # pylint: disable=invalid-name
-        except:
+        except KeyError:
             self.id = "no ID specified"
         try:
             self.api_server = api_doc['servers'][0]['url']
@@ -118,11 +124,20 @@ class API:
             self.api_status = 'incompatible'
         self.components = api_doc.get('components')
         self.endpoints_info = api_doc.get('paths')
-        self.logger = logging.getLogger("utils.monitor")
+        self.logger = logger
 
     def test_endpoint(self, _endpoint, _endpoint_info):
-        endpoint_doc = {'name': '/'.join(s.strip('/') for s in (self.api_server, _endpoint)),
-                            'components': self.components}
+        """
+        Test an endpoint and return its status as:
+            - pass
+            - fail
+            - unknown
+
+        """
+        endpoint_doc = {
+            'name': '/'.join(s.strip('/') for s in (self.api_server, _endpoint)),
+            'components': self.components
+        }
         if 'get' in _endpoint_info:
             endpoint_doc['method'] = 'GET'
             endpoint_doc['params'] = _endpoint_info.get('get').get('parameters', {})
@@ -134,12 +149,13 @@ class API:
             endpoint = Endpoint(endpoint_doc)
             try:
                 response = endpoint.make_api_call()
-            except Exception as exception:  # pylint: disable=broad-except
-                self.logger.error("%s, %s", _endpoint, exception)
-                self._uptime_msg.append("🔴 {}: {}".format(_endpoint, exception))
+            except requests.RequestException as err:  # pylint: disable=broad-except
+                _msg = f"🔴 {_endpoint}: (requestexception) {repr(err)}"
+                self.logger.error(_msg)
+                self._uptime_msg.append(_msg)
                 return 'fail'
             else:
-                if isinstance(response,  requests.models.Response):
+                if isinstance(response, requests.models.Response):
                     status = endpoint.check_response_status(response)
                     cors = endpoint.check_cors_status(response)
 
@@ -149,25 +165,28 @@ class API:
                     else:
                         self._cors_status = Cors.DISABLED.value
 
-                    if status == 200:
-                        self._uptime_msg.append("🟢 {}: (200) All good!".format(_endpoint))
-                        self.logger.debug("🟢 {}: (200) All good!".format(_endpoint))
-
+                    if status < 400:
+                        _msg = f"🟢 {status}: ({_endpoint}) All good!"
+                        self._uptime_msg.append(_msg)
+                        self.logger.debug(_msg)
                         return 'pass'
                     elif status == 501:
-                        self._uptime_msg.append("🟠 {}: ({}) {}".format(_endpoint, status, response.text))
-                        self.logger.debug("🟠 {}: ({}) {}".format(_endpoint, status, response.text))
                         # label the endpoint as "unknown", if the request returns 501 NOT IMPLEMENTED
-                        self.logger.debug('%s returns 501 NOT IMPLEMENTED, therefore skipped.', _endpoint)
+                        _msg = f"🟠 {_endpoint}: ({status}) (skipped) {_shorten(response.text)}"
+                        self._uptime_msg.append(_msg)
+                        self.logger.info('%s returns 501 NOT IMPLEMENTED, therefore skipped.', _endpoint)
                         return 'unknown'
                     else:
-                        self._uptime_msg.append("🔴 {}: ({}) {}".format(_endpoint, status, response.text))
-                        self.logger.debug("🔴 {}: ({}) {}".format(_endpoint, status, response.text))
+                        # any status code >= 400, label as "fail"
+                        _msg = f"🔴 {_endpoint}: ({status}) {_shorten(response.text)}"
+                        self._uptime_msg.append(_msg)
+                        self.logger.debug(_msg)
                         return 'fail'
                 else:
                     # endpoint call failure
-                    self._uptime_msg.append("🟠 {}: (skipped) Missing Required Params/Body".format(_endpoint))
-                    self.logger.debug("🟠 {}: (skipped) Missing Required Params/Body".format(_endpoint))
+                    _msg = f"🟠 {_endpoint}: (skipped) Missing Required Params/Body"
+                    self._uptime_msg.append(_msg)
+                    self.logger.debug(_msg)
                     return 'unknown'
 
     def check_api_status(self):
@@ -176,42 +195,44 @@ class API:
         '''
         self._api_status = 'unknown'
         self._cors_status = Cors.UNKNOWN.value
-        preliminary_results = []
+        endpoint_results = []
 
         if not self.api_server:
             return
 
         for _endpoint, _endpoint_info in self.endpoints_info.items():
             res = None
-            res = self.test_endpoint(_endpoint, _endpoint_info)
-            # try:
-            #     res = self.test_endpoint(_endpoint, _endpoint_info)
-            # except Exception: # pylint: disable=broad-except
-            #     res = 'fail'
-            #     raise
+            try:
+                res = self.test_endpoint(_endpoint, _endpoint_info)
+            except Exception as err:       # pylint: disable=broad-except
+                # This is a final catch_all exception, just in case we miss any unhandled exception
+                # It can be an error happened in the code. We should investigate and try to resolve it.
+                _msg = f"🔴 {_endpoint}: (unhandled exception) {repr(err)}. Please contact us to resolve."
+                self._uptime_msg.append(_msg)
+                self.logger.error(_msg)
+                res = 'fail'
             if res:
-                preliminary_results.append(res)
+                endpoint_results.append(res)
 
-        self.logger.info("%s", dict(zip(self.endpoints_info.keys(), preliminary_results)))
-        if not 'fail' in preliminary_results:
-            if 'pass' in preliminary_results:
-                self._api_status = 'pass'
-            else:
-                self._api_status = 'unknown'
-        else:
+        self.logger.info("%s", dict(zip(self.endpoints_info.keys(), endpoint_results)))
+        if 'fail' in endpoint_results:
             self._api_status = 'fail'
-
+        else:
+            self._api_status = 'pass' if 'pass' in endpoint_results else 'unknown'
 
     def __str__(self):
         return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
 
     def get_api_status(self):
+        """return the overall api status and a list of messages during the uptime checks"""
         return self._api_status, self._uptime_msg
 
     def get_cors_status(self):
+        """return cors status"""
         return self._cors_status
 
     def get_total_cors(self):
+        """TODO: the cors check feature to be completed"""
         if self._cors_status == 'CORS-Unknown':
             return -1
 
@@ -231,16 +252,17 @@ class Endpoint:
         self.components = endpoint_doc.get('components')
 
     def make_api_call(self):
+        """Use requests package to send the example query to an API endpoint"""
         headers = {
             'User-Agent': 'SmartAPI API status monitor'
         }
         url = self.endpoint_name
-        logger = logging.getLogger("utils.uptime.endpoint.make_api_call")
-        # handle API endpoint which use GET HTTP method
+        # logger = logging.getLogger("utils.uptime.endpoint.make_api_call")
         if self.method == 'GET':
+            # handle API endpoint which uses GET HTTP method
             params = {}
             example = None
-            paramsRequired = None
+            paramsRequired = None    # pylint: disable=invalid-name
             for _param in self.params:
                 # replace parameter with actual example value to construct
                 # an API call
@@ -253,27 +275,26 @@ class Endpoint:
                         params = {_param['name']: _param['example']}
 
                 elif 'required' in _param and _param['required'] is True:
-                    paramsRequired = True
+                    paramsRequired = True    # pylint: disable=invalid-name
             # check required params
-            if paramsRequired is True and not bool(params):
+            if paramsRequired is True and not params:
                 return False
 
-            if bool(params):
-                response = requests.get(url,
-                                        params=params,
-                                        verify=False,
-                                        timeout=30,
-                                        headers=headers)
-            else:
-                response = requests.get(url,
-                                        timeout=30,
-                                        verify=False,
-                                        headers=headers)
-            logger.debug('get: %s, %s, %s, %s', url, params, response, headers)
+            _request_kwargs = dict(
+                url=url,
+                verify=False,
+                timeout=30,
+                headers=headers
+            )
+            if params:
+                _request_kwargs['params'] = params
+            response = requests.get(**_request_kwargs)
+            logger.debug('[get]: \n%s\n%s', pformat(_request_kwargs), response)
             return response
 
         # handle API endpoint which use POST HTTP method
         elif self.method == "POST":
+            # handle API endpoint which uses POST HTTP method
             params = {}
             example = None
             # get example
@@ -281,40 +302,44 @@ class Endpoint:
                 content = self.requestbody.get('content')
                 if content and 'application/json' in content:
                     headers['Content-Type'] = 'application/json'
-                    schema = content.get('application/json').get('schema')
+                    # 1st try to get the example value if already provided
                     example = content.get('application/json').get('example')
-                    try:
-                        example = json.loads(example)
-                    except (json.JSONDecodeError, Exception) as e:
-                        logger.debug('Error skipping decoding example %s', e)
-                        pass
-                    if example:
-                        logger.debug(url)
-                    elif schema:
-                        example = schema.get('example')
-                        ref = schema.get('$ref')
-                        if example:
-                            logger.debug(url)
-                        elif ref:
-                            logger.debug(url)
-                            if ref.startswith('#/components/'):
-                                component_path = ref[13:]
-                                component_path += '/example'
-                                logger.debug('component path: %s', component_path)
-                                example = DictQuery(self.components).get(component_path)
-                                logger.debug('example %s', example)
+                    if not example:
+                        schema = content.get('application/json').get('schema')
+                        if schema:
+                            # 2nd try to get example value from "schema" field
+                            example = schema.get('example')
+                            if not example:
+                                ref = schema.get('$ref')
+                                if ref:
+                                    # 3nd try if schema is a reference to a component
+                                    logger.debug(url)
+                                    if ref.startswith('#/components/'):
+                                        component_path = ref[13:]
+                                        component_path += '/example'
+                                        logger.debug('component path: %s', component_path)
+                                        example = DictQuery(self.components).get(component_path)
+                                        logger.debug('example %s', example)
+                    if isinstance(example, str):
+                        # if example is a string, we try to jsonize it first,
+                        # otherwise, keep it as it is
+                        try:
+                            example = json.loads(example)
+                        except json.JSONDecodeError as err:
+                            logger.debug('Error skipping decoding example %s', err)
+
                 elif content and 'application/x-www-form-urlencoded' in content:
                     headers['Content-Type'] = 'application/x-www-form-urlencoded'
                     example = content.get('application/x-www-form-urlencoded').get('example')
 
                 # check required body
-                bodyRequired = self.requestbody.get('required')
+                bodyRequired = self.requestbody.get('required')    # pylint: disable=invalid-name
                 if bodyRequired is True and not example:
                     return False
 
             # get params
             if self.params:
-                paramsRequired = None
+                paramsRequired = None    # pylint: disable=invalid-name
                 for _param in self.params:
                     if 'example' in _param:
                         if _param['in'] == 'path':
@@ -322,50 +347,40 @@ class Endpoint:
                         elif _param['in'] == 'query':
                             params[_param['name']] = _param['example']
                     elif 'required' in _param and _param['required'] is True:
-                        paramsRequired = True
+                        paramsRequired = True    # pylint: disable=invalid-name
                 # check required params
-                if paramsRequired is True and not bool(params):
+                if paramsRequired is True and not params:
                     return False
 
-            # case example and params
-            if example and bool(params):
-                response = requests.post(url,
-                                            params=params,
-                                            json=example,
-                                            timeout=30,
-                                            verify=False,
-                                            headers=headers)
-
-            # case example only
-            elif example and not bool(params):
-                response = requests.post(url,
-                                        json=example,
-                                        timeout=30,
-                                        verify=False,
-                                        headers=headers)
-
-            # case params only
-            elif bool(params):
-                response = requests.post(url,
-                                            params=params,
-                                            timeout=30,
-                                            verify=False,
-                                            headers=headers)
-
-            # case url only
-            else:
-                response = requests.post(url,
-                                            timeout=30,
-                                            verify=False,
-                                            headers=headers)
-
-            logger.debug('post: %s, %s, %s, %s, %s', url, params, example, response, headers)
+            _request_kwargs = dict(
+                url,
+                timeout=30,
+                verify=False,
+                headers=headers
+            )
+            if params:
+                _request_kwargs['params'] = params
+            if example:
+                if "json" in headers.get('Content-Type', ''):
+                    _request_kwargs['json'] = example
+                else:
+                    _request_kwargs['data'] = example
+            response = requests.post(**_request_kwargs)
+            logger.debug('[POST]: \n%s\n%s', pformat(_request_kwargs), response)
             return response
 
+        else:
+            # we do not check non GET/POST endpoint
+            # since they are typically related to data modifications, e.g. PUT, DELETE
+            # or less commonly used, e.g. HEAD
+            return False
+
     def check_response_status(self, response):
+        """return response status code"""
         return response.status_code
 
     def check_cors_status(self, response):
+        """return CORS status code: 1 - supported, 0 - not supported"""
         try:
             access_control = response.headers['Access-Control-Allow-Origin']
             if access_control:
