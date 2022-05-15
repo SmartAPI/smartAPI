@@ -17,6 +17,7 @@ from enum import Enum
 import json
 import logging
 from pprint import pformat
+import traceback
 
 import requests
 # pylint:disable=import-error, ungrouped-imports
@@ -210,15 +211,17 @@ class API:
                 _msg = f"🔴 {_endpoint}: (unhandled exception) {repr(err)}. Please contact us to resolve."
                 self._uptime_msg.append(_msg)
                 self.logger.error(_msg)
+                print(traceback.format_exc())
                 res = 'fail'
             if res:
                 endpoint_results.append(res)
 
-        self.logger.info("%s", dict(zip(self.endpoints_info.keys(), endpoint_results)))
+        self.logger.info("Uptime check results:\n%s", pformat(self._uptime_msg))
         if 'fail' in endpoint_results:
             self._api_status = 'fail'
         else:
             self._api_status = 'pass' if 'pass' in endpoint_results else 'unknown'
+        self.logger.info("API uptime status: %s", self._api_status)
 
     def __str__(self):
         return f"{self.id}: {self._api_status}, {self._cors_status} ({self.name})"
@@ -353,7 +356,7 @@ class Endpoint:
                     return False
 
             _request_kwargs = dict(
-                url,
+                url=url,
                 timeout=30,
                 verify=False,
                 headers=headers

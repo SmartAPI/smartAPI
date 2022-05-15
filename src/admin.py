@@ -133,9 +133,10 @@ def refresh_document():
 def check_uptime():
     logger = logging.getLogger("uptime")
     for smartapi in SmartAPI.get_all(1000):
-        logger.info(smartapi._id)
+        logger.info("Checking API: %s", smartapi._id)
         _status = smartapi.check()
-        logger.info(_status)
+        logger.info("Done")
+        print('-'*50)
         smartapi.save()
 
 
