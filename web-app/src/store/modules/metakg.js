@@ -4,11 +4,13 @@ import tippy from 'tippy.js';
 import swal from 'vue-sweetalert2'
 import ForceGraph3D from '3d-force-graph';
 import {CSS2DRenderer, CSS2DObject} from 'three-css2drender'
+import axios from 'axios'
 
 cytoscape.use(popper);
 
 export const metakg = {
     state: () => ({ 
+        "useAPI": true,
         "meta_kg": null,
         "results": [],
         "output_autocomplete": [],
@@ -17,6 +19,7 @@ export const metakg = {
         "output_type": [],
         "input_type": [],
         "predicate": [],
+        "component": 'KP',
         'cy': null,
         "predicate_selected": [],
         "input_selected": [],
@@ -35,6 +38,13 @@ export const metakg = {
      }),
     strict: true,
     mutations: {
+        saveComponent(state, payload){
+            console.log("💚 Component Change: ", payload.value)
+            state.component = payload.value;
+        },
+        setUseAPI(state, payload) {
+            state.useAPI = payload.value;
+        },
         toggleLoading(state, payload) {
             state.loading = payload['loading'];
         },
@@ -318,6 +328,47 @@ export const metakg = {
         saveOperations(state, payload) {
         state.operations = payload['ops'];
         },
+        getNewOptionsAPI(state, payload) {
+            let filteredOptions = payload['res'];
+            const t0 = performance.now();
+            let predicates = new Set();
+            let inputs = new Set();
+            let outputs = new Set();
+    
+            // PREDICATES
+            if (!state.output_selected.length && !state.input_selected.length) {
+                // restore all options from backup
+                state.predicate_autocomplete = state.predicate_autocomplete_all.sort()
+            } else {
+                filteredOptions.forEach(op => predicates.add(op['association']['predicate']) );
+                state.predicate_autocomplete = [...predicates].sort()
+            }
+    
+            // INPUT
+            if (state.output_selected.length && !state.input_selected.length) {
+                console.log("💚 Calculating Inputs ", state.output_selected)
+                filteredOptions.forEach(op => inputs.add(op['association']['subject']) );
+                state.input_autocomplete = [...inputs].sort()
+            } else if (state.input_selected.length && !state.output_selected.length) {
+                console.log("💚 Calculating Outputs ", state.input_selected)
+                //OUTPUT
+                filteredOptions.forEach(op => outputs.add(op['association']['object']) );
+                state.output_autocomplete = [...outputs].sort()
+            } else {
+                console.log("💚 Calculating I/O options...")
+                filteredOptions.forEach(op => {
+                outputs.add(op['association']['object'])
+                inputs.add(op['association']['subject']) 
+                });
+                state.output_autocomplete = [...outputs].sort()
+                state.input_autocomplete = [...inputs].sort()
+            }
+    
+            const t1 = performance.now();
+            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+            console.log(`%c 💚 (getNewOptionsAPI) Calculating input options took ${seconds} seconds.`, 'color:green');
+    
+        },
         getNewOptions(state, payload) {
             let filteredOptions = payload['res'];
             const t0 = performance.now();
@@ -383,7 +434,6 @@ export const metakg = {
             results.forEach(op => {
                 nodes.add(op['association']['input_type']);
                 nodes.add(op['association']['output_type']);
-
                 let html = `<div class="p-1 center-align white rounded z-depth-3"><h6 class="center-align">`+
                     `<a target="_blank" href="http://smart-api.info/registry?q=`+op['association']['smartapi']['id']+`">`+op['association']['api_name']+`</a>`+
                     `</h6><span class="indigo-text">`+op['association']['input_type']+
@@ -413,6 +463,124 @@ export const metakg = {
                 // Autocomplete
                 oac_set.add(op['association']['output_type']);
                 iac_set.add(op['association']['input_type']);
+                pac_set.add(op['association']['predicate']);
+            });
+            // autocomplete options
+            state.output_autocomplete = [...oac_set];
+            state.input_autocomplete = [...iac_set];
+            state.predicate_autocomplete = [...pac_set];
+            //save backup of all options for getNewOptions
+            state.predicate_autocomplete_all = state.predicate_autocomplete;
+            state.overEdgeLimit = state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
+
+            //create node data
+            nodes.forEach(node => {
+                let n = { 
+                    group: 'nodes',          
+                    data: {
+                        id: node,
+                        weight: 1,
+                        color: getNodeColor(node)
+                    }
+                }
+                n.data.name = state.usingCytoscape ? node : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+node+'</h4></div>';
+                all_nodes.push(n)
+            });
+            // cap edges if max
+            all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
+            // if max only include nodes on chosen edges
+            if (state.maxEdgesRendered) {
+                let min_nodes = new Set()
+                let min_final = []
+                all_edges.forEach(edge => {
+                    min_nodes.add(edge.data.source)
+                    min_nodes.add(edge.data.target)
+                })
+                let temp = [...min_nodes]
+                temp.forEach(item => {
+                    let n = {
+                        group: 'nodes',          
+                        data: {
+                            id: item,
+                            weight: 1,
+                            color: getNodeColor(item)
+                        }
+                    }
+                    n.data.name = state.usingCytoscape ? item : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+item+'</h4></div>';
+                    min_final.push(n)
+                })
+                all_nodes = min_final
+            }
+            // final data
+            state.edgeData = all_edges
+            state.nodeData = all_nodes
+            state.loading = false;
+            // starting results on left panel
+            state.results = all_edges;
+            const t1 = performance.now();
+            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+            console.log(`%c 🕧 Creating graph data took ${seconds} seconds.`, 'color:hotpink');
+        },
+        createGraphDataAPI(state, payload) {
+            let results = payload['res'];
+            //Initial data Processing
+            const t0 = performance.now();
+            //all nodes and edges
+            let nodes = new Set();
+            let all_edges = []
+            let all_nodes = []
+            //AC
+            let oac_set = new Set();
+            let iac_set = new Set();
+            let pac_set = new Set();
+            // color nodes to match active query
+            var getNodeColor = name => {
+                if (state.input_type.includes(name)) return '#3f51b5 ';
+                else if (state.output_type.includes(name)) return 'orange';
+                //inactive color
+                else return '#df4bfc'
+            }
+
+            state.operationsTotal = results.length;
+    
+            console.log("💚  OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
+    
+            results.forEach(op => {
+                let input = op['association']['object']
+                let output = op['association']['subject'];
+                nodes.add(input);
+                nodes.add(output);
+                let name = op['association']['api']['name'];
+                let id = op['association']['api']['smartapi']['id'];
+                let html = `<div class="p-1 center-align white rounded z-depth-3"><h6 class="center-align">`+
+                    `<a target="_blank" href="http://smart-api.info/registry?q=`+ id +`">`+ name +`</a>`+
+                    `</h6><span class="indigo-text">`+input+
+                    `</span> ➡️ <span class="purple-text">`+op['association']['predicate']+
+                    `</span> ➡️ <span class="orange-text">`+output+
+                    `</span></div>`
+
+                let edge = {
+                    ...op,
+                    group: 'edges',
+                    data: {
+                        id: Math.floor(100000 + Math.random() * 900000),
+                        name: name + ' : ' + op['association']['predicate'],
+                        html: html,
+                        predicate: op['association']['predicate'],
+                        output_id: op['association']['output_id'],
+                        api_name: name,
+                        type: name,
+                        source: input,
+                        target: output,
+                        smartapi_id: id,
+                        color:'#bf4eff'
+                    }
+                };
+                // edge hover tip
+                all_edges.push(edge);
+                // Autocomplete
+                oac_set.add(output);
+                iac_set.add(input);
                 pac_set.add(op['association']['predicate']);
             });
             // autocomplete options
@@ -634,28 +802,54 @@ export const metakg = {
             }
         },
         handleQuery({commit, state, dispatch}) {
-            console.log("HANDLE NEW QUERY")
+            console.log("💚 HANDLE NEW QUERY")
             let q = {}
+            let urlParams = {}
             if (state.output_type && state.output_type.length) {
                 q['output_type'] = state.output_type
+                urlParams['object'] = state.output_type
             }
             if (state.predicate && state.predicate.length) {
                 q['predicate'] = state.predicate
+                urlParams['predicate'] = state.predicate
             }
             if (state.input_type && state.input_type.length) {
                 q['input_type'] = state.input_type
+                urlParams['subject'] = state.input_type
             }
+            // Component
+            urlParams['component'] = state.component;
 
-            console.log("%c Executing new query...", "color:lightblue")
-            console.log(JSON.stringify(q, null, 2))
-
-            let g = state.meta_kg.filter(q);
-
-            if (g) {
-                commit('createGraphData', {res: g});
-                commit('getNewOptions', {res: g});
-                dispatch('draw');
+            let g = null 
+            if (state.useAPI) {
+                console.log("%c 💚 Executing new API query...", "color:limegreen")
+                console.log("%c " + JSON.stringify( urlParams, null, 2), "color:limegreen")
+                commit('toggleLoading', {loading: true})
+                axios.get('https://smart-api.info/api/metakg?', {'params': urlParams}).then((res) => {
+                    g = res.data.associations.map((data) => {
+                        return {'association': data};
+                    });
+                    commit('toggleLoading', {loading: false})
+                    commit('createGraphDataAPI', {res: g});
+                    commit('getNewOptionsAPI', {res: g});
+                    dispatch('draw');
+                }).catch((err) => {
+                    commit('toggleLoading', {loading: false})
+                    throw err;
+                });
+            } else {
+                console.log("%c Executing new KG query...", "color:lightblue")
+                console.log(JSON.stringify(q, null, 2))
+                g = state.meta_kg.filter(q);
+                if (g) {
+                    commit('createGraphData', {res: g});
+                    commit('getNewOptions', {res: g});
+                    dispatch('draw');
+                }
             }
+            
+
+            
         },
         download({state}) {
 
@@ -776,5 +970,8 @@ export const metakg = {
         usingCytoscape: (state) => {
             return state.usingCytoscape
         },
+        useAPI: (state) => {
+            return state.useAPI
+        }
     }
 }
