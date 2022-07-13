@@ -21,24 +21,19 @@ export default {
         badgeID: Math.floor(Math.random()*90000) + 10000
         }
     },
-    props: ['api'],
+    props: ['uptime_status', 'err_msg'],
     methods:{
-        getStatus(api){
+        getStatus(){
         let self = this;
-        if (api?._status?.uptime_status) {
-            let stat = api['_status']['uptime_status'];
-            switch (stat) {
+        if (self.uptime_status) {
+            switch (self.uptime_status) {
             case 'unknown':
                 self.status = 'UNKNOWN';
                 self.clss = 'orange';
                 break;
-            case 'good':
+            case 'pass':
                 self.status = 'PASS';
                 self.clss = 'green';
-                break;
-            case 'bad':
-                self.status = 'FAIL';
-                self.clss = 'red';
                 break;
             case 'fail':
                 self.status = 'FAIL';
@@ -59,20 +54,34 @@ export default {
         },
     },
     mounted: function(){
-        this.getStatus(this.api);
+        this.getStatus();
         let err_msg = '';
-        let err = this.api?._status?.uptime_msg;
-        if (err && err.includes(":")) {
-            if (err.includes("http")) {
-                err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
-                `<td colspan="2"><small>"<b>`
-                +err+`</b>"`+
-                `<br>Please provide examples for endpoints that require them.</small></td></tr>`;
-            } else {
-                err_msg = err ? `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
-                `<td colspan="2"><small>"<b>`
-                +err.split(':')[0]+`</b>"`+
-                `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
+        let err = this.err_msg;
+        // if (err && err.includes(":")) {
+        //     if (err.includes("http")) {
+        //         err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+        //         `<td colspan="2"><small>"<b>`
+        //         +err+`</b>"`+
+        //         `<br>Please provide examples for endpoints that require them.</small></td></tr>`;
+        //     } else {
+        //         err_msg = err ? `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
+        //         `<td colspan="2"><small>"<b>`
+        //         +err.split(':')[0]+`</b>"`+
+        //         `<br>Failed because: <b>(`+err.split(':')[1]+`)</b></small></td></tr>` :``;
+        //     }
+        // }
+        if(err && err.length){
+            let allErrors = '' 
+            if (Array.isArray(err)) {
+                err.forEach((e) => {
+                    allErrors += `<li class="blue-text"><small>${e}</small></li>`
+                });
+                err_msg += `<details class="light-blue lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;word-break: break-all;">
+                    <summary>
+                    <b class="blue-text">(${err.length}) Uptime Report</b>
+                    </summary>
+                    <ul class="browser-default" style="list-style: disc; padding: 5px;">${allErrors}</ul>
+                </details>`
             }
         }
         /*eslint-disable */
@@ -86,7 +95,7 @@ export default {
             allowHTML: true,
             onShow:function (instance) {
                 instance.setContent(`
-                <div class="white" style="padding:0px;">
+                <div class="white" style="padding:0px;overflow:hidden;">
                     <table>
                         <thead>
                         `+err_msg+`
@@ -127,6 +136,18 @@ export default {
                             </td>
                             <td class="black-text">
                             <small>Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.</small>
+                            </td>
+                        </tr>
+                        <tr class="orange lighten-5">
+                            <td colspan='2' class='blue-grey-text'>
+                                <small>
+                                    <b>UNKNOWN</b> and <b>FAIL</b> statuses can be assigned due to one or more endpoints failing or lacking examples.
+                                </small>
+                            </td>
+                        </tr>
+                        <tr class="orange lighten-5">
+                            <td colspan="2">
+                                <b><a href="https://github.com/SmartAPI/smartAPI/wiki/SmartAPI-Uptime-Monitoring" target="_blank">Learn more about how SmartAPI monitors uptime</a></b>
                             </td>
                         </tr>
                         </tbody>

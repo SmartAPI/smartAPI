@@ -58,11 +58,12 @@
             <div class="col s12 card-panel">
                 <table class="striped highlight responsive-table">
                 <thead>
-                    <tr style="font-weight: 100; color: #d3d3d3;">
+                    <tr style="font-weight: 100; color: #d3d3d3; font-size:12px;">
                         <th>Name ({{total}})</th>
                         <th>Last Updated</th>
                         <th>Refresh</th>
                         <th>Validate</th>
+                        <th>Uptime Check</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -103,9 +104,15 @@
                             <i class="material-icons white-text">check</i>
                         </button>
                     </td>
+                    <td>
+                        <button type="button" @click="checkUptime(api._id)" class="btn btn-small scale-in-center deep-purple white-text tipped"
+                            data-tippy-info="<b class='indigo-text'>Check current uptime status">
+                            <i class="material-icons white-text">poll</i>
+                        </button>
+                    </td>
                     <td class="right-align">
-                        <UptimeStatus :style="{marginBottom:'10px'}" :api='api'></UptimeStatus>
-                        <SourceStatus :api='api'></SourceStatus>
+                        <UptimeStatus :style="{marginBottom:'10px'}" :uptime_status='api?._status?.uptime_status' :err_msg="api?._status?.uptime_msg"></UptimeStatus>
+                        <SourceStatus :refresh_status='api?._status?.refresh_status'></SourceStatus>
                     </td>
                     </tr>
                     <tr v-if="total && total == 0">
@@ -236,7 +243,7 @@
                             Slug length must be 4-50 characters (a-z) and/or numbers (0-9). Slugs will be converted to lower case. URL protected characters not allowed.
                         </div>
                         <div style="flex: 1; min-width: 200px;">
-                            <input autocomplete="false" v-model='myShortName' placeholder="Enter your slug here" id="first_name" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
+                            <input autocomplete="false" v-model='myShortName' placeholder="Enter your slug here" type="text" class="disabled browser-default margin20 grey lighten-5 blue-grey-text lighter" style="width: 85%; outline: none; padding: 10px; border-radius: 20px; border:var(--blue-medium) 2px solid;">
                         </div>
                         <div style="flex: 1; min-width: 200px;">
                             <p id="availabilityResults" v-bind:class="{'green-text': availableShortName, 'red-text': !availableShortName }">
@@ -354,6 +361,50 @@ export default {
         ])
     },
     methods:{
+        checkUptime(id){
+            let self = this;
+            self.showLoading();
+            self.$toast.warning(`Please wait, this may take a few minutes...`);
+            if (id) {
+                var bodyFormData = new FormData();
+                bodyFormData.append('id', id);
+                axios({
+                    method: "post",
+                    url: '/api/uptime',
+                    data: bodyFormData,
+                    headers: { "Content-Type": "multipart/form-data" },
+                }).then(res=>{
+                    let allErrors = ''
+                    if (res.data.details?.[1]) {
+                        res.data.details?.[1].forEach(e => {
+                            allErrors += `<li><small>${e}</small></li>`
+                        })
+                    }
+                    self.hideLoading();
+                    self.$swal({
+                        imageUrl: require('../assets/img/api-editor.svg'),
+                        imageWidth: 200,
+                        title: 'Your report is ready:',
+                        html: "<h1>Status: <b>" + res.data.details[0] + "</b></h1><p>Details: </p><div class='codeBox'><p class='blue-text p-1'><ul class='left-align'>" + allErrors + "</ul></p></div>"
+                    })
+                }).catch(err=>{
+                if(err?.response?.data){
+                    self.hideLoading();
+                    self.$swal({
+                        title: "Oops, there's an issue!",
+                        imageUrl: require('../assets/img/api-fail.svg'),
+                        imageWidth: 200,
+                        confirmButtonText: 'OK',
+                        html:`<h5>Here's what we found:</h5>
+                            <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,
+                        footer:`<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
+                    })
+                }
+                });
+            } else {
+                self.$toast.error('ID is required')
+            }
+        },
         validate(url){
         let self = this;
         if (url) {
@@ -426,7 +477,7 @@ export default {
         self.apis=[];
         let url = this.$apiUrl + "/query?size=100&q=_meta.username:"+self.userInfo.login
 
-        axios.get(`${url}&timestamp=${new Date().getTime()}`).then(function(response){
+        axios.get(`${url}&timestamp=${new Date().getTime()}&raw=1`).then(function(response){
                 self.apis = sortBy(response.data.hits,'info.title');
                 self.total = response.data.total;
                 self.hideLoading();
@@ -583,15 +634,15 @@ export default {
         },
         evaluateShortname: function(){
         var self = this;
-        axios.get(`/api/query?q=__all__&filters={"_meta.slug":["`+this.myShortName+`"]}&fields=_meta`).then(response=>{
+        axios.get(`/api/query?q=_meta.slug:"`+this.myShortName+`"&fields=_meta&raw=1`).then(response=>{
             //console.log(response.data.hits);
-            if (response.data.total.value) {
-            self.availableShortName = false;
-            self.takenSlug = true;
-            return false;
+            if (response.data.total) {
+                self.availableShortName = false;
+                self.takenSlug = true;
+                return false;
             }else{
-            self.availableShortName = true;
-            self.takenSlug = false;
+                self.availableShortName = true;
+                self.takenSlug = false;
             return true;
             }
         }).catch(error =>{

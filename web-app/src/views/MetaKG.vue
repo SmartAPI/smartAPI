@@ -27,14 +27,14 @@
           style="max-width: 50px; max-height: 50px;" ></Image>
         Meta-<b>KG</b>
       </h6>
-      <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
+      <!-- <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
         Component:
         <select class="browser-default component-select" v-model='component_select'>
           <option value="" disabled selected>Switch to Component</option>
           <option value="KP">KP</option>
           <option value="ARA">ARA</option>
         </select>
-      </span>
+      </span> -->
       <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer" style="margin-left:20px !important;">
         <small>Download Meta-KG dump</small>
       </a>
@@ -148,6 +148,12 @@
                 <small>Click here to render the results using CytoscapeJS instead of using a 3D Model.</small>
               </label>
             </div>
+            <div class="collection-item">
+              <input type="checkbox" id="usingAPI" v-model="useAPI"/>
+              <label for="usingAPI">
+                <small>Use SmartAPI API (default) or use SmartAPI KG NPM package (unchecked). If you have any issues please contact us.</small>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -159,6 +165,7 @@
 
 <script>
 import PillBox from '../components/PillBox.vue';
+import axios from 'axios';
 import { mapGetters } from 'vuex'
 
 const MetaKG  = require("@biothings-explorer/smartapi-kg")
@@ -188,7 +195,7 @@ export default {
       ...mapGetters([
         'loading',
         'overEdgeLimit',
-        'results'
+        'results',
       ]),
       edgeLimit: function(){
         return this.$store.getters.getLimit
@@ -202,6 +209,14 @@ export default {
         },
         set (v) {
           return this.$store.commit('setRenderer', {value: v})
+        }
+      },
+      useAPI: {
+        get () {
+          return this.$store.getters.useAPI
+        },
+        set (v) {
+          return this.$store.commit('setUseAPI', {value: v})
         }
       }
     },
@@ -221,8 +236,12 @@ export default {
         }
       },
       component_select: function(v){
+        this.$store.commit('saveComponent', {'value': v});
         this.$router.push({path: '/portal/translator/metakg/'+v, query: this.$route.query})
       },
+      useAPI: function(){
+        this.load();
+      }
     },
     methods: {
       toggleSR(){
@@ -257,6 +276,28 @@ export default {
 
         //just let this handle whole initial flow
         this.checkForQuery()
+      },
+      loadAPIKG(){
+        axios.get('https://smart-api.info/api/metakg').then((res) => {
+          let data = res.data.associations.map(data => {
+            return {'association': data}
+          })
+          data = data.slice(0, 1500)
+          console.log('SAMPLE', data[0])
+          this.$store.commit('saveMetaKG', {'metakg': data});
+          this.checkForQuery()
+        }).catch((err) => {
+          throw err;
+        })
+      },
+      load(){
+        if (this.useAPI) {
+          console.log('using API');
+          this.loadAPIKG();
+        } else {
+          console.log('using KG package');
+          this.loadKG();
+        }
       },
       reset() {
         let self = this;
@@ -299,7 +340,7 @@ export default {
     mounted: function () {
       this.$store.commit('toggleLoading', {loading: true})
       this.component_select = this.component ? this.component : 'KP'
-      this.loadKG();
+      this.load();
     }
 }
 </script>

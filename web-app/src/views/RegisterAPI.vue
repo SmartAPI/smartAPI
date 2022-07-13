@@ -179,7 +179,7 @@ export default {
                   imageWidth: 300,
                   confirmButtonText: 'OK',
                   html:`<h5>Here's what we found:</h5>
-                        <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.details || err.response.data+`</code></div>`,
+                        <div class="padding20 orange lighten-5 codeBox"><code>`+err.response.data.error+`</code></div>`,
                   footer:`<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
                 })
               }

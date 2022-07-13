@@ -1,15 +1,14 @@
 """
     Elasticsearch Document Object Model
 """
-import os
-
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
-from elasticsearch_dsl import *
+from elasticsearch_dsl import (
+    connections, InnerDoc, Keyword, Date, Text, Integer, Document, Object, Binary, MetaField, A
+)
 
 
-# parse environment variables
-ES_HOST = os.getenv('ES_HOST', 'localhost:9200')
+ES_HOST = 'localhost:9200'
 ES_INDEX_NAME = 'smartapi_docs'
 
 # create a default connection

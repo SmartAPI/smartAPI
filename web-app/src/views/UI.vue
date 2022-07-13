@@ -11,8 +11,8 @@
           </router-link>
         </div>
         <div class="d-flex justify-content-around align-items-center p-1">
-          <SourceStatus style="margin-right:25px" :api="data.api"></SourceStatus>
-          <UptimeStatus :api="data.api"></UptimeStatus>
+          <SourceStatus style="margin-right:25px" :refresh_status="data?.api?._status?.refresh_status"></SourceStatus>
+          <UptimeStatus :uptime_status="data?.api?._status?.uptime_status" :err_msg="data?.api?._status?.uptime_msg"></UptimeStatus>
         </div>
         <div class="p-1">
           <small class="white-text tracking-in-expand"> Last updated {{ convertDate(data.api?._meta?.last_updated) }}</small>
@@ -38,6 +38,10 @@ import "swagger-ui/dist/swagger-ui.css"
 
 export default {
   name: 'UI',
+  components:{
+    SourceStatus,
+    UptimeStatus,
+  },
   setup(){
     let data = reactive({
       apiID:'',
@@ -102,7 +106,6 @@ export default {
     let getMetadata = url =>{
       axios.get(url).then(res=>{
           data.api = res.data
-          
       }).catch(err=>{
         throw err;
       });
@@ -116,7 +119,7 @@ export default {
 
     onMounted(()=> {
         data.ready = true
-        loadSwaggerUI(app.appContext.config.globalProperties.$apiUrl + '/metadata/'+ data.apiID);
+        loadSwaggerUI(app.appContext.config.globalProperties.$apiUrl + '/metadata/'+ data.apiID + '?raw=1');
     })
 
     onBeforeMount(()=>{
@@ -126,9 +129,8 @@ export default {
 
     return{
       data,
-      SourceStatus,
-      UptimeStatus,
-      convertDate
+      convertDate,
+      status
     }
   }
 }

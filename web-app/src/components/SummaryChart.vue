@@ -1,8 +1,14 @@
 <template>
 <div class="summary_chart">
+    <template v-if="summary_type == 'Uptime_Status'">
+        <a class="moreInfo" href="javascript:void(0);" :class="'whatIsUptime' + badgeID"><i class="fa fa-info-circle" aria-hidden="true" title=" What does this mean?"></i></a>
+    </template>
+    <template v-if="summary_type == 'Source_Status'">
+        <a class="moreInfo" href="javascript:void(0);" :class="'whatIsSource' + badgeID"><i class="fa fa-info-circle" aria-hidden="true" title=" What does this mean?"></i></a>
+    </template>
     <canvas :id="summary_type" width="600" height="600" :class="tipClass"></canvas>
     <div class="p-1">
-        <button class="smallButton" 
+        <button class="smallButton" style="color: white !important;" 
         :class="showDetails ? 'red white-text-imp':'grey' " 
         v-text="showDetails? 'Close' : 'Details' "
         @click="showDetails = !showDetails; makeTable(tableData);filter='All'; bgColor='grey' "></button>
@@ -18,6 +24,7 @@
 import Chart from 'chart.js'
 import Tabulator from 'tabulator-tables';
 import axios from 'axios'
+import tippy from 'tippy.js'
 
 
 export default {
@@ -30,12 +37,13 @@ export default {
             filter: '',
             bgColor:'',
             analytics: Object,
+            badgeID: Math.floor(Math.random()*90000) + 10000
         }
         },
     props: ['data', 'summary_type', 'colors', 'apiname'],
     methods:{
         handleChartClick(label, color){
-            let filtered = this.tableData.filter(d => d.label == label);
+            let filtered = this.tableData.filter(d => d.label.includes(label));
             this.filter = label;
             this.bgColor = color;
             this.showDetails = true;
@@ -173,10 +181,10 @@ export default {
 
             if(field == 'uptime_status'){
                 statuses = {
-                    'good' : 0,
+                    'pass' : 0,
                     'unknown' : 0,
                     'incompatible' : 0,
-                    'bad' : 0,
+                    'fail' : 0,
                 }
             }
 
@@ -493,6 +501,140 @@ export default {
     },
     mounted: function(){
         this.handleSummary(this.summary_type);
+
+        /*eslint-disable */
+        tippy('.whatIsUptime' + this.badgeID, {
+            placement: 'left-end',
+            appendTo: document.body,
+            theme:'light',
+            interactive:true,
+            trigger:'click',
+            animation: false,
+            allowHTML: true,
+            onShow:function (instance) {
+                instance.setContent(`
+                <div class="white" style="padding:0px;">
+                    <table>
+                        <thead>
+                        <tr>
+                            <td colspan="2" class='grey-text center'>
+                            <b>Overall API Endpoint Uptime Status</b>
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class='green-text center'>
+                            <b>PASS</b>
+                            </td>
+                            <td class="black-text">
+                            <small>Your OpenAPI V3 API endpoints provide examples and all return code 200.</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class='red-text center'>
+                            <b>FAIL</b>
+                            </td>
+                            <td class="black-text">
+                            <small>Your OpenAPI V3 API endpoints provide examples but return code other than 200.</small>
+                            </td>
+                        </tr>
+                        <tr> 
+                            <td class='orange-text center'>
+                            <b>UNKNOWN</b>
+                            </td>
+                            <td class="black-text">
+                            <small>None of your OpenAPI V3 API endpoints provide examples and cannot be tested. <a href='/faq#api-monitor' target="_blank">Learn more about how to to enable API status check </a>.</small>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class='blue-text center'>
+                            <b>INCOMPATIBLE</b>
+                            </td>
+                            <td class="black-text">
+                            <small>Your API's specification does not match OpenAPI V3 specification and will not be tested. Use our guide to learn how to upgrade your metadata to OpenAPI V3 <a href="/guide" target="_blank">here</a>.</small>
+                            </td>
+                        </tr>
+                        <tr class="orange lighten-5">
+                            <td colspan='2' class='blue-grey-text'>
+                                <small>
+                                    <b>UNKNOWN</b> and <b>FAIL</b> statuses can be assigned due to one or more endpoints failing or lacking examples.
+                                </small>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>`)
+            }
+         });
+         /*eslint-enable */
+
+         /*eslint-disable */
+        tippy( '.whatIsSource'+this.badgeID, {
+            content: `<div class="white" style="padding:0px;">
+                <table>
+                <thead>
+                    <tr>
+                    <td colspan="2" class='grey-text center'>
+                        <b>API Metadata Source URL Status</b>
+                    </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td class='green-text center'>
+                        <b>OK</b>
+                    </td>
+                    <td class="black-text">
+                        <small>Source URL is working and returns valid metadata.</small>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td class='orange-text center'>
+                        <b>NOT FOUND</b>
+                    </td>
+                    <td class="black-text">
+                        <small>Source URL returns not found.</small>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td class='red-text center'>
+                        <b>INVALID</b>
+                    </td>
+                    <td class="black-text">
+                        <small>Source URL works but contains invalid metadata.</small>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td class='purple-text center'>
+                        <b>BROKEN</b>
+                    </td>
+                    <td class="black-text">
+                        <small>Source URL is broken.</small>
+                    </td>
+                    </tr>
+                    <tr class="cyan lighten-5">
+                    <td colspan='2' class='blue-grey-text'>
+                        <p>
+                        <b>Note: </b> API metadata cannot be synchronized with its source URL if the status is not <b class='green-text'>OK</b>. 
+                        </p>
+                        <p>
+                        <b>Need help?</b> Click on the <b class='indigo-text'>Validate Only</b> button to see issues then the <b class='green-text'>Refresh</b> button once all issues have been resolved.
+                        </p>
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>`,
+            placement: 'left-end',
+            appendTo: document.body,
+            theme:'light',
+            interactive:true,
+            trigger:'click',
+            animation: false,
+            allowHTML: true,
+        });
+        /*eslint-enable */
     }
 
 }
@@ -504,5 +646,11 @@ export default {
     min-width: 300px;
     max-width: 350px;
     padding: 20px;
+    position: relative;
+}
+.moreInfo{
+    position: absolute;
+    right: 60px;
+    top: 30px;
 }
 </style>

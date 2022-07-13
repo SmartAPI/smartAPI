@@ -56,8 +56,8 @@ export default {
 }
 </script>
 
-<style lang="scss">
-    .CopyButton{
+<style>
+    .CopyButton {
         padding: 2px 5px;
         border-radius: 10px;
         margin-left: 8px;
@@ -65,16 +65,16 @@ export default {
         outline: none;
         box-shadow: none;
         border: none;
-        color: rgb(100, 100, 100);
+        color: #646464;
         font-size: 10px !important;
-        transition: all .5s;
-        &:hover{
-            color: white;
-            background-color: #3f51b5 ;
-        }
-        &:focus{
-            color: white;
-            background-color: #7986cb;
-        }
+        transition: all 0.5s;
+    }
+    .CopyButton:hover {
+        color: white;
+        background-color: #3f51b5;
+    }
+    .CopyButton:focus {
+        color: white;
+        background-color: #7986cb;
     }
 </style>

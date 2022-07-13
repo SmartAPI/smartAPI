@@ -36,7 +36,6 @@
 """
 import logging
 import string
-import sys
 from abc import ABC, abstractmethod
 from collections import OrderedDict, UserDict, UserString
 from collections.abc import Mapping
@@ -45,6 +44,12 @@ from datetime import datetime, timezone
 from enum import IntEnum
 from urllib.parse import urlparse
 from warnings import warn
+from hashlib import blake2b    # requires python>=3.6
+# otherwise install pyblake2
+# if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
+#     from hashlib import blake2b
+# else:
+#     from pyblake2 import blake2b  # pylint: disable=import-error  # pyright: ignore [reportMissingImports]
 
 import jsonschema
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
@@ -53,10 +58,6 @@ from model import APIDoc
 from utils import decoder, monitor
 from utils.downloader import Downloader, File, download
 
-if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
-    from hashlib import blake2b
-else:
-    from pyblake2 import blake2b  # pylint: disable=import-error
 
 logger = logging.getLogger(__name__)
 
@@ -450,7 +451,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         obj.uptime = APIMonitorStatus(
             obj, (
-                doc._status.uptime_status, 
+                doc._status.uptime_status,
                 doc._status.uptime_msg
             ),
             doc._status.uptime_ts
