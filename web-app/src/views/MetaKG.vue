@@ -27,14 +27,14 @@
           style="max-width: 50px; max-height: 50px;" ></Image>
         Meta-<b>KG</b>
       </h6>
-      <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
+      <!-- <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
         Component:
         <select class="browser-default component-select" v-model='component_select'>
           <option value="" disabled selected>Switch to Component</option>
           <option value="KP">KP</option>
           <option value="ARA">ARA</option>
         </select>
-      </span>
+      </span> -->
       <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer" style="margin-left:20px !important;">
         <small>Download Meta-KG dump</small>
       </a>
