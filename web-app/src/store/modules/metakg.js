@@ -546,8 +546,8 @@ export const metakg = {
             console.log("💚  OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
     
             results.forEach(op => {
-                let input = op['association']['object']
-                let output = op['association']['subject'];
+                let input = op['association']['subject']
+                let output = op['association']['object'];
                 nodes.add(input);
                 nodes.add(output);
                 let name = op['association']['api']['name'];
