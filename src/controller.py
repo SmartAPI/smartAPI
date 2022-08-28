@@ -42,27 +42,20 @@ from collections.abc import Mapping
 from configparser import ConfigParser
 from datetime import datetime, timezone
 from enum import IntEnum
+from hashlib import blake2b  # requires python>=3.6, otherwise install pyblake2
 from urllib.parse import urlparse
 from warnings import warn
-from hashlib import blake2b    # requires python>=3.6
-# otherwise install pyblake2
-# if sys.version_info.major >= 3 and sys.version_info.minor >= 6:
-#     from hashlib import blake2b
-# else:
-#     from pyblake2 import blake2b  # pylint: disable=import-error  # pyright: ignore [reportMissingImports]
 
 import jsonschema
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
-
 from model import APIDoc
 from utils import decoder, monitor
 from utils.downloader import Downloader, File, download
 
-
 logger = logging.getLogger(__name__)
 
 config = ConfigParser()
-config.read('schemas.ini')
+config.read("schemas.ini")
 
 # TODO etag support
 
@@ -73,15 +66,9 @@ config.read('schemas.ini')
 # some slack channel to report the event.
 
 openapis = Downloader()
-openapis.download(
-    config['openapi'].keys(),
-    config['openapi'].values()
-)
+openapis.download(config["openapi"].keys(), config["openapi"].values())
 swaggers = Downloader()
-swaggers.download(
-    config['swagger'].keys(),
-    config['swagger'].values()
-)
+swaggers.download(config["swagger"].keys(), config["swagger"].values())
 
 
 class ControllerError(Exception):
@@ -98,8 +85,8 @@ class ConflictError(ControllerError):
 
 def validate(doc, schemas):
     """
-        Validate a document agasint schemas.
-        Schemas is a dict of name and schema pairs.
+    Validate a document agasint schemas.
+    Schemas is a dict of name and schema pairs.
     """
 
     # required by jsonschema package
@@ -107,12 +94,12 @@ def validate(doc, schemas):
         doc = decoder.to_dict(doc)
 
     try:  # validate agasint every schema
-        for name, schema in schemas.items():
+        for _name, schema in schemas.items():
             jsonschema.validate(doc, schema)
 
     except jsonschema.ValidationError as err:
         _ = (
-            f"Failed {name} validation at "
+            f"Failed {_name} validation at "
             f"{err.path} - {err.message}. "
             # show path first, message can
             # sometimes be very very long
@@ -120,10 +107,7 @@ def validate(doc, schemas):
         raise ValueError(_) from err
 
     except Exception as err:
-        _ = (
-            f"Unexpected Validation Error: "
-            f"{type(err).__name__} - {err}"
-        )
+        _ = f"Unexpected Validation Error: " f"{type(err).__name__} - {err}"
         raise ValueError(_) from err
 
 
@@ -146,38 +130,22 @@ class Format(UserDict):
         validate(self.data, self.SCHEMAS)
 
     def transform(self):
-        if isinstance(self.data.get('paths'), dict):
-            self.data['paths'] = [
-                {
-                    "path": key,
-                    "pathitem": val
-                }
-                for key, val in self.data['paths'].items()
-            ]
+        if isinstance(self.data.get("paths"), dict):
+            self.data["paths"] = [{"path": key, "pathitem": val} for key, val in self.data["paths"].items()]
 
     def clean(self):
-        self.data = OrderedDict({
-            k: v for k, v in self.data.items()
-            if k in self.KEYS
-        })
+        self.data = OrderedDict({k: v for k, v in self.data.items() if k in self.KEYS})
 
 
 class OpenAPI(Format):
 
-    KEYS = (
-        'openapi', 'info', 'servers',
-        'externalDocs', 'tags', 'security',
-        'paths', 'components'
-    )
+    KEYS = ("openapi", "info", "servers", "externalDocs", "tags", "security", "paths", "components")
     SCHEMAS = openapis
 
 
 class Swagger(Format):
 
-    KEYS = (
-        'info', 'tags', 'swagger',
-        'host', 'basePath'
-    )
+    KEYS = ("info", "tags", "swagger", "host", "basePath")
     SCHEMAS = swaggers
 
 
@@ -187,22 +155,22 @@ class PlaceHolder(UserString):
 
 class AbstractWebEntity(ABC):
     """
-        A web entity identified by a URL.
-        It corresponds to a database entry.
-        The primary key is the hash of the URL.
+    A web entity identified by a URL.
+    It corresponds to a database entry.
+    The primary key is the hash of the URL.
     """
 
     def __init__(self, url):
 
         assert isinstance(url, (str, PlaceHolder)) and url
-        assert urlparse(str(url)).scheme in ('http', 'https')
+        assert urlparse(str(url)).scheme in ("http", "https")
 
         self._url = url
 
     @property
     def _id(self):
         # can be a cached property in python 3.8+
-        _bytes = str(self._url).encode('utf8')
+        _bytes = str(self._url).encode("utf8")
         _hash = blake2b(_bytes, digest_size=16)
         return _hash.hexdigest()
 
@@ -218,11 +186,12 @@ class AbstractWebEntity(ABC):
         return self._url
 
 
-class AbstractEntityStatus():
+class AbstractEntityStatus:
     """
-        With a point-in-time status of a web entity.
-        And the timestamp associated with the status.
+    With a point-in-time status of a web entity.
+    And the timestamp associated with the status.
     """
+
     # Corresponds to a group of _status fields in SmartAPI.
 
     def __init__(self, entity, status=None, timestamp=None):
@@ -262,8 +231,8 @@ class AbstractEntityStatus():
 
 class APIMonitorStatus(AbstractEntityStatus):
     """
-        API Uptime Monitor Status.
-        See utils.monitor for details.
+    API Uptime Monitor Status.
+    See utils.monitor for details.
     """
 
     def update(self, content):
@@ -273,12 +242,13 @@ class APIMonitorStatus(AbstractEntityStatus):
 
 class APIRefreshStatus(AbstractEntityStatus):
     """
-        API Document Refresh Status.
-        Support HTTP status codes and the ones below.
+    API Document Refresh Status.
+    Support HTTP status codes and the ones below.
     """
 
     class STATUS(IntEnum):
-        """ Code Expansion """
+        """Code Expansion"""
+
         NOT_MODIFIED = 200  # no need to update, already at latest version
         UPDATED = 299  # new version available and update successful
         INVALID = 499  # cannot update to new version because validation failed
@@ -311,20 +281,20 @@ class APIRefreshStatus(AbstractEntityStatus):
             self._entity.raw = content.raw
 
 
-class Slug():
+class Slug:
     """
-        Optional secondary key for a DB entry.
-        It must be a unique string or None.
+    Optional secondary key for a DB entry.
+    It must be a unique string or None.
     """
 
     def __get__(self, obj, objtype=None):
         if obj is None:  # class atrribute
             return self
-        return getattr(obj, '_slug', None)
+        return getattr(obj, "_slug", None)
 
     def __set__(self, obj, value):
         self.validate(value)
-        setattr(obj, '_slug', value)
+        obj["_slug"] = value
 
     def validate(self, value):
 
@@ -337,7 +307,7 @@ class Slug():
         if value != value.lower():
             raise ValueError("Slug must be in lowercase.")
 
-        if value in ('www', 'dev', 'smart-api'):
+        if value in ("www", "dev", "smart-api"):
             raise ValueError(f"Slug '{value}' not allowed.")
 
         _valid_chars = string.ascii_letters + string.digits + "-_"
@@ -401,10 +371,10 @@ class SmartAPI(AbstractWebEntity, Mapping):
         API specification format version name.
         This field decides how it is saved in ES.
         """
-        if 'openapi' in self._data:
-            return 'openapi'
-        if 'swagger' in self._data:
-            return 'swagger'
+        if "openapi" in self._data:
+            return "openapi"
+        if "swagger" in self._data:
+            return "swagger"
         return None
 
     @classmethod
@@ -419,7 +389,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         return bool(APIDoc.exists(_id))
 
     @classmethod
-    def find(cls, val, field='slug'):
+    def find(cls, val, field="slug"):
         """
         Find a SmartAPI by a field other than _id.
         Return the first _id or None if no match.
@@ -427,8 +397,8 @@ class SmartAPI(AbstractWebEntity, Mapping):
         # Data can change in between calls.
         # Use try-catch blocks in follow up ops.
 
-        if field in ('slug', 'username', 'url'):
-            field = '_meta.' + field
+        if field in ("slug", "username", "url"):
+            field = "_meta." + field
 
         return APIDoc.exists(val, field)
 
@@ -450,16 +420,18 @@ class SmartAPI(AbstractWebEntity, Mapping):
         obj.last_updated = doc._meta.last_updated
 
         obj.uptime = APIMonitorStatus(
-            obj, (
+            obj,
+            (
                 doc._status.uptime_status,
-                doc._status.uptime_msg
+                doc._status.uptime_msg,
             ),
-            doc._status.uptime_ts
+            doc._status.uptime_ts,
         )
 
         obj.webdoc = APIRefreshStatus(
-            obj, doc._status.refresh_status,
-            doc._status.refresh_ts
+            obj,
+            doc._status.refresh_status,
+            doc._status.refresh_ts,
         )
 
         return obj
@@ -469,7 +441,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         if not self.version:
             raise ControllerError("Unknown version.")
 
-        if self.version == 'openapi':
+        if self.version == "openapi":
             doc = OpenAPI(self._data)
         else:  # then it must be swagger
             doc = Swagger(self._data)
@@ -494,7 +466,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
     def check(self):
 
         doc = dict(self)
-        doc['_id'] = self._id
+        doc["_id"] = self._id
 
         api = monitor.API(doc)
         api.check_api_status()  # blocking network operation
@@ -586,7 +558,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         """
         search = APIDoc.search()
         search = search.source(False)
-        search = search[from_: from_ + size]
+        search = search[from_ : from_ + size]
 
         for hit in search:
             try:  # unlikely but possible
@@ -597,7 +569,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
                 yield doc
 
     @staticmethod
-    def get_tags(field='info.contact.name'):
+    def get_tags(field="info.contact.name"):
         """
         Perform aggregations on a given field.
         For example: generate list of tags and authors.

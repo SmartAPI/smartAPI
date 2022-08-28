@@ -25,12 +25,10 @@
 import json
 import logging
 from datetime import datetime
-from typing import final
 
 import boto3
-from filelock import FileLock, Timeout
-
 from controller import SmartAPI
+from filelock import FileLock, Timeout
 from utils import indices
 
 logging.basicConfig(level="INFO")
@@ -42,30 +40,31 @@ def _default_filename():
 
 def save_to_file(mapping, filename=None):
     filename = filename or _default_filename()
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         json.dump(mapping, file, indent=2)
 
 
 def save_to_s3(mapping, filename=None, bucket="smartapi"):
     filename = filename or _default_filename()
-    s3 = boto3.resource('s3')
+    s3 = boto3.resource("s3")
     s3.Bucket(bucket).put_object(
-        Key='db_backup/{}'.format(filename),
-        Body=json.dumps(mapping, indent=2)
+        Key="db_backup/{}".format(filename), Body=json.dumps(mapping, indent=2)
     )
 
 
 def _backup():
     smartapis = []
     for smartapi in SmartAPI.get_all(1000):
-        smartapis.append({
-            "url": smartapi.url,
-            "username": smartapi.username,
-            "slug": smartapi.slug,
-            "date_created": smartapi.date_created.isoformat(),
-            "last_updated": smartapi.last_updated.isoformat(),
-            "raw": smartapi.raw.decode()  # to string
-        })
+        smartapis.append(
+            {
+                "url": smartapi.url,
+                "username": smartapi.username,
+                "slug": smartapi.slug,
+                "date_created": smartapi.date_created.isoformat(),
+                "last_updated": smartapi.last_updated.isoformat(),
+                "raw": smartapi.raw.decode(),  # to string
+            }
+        )
     return smartapis
 
 
@@ -97,22 +96,19 @@ def _restore(smartapis):
 
 def restore_from_s3(filename=None, bucket="smartapi"):
 
-    s3 = boto3.client('s3')
+    s3 = boto3.client("s3")
 
     if not filename:
-        objects = s3.list_objects_v2(Bucket='smartapi', Prefix='db_backup')['Contents']
-        filename = max(objects, key=lambda x: x['LastModified'])['Key']
+        objects = s3.list_objects_v2(Bucket="smartapi", Prefix="db_backup")["Contents"]
+        filename = max(objects, key=lambda x: x["LastModified"])["Key"]
 
-    if not filename.startswith('db_backup/'):
-        filename = 'db_backup/' + filename
+    if not filename.startswith("db_backup/"):
+        filename = "db_backup/" + filename
 
     logging.info("GET s3://%s/%s", bucket, filename)
 
-    obj = s3.get_object(
-        Bucket=bucket,
-        Key=filename
-    )
-    smartapis = json.loads(obj['Body'].read())
+    obj = s3.get_object(Bucket=bucket, Key=filename)
+    smartapis = json.loads(obj["Body"].read())
     _restore(smartapis)
 
 
@@ -139,9 +135,11 @@ def check_uptime():
     for smartapi in SmartAPI.get_all(1000):
         logger.info("Checking API: %s", smartapi._id)
         _status = smartapi.check()
+        logger.debug(_status)
         logger.info("Done")
-        print('-'*50)
+        print("-" * 50)
         smartapi.save()
+
 
 def debug_uptime(_id, endpoint=None):
     """
@@ -158,9 +156,9 @@ def debug_uptime(_id, endpoint=None):
         if endpoint:
             _endpoint_info = api.endpoints_info[endpoint]
             _status = api.test_endpoint(endpoint, _endpoint_info)
+            logger.info("_status: %s", _status)
         else:
-            _status = api.check_api_status()
-        logger.info("_status: %s", _status)
+            api.check_api_status()
     finally:
         logger.setLevel(cur_level)
 
@@ -206,5 +204,5 @@ def routine():
     check_uptime()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     restore_from_s3()
