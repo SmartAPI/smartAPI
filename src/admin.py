@@ -25,6 +25,7 @@
 import json
 import logging
 from datetime import datetime
+from typing import final
 
 import boto3
 from filelock import FileLock, Timeout
@@ -138,6 +139,27 @@ def check_uptime():
         logger.info("Done")
         print('-'*50)
         smartapi.save()
+
+def debug_uptime(_id, endpoint=None):
+    """
+    Debug uptime status check for a given SmartAPI.
+    If endpoint is provided, by path (e.g. "/taxon"), only check for that endpoint.
+    """
+    from utils import monitor
+
+    logger = monitor.logger
+    cur_level = logger.level
+    logger.setLevel(logging.DEBUG)
+    try:
+        api = monitor.API(dict(SmartAPI.get(_id)))
+        if endpoint:
+            _endpoint_info = api.endpoints_info[endpoint]
+            _status = api.test_endpoint(endpoint, _endpoint_info)
+        else:
+            _status = api.check_api_status()
+        logger.info("_status: %s", _status)
+    finally:
+        logger.setLevel(cur_level)
 
 
 def resave():
