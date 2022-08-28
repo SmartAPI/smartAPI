@@ -294,7 +294,7 @@ class Slug:
 
     def __set__(self, obj, value):
         self.validate(value)
-        obj["_slug"] = value
+        setattr(obj, "_slug", value)
 
     def validate(self, value):
 
