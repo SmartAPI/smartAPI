@@ -128,7 +128,10 @@ def refresh_document():
         logger.info(smartapi._id)
         _status = smartapi.refresh()
         logger.info(_status)
-        smartapi.save()
+        try:
+            smartapi.save()
+        except Exception as e:
+            logger.error("%s: %s", smartapi._id, repr(e))
 
 
 def check_uptime():
