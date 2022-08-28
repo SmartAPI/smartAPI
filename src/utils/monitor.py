@@ -141,11 +141,14 @@ class API:
         }
         if 'get' in _endpoint_info:
             endpoint_doc['method'] = 'GET'
-            endpoint_doc['params'] = _endpoint_info.get('get').get('parameters', {})
+            endpoint_doc['params'] = _endpoint_info.get('get').get('parameters', [])
         elif 'post' in _endpoint_info:
             endpoint_doc['method'] = 'POST'
-            endpoint_doc['params'] = _endpoint_info.get('post').get('parameters')
+            endpoint_doc['params'] = _endpoint_info.get('post').get('parameters', [])
             endpoint_doc['requestbody'] = _endpoint_info['post'].get('requestBody')
+        if "parameters" in _endpoint_info:
+            # merge common parameters if defined at the endpoint root level
+            endpoint_doc['params'] = _endpoint_info.get("parameters") + endpoint_doc.get('params', [])
         if 'params' in endpoint_doc or endpoint_doc.get('requestbody'):
             endpoint = Endpoint(endpoint_doc)
             try:
@@ -266,6 +269,7 @@ class Endpoint:
             params = {}
             example = None
             paramsRequired = None    # pylint: disable=invalid-name
+            logger.debug("self.params: %s", self.params)
             for _param in self.params:
                 # replace parameter with actual example value to construct
                 # an API call
@@ -292,7 +296,7 @@ class Endpoint:
             if params:
                 _request_kwargs['params'] = params
             response = requests.get(**_request_kwargs)
-            logger.debug('[get]: \n%s\n%s', pformat(_request_kwargs), response)
+            logger.debug('[GET]: \n%s\n%s', pformat(_request_kwargs), response)
             return response
 
         # handle API endpoint which use POST HTTP method
@@ -300,6 +304,7 @@ class Endpoint:
             # handle API endpoint which uses POST HTTP method
             params = {}
             example = None
+            bodyRequired = None    # pylint: disable=invalid-name
             # get example
             if self.requestbody:
                 content = self.requestbody.get('content')
@@ -312,17 +317,27 @@ class Endpoint:
                         if schema:
                             # 2nd try to get example value from "schema" field
                             example = schema.get('example')
+                            if schema.get("required", None):
+                                # if schema.required is defined
+                                bodyRequired = True    # pylint: disable=invalid-name
                             if not example:
                                 ref = schema.get('$ref')
                                 if ref:
                                     # 3nd try if schema is a reference to a component
                                     logger.debug(url)
                                     if ref.startswith('#/components/'):
+                                        # check example
                                         component_path = ref[13:]
                                         component_path += '/example'
                                         logger.debug('component path: %s', component_path)
                                         example = DictQuery(self.components).get(component_path)
                                         logger.debug('example %s', example)
+                                        # check required
+                                        component_path = ref[13:]
+                                        component_path += '/required'
+                                        if DictQuery(self.components).get(component_path):
+                                            bodyRequired = True    # pylint: disable=invalid-name
+
                     if isinstance(example, str):
                         # if example is a string, we try to jsonize it first,
                         # otherwise, keep it as it is
@@ -336,7 +351,7 @@ class Endpoint:
                     example = content.get('application/x-www-form-urlencoded').get('example')
 
                 # check required body
-                bodyRequired = self.requestbody.get('required')    # pylint: disable=invalid-name
+                bodyRequired = bodyRequired or self.requestbody.get('required')    # pylint: disable=invalid-name
                 if bodyRequired is True and not example:
                     return False
 
