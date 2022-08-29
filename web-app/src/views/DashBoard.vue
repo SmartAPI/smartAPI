@@ -475,7 +475,7 @@ export default {
         var self=this;
 
         self.apis=[];
-        let url = this.$apiUrl + "/query?size=100&q=_meta.username:"+self.userInfo.login
+        let url = this.$apiUrl + "/query?size=1000&q=_meta.username:"+self.userInfo.login
 
         axios.get(`${url}&timestamp=${new Date().getTime()}&raw=1`).then(function(response){
                 self.apis = sortBy(response.data.hits,'info.title');

@@ -211,12 +211,12 @@
                   </div>
                 </div>
                 <div class="col s12 l6">
-                    <input id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter">
+                    <input id="search_query" type="text" v-model="query" name="query" autocomplete="off" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter">
                 </div>
               </template>
               <template v-else>
                 <div class=" col s12 l6 offset-l3">
-                    <input id="search_query" type="text" v-model="query" name="query" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter">
+                    <input id="search_query" type="text" v-model="query" name="query" autocomplete="off" placeholder="Enter any query term here" class="browser-default grey lighten-5 blue-grey-text lighter">
                 </div>
               </template>
 
