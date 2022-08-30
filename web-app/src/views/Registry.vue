@@ -154,9 +154,30 @@
                 <span>Filters Most Active <br />(Last 30 days)</span>
               </div>
               <template v-for="(pop,index) in popularTags" :key="pop+index">
-                  <a v-if="index < 10" :href="pop.type == 'tags' ? $route.path + '?tags=' + pop.name : $route.path + '?owners=' + pop.name" :class="{ active: pop.active, blue: pop.active, bold:index==0 }" :title="pop.count" @click="googleAnalytics('Registry_Tag', pop.name)" class="collection-item" style="padding:4px;" >
-                  {{index+1}} <small><span v-text="pop.type == 'tags' ? '#' : '@'"></span> <span v-text="pop.name"></span></small>
-                  </a>
+                <template v-if="index < 10">
+                  <template v-if="pop.type == 'tags'">
+                    <router-link  
+                    :to="{name: 'Registry', query:{ 'tags' : pop.name}}" 
+                    :class="{ active: pop.active, blue: pop.active, bold:index==0 }" 
+                    :title="pop.count" 
+                    @click="googleAnalytics('Registry_Tag', pop.name)" 
+                    class="collection-item" 
+                    style="padding:4px;" >
+                    {{index+1}} <small># {{pop.name}}</small>
+                    </router-link>
+                  </template>
+                  <template v-else>
+                    <router-link  
+                    :to="{name: 'Registry', query:{ 'owners': pop.name}}" 
+                    :class="{ active: pop.active, blue: pop.active, bold:index==0 }" 
+                    :title="pop.count"
+                     @click="googleAnalytics('Registry_Tag', pop.name)" 
+                     class="collection-item" 
+                     style="padding:4px;" >
+                    {{index+1}} <small>@ {{pop.name}}</small>
+                    </router-link>
+                  </template>
+                </template>
               </template>
             </ul>
 
@@ -841,7 +862,7 @@ export default {
                 for (var xx = 0; xx < self.authors.length; xx++) {
                   if (self.authors[xx].name === owners[j]) {
                     owners.splice(j, 1)
-                    self.tags[i]['active'] = true
+                    self.authors[xx]['active'] = true
 
                   }
                 }
