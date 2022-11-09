@@ -311,6 +311,9 @@ export default {
                     operations.push({'method': self.validateFields(method2.toUpperCase()), 'summary': item[method2]['summary'], 'path': endpoint })
                   }else if (Object.prototype.hasOwnProperty.call(item[method2], "description")) {
                     operations.push({'method': self.validateFields(method2.toUpperCase()), 'summary': item[method2]['description'], 'path': endpoint })
+                  }else{
+                    // no description provided
+                    operations.push({'method': self.validateFields(method2.toUpperCase()), 'summary': "", 'path': endpoint })
                   }
                 }
               }
