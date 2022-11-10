@@ -133,6 +133,10 @@ class Format(UserDict):
         if isinstance(self.data.get("paths"), dict):
             self.data["paths"] = [{"path": key, "pathitem": val} for key, val in self.data["paths"].items()]
 
+        # normalize info.x-trapi.test_data_location string value as info.x-trapi.test_data_location.default.url value
+        if isinstance(self.data.get("info", {}).get("x-trapi", {}).get("test_data_location"), str):
+            self.data["info"]["x-trapi"]["test_data_location"] = {"default": {"url": self.data["info"]["x-trapi"]["test_data_location"]}}
+
     def clean(self):
         self.data = OrderedDict({k: v for k, v in self.data.items() if k in self.KEYS})
 
