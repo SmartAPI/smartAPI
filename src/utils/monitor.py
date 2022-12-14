@@ -146,12 +146,26 @@ class API:
             "components": self.components,
         }
         if "get" in _endpoint_info:
+            if _endpoint_info.get("get").get("security"):
+                # if an endpoint requires authentication, we should skip it
+                _msg = f"🟠 {_endpoint}: (skipped) Authentication is required"
+                self._uptime_msg.append(_msg)
+                self.logger.debug(_msg)
+                return "unknown"
             endpoint_doc["method"] = "GET"
             endpoint_doc["params"] = _endpoint_info.get("get").get("parameters", [])
+
         elif "post" in _endpoint_info:
+            if _endpoint_info.get("post").get("security"):
+                # if an endpoint requires authentication, we should skip it
+                _msg = f"🟠 {_endpoint}: (skipped) Authentication is required"
+                self._uptime_msg.append(_msg)
+                self.logger.debug(_msg)
+                return "unknown"
             endpoint_doc["method"] = "POST"
             endpoint_doc["params"] = _endpoint_info.get("post").get("parameters", [])
             endpoint_doc["requestbody"] = _endpoint_info["post"].get("requestBody")
+
         if "parameters" in _endpoint_info:
             # merge common parameters if defined at the endpoint root level
             endpoint_doc["params"] = _endpoint_info.get("parameters") + endpoint_doc.get("params", [])
