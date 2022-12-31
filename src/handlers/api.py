@@ -4,14 +4,13 @@ import logging
 from biothings.web.auth.authn import BioThingsAuthnMixin
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.query import BiothingHandler
-
-from controller import ControllerError, NotFoundError, SmartAPI
-from tornado.escape import to_basestring
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
+
+from controller.exceptions import ControllerError, NotFoundError
+from controller import SmartAPIEntity, MetaKGEntity
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
-
 
 
 def github_authenticated(func):
@@ -132,7 +131,7 @@ class ValidateHandler(BaseHandler):
     def validate(self, raw):
 
         try:
-            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
+            smartapi = SmartAPIEntity(SmartAPIEntity.VALIDATION_ONLY)
             smartapi.raw = raw
             smartapi.validate()
 
@@ -164,7 +163,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         Add an API document
         """
 
-        if SmartAPI.find(self.args.url, "url"):
+        if SmartAPIEntity.find(self.args.url, "url"):
             raise HTTPError(409)
 
         try:
@@ -173,7 +172,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             raise HTTPError(400, reason=str(err)) from err
 
         try:
-            smartapi = SmartAPI(self.args.url)
+            smartapi = SmartAPIEntity(self.args.url)
             smartapi.raw = file.raw
             smartapi.validate()
         except (ControllerError, AssertionError) as err:
@@ -256,7 +255,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         """
 
         try:
-            smartapi = SmartAPI.get(_id)
+            smartapi = SmartAPIEntity.get(_id)
         except NotFoundError:
             raise HTTPError(404)
 
@@ -301,7 +300,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         """
 
         try:
-            smartapi = SmartAPI.get(_id)
+            smartapi = SmartAPIEntity.get(_id)
         except NotFoundError:
             raise HTTPError(404)
 
@@ -335,7 +334,7 @@ class ValueSuggestionHandler(BaseHandler):
         Returns aggregations for any field provided
         Used for tag:count on registry
         """
-        res = SmartAPI.get_tags(self.args.field)
+        res = SmartAPIEntity.get_tags(self.args.field)
         self.finish(res)
 
 
@@ -367,7 +366,7 @@ class UptimeHandler(BaseHandler):
 
         if self.args.id:
             try:
-                smartapi = SmartAPI.get(self.args.id)
+                smartapi = SmartAPIEntity.get(self.args.id)
                 if smartapi.username != self.current_user['login']:
                     raise HTTPError(403)
                 status = smartapi.check()
@@ -389,7 +388,7 @@ class UptimeHandler(BaseHandler):
 
         if self.args.id:
             try:
-                smartapi = SmartAPI.get(self.args.id)
+                smartapi = SmartAPIEntity.get(self.args.id)
                 if smartapi.username != self.current_user['login']:
                     raise HTTPError(403)
                 status = smartapi.check()
@@ -405,3 +404,33 @@ class UptimeHandler(BaseHandler):
                 })
         else:
             raise HTTPError(400, reason="Missing required form field: id")
+
+
+class MetaKGHandler(BaseHandler):
+    """
+    MetaKG apis
+    """
+
+    kwargs = {
+        'GET': {
+            "size": {
+                "type": int,
+                "location": "query",
+                "required": False,
+            },
+            "from": {
+                "type": int,
+                "location": "query",
+                "required": False,
+            },
+        }
+    }
+
+    def get(self):
+        """
+        Return harverted MetaKG
+        """
+        size = self.args.get("size", 10)
+        from_ = self.args.get("from", 0)
+        entities = MetaKGEntity.get_all(size=size, from_=from_)
+        self.finish({"associations": [entity._data for entity in entities]})
