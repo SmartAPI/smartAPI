@@ -28,3 +28,5 @@ smartapi_*.json
 *.sqlite
 
 .lock
+.python-version
+.notes
