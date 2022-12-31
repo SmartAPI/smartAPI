@@ -5,7 +5,7 @@ from dateutil import parser
 from elasticsearch.client import Elasticsearch
 from elasticsearch.helpers import scan
 
-from controller import SmartAPI
+from controller.smartapi import SmartAPIEntity
 from utils import decoder, indices
 
 ES_ORIGIN = "http://smart-api.info:9200"
@@ -25,7 +25,7 @@ def migrate():
             url = doc['_source']['_meta']['url']
             raw = decoder.decompress(base64.urlsafe_b64decode(doc['_source']['~raw']))
 
-            smartapi = SmartAPI(url)
+            smartapi = SmartAPIEntity(url)
             smartapi.raw = raw
             smartapi.date_created = parser.parse(doc['_source']['_meta']['timestamp']).replace(tzinfo=timezone.utc)
             smartapi.username = doc['_source']['_meta']['github_username']
@@ -43,7 +43,7 @@ def update():
         scroll="60m"
     ):
         print(doc["_id"])
-        smartapi = SmartAPI.get(doc["_id"])
+        smartapi = SmartAPIEntity.get(doc["_id"])
         print(smartapi.check())
         print(smartapi.refresh())
         if smartapi.webdoc.status == 299:

@@ -3,11 +3,11 @@ import os
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Index
-from model import APIDoc
+from model import SmartAPIDoc
 
 
 def exists():
-    return Index(APIDoc.Index.name).exists()
+    return Index(SmartAPIDoc.Index.name).exists()
 
 
 def setup():
@@ -20,17 +20,17 @@ def setup():
         mapping = json.load(file)
 
     if not exists():
-        APIDoc.init()
+        SmartAPIDoc.init()
 
     elastic = Elasticsearch()
     elastic.indices.put_mapping(
-        index=APIDoc.Index.name,
+        index=SmartAPIDoc.Index.name,
         body=mapping
     )
 
 
 def delete():
-    Index(APIDoc.Index.name).delete()
+    Index(SmartAPIDoc.Index.name).delete()
 
 
 def reset():
@@ -43,5 +43,5 @@ def reset():
 
 def refresh():
 
-    index = Index(APIDoc.Index.name)
+    index = Index(SmartAPIDoc.Index.name)
     index.refresh()

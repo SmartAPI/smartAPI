@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from controller import openapis, swaggers, validate
+from controller.base import openapis, swaggers, validate
 
 dirname = os.path.dirname(__file__)
 

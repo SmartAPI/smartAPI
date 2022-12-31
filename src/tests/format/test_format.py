@@ -2,7 +2,7 @@ import json
 import os
 
 import pytest
-from controller import OpenAPI, Swagger
+from controller.base import OpenAPI, Swagger
 
 dirname = os.path.dirname(__file__)
 
