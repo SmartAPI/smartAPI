@@ -1,0 +1,2 @@
+class FailToLoadSpecError(Exception):
+    pass

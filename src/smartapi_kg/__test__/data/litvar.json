@@ -1,0 +1,90 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "LitVar API",
+        "description": "LitVar allows the search and retrieval of variant relevant information from the biomedical literature and shows key biological relations between a variant and its close related entities (e.g. genes, diseases, and drugs). The LitVar results are automatically extracted (with regular updates) from over 27 million PubMed articles as well as applicable full-text articles in PubMed Central.",
+        "termsOfService": "https://www.ncbi.nlm.nih.gov/home/about/policies/",
+        "contact": {
+            "name": "Zhiyong Lu",
+            "email": "luzh@ncbi.nlm.nih.gov"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://www.ncbi.nlm.nih.gov/research/bionlp/litvar/api/v1",
+            "description": "Production server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "variant"
+        },
+        {
+            "name": "translator"
+        }
+    ],
+    "paths": {
+        "/entity/litvar/{variantid}": {
+            "get": {
+                "summary": "Retrieve PMIDs of publications mentioning submitted variants",
+                "parameters": [
+                    {
+                        "name": "variantid",
+                        "in": "path",
+                        "example": "rs121913527",
+                        "description": "rsid",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "publications mentioned the submitted variant"
+                    }
+                },
+                "x-bte-kgs-operations": [
+                    {
+                        "$ref": "#/components/x-bte-kgs-operations/variant_located_in_gene"
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "x-bte-kgs-operations": {
+            "variant_located_in_gene": [
+                {
+                    "inputs": [
+                        {
+                            "id": "DBSNP",
+                            "semantic": "SequenceVariant"
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "id": "SYMBOL",
+                            "semantic": "Gene"
+                        }
+                    ],
+                    "predicate": "located_in",
+                    "source": "dbsnp",
+                    "parameters": {
+                        "variantid": "{inputs[0]}%23%23"
+                    },
+                    "supportBatch": false,
+                    "response_mapping": {
+                        "$ref": "#/components/x-bte-response-mapping/variant_located_in_gene"
+                    }
+                }
+            ]
+        },
+        "x-bte-response-mapping": {
+            "variant_located_in_gene": {
+                "SYMBOL": "gene.name"
+            }
+        }
+    }
+}

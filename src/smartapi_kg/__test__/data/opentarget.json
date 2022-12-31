@@ -1,0 +1,111 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "contact": {
+            "email": "help@opentarget.org",
+            "name": "opentarget help desk",
+            "x-role": "responsible developer"
+        },
+        "description": "The Opentarget API",
+        "termsOfService": "http://www.opentarget.org",
+        "title": "OpenTarget API",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "description": "Production server",
+            "url": "https://platform-api.opentargets.io/v3"
+        }
+    ],
+    "tags": [
+        {
+            "name": "translator"
+        },
+        {
+            "name": "opentarget"
+        }
+    ],
+    "paths": {
+        "/platform/public/evidence/filter": {
+            "get": {
+                "parameters": [
+                    {
+                        "description": "ensembl gene id",
+                        "example": "ENSG00000088832",
+                        "in": "query",
+                        "name": "target",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "size of the output",
+                        "example": 100,
+                        "in": "query",
+                        "name": "size",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "the output field",
+                        "example": "drug",
+                        "in": "query",
+                        "name": "fields",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "the data source",
+                        "example": "chembl",
+                        "in": "query",
+                        "name": "datasource",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A biosample object"
+                    }
+                },
+                "summary": "retrieve evidence",
+                "x-bte-kgs-operations": [
+                    [
+                        {
+                            "inputs": [
+                                {
+                                    "id": "biolink:ENSEMBL",
+                                    "semantic": "biolink:Gene"
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "id": "biolink:CHEMBL.COMPOUND",
+                                    "semantic": "biolink:ChemicalSubstance"
+                                }
+                            ],
+                            "parameters": {
+                                "datasource": "chembl",
+                                "fields": "drug",
+                                "size": 100,
+                                "target": "{inputs[0]}"
+                            },
+                            "predicate": "biolink:related_to",
+                            "response_mapping": {
+                                "biolink:CHEMBL.COMPOUND": "data.drug.id",
+                                "biolink:name": "data.drug.molecule_name",
+                                "moleculeType": "data.drug.molecule_type"
+                            },
+                            "source": "CHEMBL",
+                            "supportBatch": false
+                        }
+                    ]
+                ]
+            }
+        }
+    }
+}
