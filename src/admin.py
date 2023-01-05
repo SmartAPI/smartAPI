@@ -32,7 +32,7 @@ from filelock import FileLock, Timeout
 from controller import SmartAPIEntity
 from model import MetaKGDoc
 from utils import indices, decoder
-from smartapi_kg.metakg import MetaKG
+from utils.metakg import MetaKG
 
 
 logging.basicConfig(level="INFO")

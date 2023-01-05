@@ -1,5 +1,6 @@
 import unittest
-from smartapi_kg.parser.query_operation import QueryOperationObject
+
+from utils.metakg.parser.query_operation import QueryOperationObject
 
 
 class TestQueryOperationObjectClass(unittest.TestCase):

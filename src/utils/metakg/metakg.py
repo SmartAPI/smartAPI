@@ -1,7 +1,6 @@
 import os
 
-from .operations_builder.async_builder_factory import async_builder_factory
-from .operations_builder.sync_builder_factory import sync_builder_factory
+from .operations_builder import OperationsBuilder
 
 
 class MetaKG:
@@ -42,18 +41,9 @@ class MetaKG:
     def ops(self):
         return self._ops
 
-    def construct_MetaKG(self, include_reasoner=False, options={}):
-        self._ops = async_builder_factory(options, include_reasoner)
-        return self._ops
-
-    def construct_MetaKG_sync(self, include_reasoner=False, options={}):
-        self._ops = sync_builder_factory(
-            options,
-            include_reasoner,
-            self._file_path,
-            self._predicates_path
-        )
-        return self._ops
+    def construct_MetaKG(self):
+        builder = OperationsBuilder()
+        self._ops = builder.build()
 
     def get_associations(self):
         associations = []

@@ -1,15 +1,15 @@
 import requests
-import json
-from .base_loader import BaseLoader
-from ..exceptions.fail_to_load_spec import FailToLoadSpecError
+
+from .config import SMARTAPI_URL
+from .exceptions.fail_to_load_spec import FailToLoadSpecError
 
 
-class BaseAsyncLoader(BaseLoader):
-    _url = ''
+class AllSpecsLoader:
+    _url = SMARTAPI_URL
 
-    def __init__(self, url):
-        super().__init__()
-        self._url = url
+    def __init__(self, url=None):
+        if url:
+            self._url = url
 
     def fetch(self):
         try:
@@ -22,7 +22,7 @@ class BaseAsyncLoader(BaseLoader):
             raise Exception(f"Query to ${self._url} failed with error ${str(e)}")
 
     def parse(self, _input):
-        return []
+        return _input['hits']
 
     def load(self):
         specs = self.fetch()
