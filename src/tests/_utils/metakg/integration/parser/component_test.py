@@ -2,7 +2,7 @@ import unittest
 import json
 import os
 
-from utils.metakg.parser.component import Components
+from utils.metakg.component import Components
 
 
 class TestComponent(unittest.TestCase):

@@ -20,7 +20,7 @@ class Components:
             try:
                 for ele in paths:
                     res = self.fetch(res, ele)
-            except Exception as e:
+            except Exception:
                 return None
             return res
         return None

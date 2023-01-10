@@ -34,6 +34,7 @@
         smartapi.delete()
 
 """
+import math
 import logging
 import string
 from collections.abc import Mapping
@@ -41,6 +42,7 @@ from datetime import datetime, timezone
 from warnings import warn
 
 from model import SmartAPIDoc
+from .metakg import MetaKGEntity
 from .base import AbstractWebEntity, OpenAPI, Swagger
 from .exceptions import ConflictError, ControllerError
 
@@ -116,6 +118,14 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
     @classmethod
     def find(cls, val, field="slug"):
         return super().find(val, field=field)
+
+    @classmethod
+    def refresh_metakg(cls):
+        BULK = 10000
+        count_docs = cls.count()
+        for i in range(math.ceil(count_docs / BULK)):
+            entities = cls.get_all(BULK, i * BULK)
+            MetaKGEntity.create_by_smartapis(entities)
 
     def save(self, force_save=True):
         if not self.username:

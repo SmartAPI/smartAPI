@@ -1,6 +1,6 @@
 import unittest
 
-from utils.metakg.parser.query_operation import QueryOperationObject
+from utils.metakg.query_operation import QueryOperationObject
 
 
 class TestQueryOperationObjectClass(unittest.TestCase):

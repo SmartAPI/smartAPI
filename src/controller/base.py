@@ -145,6 +145,13 @@ class AbstractWebEntity(ABC):
         raise NotImplementedError()
 
     @classmethod
+    def count(cls, *args, **kwargs):
+        search = cls.MODEL_CLASS.search()
+        if args or kwargs:
+            search = search.filter(*args, **kwargs)
+        return search.count()
+
+    @classmethod
     def exists(cls, _id):
         """
         If a SmartAPI document exists in database.
