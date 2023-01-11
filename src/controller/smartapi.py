@@ -120,12 +120,12 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
         return super().find(val, field=field)
 
     @classmethod
-    def refresh_metakg(cls):
+    def refresh_metakg(cls, include_reasoner=False):
         BULK = 10000
         count_docs = cls.count()
         for i in range(math.ceil(count_docs / BULK)):
             entities = cls.get_all(BULK, i * BULK)
-            MetaKGEntity.create_by_smartapis(entities)
+            MetaKGEntity.create_by_smartapis(entities, include_reasoner=include_reasoner)
 
     def save(self, force_save=True):
         if not self.username:

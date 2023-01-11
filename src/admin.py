@@ -30,9 +30,7 @@ import boto3
 from filelock import FileLock, Timeout
 
 from controller import SmartAPIEntity
-from model import MetaKGDoc
-from utils import indices, decoder
-from utils.metakg import MetaKG
+from utils import indices
 
 
 logging.basicConfig(level="INFO")
@@ -175,14 +173,8 @@ def resave():
         smartapi.save()
 
 
-def refresh_metakg():
-    meta_kg = MetaKG()
-    meta_kg.construct_MetaKG()
-    docs = meta_kg.get_associations()
-    for doc in docs:
-        meta_kg_doc = MetaKGDoc(**doc)
-        meta_kg_doc._raw = decoder.compress(json.dumps(doc).encode())
-        meta_kg_doc.save()
+def refresh_metakg(include_reasoner=False):
+    SmartAPIEntity.refresh_metakg(include_reasoner=include_reasoner)
 
 
 restore = restore_from_file
