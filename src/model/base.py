@@ -3,9 +3,7 @@
 """
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
-from elasticsearch_dsl import (
-    connections, InnerDoc, Keyword, Date, Text, Integer, Document, Object, Binary, MetaField, A
-)
+from elasticsearch_dsl import connections, Document, MetaField, A
 
 
 ES_HOST = 'localhost:9200'
@@ -14,21 +12,7 @@ ES_HOST = 'localhost:9200'
 connections.create_connection(hosts=ES_HOST)
 
 
-class StatMeta(InnerDoc):
-    """ The _status field. """
-
-    uptime_status = Keyword()
-    uptime_msg = Text(index=False)
-    uptime_ts = Date()
-
-    refresh_status = Integer()
-    refresh_ts = Date()
-
-
 class BaseDoc(Document):
-    _status = Object(StatMeta)
-    _raw = Binary()
-
     class Meta:
         """
         Index Mappings

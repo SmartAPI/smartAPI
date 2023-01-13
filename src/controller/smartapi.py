@@ -42,8 +42,10 @@ from datetime import datetime, timezone
 from warnings import warn
 
 from model import SmartAPIDoc
+from utils import decoder, monitor
+from utils.downloader import download
 from .metakg import MetaKGEntity
-from .base import AbstractWebEntity, OpenAPI, Swagger
+from .base import AbstractWebEntity, OpenAPI, Swagger, APIMonitorStatus, APIRefreshStatus
 from .exceptions import ConflictError, ControllerError
 
 logger = logging.getLogger(__name__)
@@ -100,15 +102,36 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
         self.date_created = None
         self.last_updated = None
 
+        self.uptime = APIMonitorStatus(self)
+        self.webdoc = APIRefreshStatus(self)
+
+        self._raw = None
+
     @classmethod
     def get(cls, _id):
         obj = super().get(_id)
 
         obj.username = obj._doc._meta.username
         obj.slug = obj._doc._meta.slug
+        obj.raw = decoder.decompress(obj._doc._raw)
 
         obj.date_created = obj._doc._meta.date_created
         obj.last_updated = obj._doc._meta.last_updated
+
+        obj.uptime = APIMonitorStatus(
+            obj,
+            (
+                obj._doc._status.uptime_status,
+                obj._doc._status.uptime_msg,
+            ),
+            obj._doc._status.uptime_ts,
+        )
+
+        obj.webdoc = APIRefreshStatus(
+            obj,
+            obj._doc._status.refresh_status,
+            obj._doc._status.refresh_ts,
+        )
         return obj
 
     @staticmethod
@@ -125,9 +148,62 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
         count_docs = cls.count()
         for i in range(math.ceil(count_docs / BULK)):
             entities = cls.get_all(BULK, i * BULK)
-            MetaKGEntity.create_by_smartapis(entities, include_reasoner=include_reasoner)
+            MetaKGEntity.create_by_smartapis(
+                entities, include_reasoner=include_reasoner
+            )
+
+    @property
+    def raw(self):
+        """
+        Bytes that correspond to the URL.
+        This object is a view of this field.
+        """
+        return self._raw
+
+    @raw.setter
+    def raw(self, value):
+
+        if not value:
+            raise ControllerError("Empty value.")
+        try:
+            self._data = decoder.to_dict(value)
+        except (ValueError, TypeError) as err:
+            raise ControllerError(str(err)) from err
+        else:  # dict conversion success
+            self._raw = value
+
+        # update the timestamps
+        self.last_updated = datetime.now(timezone.utc)
+        if hasattr(self, 'date_created') and not self.date_created:
+            self.date_created = self.last_updated
+
+    def check(self):
+
+        doc = dict(self)
+        doc["_id"] = self._id
+
+        api = monitor.API(doc)
+        api.check_api_status()  # blocking network operation
+        status = api.get_api_status()
+        self.uptime.update(status)
+        return status
+
+    def refresh(self, file=None):
+        if file is None:  # blocking network operation
+            file = download(self.url, raise_error=False)
+
+        self.webdoc.update(file)
+        return self.webdoc.status
 
     def save(self, force_save=True):
+        # TODO DOCSTRING
+
+        if not self.raw:
+            raise ControllerError("No content.")
+
+        if self.url is self.VALIDATION_ONLY:
+            raise ControllerError("In validation-only mode.")
+
         if not self.username:
             raise ControllerError("Username is required.")
         if not self.last_updated:
@@ -154,18 +230,37 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
             if _id and _id != self._id:  # another doc same slug.
                 raise ConflictError("Slug is already registered.")
 
-        _id = super().save(force_save=False)
+        # NOTE
+        # why not enforce validation here?
+        # we add additional constraints to the application from time to time
+        # it's actually hard to retrospectively make sure all previously
+        # submitted API document always meet our latest requirements
 
-        self._doc.meta.id = self._id
-        self._doc._meta.url = self.url
-        self._doc._meta.username = self.username
+        _doc = self._validate_dispatch()
+        _doc.transform()
 
-        self._doc._meta.date_created = self.date_created
-        self._doc._meta.last_updated = self.last_updated
-        self._doc._meta.slug = self.slug
-        self._doc.save(skip_empty=False)
+        doc = self.MODEL_CLASS(**_doc)
 
-        return _id
+        if self.uptime.status:
+            doc._status.uptime_status = self.uptime.status[0]
+            doc._status.uptime_msg = self.uptime.status[1]
+        doc._status.uptime_ts = self.uptime.timestamp
+
+        doc._status.refresh_status = self.webdoc.status
+        doc._status.refresh_ts = self.webdoc.timestamp
+
+        doc._raw = decoder.compress(self.raw)
+
+        doc.meta.id = self._id
+        doc._meta.url = self.url
+        doc._meta.username = self.username
+        doc._meta.date_created = self.date_created
+        doc._meta.last_updated = self.last_updated
+        doc._meta.slug = self.slug
+
+        doc.save(skip_empty=False)
+
+        return self._id
 
     @property
     def version(self):

@@ -1,12 +1,23 @@
 """
     Elasticsearch Document Object Model for SmartAPI
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Date, Text, Object
+from elasticsearch_dsl import InnerDoc, Keyword, Date, Text, Integer, InnerDoc, Keyword, Date, Text, Object, Binary
 
 from .base import BaseDoc
 
 
 ES_INDEX_NAME = 'smartapi_docs'
+
+
+class StatMeta(InnerDoc):
+    """ The _status field. """
+
+    uptime_status = Keyword()
+    uptime_msg = Text(index=False)
+    uptime_ts = Date()
+
+    refresh_status = Integer()
+    refresh_ts = Date()
 
 
 class UserMeta(InnerDoc):
@@ -19,6 +30,8 @@ class UserMeta(InnerDoc):
 
 
 class SmartAPIDoc(BaseDoc):
+    _status = Object(StatMeta)
+    _raw = Binary()
     _meta = Object(UserMeta, required=True)
 
     info = Object()

@@ -433,4 +433,4 @@ class MetaKGHandler(BaseHandler):
         size = self.args.get("size", 10)
         from_ = self.args.get("from", 0)
         entities = MetaKGEntity.get_all(size=size, from_=from_)
-        self.finish({"associations": [entity._data for entity in entities]})
+        self.finish({"associations": [entity._doc.to_dict() for entity in entities]})
