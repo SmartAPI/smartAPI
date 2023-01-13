@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from utils.metakg.index import API
+from utils.metakg.api import API
 
 
 class TestAPIParser(unittest.TestCase):

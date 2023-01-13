@@ -3,7 +3,7 @@ import logging
 
 import requests
 
-from .index import API
+from .api import API
 
 logger = logging.getLogger(__name__.split('.')[-1])
 
