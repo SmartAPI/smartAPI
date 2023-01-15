@@ -404,33 +404,3 @@ class UptimeHandler(BaseHandler):
                 })
         else:
             raise HTTPError(400, reason="Missing required form field: id")
-
-
-class MetaKGHandler(BaseHandler):
-    """
-    MetaKG apis
-    """
-
-    kwargs = {
-        'GET': {
-            "size": {
-                "type": int,
-                "location": "query",
-                "required": False,
-            },
-            "from": {
-                "type": int,
-                "location": "query",
-                "required": False,
-            },
-        }
-    }
-
-    def get(self):
-        """
-        Return harverted MetaKG
-        """
-        size = self.args.get("size", 10)
-        from_ = self.args.get("from", 0)
-        entities = MetaKGEntity.get_all(size=size, from_=from_)
-        self.finish({"associations": [entity._doc.to_dict() for entity in entities]})
