@@ -143,14 +143,17 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
         return super().find(val, field=field)
 
     @classmethod
-    def refresh_metakg(cls, include_reasoner=False):
-        BULK = 10000
+    def refresh_metakg(cls, include_reasoner=True):
         count_docs = cls.count()
-        for i in range(math.ceil(count_docs / BULK)):
-            entities = cls.get_all(BULK, i * BULK)
-            MetaKGEntity.create_by_smartapis(
-                entities, include_reasoner=include_reasoner
-            )
+        query_data = {
+            'type': 'term',
+            'body': {
+                'tags.name': 'translator'
+            }
+        }
+        entities = cls.get_all(size=count_docs, query_data=query_data)
+        for entity in entities:
+            MetaKGEntity.create_by_smartapi(entity, include_reasoner=include_reasoner)
 
     @property
     def raw(self):

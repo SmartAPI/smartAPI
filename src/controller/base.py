@@ -171,12 +171,16 @@ class AbstractWebEntity(ABC):
         return cls.MODEL_CLASS.exists(val, field)
 
     @classmethod
-    def get_all(cls, size=10, from_=0):
+    def get_all(cls, size=10, from_=0, query_data=None):
         """
         Returns a list of SmartAPIs.
         Size is the at-most number.
         """
         search = cls.MODEL_CLASS.search()
+        if query_data and isinstance(query_data, dict):
+            query_type = query_data.get("type") or "match_all"
+            query_body = query_data["body"]
+            search = search.query(query_type, **query_body)
         search = search.source(False)
         search = search[from_: from_ + size]
 

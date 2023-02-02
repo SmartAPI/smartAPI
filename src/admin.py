@@ -30,6 +30,7 @@ import boto3
 from filelock import FileLock, Timeout
 
 from controller import SmartAPIEntity
+from model import MetaKGDoc
 from utils import indices
 
 
@@ -173,7 +174,15 @@ def resave():
         smartapi.save()
 
 
-def refresh_metakg(include_reasoner=False):
+def refresh_metakg(reset=True, include_reasoner=True):
+    es_logger = logging.getLogger("elasticsearch")
+    es_logger.setLevel("WARNING")
+
+    if reset:
+        logging.info("Reset MetaKG index")
+        indices.reset(MetaKGDoc)
+
+    logging.info("Refreshing MetaKG index")
     SmartAPIEntity.refresh_metakg(include_reasoner=include_reasoner)
 
 

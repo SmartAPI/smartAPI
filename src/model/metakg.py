@@ -6,19 +6,16 @@ from elasticsearch_dsl import InnerDoc, Keyword, Text, Object
 from .base import BaseDoc
 
 
-ES_INDEX_NAME = 'metakg_docs'
+ES_INDEX_NAME = 'smartapi_metakg_docs'
 
 
 class SmartAPIInnerDoc(InnerDoc):
-    metadata = Keyword(required=True)
     id = Keyword(required=True)
-    ui = Keyword()
 
 
 class APIInnerDoc(InnerDoc):
     name = Text()
     smartapi = Object(SmartAPIInnerDoc)
-    x_translator = Object(name="x-translator")
 
 
 class MetaKGDoc(BaseDoc):

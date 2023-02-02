@@ -12,43 +12,21 @@ class Parser:
     get_url_timeout = 60
 
     def get_non_TRAPI_metadatas(self, data, extra_data=None):
-        extra_data = extra_data or {}
-        metadatas = []
         parser = API(data)
-        for op in parser.metadata["operations"]:
-            smartapi_data = op["association"]["smartapi"]
-            url = (smartapi_data.get("meta") or {}).get("url") or extra_data.get("url")
-            _id = smartapi_data.get("id") or extra_data.get("id")
+        return self.extract_metadatas(parser.metadata["operations"], extra_data=extra_data)
 
-            metadatas.append({
-                "subject": op["association"]["input_type"],
-                "object": op["association"]["output_type"],
-                "predicate": op["association"]["predicate"],
-                "provided_by": op["association"].get("source"),
-                "api": {
-                    "name": op["association"]["api_name"],
-                    "smartapi": {
-                        "metadata": url,
-                        "id": _id,
-                        "ui": f"https://smart-api.info/ui/{_id}"
-                    },
-                    "x-translator": op["association"]["x-translator"]
-                },
-            })
-        return metadatas
-
-    def get_TRAPI_metadatas(self, data):
-        metadatas = []
+    def get_TRAPI_metadatas(self, data, extra_data=None):
+        ops = []
         metadata_list = self.get_TRAPI_with_metakg_endpoint(data)
         count_metadata_list = len(metadata_list)
         self.metakg_errors = {}
         for i, metadata in enumerate(metadata_list):
-            metadatas.extend(self.get_ops_from_metakg_endpoint(metadata, f"[{i+1}/{count_metadata_list}]"))
+            ops.extend(self.get_ops_from_metakg_endpoint(metadata, f"[{i+1}/{count_metadata_list}]"))
         if self.metakg_errors:
             cnt_metakg_errors = sum([len(x) for x in self.metakg_errors.values()])
             logger.error(f"Found {cnt_metakg_errors} TRAPI metakg errors:\n {json.dumps(self.metakg_errors, indent=2)}")
 
-        return metadatas
+        return self.extract_metadatas(ops, extra_data=extra_data)
 
     def get_TRAPI_with_metakg_endpoint(self, data):
         metadatas = []
@@ -139,3 +117,29 @@ class Parser:
             data = self.get_url(metadata['url'], extra_log_msg=extra_log_msg)
             return self.parse_trapi_metakg_endpoint(data, metadata)
         return []
+
+    def extract_metadatas(self, ops, extra_data=None):
+        extra_data = extra_data or {}
+        
+        metadatas = []
+        for op in ops:
+            smartapi_data = op["association"]["smartapi"]
+            url = (smartapi_data.get("meta") or {}).get("url") or extra_data.get("url")
+            _id = smartapi_data.get("id") or extra_data.get("id")
+
+            metadatas.append({
+                "subject": op["association"]["input_type"],
+                "object": op["association"]["output_type"],
+                "predicate": op["association"]["predicate"],
+                "provided_by": op["association"].get("source"),
+                "api": {
+                    "name": op["association"]["api_name"],
+                    "smartapi": {
+                        "metadata": url,
+                        "id": _id,
+                        "ui": f"https://smart-api.info/ui/{_id}"
+                    },
+                    "x-translator": op["association"]["x-translator"]
+                },
+            })
+        return metadatas
