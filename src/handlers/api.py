@@ -8,7 +8,7 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
 
 from controller.exceptions import ControllerError, NotFoundError
-from controller import SmartAPIEntity, MetaKGEntity
+from controller import SmartAPIEntity
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 

@@ -5,10 +5,10 @@ import requests
 
 from .api import API
 
-logger = logging.getLogger(__name__.split('.')[-1])
+logger = logging.getLogger("metakg_parser")
 
 
-class Parser:
+class MetaKGParser:
     get_url_timeout = 60
 
     def get_non_TRAPI_metadatas(self, data, extra_data=None):
@@ -120,7 +120,7 @@ class Parser:
 
     def extract_metadatas(self, ops, extra_data=None):
         extra_data = extra_data or {}
-        
+
         metadatas = []
         for op in ops:
             smartapi_data = op["association"]["smartapi"]

@@ -41,10 +41,10 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from warnings import warn
 
-from model import SmartAPIDoc
+from model import SmartAPIDoc, MetaKGDoc
 from utils import decoder, monitor
 from utils.downloader import download
-from .metakg import MetaKGEntity
+from utils.metakg.parser import MetaKGParser
 from .base import AbstractWebEntity, OpenAPI, Swagger, APIMonitorStatus, APIRefreshStatus
 from .exceptions import ConflictError, ControllerError
 
@@ -143,7 +143,10 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
         return super().find(val, field=field)
 
     @classmethod
-    def refresh_metakg(cls, include_reasoner=True):
+    def fetch_all_metakg(cls, include_trapi=True):
+        """Fetch metakg edges from all Translator APIs, and return as
+           a generator of edges.
+        """
         count_docs = cls.count()
         query_data = {
             'type': 'term',
@@ -151,10 +154,25 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
                 'tags.name': 'translator'
             }
         }
-        entities = cls.get_all(size=count_docs, query_data=query_data)
-        for entity in entities:
-            MetaKGEntity.create_by_smartapi(entity, include_reasoner=include_reasoner)
+        all_apis = cls.get_all(size=count_docs, query_data=query_data)
+        for api in all_apis:
+            metakg = api.get_metakg(include_trapi=include_trapi)
+            yield from metakg    # each item is a metakg edge
 
+    @classmethod
+    def refresh_metakg(cls, include_trapi=True):
+        """Fetch all metakg edges and saved to the ES index in bulk"""
+        from elasticsearch_dsl import connections
+        from elasticsearch.helpers import bulk
+
+        es = connections.get_connection()
+        edge_iterable = (
+            MetaKGDoc(**edge).to_dict(include_meta=True) \
+                for edge in cls.fetch_all_metakg(include_trapi=include_trapi)
+        )
+        bulk(es, edge_iterable)
+
+    # Instance methods below which is specific to a given SmartAPI entity
     @property
     def raw(self):
         """
@@ -288,3 +306,26 @@ class SmartAPIEntity(AbstractWebEntity, Mapping):
             doc = Swagger(self._data)
 
         return doc
+
+    def has_tags(self, *tags):
+        """return True if an SmartAPI contains all given tags"""
+        _tag_set = set([_tag.name for _tag in self._doc.tags])
+        return len(set(tags) - _tag_set) == 0
+
+    @property
+    def is_trapi(self):
+        """return True if a TRAPI"""
+        return self.has_tags("trapi", "translator")
+
+    def get_metakg(self, include_trapi=True):
+        raw_metadata = decoder.to_dict(decoder.decompress(self._doc._raw))
+        mkg_parser = MetaKGParser()
+        extra_data = {
+            "id": self._id,
+            "url": self.url
+        }
+        if self.is_trapi:
+            metakg = mkg_parser.get_TRAPI_metadatas(raw_metadata, extra_data) if include_trapi else []
+        else:
+            metakg = mkg_parser.get_non_TRAPI_metadatas(raw_metadata, extra_data)
+        return metakg

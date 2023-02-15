@@ -174,7 +174,7 @@ def resave():
         smartapi.save()
 
 
-def refresh_metakg(reset=True, include_reasoner=True):
+def refresh_metakg(reset=True, include_trapi=True):
     es_logger = logging.getLogger("elasticsearch")
     es_logger.setLevel("WARNING")
 
@@ -183,7 +183,7 @@ def refresh_metakg(reset=True, include_reasoner=True):
         indices.reset(MetaKGDoc)
 
     logging.info("Refreshing MetaKG index")
-    SmartAPIEntity.refresh_metakg(include_reasoner=include_reasoner)
+    SmartAPIEntity.refresh_metakg(include_trapi=include_trapi)
 
 
 restore = restore_from_file
