@@ -64,7 +64,7 @@ ANNOTATION_KWARGS['GET']['_sorted']['default'] = False
 # Modify both model.py and utils.indices.py
 ES_INDICES = {
     'metadata': 'smartapi_docs',
-    "metakg": "metakg_docs",
+    "metakg": "smartapi_metakg_docs",
 }
 
 # *****************************************************************************
