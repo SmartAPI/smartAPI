@@ -1,15 +1,15 @@
 """
-    SmartAPIEntity CRUD Validation and Refresh Operations
+    SmartAPI CRUD Validation and Refresh Operations
 
     Validation only:
 
-        smartapi = SmartAPIEntity(SmartAPIEntity.VALIDATION_ONLY)
+        smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
         smartapi.raw = rawbytes
         smartapi.validate()
 
     Add a document:
 
-        smartapi = SmartAPIEntity(url)
+        smartapi = SmartAPI(url)
         smartapi.raw = rawbytes
 
         smartapi.username = username
@@ -24,13 +24,13 @@
 
     Modify a document metadata:
 
-        smartapi = SmartAPIEntity.get(_id)
+        smartapi = SmartAPI.get(_id)
         smartapi.slug = newslug
         smartapi.save()
 
     Delete a document:
 
-        smartapi = SmartAPIEntity.get(_id)
+        smartapi = SmartAPI.get(_id)
         smartapi.delete()
 
 """
@@ -87,11 +87,11 @@ class Slug:
             raise ValueError("Slug contains invalid characters.")
 
 
-class SmartAPIEntity(AbstractWebEntity, Mapping):
+class SmartAPI(AbstractWebEntity, Mapping):
     LOOKUP_FIELDS = ("slug", "username", "url")
     MODEL_CLASS = SmartAPIDoc
 
-    # SmartAPIEntity.slug.validate(value: Union[str, NoneType]) -> None
+    # SmartAPI.slug.validate(value: Union[str, NoneType]) -> None
     # smartapi.slug : Union[str, NoneType]
     slug = Slug()
 

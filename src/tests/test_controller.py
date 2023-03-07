@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import elasticsearch
 import pytest
 from controller.exceptions import ConflictError, ControllerError, NotFoundError
-from controller.smartapi import SmartAPIEntity
+from controller.smartapi import SmartAPI
 from model import SmartAPIDoc
 from utils import decoder
 from utils.downloader import File
@@ -65,9 +65,9 @@ def setup_fixture():
 
 def test_get_all():
     """
-    SmartAPIEntity.get_all()
+    SmartAPI.get_all()
     """
-    docs = list(SmartAPIEntity.get_all())
+    docs = list(SmartAPI.get_all())
     assert len(docs) == 2
     assert docs[0]["info"]["title"] in ["MyGene.info API", "MyChem.info API"]
     assert docs[1]["info"]["title"] in ["MyGene.info API", "MyChem.info API"]
@@ -75,35 +75,35 @@ def test_get_all():
 
 def test_get_all_size():
     """
-    SmartAPIEntity.get_all(size=1)
+    SmartAPI.get_all(size=1)
     """
     search = SmartAPIDoc.search()
     assert search.count() == 2
 
-    docs = list(SmartAPIEntity.get_all(size=1))
+    docs = list(SmartAPI.get_all(size=1))
     assert len(docs) == 1
 
 
 def test_get_all_from():
     """
-    SmartAPIEntity.get_all(from_=1)
+    SmartAPI.get_all(from_=1)
     """
     search = SmartAPIDoc.search()
     assert search.count() == 2
 
-    docs = list(SmartAPIEntity.get_all(from_=1))
+    docs = list(SmartAPI.get_all(from_=1))
     assert len(docs) == 1
 
 
 def test_get():
     """
-    smartapi = SmartAPIEntity.get(_id)
+    smartapi = SmartAPI.get(_id)
     smartapi._id
     smartapi.url
     smartapi.version
     ...
     """
-    mygene = SmartAPIEntity.get(MYGENE_ID)
+    mygene = SmartAPI.get(MYGENE_ID)
     assert mygene._id == MYGENE_ID
     assert mygene.version == 'openapi'
     assert mygene.username == 'tester'
@@ -126,17 +126,17 @@ def test_get():
         mygene.slug = "^_^"
 
     with pytest.raises(NotFoundError):
-        SmartAPIEntity.get("NOTEXIST")
+        SmartAPI.get("NOTEXIST")
 
 
 def test_get_tags():
     """
-    SmartAPIEntity.get_tags()
-    SmartAPIEntity.get_tags(field)
+    SmartAPI.get_tags()
+    SmartAPI.get_tags(field)
     """
-    aggs = SmartAPIEntity.get_tags()
+    aggs = SmartAPI.get_tags()
     assert aggs == {'Chunlei Wu': 2}
-    aggs = SmartAPIEntity.get_tags('tags.name')
+    aggs = SmartAPI.get_tags('tags.name')
     assert 'annotation' in aggs
     assert 'translator' in aggs
     assert 'biothings' in aggs
@@ -144,19 +144,19 @@ def test_get_tags():
 
 def test_search():
     """
-    SmartAPIEntity.exists(_id)
-    SmartAPIEntity.find(slug)
-    SmartAPIEntity.find(val, field)
+    SmartAPI.exists(_id)
+    SmartAPI.find(slug)
+    SmartAPI.find(val, field)
     """
-    assert SmartAPIEntity.exists(MYGENE_ID)
-    assert SmartAPIEntity.exists(MYCHEM_ID)
-    assert SmartAPIEntity.find('mygene') == MYGENE_ID
-    assert SmartAPIEntity.find('mychem') == MYCHEM_ID
-    assert SmartAPIEntity.find('tester', 'username')
-    assert SmartAPIEntity.find('gene', 'tags.name') == MYGENE_ID
-    assert SmartAPIEntity.find('drug', 'tags.name') == MYCHEM_ID
-    assert SmartAPIEntity.find(MYGENE_URL, 'url') == MYGENE_ID
-    assert SmartAPIEntity.find(MYCHEM_URL, 'url') == MYCHEM_ID
+    assert SmartAPI.exists(MYGENE_ID)
+    assert SmartAPI.exists(MYCHEM_ID)
+    assert SmartAPI.find('mygene') == MYGENE_ID
+    assert SmartAPI.find('mychem') == MYCHEM_ID
+    assert SmartAPI.find('tester', 'username')
+    assert SmartAPI.find('gene', 'tags.name') == MYGENE_ID
+    assert SmartAPI.find('drug', 'tags.name') == MYCHEM_ID
+    assert SmartAPI.find(MYGENE_URL, 'url') == MYGENE_ID
+    assert SmartAPI.find(MYCHEM_URL, 'url') == MYCHEM_ID
 
 
 def test_validation():
@@ -165,28 +165,28 @@ def test_validation():
     """
     URL = "http://example.com/invalid.json"
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         smartapi.raw = file.read()
         smartapi.validate()
     with open(os.path.join(dirname, './validate/swagger-pass.json'), 'rb') as file:
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         smartapi.raw = file.read()
         smartapi.validate()
     with open(os.path.join(dirname, './validate/x-translator-pass.json'), 'rb') as file:
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         smartapi.raw = file.read()
         smartapi.validate()
     with open(os.path.join(dirname, './validate/x-translator-fail-1.yml'), 'rb') as file:
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         smartapi.raw = file.read()
         with pytest.raises(ControllerError):
             smartapi.validate()
     with open(os.path.join(dirname, './validate/x-translator-fail-2.yml'), 'rb') as file:
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         smartapi.raw = file.read()
         with pytest.raises(ControllerError):
             smartapi.validate()
-    smartapi = SmartAPIEntity(URL)
+    smartapi = SmartAPI(URL)
     smartapi.raw = b'{}'
     with pytest.raises(ControllerError):
         smartapi.validate()
@@ -204,7 +204,7 @@ def openapi():
 
 def test_save(openapi):
     """
-    SmartAPIEntity.slug.validate(slug)
+    SmartAPI.slug.validate(slug)
     smartapi.slug
     smartapi.save()
     """
@@ -212,16 +212,16 @@ def test_save(openapi):
     time.sleep(0.1)
     URL = "http://example.com/valid.json"
     with pytest.raises(ValueError):
-        SmartAPIEntity.slug.validate("a")
+        SmartAPI.slug.validate("a")
     with pytest.raises(ValueError):
-        SmartAPIEntity.slug.validate("AAA")
+        SmartAPI.slug.validate("AAA")
     with pytest.raises(ValueError):
-        SmartAPIEntity.slug.validate("www")
+        SmartAPI.slug.validate("www")
     with pytest.raises(ValueError):
-        SmartAPIEntity.slug.validate("^_^")
+        SmartAPI.slug.validate("^_^")
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
         raw = file.read()
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         with pytest.raises(ControllerError):
             smartapi.raw = None
         smartapi.raw = raw
@@ -238,7 +238,7 @@ def test_save(openapi):
         smartapi.slug = "openapi"
         smartapi.save()
         refresh()
-        assert SmartAPIEntity.find("openapi") == smartapi._id
+        assert SmartAPI.find("openapi") == smartapi._id
         assert smartapi.date_created > _t0
         assert smartapi.last_updated > _t0
         assert smartapi.date_created == smartapi.last_updated
@@ -248,7 +248,7 @@ def test_save(openapi):
         _t1 = smartapi.date_created
         smartapi.save()  # no change
         refresh()
-        assert SmartAPIEntity.find("openapi") == smartapi._id
+        assert SmartAPI.find("openapi") == smartapi._id
         assert smartapi.date_created == _t1
         assert smartapi.last_updated == _t1
         assert smartapi.date_created == smartapi.last_updated
@@ -258,8 +258,8 @@ def test_save(openapi):
         smartapi.slug = None
         smartapi.save()
         refresh()
-        assert not SmartAPIEntity.find("openapi")
-        found = SmartAPIEntity.get(openapi)
+        assert not SmartAPI.find("openapi")
+        found = SmartAPI.get(openapi)
         assert dict(smartapi) == dict(found)
         assert smartapi.username == found.username
         assert smartapi.slug == found.slug
@@ -305,7 +305,7 @@ def myvariant():
 
 def test_delete(myvariant):
 
-    mv = SmartAPIEntity.get(myvariant)
+    mv = SmartAPI.get(myvariant)
     mv.delete()
 
     refresh()
@@ -314,14 +314,14 @@ def test_delete(myvariant):
 
     URL = "http://example.com/valid.json"
     with open(os.path.join(dirname, './validate/openapi-pass.json'), 'rb') as file:
-        smartapi = SmartAPIEntity(URL)
+        smartapi = SmartAPI(URL)
         smartapi.raw = file.read()
         with pytest.raises(NotFoundError):
             smartapi.delete()
 
 
 def test_uptime_status():
-    mygene = SmartAPIEntity.get(MYGENE_ID)
+    mygene = SmartAPI.get(MYGENE_ID)
     assert mygene.uptime.status[0] is None
 
     mygene.uptime.update(('pass', None))
@@ -342,7 +342,7 @@ def test_uptime_status():
 @pytest.mark.skip("This test is failed, due to the chem endpoint requires id must be set")
 def test_uptime_update():
 
-    mygene = SmartAPIEntity.get(MYGENE_ID)
+    mygene = SmartAPI.get(MYGENE_ID)
     mygene.check()  # minimum api document
     assert mygene.uptime.status[0] == 'unknown'  # TODO VERIFY THIS IS IN FACT CORRECT
 
@@ -352,7 +352,7 @@ def test_uptime_update():
     mygene_doc = SmartAPIDoc.get(MYGENE_ID)
     assert mygene_doc._status.uptime_status == 'unknown'
 
-    mychem = SmartAPIEntity.get(MYCHEM_ID)
+    mychem = SmartAPI.get(MYCHEM_ID)
     mychem.check()  # full api document
     # NOTE: fail here. The request data must contains id
     # mychem.check() => {/chem: (400) {"code":400,"success":false,"error":"Bad Request","missing":"id","alias":"ids"}
@@ -370,7 +370,7 @@ def test_refresh_status():
     with open(os.path.join(dirname, 'mygene_full.yml'), 'rb') as file:
         MYGENE_FULL = file.read()
 
-    mygene = SmartAPIEntity.get(MYGENE_ID)  # minimum
+    mygene = SmartAPI.get(MYGENE_ID)  # minimum
     assert mygene.webdoc.status is None
     assert 'components' not in mygene
 
@@ -440,7 +440,7 @@ def test_refresh_status():
 
 def test_refresh_update():
 
-    mychem = SmartAPIEntity.get(MYCHEM_ID)
+    mychem = SmartAPI.get(MYCHEM_ID)
     assert mychem.webdoc.status is None
 
     # NOTE

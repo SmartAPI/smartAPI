@@ -7,7 +7,7 @@ from .base import AbstractWebEntity
 logger = logging.getLogger(__name__)
 
 
-class MetaKGEntity(AbstractWebEntity, Mapping):
+class MetaKG(AbstractWebEntity, Mapping):
     LOOKUP_FIELDS = []
     MODEL_CLASS = MetaKGDoc
 

@@ -32,7 +32,7 @@ import tornado
 import yaml
 from biothings.tests.web import BiothingsTestCase
 from controller.exceptions import NotFoundError
-from controller.smartapi import SmartAPIEntity
+from controller.smartapi import SmartAPI
 from model import SmartAPIDoc
 from tornado.escape import json_encode
 from tornado.web import create_signed_value
@@ -76,13 +76,13 @@ def setup_fixture():
     reset()
 
     # save initial docs with paths already transformed
-    mygene = SmartAPIEntity(MYGENE_URL)
+    mygene = SmartAPI(MYGENE_URL)
     mygene.raw = MYGENE_RAW
     mygene.username = 'tester'
     mygene.slug = 'mygene'
     mygene.save()
 
-    mychem = SmartAPIEntity(MYCHEM_URL)
+    mychem = SmartAPI(MYCHEM_URL)
     mychem.raw = MYCHEM_RAW
     mychem.username = 'tester'
     mychem.slug = 'mychem'
@@ -246,7 +246,7 @@ class TestCRUD(SmartAPIEndpoint):
             'smartAPIs/master/LINCS_Data_Portal_smartAPIs.yml'
 
         try:
-            smartapi = SmartAPIEntity.get(_ID)
+            smartapi = SmartAPI.get(_ID)
             smartapi.delete()
             refresh()
         except NotFoundError:
@@ -258,20 +258,20 @@ class TestCRUD(SmartAPIEndpoint):
         self.request("/api/metadata/", method='POST', data={'url': "http://invalidhost/file"}, headers=self.auth_user, expect=400)
         self.request("/api/metadata/", method='POST', data={'url': VALID_V3_URL, 'dryrun': True}, headers=self.auth_user)
         refresh()
-        assert not SmartAPIEntity.exists(_ID)
+        assert not SmartAPI.exists(_ID)
         self.request("/api/metadata/", method='POST', data={'url': VALID_V3_URL}, headers=self.auth_user)
         refresh()
-        assert SmartAPIEntity.exists(_ID)
+        assert SmartAPI.exists(_ID)
 
         try:
-            smartapi = SmartAPIEntity.get(_ID)
+            smartapi = SmartAPI.get(_ID)
             smartapi.delete()
         except NotFoundError:
             pass
 
     def test_update_slug(self):
 
-        mygene = SmartAPIEntity.get(MYGENE_ID)
+        mygene = SmartAPI.get(MYGENE_ID)
         assert mygene.slug == "mygene"
 
         self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygeeni"}, expect=401)
@@ -283,23 +283,23 @@ class TestCRUD(SmartAPIEndpoint):
         self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygeeni"}, headers=self.auth_user)
 
         refresh()
-        assert not SmartAPIEntity.find("mygene")
-        assert SmartAPIEntity.find("mygeeni")
+        assert not SmartAPI.find("mygene")
+        assert SmartAPI.find("mygeeni")
 
         self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": ""}, headers=self.auth_user)
 
         refresh()
-        assert not SmartAPIEntity.find("mygeeni")
-        assert not SmartAPIEntity.find("mygene")
+        assert not SmartAPI.find("mygeeni")
+        assert not SmartAPI.find("mygene")
 
         self.request("/api/metadata/" + MYGENE_ID, method='PUT', data={"slug": "mygene"}, headers=self.auth_user)
         refresh()
-        assert not SmartAPIEntity.find("mygeeni")
-        assert SmartAPIEntity.find("mygene")
+        assert not SmartAPI.find("mygeeni")
+        assert SmartAPI.find("mygene")
 
         # teardown
         refresh()
-        if not SmartAPIEntity.find("mygene"):
+        if not SmartAPI.find("mygene"):
             mygene = SmartAPIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
             mygene._raw = decoder.compress(MYGENE_RAW)
             mygene.save()
@@ -315,7 +315,7 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 299
         assert res["status"] == "updated"
 
-        mychem = SmartAPIEntity.get(MYCHEM_ID)
+        mychem = SmartAPI.get(MYCHEM_ID)
         assert mychem.webdoc.status == 299
         assert mychem.webdoc.timestamp
         ts0 = mychem.webdoc.timestamp
@@ -325,12 +325,12 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 200
         assert res["status"] == "not_modified"
 
-        mychem = SmartAPIEntity.get(MYCHEM_ID)
+        mychem = SmartAPI.get(MYCHEM_ID)
         assert mychem.webdoc.status == 200
         assert mychem.webdoc.timestamp >= ts0
 
         # setup
-        mygene_ref = SmartAPIEntity(self.get_url('/test/mygene.yml'))
+        mygene_ref = SmartAPI(self.get_url('/test/mygene.yml'))
         mygene_ref.raw = MYGENE_RAW
         mygene_ref.username = 'tester'
         mygene_ref.save()
@@ -341,7 +341,7 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 200
         assert res["status"] == "not_modified"
 
-        mygene = SmartAPIEntity.get(mygene_ref._id)
+        mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 200
 
         # second request, full version, updated
@@ -350,7 +350,7 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 299
         assert res["status"] == "updated"
 
-        mygene = SmartAPIEntity.get(mygene_ref._id)
+        mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 299
 
         # third request, link temporarily unavailable
@@ -359,7 +359,7 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 404
         assert res["status"] == "nofile"
 
-        mygene = SmartAPIEntity.get(mygene_ref._id)
+        mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 404
 
         # fourth request, link back up, new version doesn't pass validation
@@ -368,7 +368,7 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 499
         assert res["status"] == "invalid"
 
-        mygene = SmartAPIEntity.get(mygene_ref._id)
+        mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 499
 
         # fifth request, link restored to a working version
@@ -377,11 +377,11 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 200
         assert res["status"] == "not_modified"
 
-        mygene = SmartAPIEntity.get(mygene_ref._id)
+        mygene = SmartAPI.get(mygene_ref._id)
         assert mygene.webdoc.status == 200
 
         # setup
-        mygene_ref_2 = SmartAPIEntity('http://invalidhost/mygene.yml')
+        mygene_ref_2 = SmartAPI('http://invalidhost/mygene.yml')
         mygene_ref_2.raw = MYGENE_RAW
         mygene_ref_2.username = 'tester'
         mygene_ref_2.save()
@@ -391,24 +391,24 @@ class TestCRUD(SmartAPIEndpoint):
         assert res["code"] == 599
         assert res["status"] == "nofile"
 
-        mygene = SmartAPIEntity.get(mygene_ref_2._id)
+        mygene = SmartAPI.get(mygene_ref_2._id)
         assert mygene.webdoc.status == 599
 
     def test_delete(self):
 
         # setup
-        assert SmartAPIEntity.exists(MYGENE_ID)
+        assert SmartAPI.exists(MYGENE_ID)
 
         self.request("/api/metadata/" + MYGENE_ID, method='DELETE', expect=401)
         self.request("/api/metadata/" + MYGENE_ID, method='DELETE', headers=self.evil_user, expect=403)
         self.request("/api/metadata/" + MYGENE_ID, method='DELETE', headers=self.auth_user)
 
         refresh()
-        assert not SmartAPIEntity.exists(MYGENE_ID)
+        assert not SmartAPI.exists(MYGENE_ID)
 
         # teardown
         refresh()
-        if not SmartAPIEntity.exists(MYGENE_ID):  # recover the deleted file
+        if not SmartAPI.exists(MYGENE_ID):  # recover the deleted file
             mygene = SmartAPIDoc(meta={'id': MYGENE_ID}, **MYGENE_ES)
             mygene._raw = decoder.compress(MYGENE_RAW)
             mygene.save()

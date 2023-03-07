@@ -29,7 +29,7 @@ from datetime import datetime
 import boto3
 from filelock import FileLock, Timeout
 
-from controller import SmartAPIEntity
+from controller import SmartAPI
 from model import MetaKGDoc
 from utils import indices
 
@@ -57,7 +57,7 @@ def save_to_s3(mapping, filename=None, bucket="smartapi"):
 
 def _backup():
     smartapis = []
-    for smartapi in SmartAPIEntity.get_all(1000):
+    for smartapi in SmartAPI.get_all(1000):
         smartapis.append(
             {
                 "url": smartapi.url,
@@ -88,7 +88,7 @@ def _restore(smartapis):
     indices.reset()
     for smartapi in smartapis:
         logging.info(smartapi["url"])
-        _smartapi = SmartAPIEntity(smartapi["url"])
+        _smartapi = SmartAPI(smartapi["url"])
         _smartapi.username = smartapi["username"]
         _smartapi.slug = smartapi["slug"]
         _smartapi.date_created = datetime.fromisoformat(smartapi["date_created"])
@@ -123,7 +123,7 @@ def restore_from_file(filename):
 
 def refresh_document():
     logger = logging.getLogger("refresh")
-    for smartapi in SmartAPIEntity.get_all(1000):
+    for smartapi in SmartAPI.get_all(1000):
         logger.info(smartapi._id)
         _status = smartapi.refresh()
         logger.info(_status)
@@ -135,7 +135,7 @@ def refresh_document():
 
 def check_uptime():
     logger = logging.getLogger("uptime")
-    for smartapi in SmartAPIEntity.get_all(1000):
+    for smartapi in SmartAPI.get_all(1000):
         logger.info("Checking API: %s", smartapi._id)
         _status = smartapi.check()
         logger.debug(_status)
@@ -146,7 +146,7 @@ def check_uptime():
 
 def debug_uptime(_id, endpoint=None):
     """
-    Debug uptime status check for a given SmartAPIEntity.
+    Debug uptime status check for a given SmartAPI.
     If endpoint is provided, by path (e.g. "/taxon"), only check for that endpoint.
     """
     from utils import monitor
@@ -155,7 +155,7 @@ def debug_uptime(_id, endpoint=None):
     cur_level = logger.level
     logger.setLevel(logging.DEBUG)
     try:
-        api = monitor.API(dict(SmartAPIEntity.get(_id)))
+        api = monitor.API(dict(SmartAPI.get(_id)))
         if endpoint:
             _endpoint_info = api.endpoints_info[endpoint]
             _status = api.test_endpoint(endpoint, _endpoint_info)
@@ -169,7 +169,7 @@ def debug_uptime(_id, endpoint=None):
 def resave():
     # when index mappings are changed
     logger = logging.getLogger("resave")
-    for smartapi in SmartAPIEntity.get_all(1000):
+    for smartapi in SmartAPI.get_all(1000):
         logger.info(smartapi._id)
         smartapi.save()
 
@@ -183,7 +183,7 @@ def refresh_metakg(reset=True, include_trapi=True):
         indices.reset(MetaKGDoc)
 
     logging.info("Refreshing MetaKG index")
-    SmartAPIEntity.refresh_metakg(include_trapi=include_trapi)
+    SmartAPI.refresh_metakg(include_trapi=include_trapi)
 
 
 restore = restore_from_file

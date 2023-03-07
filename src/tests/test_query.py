@@ -6,7 +6,7 @@ import os
 import pytest
 
 from biothings.tests.web import BiothingsTestCase
-from controller.smartapi import SmartAPIEntity
+from controller.smartapi import SmartAPI
 from utils.indices import refresh, reset
 
 
@@ -28,13 +28,13 @@ def setup():
     """
     reset()
 
-    mygene = SmartAPIEntity(MYGENE_URL)
+    mygene = SmartAPI(MYGENE_URL)
     mygene.username = 'tester'
     mygene.refresh()
     mygene.check()
     mygene.save()
 
-    mychem = SmartAPIEntity(MYCHEM_URL)
+    mychem = SmartAPI(MYCHEM_URL)
     mychem.username = 'tester'
     mychem.refresh()
     mychem.check()

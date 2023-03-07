@@ -8,7 +8,7 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
 
 from controller.exceptions import ControllerError, NotFoundError
-from controller import SmartAPIEntity
+from controller import SmartAPI
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
@@ -131,7 +131,7 @@ class ValidateHandler(BaseHandler):
     def validate(self, raw):
 
         try:
-            smartapi = SmartAPIEntity(SmartAPIEntity.VALIDATION_ONLY)
+            smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
             smartapi.raw = raw
             smartapi.validate()
 
@@ -163,7 +163,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         Add an API document
         """
 
-        if SmartAPIEntity.find(self.args.url, "url"):
+        if SmartAPI.find(self.args.url, "url"):
             raise HTTPError(409)
 
         try:
@@ -172,7 +172,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             raise HTTPError(400, reason=str(err)) from err
 
         try:
-            smartapi = SmartAPIEntity(self.args.url)
+            smartapi = SmartAPI(self.args.url)
             smartapi.raw = file.raw
             smartapi.validate()
         except (ControllerError, AssertionError) as err:
@@ -255,7 +255,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         """
 
         try:
-            smartapi = SmartAPIEntity.get(_id)
+            smartapi = SmartAPI.get(_id)
         except NotFoundError:
             raise HTTPError(404)
 
@@ -300,7 +300,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         """
 
         try:
-            smartapi = SmartAPIEntity.get(_id)
+            smartapi = SmartAPI.get(_id)
         except NotFoundError:
             raise HTTPError(404)
 
@@ -334,7 +334,7 @@ class ValueSuggestionHandler(BaseHandler):
         Returns aggregations for any field provided
         Used for tag:count on registry
         """
-        res = SmartAPIEntity.get_tags(self.args.field)
+        res = SmartAPI.get_tags(self.args.field)
         self.finish(res)
 
 
@@ -366,7 +366,7 @@ class UptimeHandler(BaseHandler):
 
         if self.args.id:
             try:
-                smartapi = SmartAPIEntity.get(self.args.id)
+                smartapi = SmartAPI.get(self.args.id)
                 if smartapi.username != self.current_user['login']:
                     raise HTTPError(403)
                 status = smartapi.check()
@@ -388,7 +388,7 @@ class UptimeHandler(BaseHandler):
 
         if self.args.id:
             try:
-                smartapi = SmartAPIEntity.get(self.args.id)
+                smartapi = SmartAPI.get(self.args.id)
                 if smartapi.username != self.current_user['login']:
                     raise HTTPError(403)
                 status = smartapi.check()
