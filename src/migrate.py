@@ -5,7 +5,7 @@ from dateutil import parser
 from elasticsearch.client import Elasticsearch
 from elasticsearch.helpers import scan
 
-from controller import SmartAPI
+from controller.smartapi import SmartAPI
 from utils import decoder, indices
 
 ES_ORIGIN = "http://smart-api.info:9200"

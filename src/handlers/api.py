@@ -4,14 +4,13 @@ import logging
 from biothings.web.auth.authn import BioThingsAuthnMixin
 from biothings.web.handlers import BaseAPIHandler
 from biothings.web.handlers.query import BiothingHandler
-
-from controller import ControllerError, NotFoundError, SmartAPI
-from tornado.escape import to_basestring
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
+
+from controller.exceptions import ControllerError, NotFoundError
+from controller import SmartAPI
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
-
 
 
 def github_authenticated(func):

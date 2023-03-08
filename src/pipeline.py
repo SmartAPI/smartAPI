@@ -9,7 +9,7 @@ from biothings.web.query import (
     ESResultFormatter)
 from elasticsearch_dsl import Search
 
-from controller import OpenAPI, Swagger
+from controller.base import OpenAPI, Swagger
 from utils import decoder
 
 

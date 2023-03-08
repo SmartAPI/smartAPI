@@ -1,0 +1,6 @@
+[flake8]
+# Let Black handle all the formatting.
+ignore = E,W503
+exclude =
+  tests/snapshots,
+  .svn,CVS,.bzr,.hg,.git,__pycache__,.tox,.eggs,*.egg

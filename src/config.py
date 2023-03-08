@@ -62,7 +62,10 @@ ANNOTATION_KWARGS['GET']['_sorted']['default'] = False
 # Use port forwarding to connect to a remote server.
 # In order to support ES_HOST configuration,
 # Modify both model.py and utils.indices.py
-ES_INDICES = {'metadata': 'smartapi_docs'}
+ES_INDICES = {
+    'metadata': 'smartapi_docs',
+    "metakg": "smartapi_metakg_docs",
+}
 
 # *****************************************************************************
 # Tornado URL Patterns
@@ -77,6 +80,7 @@ APP_LIST = [
     (r'/api/build/?', 'biothings.web.handlers.MetadataSourceHandler'),
     (r'/api/status/?', 'biothings.web.handlers.StatusHandler'),
     (r'/api/suggestion/?', 'handlers.api.ValueSuggestionHandler'),
+    (r'/api/metakg/?', 'biothings.web.handlers.QueryHandler', {"biothing_type": "metakg"}),
 ]
 
 # biothings web tester will read this
