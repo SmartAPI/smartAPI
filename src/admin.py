@@ -27,9 +27,12 @@ import logging
 from datetime import datetime
 
 import boto3
-from controller import SmartAPI
 from filelock import FileLock, Timeout
+
+from controller import SmartAPI
+from model import MetaKGDoc
 from utils import indices
+
 
 logging.basicConfig(level="INFO")
 
@@ -169,6 +172,18 @@ def resave():
     for smartapi in SmartAPI.get_all(1000):
         logger.info(smartapi._id)
         smartapi.save()
+
+
+def refresh_metakg(reset=True, include_trapi=True):
+    es_logger = logging.getLogger("elasticsearch")
+    es_logger.setLevel("WARNING")
+
+    if reset:
+        logging.info("Reset MetaKG index")
+        indices.reset(MetaKGDoc)
+
+    logging.info("Refreshing MetaKG index")
+    SmartAPI.refresh_metakg(include_trapi=include_trapi)
 
 
 restore = restore_from_file

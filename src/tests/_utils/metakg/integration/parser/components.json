@@ -1,0 +1,650 @@
+{
+    "parameters": {
+        "callback": {
+            "description": "you can pass a \"callback\" parameter to make a JSONP call.",
+            "in": "query",
+            "name": "callback",
+            "schema": {
+                "type": "string"
+            }
+        },
+        "dotfield": {
+            "description": "control the format of the returned fields when passed \"fields\" parameter contains dot notation, e.g. \"fields=refseq.rna\". If \"True\" or \"1\", the returned data object contains a single \"refseq.rna\" field, otherwise (\"False\" or \"0\"), a single \"refseq\" field with a sub-field of \"rna\". Default: True.",
+            "in": "query",
+            "name": "dotfield",
+            "schema": {
+                "type": "boolean"
+            }
+        },
+        "email": {
+            "description": "If you are regular users of our services, we encourage you to provide us an email, so that we can better track the usage or follow up with you.",
+            "in": "query",
+            "name": "email",
+            "schema": {
+                "type": "string"
+            }
+        },
+        "fields": {
+            "description": "a comma-separated fields to limit the fields returned from the matching gene hits. The supported field names can be found from any gene object (e.g. http://mygene.info/v3/gene/1017). Note that it supports dot notation as well, e.g., you can pass \"refseq.rna\". If \"fields=all\", all available fields will be returned. Default: \"symbol,name,taxid,entrezgene,ensemblgene\".",
+            "in": "query",
+            "name": "fields",
+            "schema": {
+                "type": "string"
+            }
+        },
+        "from": {
+            "description": "the number of matching gene hits to skip, starting from 0. Combining with \"size\" parameter, this can be useful for paging. Default: 0.",
+            "in": "query",
+            "name": "from",
+            "schema": {
+                "type": "integer"
+            }
+        },
+        "size": {
+            "description": "the maximum number of matching gene hits to return (with a cap of 1000 at the moment). Default: 10.",
+            "in": "query",
+            "name": "size",
+            "schema": {
+                "type": "integer"
+            }
+        },
+        "sort": {
+            "description": "the comma-separated fields to sort on. Prefix with \"-\" for descending order, otherwise in ascending order. Default: sort by matching scores in decending order.",
+            "in": "query",
+            "name": "sort",
+            "schema": {
+                "type": "string"
+            }
+        },
+        "species": {
+            "description": "can be used to limit the gene hits from given species. You can use \"common names\" for nine common species (human, mouse, rat, fruitfly, nematode, zebrafish, thale-cress, frog and pig). All other species, you can provide their taxonomy ids. Multiple species can be passed using comma as a separator. Default: human,mouse,rat.",
+            "in": "query",
+            "name": "species",
+            "schema": {
+                "type": "string"
+            }
+        }
+    },
+    "schemas": {
+        "Gene": {
+            "properties": {
+                "AnimalQTLdb": {
+                    "type": "string"
+                },
+                "FLYBASE": {
+                    "type": "string"
+                },
+                "HGNC": {
+                    "type": "string"
+                },
+                "HPRD": {
+                    "type": "string"
+                },
+                "MGI": {
+                    "type": "string"
+                },
+                "MIM": {
+                    "type": "string"
+                },
+                "RATMAP": {
+                    "type": "string"
+                },
+                "RGD": {
+                    "type": "string"
+                },
+                "TAIR": {
+                    "type": "string"
+                },
+                "Vega": {
+                    "type": "string"
+                },
+                "WormBase": {
+                    "type": "string"
+                },
+                "Xenbase": {
+                    "type": "string"
+                },
+                "ZFIN": {
+                    "type": "string"
+                },
+                "_id": {
+                    "type": "string"
+                },
+                "accession": {
+                    "type": "object"
+                },
+                "aliase": {
+                    "type": "string"
+                },
+                "ec": {
+                    "type": "string"
+                },
+                "ensembl": {
+                    "type": "object"
+                },
+                "entrezgene": {
+                    "format": "int64",
+                    "type": "integer"
+                },
+                "generif": {
+                    "properties": {
+                        "pubmed": {
+                            "$ref": "#/components/schemas/int64_or_array"
+                        },
+                        "text": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                },
+                "genomic_pos": {
+                    "type": "object"
+                },
+                "go": {
+                    "type": "object"
+                },
+                "homologene": {
+                    "type": "object"
+                },
+                "interpro": {
+                    "type": "object"
+                },
+                "locus_tag": {
+                    "type": "string"
+                },
+                "map_location": {
+                    "type": "string"
+                },
+                "miRBase": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "other_names": {
+                    "$ref": "#/components/schemas/string_or_array"
+                },
+                "pathway": {
+                    "type": "object"
+                },
+                "pdb": {
+                    "$ref": "#/components/schemas/string_or_array"
+                },
+                "pfam": {
+                    "type": "string"
+                },
+                "pharmgkb": {
+                    "type": "string"
+                },
+                "pid": {
+                    "type": "string"
+                },
+                "pir": {
+                    "type": "string"
+                },
+                "prosite": {
+                    "type": "string"
+                },
+                "reagent": {
+                    "type": "object"
+                },
+                "refseq": {
+                    "type": "object"
+                },
+                "reporter": {
+                    "type": "object"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "taxid": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "type_of_gene": {
+                    "type": "string"
+                },
+                "umls": {
+                    "type": "object"
+                },
+                "unigene": {
+                    "type": "string"
+                },
+                "uniprot": {
+                    "properties": {
+                        "Swiss-Prot": {
+                            "$ref": "#/components/schemas/string_or_array"
+                        },
+                        "TrEMBL": {
+                            "$ref": "#/components/schemas/string_or_array"
+                        }
+                    },
+                    "type": "object"
+                },
+                "wikipedia": {
+                    "properties": {
+                        "url_stub": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "required": [
+                "_id",
+                "taxid"
+            ],
+            "type": "object"
+        },
+        "MinimalGene": {
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "entrezgene": {
+                    "format": "int64",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "symbol": {
+                    "type": "string"
+                },
+                "taxid": {
+                    "format": "int32",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "_id",
+                "taxid"
+            ],
+            "type": "object"
+        },
+        "QueryPOSTResult": {
+            "items": {
+                "allOf": [{
+                    "$ref": "#/components/schemas/MinimalGene"
+                },
+                {
+                    "properties": {
+                        "_score": {
+                            "format": "float",
+                            "type": "number"
+                        },
+                        "query": {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+                ]
+            },
+            "type": "array"
+        },
+        "QueryResult": {
+            "properties": {
+                "hits": {
+                    "items": {
+                        "$ref": "#/components/schemas/Gene"
+                    },
+                    "type": "array"
+                },
+                "max_score": {
+                    "format": "float",
+                    "type": "number"
+                },
+                "took": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            },
+            "type": "object"
+        },
+        "int64_or_array": {
+            "oneOf": [{
+                "items": {
+                    "format": "int64",
+                    "type": "integer"
+                },
+                "type": "array"
+            },
+            {
+                "format": "int64",
+                "type": "integer"
+            }
+            ]
+        },
+        "string_or_array": {
+            "oneOf": [{
+                "items": {
+                    "type": "string"
+                },
+                "type": "array"
+            },
+            {
+                "type": "string"
+            }
+            ]
+        }
+    },
+    "x-bte-kgs-operations": {
+        "enablesMF": [{
+            "inputSeparator": ",",
+            "inputs": [{
+                "id": "NCBIGene",
+                "semantic": "Gene"
+            }],
+            "outputs": [{
+                "id": "GO",
+                "semantic": "MolecularActivity"
+            }],
+            "source": "entrez",
+            "predicate": "functional_association",
+            "parameters": {
+                "fields": "go.MF"
+            },
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "entrezgene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/functional_association_mf"
+            }
+        }],
+        "hasGeneProduct": [
+            {
+                "inputs": [{
+                    "id": "ENSEMBL",
+                    "semantic": "Gene"
+                }],
+                "outputs": [
+                    {
+                        "id": "UNIPROTKB",
+                        "semantic": "Protein"
+                    }
+                ],
+                "predicate": "has_gene_product",
+                "parameters": {
+                    "fields": "uniprot.Swiss-Prot"
+                },
+                "requestBody": {
+                    "body": {
+                        "q": "{inputs[0]}",
+                        "scopes": "ensembl.gene"
+                    },
+                    "header": "application/x-www-form-urlencoded"
+                },
+                "inputSeparator": ",",
+                "supportBatch": true,
+                "response_mapping": {
+                    "$ref": "#/components/x-bte-response-mapping/has_gene_product"
+                }
+            },
+            {
+                "inputs": [{
+                    "id": "ENSEMBL",
+                    "semantic": "Gene"
+                }],
+                "outputs": [
+                    {
+                        "id": "ENSEMBL",
+                        "semantic": "Protein"
+                    }
+                ],
+                "predicate": "has_gene_product",
+                "parameters": {
+                    "fields": "ensembl.protein"
+                },
+                "requestBody": {
+                    "body": {
+                        "q": "{inputs[0]}",
+                        "scopes": "ensembl.gene"
+                    },
+                    "header": "application/x-www-form-urlencoded"
+                },
+                "inputSeparator": ",",
+                "supportBatch": true,
+                "response_mapping": {
+                    "$ref": "#/components/x-bte-response-mapping/has_gene_product"
+                }
+            }
+        ],
+        "hasHomolog": [{
+            "inputs": [{
+                "id": "NCBIGene",
+                "semantic": "Gene"
+            }],
+            "outputs": [{
+                "id": "MGI",
+                "semantic": "Gene"
+            }],
+            "predicate": "homologous_to",
+            "parameters": {
+                "fields": "pantherdb.ortholog"
+            },
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "entrezgene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "inputSeparator": ",",
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/homologous_to"
+            }
+        }],
+        "hasTranscript": [{
+            "inputs": [{
+                "id": "ENSEMBL",
+                "semantic": "Gene"
+            }],
+            "outputs": [{
+                "id": "ENSEMBL",
+                "semantic": "Transcript"
+            }],
+            "parameters": {
+                "fields": "ensembl.transcript"
+            },
+            "predicate": "gene_to_transcript_relationship",
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "ensembl.gene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "inputSeparator": ",",
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/gene_to_transcript_relationship"
+            }
+        }],
+        "involvedInBP": [{
+            "inputs": [{
+                "id": "NCBIGene",
+                "semantic": "Gene"
+            }],
+            "outputs": [{
+                "id": "GO",
+                "semantic": "BiologicalProcess"
+            }],
+            "source": "entrez",
+            "predicate": "functional_association",
+            "parameters": {
+                "fields": "go.BP"
+            },
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "entrezgene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "inputSeparator": ",",
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/functional_association_bp"
+            }
+        }],
+        "involvedInCC": [{
+            "inputs": [{
+                "id": "NCBIGene",
+                "semantic": "Gene"
+            }],
+            "outputs": [{
+                "id": "GO",
+                "semantic": "CellularComponent"
+            }],
+            "source": "entrez",
+            "predicate": "functional_association",
+            "parameters": {
+                "fields": "go.CC"
+            },
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "entrezgene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "inputSeparator": ",",
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/functional_association_cc"
+            }
+        }],
+        "involvedInPathway": [{
+            "inputs": [{
+                "id": "NCBIGene",
+                "semantic": "Gene"
+            }],
+            "method": "post",
+            "outputs": [{
+                "id": "WIKIPATHWAYS",
+                "semantic": "Pathway"
+            }],
+            "source": "CPDB",
+            "predicate": "functional_association",
+            "parameters": {
+                "fields": "pathway.wikipathways"
+            },
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "entrezgene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "inputSeparator": ",",
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/functional_association_wikipathways"
+            }
+        },
+        {
+            "inputs": [{
+                "id": "NCBIGene",
+                "semantic": "Gene"
+            }],
+            "method": "post",
+            "outputs": [{
+                "id": "Reactome",
+                "semantic": "Pathway"
+            }],
+            "predicate": "functional_association",
+            "source": "CPDB",
+            "parameters": {
+                "fields": "pathway.reactome",
+                "species": "human"
+            },
+            "requestBody": {
+                "body": {
+                    "q": "{inputs[0]}",
+                    "scopes": "entrezgene"
+                },
+                "header": "application/x-www-form-urlencoded"
+            },
+            "inputSeparator": ",",
+            "supportBatch": true,
+            "response_mapping": {
+                "$ref": "#/components/x-bte-response-mapping/functional_association_reactome"
+            }
+        }
+        ]
+    },
+    "x-bte-response-mapping": {
+        "description": "summary",
+        "name": [
+            "name",
+            "other_names"
+        ],
+        "OMIM": "MIM",
+        "PHARMGKB": "pharmgkb",
+        "PHAROS": "pahros.target_id",
+        "SYMBOL": "symbol",
+        "UMLS": "umls.cui",
+        "ENSEMBL": "ensembl.gene",
+        "NCBIGene": "entrezgene",
+        "HGNC": "HGNC",
+        "inTaxon": "taxid",
+        "has_gene_product": {
+            "ENSEMBL": "ensembl.protein",
+            "UNIPROTKB": "uniprot.Swiss-Prot"
+        },
+        "homologous_to": {
+            "dictyBase": "pantherdb.ortholog.dictyBase",
+            "ENSEMBL": "pantherdb.ortholog.Ensembl",
+            "FlyBase": "pantherdb.ortholog.FlyBase",
+            "HGNC": "pantherdb.ortholog.HGNC",
+            "inTaxon": "pantherdb.ortholog.taxid",
+            "MGI": "pantherdb.ortholog.MGI",
+            "POMBASE": "pantherdb.ortholog.PomBase",
+            "RGD": "pantherdb.ortholog.RGD",
+            "SGD": "pantherdb.ortholog.SGD",
+            "TAIR": "pantherdb.ortholog.TAIR",
+            "ZFIN": "pantherdb.ortholog.ZFIN"
+        },
+        "gene_to_transcript_relationship": {
+            "ENSEMBL": "ensembl.transcript"
+        },
+        "functional_association_wikipathways": {
+            "name": "pathway.wikipathways.name",
+            "WIKIPATHWAYS": "pathway.wikipathways.id"
+        },
+        "functional_association_reactome": {
+            "name": "pathway.reactome.name",
+            "Reactome": "pathway.reactome.id"
+        },
+        "functional_association_cc": {
+            "evidence": "go.CC.evidence",
+            "GO": "go.CC.id",
+            "pubmed": "go.CC.pubmed",
+            "term": "go.CC.term"
+        },
+        "functional_association_bp": {
+            "evidence": "go.BP.evidence",
+            "GO": "go.BP.id",
+            "pubmed": "go.BP.pubmed",
+            "term": "go.BP.term"
+        },
+        "functional_association_mf": {
+            "evidence": "go.MF.evidence",
+            "GO": "go.MF.id",
+            "pubmed": "go.MF.pubmed",
+            "term": "go.MF.term"
+        }
+    }
+}

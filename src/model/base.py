@@ -1,78 +1,24 @@
 """
-    Elasticsearch Document Object Model
+    Elasticsearch Document Object Base Model
 """
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
-from elasticsearch_dsl import (
-    connections, InnerDoc, Keyword, Date, Text, Integer, Document, Object, Binary, MetaField, A
-)
+from elasticsearch_dsl import connections, Document, MetaField, A
 
 
 ES_HOST = 'localhost:9200'
-ES_INDEX_NAME = 'smartapi_docs'
 
 # create a default connection
 connections.create_connection(hosts=ES_HOST)
 
 
-class UserMeta(InnerDoc):
-    """ The _meta field. """
-    url = Keyword(required=True)
-    slug = Keyword()  # url shortcut
-    username = Keyword(required=True)
-    date_created = Date(default_timezone='UTC')
-    last_updated = Date(default_timezone='UTC')
-
-
-class StatMeta(InnerDoc):
-    """ The _status field. """
-
-    uptime_status = Keyword()
-    uptime_msg = Text(index=False)
-    uptime_ts = Date()
-
-    refresh_status = Integer()
-    refresh_ts = Date()
-
-
-class APIDoc(Document):
-
-    _meta = Object(UserMeta, required=True)
-    _status = Object(StatMeta)
-    _raw = Binary()
-
-    info = Object()
-    servers = Object()
-    paths = Object(
-        properties={
-            "path": Text(),
-            "pathitem": Object()
-        })
-    tags = Object(multi=True)
-    openapi = Text()
-
-    # swagger only fields
-    swagger = Text()
-    basePath = Text()
-    host = Text()
-
+class BaseDoc(Document):
     class Meta:
         """
         Index Mappings
         """
         dynamic = MetaField(True)
-
-    class Index:
-        """
-        Index Settings
-        """
-        name = ES_INDEX_NAME
-        settings = {
-            "number_of_shards": 1,
-            "number_of_replicas": 0,
-            "mapping.ignore_malformed": True,
-            "mapping.total_fields.limit": 2500
-        }
+        abstract = True
 
     @classmethod
     def exists(cls, value, field="_id"):
@@ -106,3 +52,6 @@ class APIDoc(Document):
         result = {b['key']: b['doc_count'] for b in buckets}
 
         return result
+
+    def get_url(self):
+        raise NotImplementedError()
