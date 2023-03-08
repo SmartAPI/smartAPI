@@ -143,7 +143,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         return super().find(val, field=field)
 
     @classmethod
-    def fetch_all_metakg(cls, include_trapi=True):
+    def fetch_all_metakg(cls, include_trapi=True, report_errors=True):
         """Fetch metakg edges from all Translator APIs, and return as
            a generator of edges.
         """
@@ -155,9 +155,21 @@ class SmartAPI(AbstractWebEntity, Mapping):
             }
         }
         all_apis = cls.get_all(size=count_docs, query_data=query_data)
+        metakg_error_list = []
         for api in all_apis:
+            logger.info("[%s]", )
+            logger.info("SmartAPI ID: %s", api._id)
             metakg = api.get_metakg(include_trapi=include_trapi)
+            if api.metakg_errors:
+                api.metakg_errors.setdefault("_id", api._id)
+                api.metakg_errors.setdefault("title", api._doc.info.title)
+                metakg_error_list.append(api.metakg_errors)
             yield from metakg    # each item is a metakg edge
+        if report_errors and metakg_error_list:
+            logger.error("=" * 50)
+            logger.error("Found errors in %s APIs during metakg retrieval:", len(metakg_error_list))
+            for error in metakg_error_list:
+                logger.error(error)
 
     @classmethod
     def refresh_metakg(cls, include_trapi=True):
@@ -324,8 +336,12 @@ class SmartAPI(AbstractWebEntity, Mapping):
             "id": self._id,
             "url": self.url
         }
+        self.metakg_errors = None     # reset metakg_errors
         if self.is_trapi:
             metakg = mkg_parser.get_TRAPI_metadatas(raw_metadata, extra_data) if include_trapi else []
         else:
             metakg = mkg_parser.get_non_TRAPI_metadatas(raw_metadata, extra_data)
+        if mkg_parser.metakg_errors:
+            # hold metakg_errors for later use
+            self.metakg_errors = mkg_parser.metakg_errors
         return metakg

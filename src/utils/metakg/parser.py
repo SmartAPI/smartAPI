@@ -10,10 +10,15 @@ logger = logging.getLogger("metakg_parser")
 
 class MetaKGParser:
     get_url_timeout = 60
+    metakg_errors = None
 
     def get_non_TRAPI_metadatas(self, data, extra_data=None):
         parser = API(data)
-        return self.extract_metadatas(parser.metadata["operations"], extra_data=extra_data)
+        mkg = self.extract_metadatas(parser.metadata["operations"], extra_data=extra_data)
+        no_nodes = len({x["subject"] for x in mkg} | {x["object"] for x in mkg})
+        no_edges = len({x["predicate"] for x in mkg})
+        logger.info("Done [%s nodes, %s edges]", no_nodes, no_edges)
+        return mkg
 
     def get_TRAPI_metadatas(self, data, extra_data=None):
         ops = []
@@ -115,7 +120,7 @@ class MetaKGParser:
                 self.metakg_errors[err].append(url)
             else:
                 self.metakg_errors[err] = [url]
-        logger.info(f"Done [{len(data.get('nodes', []))}, {len(data.get('edges', []))}]")
+        logger.info("Done [%s nodes, %s edges]", len(data.get('nodes', [])), len(data.get('edges', [])))
         return data
 
     def get_ops_from_metakg_endpoint(self, metadata, extra_log_msg=""):
