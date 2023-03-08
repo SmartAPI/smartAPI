@@ -32,52 +32,54 @@ class MetaKGParser:
         metadatas = []
         parser = API(data)
         metadata = parser.metadata
-        _paths = metadata.get('paths', {})
-        _team = metadata.get("x-translator", {}).get('team')
+        _paths = metadata.get("paths", {})
+        _team = metadata.get("x-translator", {}).get("team")
         if "/meta_knowledge_graph" in _paths and "/query" in _paths and _team:
             metadatas.append(metadata)
         return metadatas
 
     def construct_query_url(self, server_url):
-        if server_url.endswith('/'):
+        if server_url.endswith("/"):
             server_url = server_url[:-1]
         return server_url + "/meta_knowledge_graph"
 
     def remove_bio_link_prefix(self, _input):
         if not isinstance(_input, str):
             return
-        if _input.startswith('biolink:'):
+        if _input.startswith("biolink:"):
             return _input[8:]
         return _input
 
     def parse_trapi_metakg_endpoint(self, response, metadata):
         ops = []
-        for pred in response.get('edges', []):
-            ops.append({
-                'association': {
-                    'input_type': self.remove_bio_link_prefix(pred['subject']),
-                    'output_type': self.remove_bio_link_prefix(pred['object']),
-                    'predicate': self.remove_bio_link_prefix(pred['predicate']),
-                    'api_name': metadata.get('title'),
-                    'smartapi': metadata.get('smartapi'),
-                    'x-translator': metadata.get('x-translator'),
-                },
-                'tags': [*metadata.get('tags'), 'bte-trapi'],
-                'query_operation': {
-                    'path': '/query',
-                    'method': 'post',
-                    'server': metadata.get('url'),
-                    'path_params': None,
-                    'params': None,
-                    'request_body': None,
-                    'support_batch': True,
-                    'input_separator': ',',
-                    'tags': [*metadata.get('tags'), 'bte-trapi']
+        for pred in response.get("edges", []):
+            ops.append(
+                {
+                    "association": {
+                        "input_type": self.remove_bio_link_prefix(pred["subject"]),
+                        "output_type": self.remove_bio_link_prefix(pred["object"]),
+                        "predicate": self.remove_bio_link_prefix(pred["predicate"]),
+                        "api_name": metadata.get("title"),
+                        "smartapi": metadata.get("smartapi"),
+                        "x-translator": metadata.get("x-translator"),
+                    },
+                    "tags": [*metadata.get("tags"), "bte-trapi"],
+                    "query_operation": {
+                        "path": "/query",
+                        "method": "post",
+                        "server": metadata.get("url"),
+                        "path_params": None,
+                        "params": None,
+                        "request_body": None,
+                        "support_batch": True,
+                        "input_separator": ",",
+                        "tags": [*metadata.get("tags"), "bte-trapi"],
+                    },
                 }
-            })
+            )
         return ops
 
-    def get_url(self, url, extra_log_msg=''):
+    def get_url(self, url, extra_log_msg=""):
         logger.info(f'Fetching "{url}" {extra_log_msg}...')
         data = {}
         # sometimes the request is in chunked mode but we can't know beforehand
@@ -91,7 +93,11 @@ class MetaKGParser:
             #                 data_str = data_str + chunk.decode("UTF-8")
             #             data = json.loads(data_str)
             # except ResponseNotChunked:
-            response = requests.get(self.construct_query_url(url), verify=True, timeout=self.get_url_timeout)
+            response = requests.get(
+                self.construct_query_url(url),
+                verify=True,
+                timeout=self.get_url_timeout,
+            )
             if response.status_code != 200:
                 raise Exception("Not Found")
             data = response.json()
@@ -113,8 +119,8 @@ class MetaKGParser:
         return data
 
     def get_ops_from_metakg_endpoint(self, metadata, extra_log_msg=""):
-        if metadata.get('url'):
-            data = self.get_url(metadata['url'], extra_log_msg=extra_log_msg)
+        if metadata.get("url"):
+            data = self.get_url(metadata["url"], extra_log_msg=extra_log_msg)
             return self.parse_trapi_metakg_endpoint(data, metadata)
         return []
 
@@ -127,19 +133,21 @@ class MetaKGParser:
             url = (smartapi_data.get("meta") or {}).get("url") or extra_data.get("url")
             _id = smartapi_data.get("id") or extra_data.get("id")
 
-            metadatas.append({
-                "subject": op["association"]["input_type"],
-                "object": op["association"]["output_type"],
-                "predicate": op["association"]["predicate"],
-                "provided_by": op["association"].get("source"),
-                "api": {
-                    "name": op["association"]["api_name"],
-                    "smartapi": {
-                        "metadata": url,
-                        "id": _id,
-                        "ui": f"https://smart-api.info/ui/{_id}"
+            metadatas.append(
+                {
+                    "subject": op["association"]["input_type"],
+                    "object": op["association"]["output_type"],
+                    "predicate": op["association"]["predicate"],
+                    "provided_by": op["association"].get("source"),
+                    "api": {
+                        "name": op["association"]["api_name"],
+                        "smartapi": {
+                            "metadata": url,
+                            "id": _id,
+                            "ui": f"https://smart-api.info/ui/{_id}",
+                        },
+                        "x-translator": op["association"]["x-translator"],
                     },
-                    "x-translator": op["association"]["x-translator"]
-                },
-            })
+                }
+            )
         return metadatas

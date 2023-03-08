@@ -2,29 +2,29 @@ class QueryOperationObject:
     _params = {}
     _request_body = {}
     _support_batch = None
-    _input_separator = ''
-    _path = ''
-    _method = ''
-    _server = ''
+    _input_separator = ""
+    _path = ""
+    _method = ""
+    _server = ""
     _tags = []
     _path_params = []
 
     @property
     def xBTEKGSOperation(self):
         return {
-            'params': self._params,
-            'request_body': self._request_body,
-            'support_batch': self._support_batch,
-            'input_separator': self._input_separator,
+            "params": self._params,
+            "request_body": self._request_body,
+            "support_batch": self._support_batch,
+            "input_separator": self._input_separator,
         }
 
     @xBTEKGSOperation.setter
     def xBTEKGSOperation(self, new_op):
         if not isinstance(new_op, str):
-            self._params = new_op.get('parameters')
-            self._request_body = new_op.get('request_body') or new_op.get('requestBody')
-            self._support_batch = new_op.get('supportBatch')
-            self._input_separator = new_op.get('inputSeparator')
+            self._params = new_op.get("parameters")
+            self._request_body = new_op.get("request_body") or new_op.get("requestBody")
+            self._support_batch = new_op.get("supportBatch")
+            self._input_separator = new_op.get("inputSeparator")
 
     @property
     def params(self):
@@ -85,8 +85,15 @@ class QueryOperationObject:
     def to_dict(self):
         d = {}
         for attr in [
-            "params", "request_body", "path_params", "path",
-            "method", "server", "tags", "support_batch", "input_separator"
+            "params",
+            "request_body",
+            "path_params",
+            "path",
+            "method",
+            "server",
+            "tags",
+            "support_batch",
+            "input_separator",
         ]:
             val = getattr(self, attr, None)
             if val:
