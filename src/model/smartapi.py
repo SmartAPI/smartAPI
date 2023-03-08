@@ -1,7 +1,7 @@
 """
     Elasticsearch Document Object Model for SmartAPI
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Date, Text, Integer, InnerDoc, Keyword, Date, Text, Object, Binary
+from elasticsearch_dsl import InnerDoc, Keyword, Date, Text, Integer, Object, Binary
 
 from .base import BaseDoc
 
@@ -64,3 +64,21 @@ class SmartAPIDoc(BaseDoc):
 
     def get_url(self):
         return self._meta.url
+
+    @classmethod
+    def get_default_server_url(cls, servers):
+        """ Get the default server from the servers list. """
+        # return the first server with production maturity
+        for server in servers:
+            if server.get("x-maturity", None) == "production":
+                return server.get("url")
+        # then check for description for word "production"
+        for server in servers:
+            if server.get("description", "").lower().find("production") != -1:
+                return server.get("url")
+        # then use https URL first
+        for server in servers:
+            if server.get("url", "").startswith("https"):
+                return server.get("url")
+        # finally, just return the first available one
+        return servers[0].get("url")

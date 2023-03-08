@@ -1,3 +1,4 @@
+from model.smartapi import SmartAPIDoc
 from .endpoint import Endpoint
 from .component import Components
 
@@ -45,7 +46,7 @@ class API:
     def fetch_server_url(self):
         if "servers" not in self.smartapi_doc:
             return None
-        return self.smartapi_doc['servers'][0]['url']
+        return SmartAPIDoc.get_default_server_url(self.smartapi_doc['servers'])
 
     def fetch_components(self):
         if "components" not in self.smartapi_doc:
