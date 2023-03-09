@@ -33,7 +33,6 @@ from controller import SmartAPI
 from model import MetaKGDoc
 from utils import indices
 
-
 logging.basicConfig(level="INFO")
 
 
@@ -50,9 +49,7 @@ def save_to_file(mapping, filename=None):
 def save_to_s3(mapping, filename=None, bucket="smartapi"):
     filename = filename or _default_filename()
     s3 = boto3.resource("s3")
-    s3.Bucket(bucket).put_object(
-        Key="db_backup/{}".format(filename), Body=json.dumps(mapping, indent=2)
-    )
+    s3.Bucket(bucket).put_object(Key="db_backup/{}".format(filename), Body=json.dumps(mapping, indent=2))
 
 
 def _backup():
@@ -98,7 +95,6 @@ def _restore(smartapis):
 
 
 def restore_from_s3(filename=None, bucket="smartapi"):
-
     s3 = boto3.client("s3")
 
     if not filename:

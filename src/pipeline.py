@@ -1,12 +1,8 @@
-
 from base64 import b64decode
 from enum import Enum
 from typing import OrderedDict
 
-from biothings.web.query import (
-    AsyncESQueryPipeline,
-    ESQueryBuilder,
-    ESResultFormatter)
+from biothings.web.query import AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
 from elasticsearch_dsl import Search
 
 from controller.base import OpenAPI, Swagger
@@ -24,35 +20,32 @@ class _CASE(Enum):
 
 
 class SmartAPIQueryPipeline(AsyncESQueryPipeline):
-
     # in addition to document retrival,
     # the smartapi fetch endpoint also supports
     # listing all documents through pagination.
     # (match_all)
 
     async def search(self, q, **options):
-
         # raw == 1 means keeping _meta field
         # as oppposed to the default value 0
-        if options.get('raw') == 1:
+        if options.get("raw") == 1:
             # do not trigger the RawResultInterrupt
             # supported by 'raw' parameter in query engine.
             # any value >1 still keeps that behavior.
-            options['raw'] = None
+            options["raw"] = None
 
         return await super().search(q, **options)
 
     async def fetch(self, id=None, **options):
-
         # id is None means listing all documents
         # with pagination parameters size and from.
 
         # Get Id
         if id is not None:
             # ignore match_all params.
-            options.pop('size', None)
-            options.pop('from', None)
-            options['case'] = _CASE.GET_ID
+            options.pop("size", None)
+            options.pop("from", None)
+            options["case"] = _CASE.GET_ID
 
             res = await super().fetch(id, **options)
             return OrderedDict(res)  # for YAML serialization
@@ -60,27 +53,25 @@ class SmartAPIQueryPipeline(AsyncESQueryPipeline):
         # Match All
         # the score field is the same, and trivial for
         # a match_all query, exclude it in the result.
-        options['score'] = False
-        options['case'] = _CASE.GET_ALL
+        options["score"] = False
+        options["case"] = _CASE.GET_ALL
         res = await self.search(id, **options)
-        return [OrderedDict(hit) for hit in res['hits']]
+        return [OrderedDict(hit) for hit in res["hits"]]
 
 
 class SmartAPIQueryBuilder(ESQueryBuilder):
-
     # About _raw field translation:
     # In use cases 1 and 2, it is expected to present
     # live-decoded original documents from _raw field
     # unless the user specifies _source to return.
 
     def default_string_query(self, q, options):
-
         search = Search()
         q = q.strip()
 
         # elasticsearch query string syntax
         if ":" in q or " AND " in q or " OR " in q:
-            search = search.query('query_string', query=q)
+            search = search.query("query_string", query=q)
 
         # term search
         elif q.startswith('"') and q.endswith('"'):
@@ -91,7 +82,9 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
                             {"term": {"_id": {"value": q.strip('"'), "boost": 5}}},
                             {"term": {"_meta.slug": {"value": q.strip('"'), "boost": 5}}},
                             {"match": {"info.title": {"query": q, "boost": 1.5, "operator": "AND"}}},
-                            {"query_string": {"query": q, "default_operator": "AND", "default_field": "all"}}  # base score
+                            {
+                                "query_string": {"query": q, "default_operator": "AND", "default_field": "all"}
+                            },  # base score
                         ]
                     }
                 }
@@ -127,23 +120,21 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         """
         # apply extra filters from query parameters
         if options.authors:  # '"Chunlei Wu"'
-            search = search.filter('terms', info__contact__name__raw=options.authors)
+            search = search.filter("terms", info__contact__name__raw=options.authors)
 
         if options.tags:  # '"chemical", "drug"'
-            search = search.filter('terms', tags__name__raw=options.tags)
+            search = search.filter("terms", tags__name__raw=options.tags)
 
         # add aggregations
         facet_size = options.facet_size or 10
         for agg in options.aggs or []:
             term, bucket = agg, search.aggs
             while term:
-                if self.allow_nested_query and \
-                        '(' in term and term.endswith(')'):
-                    _term, term = term[:-1].split('(', 1)
+                if self.allow_nested_query and "(" in term and term.endswith(")"):
+                    _term, term = term[:-1].split("(", 1)
                 else:
-                    _term, term = term, ''
-                bucket = bucket.bucket(
-                    _term, 'terms', field=_term, size=facet_size)
+                    _term, term = term, ""
+                bucket = bucket.bucket(_term, "terms", field=_term, size=facet_size)
 
         # add es params
         if isinstance(options.sort, list):
@@ -156,42 +147,36 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         #     if 'all' not in options._source:
         #         search = search.source(options._source)
         # -------------------------------------------------------
-        case = options.get('case', _CASE.QUERY)
+        case = options.get("case", _CASE.QUERY)
         if case == _CASE.QUERY:  # decoding _raw is too slow for multi-hit queries.
-            search = search.source(excludes=['_raw'], includes=options._source)
+            search = search.source(excludes=["_raw"], includes=options._source)
         else:  # decodes all fields from _raw by default. include other _fields.
-            search = search.source(includes=options._source or ['_*'])
+            search = search.source(includes=options._source or ["_*"])
         # -------------------------------------------------------
 
         for key, value in options.items():
-            if key in ('from', 'size', 'explain', 'version'):
+            if key in ("from", "size", "explain", "version"):
                 search = search.extra(**{key: value})
 
         return search
 
 
 class SmartAPIResultTransform(ESResultFormatter):
-
     def transform_hit(self, path, doc, options):
-
-        if path == '':
-
+        if path == "":
             if "_raw" in doc:
-                _raw = b64decode(doc.pop('_raw'))
+                _raw = b64decode(doc.pop("_raw"))
                 _raw = decoder.decompress(_raw)
                 _raw = decoder.to_dict(_raw)
                 doc.update(_raw)
 
             if options.raw == 0:
                 for key in list(doc.keys()):
-                    if key.startswith('_'):
+                    if key.startswith("_"):
                         doc.pop(key)
 
-            if isinstance(doc.get('paths'), list):
-                doc['paths'] = {
-                    item['path']: item.get('pathitem', {})
-                    for item in doc['paths']
-                }
+            if isinstance(doc.get("paths"), list):
+                doc["paths"] = {item["path"]: item.get("pathitem", {}) for item in doc["paths"]}
 
             # NOTE
             # Root field filtering in transform stage (if necessary)
@@ -204,21 +189,20 @@ class SmartAPIResultTransform(ESResultFormatter):
 
             # field ordering
             if not options.sorted:
-
-                if 'openapi' in doc:
+                if "openapi" in doc:
                     _doc = OpenAPI(doc)
                     _doc.order()
                     # meta fields appear first
                     for key in list(doc.keys()):
-                        if not key.startswith('_'):
+                        if not key.startswith("_"):
                             doc.pop(key)
                     doc.update(_doc)
 
-                elif 'swagger' in doc:
+                elif "swagger" in doc:
                     _doc = Swagger(doc)
                     _doc.order()
                     # meta fields appear first
                     for key in list(doc.keys()):
-                        if not key.startswith('_'):
+                        if not key.startswith("_"):
                             doc.pop(key)
                     doc.update(_doc)
