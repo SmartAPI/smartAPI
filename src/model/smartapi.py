@@ -1,16 +1,15 @@
 """
     Elasticsearch Document Object Model for SmartAPI
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Date, Text, Integer, Object, Binary
+from elasticsearch_dsl import Binary, Date, InnerDoc, Integer, Keyword, Object, Text
 
 from .base import BaseDoc
 
-
-ES_INDEX_NAME = 'smartapi_docs'
+ES_INDEX_NAME = "smartapi_docs"
 
 
 class StatMeta(InnerDoc):
-    """ The _status field. """
+    """The _status field."""
 
     uptime_status = Keyword()
     uptime_msg = Text(index=False)
@@ -21,12 +20,13 @@ class StatMeta(InnerDoc):
 
 
 class UserMeta(InnerDoc):
-    """ The _meta field. """
+    """The _meta field."""
+
     url = Keyword(required=True)
     slug = Keyword()  # url shortcut
     username = Keyword(required=True)
-    date_created = Date(default_timezone='UTC')
-    last_updated = Date(default_timezone='UTC')
+    date_created = Date(default_timezone="UTC")
+    last_updated = Date(default_timezone="UTC")
 
 
 class SmartAPIDoc(BaseDoc):
@@ -36,12 +36,7 @@ class SmartAPIDoc(BaseDoc):
 
     info = Object()
     servers = Object()
-    paths = Object(
-        properties={
-            "path": Text(),
-            "pathitem": Object()
-        }
-    )
+    paths = Object(properties={"path": Text(), "pathitem": Object()})
     tags = Object(multi=True)
     openapi = Text()
 
@@ -54,12 +49,13 @@ class SmartAPIDoc(BaseDoc):
         """
         Index Settings
         """
+
         name = ES_INDEX_NAME
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
             "mapping.ignore_malformed": True,
-            "mapping.total_fields.limit": 2500
+            "mapping.total_fields.limit": 2500,
         }
 
     def get_url(self):
@@ -67,7 +63,7 @@ class SmartAPIDoc(BaseDoc):
 
     @classmethod
     def get_default_server_url(cls, servers):
-        """ Get the default server from the servers list. """
+        """Get the default server from the servers list."""
         # return the first server with production maturity
         for server in servers:
             if server.get("x-maturity", None) == "production":

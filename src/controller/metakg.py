@@ -2,6 +2,7 @@ import logging
 from collections.abc import Mapping
 
 from model import MetaKGDoc
+
 from .base import AbstractWebEntity
 
 logger = logging.getLogger(__name__)

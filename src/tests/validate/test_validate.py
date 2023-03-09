@@ -6,19 +6,19 @@ from controller.base import openapis, swaggers, validate
 
 dirname = os.path.dirname(__file__)
 
-with open(os.path.join(dirname, 'openapi-pass.json'), 'rb') as file:
+with open(os.path.join(dirname, "openapi-pass.json"), "rb") as file:
     PASS_OPENAPI = file.read()
 
-with open(os.path.join(dirname, 'swagger-pass.json'), 'rb') as file:
+with open(os.path.join(dirname, "swagger-pass.json"), "rb") as file:
     PASS_SWAGGER = file.read()
 
-with open(os.path.join(dirname, 'x-translator-pass.json'), 'rb') as file:
+with open(os.path.join(dirname, "x-translator-pass.json"), "rb") as file:
     PASS_TRANSLATOR = file.read()
 
-with open(os.path.join(dirname, 'x-translator-fail-1.yml'), 'rb') as file:
+with open(os.path.join(dirname, "x-translator-fail-1.yml"), "rb") as file:
     FAIL_TRANSLATOR_1 = file.read()
 
-with open(os.path.join(dirname, 'x-translator-fail-2.yml'), 'rb') as file:
+with open(os.path.join(dirname, "x-translator-fail-2.yml"), "rb") as file:
     FAIL_TRANSLATOR_2 = file.read()
 
 

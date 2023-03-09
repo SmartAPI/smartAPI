@@ -7,8 +7,8 @@ from biothings.web.handlers.query import BiothingHandler
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
 
-from controller.exceptions import ControllerError, NotFoundError
 from controller import SmartAPI
+from controller.exceptions import ControllerError, NotFoundError
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
@@ -19,13 +19,11 @@ def github_authenticated(func):
     """
 
     def _(self, *args, **kwargs):
-
         if not self.current_user:
-            self.send_error(
-                message='You must log in first.',
-                status_code=401)
+            self.send_error(message="You must log in first.", status_code=401)
             return
         return func(self, *args, **kwargs)
+
     return _
 
 
@@ -40,7 +38,8 @@ class AuthHandler(BaseHandler):
 
 
 class UserInfoHandler(AuthHandler):
-    """"Handler for /user_info endpoint."""
+    """ "Handler for /user_info endpoint."""
+
     def get(self):
         # Check for user cookie
         if self.current_user:
@@ -50,7 +49,7 @@ class UserInfoHandler(AuthHandler):
             header = self.get_www_authenticate_header()
             if header:
                 self.clear()
-                self.set_header('WWW-Authenticate', header)
+                self.set_header("WWW-Authenticate", header)
                 self.set_status(401, "Unauthorized")
                 # raising HTTPError will cause headers to be emptied
                 self.finish()
@@ -88,12 +87,8 @@ class ValidateHandler(BaseHandler):
 
     name = "validator"
     kwargs = {
-        "GET": {
-            "url": {"type": str, "location": "query", "required": True}
-        },
-        "POST": {
-            "url": {"type": str, "location": "form"}
-        }
+        "GET": {"url": {"type": str, "location": "query", "required": True}},
+        "POST": {"url": {"type": str, "location": "form"}},
     }
 
     # TODO
@@ -103,7 +98,6 @@ class ValidateHandler(BaseHandler):
     # the same status code as missing a url parameter here.
 
     async def get(self):
-
         if self.request.body:
             raise HTTPError(400, reason="GET takes no request body.")
 
@@ -111,7 +105,6 @@ class ValidateHandler(BaseHandler):
         self.validate(raw)
 
     async def post(self):
-
         if self.args.url:
             raw = await self.download(self.args.url)
         else:  # then treat the request body as raw
@@ -120,7 +113,6 @@ class ValidateHandler(BaseHandler):
         self.validate(raw)
 
     async def download(self, url):
-
         try:
             file = await download_async(url)
         except DownloadError as err:
@@ -129,7 +121,6 @@ class ValidateHandler(BaseHandler):
             return file.raw
 
     def validate(self, raw):
-
         try:
             smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
             smartapi.raw = raw
@@ -138,22 +129,18 @@ class ValidateHandler(BaseHandler):
         except (ControllerError, AssertionError) as err:
             raise HTTPError(400, reason=str(err))
         else:
-            self.finish({
-                'success': True,
-                'details': f'valid SmartAPI ({smartapi.version}) metadata.'
-            })
+            self.finish({"success": True, "details": f"valid SmartAPI ({smartapi.version}) metadata."})
 
 
 class SmartAPIHandler(BaseHandler, BiothingHandler):
-
     kwargs = {
-        '*': BiothingHandler.kwargs['*'],
-        'PUT': {
-            'slug': {'type': str, 'default': None},
+        "*": BiothingHandler.kwargs["*"],
+        "PUT": {
+            "slug": {"type": str, "default": None},
         },
-        'POST': {
-            'url': {'type': str, 'required': True},
-            'dryrun': {'type': bool, 'default': False},
+        "POST": {
+            "url": {"type": str, "required": True},
+            "dryrun": {"type": bool, "default": False},
         },
     }
 
@@ -179,35 +166,28 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             raise HTTPError(400, reason=str(err)) from err
 
         if self.args.dryrun:
-            raise Finish({
-                'success': True,
-                'details': f"[Dryrun] Valid {smartapi.version} Metadata"
-            })
+            raise Finish({"success": True, "details": f"[Dryrun] Valid {smartapi.version} Metadata"})
 
         try:
-            smartapi.username = self.current_user['login']
+            smartapi.username = self.current_user["login"]
             smartapi.refresh(file)  # populate webdoc meta
             _id = smartapi.save()
         except ControllerError as err:
             raise HTTPError(400, reason=str(err)) from err
         else:
-            self.finish({
-                'success': True,
-                '_id': _id
-            })
+            self.finish({"success": True, "_id": _id})
             await self._notify(smartapi)
 
     async def _notify(self, smartapi):
-
-        if self.settings.get('debug'):
+        if self.settings.get("debug"):
             return
 
         client = AsyncHTTPClient()
         kwargs = {
             "_id": smartapi._id,
-            "name": dict(smartapi).get('info', {}).get('title', '<Notitle>'),
-            "description": dict(smartapi).get('info', {}).get('description', '')[:120] + '...',
-            "username": smartapi.username
+            "name": dict(smartapi).get("info", {}).get("title", "<Notitle>"),
+            "description": dict(smartapi).get("info", {}).get("description", "")[:120] + "...",
+            "username": smartapi.username,
         }
         try:
             # NOTE
@@ -216,13 +196,13 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             #     {"webhook": <url>, "tags": "translator"} # project specific
             # ]
             for slack in getattr(self.web_settings, "SLACK_WEBHOOKS", []):
-
                 if "tags" in slack:
                     if slack["tags"] == "translator":
                         if "x-translator" in smartapi["info"]:
                             res = await client.fetch(
-                                slack["webhook"], method='POST',
-                                headers={'content-type': 'application/json'},
+                                slack["webhook"],
+                                method="POST",
+                                headers={"content-type": "application/json"},
                                 body=json.dumps(SlackNewTranslatorAPIMessage(**kwargs).compose()),
                             )
                             logging.info(res.code)
@@ -233,8 +213,9 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
 
                 else:  # typical case
                     res = await client.fetch(
-                        slack["webhook"], method='POST',
-                        headers={'content-type': 'application/json'},
+                        slack["webhook"],
+                        method="POST",
+                        headers={"content-type": "application/json"},
                         body=json.dumps(SlackNewAPIMessage(**kwargs).compose()),
                     )
                     logging.info(res.code)
@@ -259,13 +240,12 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         except NotFoundError:
             raise HTTPError(404)
 
-        if smartapi.username != self.current_user['login']:
+        if smartapi.username != self.current_user["login"]:
             raise HTTPError(403)
 
         if self.args.slug is not None:
-
-            if self.args.slug in {'api'}:  # reserved
-                raise HTTPError(400, reason='slug is reserved')
+            if self.args.slug in {"api"}:  # reserved
+                raise HTTPError(400, reason="slug is reserved")
 
             try:  # update slug
                 smartapi.slug = self.args.slug or None
@@ -274,7 +254,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             except (ControllerError, ValueError) as err:
                 raise HTTPError(400, reason=str(err)) from err
 
-            self.finish({'success': True})
+            self.finish({"success": True})
 
         else:  # refresh
             file = await download_async(smartapi.url, raise_error=False)
@@ -285,13 +265,9 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
                 status = smartapi.webdoc.STATUS(code)
                 status = status.name.lower()
             except ValueError:
-                status = 'nofile'  # keep the original copy
+                status = "nofile"  # keep the original copy
 
-            self.finish({
-                'success': code in (200, 299),
-                'status': status,
-                'code': code
-            })
+            self.finish({"success": code in (200, 299), "status": status, "code": code})
 
     @github_authenticated
     def delete(self, _id):
@@ -304,7 +280,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         except NotFoundError:
             raise HTTPError(404)
 
-        if smartapi.username != self.current_user['login']:
+        if smartapi.username != self.current_user["login"]:
             raise HTTPError(403)
 
         try:
@@ -312,7 +288,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         except ControllerError as err:
             raise HTTPError(400, reason=str(err)) from err
 
-        self.finish({'success': True, '_id': _id})
+        self.finish({"success": True, "_id": _id})
 
 
 class ValueSuggestionHandler(BaseHandler):
@@ -321,12 +297,10 @@ class ValueSuggestionHandler(BaseHandler):
     """
 
     kwargs = {
-        'GET': {
-            'field': {'type': str, 'required': True}
-        },
+        "GET": {"field": {"type": str, "required": True}},
     }
 
-    name = 'value_suggestion'
+    name = "value_suggestion"
 
     def get(self):
         """
@@ -349,15 +323,11 @@ class UptimeHandler(BaseHandler):
     """
 
     kwargs = {
-        "GET": {
-            "id": {"type": str, "location": "query", "required": True}
-        },
-        "POST": {
-            "id": {"type": str, "location": "form", "required": True}
-        }
+        "GET": {"id": {"type": str, "location": "query", "required": True}},
+        "POST": {"id": {"type": str, "location": "form", "required": True}},
     }
 
-    name = 'uptime_checker'
+    name = "uptime_checker"
 
     @github_authenticated
     def get(self):
@@ -367,7 +337,7 @@ class UptimeHandler(BaseHandler):
         if self.args.id:
             try:
                 smartapi = SmartAPI.get(self.args.id)
-                if smartapi.username != self.current_user['login']:
+                if smartapi.username != self.current_user["login"]:
                     raise HTTPError(403)
                 status = smartapi.check()
                 smartapi.save()
@@ -376,20 +346,16 @@ class UptimeHandler(BaseHandler):
             except (ControllerError, AssertionError) as err:
                 raise HTTPError(400, reason=str(err))
             else:
-                self.finish({
-                    'success': True,
-                    'details': status
-                })
+                self.finish({"success": True, "details": status})
         else:
             raise HTTPError(400, reason="Missing required parameter: id")
 
     @github_authenticated
     def post(self):
-
         if self.args.id:
             try:
                 smartapi = SmartAPI.get(self.args.id)
-                if smartapi.username != self.current_user['login']:
+                if smartapi.username != self.current_user["login"]:
                     raise HTTPError(403)
                 status = smartapi.check()
                 smartapi.save()
@@ -398,9 +364,6 @@ class UptimeHandler(BaseHandler):
             except (ControllerError, AssertionError) as err:
                 raise HTTPError(400, reason=str(err))
             else:
-                self.finish({
-                    'success': True,
-                    'details': status
-                })
+                self.finish({"success": True, "details": status})
         else:
             raise HTTPError(400, reason="Missing required form field: id")

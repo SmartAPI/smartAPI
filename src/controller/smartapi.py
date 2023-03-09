@@ -34,18 +34,18 @@
         smartapi.delete()
 
 """
-import math
 import logging
 import string
 from collections.abc import Mapping
 from datetime import datetime, timezone
 from warnings import warn
 
-from model import SmartAPIDoc, MetaKGDoc
+from model import MetaKGDoc, SmartAPIDoc
 from utils import decoder, monitor
 from utils.downloader import download
 from utils.metakg.parser import MetaKGParser
-from .base import AbstractWebEntity, OpenAPI, Swagger, APIMonitorStatus, APIRefreshStatus
+
+from .base import AbstractWebEntity, APIMonitorStatus, APIRefreshStatus, OpenAPI, Swagger
 from .exceptions import ConflictError, ControllerError
 
 logger = logging.getLogger(__name__)
@@ -66,10 +66,9 @@ class Slug:
 
     def __set__(self, obj, value):
         self.validate(value)
-        setattr(obj, "_slug", value)
+        obj._slug = value
 
     def validate(self, value):
-
         if value is None:
             return  # this field is optional, okay to be None
 
@@ -145,26 +144,21 @@ class SmartAPI(AbstractWebEntity, Mapping):
     @classmethod
     def fetch_all_metakg(cls, include_trapi=True, report_errors=True):
         """Fetch metakg edges from all Translator APIs, and return as
-           a generator of edges.
+        a generator of edges.
         """
         count_docs = cls.count()
-        query_data = {
-            'type': 'term',
-            'body': {
-                'tags.name': 'translator'
-            }
-        }
+        query_data = {"type": "term", "body": {"tags.name": "translator"}}
         all_apis = cls.get_all(size=count_docs, query_data=query_data)
         metakg_error_list = []
         for api in all_apis:
-            logger.info("[%s]", )
+            logger.info("[%s]", api._doc.info.title)
             logger.info("SmartAPI ID: %s", api._id)
             metakg = api.get_metakg(include_trapi=include_trapi)
             if api.metakg_errors:
                 api.metakg_errors.setdefault("_id", api._id)
                 api.metakg_errors.setdefault("title", api._doc.info.title)
                 metakg_error_list.append(api.metakg_errors)
-            yield from metakg    # each item is a metakg edge
+            yield from metakg  # each item is a metakg edge
         if report_errors and metakg_error_list:
             logger.error("=" * 50)
             logger.error("Found errors in %s APIs during metakg retrieval:", len(metakg_error_list))
@@ -174,13 +168,12 @@ class SmartAPI(AbstractWebEntity, Mapping):
     @classmethod
     def refresh_metakg(cls, include_trapi=True):
         """Fetch all metakg edges and saved to the ES index in bulk"""
-        from elasticsearch_dsl import connections
         from elasticsearch.helpers import bulk
+        from elasticsearch_dsl import connections
 
         es = connections.get_connection()
         edge_iterable = (
-            MetaKGDoc(**edge).to_dict(include_meta=True) \
-                for edge in cls.fetch_all_metakg(include_trapi=include_trapi)
+            MetaKGDoc(**edge).to_dict(include_meta=True) for edge in cls.fetch_all_metakg(include_trapi=include_trapi)
         )
         bulk(es, edge_iterable)
 
@@ -195,7 +188,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
     @raw.setter
     def raw(self, value):
-
         if not value:
             raise ControllerError("Empty value.")
         try:
@@ -207,11 +199,10 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         # update the timestamps
         self.last_updated = datetime.now(timezone.utc)
-        if hasattr(self, 'date_created') and not self.date_created:
+        if hasattr(self, "date_created") and not self.date_created:
             self.date_created = self.last_updated
 
     def check(self):
-
         doc = dict(self)
         doc["_id"] = self._id
 
@@ -308,7 +299,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
         return None
 
     def _validate_dispatch(self):
-
         if not self.version:
             raise ControllerError("Unknown version.")
 
@@ -332,11 +322,8 @@ class SmartAPI(AbstractWebEntity, Mapping):
     def get_metakg(self, include_trapi=True):
         raw_metadata = decoder.to_dict(decoder.decompress(self._doc._raw))
         mkg_parser = MetaKGParser()
-        extra_data = {
-            "id": self._id,
-            "url": self.url
-        }
-        self.metakg_errors = None     # reset metakg_errors
+        extra_data = {"id": self._id, "url": self.url}
+        self.metakg_errors = None  # reset metakg_errors
         if self.is_trapi:
             metakg = mkg_parser.get_TRAPI_metadatas(raw_metadata, extra_data) if include_trapi else []
         else:

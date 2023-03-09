@@ -18,23 +18,24 @@ def run_routine():
 
 class WebAppHandler(RequestHandler):
     def get(self):
-        self.render('../web-app/dist/index.html')
+        self.render("../web-app/dist/index.html")
 
 
-if __name__ == '__main__':
-
-    crontab('0 0 * * *', func=run_routine, start=True)
+if __name__ == "__main__":
+    crontab("0 0 * * *", func=run_routine, start=True)
     IOLoop.current().add_callback(setup)
-    main([
-        (r"/user/?", "handlers.api.UserInfoHandler"),
-        (r"/login/?", "handlers.api.LoginHandler"),
-        (r"/oauth", "handlers.oauth.GitHubLoginHandler"),
-        (r"/logout/?", "handlers.api.LogoutHandler"),
-        (r'/sitemap.xml()', "tornado.web.StaticFileHandler", {
-            'path': '../web-app/dist/sitemap.xml'}),
-        (r"/((?:img|css|js|fonts)/.*)", "tornado.web.StaticFileHandler", {
-            "path": "../web-app/dist/"
-        })], {
-        "default_handler_class": WebAppHandler,
-        "static_path": "../web-app/dist/",
-    }, use_curl=True)
+    main(
+        [
+            (r"/user/?", "handlers.api.UserInfoHandler"),
+            (r"/login/?", "handlers.api.LoginHandler"),
+            (r"/oauth", "handlers.oauth.GitHubLoginHandler"),
+            (r"/logout/?", "handlers.api.LogoutHandler"),
+            (r"/sitemap.xml()", "tornado.web.StaticFileHandler", {"path": "../web-app/dist/sitemap.xml"}),
+            (r"/((?:img|css|js|fonts)/.*)", "tornado.web.StaticFileHandler", {"path": "../web-app/dist/"}),
+        ],
+        {
+            "default_handler_class": WebAppHandler,
+            "static_path": "../web-app/dist/",
+        },
+        use_curl=True,
+    )

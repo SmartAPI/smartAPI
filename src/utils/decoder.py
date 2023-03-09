@@ -15,10 +15,7 @@ TYPE_ERR = "Expect a serialization of a mapping type."
 def to_yaml(stream):
     try:
         data = yaml.load(stream, Loader=yaml.SafeLoader)
-    except (
-        yaml.scanner.ScannerError,
-        yaml.parser.ParserError
-    ) as err:
+    except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
         raise ValueError(str(err)) from err
     if not isinstance(data, dict):
         raise TypeError(TYPE_ERR)
@@ -46,15 +43,15 @@ def to_dict(stream, ext=None, ctype=None):
     ctype = ctype.lower() if isinstance(ctype, str) else ""
 
     # by extension
-    if 'json' in ext:
+    if "json" in ext:
         return to_json(stream)
-    if ext in ('yaml', 'yml'):
+    if ext in ("yaml", "yml"):
         return to_yaml(stream)
 
     # by content-type
-    if 'json' in ctype:
+    if "json" in ctype:
         return to_json(stream)
-    if 'yaml' in ctype:
+    if "yaml" in ctype:
         return to_yaml(stream)
 
     # javascript files
@@ -65,7 +62,7 @@ def to_dict(stream, ext=None, ctype=None):
             pass
     if isinstance(stream, str):
         if stream.startswith("export default "):
-            stream = stream[len("export default "):]
+            stream = stream[len("export default ") :]
 
     # brute force
     return to_yaml(stream)
@@ -74,6 +71,7 @@ def to_dict(stream, ext=None, ctype=None):
 # -------------
 # Compression
 # -------------
+
 
 def compress(stream):
     return gzip.compress(stream) if stream else None

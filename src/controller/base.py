@@ -1,15 +1,17 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict, UserDict, UserString
+from configparser import ConfigParser
 from datetime import datetime, timezone
 from enum import IntEnum
 from hashlib import blake2b  # requires python>=3.6, otherwise install pyblake2
 from urllib.parse import urlparse
+
 import jsonschema
-from configparser import ConfigParser
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
 
 from utils import decoder
 from utils.downloader import Downloader, File
+
 from .exceptions import ControllerError, NotFoundError
 
 # NOTE
@@ -57,7 +59,6 @@ def validate(doc, schemas):
 
 
 class Format(UserDict):
-
     KEYS = ()
     SCHEMAS = ()
 
@@ -80,20 +81,20 @@ class Format(UserDict):
 
         # normalize info.x-trapi.test_data_location string value as info.x-trapi.test_data_location.default.url value
         if isinstance(self.data.get("info", {}).get("x-trapi", {}).get("test_data_location"), str):
-            self.data["info"]["x-trapi"]["test_data_location"] = {"default": {"url": self.data["info"]["x-trapi"]["test_data_location"]}}
+            self.data["info"]["x-trapi"]["test_data_location"] = {
+                "default": {"url": self.data["info"]["x-trapi"]["test_data_location"]}
+            }
 
     def clean(self):
         self.data = OrderedDict({k: v for k, v in self.data.items() if k in self.KEYS})
 
 
 class OpenAPI(Format):
-
     KEYS = ("openapi", "info", "servers", "externalDocs", "tags", "security", "paths", "components")
     SCHEMAS = openapis
 
 
 class Swagger(Format):
-
     KEYS = ("info", "tags", "swagger", "host", "basePath")
     SCHEMAS = swaggers
 
@@ -116,7 +117,6 @@ class AbstractWebEntity(ABC):
     VALIDATION_ONLY = PlaceHolder("http://nohost/nofile")
 
     def __init__(self, url):
-
         assert isinstance(url, (str, PlaceHolder)) and url
         assert urlparse(str(url)).scheme in ("http", "https")
 
@@ -182,7 +182,7 @@ class AbstractWebEntity(ABC):
             query_body = query_data["body"]
             search = search.query(query_type, **query_body)
         search = search.source(False)
-        search = search[from_: from_ + size]
+        search = search[from_ : from_ + size]
 
         for hit in search:
             try:  # unlikely but possible
@@ -271,7 +271,6 @@ class AbstractEntityStatus:
     # Corresponds to a group of _status fields in SmartAPI.
 
     def __init__(self, entity, status=None, timestamp=None):
-
         self._entity = entity
         self._status = status
         self._timestamp = timestamp
@@ -334,7 +333,6 @@ class APIRefreshStatus(AbstractEntityStatus):
         self.APIEntity = self._entity.__class__
 
     def update(self, content):
-
         if not isinstance(content, File):
             raise TypeError("Invalid content.")
 

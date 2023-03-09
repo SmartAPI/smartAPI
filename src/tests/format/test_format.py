@@ -2,14 +2,15 @@ import json
 import os
 
 import pytest
+
 from controller.base import OpenAPI, Swagger
 
 dirname = os.path.dirname(__file__)
 
-with open(os.path.join(dirname, 'swagger.json'), 'r') as file:
+with open(os.path.join(dirname, "swagger.json"), "r") as file:
     SWAGGER = json.load(file)
 
-with open(os.path.join(dirname, 'openapi.json'), 'r') as file:
+with open(os.path.join(dirname, "openapi.json"), "r") as file:
     OPENAPI = json.load(file)
 
 
@@ -22,14 +23,14 @@ def aligns(keys, reference):
 
 def test_swagger():
     swagger = Swagger(SWAGGER)
-    assert tuple(swagger.keys())[:len(Swagger.KEYS)] == Swagger.KEYS
+    assert tuple(swagger.keys())[: len(Swagger.KEYS)] == Swagger.KEYS
     swagger.validate()
     swagger["_metadata"] = {}
     swagger.data.move_to_end("_metadata", False)  # to front
-    assert tuple(swagger.keys())[:len(Swagger.KEYS)] != Swagger.KEYS
+    assert tuple(swagger.keys())[: len(Swagger.KEYS)] != Swagger.KEYS
     assert tuple(swagger.keys())[0] == "_metadata"
     swagger.order()
-    assert tuple(swagger.keys())[:len(Swagger.KEYS)] == Swagger.KEYS
+    assert tuple(swagger.keys())[: len(Swagger.KEYS)] == Swagger.KEYS
     with pytest.raises(ValueError):
         swagger.validate()  # _metadata is an invalid key
     assert tuple(swagger.keys()) != Swagger.KEYS

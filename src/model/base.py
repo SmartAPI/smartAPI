@@ -3,10 +3,9 @@
 """
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
-from elasticsearch_dsl import connections, Document, MetaField, A
+from elasticsearch_dsl import A, Document, MetaField, connections
 
-
-ES_HOST = 'localhost:9200'
+ES_HOST = "localhost:9200"
 
 # create a default connection
 connections.create_connection(hosts=ES_HOST)
@@ -17,6 +16,7 @@ class BaseDoc(Document):
         """
         Index Mappings
         """
+
         dynamic = MetaField(True)
         abstract = True
 
@@ -27,7 +27,7 @@ class BaseDoc(Document):
         Data could change after query, use try-catch for
         any follow up operations like Document.get(_id).
         """
-        search = cls.search().query('match', **{field: value})
+        search = cls.search().query("match", **{field: value})
         if search.count():
             return next(iter(search)).meta.id
         return None
@@ -43,13 +43,13 @@ class BaseDoc(Document):
             field = field + ".raw"  # so that it's a keyword field
 
         # build the aggregation query
-        agg = A('terms', field=field, size=25)
+        agg = A("terms", field=field, size=25)
         search = cls.search()
         search.aggs.bucket("aggs", agg)
 
         # transform the response to a simpler format
         buckets = search.execute().aggregations.aggs.buckets
-        result = {b['key']: b['doc_count'] for b in buckets}
+        result = {b["key"]: b["doc_count"] for b in buckets}
 
         return result
 
