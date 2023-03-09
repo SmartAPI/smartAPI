@@ -1,12 +1,11 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Text, Object
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Text
 
 from .base import BaseDoc
 
-
-ES_INDEX_NAME = 'smartapi_metakg_docs'
+ES_INDEX_NAME = "smartapi_metakg_docs"
 
 
 class SmartAPIInnerDoc(InnerDoc):
@@ -29,12 +28,13 @@ class MetaKGDoc(BaseDoc):
         """
         Index Settings
         """
+
         name = ES_INDEX_NAME
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
             "mapping.ignore_malformed": True,
-            "mapping.total_fields.limit": 2500
+            "mapping.total_fields.limit": 2500,
         }
 
     def get_url(self):
