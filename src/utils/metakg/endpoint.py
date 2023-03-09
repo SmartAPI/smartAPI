@@ -53,7 +53,9 @@ class Endpoint:
             "input_id": self.remove_bio_link_prefix(input["id"]) if self.remove_biolink else input["id"],
             "input_type": self.remove_bio_link_prefix(input["semantic"]) if self.remove_biolink else input["semantic"],
             "output_id": self.remove_bio_link_prefix(output["id"]) if self.remove_biolink else output["id"],
-            "output_type": self.remove_bio_link_prefix(output["semantic"]) if self.remove_biolink else output["semantic"],
+            "output_type": self.remove_bio_link_prefix(output["semantic"])
+            if self.remove_biolink
+            else output["semantic"],
             "predicate": self.remove_bio_link_prefix(op["predicate"]) if self.remove_biolink else op["predicate"],
             "source": op.get("source"),
             "api_name": self.api_meta_data.get("title"),

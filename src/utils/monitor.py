@@ -22,9 +22,7 @@ from textwrap import shorten
 import requests
 
 # pylint:disable=import-error, ungrouped-imports
-from requests.packages.urllib3.exceptions import (
-    InsecureRequestWarning,  # pyright: ignore [reportMissingImports]
-)
+from requests.packages.urllib3.exceptions import InsecureRequestWarning  # pyright: ignore [reportMissingImports]
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)  # pylint:disable=no-member
 

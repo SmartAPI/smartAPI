@@ -120,7 +120,7 @@ class MetaKGParser:
                 self.metakg_errors[err].append(url)
             else:
                 self.metakg_errors[err] = [url]
-        logger.info("Done [%s nodes, %s edges]", len(data.get('nodes', [])), len(data.get('edges', [])))
+        logger.info("Done [%s nodes, %s edges]", len(data.get("nodes", [])), len(data.get("edges", [])))
         return data
 
     def get_ops_from_metakg_endpoint(self, metadata, extra_log_msg=""):

@@ -4,8 +4,7 @@
 """
 
 
-class SlackNewAPIMessage():
-
+class SlackNewAPIMessage:
     def __init__(self, _id, name, description, username):
         self._id = _id
         self.name = name
@@ -28,14 +27,14 @@ class SlackNewAPIMessage():
                 f"*Title*: {self.name}\n"
                 f"*Description*: {self.description}\n"
                 f"*Registered by*: <https://github.com/{self.username}|{self.username}>"
-            )
+            ),
         }
 
     def get_footer(self):
         return [
             {"type": "mrkdwn", "text": f"<https://smart-api.info/registry?q={self._id}|View on SmartAPI>"},
             {"type": "plain_text", "text": " | "},
-            {"type": "mrkdwn", "text": f"<https://smart-api.info/ui/{self._id}|View API Documentation>"}
+            {"type": "mrkdwn", "text": f"<https://smart-api.info/ui/{self._id}|View API Documentation>"},
         ]
 
     def compose(self):
@@ -44,13 +43,12 @@ class SlackNewAPIMessage():
             "blocks": [
                 {"type": "section", "text": self.get_header()},
                 {"type": "section", "text": self.get_body()},
-                {"type": "context", "elements": self.get_footer()}
-            ]
+                {"type": "context", "elements": self.get_footer()},
+            ],
         }
 
 
 class SlackNewTranslatorAPIMessage(SlackNewAPIMessage):
-
     def get_notification(self):
         return f"A new Translator API has been registered on Smart-API.info: {self.name}"
 
@@ -67,14 +65,16 @@ class SlackNewTranslatorAPIMessage(SlackNewAPIMessage):
 
 
 def test_slack():
-    """ test slack notification on main channel """
+    """test slack notification on main channel"""
     import requests
+
     from config import SLACK_WEBHOOKS
+
     message = SlackNewAPIMessage("0xTEST", "MyAPI", "An API.", "tester")
     response = requests.post(SLACK_WEBHOOKS[0]["webhook"], json=message.compose())
     print(response.status_code)
     print(response.text)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_slack()
