@@ -16,15 +16,18 @@ def setup(model_class=SmartAPIDoc):
     Setup Elasticsearch Index with dynamic template.
     Run it on an open index to update dynamic mapping.
     """
-    _dirname = os.path.dirname(__file__)
-    with open(os.path.join(_dirname, "mapping.json"), "r") as file:
-        mapping = json.load(file)
+
 
     if not exists(model_class):
         model_class.init()
 
-    elastic = Elasticsearch()
-    elastic.indices.put_mapping(index=model_class.Index.name, body=mapping)
+    if model_class==SmartAPIDoc:
+        # set up custom mapping for SmartAPI index
+        _dirname = os.path.dirname(__file__)
+        with open(os.path.join(_dirname, "mapping.json"), "r") as file:
+            mapping = json.load(file)
+        elastic = Elasticsearch()
+        elastic.indices.put_mapping(index=model_class.Index.name, body=mapping)
 
 
 def delete(model_class=SmartAPIDoc):
