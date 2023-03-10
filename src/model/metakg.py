@@ -1,12 +1,11 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, MetaField, Object, Text, analysis, mapping
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping
+
+from config import METAKG_ES_INDEX
 
 from .base import BaseDoc
-
-ES_INDEX_NAME = "smartapi_metakg_docs"
-
 
 # Define some reusable fields and mappings
 lowercase_keyword = Keyword(normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]))
@@ -68,7 +67,7 @@ class MetaKGDoc(BaseDoc):
         Index Settings
         """
 
-        name = ES_INDEX_NAME
+        name = METAKG_ES_INDEX
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,

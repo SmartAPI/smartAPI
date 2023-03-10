@@ -1,7 +1,6 @@
 import json
-import os
+import os.path
 
-from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Index
 
 from model import SmartAPIDoc
@@ -25,8 +24,7 @@ def setup(model_class=SmartAPIDoc):
         _dirname = os.path.dirname(__file__)
         with open(os.path.join(_dirname, "mapping.json"), "r") as file:
             mapping = json.load(file)
-        elastic = Elasticsearch()
-        elastic.indices.put_mapping(index=model_class.Index.name, body=mapping)
+        Index(model_class.Index.name).put_mapping(body=mapping)
 
 
 def delete(model_class=SmartAPIDoc):

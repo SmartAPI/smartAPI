@@ -3,9 +3,9 @@
 """
 from elasticsearch_dsl import Binary, Date, InnerDoc, Integer, Keyword, Object, Text
 
-from .base import BaseDoc
+from config import SMARTAPI_ES_INDEX
 
-ES_INDEX_NAME = "smartapi_docs"
+from .base import BaseDoc
 
 
 class StatMeta(InnerDoc):
@@ -50,7 +50,7 @@ class SmartAPIDoc(BaseDoc):
         Index Settings
         """
 
-        name = ES_INDEX_NAME
+        name = SMARTAPI_ES_INDEX
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
