@@ -5,7 +5,7 @@
 # pylint: disable=unused-wildcard-import
 from elasticsearch_dsl import A, Document, MetaField, connections
 
-ES_HOST = "localhost:9200"
+from config import ES_HOST
 
 # create a default connection
 connections.create_connection(hosts=ES_HOST)
