@@ -157,6 +157,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
             if api.metakg_errors:
                 api.metakg_errors.setdefault("_id", api._id)
                 api.metakg_errors.setdefault("title", api._doc.info.title)
+                api.metakg_errors.setdefault("url", "http://smart-api.info/registry?q=" + api._id)
                 metakg_error_list.append(api.metakg_errors)
             yield from metakg  # each item is a metakg edge
         if report_errors and metakg_error_list:
