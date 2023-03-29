@@ -20,3 +20,6 @@ certifi
 filelock
 # used in admin.py to upload file to s3
 boto3
+
+# Biolink Model Toolkit
+bmt>=1.0.7

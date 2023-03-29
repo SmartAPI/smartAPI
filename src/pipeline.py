@@ -125,6 +125,15 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         if options.tags:  # '"chemical", "drug"'
             search = search.filter("terms", tags__name__raw=options.tags)
 
+        if options.subject:
+            search = search.filter("terms", subject=options.subject)
+
+        if options.object:
+            search = search.filter("terms", object=options.object)
+
+        if options.predicate:
+            search = search.filter("terms", predicate=options.predicate)
+
         # add aggregations
         facet_size = options.facet_size or 10
         for agg in options.aggs or []:

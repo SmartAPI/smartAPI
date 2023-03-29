@@ -2,8 +2,9 @@ import json
 import logging
 
 from biothings.web.auth.authn import BioThingsAuthnMixin
-from biothings.web.handlers import BaseAPIHandler
-from biothings.web.handlers.query import BiothingHandler
+from biothings.web.handlers import BaseAPIHandler, QueryHandler
+from biothings.web.handlers.query import BiothingHandler, capture_exceptions
+import bmt
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
 
@@ -367,3 +368,45 @@ class UptimeHandler(BaseHandler):
                 self.finish({"success": True, "details": status})
         else:
             raise HTTPError(400, reason="Missing required form field: id")
+
+
+class MetaKGQueryHandler(QueryHandler):
+    """
+    Support metakg queries with biolink model's semantic descendants
+
+    Allowed query by fields: subject, object, predicate
+    If expand is passed, will use Biolink Model Toolkit to get these terms' descendants, and queries by them instead.
+    """
+
+    kwargs = {
+        "*": QueryHandler.kwargs["*"],
+        "GET": {
+            "subject": {"type": str, "location": "query", "required": False},
+            "object": {"type": str, "required": False},
+            "predicate": {"type": str, "required": False},
+            "expand": {"type": bool, "default": False},
+        },
+    }
+
+    @capture_exceptions
+    async def get(self, *args, **kwargs):
+        biolink_model_toolkit = None
+        if self.args.expand:
+            biolink_model_toolkit = bmt.Toolkit()
+
+        for field in ["subject", "object", "predicate"]:
+            value = getattr(self.args, field)
+            if not value:
+                continue
+            if biolink_model_toolkit:
+                try:
+                    value = biolink_model_toolkit.get_descendants(value)
+                except ValueError as ex:
+                    raise HTTPError(
+                        400, reason=f"Cannot get descendants for field: `{field}` with value: `{value}`. Error: {ex}"
+                    )
+            else:
+                value = [value]
+            setattr(self.args, field, value)
+
+        await super().get(*args, **kwargs)
