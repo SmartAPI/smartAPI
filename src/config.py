@@ -82,7 +82,7 @@ APP_LIST = [
     (r"/api/build/?", "biothings.web.handlers.MetadataSourceHandler"),
     (r"/api/status/?", "biothings.web.handlers.StatusHandler"),
     (r"/api/suggestion/?", "handlers.api.ValueSuggestionHandler"),
-    (r"/api/metakg/?", "biothings.web.handlers.QueryHandler", {"biothing_type": "metakg"}),
+    (r"/api/metakg/?", "handlers.api.MetaKGQueryHandler", {"biothing_type": "metakg"}),
     (r"/api/metakg/fields/?", "biothings.web.handlers.MetadataFieldHandler", {"biothing_type": "metakg"}),
 ]
 
