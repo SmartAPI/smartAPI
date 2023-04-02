@@ -388,8 +388,14 @@ class MetaKGQueryHandler(QueryHandler):
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": list, "max": 1000},
             "object": {"type": list, "max": 1000},
-            "predicate": {"type": list, "max": 1000},
-            "expand": {"type": list, "max": 3, "default": [], "enum": ["subject", "object", "predicate", "all"]},
+            "node": {"type": list, "max": 1000},  # either subject or object
+            "predicate": {"type": list, "max": 1000, "alias": "edge"},
+            "expand": {
+                "type": list,
+                "max": 6,
+                "default": [],
+                "enum": ["subject", "object", "predicate", "node", "edge", "all"],
+            },
         },
     }
 
@@ -414,7 +420,11 @@ class MetaKGQueryHandler(QueryHandler):
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
-        expanded_fields = {"subject": False, "object": False, "predicate": False}
+        expanded_fields = {"subject": False, "object": False, "predicate": False, "node": False}
+        if "edge" in self.args.expand and "predicate" not in self.args.expand:
+            # edge is an alias of predicate, if edge is in expand, add predicate to expand
+            self.args.expand.remove("edge")
+            self.args.expand.append("predicate")
         if self.args.expand:
             for field in expanded_fields:
                 if field in self.args.expand or "all" in self.args.expand:

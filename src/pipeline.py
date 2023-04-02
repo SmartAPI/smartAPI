@@ -3,7 +3,7 @@ from enum import Enum
 from typing import OrderedDict
 
 from biothings.web.query import AsyncESQueryBackend, AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Q, Search
 
 from controller.base import OpenAPI, Swagger
 from utils import decoder
@@ -223,6 +223,10 @@ class MetaKGQueryBuilder(ESQueryBuilder):
 
         if options.predicate:
             search = search.filter("terms", predicate=options.predicate)
+        if options.node:
+            # either subject or object
+            search = search.filter(Q("terms", subject=options.node) | Q("terms", object=options.node))
+
         return search
 
 
