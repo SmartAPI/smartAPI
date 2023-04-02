@@ -2,7 +2,7 @@ from base64 import b64decode
 from enum import Enum
 from typing import OrderedDict
 
-from biothings.web.query import AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
+from biothings.web.query import AsyncESQueryBackend, AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
 from elasticsearch_dsl import Search
 
 from controller.base import OpenAPI, Swagger
@@ -125,15 +125,6 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
         if options.tags:  # '"chemical", "drug"'
             search = search.filter("terms", tags__name__raw=options.tags)
 
-        if options.subject:
-            search = search.filter("terms", subject=options.subject)
-
-        if options.object:
-            search = search.filter("terms", object=options.object)
-
-        if options.predicate:
-            search = search.filter("terms", predicate=options.predicate)
-
         # add aggregations
         facet_size = options.facet_size or 10
         for agg in options.aggs or []:
@@ -215,3 +206,45 @@ class SmartAPIResultTransform(ESResultFormatter):
                         if not key.startswith("_"):
                             doc.pop(key)
                     doc.update(_doc)
+
+
+class MetaKGQueryBuilder(ESQueryBuilder):
+    def apply_extras(self, search, options):
+        """
+        apply extra filters
+        """
+        search = super().apply_extras(search, options)
+        # apply extra filters from query parameters
+        if options.subject:
+            search = search.filter("terms", subject=options.subject)
+
+        if options.object:
+            search = search.filter("terms", object=options.object)
+
+        if options.predicate:
+            search = search.filter("terms", predicate=options.predicate)
+        return search
+
+
+class MetaKGQueryPipeline(AsyncESQueryPipeline):
+    def __init__(self, *args, **kwargs):
+        # ns is an instance of BiothingsNamespace
+        ns = kwargs.pop("ns", None)
+        if ns:
+            if not kwargs.get("builder"):
+                kwargs["builder"] = MetaKGQueryBuilder()
+            if not kwargs.get("backend"):
+                kwargs["backend"] = AsyncESQueryBackend(
+                    ns.elasticsearch.async_client,
+                    ns.config.ES_INDICES,
+                    ns.config.ES_SCROLL_TIME,
+                    ns.config.ES_SCROLL_SIZE,
+                )
+            if not kwargs.get("formatter"):
+                kwargs["formatter"] = ESResultFormatter(
+                    ns.elasticsearch.metadata.biothing_licenses,
+                    ns.config.LICENSE_TRANSFORM,
+                    ns.fieldnote.get_field_notes(),
+                    ns.config.AVAILABLE_FIELDS_EXCLUDED,
+                )
+        super().__init__(*args, **kwargs)

@@ -1,15 +1,18 @@
 import json
 import logging
+from typing import List, Union
 
+import bmt
 from biothings.web.auth.authn import BioThingsAuthnMixin
 from biothings.web.handlers import BaseAPIHandler, QueryHandler
 from biothings.web.handlers.query import BiothingHandler, capture_exceptions
-import bmt
+from biothings.web.settings.default import QUERY_KWARGS
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
 
 from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
+from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
@@ -378,35 +381,50 @@ class MetaKGQueryHandler(QueryHandler):
     If expand is passed, will use Biolink Model Toolkit to get these terms' descendants, and queries by them instead.
     """
 
+    name = "metakg"
     kwargs = {
-        "*": QueryHandler.kwargs["*"],
+        "*": QUERY_KWARGS["*"],
         "GET": {
-            "subject": {"type": str, "location": "query", "required": False},
-            "object": {"type": str, "required": False},
-            "predicate": {"type": str, "required": False},
-            "expand": {"type": bool, "default": False},
+            **QUERY_KWARGS.get("GET", {}),
+            "subject": {"type": list, "max": 1000},
+            "object": {"type": list, "max": 1000},
+            "predicate": {"type": list, "max": 1000},
+            "expand": {"type": list, "max": 3, "default": [], "enum": ["subject", "object", "predicate", "all"]},
         },
     }
 
+    def initialize(self, *args, **kwargs):
+        super().initialize(*args, **kwargs)
+        self.biothings.pipeline = MetaKGQueryPipeline(ns=self.biothings)
+        self.biolink_model_toolkit = bmt.Toolkit()
+
+    def get_expanded_values(self, value: Union[str, List[str]]) -> List[str]:
+        """return exapnded value list for a given biolink class name"""
+        if isinstance(value, str):
+            value = [value]
+        _out = []
+        for v in value:
+            try:
+                v = self.biolink_model_toolkit.get_descendants(v, reflexive=True, formatted=True)
+                v = [x.split(":")[-1] for x in v]  # remove biolink: prefix
+            except ValueError:
+                v = [v]
+            _out.extend(v)
+        return _out
+
     @capture_exceptions
     async def get(self, *args, **kwargs):
-        biolink_model_toolkit = None
+        expanded_fields = {"subject": False, "object": False, "predicate": False}
         if self.args.expand:
-            biolink_model_toolkit = bmt.Toolkit()
+            for field in expanded_fields:
+                if field in self.args.expand or "all" in self.args.expand:
+                    expanded_fields[field] = True
 
-        for field in ["subject", "object", "predicate"]:
-            value = getattr(self.args, field)
-            if not value:
+        for field in expanded_fields:
+            value_list = getattr(self.args, field)
+            if not value_list:
                 continue
-            if biolink_model_toolkit:
-                try:
-                    value = biolink_model_toolkit.get_descendants(value)
-                except ValueError as ex:
-                    raise HTTPError(
-                        400, reason=f"Cannot get descendants for field: `{field}` with value: `{value}`. Error: {ex}"
-                    )
-            else:
-                value = [value]
-            setattr(self.args, field, value)
+            value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
+            setattr(self.args, field, value_list)
 
         await super().get(*args, **kwargs)
