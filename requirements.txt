@@ -22,4 +22,4 @@ filelock
 boto3
 
 # Biolink Model Toolkit
-bmt>=1.0.7
+bmt-lite-2.0.0==2.2.0
