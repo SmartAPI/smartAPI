@@ -21,5 +21,5 @@ filelock
 # used in admin.py to upload file to s3
 boto3
 
-# Biolink Model Toolkit
-bmt-lite-2.0.0==2.2.0
+# Biolink Model Toolkit, used in /api/metakg endpoint
+bmt-lite-v3.1.0==2.2.2
