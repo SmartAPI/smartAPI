@@ -1,5 +1,6 @@
 import json
 import logging
+from copy import copy
 
 import requests
 
@@ -14,7 +15,7 @@ class MetaKGParser:
 
     def get_non_TRAPI_metadatas(self, data, extra_data=None):
         parser = API(data)
-        mkg = self.extract_metadatas(parser.metadata["operations"], extra_data=extra_data)
+        mkg = self.extract_metakgedges(parser.metadata["operations"], extra_data=extra_data)
         no_nodes = len({x["subject"] for x in mkg} | {x["object"] for x in mkg})
         no_edges = len({x["predicate"] for x in mkg})
         logger.info("Done [%s nodes, %s edges]", no_nodes, no_edges)
@@ -31,7 +32,7 @@ class MetaKGParser:
             cnt_metakg_errors = sum([len(x) for x in self.metakg_errors.values()])
             logger.error(f"Found {cnt_metakg_errors} TRAPI metakg errors:\n {json.dumps(self.metakg_errors, indent=2)}")
 
-        return self.extract_metadatas(ops, extra_data=extra_data)
+        return self.extract_metakgedges(ops, extra_data=extra_data)
 
     def get_TRAPI_with_metakg_endpoint(self, data):
         metadatas = []
@@ -129,30 +130,44 @@ class MetaKGParser:
             return self.parse_trapi_metakg_endpoint(data, metadata)
         return []
 
-    def extract_metadatas(self, ops, extra_data=None):
+    def extract_metakgedges(self, ops, extra_data=None):
         extra_data = extra_data or {}
 
-        metadatas = []
+        metakg_edges = []
         for op in ops:
             smartapi_data = op["association"]["smartapi"]
             url = (smartapi_data.get("meta") or {}).get("url") or extra_data.get("url")
             _id = smartapi_data.get("id") or extra_data.get("id")
 
-            metadatas.append(
-                {
-                    "subject": op["association"]["input_type"],
-                    "object": op["association"]["output_type"],
-                    "predicate": op["association"]["predicate"],
-                    "provided_by": op["association"].get("source"),
-                    "api": {
-                        "name": op["association"]["api_name"],
-                        "smartapi": {
-                            "metadata": url,
-                            "id": _id,
-                            "ui": f"https://smart-api.info/ui/{_id}",
-                        },
-                        "x-translator": op["association"]["x-translator"],
+            edge = {
+                "subject": op["association"]["input_type"],
+                "object": op["association"]["output_type"],
+                "predicate": op["association"]["predicate"],
+                "provided_by": op["association"].get("source"),
+                "api": {
+                    "name": op["association"]["api_name"],
+                    "smartapi": {
+                        "metadata": url,
+                        "id": _id,
+                        "ui": f"https://smart-api.info/ui/{_id}",
                     },
-                }
-            )
-        return metadatas
+                    "tags": op["tags"],
+                    "x-translator": op["association"]["x-translator"],
+                    # "date_created": (smartapi_data.get("meta") or {}).get("date_created"),
+                    # "date_updated": (smartapi_data.get("meta") or {}).get("date_updated"),
+                    # "username": (smartapi_data.get("meta") or {}).get("username"),
+                },
+            }
+            # include bte-specific edge metadata
+            bte = {}
+            for attr in ["query_operation", "response_mapping"]:
+                if attr in op:
+                    bte[attr] = op[attr]
+                # remove redundant query_operation.tags field
+                if attr == "query_operation" and "tags" in bte[attr]:
+                    bte[attr] = copy(bte[attr])
+                    del bte[attr]["tags"]
+            if bte:
+                edge["bte"] = bte
+            metakg_edges.append(edge)
+        return metakg_edges

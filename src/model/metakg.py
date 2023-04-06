@@ -21,6 +21,24 @@ metakg_mapping.meta(
     "dynamic_templates",
     [
         {
+            "ignore_params_field": {
+                "path_match": "bte.query_operation.params",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
+            "ignore_request_body_field": {
+                "path_match": "bte.query_operation.request_body",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
+            "ignore_response_mapping_field": {
+                "path_match": "bte.response_mapping",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
             "default_string": {
                 "match_mapping_type": "string",
                 "mapping": {
@@ -29,7 +47,7 @@ metakg_mapping.meta(
                     "copy_to": "all",
                 },
             }
-        }
+        },
     ],
 )
 # add two copy_to fields
@@ -51,6 +69,7 @@ class SmartAPIInnerDoc(InnerDoc):
 class APIInnerDoc(InnerDoc):
     name = default_text
     smartapi = Object(SmartAPIInnerDoc)
+    tags = lowercase_keyword_copy_to_all
     # We cannot define "x-translator" field here due the "-" in the name,
     # so we will have it indexed via the dynamic templates
 
