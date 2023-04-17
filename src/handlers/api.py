@@ -401,7 +401,8 @@ class MetaKGQueryHandler(QueryHandler):
 
     def initialize(self, *args, **kwargs):
         super().initialize(*args, **kwargs)
-        self.biothings.pipeline = MetaKGQueryPipeline(ns=self.biothings)
+        # change the default query pipeline from self.biothings.pipeline
+        self.pipeline = MetaKGQueryPipeline(ns=self.biothings)
         self.biolink_model_toolkit = bmt.Toolkit()
 
     def get_expanded_values(self, value: Union[str, List[str]]) -> List[str]:
