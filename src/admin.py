@@ -204,11 +204,10 @@ def routine():
         # it won't block here
         _lock.acquire()
     except Timeout:
-        logging.warning("Skips backup.")
-    else:
-        logger.info("backup_to_s3()")
-        backup_to_s3()
-
+        logger.warning("Skips routine, it's already running in another process.")
+        return
+    logger.info("backup_to_s3()")
+    backup_to_s3()
     logger.info("refresh_document()")
     refresh_document()
     logger.info("check_uptime()")
