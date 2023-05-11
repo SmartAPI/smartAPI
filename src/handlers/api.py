@@ -383,7 +383,15 @@ class MetaKGQueryHandler(QueryHandler):
 
     name = "metakg"
     kwargs = {
-        "*": QUERY_KWARGS["*"],
+        "*": {
+            **QUERY_KWARGS["*"],
+            # overwrite format parameter config to add "graphml" option
+            "format": {
+                "type": str,
+                "default": "json",
+                "enum": ("json", "yaml", "html", "msgpack", "graphml"),
+            }
+        },
         "GET": {
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": list, "max": 1000},
@@ -437,5 +445,4 @@ class MetaKGQueryHandler(QueryHandler):
                 continue
             value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
-
         await super().get(*args, **kwargs)
