@@ -13,7 +13,8 @@ lowercase_keyword_copy_to_all = Keyword(
     normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]), copy_to="all"
 )
 lowercase_keyword_node = Keyword(
-    normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]), copy_to=["all", "node"]
+    normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]), copy_to=["all", "node"],
+    fields={"raw": Keyword()}    # include subject.raw and object.raw fields as the original values for aggregation purpose
 )
 default_text = Text(fields={"raw": lowercase_keyword}, copy_to="all")
 metakg_mapping = mapping.Mapping()
