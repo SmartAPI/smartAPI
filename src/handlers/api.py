@@ -14,7 +14,10 @@ from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
+from utils.metakg.export import edges2graphml
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
+
+logger = logging.getLogger("smartAPI")
 
 
 def github_authenticated(func):
@@ -398,6 +401,7 @@ class MetaKGQueryHandler(QueryHandler):
             "object": {"type": list, "max": 1000},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
+            "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
             "expand": {
                 "type": list,
                 "max": 6,
@@ -446,3 +450,22 @@ class MetaKGQueryHandler(QueryHandler):
             value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
         await super().get(*args, **kwargs)
+
+    def write(self, chunk):
+        """
+        Overwrite the biothings query handler to add graphml format (&format=graphml)
+        """
+        try:
+            if self.format == "graphml":
+                q_id = self.args.q 
+                edge_data_list = chunk['hits']
+                chunk = edges2graphml(edge_data_list, edge_default="directed")
+                logging.info('[utils.export] successsful export of dataset %s into graphml format'%q_id)
+
+                self.set_header("Content-Type", "text/graphml; charset=utf-8")
+                return super(BaseAPIHandler, self).write(chunk)
+
+        except Exception as exc:
+            logger.warning(exc)
+
+        super().write(chunk)
