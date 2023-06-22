@@ -10,20 +10,24 @@ cytoscape.use(popper);
 
 export const metakg = {
     state: () => ({ 
-        "useAPI": true,
+        "baseURL": 'https://smart-api.info/api/metakg',
+        "finalURL": '',
         "meta_kg": null,
         "results": [],
-        "output_autocomplete": [],
-        "input_autocomplete": [],
-        "predicate_autocomplete": [],
-        "output_type": [],
-        "input_type": [],
+        "object_options": [],
+        "subject_options": [],
+        "predicate_options": [],
+        "apis_options": [],
+        "object": [],
+        "subject": [],
         "predicate": [],
-        "component": 'KP',
+        "node": [],
         'cy': null,
         "predicate_selected": [],
+        "edge_selected": [],
         "input_selected": [],
         "output_selected": [],
+        "node_selected": [],
         "operationsTotal": 0,
         "loading": false,
         "predicate_autocomplete_all": [],
@@ -33,17 +37,74 @@ export const metakg = {
         'maxEdgesRendered': 1500,
         'edgeData': [],
         'nodeData':[],
-        'showSelfReferenced': false,
-        'usingCytoscape': false
+        'showSelfReferenced': true,
+        'usingCytoscape': true,
+        'size': 20,
+        'edgeColors': {},
+        'total': 0,
+        'apiTotalFromResponse': [],
+        'subjectTotalFromResponse': [],
+        'objectTotalFromResponse': [],
+        'query_term': '',
+        'generalMode': false,
+        'expand': new Set(),
+        'displayedSubjects': new Set(),
+        'displayedObjects': new Set(),
+        'kp': false,
+        'ara': false,
      }),
     strict: true,
     mutations: {
-        saveComponent(state, payload){
-            console.log("💚 Component Change: ", payload.value)
-            state.component = payload.value;
+        setKP(state, payload){
+            state.kp = payload
         },
-        setUseAPI(state, payload) {
-            state.useAPI = payload.value;
+        setARA(state, payload){
+            state.ara = payload
+        },
+        expandThis(state, payload){
+            if (!state.expand.has(payload)) {
+                state.expand.add(payload)
+            }else{
+                state.expand.delete(payload)
+            }
+            console.log([...state.expand])
+        },
+        setTerm(state, payload){
+            state.query_term = payload;
+        },
+        setMode(state, payload){
+            state.generalMode = payload;
+        },
+        saveSubjects(state, payload){
+            state.subject_options = payload;
+            console.log(state.subject_options.length + " subjects saved")
+        },
+        saveObjects(state, payload){
+            state.object_options = payload;
+            console.log(state.object_options.length + " objects saved")
+        },
+        savePredicates(state, payload){
+            state.predicate_options = payload;
+            console.log(state.predicate_options.length + " predicates saved")
+        },
+        saveAPIs(state, payload){
+            state.apis_options = payload;
+            console.log(state.apis_options.length + " API names saved")
+        },
+        saveTotal(state, payload){
+            state.total = payload;
+        },
+        saveAPITotal(state, payload){
+            state.apiTotalFromResponse = payload;
+        },
+        saveObjectTotal(state, payload){
+            state.objectTotalFromResponse = payload;
+        },
+        saveSubjectTotal(state, payload){
+            state.subjectTotalFromResponse = payload;
+        },
+        setSize(state, payload){
+            state.size = payload;
         },
         toggleLoading(state, payload) {
             state.loading = payload['loading'];
@@ -62,31 +123,41 @@ export const metakg = {
             if (state.predicate_selected.length) {
                 state.predicate_selected = [];
             }
+            if (state.edge_selected.length) {
+                state.edge_selected = [];
+            }
             if (state.input_selected.length) {
                 state.input_selected = [];
             }
             if (state.output_selected.length) {
                 state.output_selected = [];
             }
+            if (state.node_selected.length) {
+                state.node_selected = [];
+            }
 
             state.predicate = [];
-            state.input_type = [];
-            state.output_type = [];
+            state.subject = [];
+            state.object = [];
+            state.node = [];
         },
         saveInput(state, payload) {
 
             let name = payload['name'];
 
             switch (name) {
-                case 'output_type':
-                state.output_type = payload["q"]
-                break;
-                case 'input_type':
-                state.input_type = payload["q"]
-                break;
+                case 'object':
+                    state.object = payload["q"]
+                    break;
+                case 'subject':
+                    state.subject = payload["q"]
+                    break;
                 case 'predicate':
-                state.predicate = payload["q"]
-                break;
+                    state.predicate = payload["q"]
+                    break;
+                case 'node':
+                    state.node = payload["q"]
+                    break;
                 default:
                 console.log('no match')
             }
@@ -161,7 +232,12 @@ export const metakg = {
             Graph.onEngineStop(() => Graph.zoomToFit(500));
         },
         drawGraphCyto(state) {
-            const t0 = performance.now();
+            // const t0 = performance.now();
+            function readableName(text){
+                const result = text.replace(/([A-Z])/g, " $1");
+                return result.charAt(0).toUpperCase() + result.slice(1);
+            }
+
             state.cy = cytoscape({
                 container: document.getElementById('cy'),
                 elements: [...state.edgeData, ...state.nodeData],
@@ -171,14 +247,18 @@ export const metakg = {
                         selector: 'node',
                         style: {
                         'content': 'data(name)',
-                        'min-zoomed-font-size': '2em',
+                        'text-wrap': 'wrap',
+                        // 'min-zoomed-font-size': '2em',
+                        "shape": 'data(shape)',
                         "text-valign": "center",
                         "text-halign": "center",
                         'color': 'white',
-                        'font-size': '4em',
+                        'font-size': '2em',
                         'text-outline-width': 4,
-                        'text-outline-color': '#9c27b0',
-                        'background-color': '#9c27b0',
+                        'text-outline-color': state.generalMode ? '#103b56' : 'purple',
+                        "background-fill": "radial-gradient",
+                        "background-gradient-stop-colors": "data(colors)", // get data from data.color in each node
+                        "background-gradient-stop-positions": "25 75 80",
                         'z-index': 1000,
                         'width': 'data(weight)',
                         'height': 'data(weight)'
@@ -193,12 +273,13 @@ export const metakg = {
                     {
                         selector: 'edge',
                         style:{
-                        'curve-style': state.showSelfReferenced ? 'straight' : 'haystack',
-                        'line-color': 'grey',
-                        'opacity':.1,
+                        'curve-style': 'bezier',
+                        'haystack-radius': 0,
+                        'line-color': 'data(color)',
+                        'opacity':1,
                         'target-arrow-shape': 'triangle',
-                        'target-arrow-color': '#257FC5',
-                        'width': 10,
+                        'target-arrow-color': 'limegreen',
+                        'width': 4,
                         'z-index': 1,
                         }
                     },
@@ -208,7 +289,7 @@ export const metakg = {
                         'z-index': 1000,
                         'color': '#9c27b0',
                         'font-size': '2.5em',
-                        'width': 15,
+                        'width': 5,
                         'opacity':1,
                         'line-color': '#f24141',
                         'target-arrow-color': '#f24141',
@@ -257,7 +338,7 @@ export const metakg = {
                 animation: false,
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent('<div class="purple white-text p-1 center-align"><h4 class="m-1">'+ele.id()+'</h4></div>')
+                    instance.setContent('<div class="purple white-text p-small center-align"><h6 class="m-1">'+ readableName(ele.id()) +'</h6></div>')
                 }
                 });
             }
@@ -276,10 +357,23 @@ export const metakg = {
                 theme:'light',
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent(`<div class="p-1 text-center"><h6 class="center-align"><a target="_blank" href="http://smart-api.info/registry?q=`+ele.data('smartapi_id')+`">`+ele.data('api_name')+`</a></h6><span class="black-text">`+ele.data('source')+
-                    `</span> ➡️ <span class="purple-text">`+ele.data('predicate')+
-                    `</span> ➡️ <span class="orange-text">`+ele.data('target')+
-                    `</span></div>`)
+                    instance.setContent(`
+                    <p class="center m-0"><a target="_blank" href="http://smart-api.info/registry?q=${ele.data('smartapi_id')}">
+                                    ${ele.data('api_name')} (${ele.data('component')})
+                                </a></p>
+                    <table class="edge-table">
+                        <tbody>
+                            <tr>
+                                <td class="p-small center"><b>🟢 ${readableName(ele.data('source'))}</b></td>
+                            </tr>
+                            <tr>
+                                <td class="purple-text p-small center" style="word-break:break-all;">${ele.data('predicate')}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-small center"><b>🟠 ${readableName(ele.data('target'))}</b></td>
+                            </tr>
+                        </tbody>
+                    </table>`)
                 }
                 });
             }
@@ -313,213 +407,21 @@ export const metakg = {
                 name: "concentric",
                 avoidOverlap: true,
                 avoidOverlapPadding: 200,
-                minNodeSpacing: 200,
+                minNodeSpacing: 90,
             }).run();
 
             state.cy.maxZoom(2)
+            state.cy.minZoom(.5)
 
-            const t1 = performance.now();
-            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-            console.log(`%c Rendering graph took ${seconds} seconds.`, 'color:yellow');
+            // const t1 = performance.now();
+            // var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+            // console.log(`%c Rendering graph took ${seconds} seconds.`, 'color: green');
         },
         saveContext(state, payload) {
         state.name = payload['context']['portal'];
         },
         saveOperations(state, payload) {
         state.operations = payload['ops'];
-        },
-        getNewOptionsAPI(state, payload) {
-            let filteredOptions = payload['res'];
-            const t0 = performance.now();
-            let predicates = new Set();
-            let inputs = new Set();
-            let outputs = new Set();
-    
-            // PREDICATES
-            if (!state.output_selected.length && !state.input_selected.length) {
-                // restore all options from backup
-                state.predicate_autocomplete = state.predicate_autocomplete_all.sort()
-            } else {
-                filteredOptions.forEach(op => predicates.add(op['association']['predicate']) );
-                state.predicate_autocomplete = [...predicates].sort()
-            }
-    
-            // INPUT
-            if (state.output_selected.length && !state.input_selected.length) {
-                console.log("💚 Calculating Inputs ", state.output_selected)
-                filteredOptions.forEach(op => inputs.add(op['association']['subject']) );
-                state.input_autocomplete = [...inputs].sort()
-            } else if (state.input_selected.length && !state.output_selected.length) {
-                console.log("💚 Calculating Outputs ", state.input_selected)
-                //OUTPUT
-                filteredOptions.forEach(op => outputs.add(op['association']['object']) );
-                state.output_autocomplete = [...outputs].sort()
-            } else {
-                console.log("💚 Calculating I/O options...")
-                filteredOptions.forEach(op => {
-                outputs.add(op['association']['object'])
-                inputs.add(op['association']['subject']) 
-                });
-                state.output_autocomplete = [...outputs].sort()
-                state.input_autocomplete = [...inputs].sort()
-            }
-    
-            const t1 = performance.now();
-            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-            console.log(`%c 💚 (getNewOptionsAPI) Calculating input options took ${seconds} seconds.`, 'color:green');
-    
-        },
-        getNewOptions(state, payload) {
-            let filteredOptions = payload['res'];
-            const t0 = performance.now();
-            let predicates = new Set();
-            let inputs = new Set();
-            let outputs = new Set();
-    
-            // PREDICATES
-            if (!state.output_selected.length && !state.input_selected.length) {
-                // restore all options from backup
-                state.predicate_autocomplete = state.predicate_autocomplete_all.sort()
-            } else {
-                filteredOptions.forEach(op => predicates.add(op['association']['predicate']) );
-                state.predicate_autocomplete = [...predicates].sort()
-            }
-    
-            // INPUT
-            if (state.output_selected.length && !state.input_selected.length) {
-                filteredOptions.forEach(op => inputs.add(op['association']['input_type']) );
-                state.input_autocomplete = [...inputs].sort()
-            } else if (state.input_selected.length && !state.output_selected.length) {
-                //OUTPUT
-                filteredOptions.forEach(op => outputs.add(op['association']['output_type']) );
-                state.output_autocomplete = [...outputs].sort()
-            } else {
-                filteredOptions.forEach(op => {
-                outputs.add(op['association']['output_type'])
-                inputs.add(op['association']['input_type']) 
-                });
-                state.output_autocomplete = [...outputs].sort()
-                state.input_autocomplete = [...inputs].sort()
-            }
-    
-            const t1 = performance.now();
-            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-            console.log(`%c (getNewOptions) Calculating input options took ${seconds} seconds.`, 'color:cyan');
-    
-        },
-        createGraphData(state, payload) {
-            let results = payload['res'];
-            //Initial data Processing
-            const t0 = performance.now();
-            //all nodes and edges
-            let nodes = new Set();
-            let all_edges = []
-            let all_nodes = []
-            //AC
-            let oac_set = new Set();
-            let iac_set = new Set();
-            let pac_set = new Set();
-            // color nodes to match active query
-            var getNodeColor = name => {
-                if (state.input_type.includes(name)) return '#3f51b5 ';
-                else if (state.output_type.includes(name)) return 'orange';
-                //inactive color
-                else return '#df4bfc'
-            }
-
-            state.operationsTotal = results.length;
-    
-            console.log("OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
-    
-            results.forEach(op => {
-                nodes.add(op['association']['input_type']);
-                nodes.add(op['association']['output_type']);
-                let html = `<div class="p-1 center-align white rounded z-depth-3"><h6 class="center-align">`+
-                    `<a target="_blank" href="http://smart-api.info/registry?q=`+op['association']['smartapi']['id']+`">`+op['association']['api_name']+`</a>`+
-                    `</h6><span class="indigo-text">`+op['association']['input_type']+
-                    `</span> ➡️ <span class="purple-text">`+op['association']['predicate']+
-                    `</span> ➡️ <span class="orange-text">`+op['association']['output_type']+
-                    `</span></div>`
-
-                let edge = {
-                    ...op,
-                    group: 'edges',
-                    data: {
-                        id: Math.floor(100000 + Math.random() * 900000),
-                        name: op['association']['api_name'] + ' : ' + op['association']['predicate'],
-                        html: html,
-                        predicate: op['association']['predicate'],
-                        output_id: op['association']['output_id'],
-                        api_name: op['association']['api_name'],
-                        type: op['association']['api_name'],
-                        source: op['association']['input_type'],
-                        target: op['association']['output_type'],
-                        smartapi_id: op['association']['smartapi']['id'],
-                        color:'#bf4eff'
-                    }
-                };
-                // edge hover tip
-                all_edges.push(edge);
-                // Autocomplete
-                oac_set.add(op['association']['output_type']);
-                iac_set.add(op['association']['input_type']);
-                pac_set.add(op['association']['predicate']);
-            });
-            // autocomplete options
-            state.output_autocomplete = [...oac_set];
-            state.input_autocomplete = [...iac_set];
-            state.predicate_autocomplete = [...pac_set];
-            //save backup of all options for getNewOptions
-            state.predicate_autocomplete_all = state.predicate_autocomplete;
-            state.overEdgeLimit = state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
-
-            //create node data
-            nodes.forEach(node => {
-                let n = { 
-                    group: 'nodes',          
-                    data: {
-                        id: node,
-                        weight: 1,
-                        color: getNodeColor(node)
-                    }
-                }
-                n.data.name = state.usingCytoscape ? node : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+node+'</h4></div>';
-                all_nodes.push(n)
-            });
-            // cap edges if max
-            all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
-            // if max only include nodes on chosen edges
-            if (state.maxEdgesRendered) {
-                let min_nodes = new Set()
-                let min_final = []
-                all_edges.forEach(edge => {
-                    min_nodes.add(edge.data.source)
-                    min_nodes.add(edge.data.target)
-                })
-                let temp = [...min_nodes]
-                temp.forEach(item => {
-                    let n = {
-                        group: 'nodes',          
-                        data: {
-                            id: item,
-                            weight: 1,
-                            color: getNodeColor(item)
-                        }
-                    }
-                    n.data.name = state.usingCytoscape ? item : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+item+'</h4></div>';
-                    min_final.push(n)
-                })
-                all_nodes = min_final
-            }
-            // final data
-            state.edgeData = all_edges
-            state.nodeData = all_nodes
-            state.loading = false;
-            // starting results on left panel
-            state.results = all_edges;
-            const t1 = performance.now();
-            var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-            console.log(`%c 🕧 Creating graph data took ${seconds} seconds.`, 'color:hotpink');
         },
         createGraphDataAPI(state, payload) {
             let results = payload['res'];
@@ -529,16 +431,45 @@ export const metakg = {
             let nodes = new Set();
             let all_edges = []
             let all_nodes = []
+
+            state.displayedSubjects.clear();
+            state.displayedObjects.clear();
             //AC
-            let oac_set = new Set();
-            let iac_set = new Set();
-            let pac_set = new Set();
+            // let oac_set = new Set();
+            // let iac_set = new Set();
+            // let pac_set = new Set();
             // color nodes to match active query
             var getNodeColor = name => {
-                if (state.input_type.includes(name)) return '#3f51b5 ';
-                else if (state.output_type.includes(name)) return 'orange';
+                if (state.subject.includes(name)) return '#dce775 #8bc34a';
+                else if (state.object.includes(name)) return '#ffca28 #ff9800';
+                else if (state.node.includes(name)) return 'hotpink #e91e62';
                 //inactive color
-                else return '#df4bfc'
+                else return state.generalMode ? '#81deea #02838f' : '#df4bfc #4a148c'
+            }
+
+            var getNodeShape = name => {
+                if (state.subject.includes(name)) {
+                    return 'star'
+                }
+                else if (state.object.includes(name)){
+                    return 'star';
+                }
+                //inactive color
+                else return 'ellipse'
+            }
+
+            function readableName(text){
+                const result = text.replace(/([A-Z])/g, "\n $1");
+                return result.charAt(0).toUpperCase() + result.slice(1);
+            }
+
+            function getRandomColor() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
             }
 
             state.operationsTotal = results.length;
@@ -546,16 +477,19 @@ export const metakg = {
             console.log("💚  OPs: "+state.operationsTotal, "Limit: "+state.maxEdgesRendered)
     
             results.forEach(op => {
-                let input = op['association']['subject']
-                let output = op['association']['object'];
+                let input = op['subject']
+                let output = op['object'];
                 nodes.add(input);
                 nodes.add(output);
-                let name = op['association']['api']['name'];
-                let id = op['association']['api']['smartapi']['id'];
+                state.displayedSubjects.add(input);
+                state.displayedObjects.add(output);
+
+                let name = op['api']['name'];
+                let id = op['api']['smartapi']['id'];
                 let html = `<div class="p-1 center-align white rounded z-depth-3"><h6 class="center-align">`+
                     `<a target="_blank" href="http://smart-api.info/registry?q=`+ id +`">`+ name +`</a>`+
-                    `</h6><span class="indigo-text">`+input+
-                    `</span> ➡️ <span class="purple-text">`+op['association']['predicate']+
+                    `</h6><span class="light-green-text">`+input+
+                    `</span> ➡️ <span class="purple-text">`+op['predicate']+
                     `</span> ➡️ <span class="orange-text">`+output+
                     `</span></div>`
 
@@ -564,31 +498,39 @@ export const metakg = {
                     group: 'edges',
                     data: {
                         id: Math.floor(100000 + Math.random() * 900000),
-                        name: name + ' : ' + op['association']['predicate'],
+                        name: name + ' : ' + op['predicate'],
                         html: html,
-                        predicate: op['association']['predicate'],
-                        output_id: op['association']['output_id'],
+                        predicate: op['predicate'],
+                        output_id: op['output_id'],
                         api_name: name,
                         type: name,
                         source: input,
                         target: output,
                         smartapi_id: id,
-                        color:'#bf4eff'
+                        component: op['api']['x-translator']['component']
                     }
                 };
                 // edge hover tip
                 all_edges.push(edge);
+                // Edge Color
+                let IO = input + output;
+                if (!state.edgeColors[IO]) {
+                    state.edgeColors[input + output] = getRandomColor();
+                    edge.data.color = state.edgeColors[IO]
+                }else{
+                    edge.data.color = state.edgeColors[IO]
+                }
                 // Autocomplete
-                oac_set.add(output);
-                iac_set.add(input);
-                pac_set.add(op['association']['predicate']);
+                // oac_set.add(output);
+                // iac_set.add(input);
+                // pac_set.add(op['predicate']);
             });
             // autocomplete options
-            state.output_autocomplete = [...oac_set];
-            state.input_autocomplete = [...iac_set];
-            state.predicate_autocomplete = [...pac_set];
+            // state.object_options = [...oac_set];
+            // state.subject_options = [...iac_set];
+            // state.predicate_options = [...pac_set];
             //save backup of all options for getNewOptions
-            state.predicate_autocomplete_all = state.predicate_autocomplete;
+            state.predicate_autocomplete_all = state.predicate_options;
             state.overEdgeLimit = state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
 
             //create node data
@@ -598,10 +540,11 @@ export const metakg = {
                     data: {
                         id: node,
                         weight: 1,
-                        color: getNodeColor(node)
+                        colors: getNodeColor(node)
                     }
                 }
-                n.data.name = state.usingCytoscape ? node : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+node+'</h4></div>';
+                n.data.shape = getNodeShape(node)
+                n.data.name = state.usingCytoscape ? readableName(node) : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+ readableName(node) +'</h4></div>';
                 all_nodes.push(n)
             });
             // cap edges if max
@@ -621,10 +564,11 @@ export const metakg = {
                         data: {
                             id: item,
                             weight: 1,
-                            color: getNodeColor(item)
+                            colors: getNodeColor(item)
                         }
                     }
-                    n.data.name = state.usingCytoscape ? item : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+item+'</h4></div>';
+                    n.data.shape = getNodeShape(item)
+                    n.data.name = state.usingCytoscape ? readableName(item) : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+ readableName(item) +'</h4></div>';
                     min_final.push(n)
                 })
                 all_nodes = min_final
@@ -649,7 +593,21 @@ export const metakg = {
                 state.predicate_selected.push(q)
             } else {
                 swal({
-                type: 'error',
+                icon: 'error',
+                toast: true,
+                title: 'Already Selected',
+                showConfirmButton: false,
+                timer: 1000
+                });
+            }
+            break;
+
+            case 'edge':
+            if (!state.edge_selected.includes(q)) {
+                state.edge_selected.push(q)
+            } else {
+                swal({
+                icon: 'error',
                 toast: true,
                 title: 'Already Selected',
                 showConfirmButton: false,
@@ -658,12 +616,12 @@ export const metakg = {
             }
 
             break;
-            case 'input_type':
+            case 'subject':
             if (!state.input_selected.includes(q)) {
                 state.input_selected.push(q)
             } else {
                 swal({
-                type: 'error',
+                icon: 'error',
                 toast: true,
                 title: 'Already Selected',
                 showConfirmButton: false,
@@ -672,12 +630,27 @@ export const metakg = {
             }
 
             break;
-            case 'output_type':
+            case 'object':
             if (!state.output_selected.includes(q)) {
                 state.output_selected.push(q)
             } else {
                 swal({
-                type: 'error',
+                icon: 'error',
+                toast: true,
+                title: 'Already Selected',
+                showConfirmButton: false,
+                timer: 1000
+                });
+            }
+
+            break;
+
+            case 'node':
+            if (!state.node_selected.includes(q)) {
+                state.node_selected.push(q)
+            } else {
+                swal({
+                icon: 'error',
                 toast: true,
                 title: 'Already Selected',
                 showConfirmButton: false,
@@ -700,18 +673,33 @@ export const metakg = {
             i = state.predicate_selected.indexOf(q);
             state.predicate_selected.splice(i, 1);
             break;
-            case 'input_type':
+            case 'edge':
+            i = state.edge_selected.indexOf(q);
+            state.edge_selected.splice(i, 1);
+            break;
+            case 'subject':
             i = state.input_selected.indexOf(q);
             state.input_selected.splice(i, 1);
             break;
-            case 'output_type':
+            case 'object':
             i = state.output_selected.indexOf(q);
             state.output_selected.splice(i, 1);
+            break;
+            case 'node':
+            i = state.node_selected.indexOf(q);
+            state.node_selected.splice(i, 1);
             break;
             default:
             console.log('NO option removePill')
         }
         },
+        buildAPIURL(state, payload){
+            let url = new URL(state.baseURL);
+            for (const key in payload) {
+                url.searchParams.append(key, payload[key]);
+            }
+            state.finalURL = url.href;
+        }
      },
     actions: {
         draw({commit, state}){
@@ -721,30 +709,47 @@ export const metakg = {
             // let found = false;
             let params = payload['params']
             params = new URLSearchParams(params);
-            let array = ['input_type', 'predicate', 'output_type']
+            let possibleTypes = ['subject', 'predicate', 'object', 'node', 'edge']
     
-            for (var x = 0; x < array.length; x++) {
-                let current_input_type = array[x]
+            for (var x = 0; x < possibleTypes.length; x++) {
+                let currentType = possibleTypes[x]
     
-                let type = params.get(current_input_type);
+                let type = params.get(currentType);
                 if (type) {
-                let selections = type.split(',');
-    
-                for (var i = 0; i < selections.length; i++) {
-                    var payload1 = {};
-                    payload1["type"] = current_input_type;
-                    payload1["q"] = selections[i];
-                    commit('pushPill', payload1);
-                    
-                    var payload2 = {};
-                    payload2["name"] = current_input_type;
-                    payload2["q"] = selections[i];
-                    commit('saveInput', payload2);
+                    let selections = type.split(',');
+                    if (currentType == 'node' || currentType == 'edge') {
+                        commit('setMode', true);
+                    }
+        
+                    for (var i = 0; i < selections.length; i++) {
+                        var payload1 = {};
+                        payload1["type"] = currentType;
+                        payload1["q"] = selections[i];
+                        commit('pushPill', payload1);
+                        
+                        var payload2 = {};
+                        payload2["name"] = currentType;
+                        payload2["q"] = selections[i];
+                        commit('saveInput', payload2);
 
-                    // found = true
-                    console.log('✨ Activating Existing Query ✨', payload1)
+                        // found = true
+                        console.log('✨ Activating Existing Query ✨', JSON.stringify(payload1, null, 2))
+                    }
                 }
-                }
+            }
+
+            if (params.get('size')) {
+                commit('setSize', params.get('size'))
+            }
+
+            if (params.get('expand')) {
+                params.get('expand').split('.').forEach((value) => {
+                    commit('expandThis', value)
+                })
+            }
+
+            if (params.get('q')) {
+                commit('setTerm', params.get('q'))
             }
 
             // found ? dispatch('handleQuery'): false;
@@ -802,54 +807,72 @@ export const metakg = {
             }
         },
         handleQuery({commit, state, dispatch}) {
-            console.log("💚 HANDLE NEW QUERY")
-            let q = {}
+            console.log("%c New Query", "background: blue; padding: 5px; color: yellow;")
+            // let q = {}
             let urlParams = {}
-            if (state.output_type && state.output_type.length) {
-                q['output_type'] = state.output_type
-                urlParams['object'] = state.output_type
+            if (state.object && state.object.length) {
+                urlParams['object'] = state.object + ''
             }
             if (state.predicate && state.predicate.length) {
-                q['predicate'] = state.predicate
-                urlParams['predicate'] = state.predicate
+                urlParams['predicate'] = state.predicate  + ''
             }
-            if (state.input_type && state.input_type.length) {
-                q['input_type'] = state.input_type
-                urlParams['subject'] = state.input_type
+            if (state.subject && state.subject.length) {
+                urlParams['subject'] = state.subject  + ''
             }
-            // Component
-            urlParams['component'] = state.component;
+            if (state.node && state.node.length) {
+                urlParams['node'] = state.node  + ''
+            }
+            if (state.edge && state.edge.length) {
+                urlParams['edge'] = state.edge  + ''
+            }
+            urlParams['size'] = state.size;
 
-            let g = null 
-            if (state.useAPI) {
-                console.log("%c 💚 Executing new API query...", "color:limegreen")
-                console.log("%c " + JSON.stringify( urlParams, null, 2), "color:limegreen")
-                commit('toggleLoading', {loading: true})
-                axios.get('https://smart-api.info/api/metakg?', {'params': urlParams}).then((res) => {
-                    g = res.data.associations.map((data) => {
-                        return {'association': data};
-                    });
-                    commit('toggleLoading', {loading: false})
-                    commit('createGraphDataAPI', {res: g});
-                    commit('getNewOptionsAPI', {res: g});
-                    dispatch('draw');
-                }).catch((err) => {
-                    commit('toggleLoading', {loading: false})
-                    throw err;
-                });
-            } else {
-                console.log("%c Executing new KG query...", "color:lightblue")
-                console.log(JSON.stringify(q, null, 2))
-                g = state.meta_kg.filter(q);
-                if (g) {
-                    commit('createGraphData', {res: g});
-                    commit('getNewOptions', {res: g});
-                    dispatch('draw');
+            if (state.expand && state.expand.size) {
+                urlParams['expand'] = [...state.expand] + '';
+            }
+
+            if (state.query_term) {
+                if(!state.kp && !state.ara){
+                    urlParams['q'] = state.query_term;
+                }
+                if (state.ara && !state.kp) {
+                    urlParams['q'] = `("${state.query_term}" AND api.x-translator.component:ARA)`
+                }
+                else if (!state.ara && state.kp) {
+                    urlParams['q'] = `("${state.query_term}" AND api.x-translator.component:KP)`
+                }
+                else if (state.ara && state.kp) {
+                    urlParams['q'] = `("${state.query_term}" AND api.x-translator.component:KP OR api.x-translator.component:ARA)`
+                }
+            }else{
+                if (state.ara && !state.kp) {
+                    urlParams['q'] = `(api.x-translator.component:ARA)`
+                }
+                else if (!state.ara && state.kp) {
+                    urlParams['q'] = `(api.x-translator.component:KP)`
+                }
+                else if (state.ara && state.kp) {
+                    urlParams['q'] = `(api.x-translator.component:KP OR api.x-translator.component:ARA)`
                 }
             }
-            
 
-            
+            urlParams['facet_size'] = 300;
+            urlParams['aggs'] = 'api.name.raw,object.raw,subject.raw';
+            let g = null 
+            console.log("%c " + JSON.stringify( urlParams, null, 2), "color:green; background:lightyellow; padding:5px;")
+            // commit('toggleLoading', {loading: true})
+            axios.get(state.baseURL, {'params': urlParams}).then((res) => {
+                commit('buildAPIURL', urlParams)
+                g = res.data?.hits || []
+                commit('createGraphDataAPI', {res: g});
+                commit('saveTotal', res.data.total);
+                commit('saveAPITotal', res.data?.facets?.['api.name.raw']?.terms);
+                commit('saveObjectTotal', res.data?.facets?.['object.raw']?.terms);
+                commit('saveSubjectTotal', res.data?.facets?.['subject.raw']?.terms);
+                dispatch('draw');
+            }).catch((err) => {
+                throw err;
+            });
         },
         download({state}) {
 
@@ -898,24 +921,58 @@ export const metakg = {
             }
         }
 
-        if (state.input_selected.length) {
+        if (state.edge_selected.length) {
             //something is selected
-            params.set('input_type', state.input_selected.toString());
+            params.set('edge', state.edge_selected.toString());
         } else {
             //nothing selected
-            if (params.get('input_type')) {
-            params.delete('input_type');
+            if (params.get('edge')) {
+            params.delete('edge');
+            }
+        }
+
+        if (state.input_selected.length) {
+            //something is selected
+            params.set('subject', state.input_selected.toString());
+        } else {
+            //nothing selected
+            if (params.get('subject')) {
+            params.delete('subject');
             }
         }
 
         if (state.output_selected.length) {
             //something is selected
-            params.set('output_type', state.output_selected.toString());
+            params.set('object', state.output_selected.toString());
         } else {
             //nothing selected
-            if (params.get('output_type')) {
-            params.delete('output_type');
+            if (params.get('object')) {
+            params.delete('object');
             }
+        }
+
+        if (state.node_selected.length) {
+            //something is selected
+            params.set('node', state.node_selected.toString());
+        } else {
+            //nothing selected
+            if (params.get('node')) {
+            params.delete('node');
+            }
+        }
+
+        params.set('size', state.size);
+        
+        if (state.expand && state.expand.size) {
+            params.set('expand', [...state.expand].toString());
+        }else{
+            params.delete('expand')
+        }
+
+        if (state.query_term) {
+            params.set('q', state.query_term);
+        }else{
+            params.delete('q')
         }
 
         finalURL = base + "?" + params
@@ -926,28 +983,92 @@ export const metakg = {
             "pageTitle": 'SmartAPI'
         }, "MetaKG", finalURL);
         },
+        getOptions({dispatch}) {
+            dispatch('getSubjects');
+            dispatch('getObjects');
+            dispatch('getPredicates');
+            dispatch('getAPINames');
+        },
+        getSubjects({state, commit}){
+            if (!state.subject_options.length) {
+                axios.get('https://smart-api.info/api/metakg?aggs=subject.raw&facet_size=200').then(res=>{
+                    let data = res.data?.facets?.['subject.raw']?.terms.map(item => item.term).sort();
+                    commit('saveSubjects', data);
+                }).catch(err=>{
+                    console.log('Failed to get subjects', err);
+                });
+            }
+        },
+        getObjects({state, commit}){
+            if (!state.object_options.length) {
+                axios.get('https://smart-api.info/api/metakg?aggs=object.raw&facet_size=200').then(res=>{
+                    let data = res.data?.facets?.['object.raw']?.terms.map(item => item.term).sort();
+                    commit('saveObjects', data);
+                }).catch(err=>{
+                    console.log('Failed to get objects', err);
+                });
+            }
+            
+        },
+        getPredicates({state, commit}){
+            if (!state.predicate_options.length) {
+                axios.get('https://dev.smart-api.info/api/metakg?aggs=predicate&facet_size=500').then(res=>{
+                    let data = res.data?.facets?.predicate?.terms.map(item => item.term).sort();
+                    commit('savePredicates', data);
+                }).catch(err=>{
+                    console.log('Failed to get predicates', err);
+                });
+            }
+        },
+        getAPINames({state, commit}){
+            if (!state.apis_options.length) {
+                axios.get('https://dev.smart-api.info/api/metakg?aggs=api.name.raw&facet_size=200').then(res=>{
+                    let data = res.data?.facets?.['api.name.raw']?.terms.map(item => item.term).sort();
+                    commit('saveAPIs', data);
+                }).catch(err=>{
+                    console.log('Failed to get api names', err);
+                });
+            }
+        },
      },
     getters: {
-        getI_AC: (state) => {
-            return state.input_autocomplete
+        getSubjectOptions: (state) => {
+            return state.subject_options
         },
-        getP_AC: (state) => {
-            return state.predicate_autocomplete
+        getPredicateOptions: (state) => {
+            return state.predicate_options
         },
-        getO_AC: (state) => {
-            return state.output_autocomplete
+        getObjectOptions: (state) => {
+            return state.object_options
         },
-        getI_Selected: (state) => {
+        getSubjectSelected: (state) => {
             return state.input_selected
         },
-        getP_Selected: (state) => {
+        getPredicateSelected: (state) => {
             return state.predicate_selected
         },
-        getO_Selected: (state) => {
+        getEdgeSelected: (state) => {
+            return state.edge_selected
+        },
+        getObjectSelected: (state) => {
             return state.output_selected
+        },
+        getNode_Selected: (state) => {
+            return state.node_selected
         },
         results: (state) => {
             return state.results
+        },
+        organizedResults: (state) => {
+            let or = {};
+            state.results.forEach(r => {
+                if (Object.hasOwnProperty.call(or, r.api.name)) {
+                    or[r.api.name].push(r)
+                } else {
+                    or[r.api.name] = [r]
+                }
+            });
+            return or;
         },
         getAPITotal: (state) => {
             return state.operationsTotal
@@ -970,8 +1091,47 @@ export const metakg = {
         usingCytoscape: (state) => {
             return state.usingCytoscape
         },
-        useAPI: (state) => {
-            return state.useAPI
-        }
+        size: (state) => {
+            return state.size
+        },
+        finalURL: (state) => {
+            return state.finalURL
+        },
+        expand: (state) => {
+            return [...state.expand]
+        },
+        total: (state) => {
+            return state.total
+        },
+        kp: (state) => {
+            return state.kp
+        },
+        ara: (state) => {
+            return state.ara
+        },
+        apiTotalFromResponse: (state) => {
+            return state.apiTotalFromResponse
+        },
+        objectTotalFromResponse: (state) => {
+            return state.objectTotalFromResponse
+        },
+        subjectTotalFromResponse: (state) => {
+            return state.subjectTotalFromResponse
+        },
+        APINames: (state) => {
+            return state.apis_options
+        },
+        query_term: (state) => {
+            return state.query_term
+        },
+        generalMode: (state) => {
+            return state.generalMode
+        },
+        displayedSubjects: (state) => {
+            return [...state.displayedSubjects]
+        },
+        displayedObjects: (state) => {
+            return [...state.displayedObjects]
+        },
     }
 }

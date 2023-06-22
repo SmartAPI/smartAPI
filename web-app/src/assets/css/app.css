@@ -9,6 +9,19 @@
   margin: auto;
 }
 
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: rgb(96, 51, 111);
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: rgb(96, 51, 111);
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: rgb(96, 51, 111);
+}
+
 /* Base for label styling */
 [type="checkbox"]:not(:checked),
 [type="checkbox"]:checked {
@@ -1011,7 +1024,7 @@ html, body {
   border: 2px var(--blue-medium) solid;
   border-radius: 5px;
   background: #304586;
-  background: -moz-linear-gradient(top, rgba(48, 69, 134, 1) 0, rgba(105, 54, 130, 1) 100%);
+  background: -moz-linear-gradient(top, rgba(48, 69, 134, 1) 0, rgb(54, 130, 117) 100%);
   background: -webkit-linear-gradient(top, rgba(48, 69, 134, 1) 0, rgba(105, 54, 130, 1) 100%);
   background: linear-gradient(to bottom, rgba(48, 69, 134, 1) 0, rgba(105, 54, 130, 1) 100%);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#304586', endColorstr='#693682', GradientType=0)
@@ -1163,7 +1176,7 @@ html, body {
 }
 
 .pillBox {
-  padding: 10px;
+  padding: 1px;
   border-radius: 5px;
   border: grey 2px solid;
   background: white

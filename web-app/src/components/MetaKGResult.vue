@@ -14,11 +14,11 @@
             <i class="fa fa-info-circle pointer green-text" :class="'resultInfo'+badgeID" aria-hidden="true"
             style="float: right;"></i>
         </small>
-        <small class="s-badge lighten-4 grey-text" v-text="item.association.input_type"></small>
+        <small class="s-badge lighten-4 grey-text" v-text="item.association.subject"></small>
         <small class="blue-text">/</small>
         <small class="s-badge lighten-5 purple-text" v-text="item.association.predicate"></small>
         <small class="blue-text">/</small>
-        <small class="s-badge lighten-5 orange-text" v-text="item.association.output_type"></small>
+        <small class="s-badge lighten-5 orange-text" v-text="item.association.object"></small>
         </div>
     </div>
 </template>
@@ -113,7 +113,7 @@ export default {
                             <small class="grey-text">INPUT/ID TYPE</small>
                         </td>
                         <td>
-                            <small>` + info.association.input_type + `/` + info.association.input_id + `</small>
+                            <small>` + info.association.subject + `/` + info.association.input_id + `</small>
                         </td>
                         </tr>
                         <tr class="purple lighten-4">
@@ -129,7 +129,7 @@ export default {
                             <small class="orange-text">OUTPUT/ID TYPE</small>
                         </td>
                         <td>
-                            <small>` + info.association.output_type + `/` + info.association.output_id + `</small>
+                            <small>` + info.association.object + `/` + info.association.output_id + `</small>
                         </td>
                         </tr>
                     </tbody>
@@ -152,7 +152,7 @@ export default {
                         <small class="grey-text">INPUT/ID TYPE</small>
                         </td>
                         <td>
-                        <small>` + info.association.input_type + `/` + info.association.input_id + `</small>
+                        <small>` + info.association.subject + `/` + info.association.input_id + `</small>
                         </td>
                     </tr>
                     <tr class="purple lighten-4">
@@ -168,7 +168,7 @@ export default {
                         <small class="orange-text">OUTPUT/ID TYPE</small>
                         </td>
                         <td>
-                        <small>` + info.association.output_type + `/` + info.association.output_id + `</small>
+                        <small>` + info.association.object + `/` + info.association.output_id + `</small>
                         </td>
                     </tr>
                     </tbody>

@@ -1,123 +1,204 @@
 <template>
   <main id="meta-app" class="white" style="width: 100%;" v-cloak>
-  <div class="loadBlock row" v-if="loading">
-    <div class="col s12 m2 center d-flex align-items-center">
-      <i class="fa fa-cog fa-spin fa-fw fa-3x"></i>
-    </div>
-    <div class="col s12 m10 center">
-      <h6 class="grey-text">
-        This process might take a several seconds.
-      </h6>
-      <h6 class="white-text">
-        <i class="fa fa-cog fa-spin fa-fw"></i> Getting API metadata..
-      </h6>
-      <h6 class="white-text">
-        <i class="fa fa-cog fa-spin fa-fw"></i> Processing operations from metadata...
-      </h6>
-    </div>
-  </div>
   <div class="p-1 grey lighten-3">
     <div class="center-align" style="margin-bottom:8px;">
-      <router-link to="/portal/translator" class="red-text">
+      <router-link to="/portal/translator" class="red-text left">
         Back to Portal
       </router-link>
       <h6 style="margin:5px; display:inline;">
-        <img />
           <Image class="scale-in-center" img_name="metakg-01.png" img_width="30px"
           style="max-width: 50px; max-height: 50px;" ></Image>
-        Meta-<b>KG</b>
+        Meta-<b>KG</b> Explorer
       </h6>
-      <!-- <span class="center-align p-1 green white-text rounded" style="margin-right:20px !important;">
-        Component:
-        <select class="browser-default component-select" v-model='component_select'>
-          <option value="" disabled selected>Switch to Component</option>
-          <option value="KP">KP</option>
-          <option value="ARA">ARA</option>
-        </select>
-      </span> -->
-      <a href="https://smart-api.info/api/metakg" target="_blank" rel="noreferrer" style="margin-left:20px !important;">
-        <small>Download Meta-KG dump</small>
-      </a>
     </div>
     <!-- META KG SEARCH -->
     <div class="row m-0">
-      <div class="col s12">
-        <form class="meta_kg_form">
+      <div class="col s7 pointer" @click="setNodeMode(false)">
+      <form :class="[!generalMode ? 'purple darken-3' : 'tab-not-active']" class="top-br">
           <div class="row m-0">
             <div class="col s12 m4 input-field center">
-              <h6 class="white-text lighter" style="margin:2px">
-                <i class="fa fa-circle indigo-text" aria-hidden="true"></i>
-                INPUT TYPE
-              </h6>
-              <PillBox type="input_type"></PillBox>
+              <PillBox type="subject"></PillBox>
             </div>
             <div class="col s12 m4 input-field center">
-              <h6 class="white-text lighter" style="margin:2px">
-                <i class="fa fa-circle purple-text" aria-hidden="true"></i>
-                RELATIONSHIP
-              </h6>
               <PillBox type="predicate"></PillBox>
             </div>
             <div class="col s12 m4 input-field center">
-              <h6 class="white-text lighter" style="margin:2px">
-                <i class="fa fa-circle orange-text" aria-hidden="true"></i>
-                OUTPUT TYPE
-              </h6>
-              <PillBox type="output_type"></PillBox>
-            </div>
-            <div class="col s12 center-align">
-              <button style="margin-bottom:5px;" v-if="!loading" class="btn red" type="button" @click.prevent="reset()">
-                Reset
-              </button>
+              <PillBox type="object"></PillBox>
             </div>
           </div>
         </form>
       </div>
-      
-      <div class="col s12">
-        <div class="metakg-menu w-100">
-          <!-- METAKG MENU -->
-          <template v-if="overEdgeLimit">
-            <p class="red-text p-1">Results contain over <b v-text="edgeLimit"></b> relationship edges, please refine your query to see all possible relationship edges rendered.</p>
-          </template>
-          <template v-if="usingCytoscape">
-            <button class="pointer smallButton m-1 right" @click="download">
-              <i class="fa fa-download" aria-hidden="true"></i> Download Image
-            </button>
-            <button class="pointer smallButton m-1 right" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
-                aria-hidden="true"></i> Reset Zoom
-            </button>
-          </template>
-          <template v-if="results.length == 0">
-            <p class="red-text p-1">No Results, Please Refine Your Query</p>
-          </template>
-          <button class="smallButton white-text m-1" :class="[!showOperations ? 'blue' : 'red']" @click.prevent="showOperations = !showOperations">
-            {{showOperations ? 'Hide Operations':'Show Operations ('+numberWithCommas(results.length)+')'}}
-          </button>
+      <!-- <div class="col s1 d-flex justify-content-center align-items-center">
+        <h5>OR</h5>
+      </div> -->
+      <div class="col s5 pointer" @click="setNodeMode(true)">
+        <form :class="[generalMode ? 'cyan  darken-3' : 'tab-not-active']" class="top-br">
+          <div class="row m-0">
+            <div class="col s12 m6 input-field center">
+              <PillBox type="node"></PillBox>
+            </div>
+            <div class="col s12 m6 input-field center">
+              <PillBox type="edge"></PillBox>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="col s12 top-br lighten-3" :class="[!generalMode ? 'purple' : 'cyan ']">
+        <div class="row m-0">
+          <div class="col s12 m4">
+            <div class="d-flex align-items-center">
+              <p class="p-0">
+                Size
+              </p>
+              <select class="browser-default size-select white-text"
+               :class="[!generalMode ? 'purple' : 'cyan ']" v-model="size">
+                  <option value="" disabled>Choose Size</option>
+                  <option value="20">20</option>
+                  <option value="40">40</option>
+                  <option value="100">100</option>
+                  <option value="200">200</option>
+                  <option value="500">500</option>
+                  <option value="1000">1000</option>
+              </select>
+              <div class="lighten-2 p-1 d-flex" style="border-radius: 5px;"  :class="[!generalMode ? 'purple' : 'cyan ']" data-tippy-content="Select Translator Component (Default ANY)">
+                <div style="margin-right: 10px;">
+                  <input type="checkbox" id="ara" v-model="ara"/>
+                  <label class="white-text" for="ara">ARA</label>
+                </div>
+                <div>
+                  <input type="checkbox" id="kp" v-model="kp"/>
+                  <label class="white-text" for="kp">KP</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col s12 m4">
+            <form @submit.prevent="search()" class="d-flex flex-wrap align-items-center justify-content-center m-1">
+              <input 
+              v-model="query_term" 
+              type="text" 
+              placeholder="(Optional) Search term eg. API name, etc." 
+              style="border-radius: 20px;"
+              list="query-input" 
+              autocomplete="off"
+              class="browser-default mr-1 query-input">
+              <datalist id='query-input'></datalist>
+              <button v-if="query_term" class="smallButton green white-text" style="margin-right: 10px;" type="submit">Update</button>
+              <button v-if="query_term" @click="clear()" class="smallButton red white-text" type="button">Clear</button>
+            </form>
+          </div>
+          <div class="col s12 m4">
+            <div v-if="usingCytoscape">
+              <button class="smallButton white-text m-1" :class="[!generalMode ? 'purple' : 'cyan ']" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
+                  aria-hidden="true"></i> Reset Zoom
+              </button>
+              <button class="smallButton white-text m-1" :class="[!generalMode ? 'purple' : 'cyan ']" @click="download">
+                <i class="fa fa-download" aria-hidden="true"></i> Download Image
+              </button>
+            </div>
+            <CopyButton copy_msg="URL copied" :copy="finalURL" class="white-text p-1" :class="[!generalMode ? 'purple' : 'cyan ']">
+                <template v-slot:title>
+                  <i class="fa fa-copy" aria-hidden="true"></i> Copy API Query
+                </template>
+            </CopyButton>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="d-flex justify-content-center graph-cont">
+    <div class="row m-0 lighten-5" :class="[!generalMode ? 'purple' : 'cyan ']">
       <!-- GRAPH and RESULTS-->
-      <div v-if="showOperations" class="col m4 operations-menu p-1">
-        <div class="right-align">
-          <span class="pointer red-text" @click="showOperations = false">close &times;</span>
-        </div>
-        <template v-for="item in results" :key="item.id">
-          <div class="m-1" @mouseenter="highlightRow(item)" @mouseleave="unhighlightRow(item)" >
-            <small v-html="item.data.html"></small>
-          </div>
-        </template>
+      <div class="col s3 p-1 operations-menu grey darken-1" style="padding-bottom: 20px;">
+        <h6 class="white-text"><b>Overview</b></h6>
+        <small class="white-text">Based on the current query: </small>
+        <table class="white-text highlight grey darken-2" style="font-size: smaller; margin-bottom: 5px;">
+          <thead>
+            <th class="p-small"></th>
+            <th class="p-small">Shown <i class="material-icons tiny cyan-text" data-tippy-content='Edges and APIs matching current criteria and size constraints.'>info</i></th>
+            <th class="p-small">Available <i class="material-icons tiny cyan-text" data-tippy-content='Total edges and APIs available matching search criteria some may not be included due to size constraints set. You can increase size to include more results.'>info</i></th>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-small">Edges</td>
+              <td class="p-small scale-in-center lime-text" v-text="total < size ? numberWithCommas(total) : size"></td>
+              <td class="p-small scale-in-center">{{ numberWithCommas(total) }}</td>
+            </tr>
+            <tr>
+              <td class="p-small">APIs</td>
+              <td class="p-small scale-in-center lime-text">{{ Object.keys(organizedResults).length }}</td>
+              <td class="p-small scale-in-center">
+                <details>
+                  <summary>
+                    {{ apiTotalFromResponse.length }}
+                  </summary>
+                  <ul>
+                    <li v-for="item in apiTotalFromResponse" :key="item.term + 'api'">{{ item.term }}</li>
+                  </ul>
+                </details>
+              </td>
+            </tr>
+            <tr>
+              <td class="p-small">Subjects</td>
+              <td class="p-small scale-in-center lime-text"> {{ displayedSubjects.length }}</td>
+              <td class="p-small scale-in-center">
+                <details>
+                  <summary>
+                    {{ subjectTotalFromResponse.length }}
+                  </summary>
+                  <ul>
+                    <li v-for="item in subjectTotalFromResponse" :key="item.term + 'sub'">{{ item.term }}</li>
+                  </ul>
+                </details>
+              </td>
+            </tr>
+            <tr>
+              <td class="p-small">Objects</td>
+              <td class="p-small scale-in-center lime-text">{{ displayedObjects.length }}</td>
+              <td class="p-small scale-in-center">
+                <details>
+                  <summary>
+                    {{ objectTotalFromResponse.length }}
+                  </summary>
+                  <ul>
+                    <li v-for="item in objectTotalFromResponse" :key="item.term + 'obj'">{{ item.term }}</li>
+                  </ul>
+                </details>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <details v-for="(results, api) in organizedResults" :key="api" class="border-b p-1 white" style="overflow: hidden; border-radius: 5px;">
+          <summary>
+            {{ api }}
+            <b class="purple-text"> ({{ results.length }})</b>
+            <p class="m-0">
+              <a :href="'http://smart-api.info/registry?q=' + results[0].data.smartapi_id" target="_blank" class="mr-1 p-1">
+                  <small>SmartAPI Registry <i class="fa fa-external-link" aria-hidden="true"></i></small>
+              </a>
+              <a :href="results[0]?.api?.smartapi?.ui" target="_blank" class="p-1">
+                  <small>Documentation <i class="fa fa-external-link" aria-hidden="true"></i></small>
+              </a>
+            </p>
+          </summary>
+          <table class="edge-table" style="font-size: x-small;">
+            <thead>
+              <th><i class="fa fa-circle light-green-text" aria-hidden="true"></i> Subject</th>
+              <th>Predicate</th>
+              <th><i class="fa fa-star orange-text" aria-hidden="true"></i> Object</th>
+            </thead>
+            <tr 
+            v-for="item in results" :key="item.id" 
+            @mouseenter="highlightRow(item)" 
+            @mouseleave="unhighlightRow(item)" >
+                <td class="p-small" style="word-break: break-all;">{{item.subject}} <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + item.subject"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+                <td class="purple-text p-small" style="word-break: break-all;">{{item.predicate}} <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + item.predicate"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+                <td class="p-small">{{item.object}} <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + item.object"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+            </tr>
+          </table>
+        </details>
       </div>
-      <div id="cy" v-if="usingCytoscape">
-        <div v-if="loading" class="center">
-          <div class="center-align">
-            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-          </div>
-        </div>
-      </div>
-      <div v-else id="3d-graph"></div>
+      <div class="col s9" id="cy" v-if="usingCytoscape"></div>
+      <div v-else class="col s9" id="3d-graph"></div>
     </div>
 
     <div class="grey lighten-2 rounded p-1 m-2">
@@ -133,7 +214,7 @@
             <div class="collection-item">
               <input type="checkbox" id="test1" v-model="SR" @click="toggleSR"/>
               <label for="test1">
-                <small>Check to render relationships by <b class="black-text">self-referencing nodes</b>. This requires a differernt method of rendering impacting performance <b>negatively</b>.</small>
+                <small>Check to render relationships by <b class="black-text">self-referencing nodes</b>. This requires a different method of rendering impacting performance <b>negatively</b>.</small>
               </label>
             </div>
             <div class="collection-item">
@@ -148,12 +229,6 @@
                 <small>Click here to render the results using CytoscapeJS instead of using a 3D Model.</small>
               </label>
             </div>
-            <div class="collection-item">
-              <input type="checkbox" id="usingAPI" v-model="useAPI"/>
-              <label for="usingAPI">
-                <small>Use SmartAPI API (default) or use SmartAPI KG NPM package (unchecked). If you have any issues please contact us.</small>
-              </label>
-            </div>
           </div>
         </div>
       </div>
@@ -165,10 +240,7 @@
 
 <script>
 import PillBox from '../components/PillBox.vue';
-import axios from 'axios';
 import { mapGetters } from 'vuex'
-
-const MetaKG  = require("@biothings-explorer/smartapi-kg")
 
 export default {
   components: { 
@@ -184,11 +256,10 @@ export default {
     data: function () {
       return {
         'hoverInfo': {},
-        'component_select': 'KP',
         'showOperations': false,
-        'SR': false,
+        'SR': true,
         'withLimit': false,
-        'showSettings': false
+        'showSettings': false,
       }
     },
     computed: {
@@ -196,12 +267,24 @@ export default {
         'loading',
         'overEdgeLimit',
         'results',
+        'organizedResults',
+        'APINames',
+        'apiTotalFromResponse',
+        'subjectTotalFromResponse',
+        'objectTotalFromResponse',
+        'displayedSubjects',
+        'displayedObjects',
+        'generalMode',
+        'finalURL'
       ]),
       edgeLimit: function(){
         return this.$store.getters.getLimit
       },
       edgeLimitBool: function(){
         return this.$store.getters.getLimitBool
+      },
+      total: function(){
+        return this.$store.getters.total
       },
       usingCytoscape: {
         get () {
@@ -211,16 +294,45 @@ export default {
           return this.$store.commit('setRenderer', {value: v})
         }
       },
-      useAPI: {
+      size: {
         get () {
-          return this.$store.getters.useAPI
+          return this.$store.getters.size
         },
         set (v) {
-          return this.$store.commit('setUseAPI', {value: v})
+          return this.$store.commit('setSize', v);
         }
-      }
+      },
+      kp: {
+        get () {
+          return this.$store.getters.kp
+        },
+        set (v) {
+          return this.$store.commit('setKP', v);
+        }
+      },
+      ara: {
+        get () {
+          return this.$store.getters.ara
+        },
+        set (v) {
+          return this.$store.commit('setARA', v);
+        }
+      },
+      query_term: {
+        get () {
+          return this.$store.getters.query_term
+        },
+        set (v) {
+          return this.$store.commit('setTerm', v);
+        }
+      },
     },
     watch: {
+      results: function (v) {
+        if(!v.length){
+          this.$toast.error('No results');
+        }
+      },
       withLimit: function (v) {
         v ? this.$store.commit('setMax', {value: 1500}) : this.$store.commit('setMax', {value: 0})
         this.$toast.success('Updating Results...');
@@ -235,15 +347,55 @@ export default {
           this.$toast.info('Over '+this.edgeLimit+' edge limit');
         }
       },
-      component_select: function(v){
-        this.$store.commit('saveComponent', {'value': v});
-        this.$router.push({path: '/portal/translator/metakg/'+v, query: this.$route.query})
+      size: function(){
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{
+          this.$store.dispatch('handleQuery');
+          this.$store.dispatch('buildURL');
+        }, 1000);
       },
-      useAPI: function(){
-        this.load();
-      }
+      ara: function(){
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{
+          this.$store.dispatch('handleQuery');
+          this.$store.dispatch('buildURL');
+        }, 1000);
+      },
+      kp: function(){
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{
+          this.$store.dispatch('handleQuery');
+          this.$store.dispatch('buildURL');
+        }, 1000);
+      },
+      generalMode: function(){
+        this.reset();
+      },
+      APINames: function (o) {
+        let html = '';
+        if (o.length) {
+          document.getElementById('query-input').innerHTML = ''
+          for (var i = 0, len = o.length; i < len; i++) {
+            let item = o[i]
+            html += `<option value="` + item + `">`;
+          }
+          document.getElementById('query-input').innerHTML = html
+        }
+      },
     },
     methods: {
+      clear(){
+        this.$store.commit('setTerm', '');
+        this.search();
+      },
+      search(){
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      },
+      setNodeMode(v){
+        // this.generalMode = v;
+        this.$store.commit('setMode', v);
+      },
       toggleSR(){
         this.$store.commit('toggleSelfReferenced');
         this.$toast.success('Updating Display...');
@@ -252,60 +404,13 @@ export default {
       numberWithCommas(x) {
           return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
       },
-      async loadKG() {
-        var self = this;
-        const t0 = performance.now();
-
-        let meta_kg = new MetaKG.default()
-        //load meta-kg API graph with reasoner APIs
-        /*eslint-disable */
-        await meta_kg.constructMetaKG(true, {component: self.component ? self.component : 'KP'});
-        /*eslint-enable */
-        const t1 = performance.now();
-        //performance check
-        var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c 🦄 Meta-KG loaded in ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
-
-        //send graph data to store for processing
-        this.$store.commit('saveMetaKG', {'metakg': meta_kg});
-
-        // this.$store.commit('createGraphData', {'res': meta_kg.ops});
-        // this.$store.dispatch('draw');
-        // this.$store.commit('getNewOptions', {'res': meta_kg.ops});
-        // setTimeout(()=>{this.checkForQuery()}, 1000)
-
-        //just let this handle whole initial flow
-        this.checkForQuery()
-      },
-      loadAPIKG(){
-        axios.get('https://smart-api.info/api/metakg').then((res) => {
-          let data = res.data.associations.map(data => {
-            return {'association': data}
-          })
-          data = data.slice(0, 1500)
-          console.log('SAMPLE', data[0])
-          this.$store.commit('saveMetaKG', {'metakg': data});
-          this.checkForQuery()
-        }).catch((err) => {
-          throw err;
-        })
-      },
-      load(){
-        if (this.useAPI) {
-          console.log('using API');
-          this.loadAPIKG();
-        } else {
-          console.log('using KG package');
-          this.loadKG();
-        }
-      },
       reset() {
         let self = this;
-        this.$toast.success('Reseting please wait...');
+        this.$toast.success('Resetting please wait...');
         setTimeout(function(){
           self.$store.commit('reset');
           self.$store.dispatch('handleQuery')
-        }, 1000);  
+        }, 300);  
       },
       download() {
         if (this.usingCytoscape) this.$store.dispatch('download');
@@ -324,7 +429,7 @@ export default {
       },
       unhighlightRow: function (item) {
         if (this.usingCytoscape) {
-          let edgeName = item['association']['api_name'] + ' : ' + item['association']['predicate'];
+          let edgeName = item['api']['name'] + ' : ' + item['predicate'];
           this.$store.dispatch('unhighlightRow', {unhighlight: edgeName, item: item})
         }
       },
@@ -338,14 +443,73 @@ export default {
       }
     },
     mounted: function () {
-      this.$store.commit('toggleLoading', {loading: true})
-      this.component_select = this.component ? this.component : 'KP'
-      this.load();
+      this.$store.dispatch('getOptions');
+      this.checkForQuery();
     }
 }
 </script>
 
 <style>
+  .query-input{
+    background-color: azure;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px;
+    border: none;
+    min-width: 400px;
+  }
+  .tab-not-active{
+    /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#bdbdbd+1,bdbdbd+100&0.65+0,0+100 */
+    background: -moz-linear-gradient(top,  rgba(189,189,189,0.65) 0%, rgba(189,189,189,0.64) 1%, rgba(189,189,189,0) 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  rgba(189,189,189,0.65) 0%,rgba(189,189,189,0.64) 1%,rgba(189,189,189,0) 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  rgba(189,189,189,0.65) 0%,rgba(189,189,189,0.64) 1%,rgba(189,189,189,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6bdbdbd', endColorstr='#00bdbdbd',GradientType=0 ); /* IE6-9 */
+
+  }
+  .edge-table tr:nth-child(odd){
+    background-color: #e7e7e7;
+  }
+  .edge-table tr:hover{
+    background-color: #f9ffa4;
+  }
+  .p-0{
+    padding: 0;
+  }
+  .p-small{
+    padding: 2px;
+  }
+  .p-1{
+    padding: .5em;
+  }
+  .p-2{
+    padding: 1em;
+  }
+  .p-3{
+    padding: 2em;
+  }
+  .p-0{
+    padding: 0px !important;
+  }
+  .border-b{
+    border-bottom: solid 1px rgb(71, 13, 69);
+  }
+  .top-br{
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+  .size-select{
+    width: 80px;
+    height: 30px;
+    padding: 2px;
+    margin: 0px 5px;
+    border-radius: 10px;
+  }
+  /* .expand-select{
+    height: 30px;
+    padding: 2px;
+    margin: 0px 5px;
+    border-radius: 10px;
+  } */
   .component-select{
     display: inline-block !important;
     width: 100px;
@@ -356,23 +520,17 @@ export default {
     border: none;
   }
   #cy {
-    width: 90vw;
+    width: 70vw;
     height: 800px;
     display: block;
     border: 2px #dddddd solid;
     background-color:white;
-    border-radius: 20px;
     overflow: hidden;
     margin: auto;
   }
   .operations-menu{
-    max-height: 1000px;
+    max-height: 800px;
     overflow-y: scroll;
-    background-color: rgba(137, 32, 179, 0.2);
-    position: absolute;
-    left: 5px;
-    top: 5px;
-    z-index: 100;
   }
   .graph-cont{
     position: relative;
