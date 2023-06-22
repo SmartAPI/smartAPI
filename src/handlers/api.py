@@ -14,7 +14,7 @@ from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
-from utils.metakg.export import edges2graphml, compare_hits
+from utils.metakg.export import edges2graphml
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 logger = logging.getLogger("smartAPI")
@@ -456,26 +456,16 @@ class MetaKGQueryHandler(QueryHandler):
         """
         Overwrite the biothings query handler to add graphml format (&format=graphml)
         * added &download=True to download .graphml file automatically, can disable (&download=False)
-        * added a verification method to compare the aquired hits from the API call & the metakg hits (compare_hits)
         """
         try:
             if self.format == "graphml":
-                q_id = self.args.q 
-                edge_data_list = chunk['hits']
-                if self.args.predicate:
-                    compare_hits(q_id, len(edge_data_list), predicate=self.args.predicate)
-                    chunk = edges2graphml(edge_data_list,q_id,self.request.uri, edge_default="directed")
-                    logging.info('[utils.export] successsful export of dataset %s into graphml format'%q_id)                    
-                else:
-                    compare_hits(q_id, len(edge_data_list))
-                    chunk = edges2graphml(edge_data_list,q_id, self.request.uri,edge_default="directed")
-                    logging.info('[utils.export] successsful export of dataset %s into graphml format'%q_id)
+                chunk = edges2graphml(chunk, self.args.q, self.request.uri, edge_default="directed")
 
-                self.set_header("Content-Type", "text/graphml; charset=utf-8")
-                if self.args.download:
-                    self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
+            self.set_header("Content-Type", "text/graphml; charset=utf-8")
+            if self.args.download:
+                self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
 
-                return super(BaseAPIHandler, self).write(chunk)
+            return super(BaseAPIHandler, self).write(chunk)
 
         except Exception as exc:
             logger.warning(exc)
