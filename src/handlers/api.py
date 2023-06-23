@@ -461,9 +461,9 @@ class MetaKGQueryHandler(QueryHandler):
             if self.format == "graphml":
                 chunk = edges2graphml(chunk, self.args.q, self.request.uri, edge_default="directed")
 
-            self.set_header("Content-Type", "text/graphml; charset=utf-8")
-            if self.args.download:
-                self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
+                self.set_header("Content-Type", "text/graphml; charset=utf-8")
+                if self.args.download:
+                    self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
 
             return super(BaseAPIHandler, self).write(chunk)
 
