@@ -11,19 +11,20 @@ Functions for metakg data formatting
 
 """
 
-def edges2graphml(chunk, _id, api_call, edge_default="directed"):
+def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
     """
     Build a graphML (xml) tree
     Input:
         chunk: data chunk received by the api call
-        _id:            dataset ID
         api_call:       the api call
+        protocol:       server address
+        host:           host address
         edge_default:   directed or undirected graph(for graph building), default='directed'
     Returns: 
         graphml_string: a graphml (xml) string 
                         -- automatically downloads file unless, &download=False, flag is added
     Notes:
-        * summary info, data size, and warning comments added to the top of the file
+    * summary info, data size, and warning comments added to the top of the file
     """
     edges = chunk['hits']
     expected_total = chunk['total']
@@ -66,35 +67,32 @@ def edges2graphml(chunk, _id, api_call, edge_default="directed"):
         data_edge.text = data['predicate']
 
     # tree = ET.ElementTree(root)
-    graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()
-
-    # Set the summary text
-    summary_text = f"This edge data (ID:{_id}) has been transformed into GraphML format. Curated from SmartAPIs meta knowledge database, the full API path can be seen here: {api_call}."
-    # Set the data length comment text
-    data_length_text = f"Edge Count: {len(edges)}"
-
+    graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()  
+    title_text=f'''This GraphML export was generated from this SmartAPI MetaKG (Meta KnowledgeGraph) query:'''
+    api_call_text=f'''{protocol}://{host}{api_call}'''
+    note01_text=f'''You can also change "format=graphml" parameter to "format=json" to view a JSON output, or "format=html" to view a visualization of the filtered MetaKG based on your query criteria.'''
+    summary_title_text=f'''Summary of the filtered MetaKG:'''
+    edges_matched_text=f'''* Total no. of edges matched: {chunk['total']}'''
+    edges_export_text=f'''* Total no. of edges exported: {len(edges)}'''
+    nodes_export_text=f'''* Total no. of nodes exported: ###'''
     # Wrap the summary text
-    wrapped_summary_text = textwrap.fill(summary_text, width=100)
-    # Place both texts into a comment
-    comment_element = f"<!-- {wrapped_summary_text} -->\n<!-- {data_length_text} -->\n"
+    wrapped_title_text = textwrap.fill(title_text, width=100)
+    wrapped_note_text = textwrap.fill(note01_text, width=100)
 
-    # Check if the total data hits exceeds the API size limit
-    if expected_total > 5000:
-        # If the expected total is greater than the size limit, 5000, data has been truncated
-        warning_text = f'WARNING: total data size has been truncated to size {len(edges)}. The total data size expected, {expected_total}, exceeds the API size limit (&size=5000).'
-        wrapped_warning_text = textwrap.fill(warning_text, width=100)
-        warning_comment_element = f"<!-- {wrapped_warning_text} -->\n"
+    if expected_total == len(edges):
+        # Place both texts into a comment
+        comment_element = f"<!-- {wrapped_title_text} \n\n \t{api_call_text} \n\n {wrapped_note_text} \n\n {summary_title_text} \n\n\t{edges_matched_text} \n\t{edges_export_text} \n\t{nodes_export_text} \n-->\n\n"
         # Concatenate comment with the graphml string
-        graphml_string_with_comment = comment_element + warning_comment_element + graphml_string
-    elif expected_total != len(edges):
-        # If the expected total isn't equal to the total hits that are returned (edges),
-        # give a warning comment for the user.
-        warning_text = f'WARNING: the size total of the edges (data hits) given, {len(edges)}, does not equal the expected size of the API, {expected_total}. Try increasing the size parameter, &size=5000.'
-        wrapped_warning_text = textwrap.fill(warning_text, width=100)
-        warning_comment_element = f"<!-- {wrapped_warning_text} -->\n"
-        # Concatenate comment with the graphml string
-        graphml_string_with_comment = comment_element + warning_comment_element + graphml_string
+        graphml_string_with_comment = comment_element + graphml_string
     else:
+        # Check if the total data hits exceeds the API size limit
+        if expected_total > 5000:
+            warning_text = f' WARNING: the total no. of edges matching your query are over our maximal export limit of 5000. To retrive all mathcing edges, you may use the "from" and "size" to paginate the export and manually concatenate them together.'
+        elif expected_total > len(edges):
+            warning_text = f' WARNING: the exported edges ({len(edges)}) are less than total no. of edges matching your query ({expected_total}). To export all matching edges, you may increase your "size" parameter (up to 5000).'            
+        wrapped_warning_text = textwrap.fill(warning_text, width=100)
+        # Place both texts into a comment
+        comment_element = f"<!-- {wrapped_title_text} \n\n \t{api_call_text} \n\n {wrapped_note_text} \n\n {summary_title_text} \n\n\t{edges_matched_text} \n\t{edges_export_text} \n\t{nodes_export_text} \n\n{wrapped_warning_text} \n-->\n\n"
         # Concatenate comment with the graphml string
         graphml_string_with_comment = comment_element + graphml_string
 
