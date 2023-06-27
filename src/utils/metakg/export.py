@@ -79,13 +79,14 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
     wrapped_title_text = textwrap.fill(title_text, width=100)
     wrapped_note_text = textwrap.fill(note01_text, width=100)
 
+    # successful matching case - api query batch size matches the expected query size
     if expected_total == len(edges):
         # Place both texts into a comment
         comment_element = f"<!-- {wrapped_title_text} \n\n \t{api_call_text} \n\n {wrapped_note_text} \n\n {summary_title_text} \n\n\t{edges_matched_text} \n\t{edges_export_text} \n\t{nodes_export_text} \n-->\n\n"
         # Concatenate comment with the graphml string
         graphml_string_with_comment = comment_element + graphml_string
     else:
-        # Check if the total data hits exceeds the API size limit
+        # expected query size is greater than api limit (5000)
         if expected_total > 5000:
             warning_text = f' WARNING: the total no. of edges matching your query are over our maximal export limit of 5000. To retrive all mathcing edges, you may use the "from" and "size" to paginate the export and manually concatenate them together.'
         elif expected_total > len(edges):
