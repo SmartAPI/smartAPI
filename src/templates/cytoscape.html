@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>MetaKG Explorer</title>
+<head>
+    <meta charset="utf-8">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Cytoscape, Popper and Tippy -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.25.0/cytoscape.min.js" integrity="sha512-QWYhhlZXfhMzyiML+xSFHYINwLvLsVd2Ex6QKA4JQzulKAsXiHoNXN1gCgB7GUaVL8xGI9L6XXyqPJVLASVP7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-popper@1.0.5/cytoscape-popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@5/dist/tippy-bundle.iife.js"></script>
+
+<link rel="stylesheet" href="https://unpkg.com/tippy.js@5/dist/backdrop.css"> 
+    <style>
+        html{
+            background-color: #eaeaea;
+        }
+         #cy {
+            width: 80vw;
+            height: 800px;
+            background-color:white;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: auto;
+        }
+        .main-container{
+            min-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+
+</head>
+
+<body>
+    <main>
+        <header>
+            <nav class="blue-grey darken-4">
+                <div class="nav-wrapper">
+                  <a href="#" class="brand-logo">
+                    <img width='64' src='http://www.smart-api.info/img/header-logo.png' alt='SmartAPI'/>
+                  </a>
+                  <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="https://smart-api.info/portal/translator/metakg">Interact with an advanced version of this graph on SmartAPI</a></li>
+                  </ul>
+                </div>
+              </nav>
+        </header>
+        <div class="container main-container">
+            <div id="cy"></div>
+        </div>
+    </main>
+
+    <script type="text/javascript">
+        const graph_data = {% raw data %};
+
+        var cy = cytoscape({
+            container: document.getElementById('cy'), // container to render in
+            elements: graph_data,
+            hideEdgesOnViewport: true,
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'content': 'data(id)',
+                        'min-zoomed-font-size': '2em',
+                        "text-valign": "center",
+                        "text-halign": "center",
+                        'color': 'white',
+                        'font-size': '4em',
+                        'text-outline-width': 4,
+                        'text-outline-color': '#9c27b0',
+                        'background-color': '#9c27b0',
+                        'z-index': 1000,
+                        'width': 'data(weight)',
+                        'height': 'data(weight)'
+                    }
+                },
+                {
+                    selector: 'node:selected',
+                    style:{
+                        'background-color': 'lightblue',
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style:{
+                        'curve-style':'straight',
+                        'line-color': 'black',
+                        'opacity':.1,
+                        'target-arrow-shape': 'triangle',
+                        'target-arrow-color': 'black',
+                        'width': 10,
+                        'z-index': 1,
+                    }
+                },
+                {
+                    selector: 'edge:selected',
+                    style:{
+                        'z-index': 1000,
+                        'color': '#9c27b0',
+                        'font-size': '2.5em',
+                        'width': 10,
+                        'opacity':1,
+                        'line-color': '#f24141',
+                        'target-arrow-color': '#f24141',
+                        'arrow-scale': 1
+                    }
+                },
+                {
+                    selector: '.highlightedTag',
+                    style:{
+                        'line-color': '#673782',
+                        'target-arrow-color': '#f24141',
+                        'width': 10,
+                    }
+                },
+                {
+                    selector: '.highlightedAPI',
+                    style:{
+                        'line-color': 'red',
+                        'target-arrow-color': '#f24141',
+                        'width': 10,
+                    }
+                },
+            ]
+
+        });
+
+             cy.on('mouseover', 'edge', function(evt){
+                evt.target.select()
+            });
+
+            cy.on('mouseout', 'edge', function(evt){
+                evt.target.deselect()
+            });
+
+            function makePopper(ele) {
+                let ref = ele.popperRef();
+                ele.tippy = tippy(document.createElement('div'), {
+                // popperInstance will be available onCreate
+                lazy: false,
+                followCursor: 'true',
+                hideOnClick: false,
+                flipOnUpdate: true,
+                onShow(instance) {
+                    instance.popperInstance.reference = ref
+                },
+                });
+                ele.tippy.setContent(ele.id());
+            }
+
+            cy.ready(function () {
+                cy.elements().forEach(function (ele) {           
+                if(!ele.isNode()){
+                    makePopper(ele);
+                }else{
+                    makePopper(ele);
+                    ele.data('weight', ele.connectedEdges().length ?  (ele.connectedEdges().length+150) : 150) ;
+                }
+                });
+            });
+
+            cy.elements().unbind('mouseover');
+            cy.elements().bind('mouseover', (event) => event.target.tippy.show());
+
+            cy.elements().unbind('mouseout');
+            cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
+
+            cy.elements().bind('click', (event) => {
+                event.target.select()
+                cy.fit(event.target, 75)
+            });
+
+        cy.maxZoom(2);
+
+        cy.layout({
+            name: "concentric",
+            avoidOverlap: true,
+            avoidOverlapPadding: 200,
+            minNodeSpacing: 200,
+        }).run();
+    </script>
+</body>
+
+</html>
