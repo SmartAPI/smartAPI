@@ -3,7 +3,7 @@
 """
 from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping
 
-from config import METAKG_ES_INDEX
+from config import METAKG_ES_INDEX , METAKG_ES_INDEX_CONSOLIDATED
 
 from .base import BaseDoc
 
@@ -36,6 +36,24 @@ metakg_mapping.meta(
         {
             "ignore_response_mapping_field": {
                 "path_match": "bte.response_mapping",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
+            "ignore_params_field": {
+                "path_match": "api.bte.query_operation.params",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
+            "ignore_request_body_field": {
+                "path_match": "api..bte.query_operation.request_body",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
+            "ignore_response_mapping_field": {
+                "path_match": "api.bte.response_mapping",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
@@ -88,6 +106,40 @@ class MetaKGDoc(BaseDoc):
         """
 
         name = METAKG_ES_INDEX
+        settings = {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "mapping.ignore_malformed": True,
+            "mapping.total_fields.limit": 2500,
+        }
+
+    class Meta:
+        mapping = metakg_mapping
+
+    def get_url(self):
+        return self.api.smartapi.metadata
+
+#####################################################
+class ConsolidatedAPIInnerDoc(APIInnerDoc):
+    provided_by = default_text
+    # bte = Object()
+    
+
+class ConsolidatedMetaKGDoc(BaseDoc):
+    """ MetaKG ES index for edges consolidated on their subject/predicate/object
+        Multiple APIs providing the same edge, grouped as a list under the 'api' field.
+    """
+    subject = lowercase_keyword_node
+    object = lowercase_keyword_node
+    predicate = lowercase_keyword_copy_to_all
+    api = Object(ConsolidatedAPIInnerDoc)
+
+    class Index:
+        """
+        Index Settings
+        """
+
+        name = METAKG_ES_INDEX_CONSOLIDATED
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
