@@ -40,7 +40,7 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from warnings import warn
 
-from model import MetaKGDoc, SmartAPIDoc
+from model import MetaKGDoc, SmartAPIDoc, ConsolidatedMetaKGDoc
 from utils import decoder, monitor
 from utils.downloader import download
 from utils.metakg.parser import MetaKGParser
@@ -177,6 +177,79 @@ class SmartAPI(AbstractWebEntity, Mapping):
             MetaKGDoc(**edge).to_dict(include_meta=True) for edge in cls.fetch_all_metakg(include_trapi=include_trapi)
         )
         bulk(es, edge_iterable)
+
+    ###########################################################
+
+    @classmethod
+
+
+    def edge_consolidation_build(cls):
+        from tqdm import tqdm
+        from elasticsearch import Elasticsearch
+        from elasticsearch.helpers import scan
+        es = Elasticsearch()
+        index = "smartapi_metakg_docs"
+        window_size = 10000
+
+        # Get the total count of documents
+        count_query = {
+            "query": {
+                "match_all": {}
+            }
+        }
+        total_edges = es.count(index=index, body=count_query)["count"]
+
+        # Initialize edge aggregation dict
+        edge_dict = {}
+
+        # Make the initial scan request
+        response = scan(es, index=index, query={"size": window_size, "scroll": "1m"})
+
+        processed_edges = 0
+        pbar = tqdm(total=total_edges, desc="Processing scan", unit="edges")
+
+        for edge in response:
+            if isinstance(edge, str):
+                pass
+            else:
+                key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
+                edge_api = edge["_source"]["api"]
+
+                if "bte" in edge["_source"]:
+                    edge_api['bte'] = edge["_source"]["bte"]
+                if "provided_by" in edge["_source"]:
+                    edge_api['provided_by'] = edge["_source"]["provided_by"]
+
+                if key in edge_dict:
+                    edge_dict[key]['api'].append(edge_api)
+                else:
+                    edge_dict[key] = {
+                        "_id": key,
+                        "subject": edge["_source"]["subject"],
+                        "object": edge["_source"]["predicate"],
+                        "predicate": edge["_source"]["object"],
+                        "api": [edge_api]
+                    }
+            processed_edges += 1
+            pbar.update(1)  # Update progress bar
+
+        pbar.close()  # Close the progress bar
+
+        for key in edge_dict:
+            yield edge_dict[key]
+
+    @classmethod
+    def index_metakg_consolidation(cls):
+        """Fetch all metakg edges in the ES index and consolidate edges(into another index)"""
+        from elasticsearch.helpers import bulk
+        from elasticsearch_dsl import connections
+
+        es = connections.get_connection()
+        edge_iterable = (
+            ConsolidatedMetaKGDoc(**edge).to_dict(include_meta=True) for edge in cls.edge_consolidation_build()
+        )
+        bulk(es, edge_iterable)
+    ###########################################################
 
     # Instance methods below which is specific to a given SmartAPI entity
     @property

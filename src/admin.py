@@ -181,6 +181,9 @@ def refresh_metakg(reset=True, include_trapi=True):
     logging.info("Refreshing MetaKG index")
     SmartAPI.refresh_metakg(include_trapi=include_trapi)
 
+def consolidate_metakg():
+    logging.info("Consolidating MetaKG edges")
+    SmartAPI.index_metakg_consolidation()
 
 restore = restore_from_file
 backup = backup_to_file
