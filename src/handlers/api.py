@@ -17,7 +17,11 @@ from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
+from utils.metakg.export import edges2graphml
+from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
+
+logger = logging.getLogger("smartAPI")
 
 
 def github_authenticated(func):
@@ -392,7 +396,7 @@ class MetaKGQueryHandler(QueryHandler):
             "format": {
                 "type": str,
                 "default": "json",
-                "enum": ("json", "yaml", "html", "msgpack", "graphml", "cytoscape"),
+                "enum": ("json", "yaml", "html", "msgpack", "graphml"),
             }
         },
         "GET": {
@@ -401,6 +405,8 @@ class MetaKGQueryHandler(QueryHandler):
             "object": {"type": list, "max": 1000},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
+            "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
+            "download": {"type": bool, "default": True},
             "expand": {
                 "type": list,
                 "max": 6,
@@ -448,26 +454,43 @@ class MetaKGQueryHandler(QueryHandler):
                 continue
             value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
-        if self.args.format == "cytoscape":
-            graph_data = [
-                {
-                    'data': { 'id': 'Gene', 'weight': 1 }
-                },
-                {
-                    'data': { 'id': 'Disease', 'weight': 1 }
-                },
-                {
-                    'data': { 'id': 'ab', 'source': 'Gene', 'target': 'Disease' }
-                }
-            ]
-            self.set_header("Content-Type", "text/html; charset=utf-8")
-            template_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'templates'))
-            loader = Loader(template_path)
-            template = loader.load("cytoscape.html")
-            result = template.generate(
-                data=serializer.to_json(graph_data)
-            )
-            self.finish(result)
-        else:
-            # TODO need to intercept the BT handler to get the results and generate the graph data, how??
-            await super().get(*args, **kwargs)
+
+        await super().get(*args, **kwargs)
+
+    def write(self, chunk):
+        """
+        Overwrite the biothings query handler to add graphml format (&format=graphml)
+        * added &download=True to download .graphml file automatically, can disable (&download=False)
+
+        Reshape results for Cytoscape-ready configuration rendering on the front-end. (&format=html)
+        """
+        try:
+            if self.format == "graphml":
+                chunk = edges2graphml(chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed")
+                self.set_header("Content-Type", "text/graphml; charset=utf-8")
+                if self.args.download:
+                    self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
+
+                return super(BaseAPIHandler, self).write(chunk)
+            
+            if self.format == "html":
+                # reformat data
+                cdf = CytoscapeDataFormatter(chunk['hits'])
+                graph_data = cdf.get_data()
+                # setup template
+                template_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'templates'))
+                loader = Loader(template_path)
+                template = loader.load("cytoscape.html")
+                # generate global template variable with graph data
+                result = template.generate(
+                    data=serializer.to_json(graph_data),
+                    shown=len(chunk['hits']),
+                    available=chunk['total']
+                )
+                self.set_header("Content-Type", "text/html; charset=utf-8")
+                return super(BaseAPIHandler, self).write(result)
+
+        except Exception as exc:
+            logger.warning(exc)
+
+        super().write(chunk)

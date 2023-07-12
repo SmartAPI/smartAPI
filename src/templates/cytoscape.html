@@ -53,6 +53,9 @@
         <div class="container main-container">
             <div id="cy"></div>
         </div>
+        <div class="container">
+            <small>{% raw shown %} edges shown / {% raw available %} edges available</small>
+        </div>
     </main>
 
     <script type="text/javascript">
@@ -66,65 +69,54 @@
                 {
                     selector: 'node',
                     style: {
-                        'content': 'data(id)',
-                        'min-zoomed-font-size': '2em',
-                        "text-valign": "center",
-                        "text-halign": "center",
-                        'color': 'white',
-                        'font-size': '4em',
-                        'text-outline-width': 4,
-                        'text-outline-color': '#9c27b0',
-                        'background-color': '#9c27b0',
-                        'z-index': 1000,
-                        'width': 'data(weight)',
-                        'height': 'data(weight)'
+                    'content': 'data(id)',
+                    'text-wrap': 'wrap',
+                    // 'min-zoomed-font-size': '2em',
+                    "shape": 'ellipse',
+                    "text-valign": "center",
+                    "text-halign": "center",
+                    'color': 'white',
+                    'font-size': '2em',
+                    'text-outline-width': 4,
+                    'text-outline-color': 'purple',
+                    "background-fill": "radial-gradient",
+                    "background-gradient-stop-colors": "data(colors)", // get data from data.color in each node
+                    "background-gradient-stop-positions": "25 75 80",
+                    'z-index': 1000,
+                    'width': 'data(weight)',
+                    'height': 'data(weight)'
                     }
                 },
                 {
                     selector: 'node:selected',
                     style:{
-                        'background-color': 'lightblue',
+                    'background-color': 'lightblue',
                     }
                 },
                 {
                     selector: 'edge',
                     style:{
-                        'curve-style':'straight',
-                        'line-color': 'black',
-                        'opacity':.1,
-                        'target-arrow-shape': 'triangle',
-                        'target-arrow-color': 'black',
-                        'width': 10,
-                        'z-index': 1,
+                    'curve-style': 'bezier',
+                    'haystack-radius': 0,
+                    'line-color': 'data(color)',
+                    'opacity':1,
+                    'target-arrow-shape': 'triangle',
+                    'target-arrow-color': 'limegreen',
+                    'width': 4,
+                    'z-index': 1,
                     }
                 },
                 {
                     selector: 'edge:selected',
                     style:{
                         'z-index': 1000,
-                        'color': '#9c27b0',
+                        'color': 'red',
                         'font-size': '2.5em',
-                        'width': 10,
+                        'width': 5,
                         'opacity':1,
                         'line-color': '#f24141',
                         'target-arrow-color': '#f24141',
                         'arrow-scale': 1
-                    }
-                },
-                {
-                    selector: '.highlightedTag',
-                    style:{
-                        'line-color': '#673782',
-                        'target-arrow-color': '#f24141',
-                        'width': 10,
-                    }
-                },
-                {
-                    selector: '.highlightedAPI',
-                    style:{
-                        'line-color': 'red',
-                        'target-arrow-color': '#f24141',
-                        'width': 10,
                     }
                 },
             ]
@@ -139,6 +131,11 @@
                 evt.target.deselect()
             });
 
+            function readableName(text){
+                const result = text.replace(/([A-Z])/g, " $1");
+                return result.charAt(0).toUpperCase() + result.slice(1);
+            }
+
             function makePopper(ele) {
                 let ref = ele.popperRef();
                 ele.tippy = tippy(document.createElement('div'), {
@@ -149,9 +146,15 @@
                 flipOnUpdate: true,
                 onShow(instance) {
                     instance.popperInstance.reference = ref
+                    if (ele.isNode()) {
+                        instance.setContent(ele.data('label'));
+                    } else {
+                        instance.setContent(`
+                        <div>${readableName(ele.data('source'))} - <b class="orange-text">${ele.data('predicate').replaceAll('_', ' ')}</b> - ${readableName(ele.data('target'))}</div>`)
+                    }
                 },
                 });
-                ele.tippy.setContent(ele.id());
+                // ele.tippy.setContent(ele.data('label'));
             }
 
             cy.ready(function () {
@@ -160,7 +163,7 @@
                     makePopper(ele);
                 }else{
                     makePopper(ele);
-                    ele.data('weight', ele.connectedEdges().length ?  (ele.connectedEdges().length+150) : 150) ;
+                    ele.data('weight', ele.connectedEdges().length ?  (ele.connectedEdges().length + 150) : 150) ;
                 }
                 });
             });
@@ -182,7 +185,7 @@
             name: "concentric",
             avoidOverlap: true,
             avoidOverlapPadding: 200,
-            minNodeSpacing: 200,
+            minNodeSpacing: 90,
         }).run();
     </script>
 </body>
