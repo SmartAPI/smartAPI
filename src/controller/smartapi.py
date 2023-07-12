@@ -181,14 +181,14 @@ class SmartAPI(AbstractWebEntity, Mapping):
     ###########################################################
 
     @classmethod
-
-
-    def edge_consolidation_build(cls):
-        from tqdm import tqdm
+    def query_through_scan(cls, index="smartapi_metakg_docs"):
+        """
+        Use Elasticsearch helper method, scan(), to traverse through an ES index. 
+        """
         from elasticsearch import Elasticsearch
         from elasticsearch.helpers import scan
         es = Elasticsearch()
-        index = "smartapi_metakg_docs"
+
         window_size = 10000
 
         # Get the total count of documents
@@ -197,43 +197,44 @@ class SmartAPI(AbstractWebEntity, Mapping):
                 "match_all": {}
             }
         }
-        total_edges = es.count(index=index, body=count_query)["count"]
 
-        # Initialize edge aggregation dict
-        edge_dict = {}
+        total_edges = es.count(index=index, body=count_query)["count"]
 
         # Make the initial scan request
         response = scan(es, index=index, query={"size": window_size, "scroll": "1m"})
 
+        for hit in response:
+            yield hit
+
+    @classmethod
+    def edge_consolidation_build(cls):
+        """Traverse through the MetaKG index and aggregate edges into groups based on their subject/predicate/object
+        """
+        edge_dict = {}
         processed_edges = 0
-        pbar = tqdm(total=total_edges, desc="Processing scan", unit="edges")
 
-        for edge in response:
-            if isinstance(edge, str):
-                pass
+        # loop through MetaKG index with ES scan method
+        for edge in cls.query_through_scan():
+            key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
+            edge_api = edge["_source"]["api"]
+
+            if "bte" in edge["_source"]:
+                edge_api['bte'] = edge["_source"]["bte"]
+            if "provided_by" in edge["_source"]:
+                edge_api['provided_by'] = edge["_source"]["provided_by"]
+
+            if key in edge_dict:
+                edge_dict[key]['api'].append(edge_api)
             else:
-                key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
-                edge_api = edge["_source"]["api"]
+                edge_dict[key] = {
+                    "_id": key,
+                    "subject": edge["_source"]["subject"],
+                    "object": edge["_source"]["predicate"],
+                    "predicate": edge["_source"]["object"],
+                    "api": [edge_api]
+                }
 
-                if "bte" in edge["_source"]:
-                    edge_api['bte'] = edge["_source"]["bte"]
-                if "provided_by" in edge["_source"]:
-                    edge_api['provided_by'] = edge["_source"]["provided_by"]
-
-                if key in edge_dict:
-                    edge_dict[key]['api'].append(edge_api)
-                else:
-                    edge_dict[key] = {
-                        "_id": key,
-                        "subject": edge["_source"]["subject"],
-                        "object": edge["_source"]["predicate"],
-                        "predicate": edge["_source"]["object"],
-                        "api": [edge_api]
-                    }
             processed_edges += 1
-            pbar.update(1)  # Update progress bar
-
-        pbar.close()  # Close the progress bar
 
         for key in edge_dict:
             yield edge_dict[key]
