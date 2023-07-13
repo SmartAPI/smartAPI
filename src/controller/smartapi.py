@@ -179,34 +179,18 @@ class SmartAPI(AbstractWebEntity, Mapping):
         bulk(es, edge_iterable)
 
     @classmethod
-    def query_through_scan(cls, index="smartapi_metakg_docs"):
-        """ Uses Elasticsearch helper method, scan(), to traverse through an entire ES index.
-            Useful to retreive all available data hits.    
-        """
-        from elasticsearch import Elasticsearch
-        from elasticsearch.helpers import scan
-        es = Elasticsearch()
-
-        window_size = 10000
-
-        # Make the initial scan request
-        response = scan(es, index=index, query={"size": window_size, "scroll": "1m"})
-
-        for hit in response:
-            yield hit
-
-    @classmethod
     def edge_consolidation_build(cls):
         """ Traverse through the MetaKG index and aggregate edges into groups based on their subject/predicate/object"""
         edge_dict = {}
         processed_edges = 0
-
         # loop through MetaKG index with ES scan method
-        for edge in cls.query_through_scan():
+        for edge in cls.get_all_via_scan(size=10000, index=MetaKGDoc.Index.name):
+            # set key which we group by: subject-predicate-object
             key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
+            
+            # get the edge api to modify
             edge_api = edge["_source"]["api"]
-
-            # add bte & provided_by fields to the api dict
+            # add bte & provided_by fields to the edge
             if "bte" in edge["_source"]:
                 edge_api['bte'] = edge["_source"]["bte"]
             if "provided_by" in edge["_source"]:
