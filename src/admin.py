@@ -30,7 +30,7 @@ import boto3
 from filelock import FileLock, Timeout
 
 from controller import SmartAPI
-from model import MetaKGDoc
+from model import MetaKGDoc, ConsolidatedMetaKGDoc
 from utils import indices
 
 logging.basicConfig(level="INFO")
@@ -181,8 +181,12 @@ def refresh_metakg(reset=True, include_trapi=True):
     logging.info("Refreshing MetaKG index")
     SmartAPI.refresh_metakg(include_trapi=include_trapi)
 
-def consolidate_metakg():
-    logging.info("Consolidating MetaKG edges")
+def consolidate_metakg(reset=True):
+    if reset:
+        logging.info("Reset ConsolidatedMetaKG index")
+        indices.reset(ConsolidatedMetaKGDoc)
+
+    logging.info("Consolidating/Refreshing MetaKG edges")
     SmartAPI.index_metakg_consolidation()
 
 restore = restore_from_file

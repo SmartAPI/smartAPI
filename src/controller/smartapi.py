@@ -178,27 +178,16 @@ class SmartAPI(AbstractWebEntity, Mapping):
         )
         bulk(es, edge_iterable)
 
-    ###########################################################
-
     @classmethod
     def query_through_scan(cls, index="smartapi_metakg_docs"):
-        """
-        Use Elasticsearch helper method, scan(), to traverse through an ES index. 
+        """ Uses Elasticsearch helper method, scan(), to traverse through an entire ES index.
+            Useful to retreive all available data hits.    
         """
         from elasticsearch import Elasticsearch
         from elasticsearch.helpers import scan
         es = Elasticsearch()
 
         window_size = 10000
-
-        # Get the total count of documents
-        count_query = {
-            "query": {
-                "match_all": {}
-            }
-        }
-
-        total_edges = es.count(index=index, body=count_query)["count"]
 
         # Make the initial scan request
         response = scan(es, index=index, query={"size": window_size, "scroll": "1m"})
@@ -208,8 +197,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
     @classmethod
     def edge_consolidation_build(cls):
-        """Traverse through the MetaKG index and aggregate edges into groups based on their subject/predicate/object
-        """
+        """ Traverse through the MetaKG index and aggregate edges into groups based on their subject/predicate/object"""
         edge_dict = {}
         processed_edges = 0
 
@@ -218,11 +206,13 @@ class SmartAPI(AbstractWebEntity, Mapping):
             key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
             edge_api = edge["_source"]["api"]
 
+            # add bte & provided_by fields to the api dict
             if "bte" in edge["_source"]:
                 edge_api['bte'] = edge["_source"]["bte"]
             if "provided_by" in edge["_source"]:
                 edge_api['provided_by'] = edge["_source"]["provided_by"]
 
+            # add edge to the correct group(based on key)
             if key in edge_dict:
                 edge_dict[key]['api'].append(edge_api)
             else:
@@ -238,6 +228,8 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
         for key in edge_dict:
             yield edge_dict[key]
+        
+        del edge_dict
 
     @classmethod
     def index_metakg_consolidation(cls):
@@ -250,7 +242,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
             ConsolidatedMetaKGDoc(**edge).to_dict(include_meta=True) for edge in cls.edge_consolidation_build()
         )
         bulk(es, edge_iterable)
-    ###########################################################
 
     # Instance methods below which is specific to a given SmartAPI entity
     @property
