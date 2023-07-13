@@ -182,6 +182,10 @@ def refresh_metakg(reset=True, include_trapi=True):
     SmartAPI.refresh_metakg(include_trapi=include_trapi)
 
 def consolidate_metakg(reset=True):
+    """ Consolidate the MetaKG edge data into documents based on a subject-predicate-object key.
+        Creates an index with the groups.
+        *** Currently, must be run after running refresh_metakg() 
+    """
     if reset:
         logging.info("Reset ConsolidatedMetaKG index")
         indices.reset(ConsolidatedMetaKGDoc)
