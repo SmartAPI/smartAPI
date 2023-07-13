@@ -10,7 +10,6 @@
     "sitemap": "vue-cli-service sitemap"
   },
   "dependencies": {
-    "@biothings-explorer/smartapi-kg": "^3.9.0",
     "@meforma/vue-toaster": "^1.2.2",
     "3d-force-graph": "^1.69.5",
     "axios": "^0.21.1",

@@ -168,7 +168,7 @@ import PillBox from '../components/PillBox.vue';
 import axios from 'axios';
 import { mapGetters } from 'vuex'
 
-const MetaKG  = require("@biothings-explorer/smartapi-kg")
+// const MetaKG  = require("@biothings-explorer/smartapi-kg")
 
 export default {
   components: { 
@@ -252,31 +252,31 @@ export default {
       numberWithCommas(x) {
           return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
       },
-      async loadKG() {
-        var self = this;
-        const t0 = performance.now();
+      // async loadKG() {
+      //   var self = this;
+      //   const t0 = performance.now();
 
-        let meta_kg = new MetaKG.default()
-        //load meta-kg API graph with reasoner APIs
-        /*eslint-disable */
-        await meta_kg.constructMetaKG(true, {component: self.component ? self.component : 'KP'});
-        /*eslint-enable */
-        const t1 = performance.now();
-        //performance check
-        var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
-        console.log(`%c 🦄 Meta-KG loaded in ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
+      //   let meta_kg = new MetaKG.default()
+      //   //load meta-kg API graph with reasoner APIs
+      //   /*eslint-disable */
+      //   await meta_kg.constructMetaKG(true, {component: self.component ? self.component : 'KP'});
+      //   /*eslint-enable */
+      //   const t1 = performance.now();
+      //   //performance check
+      //   var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+      //   console.log(`%c 🦄 Meta-KG loaded in ${seconds} seconds.`, 'background-color:purple; color:white; padding:5px;');
 
-        //send graph data to store for processing
-        this.$store.commit('saveMetaKG', {'metakg': meta_kg});
+      //   //send graph data to store for processing
+      //   this.$store.commit('saveMetaKG', {'metakg': meta_kg});
 
-        // this.$store.commit('createGraphData', {'res': meta_kg.ops});
-        // this.$store.dispatch('draw');
-        // this.$store.commit('getNewOptions', {'res': meta_kg.ops});
-        // setTimeout(()=>{this.checkForQuery()}, 1000)
+      //   // this.$store.commit('createGraphData', {'res': meta_kg.ops});
+      //   // this.$store.dispatch('draw');
+      //   // this.$store.commit('getNewOptions', {'res': meta_kg.ops});
+      //   // setTimeout(()=>{this.checkForQuery()}, 1000)
 
-        //just let this handle whole initial flow
-        this.checkForQuery()
-      },
+      //   //just let this handle whole initial flow
+      //   this.checkForQuery()
+      // },
       loadAPIKG(){
         axios.get('https://smart-api.info/api/metakg').then((res) => {
           let data = res.data.associations.map(data => {
@@ -296,7 +296,7 @@ export default {
           this.loadAPIKG();
         } else {
           console.log('using KG package');
-          this.loadKG();
+          // this.loadKG();
         }
       },
       reset() {
