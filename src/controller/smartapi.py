@@ -40,7 +40,7 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from warnings import warn
 
-from model import MetaKGDoc, SmartAPIDoc, ConsolidatedMetaKGDoc
+from model import ConsolidatedMetaKGDoc, MetaKGDoc, SmartAPIDoc
 from utils import decoder, monitor
 from utils.downloader import download
 from utils.metakg.parser import MetaKGParser
@@ -180,39 +180,39 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
     @classmethod
     def edge_consolidation_build(cls):
-        """ Traverse through the MetaKG index and aggregate edges into groups based on their subject/predicate/object"""
+        """Traverse through the MetaKG index and aggregate edges into groups based on their subject/predicate/object"""
         edge_dict = {}
         processed_edges = 0
         # loop through MetaKG index with ES scan method
         for edge in cls.get_all_via_scan(size=10000, index=MetaKGDoc.Index.name):
             # set key which we group by: subject-predicate-object
             key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
-            
+
             # get the edge api to modify
             edge_api = edge["_source"]["api"]
             # add bte & provided_by fields to the edge
             if "bte" in edge["_source"]:
-                edge_api['bte'] = edge["_source"]["bte"]
+                edge_api["bte"] = edge["_source"]["bte"]
             if "provided_by" in edge["_source"]:
-                edge_api['provided_by'] = edge["_source"]["provided_by"]
+                edge_api["provided_by"] = edge["_source"]["provided_by"]
 
             # add edge to the correct group(based on key)
             if key in edge_dict:
-                edge_dict[key]['api'].append(edge_api)
+                edge_dict[key]["api"].append(edge_api)
             else:
                 edge_dict[key] = {
                     "_id": key,
                     "subject": edge["_source"]["subject"],
                     "object": edge["_source"]["predicate"],
                     "predicate": edge["_source"]["object"],
-                    "api": [edge_api]
+                    "api": [edge_api],
                 }
 
             processed_edges += 1
 
         for key in edge_dict:
             yield edge_dict[key]
-        
+
         del edge_dict
 
     @classmethod

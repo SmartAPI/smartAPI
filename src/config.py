@@ -68,7 +68,7 @@ METAKG_ES_INDEX_CONSOLIDATED = "smartapi_metakg_docs_consolidated"
 ES_INDICES = {
     "metadata": SMARTAPI_ES_INDEX,
     "metakg": METAKG_ES_INDEX,
-    "metakg_consolidated": METAKG_ES_INDEX_CONSOLIDATED
+    "metakg_consolidated": METAKG_ES_INDEX_CONSOLIDATED,
 }
 
 # *****************************************************************************
@@ -86,8 +86,7 @@ APP_LIST = [
     (r"/api/suggestion/?", "handlers.api.ValueSuggestionHandler"),
     (r"/api/metakg/?", "handlers.api.MetaKGQueryHandler", {"biothing_type": "metakg"}),
     (r"/api/metakg/fields/?", "biothings.web.handlers.MetadataFieldHandler", {"biothing_type": "metakg"}),
-    (r"/api/metakg/consolidated/?", "handlers.api.MetaKGQueryHandler", {"biothing_type": "metakg_consolidated"})
-
+    (r"/api/metakg/consolidated/?", "handlers.api.MetaKGQueryHandler", {"biothing_type": "metakg_consolidated"}),
 ]
 
 # biothings web tester will read this

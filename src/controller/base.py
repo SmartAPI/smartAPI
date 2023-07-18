@@ -194,10 +194,10 @@ class AbstractWebEntity(ABC):
 
     @classmethod
     def get_all_via_scan(cls, size=1000, query_data=None, index=None, scroll="1m"):
-        """ Uses elasticsearch_dsl to traverse through the MetaKG index.
-            Elasticsearch has a size window limit of 10,000.
-            Using scan allows us to scroll through the data, and retrieve all index data hits.
-            If no index name is passed, will set index to the default cls index name, `smartapi_docs`
+        """Uses elasticsearch_dsl to traverse through the MetaKG index.
+        Elasticsearch has a size window limit of 10,000.
+        Using scan allows us to scroll through the data, and retrieve all index data hits.
+        If no index name is passed, will set index to the default cls index name, `smartapi_docs`
         """
         from elasticsearch.helpers import scan
         from elasticsearch_dsl import connections

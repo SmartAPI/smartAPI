@@ -1,9 +1,9 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping, Nested
+from elasticsearch_dsl import InnerDoc, Keyword, Nested, Object, Text, analysis, mapping
 
-from config import METAKG_ES_INDEX , METAKG_ES_INDEX_CONSOLIDATED
+from config import METAKG_ES_INDEX, METAKG_ES_INDEX_CONSOLIDATED
 
 from .base import BaseDoc
 
@@ -13,8 +13,11 @@ lowercase_keyword_copy_to_all = Keyword(
     normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]), copy_to="all"
 )
 lowercase_keyword_node = Keyword(
-    normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]), copy_to=["all", "node"],
-    fields={"raw": Keyword()}    # include subject.raw and object.raw fields as the original values for aggregation purpose
+    normalizer=analysis.normalizer("lowercase_normalizer", filter=["lowercase"]),
+    copy_to=["all", "node"],
+    fields={
+        "raw": Keyword()
+    },  # include subject.raw and object.raw fields as the original values for aggregation purpose
 )
 default_text = Text(fields={"raw": lowercase_keyword}, copy_to="all")
 metakg_mapping = mapping.Mapping()
@@ -93,8 +96,10 @@ class APIInnerDoc(InnerDoc):
     # We cannot define "x-translator" field here due the "-" in the name,
     # so we will have it indexed via the dynamic templates
 
+
 class ConsolidatedAPIInnerDoc(APIInnerDoc):
     provided_by = default_text
+
 
 class MetaKGDoc(BaseDoc):
     subject = lowercase_keyword_node
@@ -122,10 +127,12 @@ class MetaKGDoc(BaseDoc):
     def get_url(self):
         return self.api.smartapi.metadata
 
+
 class ConsolidatedMetaKGDoc(BaseDoc):
-    """ MetaKG ES index for edges consolidated on their subject/predicate/object
-        Multiple APIs providing the same edge, grouped as a list under the 'api' field.
+    """MetaKG ES index for edges consolidated on their subject/predicate/object
+    Multiple APIs providing the same edge, grouped as a list under the 'api' field.
     """
+
     # Existing fields
     subject = lowercase_keyword_node
     object = lowercase_keyword_node
