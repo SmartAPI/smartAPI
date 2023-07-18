@@ -193,6 +193,27 @@ class AbstractWebEntity(ABC):
                 yield doc
 
     @classmethod
+    def get_all_via_scan(cls, size=1000, query_data=None, index=None, scroll="1m"):
+        """Uses elasticsearch_dsl to traverse through the MetaKG index.
+        Elasticsearch has a size window limit of 10,000.
+        Using scan allows us to scroll through the data, and retrieve all index data hits.
+        If no index name is passed, will set index to the default cls index name, `smartapi_docs`
+        """
+        from elasticsearch.helpers import scan
+        from elasticsearch_dsl import connections
+
+        es = connections.get_connection()
+
+        if not index:
+            index = cls.MODEL_CLASS.Index.name
+
+        # Make the initial scan request
+        response = scan(es, query=query_data, index=index, size=size, scroll=scroll)
+
+        for hit in response:
+            yield hit
+
+    @classmethod
     def get(cls, _id):
         try:
             doc = cls.MODEL_CLASS.get(_id)

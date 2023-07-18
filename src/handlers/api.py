@@ -393,7 +393,7 @@ class MetaKGQueryHandler(QueryHandler):
                 "type": str,
                 "default": "json",
                 "enum": ("json", "yaml", "html", "msgpack", "graphml"),
-            }
+            },
         },
         "GET": {
             **QUERY_KWARGS.get("GET", {}),
