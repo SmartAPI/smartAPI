@@ -1,7 +1,7 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Nested, Object, Text, analysis, mapping
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping
 
 from config import METAKG_ES_INDEX, METAKG_ES_INDEX_CONSOLIDATED
 
