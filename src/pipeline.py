@@ -252,3 +252,9 @@ class MetaKGQueryPipeline(AsyncESQueryPipeline):
                     ns.config.AVAILABLE_FIELDS_EXCLUDED,
                 )
         super().__init__(*args, **kwargs)
+
+    def apply_extra(self, search, options):
+        if not options._source:
+            # by default exclude api.bte or bte field, but can be included by specifying in the fields parameter
+            options._source = ["-api.bte", "-bte"]
+        return super().apply_extras(search, options)
