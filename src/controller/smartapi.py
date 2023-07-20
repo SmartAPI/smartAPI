@@ -203,8 +203,8 @@ class SmartAPI(AbstractWebEntity, Mapping):
                 edge_dict[key] = {
                     "_id": key,
                     "subject": edge["_source"]["subject"],
-                    "object": edge["_source"]["predicate"],
-                    "predicate": edge["_source"]["object"],
+                    "object": edge["_source"]["object"],
+                    "predicate": edge["_source"]["predicate"],
                     "api": [edge_api],
                 }
 
