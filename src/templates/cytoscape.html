@@ -3,25 +3,31 @@
 <title>MetaKG Explorer</title>
 <head>
     <meta charset="utf-8">
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- Cytoscape, Popper and Tippy -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.25.0/cytoscape.min.js" integrity="sha512-QWYhhlZXfhMzyiML+xSFHYINwLvLsVd2Ex6QKA4JQzulKAsXiHoNXN1gCgB7GUaVL8xGI9L6XXyqPJVLASVP7g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cytoscape-popper@1.0.5/cytoscape-popper.min.js"></script>
     <script src="https://unpkg.com/tippy.js@5/dist/tippy-bundle.iife.js"></script>
-
-<link rel="stylesheet" href="https://unpkg.com/tippy.js@5/dist/backdrop.css"> 
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsoneditor@9.9.0/dist/jsoneditor.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.9.0/dist/jsoneditor.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@5/dist/backdrop.css"> 
+    
     <style>
-        html{
-            background-color: #eaeaea;
+        body{
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+            font-family: sans-serif;
         }
-         #cy {
+        #cy {
             width: 80vw;
             height: 800px;
             background-color:white;
+            border: rgb(188, 188, 188) 1px solid;
             border-radius: 20px;
             overflow: hidden;
             margin: auto;
@@ -32,161 +38,268 @@
             justify-content: center;
             align-items: center;
         }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            background-color: #212121;
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+        }
+        nav a:first-child{
+            text-decoration: none;
+        }
+        .toggle-btn{
+            background-color: cornflowerblue;
+            margin: 5px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        .text-orange{
+            color: orange;
+        }
     </style>
 
 </head>
 
 <body>
-    <main>
-        <header>
-            <nav class="blue-grey darken-4">
-                <div class="nav-wrapper">
-                  <a href="#" class="brand-logo">
-                    <img width='64' src='http://www.smart-api.info/img/header-logo.png' alt='SmartAPI'/>
-                  </a>
-                  <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    <li><a href="https://smart-api.info/portal/translator/metakg">Interact with an advanced version of this graph on SmartAPI</a></li>
-                  </ul>
-                </div>
-              </nav>
+    <main id="app">
+        <header v-if="header">
+            <nav>
+                <a href="#" class="brand-logo">
+                    <img 
+                    width='64' 
+                    src='http://www.smart-api.info/img/header-logo.png' 
+                    alt='SmartAPI'/>
+                    </a>
+                <template v-if="default_view == 'cytoscape'">
+                    <a 
+                    target="_blank" 
+                    rel="nonreferrer" 
+                    :href="'https://smart-api.info/portal/translator/metakg?' + params">
+                        Click here to interact with an advanced version of this graph on SmartAPI
+                    </a>
+                </template>
+            </nav>
         </header>
-        <div class="container main-container">
-            <div id="cy"></div>
+        <div>
+            <button 
+            class="toggle-btn" 
+            @click="toggleView()" 
+            v-text="default_view == 'json' ? 'View edges in graph' : 'View edges in JSON'"></button>
         </div>
-        <div class="container">
-            <small>{% raw shown %} edges shown / {% raw available %} edges available</small>
-        </div>
+        <template v-if="default_view == 'cytoscape'">
+            <div>
+                <div id="cy"></div>
+            </div>
+            <p style="padding-bottom: 20px; text-align: center;">
+                <small>{% raw shown %} edges shown / {% raw available %} edges available</small>
+            </p>
+        </template>
+        <div v-else id="jsonview"></div>
     </main>
 
     <script type="text/javascript">
-        const graph_data = {% raw data %};
-
-        var cy = cytoscape({
-            container: document.getElementById('cy'), // container to render in
-            elements: graph_data,
-            hideEdgesOnViewport: true,
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                    'content': 'data(id)',
-                    'text-wrap': 'wrap',
-                    // 'min-zoomed-font-size': '2em',
-                    "shape": 'ellipse',
-                    "text-valign": "center",
-                    "text-halign": "center",
-                    'color': 'white',
-                    'font-size': '2em',
-                    'text-outline-width': 4,
-                    'text-outline-color': 'purple',
-                    "background-fill": "radial-gradient",
-                    "background-gradient-stop-colors": "data(colors)", // get data from data.color in each node
-                    "background-gradient-stop-positions": "25 75 80",
-                    'z-index': 1000,
-                    'width': 'data(weight)',
-                    'height': 'data(weight)'
-                    }
-                },
-                {
-                    selector: 'node:selected',
-                    style:{
-                    'background-color': 'lightblue',
-                    }
-                },
-                {
-                    selector: 'edge',
-                    style:{
-                    'curve-style': 'bezier',
-                    'haystack-radius': 0,
-                    'line-color': 'data(color)',
-                    'opacity':1,
-                    'target-arrow-shape': 'triangle',
-                    'target-arrow-color': 'limegreen',
-                    'width': 4,
-                    'z-index': 1,
-                    }
-                },
-                {
-                    selector: 'edge:selected',
-                    style:{
-                        'z-index': 1000,
-                        'color': 'red',
-                        'font-size': '2.5em',
-                        'width': 5,
-                        'opacity':1,
-                        'line-color': '#f24141',
-                        'target-arrow-color': '#f24141',
-                        'arrow-scale': 1
-                    }
-                },
-            ]
-
-        });
-
-             cy.on('mouseover', 'edge', function(evt){
-                evt.target.select()
-            });
-
-            cy.on('mouseout', 'edge', function(evt){
-                evt.target.deselect()
-            });
-
-            function readableName(text){
-                const result = text.replace(/([A-Z])/g, " $1");
-                return result.charAt(0).toUpperCase() + result.slice(1);
+        const { createApp } = Vue
+        createApp({
+        data() {
+            return {
+                default_view: {% raw default_view %},
+                header: {% raw header %},
+                json_data: {% raw response %},
+                cyto_data: {% raw data %}
             }
-
-            function makePopper(ele) {
-                let ref = ele.popperRef();
-                ele.tippy = tippy(document.createElement('div'), {
-                // popperInstance will be available onCreate
-                lazy: false,
-                followCursor: 'true',
-                hideOnClick: false,
-                flipOnUpdate: true,
-                onShow(instance) {
-                    instance.popperInstance.reference = ref
-                    if (ele.isNode()) {
-                        instance.setContent(ele.data('label'));
+        },
+        watch: {
+            default_view:{
+                immediate: true,
+                handler: function(newValue, oldValue) {
+                    // immediate checks before render so allow one sec to render containers
+                    if (newValue == 'json') {
+                        setTimeout(() => {
+                            this.loadJSONViewer();
+                        }, 1000);
                     } else {
-                        instance.setContent(`
-                        <div>${readableName(ele.data('source'))} - <b class="orange-text">${ele.data('predicate').replaceAll('_', ' ')}</b> - ${readableName(ele.data('target'))}</div>`)
+                        setTimeout(() => {
+                        this.loadCytoscape();
+                    }, 1000);
                     }
-                },
-                });
-                // ele.tippy.setContent(ele.data('label'));
-            }
-
-            cy.ready(function () {
-                cy.elements().forEach(function (ele) {           
-                if(!ele.isNode()){
-                    makePopper(ele);
-                }else{
-                    makePopper(ele);
-                    ele.data('weight', ele.connectedEdges().length ?  (ele.connectedEdges().length + 150) : 150) ;
                 }
+            }
+        },
+        computed:{
+            params: function(){
+                const url = new URL(window.location.href);
+                const params = new URLSearchParams(url.search);
+                // clean up params not handled in the advanced metaKG explorer
+                params.delete('default_view')
+                params.delete('header')
+                params.delete('format')
+                console.log(params.toString());
+                return params.toString();
+            }
+        },
+        methods:{
+            toggleView(){
+                this.default_view = this.default_view == 'json' ? 'cytoscape' : 'json';
+            },
+            loadCytoscape(){
+                const graph_data = this.cyto_data;
+
+            var cy = cytoscape({
+                container: document.getElementById('cy'), // container to render in
+                elements: graph_data,
+                hideEdgesOnViewport: true,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                        'content': 'data(id)',
+                        'text-wrap': 'wrap',
+                        // 'min-zoomed-font-size': '2em',
+                        "shape": 'ellipse',
+                        "text-valign": "center",
+                        "text-halign": "center",
+                        'color': 'white',
+                        'font-size': '2em',
+                        'text-outline-width': 4,
+                        'text-outline-color': 'purple',
+                        "background-fill": "radial-gradient",
+                        "background-gradient-stop-colors": "data(colors)", // get data from data.color in each node
+                        "background-gradient-stop-positions": "25 75 80",
+                        'z-index': 1000,
+                        'width': 'data(weight)',
+                        'height': 'data(weight)'
+                        }
+                    },
+                    {
+                        selector: 'node:selected',
+                        style:{
+                        'background-color': 'lightblue',
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style:{
+                        'curve-style': 'bezier',
+                        'haystack-radius': 0,
+                        'line-color': 'data(color)',
+                        'opacity':1,
+                        'target-arrow-shape': 'triangle',
+                        'target-arrow-color': 'limegreen',
+                        'width': 4,
+                        'z-index': 1,
+                        }
+                    },
+                    {
+                        selector: 'edge:selected',
+                        style:{
+                            'z-index': 1000,
+                            'color': 'red',
+                            'font-size': '2.5em',
+                            'width': 5,
+                            'opacity':1,
+                            'line-color': '#f24141',
+                            'target-arrow-color': '#f24141',
+                            'arrow-scale': 1
+                        }
+                    },
+                ]
+
+            });
+
+                cy.on('mouseover', 'edge', function(evt){
+                    evt.target.select()
                 });
-            });
 
-            cy.elements().unbind('mouseover');
-            cy.elements().bind('mouseover', (event) => event.target.tippy.show());
+                cy.on('mouseout', 'edge', function(evt){
+                    evt.target.deselect()
+                });
 
-            cy.elements().unbind('mouseout');
-            cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
+                function readableName(text){
+                    const result = text.replace(/([A-Z])/g, " $1");
+                    return result.charAt(0).toUpperCase() + result.slice(1);
+                }
 
-            cy.elements().bind('click', (event) => {
-                event.target.select()
-                cy.fit(event.target, 75)
-            });
+                function makePopper(ele) {
+                    let ref = ele.popperRef();
+                    ele.tippy = tippy(document.createElement('div'), {
+                    // popperInstance will be available onCreate
+                    lazy: false,
+                    followCursor: 'true',
+                    hideOnClick: false,
+                    flipOnUpdate: true,
+                    onShow(instance) {
+                        instance.popperInstance.reference = ref
+                        if (ele.isNode()) {
+                            instance.setContent(ele.data('label'));
+                        } else {
+                            instance.setContent(`
+                            <div>${readableName(ele.data('source'))} - <b class="text-orange">${ele.data('predicate').replaceAll('_', ' ')}</b> - ${readableName(ele.data('target'))}</div>`)
+                        }
+                    },
+                    });
+                    // ele.tippy.setContent(ele.data('label'));
+                }
 
-        cy.maxZoom(2);
+                cy.ready(function () {
+                    cy.elements().forEach(function (ele) {           
+                    if(!ele.isNode()){
+                        makePopper(ele);
+                    }else{
+                        makePopper(ele);
+                        ele.data('weight', ele.connectedEdges().length ?  (ele.connectedEdges().length + 150) : 150) ;
+                    }
+                    });
+                });
 
-        cy.layout({
-            name: "concentric",
-            avoidOverlap: true,
-            avoidOverlapPadding: 200,
-            minNodeSpacing: 90,
-        }).run();
+                cy.elements().unbind('mouseover');
+                cy.elements().bind('mouseover', (event) => event.target.tippy.show());
+
+                cy.elements().unbind('mouseout');
+                cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
+
+                cy.elements().bind('click', (event) => {
+                    event.target.select()
+                    cy.fit(event.target, 75)
+                });
+
+            cy.maxZoom(2);
+
+            cy.layout({
+                name: "concentric",
+                avoidOverlap: true,
+                avoidOverlapPadding: 200,
+                minNodeSpacing: 90,
+            }).run();
+            },
+            loadJSONViewer(){
+                const container = document.getElementById("jsonview");
+                const options = {
+                    mode: "view"
+                };
+                const editor = new JSONEditor(container, options);
+                const data = this.json_data;
+                editor.set(data);
+                function expandPath(path) {
+                    for (let i = 0; i < path.length; i++) {
+                        const parentPath = path.slice(0, i)
+                        editor.expand({ 
+                            'path': parentPath, 
+                            'isExpand': ['hits'].includes(path) ? false : true, 
+                            'recursive': false
+                        });
+                    }
+                }
+                expandPath(['hits']);
+                
+            }
+        }
+        }).mount('#app');
+        
     </script>
 </body>
 

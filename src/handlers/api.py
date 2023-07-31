@@ -397,6 +397,15 @@ class MetaKGQueryHandler(QueryHandler):
                 "type": str,
                 "default": "json",
                 "enum": ("json", "yaml", "html", "msgpack", "graphml"),
+            },
+            "default_view": {
+                "type": str,
+                "default": "json",
+                "enum": ("json", "cytoscape"),
+            },
+            "header": {
+                "type": bool,
+                "default": True
             }
         },
         "GET": {
@@ -413,6 +422,15 @@ class MetaKGQueryHandler(QueryHandler):
                 "default": [],
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"],
             },
+            "default_view": {
+                "type": str,
+                "default": "json",
+                "enum": ("json", "cytoscape"),
+            },
+            "header": {
+                "type": bool,
+                "default": True
+            }
         },
     }
 
@@ -484,8 +502,11 @@ class MetaKGQueryHandler(QueryHandler):
                 # generate global template variable with graph data
                 result = template.generate(
                     data=serializer.to_json(graph_data),
+                    response=serializer.to_json(chunk),
                     shown=len(chunk['hits']),
-                    available=chunk['total']
+                    available=chunk['total'],
+                    default_view=serializer.to_json(self.args.default_view),
+                    header=serializer.to_json(self.args.header)
                 )
                 self.set_header("Content-Type", "text/html; charset=utf-8")
                 return super(BaseAPIHandler, self).write(result)
