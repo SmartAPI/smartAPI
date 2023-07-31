@@ -14,7 +14,10 @@ from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
+from utils.metakg.export import edges2graphml
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
+
+logger = logging.getLogger("smartAPI")
 
 
 def github_authenticated(func):
@@ -383,13 +386,23 @@ class MetaKGQueryHandler(QueryHandler):
 
     name = "metakg"
     kwargs = {
-        "*": QUERY_KWARGS["*"],
+        "*": {
+            **QUERY_KWARGS["*"],
+            # overwrite format parameter config to add "graphml" option
+            "format": {
+                "type": str,
+                "default": "json",
+                "enum": ("json", "yaml", "html", "msgpack", "graphml"),
+            },
+        },
         "GET": {
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": list, "max": 1000},
             "object": {"type": list, "max": 1000},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
+            "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
+            "download": {"type": bool, "default": True},
             "expand": {
                 "type": list,
                 "max": 6,
@@ -437,5 +450,23 @@ class MetaKGQueryHandler(QueryHandler):
                 continue
             value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
-
         await super().get(*args, **kwargs)
+
+    def write(self, chunk):
+        """
+        Overwrite the biothings query handler to add graphml format (&format=graphml)
+        * added &download=True to download .graphml file automatically, can disable (&download=False)
+        """
+        try:
+            if self.format == "graphml":
+                chunk = edges2graphml(chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed")
+                self.set_header("Content-Type", "text/graphml; charset=utf-8")
+                if self.args.download:
+                    self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
+
+                return super(BaseAPIHandler, self).write(chunk)
+
+        except Exception as exc:
+            logger.warning(exc)
+
+        super().write(chunk)

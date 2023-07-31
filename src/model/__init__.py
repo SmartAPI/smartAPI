@@ -1,4 +1,4 @@
-from .metakg import MetaKGDoc
+from .metakg import ConsolidatedMetaKGDoc, MetaKGDoc
 from .smartapi import SmartAPIDoc
 
-__all__ = [MetaKGDoc, SmartAPIDoc]
+__all__ = [MetaKGDoc, SmartAPIDoc, ConsolidatedMetaKGDoc]
