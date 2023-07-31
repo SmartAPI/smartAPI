@@ -1,4 +1,5 @@
-git+https://github.com/biothings/biothings.api.git@0.11.x#egg=biothings[web_extra]
+biothings[web_extra]==0.12.2
+# git+https://github.com/biothings/biothings.api.git@0.11.x#egg=biothings[web_extra]
 
 # document validation
 jsonschema>=4.4.0

@@ -398,15 +398,6 @@ class MetaKGQueryHandler(QueryHandler):
                 "default": "json",
                 "enum": ("json", "yaml", "html", "msgpack", "graphml"),
             },
-            "default_view": {
-                "type": str,
-                "default": "json",
-                "enum": ("json", "cytoscape"),
-            },
-            "header": {
-                "type": bool,
-                "default": True
-            }
         },
         "GET": {
             **QUERY_KWARGS.get("GET", {}),

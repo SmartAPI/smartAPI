@@ -121,6 +121,15 @@ class MetaKGParser:
                 self.metakg_errors[err].append(url)
             else:
                 self.metakg_errors[err] = [url]
+        if not isinstance(data, dict):
+            logger.error("Skipped [Invalid response type: %s]", type(data))
+            err = "Invalid response type"
+            if err in self.metakg_errors:
+                self.metakg_errors[err].append(url)
+            else:
+                self.metakg_errors[err] = [url]
+            data = {}
+
         logger.info("Done [%s nodes, %s edges]", len(data.get("nodes", [])), len(data.get("edges", [])))
         return data
 
