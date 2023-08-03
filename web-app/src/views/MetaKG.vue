@@ -123,9 +123,9 @@
               <td class="p-small scale-in-center lime-text" v-text="total < size ? numberWithCommas(total) : size"></td>
               <td class="p-small scale-in-center">{{ numberWithCommas(total) }}</td>
             </tr>
-            <tr>
+            <!-- <tr>
               <td class="p-small">APIs</td>
-              <td class="p-small scale-in-center lime-text">{{ Object.keys(organizedResults).length }}</td>
+              <td class="p-small scale-in-center lime-text"></td>
               <td class="p-small scale-in-center">
                 <details>
                   <summary>
@@ -136,7 +136,7 @@
                   </ul>
                 </details>
               </td>
-            </tr>
+            </tr> -->
             <tr>
               <td class="p-small">Subjects</td>
               <td class="p-small scale-in-center lime-text"> {{ displayedSubjects.length }}</td>
@@ -167,32 +167,50 @@
             </tr>
           </tbody>
         </table>
-        <details v-for="(results, api) in organizedResults" :key="api" class="border-b p-1 white" style="overflow: hidden; border-radius: 5px;">
+        <details v-for="hit in results" :key="hit?._id" class="border-b p-1 white" style="overflow: hidden; border-radius: 5px;">
           <summary>
-            {{ api }}
-            <b class="purple-text"> ({{ results.length }})</b>
-            <p class="m-0">
-              <a :href="'http://smart-api.info/registry?q=' + results[0].data.smartapi_id" target="_blank" class="mr-1 p-1">
-                  <small>SmartAPI Registry <i class="fa fa-external-link" aria-hidden="true"></i></small>
-              </a>
-              <a :href="results[0]?.api?.smartapi?.ui" target="_blank" class="p-1">
-                  <small>Documentation <i class="fa fa-external-link" aria-hidden="true"></i></small>
-              </a>
+            <p class="m-0 d-inline">
+              <small> 
+                <b><i class="fa fa-circle light-green-text" aria-hidden="true"></i> {{ readableName(hit.subject) }}</b>&nbsp;
+                <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.subject">
+                   <i class="fa fa-external-link" aria-hidden="true"></i>
+                </a>
+              </small>
+              &nbsp;
+              <small class="purple-text">
+                {{ readableName(hit.predicate.replaceAll('_', ' ')) }} 
+                <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.predicate">&nbsp;
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
+                </a>
+              </small>
+              &nbsp;
+              <small>
+                <b><i class="fa fa-star orange-text" aria-hidden="true"></i> {{ readableName(hit.object) }}</b>&nbsp;
+                <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.object">
+                  <i class="fa fa-external-link" aria-hidden="true"></i>
+                </a>
+              </small>
+              <b class="purple-text"> ({{ hit.api.length }})</b>
             </p>
           </summary>
           <table class="edge-table" style="font-size: x-small;">
-            <thead>
-              <th><i class="fa fa-circle light-green-text" aria-hidden="true"></i> Subject</th>
-              <th>Predicate</th>
-              <th><i class="fa fa-star orange-text" aria-hidden="true"></i> Object</th>
-            </thead>
             <tr 
-            v-for="item in results" :key="item.id" 
-            @mouseenter="highlightRow(item)" 
-            @mouseleave="unhighlightRow(item)" >
-                <td class="p-small" style="word-break: break-all;">{{item.subject}} <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + item.subject"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
-                <td class="purple-text p-small" style="word-break: break-all;">{{item.predicate}} <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + item.predicate"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
-                <td class="p-small">{{item.object}} <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + item.object"><i class="fa fa-external-link" aria-hidden="true"></i></a></td>
+            v-for="item in hit?.api" :key="item.id" 
+            @mouseenter="highlightRow(hit)" 
+            @mouseleave="unhighlightRow(hit)" >
+                <td>
+                  <small>{{ item.name }}</small>
+                </td>
+                <td>
+                  <a :href="'http://smart-api.info/registry?q=' + item?.smartapi_id" target="_blank" class="mr-1 p-1">
+                      <small>SmartAPI <i class="fa fa-external-link" aria-hidden="true"></i></small>
+                  </a>
+                </td>
+                <td>
+                  <a :href="item?.smartapi?.ui" target="_blank" class="p-1">
+                      <small>Docs <i class="fa fa-external-link" aria-hidden="true"></i></small>
+                  </a>
+                </td>
             </tr>
           </table>
         </details>
@@ -267,7 +285,6 @@ export default {
         'loading',
         'overEdgeLimit',
         'results',
-        'organizedResults',
         'APINames',
         'apiTotalFromResponse',
         'subjectTotalFromResponse',
@@ -384,6 +401,10 @@ export default {
       },
     },
     methods: {
+      readableName(text){
+          const result = text.replace(/([A-Z])/g, " $1");
+          return result.charAt(0).toUpperCase() + result.slice(1);
+      },
       clear(){
         this.$store.commit('setTerm', '');
         this.search();

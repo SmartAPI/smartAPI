@@ -10,7 +10,7 @@ cytoscape.use(popper);
 
 export const metakg = {
     state: () => ({ 
-        "baseURL": 'https://smart-api.info/api/metakg',
+        "baseURL": 'https://smart-api.info/api/metakg/consolidated',
         "finalURL": '',
         "meta_kg": null,
         "results": [],
@@ -274,12 +274,16 @@ export const metakg = {
                         selector: 'edge',
                         style:{
                         'curve-style': 'bezier',
+                        "label": "data(label)",
+                        'font-size': '2em',
+                        'text-outline-width': 2,
+                        'text-outline-color': 'white',
                         'haystack-radius': 0,
                         'line-color': 'data(color)',
                         'opacity':1,
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': 'limegreen',
-                        'width': 4,
+                        'width': "data(label)",
                         'z-index': 1,
                         }
                     },
@@ -288,7 +292,7 @@ export const metakg = {
                         style:{
                         'z-index': 1000,
                         'color': '#9c27b0',
-                        'font-size': '2.5em',
+                        // 'font-size': '2.5em',
                         'width': 5,
                         'opacity':1,
                         'line-color': '#f24141',
@@ -357,23 +361,28 @@ export const metakg = {
                 theme:'light',
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
-                    instance.setContent(`
-                    <p class="center m-0"><a target="_blank" href="http://smart-api.info/registry?q=${ele.data('smartapi_id')}">
-                                    ${ele.data('api_name')} (${ele.data('component')})
-                                </a></p>
-                    <table class="edge-table">
-                        <tbody>
-                            <tr>
-                                <td class="p-small center"><b>🟢 ${readableName(ele.data('source'))}</b></td>
-                            </tr>
-                            <tr>
-                                <td class="purple-text p-small center" style="word-break:break-all;">${ele.data('predicate')}</td>
-                            </tr>
-                            <tr>
-                                <td class="p-small center"><b>🟠 ${readableName(ele.data('target'))}</b></td>
-                            </tr>
-                        </tbody>
-                    </table>`)
+
+                    let apis_html = '<ul class="browser-default m-0 left-align">';
+
+                    ele.data('apis').forEach(api => {
+                        apis_html += `<li><a target="_blank" href="http://smart-api.info/registry?q=`+ api?.['smartapi']?.['id'] +`"><small>`+ api?.name +`</small></a></li>`
+                    });
+
+                    apis_html += '</ul>';
+
+                    let html = `
+                    <div class="grey lighten-3 center">
+                        <small>
+                        <b>🟢 ${readableName(ele.data('source'))}</b>
+                        <span class="purple-text" style="word-break:break-all;">
+                            ${ele.data('predicate')}
+                        </span>
+                        <b>🟠 ${readableName(ele.data('target'))}</b></small>
+                    </div>
+                    <details open><summary class="center"><small>` + ele.data('apis').length + ` API(s) available </small></summary>`+ apis_html  +
+                    `</details>`;
+
+                    instance.setContent(html)
                 }
                 });
             }
@@ -425,6 +434,7 @@ export const metakg = {
         },
         createGraphDataAPI(state, payload) {
             let results = payload['res'];
+            console.log(JSON.stringify(results[0], null, 2))
             //Initial data Processing
             const t0 = performance.now();
             //all nodes and edges
@@ -484,30 +494,38 @@ export const metakg = {
                 state.displayedSubjects.add(input);
                 state.displayedObjects.add(output);
 
-                let name = op['api']['name'];
-                let id = op['api']['smartapi']['id'];
-                let html = `<div class="p-1 center-align white rounded z-depth-3"><h6 class="center-align">`+
-                    `<a target="_blank" href="http://smart-api.info/registry?q=`+ id +`">`+ name +`</a>`+
-                    `</h6><span class="light-green-text">`+input+
-                    `</span> ➡️ <span class="purple-text">`+op['predicate']+
-                    `</span> ➡️ <span class="orange-text">`+output+
-                    `</span></div>`
+                // let apis_html = ''
+                // op['api'].forEach(api => {
+                //     apis_html += `<a target="_blank" href="http://smart-api.info/registry?q=`+ api?.['smartapi']?.['id'] +`">`+ api?.name +`</a>`
+                // });
+
+                let name = op._id;
+                // let id = op['api'][0]['smartapi']['id'];
+                // let html = `<div class="p-1 center-align white rounded z-depth-3"><details>` +
+                //     `<summary>` + op.api.length + `</summary>`+ apis_html +
+                //     `</details><span class="light-green-text">`+input+
+                //     `</span> ➡️ <span class="purple-text">`+op['predicate']+
+                //     `</span> ➡️ <span class="orange-text">`+output+
+                //     `</span></div>`
 
                 let edge = {
                     ...op,
                     group: 'edges',
                     data: {
                         id: Math.floor(100000 + Math.random() * 900000),
-                        name: name + ' : ' + op['predicate'],
-                        html: html,
+                        // name: name + ' : ' + op['predicate'],
+                        name: name,
+                        // html: html,
                         predicate: op['predicate'],
-                        output_id: op['output_id'],
-                        api_name: name,
-                        type: name,
+                        // output_id: op['output_id'],
+                        // api_name: name,
+                        // type: name,
                         source: input,
                         target: output,
-                        smartapi_id: id,
-                        component: op['api']['x-translator']['component']
+                        // smartapi_id: id,
+                        // component: op['api'][0]['x-translator']['component'],
+                        label: op['api'].length,
+                        apis: op['api']
                     }
                 };
                 // edge hover tip
@@ -991,7 +1009,7 @@ export const metakg = {
         },
         getSubjects({state, commit}){
             if (!state.subject_options.length) {
-                axios.get('https://smart-api.info/api/metakg?aggs=subject.raw&facet_size=200').then(res=>{
+                axios.get(state.baseURL + '?aggs=subject.raw&facet_size=200').then(res=>{
                     let data = res.data?.facets?.['subject.raw']?.terms.map(item => item.term).sort();
                     commit('saveSubjects', data);
                 }).catch(err=>{
@@ -1001,7 +1019,7 @@ export const metakg = {
         },
         getObjects({state, commit}){
             if (!state.object_options.length) {
-                axios.get('https://smart-api.info/api/metakg?aggs=object.raw&facet_size=200').then(res=>{
+                axios.get(state.baseURL + '?aggs=object.raw&facet_size=200').then(res=>{
                     let data = res.data?.facets?.['object.raw']?.terms.map(item => item.term).sort();
                     commit('saveObjects', data);
                 }).catch(err=>{
@@ -1012,7 +1030,7 @@ export const metakg = {
         },
         getPredicates({state, commit}){
             if (!state.predicate_options.length) {
-                axios.get('https://dev.smart-api.info/api/metakg?aggs=predicate&facet_size=500').then(res=>{
+                axios.get(state.baseURL + '?aggs=predicate&facet_size=500').then(res=>{
                     let data = res.data?.facets?.predicate?.terms.map(item => item.term).sort();
                     commit('savePredicates', data);
                 }).catch(err=>{
@@ -1022,7 +1040,7 @@ export const metakg = {
         },
         getAPINames({state, commit}){
             if (!state.apis_options.length) {
-                axios.get('https://dev.smart-api.info/api/metakg?aggs=api.name.raw&facet_size=200').then(res=>{
+                axios.get(state.baseURL + '?aggs=api.name.raw&facet_size=200').then(res=>{
                     let data = res.data?.facets?.['api.name.raw']?.terms.map(item => item.term).sort();
                     commit('saveAPIs', data);
                 }).catch(err=>{
@@ -1058,17 +1076,6 @@ export const metakg = {
         },
         results: (state) => {
             return state.results
-        },
-        organizedResults: (state) => {
-            let or = {};
-            state.results.forEach(r => {
-                if (Object.hasOwnProperty.call(or, r.api.name)) {
-                    or[r.api.name].push(r)
-                } else {
-                    or[r.api.name] = [r]
-                }
-            });
-            return or;
         },
         getAPITotal: (state) => {
             return state.operationsTotal
