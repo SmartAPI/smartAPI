@@ -52,9 +52,9 @@
         }
         .toggle-btn{
             background-color: cornflowerblue;
-            margin: 5px;
+            margin: 2px 2px 2px 100px;
             cursor: pointer;
-            padding: 10px;
+            padding: 5px;
             border-radius: 5px;
             border: none;
         }
@@ -69,28 +69,26 @@
     <main id="app">
         <header v-if="header">
             <nav>
-                <a href="#" class="brand-logo">
-                    <img 
-                    width='64' 
-                    src='http://www.smart-api.info/img/header-logo.png' 
-                    alt='SmartAPI'/>
+                <div>
+                    <a href="#" class="brand-logo">
+                        <img 
+                        width='64' 
+                        src='http://www.smart-api.info/img/header-logo.png' 
+                        alt='SmartAPI'/>
                     </a>
-                <template v-if="default_view == 'cytoscape'">
-                    <a 
-                    target="_blank" 
-                    rel="nonreferrer" 
-                    :href="'https://smart-api.info/portal/translator/metakg?' + params">
-                        Click here to interact with an advanced version of this graph on SmartAPI
-                    </a>
-                </template>
+                    <button 
+                    class="toggle-btn" 
+                    @click="toggleView()" 
+                    v-text="default_view == 'json' ? 'View edges in a graph' : 'View edges in a JSON viewer'"></button>
+                </div>
+                <a 
+                target="_blank" 
+                rel="nonreferrer" 
+                :href="'https://smart-api.info/portal/translator/metakg?' + params">
+                    Click here to interact with an advanced MetaKG viewer on SmartAPI
+                </a>
             </nav>
         </header>
-        <div>
-            <button 
-            class="toggle-btn" 
-            @click="toggleView()" 
-            v-text="default_view == 'json' ? 'View edges in graph' : 'View edges in JSON'"></button>
-        </div>
         <template v-if="default_view == 'cytoscape'">
             <div>
                 <div id="cy"></div>
@@ -284,18 +282,11 @@
                 const editor = new JSONEditor(container, options);
                 const data = this.json_data;
                 editor.set(data);
-                function expandPath(path) {
-                    for (let i = 0; i < path.length; i++) {
-                        const parentPath = path.slice(0, i)
-                        editor.expand({ 
-                            'path': parentPath, 
-                            'isExpand': ['hits'].includes(path) ? false : true, 
-                            'recursive': false
-                        });
-                    }
-                }
-                expandPath(['hits']);
-                
+                editor.expand({ 
+                    'path': ['hits'], 
+                    'isExpand': true, 
+                    'recursive': false
+                });
             }
         }
         }).mount('#app');
