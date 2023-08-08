@@ -24,11 +24,10 @@
             font-family: sans-serif;
         }
         #cy {
-            width: 80vw;
+            width: 97vw;
             height: 800px;
             background-color:white;
             border: rgb(188, 188, 188) 1px solid;
-            border-radius: 20px;
             overflow: hidden;
             margin: auto;
         }
@@ -61,6 +60,12 @@
         .text-orange{
             color: orange;
         }
+        .p-1{
+            padding: 1em;
+        }
+        details{
+            font-size: smaller;
+        }
     </style>
 
 </head>
@@ -90,14 +95,16 @@
             </nav>
         </header>
         <template v-if="default_view == 'cytoscape'">
-            <div>
+            <div class="p-1">
                 <div id="cy"></div>
             </div>
             <p style="padding-bottom: 20px; text-align: center;">
                 <small>{% raw shown %} edges shown / {% raw available %} edges available</small>
             </p>
         </template>
-        <div v-else id="jsonview"></div>
+        <div class="p-1" v-else>
+            <div id="jsonview"></div>
+        </div>
     </main>
 
     <script type="text/javascript">
@@ -235,8 +242,14 @@
                         if (ele.isNode()) {
                             instance.setContent(ele.data('label'));
                         } else {
+                            let apis = `<details open><summary>${ele.data('apis').length} API(s) available</summary><ul>`
+                            ele.data('apis').forEach(api => {apis += `<li>${api?.name}</li>`})
+                            apis += "</ul></deatils"
                             instance.setContent(`
-                            <div>${readableName(ele.data('source'))} - <b class="text-orange">${ele.data('predicate').replaceAll('_', ' ')}</b> - ${readableName(ele.data('target'))}</div>`)
+                            <div>
+                                ${readableName(ele.data('source'))} - <b class="text-orange">${ele.data('predicate').replaceAll('_', ' ')}</b> - ${readableName(ele.data('target'))}
+                                ${apis}
+                            </div>`)
                         }
                     },
                     });

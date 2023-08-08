@@ -13,7 +13,7 @@ class CytoscapeDataFormatter():
         }
         Edge:
         {
-            'data': { 'id': 'AB', 'source': 'A', 'target': 'B', 'label': 'Predicate' }
+            'data': { 'id': 'AB', 'source': 'A', 'target': 'B', 'apis': '[<api_list>]' }
         }
 
     """
@@ -29,18 +29,29 @@ class CytoscapeDataFormatter():
             self.node_ids.append(entity_name)
             self.nodes.append({
                 'group': 'nodes',
-                'data': { 'id': entity_name, 'weight': 1, 'label': entity_name, 'colors': "#df4bfc #4a148c" }
+                'data': {
+                    'id': entity_name,
+                    'weight': 1,
+                    'label': entity_name,
+                    'colors': "#df4bfc #4a148c"
+                }
             })
 
-    def add_edge(self, sub, obj, predicate,  api_name):
+    def add_edge(self, sub, obj, predicate,  apis):
         self.edges.append({
             'group': 'edges',
-            'data': { 'id': predicate + sub + obj, 'source': sub, 'target': obj, 'predicate': predicate, 'label': f"{api_name}: {predicate}", 'color': 'black' }
+            'data': { 
+                'id': predicate + sub + obj,
+                'source': sub, 'target': obj,
+                'predicate': predicate,
+                'apis': apis,
+                'color': 'black'
+            }
         })
 
     def get_data(self):
         for edge in self.hits:
             self.add_node(edge['subject'])
             self.add_node(edge['object'])
-            self.add_edge(edge['subject'], edge['object'], edge['predicate'], edge['api']['name'])
+            self.add_edge(edge['subject'], edge['object'], edge['predicate'], edge['api'])
         return self.nodes + self.edges
