@@ -10,7 +10,7 @@ cytoscape.use(popper);
 
 export const metakg = {
     state: () => ({ 
-        "baseURL": 'https://smart-api.info/api/metakg/consolidated',
+        "baseURL": 'http://localhost:8000/api/metakg/consolidated',
         "finalURL": '',
         "meta_kg": null,
         "results": [],
@@ -434,7 +434,7 @@ export const metakg = {
         },
         createGraphDataAPI(state, payload) {
             let results = payload['res'];
-            console.log(JSON.stringify(results[0], null, 2))
+            // console.log(JSON.stringify(results[0], null, 2))
             //Initial data Processing
             const t0 = performance.now();
             //all nodes and edges
