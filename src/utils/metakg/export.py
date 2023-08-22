@@ -7,9 +7,10 @@ logger = logging.getLogger("metakg_export")
 """
 Functions for metakg data formatting
 
-    edges2graphml() - edge data to graphml formatting
+    edges2graphml() : edge data to graphml formatting
 
 """
+
 
 def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
     """
@@ -26,64 +27,64 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
     Notes:
     * summary info, data size, and warning comments added to the top of the file
     """
-    edges = chunk['hits']
-    expected_total = chunk['total']
+    edges = chunk["hits"]
+    expected_total = chunk["total"]
 
-    root = ET.Element('graphml') # set root
-    root.set('xmlns', 'http://graphml.graphdrawing.org/xmlns')
+    root = ET.Element("graphml")  # set root
+    root.set("xmlns", "http://graphml.graphdrawing.org/xmlns")
 
     # Create a set to store unique node IDs
     unique_node_ids = set()
 
     # Define key for node data
-    key_node = ET.SubElement(root, 'key')
-    key_node.set('id', 'd1')
-    key_node.set('for', 'node')
-    key_node.set('attr.name', 'label')
-    key_node.set('attr.type', 'string')
+    key_node = ET.SubElement(root, "key")
+    key_node.set("id", "d1")
+    key_node.set("for", "node")
+    key_node.set("attr.name", "label")
+    key_node.set("attr.type", "string")
 
     # Define key for edge data
-    key_edge = ET.SubElement(root, 'key')
-    key_edge.set('id', 'd2')
-    key_edge.set('for', 'edge')
-    key_edge.set('attr.name', 'label')
-    key_edge.set('attr.type', 'string')
-    graph = ET.SubElement(root, 'graph')
-    graph.set('id', 'G')
-    graph.set('edgedefault', edge_default) #directed/undirected
+    key_edge = ET.SubElement(root, "key")
+    key_edge.set("id", "d2")
+    key_edge.set("for", "edge")
+    key_edge.set("attr.name", "label")
+    key_edge.set("attr.type", "string")
+    graph = ET.SubElement(root, "graph")
+    graph.set("id", "G")
+    graph.set("edgedefault", edge_default)  # directed/undirected
 
     # iterate over edges and fill in data
     for data in edges:
-        node = ET.SubElement(graph, 'node')
-        node_id = data['subject']  # Get the node ID
-        node.set('id', data['subject'])
+        node = ET.SubElement(graph, "node")
+        node_id = data["subject"]  # Get the node ID
+        node.set("id", data["subject"])
 
-        data_node = ET.SubElement(node, 'data')
-        data_node.set('key', 'd1')
-        data_node.text = data['subject']
+        data_node = ET.SubElement(node, "data")
+        data_node.set("key", "d1")
+        data_node.text = data["subject"]
 
         unique_node_ids.add(node_id)
 
-        edge = ET.SubElement(graph, 'edge')
-        edge.set('source', data['subject'])
-        edge.set('target', data['object'])
+        edge = ET.SubElement(graph, "edge")
+        edge.set("source", data["subject"])
+        edge.set("target", data["object"])
 
-        data_edge = ET.SubElement(edge, 'data')
-        data_edge.set('key', 'd2')
-        data_edge.text = data['predicate']
+        data_edge = ET.SubElement(edge, "data")
+        data_edge.set("key", "d2")
+        data_edge.text = data["predicate"]
 
     # Calculate the node count
     node_count = len(unique_node_ids)
 
     # tree = ET.ElementTree(root)
     graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()
-    title_text="This GraphML export was generated from this SmartAPI MetaKG (Meta KnowledgeGraph) query:"
-    api_call_text=f"{protocol}://{host}{api_call}"
-    note01_text='You can also change "format=graphml" parameter to "format=json" to view a JSON output, or "format=html" to view a visualization of the filtered MetaKG based on your query criteria.'
-    summary_title_text="Summary of the filtered MetaKG:"
-    edges_matched_text=f"* Total no. of edges matched: {chunk['total']}"
-    edges_export_text=f"* Total no. of edges exported: {len(edges)}"
-    nodes_export_text=f"* Total no. of nodes exported: {node_count}"
+    title_text = "This GraphML export was generated from this SmartAPI MetaKG (Meta KnowledgeGraph) query:"
+    api_call_text = f"{protocol}://{host}{api_call}"
+    note01_text = 'You can also change "format=graphml" parameter to "format=json" to view a JSON output, or "format=html" to view a visualization of the filtered MetaKG based on your query criteria.'
+    summary_title_text = "Summary of the filtered MetaKG:"
+    edges_matched_text = f"* Total no. of edges matched: {chunk['total']}"
+    edges_export_text = f"* Total no. of edges exported: {len(edges)}"
+    nodes_export_text = f"* Total no. of nodes exported: {node_count}"
     # Wrap the summary text
     wrapped_title_text = textwrap.fill(title_text, width=100)
     wrapped_note_text = textwrap.fill(note01_text, width=100)
