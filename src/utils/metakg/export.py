@@ -77,13 +77,13 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
 
     # tree = ET.ElementTree(root)
     graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()
-    title_text='''This GraphML export was generated from this SmartAPI MetaKG (Meta KnowledgeGraph) query:'''
-    api_call_text=f'''{protocol}://{host}{api_call}'''
-    note01_text='''You can also change "format=graphml" parameter to "format=json" to view a JSON output, or "format=html" to view a visualization of the filtered MetaKG based on your query criteria.'''
-    summary_title_text='''Summary of the filtered MetaKG:'''
-    edges_matched_text=f'''* Total no. of edges matched: {chunk['total']}'''
-    edges_export_text=f'''* Total no. of edges exported: {len(edges)}'''
-    nodes_export_text=f'''* Total no. of nodes exported: {node_count}'''
+    title_text="This GraphML export was generated from this SmartAPI MetaKG (Meta KnowledgeGraph) query:"
+    api_call_text=f"{protocol}://{host}{api_call}"
+    note01_text='You can also change "format=graphml" parameter to "format=json" to view a JSON output, or "format=html" to view a visualization of the filtered MetaKG based on your query criteria.'
+    summary_title_text="Summary of the filtered MetaKG:"
+    edges_matched_text=f"* Total no. of edges matched: {chunk['total']}"
+    edges_export_text=f"* Total no. of edges exported: {len(edges)}"
+    nodes_export_text=f"* Total no. of nodes exported: {node_count}"
     # Wrap the summary text
     wrapped_title_text = textwrap.fill(title_text, width=100)
     wrapped_note_text = textwrap.fill(note01_text, width=100)
