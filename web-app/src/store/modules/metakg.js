@@ -8,9 +8,12 @@ import axios from 'axios'
 
 cytoscape.use(popper);
 
+// During local dev the python server with the API should be running on port 8000
+// On prod nginx will redirect /api calls to the right server automatically
+
 export const metakg = {
     state: () => ({ 
-        "baseURL": 'http://localhost:8000/api/metakg/consolidated',
+        "baseURL": process.env.NODE_ENV == "development" ? "http://localhost:8000/api/metakg/consolidated" : "/api/metakg/consolidated",
         "finalURL": '',
         "meta_kg": null,
         "results": [],
