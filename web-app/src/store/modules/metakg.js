@@ -715,7 +715,9 @@ export const metakg = {
         }
         },
         buildAPIURL(state, payload){
-            let url = new URL(state.baseURL);
+            let base = state.baseURL.includes('http') ? 
+            state.baseURL : window.location.origin + state.baseURL;
+            let url = new URL(base);
             for (const key in payload) {
                 url.searchParams.append(key, payload[key]);
             }
