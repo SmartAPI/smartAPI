@@ -202,14 +202,14 @@
                   <small>{{ item.name }}</small>
                 </td>
                 <td>
-                  <a :href="'http://smart-api.info/registry?q=' + item?.smartapi_id" target="_blank" class="mr-1 p-1">
-                      <small>SmartAPI <i class="fa fa-external-link" aria-hidden="true"></i></small>
-                  </a>
+                  <router-link :to="{path:'/registry', query: {'q': item?.smartapi?.id}}" target="_blank" class="mr-1 p-1">
+                    SmartAPI <i class="fa fa-external-link" aria-hidden="true"></i>
+                  </router-link>
                 </td>
                 <td>
-                  <a :href="item?.smartapi?.ui" target="_blank" class="p-1">
-                      <small>Docs <i class="fa fa-external-link" aria-hidden="true"></i></small>
-                  </a>
+                  <router-link :to="{path:'/ui/' + item?.smartapi?.id}" target="_blank" class="mr-1 p-1">
+                    Docs <i class="fa fa-external-link" aria-hidden="true"></i>
+                  </router-link>
                 </td>
             </tr>
           </table>
