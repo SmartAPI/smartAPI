@@ -96,6 +96,7 @@
         </header>
         <template v-if="default_view == 'cytoscape'">
             <div class="p-1">
+                <div v-if="cyto_data.length == 0"><h5 style="color: red; padding: 5px;">No Results. Switch result viewer to JSON mode to inspect reason.</h5></div>
                 <div id="cy"></div>
             </div>
             <p style="padding-bottom: 20px; text-align: center;">

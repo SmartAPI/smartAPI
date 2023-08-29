@@ -483,19 +483,28 @@ class MetaKGQueryHandler(QueryHandler):
                 return super(BaseAPIHandler, self).write(chunk)
             
             if self.format == "html":
-                # reformat data
-                cdf = CytoscapeDataFormatter(chunk['hits'])
-                graph_data = cdf.get_data()
                 # setup template
                 template_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'templates'))
                 loader = Loader(template_path)
                 template = loader.load("cytoscape.html")
+                # initial counts
+                shown = 0
+                available = 0
+                graph_data = []
+                # if no hits template will show response as is and
+                # display a help message.
+                if "total" in chunk and "hits" in chunk:
+                    available = chunk['total']
+                    shown = len(chunk['hits'])
+                    # reformat data
+                    cdf = CytoscapeDataFormatter(chunk['hits'])
+                    graph_data = serializer.to_json(cdf.get_data())
                 # generate global template variable with graph data
                 result = template.generate(
-                    data=serializer.to_json(graph_data),
+                    data= graph_data,
                     response=serializer.to_json(chunk),
-                    shown=len(chunk['hits']),
-                    available=chunk['total'],
+                    shown=shown,
+                    available=available,
                     default_view=serializer.to_json(self.args.default_view),
                     header=serializer.to_json(self.args.header)
                 )
