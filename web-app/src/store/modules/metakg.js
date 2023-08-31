@@ -354,12 +354,16 @@ export const metakg = {
                 arrow: true,
                 interactive: true,
                 allowHTML: true,
+                delay: [0, 1000], //[show,hide]
                 theme:'light',
-                animation: false,
+                // animation: false,
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
                     instance.setContent('<div class="purple white-text p-small center-align"><h6 class="m-1">'+ readableName(ele.id()) +'</h6></div>')
-                }
+                },
+                onUntrigger: function(instance){
+                    instance.show();
+                },
                 });
             }
 
@@ -371,9 +375,9 @@ export const metakg = {
                 trigger: 'manual', // mandatory
                 placement:'top-start',
                 arrow: true,
-                animation: false,
                 allowHTML: true,
                 interactive: true,
+                delay: [0, 1000], //[show,hide]
                 theme:'light',
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
