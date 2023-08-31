@@ -84,19 +84,19 @@
                     <button 
                     class="toggle-btn" 
                     @click="toggleView()" 
-                    v-text="default_view == 'json' ? 'View edges in a graph' : 'View edges in a JSON viewer'"></button>
+                    v-text="default_view == 'json' ? 'Graph View' : 'JSON View'"></button>
                 </div>
                 <a 
                 target="_blank" 
                 rel="nonreferrer" 
                 :href="'https://smart-api.info/portal/translator/metakg?' + params">
-                    Click here to interact with an advanced MetaKG viewer on SmartAPI
+                    <small>Click here to interact with an advanced MetaKG viewer on SmartAPI</small>
                 </a>
             </nav>
         </header>
         <template v-if="default_view == 'cytoscape'">
             <div class="p-1">
-                <div v-if="cyto_data.length == 0"><h5 style="color: red; padding: 5px;">No Results. Switch result viewer to JSON mode to inspect reason.</h5></div>
+                <div v-if="cyto_data.length == 0"><h5 style="color: red; padding: 5px;">No Success. Switch to "JSON View" mode to inspect reason.</h5></div>
                 <div id="cy"></div>
             </div>
             <p style="padding-bottom: 20px; text-align: center;">
