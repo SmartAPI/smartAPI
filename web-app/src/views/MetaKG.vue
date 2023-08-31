@@ -444,17 +444,6 @@ export default {
       generalMode: function(){
         this.reset();
       },
-      // KPNames: function (o) {
-      //   let html = '';
-      //   if (o.length) {
-      //     document.getElementById('query-input').innerHTML = ''
-      //     for (var i = 0, len = o.length; i < len; i++) {
-      //       let item = o[i]
-      //       html += `<option value="` + item + `">`;
-      //     }
-      //     document.getElementById('query-input').innerHTML = html
-      //   }
-      // },
     },
     methods: {
       readableName(text){
