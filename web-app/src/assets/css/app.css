@@ -108,6 +108,11 @@
   padding: 2px;
 }
 
+.sm-table tr td{
+  padding: 2px;
+  text-align: left;
+}
+
 .side-nav {
   background-color: var(--blue-dark)
 }

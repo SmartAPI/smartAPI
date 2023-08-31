@@ -28,9 +28,6 @@
           </div>
         </form>
       </div>
-      <!-- <div class="col s1 d-flex justify-content-center align-items-center">
-        <h5>OR</h5>
-      </div> -->
       <div class="col s5 pointer" @click="setNodeMode(true)">
         <form :class="[generalMode ? 'cyan  darken-3' : 'tab-not-active']" class="top-br">
           <div class="row m-0">
@@ -45,62 +42,58 @@
       </div>
       <div class="col s12 top-br lighten-3" :class="[!generalMode ? 'purple' : 'cyan ']">
         <div class="row m-0">
-          <div class="col s12 m4">
-            <div class="d-flex align-items-center">
-              <p class="p-0">
-                Size
-              </p>
-              <select class="browser-default size-select white-text"
-               :class="[!generalMode ? 'purple' : 'cyan ']" v-model="size">
-                  <option value="" disabled>Choose Size</option>
-                  <option value="20">20</option>
-                  <option value="40">40</option>
-                  <option value="100">100</option>
-                  <option value="200">200</option>
-                  <option value="500">500</option>
-                  <option value="1000">1000</option>
-              </select>
-              <div class="lighten-2 p-1 d-flex" style="border-radius: 5px;"  :class="[!generalMode ? 'purple' : 'cyan ']" data-tippy-content="Select Translator Component (Default ANY)">
+          <div class="col s12 m8">
+            <div class="d-flex align-items-center justify-content-around">
+              <div class="d-flex align-items-center">
+                <p class="p-0">
+                  Size
+                </p>
+                <select class="browser-default size-select white-text"
+                :class="[!generalMode ? 'purple' : 'cyan ']" v-model="size">
+                    <option value="" disabled>Choose Size</option>
+                    <option value="20">20</option>
+                    <option value="40">40</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000 (Slow)</option>
+                    <option value="1000">5000 (Slower)</option>
+                </select>
+              </div>
+              <div class="lighten-2 p-1 d-flex" style="border-radius: 5px;"  
+              :class="[!generalMode ? 'purple' : 'cyan ']" 
+              data-tippy-content="Select Translator Component (Default ANY)">
                 <div style="margin-right: 10px;">
                   <input type="checkbox" id="ara" v-model="ara"/>
-                  <label class="white-text" for="ara">ARA</label>
+                  <label class="white-text" for="ara">ARAs</label>
                 </div>
                 <div>
                   <input type="checkbox" id="kp" v-model="kp"/>
-                  <label class="white-text" for="kp">KP</label>
+                  <label class="white-text" for="kp">KPs</label>
                 </div>
+                <select class="browser-default" style="border-radius: 5px;" v-if="kp && KPNames?.length" v-model="kpSelected">
+                  <option value="" disabled selected>(Optional) Select KP</option>
+                  <option v-for="kp in KPNames" :value="kp" :key="kp">{{ kp }}</option>
+                </select>
+                <select class="browser-default" style="border-radius: 5px;" v-if="ara && ARANames?.length" v-model="araSelected">
+                  <option value="" disabled selected>(Optional) Select ARA</option>
+                  <option v-for="ara in ARANames" :value="ara" :key="ara">{{ ara }}</option>
+                </select>
               </div>
+              <form @submit.prevent="search()" class="d-flex flex-wrap align-items-center justify-content-center m-1">
+                <input 
+                v-model="query_term" 
+                type="text" 
+                placeholder="(Optional) Query term" 
+                style="border-radius: 20px;"
+                list="query-input" 
+                autocomplete="off"
+                class="browser-default mr-1 query-input">
+                <datalist id='query-input'></datalist>
+                <button v-if="query_term" class="smallButton green white-text" style="margin-right: 10px;" type="submit">Update</button>
+                <button v-if="query_term" @click="clear()" class="smallButton red white-text" type="button">Clear</button>
+              </form>
             </div>
-          </div>
-          <div class="col s12 m4">
-            <form @submit.prevent="search()" class="d-flex flex-wrap align-items-center justify-content-center m-1">
-              <input 
-              v-model="query_term" 
-              type="text" 
-              placeholder="(Optional) Search term eg. API name, etc." 
-              style="border-radius: 20px;"
-              list="query-input" 
-              autocomplete="off"
-              class="browser-default mr-1 query-input">
-              <datalist id='query-input'></datalist>
-              <button v-if="query_term" class="smallButton green white-text" style="margin-right: 10px;" type="submit">Update</button>
-              <button v-if="query_term" @click="clear()" class="smallButton red white-text" type="button">Clear</button>
-            </form>
-          </div>
-          <div class="col s12 m4">
-            <div v-if="usingCytoscape">
-              <button class="smallButton white-text m-1" :class="[!generalMode ? 'purple' : 'cyan ']" @click="recenterGraph()"><i class="fa fa-dot-circle-o"
-                  aria-hidden="true"></i> Reset Zoom
-              </button>
-              <button class="smallButton white-text m-1" :class="[!generalMode ? 'purple' : 'cyan ']" @click="download">
-                <i class="fa fa-download" aria-hidden="true"></i> Download Image
-              </button>
-            </div>
-            <CopyButton copy_msg="URL copied" :copy="finalURL" class="white-text p-1" :class="[!generalMode ? 'purple' : 'cyan ']">
-                <template v-slot:title>
-                  <i class="fa fa-copy" aria-hidden="true"></i> Copy API Query
-                </template>
-            </CopyButton>
           </div>
         </div>
       </div>
@@ -108,7 +101,7 @@
 
     <div class="row m-0 lighten-5" :class="[!generalMode ? 'purple' : 'cyan ']">
       <!-- GRAPH and RESULTS-->
-      <div class="col s3 p-1 operations-menu grey darken-1" style="padding-bottom: 20px;">
+      <div class="col s3 p-1 operations-menu grey darken-1" style="padding-bottom: 20px; min-height: 700px;">
         <h6 class="white-text"><b>Overview</b></h6>
         <small class="white-text">Based on the current query: </small>
         <table class="white-text highlight grey darken-2" style="font-size: smaller; margin-bottom: 5px;">
@@ -121,22 +114,16 @@
             <tr>
               <td class="p-small">Edges</td>
               <td class="p-small scale-in-center lime-text" v-text="total < size ? numberWithCommas(total) : size"></td>
-              <td class="p-small scale-in-center">{{ numberWithCommas(total) }}</td>
-            </tr>
-            <!-- <tr>
-              <td class="p-small">APIs</td>
-              <td class="p-small scale-in-center lime-text"></td>
               <td class="p-small scale-in-center">
-                <details>
-                  <summary>
-                    {{ apiTotalFromResponse.length }}
-                  </summary>
-                  <ul>
-                    <li v-for="item in apiTotalFromResponse" :key="item.term + 'api'">{{ item.term }}</li>
-                  </ul>
-                </details>
+                {{ numberWithCommas(total) }}
+                <template v-if="results.length < total">
+                  <i style="z-index: 100;" class="fa fa-exclamation-circle orange-text m-1" 
+                  data-tippy-content="Increase size to view more edges available"
+                  title="Increase size to view more edges available"
+                  aria-hidden="true"></i>
+                </template>
               </td>
-            </tr> -->
+            </tr>
             <tr>
               <td class="p-small">Subjects</td>
               <td class="p-small scale-in-center lime-text"> {{ displayedSubjects.length }}</td>
@@ -169,29 +156,33 @@
         </table>
         <details v-for="hit in results" :key="hit?._id" class="border-b p-1 white" style="overflow: hidden; border-radius: 5px;">
           <summary>
-            <p class="m-0 d-inline">
-              <small> 
-                <b><i class="fa fa-circle light-green-text" aria-hidden="true"></i> {{ readableName(hit.subject) }}</b>&nbsp;
-                <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.subject">
-                   <i class="fa fa-external-link" aria-hidden="true"></i>
-                </a>
-              </small>
-              &nbsp;
-              <small class="purple-text">
-                {{ readableName(hit.predicate.replaceAll('_', ' ')) }} 
-                <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.predicate">&nbsp;
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
-                </a>
-              </small>
-              &nbsp;
-              <small>
-                <b><i class="fa fa-star orange-text" aria-hidden="true"></i> {{ readableName(hit.object) }}</b>&nbsp;
-                <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.object">
-                  <i class="fa fa-external-link" aria-hidden="true"></i>
-                </a>
-              </small>
-              <b class="purple-text"> ({{ hit.api.length }})</b>
-            </p>
+            <table class="sm-table" style="font-size: x-small;">
+              <tr>
+                <td>
+                    <b> {{ readableName(hit.subject) }}</b>&nbsp;
+                    <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.subject">
+                      <i class="fa fa-external-link" aria-hidden="true"></i>
+                    </a>
+                </td>
+                <td>
+                  <b>
+                  {{ readableName(hit.predicate.replaceAll('_', ' ')) }} 
+                  <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.predicate">&nbsp;
+                    <i class="fa fa-external-link" aria-hidden="true"></i>
+                  </a>
+                </b>
+                </td>
+                <td>
+                    <b>{{ readableName(hit.object) }}</b>&nbsp;
+                    <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.object">
+                      <i class="fa fa-external-link" aria-hidden="true"></i>
+                    </a>
+                </td>
+                <td>
+                  <b class="green-text"> ({{ hit.api.length }})</b>
+                </td>
+              </tr>
+            </table>
           </summary>
           <table class="edge-table" style="font-size: x-small;">
             <tr 
@@ -215,7 +206,33 @@
           </table>
         </details>
       </div>
-      <div class="col s9" id="cy" v-if="usingCytoscape"></div>
+      <div class="col s9" v-if="usingCytoscape">
+        <div style="position: relative;">
+          <div id="cy" style="position: absolute;"></div>
+          <div class="graph-btn-container">
+              <button class="smallButton white-text m-1" 
+              data-tippy-content="Reset Graph Position"
+              data-tippy-position="right"
+              :class="[!generalMode ? 'purple' : 'cyan ']" 
+              @click="recenterGraph()">
+                <i class="fa fa-dot-circle-o" aria-hidden="true"></i>
+              </button>
+              <button class="smallButton white-text m-1" 
+              data-tippy-content="Download Image"
+              :class="[!generalMode ? 'purple' : 'cyan ']" 
+              @click="download">
+                <i class="fa fa-download" aria-hidden="true"></i>
+              </button>
+            <a class="smallButton white-text m-1" 
+            data-tippy-content="View Raw Data"
+            :href="finalURL"
+            target="_blank"
+            :class="[!generalMode ? 'purple' : 'cyan ']">
+              <i class="fa fa-external-link" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
       <div v-else class="col s9" id="3d-graph"></div>
     </div>
 
@@ -238,7 +255,7 @@
             <div class="collection-item">
               <input type="checkbox" id="withLimit" v-model="edgeLimitBool" @click="withLimit = !withLimit"/>
               <label for="withLimit">
-                <small>Click here to enforce <b class="black-text">max number of edges (1,500)</b> to <b>improve</b> performance.</small>
+                <small>Click here to enforce <b class="black-text">max number of edges (5000)</b> to <b>improve</b> performance.</small>
               </label>
             </div>
             <div class="collection-item">
@@ -285,7 +302,8 @@ export default {
         'loading',
         'overEdgeLimit',
         'results',
-        'APINames',
+        'KPNames',
+        'ARANames',
         'apiTotalFromResponse',
         'subjectTotalFromResponse',
         'objectTotalFromResponse',
@@ -324,7 +342,27 @@ export default {
           return this.$store.getters.kp
         },
         set (v) {
+          if (!v) {
+            // if no KP filter reset KP Selected
+            this.$store.commit('setKPSelected', "");
+          }
           return this.$store.commit('setKP', v);
+        }
+      },
+      kpSelected: {
+        get () {
+          return this.$store.getters.kpSelected
+        },
+        set (v) {
+          return this.$store.commit('setKPSelected', v);
+        }
+      },
+      araSelected: {
+        get () {
+          return this.$store.getters.araSelected
+        },
+        set (v) {
+          return this.$store.commit('setARASelected', v);
         }
       },
       ara: {
@@ -332,6 +370,10 @@ export default {
           return this.$store.getters.ara
         },
         set (v) {
+          if (!v) {
+            // if no KP filter reset KP Selected
+            this.$store.commit('setARASelected', "");
+          }
           return this.$store.commit('setARA', v);
         }
       },
@@ -351,7 +393,7 @@ export default {
         }
       },
       withLimit: function (v) {
-        v ? this.$store.commit('setMax', {value: 1500}) : this.$store.commit('setMax', {value: 0})
+        v ? this.$store.commit('setMax', {value: 5000}) : this.$store.commit('setMax', {value: 0})
         this.$toast.success('Updating Results...');
         setTimeout(()=>{this.$store.dispatch('handleQuery')}, 1000);
       },
@@ -385,20 +427,34 @@ export default {
           this.$store.dispatch('buildURL');
         }, 1000);
       },
+      kpSelected: function(){
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{
+          this.$store.dispatch('handleQuery');
+          this.$store.dispatch('buildURL');
+        }, 1000);
+      },
+      araSelected: function(){
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{
+          this.$store.dispatch('handleQuery');
+          this.$store.dispatch('buildURL');
+        }, 1000);
+      },
       generalMode: function(){
         this.reset();
       },
-      APINames: function (o) {
-        let html = '';
-        if (o.length) {
-          document.getElementById('query-input').innerHTML = ''
-          for (var i = 0, len = o.length; i < len; i++) {
-            let item = o[i]
-            html += `<option value="` + item + `">`;
-          }
-          document.getElementById('query-input').innerHTML = html
-        }
-      },
+      // KPNames: function (o) {
+      //   let html = '';
+      //   if (o.length) {
+      //     document.getElementById('query-input').innerHTML = ''
+      //     for (var i = 0, len = o.length; i < len; i++) {
+      //       let item = o[i]
+      //       html += `<option value="` + item + `">`;
+      //     }
+      //     document.getElementById('query-input').innerHTML = html
+      //   }
+      // },
     },
     methods: {
       readableName(text){
@@ -542,12 +598,18 @@ export default {
   }
   #cy {
     width: 70vw;
-    height: 800px;
+    height: 700px;
     display: block;
     border: 2px #dddddd solid;
     background-color:white;
     overflow: hidden;
     margin: auto;
+  }
+  .graph-btn-container{
+    position: absolute;
+    right: 6vw;
+    top: 10px;
+    z-index: 100;
   }
   .operations-menu{
     max-height: 800px;

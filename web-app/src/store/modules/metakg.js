@@ -20,7 +20,6 @@ export const metakg = {
         "object_options": [],
         "subject_options": [],
         "predicate_options": [],
-        "apis_options": [],
         "object": [],
         "subject": [],
         "predicate": [],
@@ -37,7 +36,7 @@ export const metakg = {
         'overEdgeLimit': false,
         'showAllEdges': true,
         //set to 0 if no max
-        'maxEdgesRendered': 1500,
+        'maxEdgesRendered': 5000,
         'edgeData': [],
         'nodeData':[],
         'showSelfReferenced': true,
@@ -53,11 +52,21 @@ export const metakg = {
         'expand': new Set(),
         'displayedSubjects': new Set(),
         'displayedObjects': new Set(),
+        "kp_options": [],
+        "ara_options": [],
         'kp': false,
         'ara': false,
+        'araSelected': "",
+        'kpSelected': "",
      }),
     strict: true,
     mutations: {
+        setKPSelected(state, payload){
+            state.kpSelected = payload
+        },
+        setARASelected(state, payload){
+            state.araSelected = payload
+        },
         setKP(state, payload){
             state.kp = payload
         },
@@ -90,9 +99,13 @@ export const metakg = {
             state.predicate_options = payload;
             console.log(state.predicate_options.length + " predicates saved")
         },
-        saveAPIs(state, payload){
-            state.apis_options = payload;
-            console.log(state.apis_options.length + " API names saved")
+        saveKPs(state, payload){
+            state.kp_options = payload;
+            console.log(state.kp_options.length + " KP names saved")
+        },
+        saveARAs(state, payload){
+            state.ara_options = payload;
+            console.log(state.ara_options.length + " ARA names saved")
         },
         saveTotal(state, payload){
             state.total = payload;
@@ -765,6 +778,33 @@ export const metakg = {
                 commit('setSize', params.get('size'))
             }
 
+            if (params.get('api.x-translator.component')) {
+                if (params.get('api.x-translator.component').toLowerCase() == 'kp') {
+                    commit('setKP', true);
+                    if (params.get('api.name')) {
+                        commit('setKPSelected', params.get('api.name'));
+                    }
+                }
+                else if (params.get('api.x-translator.component').toLowerCase() == 'ara') {
+                    commit('setARA', true);
+                    if (params.get('api.name')) {
+                        commit('setARASelected', params.get('api.name'));
+                    }
+                }
+            }
+
+            if (params.get('api.name')) {
+                if (params.get('api.x-translator.component').toLowerCase() == 'kp') {
+                    commit('setKPSelected', params.get('api.name'));
+                }
+                else if (params.get('api.x-translator.component').toLowerCase() == 'ara') {
+                    commit('setARASelected', params.get('api.name'));
+                }else{
+                    //default
+                    commit('setKPSelected', params.get('api.name'));
+                }
+            }
+
             if (params.get('expand')) {
                 params.get('expand').split('.').forEach((value) => {
                     commit('expandThis', value)
@@ -854,29 +894,25 @@ export const metakg = {
                 urlParams['expand'] = [...state.expand] + '';
             }
 
-            if (state.query_term) {
-                if(!state.kp && !state.ara){
-                    urlParams['q'] = state.query_term;
+            if (state.kp || state.ara || state.query_term 
+                || state.kpSelected || state.araSelected) {
+                let q_terms = [];
+                if (state.kp) {
+                    q_terms.push('api.x-translator.component:KP')
                 }
-                if (state.ara && !state.kp) {
-                    urlParams['q'] = `("${state.query_term}" AND api.x-translator.component:ARA)`
+                if (state.kpSelected) {
+                    q_terms.push('api.name:' + `"${state.kpSelected}"`)
                 }
-                else if (!state.ara && state.kp) {
-                    urlParams['q'] = `("${state.query_term}" AND api.x-translator.component:KP)`
+                if (state.araSelected) {
+                    q_terms.push('api.name:' + `"${state.araSelected}"`)
                 }
-                else if (state.ara && state.kp) {
-                    urlParams['q'] = `("${state.query_term}" AND api.x-translator.component:KP OR api.x-translator.component:ARA)`
+                if (state.ara) {
+                    q_terms.push('api.x-translator.component:ARA')
                 }
-            }else{
-                if (state.ara && !state.kp) {
-                    urlParams['q'] = `(api.x-translator.component:ARA)`
+                if (state.query_term) {
+                    q_terms.push(`"${state.query_term}"`)
                 }
-                else if (!state.ara && state.kp) {
-                    urlParams['q'] = `(api.x-translator.component:KP)`
-                }
-                else if (state.ara && state.kp) {
-                    urlParams['q'] = `(api.x-translator.component:KP OR api.x-translator.component:ARA)`
-                }
+                urlParams['q'] = `(${q_terms.join(' AND ')})`
             }
 
             urlParams['facet_size'] = 300;
@@ -933,6 +969,30 @@ export const metakg = {
         let url = new URL(finalURL);
 
         let params = new URLSearchParams(url.search.slice(1));
+
+        if (state.kp) {
+            params.set('api.x-translator.component', "KP");
+        }
+
+        if (state.ara) {
+            params.set('api.x-translator.component', "ARA");
+        }
+
+        if (state.kpSelected) {
+            params.set('api.name', state.kpSelected);
+        }
+
+        if (state.araSelected) {
+            params.set('api.name', state.araSelected);
+        }
+        // reset KP/ARA filters  if not active
+        if (!state.kp && !state.ara){
+            params.delete('api.x-translator.component');
+        }
+
+        if( !state.kpSelected && !state.araSelected){
+            params.delete('api.name');
+        }
 
         if (state.predicate_selected.length) {
             //something is selected
@@ -1010,7 +1070,7 @@ export const metakg = {
             dispatch('getSubjects');
             dispatch('getObjects');
             dispatch('getPredicates');
-            dispatch('getAPINames');
+            dispatch('getComponentNames');
         },
         getSubjects({state, commit}){
             if (!state.subject_options.length) {
@@ -1043,13 +1103,22 @@ export const metakg = {
                 });
             }
         },
-        getAPINames({state, commit}){
-            if (!state.apis_options.length) {
-                axios.get(state.baseURL + '?aggs=api.name.raw&facet_size=200').then(res=>{
+        getComponentNames({state, commit}){
+            if (!state.kp_options.length) {
+                axios.get(state.baseURL + '?size=0&q=(api.x-translator.component:KP)&facet_size=300&aggs=api.name.raw').then(res=>{
                     let data = res.data?.facets?.['api.name.raw']?.terms.map(item => item.term).sort();
-                    commit('saveAPIs', data);
+                    commit('saveKPs', data);
                 }).catch(err=>{
-                    console.log('Failed to get api names', err);
+                    console.log('Failed to get KP names', err);
+                });
+            }
+
+            if (!state.ara_options.length) {
+                axios.get(state.baseURL + '?size=0&q=(api.x-translator.component:ARA)&facet_size=300&aggs=api.name.raw').then(res=>{
+                    let data = res.data?.facets?.['api.name.raw']?.terms.map(item => item.term).sort();
+                    commit('saveARAs', data);
+                }).catch(err=>{
+                    console.log('Failed to get ARA names', err);
                 });
             }
         },
@@ -1118,6 +1187,18 @@ export const metakg = {
         kp: (state) => {
             return state.kp
         },
+        KPNames: (state) => {
+            return state.kp_options
+        },
+        ARANames: (state) => {
+            return state.ara_options
+        },
+        kpSelected: (state) => {
+            return state.kpSelected
+        },
+        araSelected: (state) => {
+            return state.araSelected
+        },
         ara: (state) => {
             return state.ara
         },
@@ -1129,9 +1210,6 @@ export const metakg = {
         },
         subjectTotalFromResponse: (state) => {
             return state.subjectTotalFromResponse
-        },
-        APINames: (state) => {
-            return state.apis_options
         },
         query_term: (state) => {
             return state.query_term
