@@ -22,7 +22,11 @@ class WebAppHandler(RequestHandler):
 
 
 if __name__ == "__main__":
-    crontab("0 0 * * *", func=run_routine, start=True)
+
+    from tornado.options import options
+    if not options.debug:
+        crontab("0 0 * * *", func=run_routine, start=True)
+
     IOLoop.current().add_callback(setup)
     main(
         [

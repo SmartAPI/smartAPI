@@ -225,6 +225,10 @@ def routine():
     refresh_document()
     logger.info("check_uptime()")
     check_uptime()
+    logger.info("refresh_metakg()")
+    refresh_metakg()
+    logger.info("consolidate_metakg()")
+    consolidate_metakg()
 
 
 if __name__ == "__main__":
