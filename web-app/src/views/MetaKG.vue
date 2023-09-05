@@ -154,7 +154,12 @@
             </tr>
           </tbody>
         </table>
-        <details v-for="hit in results" :key="hit?._id" class="border-b p-1 white" style="overflow: hidden; border-radius: 5px;">
+        <details v-for="hit in results" 
+        :key="hit?._id" 
+        class="border-b p-1 white edge-summary"
+        @mouseenter="highlightRow(hit)" 
+        @mouseleave="unhighlightRow(hit)" 
+        style="overflow: hidden; border-radius: 5px;">
           <summary>
             <table class="sm-table" style="font-size: x-small;">
               <tr>
@@ -186,9 +191,7 @@
           </summary>
           <table class="edge-table" style="font-size: x-small;">
             <tr 
-            v-for="item in hit?.api" :key="item.id" 
-            @mouseenter="highlightRow(hit)" 
-            @mouseleave="unhighlightRow(hit)" >
+            v-for="item in hit?.api" :key="item.id" >
                 <td>
                   <small>{{ item.name }}</small>
                 </td>
@@ -206,7 +209,7 @@
           </table>
         </details>
       </div>
-      <div class="col s9" v-if="usingCytoscape">
+      <div class="col s9">
         <div style="position: relative;">
           <div id="cy" style="position: absolute;"></div>
           <div class="graph-btn-container">
@@ -233,42 +236,7 @@
           </div>
         </div>
       </div>
-      <div v-else class="col s9" id="3d-graph"></div>
     </div>
-
-    <div class="grey lighten-2 rounded p-1 m-2">
-      <div class="container">
-        <div>
-          <button class="pointer smallButton m-1" @click="showSettings = !showSettings">
-            <i class="fa fa-cog" aria-hidden="true"></i> Display Settings
-          </button>
-          <div v-if="showSettings" class="p-1 white rounded collection blue-text">
-            <div class="collection-item yellow lighten-3 red-text">
-              Please allow enough time to update after clicking on each setting
-            </div>
-            <div class="collection-item">
-              <input type="checkbox" id="test1" v-model="SR" @click="toggleSR"/>
-              <label for="test1">
-                <small>Check to render relationships by <b class="black-text">self-referencing nodes</b>. This requires a different method of rendering impacting performance <b>negatively</b>.</small>
-              </label>
-            </div>
-            <div class="collection-item">
-              <input type="checkbox" id="withLimit" v-model="edgeLimitBool" @click="withLimit = !withLimit"/>
-              <label for="withLimit">
-                <small>Click here to enforce <b class="black-text">max number of edges (5000)</b> to <b>improve</b> performance.</small>
-              </label>
-            </div>
-            <div class="collection-item">
-              <input type="checkbox" id="usingCytoscape" v-model="usingCytoscape"/>
-              <label for="usingCytoscape">
-                <small>Click here to render the results using CytoscapeJS instead of using a 3D Model.</small>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 </main>
 </template>
@@ -292,9 +260,6 @@ export default {
       return {
         'hoverInfo': {},
         'showOperations': false,
-        'SR': true,
-        'withLimit': false,
-        'showSettings': false,
       }
     },
     computed: {
@@ -315,19 +280,8 @@ export default {
       edgeLimit: function(){
         return this.$store.getters.getLimit
       },
-      edgeLimitBool: function(){
-        return this.$store.getters.getLimitBool
-      },
       total: function(){
         return this.$store.getters.total
-      },
-      usingCytoscape: {
-        get () {
-          return this.$store.getters.usingCytoscape
-        },
-        set (v) {
-          return this.$store.commit('setRenderer', {value: v})
-        }
       },
       size: {
         get () {
@@ -345,6 +299,11 @@ export default {
           if (!v) {
             // if no KP filter reset KP Selected
             this.$store.commit('setKPSelected', "");
+          }
+          // toggle KP off
+          if (v) {
+            this.$store.commit('setARA', false);
+            this.$store.commit('setARASelected', '');
           }
           return this.$store.commit('setKP', v);
         }
@@ -374,6 +333,11 @@ export default {
             // if no KP filter reset KP Selected
             this.$store.commit('setARASelected', "");
           }
+          // toggle ARA off
+          if (v) {
+            this.$store.commit('setKP', false);
+            this.$store.commit('setKPSelected', "");
+          }
           return this.$store.commit('setARA', v);
         }
       },
@@ -391,15 +355,6 @@ export default {
         if(!v.length){
           this.$toast.error('No results');
         }
-      },
-      withLimit: function (v) {
-        v ? this.$store.commit('setMax', {value: 5000}) : this.$store.commit('setMax', {value: 0})
-        this.$toast.success('Updating Results...');
-        setTimeout(()=>{this.$store.dispatch('handleQuery')}, 1000);
-      },
-      usingCytoscape: function () {
-        this.$toast.success('Updating Results...');
-        setTimeout(()=>{this.$store.dispatch('handleQuery')}, 1000);
       },
       overEdgeLimit: function(v){
         if(v > 0){
@@ -462,11 +417,6 @@ export default {
         // this.generalMode = v;
         this.$store.commit('setMode', v);
       },
-      toggleSR(){
-        this.$store.commit('toggleSelfReferenced');
-        this.$toast.success('Updating Display...');
-        setTimeout(()=>{this.$store.dispatch('draw')}, 1000);
-      },
       numberWithCommas(x) {
           return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
       },
@@ -479,28 +429,22 @@ export default {
         }, 300);  
       },
       download() {
-        if (this.usingCytoscape) this.$store.dispatch('download');
+        this.$store.dispatch('download');
       },
       highlightRow: function (item) {
-        if (this.usingCytoscape) {
-          this.hoverInfo = item
-          this.$store.dispatch('highlightRow', {item: item})
-        }
+        this.hoverInfo = item
+        this.$store.dispatch('highlightRow', {item: item})
       },
       highlightRowAndZoom: function (item) {
-        if (this.usingCytoscape) {
-          this.hoverInfo = item
-          this.$store.dispatch('highlightRowAndZoom', {item: item})
-        }
+        this.hoverInfo = item
+        this.$store.dispatch('highlightRowAndZoom', {item: item})
       },
       unhighlightRow: function (item) {
-        if (this.usingCytoscape) {
-          let edgeName = item['api']['name'] + ' : ' + item['predicate'];
-          this.$store.dispatch('unhighlightRow', {unhighlight: edgeName, item: item})
-        }
+        let edgeName = item['api']['name'] + ' : ' + item['predicate'];
+        this.$store.dispatch('unhighlightRow', {unhighlight: edgeName, item: item})
       },
       recenterGraph() {
-        if (this.usingCytoscape) this.$store.dispatch('recenterGraph')
+        this.$store.dispatch('recenterGraph')
       },
       checkForQuery(){
           let finalURL = window.location.href
@@ -516,6 +460,9 @@ export default {
 </script>
 
 <style>
+  summary::marker{
+    color: rgb(24, 228, 255);
+  }
   .query-input{
     background-color: azure;
     padding: 10px;
@@ -532,11 +479,11 @@ export default {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6bdbdbd', endColorstr='#00bdbdbd',GradientType=0 ); /* IE6-9 */
 
   }
+  .edge-summary:hover{
+    background-color: #f5eefd !important;
+  }
   .edge-table tr:nth-child(odd){
     background-color: #e7e7e7;
-  }
-  .edge-table tr:hover{
-    background-color: #f9ffa4;
   }
   .p-0{
     padding: 0;

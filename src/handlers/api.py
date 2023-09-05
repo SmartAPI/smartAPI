@@ -415,7 +415,7 @@ class MetaKGQueryHandler(QueryHandler):
             },
             "default_view": {
                 "type": str,
-                "default": "json",
+                "default": "cytoscape",
                 "enum": ("json", "cytoscape"),
             },
             "header": {

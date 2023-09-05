@@ -2,8 +2,6 @@ import cytoscape from 'cytoscape'
 import popper from 'cytoscape-popper';
 import tippy from 'tippy.js';
 import swal from 'vue-sweetalert2'
-import ForceGraph3D from '3d-force-graph';
-import {CSS2DRenderer, CSS2DObject} from 'three-css2drender'
 import axios from 'axios'
 
 cytoscape.use(popper);
@@ -13,7 +11,7 @@ cytoscape.use(popper);
 
 export const metakg = {
     state: () => ({ 
-        "baseURL": process.env.NODE_ENV == "development" ? "http://localhost:8000/api/metakg/consolidated" : "/api/metakg/consolidated",
+        "baseURL": process.env.NODE_ENV == "development" ? "http://localhost:8000/api" : "/api",
         "finalURL": '',
         "meta_kg": null,
         "results": [],
@@ -39,8 +37,6 @@ export const metakg = {
         'maxEdgesRendered': 5000,
         'edgeData': [],
         'nodeData':[],
-        'showSelfReferenced': true,
-        'usingCytoscape': true,
         'size': 20,
         'edgeColors': {},
         'total': 0,
@@ -125,15 +121,6 @@ export const metakg = {
         toggleLoading(state, payload) {
             state.loading = payload['loading'];
         },
-        toggleSelfReferenced(state) {
-            state.showSelfReferenced = !state.showSelfReferenced
-        },
-        setMax(state, payload) {
-            state.maxEdgesRendered = payload['value']
-        },
-        setRenderer(state, payload) {
-            state.usingCytoscape = payload['value']
-        },
         reset(state) {
             // only clear if it has something or it will trigger a search unnecessarily on other components
             if (state.predicate_selected.length) {
@@ -181,73 +168,7 @@ export const metakg = {
         saveMetaKG(state, payload) {
             state.meta_kg = payload['metakg']
         },
-        drawGraph(state) {
-            let data = {
-                nodes: state.nodeData.map(d=>d.data),
-                links: state.edgeData.map(d=>d.data)
-            }
-            const elem = document.getElementById('3d-graph');
-            // console.log("DATA", data)
-            const Graph = ForceGraph3D({
-                extraRenderers: [new CSS2DRenderer()]
-            })
-            Graph(elem);
-            Graph.forceEngine('ngraph')
-                .cooldownTicks(10)
-                .nodeAutoColorBy('user')
-                .graphData(data)
-                .width(1200)
-                .nodeResolution(16)
-                .height(900)
-                .backgroundColor('white')
-                .nodeThreeObject(node => {
-                    const nodeEl = document.createElement('div');
-                    nodeEl.textContent = node.id;
-                    nodeEl.style.color = '#f2f2f2';
-                    nodeEl.className = 'node-label';
-                    return new CSS2DObject(nodeEl);
-                })
-                .nodeThreeObjectExtend(true)
-                .enableNavigationControls(true)
-                // TODO not working or wonky movement
-                // .onNodeHover(node => elem.style.cursor = node ? 'pointer' : null)
-                // .onNodeClick(node => {
-                //     // Aim at node from outside it
-                //     console.log('NODE', node)
-                //     if(node?.__threeObj?.position?.x){
-                //         const distance = 80;
-                //         const distRatio = 1 + distance/Math.hypot(node.__threeObj.position.x, node.__threeObj.position.y, node.__threeObj.position.z);
-                //         Graph.cameraPosition(
-                //             { x: node.__threeObj.position.x * distRatio, y: node.__threeObj.position.y * distRatio, z: node.__threeObj.position.z * distRatio }, // new position
-                //             node, // lookAt ({ x, y, z })
-                //             2000  // ms transition duration
-                //         );
-                //     }
-                // })
-                // .enableNodeDrag(true)
-                // .onNodeDragEnd(node => {
-                //     if(node?.__threeObj?.position?.x){
-                //         node.fx = node?.__threeObj?.position?.x;
-                //         node.fy = node?.__threeObj?.position?.y;
-                //         node.fz = node?.__threeObj?.position?.z;
-                //     }
-                // })
-                .linkLabel('html')
-                .onLinkHover(node => elem.style.cursor = node ? 'pointer' : null)
-                .onLinkClick(link => {
-                    window.open('/registry?q='+link.smartapi_id, '_blank');
-                });
-
-            if(state.showSelfReferenced){
-                Graph
-                // .linkDirectionalArrowLength(1)
-                // .linkDirectionalArrowRelPos(1)
-                .linkCurvature(0.25)
-            }
-            // fit to canvas when engine stops
-            Graph.onEngineStop(() => Graph.zoomToFit(500));
-        },
-        drawGraphCyto(state) {
+        draw(state) {
             // const t0 = performance.now();
             function readableName(text){
                 const result = text.replace(/([A-Z])/g, " $1");
@@ -308,30 +229,12 @@ export const metakg = {
                         style:{
                         'z-index': 1000,
                         'color': '#9c27b0',
-                        // 'font-size': '2.5em',
-                        'width': 5,
                         'opacity':1,
                         'line-color': '#f24141',
                         'target-arrow-color': '#f24141',
                         'arrow-scale': 1
                         }
-                    },
-                    {
-                        selector: '.highlightedTag',
-                        style:{
-                        'line-color': '#673782',
-                        'target-arrow-color': '#f24141',
-                        'width': 10,
-                        }
-                    },
-                    {
-                        selector: '.highlightedAPI',
-                        style:{
-                        'line-color': 'red',
-                        'target-arrow-color': '#f24141',
-                        'width': 10,
-                        }
-                    },
+                    }
                 ]
             })
 
@@ -452,9 +355,8 @@ export const metakg = {
         saveOperations(state, payload) {
         state.operations = payload['ops'];
         },
-        createGraphDataAPI(state, payload) {
+        formatGraphData(state, payload) {
             let results = payload['res'];
-            // console.log(JSON.stringify(results[0], null, 2))
             //Initial data Processing
             const t0 = performance.now();
             //all nodes and edges
@@ -582,7 +484,7 @@ export const metakg = {
                     }
                 }
                 n.data.shape = getNodeShape(node)
-                n.data.name = state.usingCytoscape ? readableName(node) : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+ readableName(node) +'</h4></div>';
+                n.data.name = readableName(node);
                 all_nodes.push(n)
             });
             // cap edges if max
@@ -606,7 +508,7 @@ export const metakg = {
                         }
                     }
                     n.data.shape = getNodeShape(item)
-                    n.data.name = state.usingCytoscape ? readableName(item) : '<div class="purple white-text p-1 center-align rounded"><h4 class="m-1">'+ readableName(item) +'</h4></div>';
+                    n.data.name = readableName(item);
                     min_final.push(n)
                 })
                 all_nodes = min_final
@@ -742,8 +644,8 @@ export const metakg = {
         }
      },
     actions: {
-        draw({commit, state}){
-            state.usingCytoscape ? commit('drawGraphCyto') : commit('drawGraph');
+        draw({commit}){
+            commit('draw');
         },
         handleParams({commit, dispatch}, payload) {
             // let found = false;
@@ -823,7 +725,7 @@ export const metakg = {
             dispatch('handleQuery')
         },
         recenterGraph({state}) {
-            if (state.usingCytoscape) state.cy.fit();
+            state.cy.fit();
         },
         highlightThis({state}, payload) {
         let name = payload['highlight']
@@ -924,10 +826,10 @@ export const metakg = {
             let g = null 
             console.log("%c " + JSON.stringify( urlParams, null, 2), "color:green; background:lightyellow; padding:5px;")
             // commit('toggleLoading', {loading: true})
-            axios.get(state.baseURL, {'params': urlParams}).then((res) => {
+            axios.get(state.baseURL + '/metakg/consolidated', {'params': urlParams}).then((res) => {
                 commit('buildAPIURL', urlParams)
                 g = res.data?.hits || []
-                commit('createGraphDataAPI', {res: g});
+                commit('formatGraphData', {res: g});
                 commit('saveTotal', res.data.total);
                 commit('saveAPITotal', res.data?.facets?.['api.name.raw']?.terms);
                 commit('saveObjectTotal', res.data?.facets?.['object.raw']?.terms);
@@ -1078,7 +980,7 @@ export const metakg = {
         },
         getSubjects({state, commit}){
             if (!state.subject_options.length) {
-                axios.get(state.baseURL + '?aggs=subject.raw&facet_size=200').then(res=>{
+                axios.get(state.baseURL + '/metakg/consolidated?aggs=subject.raw&facet_size=200').then(res=>{
                     let data = res.data?.facets?.['subject.raw']?.terms.map(item => item.term).sort();
                     commit('saveSubjects', data);
                 }).catch(err=>{
@@ -1088,7 +990,7 @@ export const metakg = {
         },
         getObjects({state, commit}){
             if (!state.object_options.length) {
-                axios.get(state.baseURL + '?aggs=object.raw&facet_size=200').then(res=>{
+                axios.get(state.baseURL + '/metakg/consolidated?aggs=object.raw&facet_size=200').then(res=>{
                     let data = res.data?.facets?.['object.raw']?.terms.map(item => item.term).sort();
                     commit('saveObjects', data);
                 }).catch(err=>{
@@ -1099,7 +1001,7 @@ export const metakg = {
         },
         getPredicates({state, commit}){
             if (!state.predicate_options.length) {
-                axios.get(state.baseURL + '?aggs=predicate&facet_size=500').then(res=>{
+                axios.get(state.baseURL + '/metakg/consolidated?aggs=predicate&facet_size=500').then(res=>{
                     let data = res.data?.facets?.predicate?.terms.map(item => item.term).sort();
                     commit('savePredicates', data);
                 }).catch(err=>{
@@ -1109,8 +1011,8 @@ export const metakg = {
         },
         getComponentNames({state, commit}){
             if (!state.kp_options.length) {
-                axios.get(state.baseURL + '?size=0&q=(api.x-translator.component:KP)&facet_size=300&aggs=api.name.raw').then(res=>{
-                    let data = res.data?.facets?.['api.name.raw']?.terms.map(item => item.term).sort();
+                axios.get(state.baseURL + '/query?q=info.x-translator.component:KP&aggs=info.title.raw').then(res=>{
+                    let data = res.data?.facets?.['info.title.raw']?.terms.map(item => item.term).sort();
                     commit('saveKPs', data);
                 }).catch(err=>{
                     console.log('Failed to get KP names', err);
@@ -1118,8 +1020,8 @@ export const metakg = {
             }
 
             if (!state.ara_options.length) {
-                axios.get(state.baseURL + '?size=0&q=(api.x-translator.component:ARA)&facet_size=300&aggs=api.name.raw').then(res=>{
-                    let data = res.data?.facets?.['api.name.raw']?.terms.map(item => item.term).sort();
+                axios.get(state.baseURL + '/query?q=info.x-translator.component:ARA&aggs=info.title.raw').then(res=>{
+                    let data = res.data?.facets?.['info.title.raw']?.terms.map(item => item.term).sort();
                     commit('saveARAs', data);
                 }).catch(err=>{
                     console.log('Failed to get ARA names', err);
@@ -1166,15 +1068,6 @@ export const metakg = {
         },
         getLimit: (state) => {
             return state.maxEdgesRendered
-        },
-        showSelfReferenced: (state) => {
-            return state.showSelfReferenced
-        },
-        getLimitBool: (state) => {
-            return state.maxEdgesRendered ? true : false
-        },
-        usingCytoscape: (state) => {
-            return state.usingCytoscape
         },
         size: (state) => {
             return state.size
