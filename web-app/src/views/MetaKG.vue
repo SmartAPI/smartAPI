@@ -517,12 +517,6 @@ export default {
     margin: 0px 5px;
     border-radius: 10px;
   }
-  /* .expand-select{
-    height: 30px;
-    padding: 2px;
-    margin: 0px 5px;
-    border-radius: 10px;
-  } */
   .component-select{
     display: inline-block !important;
     width: 100px;
