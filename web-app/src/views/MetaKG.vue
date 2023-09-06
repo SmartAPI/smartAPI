@@ -447,8 +447,8 @@ export default {
         this.$store.dispatch('recenterGraph')
       },
       checkForQuery(){
-          let finalURL = window.location.href
-          let url = new URL(finalURL);
+          let current_url = window.location.href
+          let url = new URL(current_url);
           this.$store.dispatch('handleParams', {params: url.search.slice(1)});
       }
     },

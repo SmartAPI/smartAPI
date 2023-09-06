@@ -634,12 +634,18 @@ export const metakg = {
         }
         },
         buildAPIURL(state, payload){
+            //keys we don't want to include
+            let ignore_list = ['aggs', 'facet_size'];
+
             let base = state.baseURL.includes('http') ? 
             state.baseURL : window.location.origin + state.baseURL;
-            let url = new URL(base);
+            let url = new URL(base + '/metakg/consolidated');
             for (const key in payload) {
-                url.searchParams.append(key, payload[key]);
+                if (!ignore_list.includes(key)) {
+                    url.searchParams.append(key, payload[key]);
+                }
             }
+            // for link to raw data on UI
             state.finalURL = url.href;
         }
      },
@@ -777,7 +783,14 @@ export const metakg = {
         },
         handleQuery({commit, state, dispatch}) {
             console.log("%c New Query", "background: blue; padding: 5px; color: yellow;")
-            // let q = {}
+            function escapeChars(string) {
+                ['(', ')'].forEach((item) => {
+                    if (string.includes(item)) {
+                        string = string.replaceAll(item, '\\' + item)
+                    }
+                })
+                return string
+            }
             let urlParams = {}
             if (state.object && state.object.length) {
                 urlParams['object'] = state.object + ''
@@ -807,10 +820,10 @@ export const metakg = {
                     q_terms.push('api.x-translator.component:KP')
                 }
                 if (state.kpSelected) {
-                    q_terms.push('api.name:' + `"${state.kpSelected}"`)
+                    q_terms.push('api.name:' + `${escapeChars(state.kpSelected)}`)
                 }
                 if (state.araSelected) {
-                    q_terms.push('api.name:' + `"${state.araSelected}"`)
+                    q_terms.push('api.name:' + `${escapeChars(state.araSelected)}`)
                 }
                 if (state.ara) {
                     q_terms.push('api.x-translator.component:ARA')
@@ -871,7 +884,6 @@ export const metakg = {
 
         let base = window.location.origin + window.location.pathname
         let finalURL = window.location.href
-        // console.log('finalURL START',finalURL)
         let url = new URL(finalURL);
 
         let params = new URLSearchParams(url.search.slice(1));
