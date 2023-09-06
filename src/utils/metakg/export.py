@@ -53,21 +53,39 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
     graph.set("id", "G")
     graph.set("edgedefault", edge_default)  # directed/undirected
 
-    # iterate over edges and fill in data
+    # Create a dictionary to store unique node data
+    nodes_data = {}
+
+    # iterate over edges and fill in node data
     for data in edges:
+        subject_id = data["subject"]  # Get the subject node ID
+        object_id = data["object"]    # Get the object node ID
+
+        # Only store the subject node data if its ID is unique
+        if subject_id not in nodes_data:
+            nodes_data[subject_id] = subject_id
+
+        # Only store the object node data if its ID is unique
+        if object_id not in nodes_data:
+            nodes_data[object_id] = object_id
+
+    # Now, iterate over the stored node data and create the nodes
+    for node_id, node_label in nodes_data.items():
         node = ET.SubElement(graph, "node")
-        node_id = data["subject"]  # Get the node ID
-        node.set("id", data["subject"])
+        node.set("id", node_id)
 
         data_node = ET.SubElement(node, "data")
         data_node.set("key", "d1")
-        data_node.text = data["subject"]
+        data_node.text = node_label
 
-        unique_node_ids.add(node_id)
+    # Next, iterate over the edges and create the edge data
+    for data in edges:
+        subject_id = data["subject"]
+        object_id = data["object"]
 
         edge = ET.SubElement(graph, "edge")
-        edge.set("source", data["subject"])
-        edge.set("target", data["object"])
+        edge.set("source", subject_id)
+        edge.set("target", object_id)
 
         data_edge = ET.SubElement(edge, "data")
         data_edge.set("key", "d2")
