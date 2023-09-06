@@ -1023,7 +1023,7 @@ export const metakg = {
         },
         getComponentNames({state, commit}){
             if (!state.kp_options.length) {
-                axios.get(state.baseURL + '/query?q=info.x-translator.component:KP&aggs=info.title.raw').then(res=>{
+                axios.get(state.baseURL + '/query?q=info.x-translator.component:KP&aggs=info.title.raw&size=0&facet_size=300').then(res=>{
                     let data = res.data?.facets?.['info.title.raw']?.terms.map(item => item.term).sort();
                     commit('saveKPs', data);
                 }).catch(err=>{
@@ -1032,7 +1032,7 @@ export const metakg = {
             }
 
             if (!state.ara_options.length) {
-                axios.get(state.baseURL + '/query?q=info.x-translator.component:ARA&aggs=info.title.raw').then(res=>{
+                axios.get(state.baseURL + '/query?q=info.x-translator.component:ARA&aggs=info.title.raw&size=0&facet_size=300').then(res=>{
                     let data = res.data?.facets?.['info.title.raw']?.terms.map(item => item.term).sort();
                     commit('saveARAs', data);
                 }).catch(err=>{
