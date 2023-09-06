@@ -92,7 +92,7 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
         data_edge.text = data["predicate"]
 
     # Calculate the node count
-    node_count = len(unique_node_ids)
+    node_count = len(nodes_data)
 
     # tree = ET.ElementTree(root)
     graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()
