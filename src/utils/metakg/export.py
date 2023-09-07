@@ -32,6 +32,11 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
 
     root = ET.Element("graphml")  # set root
     root.set("xmlns", "http://graphml.graphdrawing.org/xmlns")
+    root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    root.set(
+        "xsi:schemaLocation",
+        "http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd",
+    )
 
     # Define key for node data
     key_node = ET.SubElement(root, "key")
@@ -83,9 +88,8 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
         data_edge.set("key", "d2")
         data_edge.text = data["predicate"]
 
-
-
     # tree = ET.ElementTree(root)
+    ET.indent(root)  # note: indent method is new in Python 3.9
     graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()
     title_text = "This GraphML export was generated from this SmartAPI MetaKG (Meta KnowledgeGraph) query:"
     api_call_text = f"{protocol}://{host}{api_call}"
