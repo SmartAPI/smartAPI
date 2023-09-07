@@ -22,8 +22,8 @@ class WebAppHandler(RequestHandler):
 
 
 if __name__ == "__main__":
-
     from tornado.options import options
+
     if not options.debug:
         crontab("0 0 * * *", func=run_routine, start=True)
 

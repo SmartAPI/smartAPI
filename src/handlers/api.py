@@ -401,7 +401,7 @@ class MetaKGQueryHandler(QueryHandler):
             "object": {"type": list, "max": 1000},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
-            "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
+            "size": {"type": int, "max": 5000, "alias": "limit"},  # overwrite size limit for graphml export
             "download": {"type": bool, "default": True},
             "expand": {
                 "type": list,
@@ -459,10 +459,12 @@ class MetaKGQueryHandler(QueryHandler):
         """
         try:
             if self.format == "graphml":
-                chunk = edges2graphml(chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed")
+                chunk = edges2graphml(
+                    chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed"
+                )
                 self.set_header("Content-Type", "text/graphml; charset=utf-8")
                 if self.args.download:
-                    self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
+                    self.set_header("Content-Disposition", 'attachment; filename="smartapi_metakg.graphml"')
 
                 return super(BaseAPIHandler, self).write(chunk)
 
