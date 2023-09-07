@@ -50,32 +50,27 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
     graph.set("id", "G")
     graph.set("edgedefault", edge_default)  # directed/undirected
 
-    # Create a dictionary to store unique node data
-    nodes_data = {}
+    # Create a set to store unique node ids
+    nodes_set = set()
 
     # iterate over edges and fill in node data
     for data in edges:
-        subject_id = data["subject"]  # Get the subject node ID
-        object_id = data["object"]  # Get the object node ID
+        nodes_set |= set([data["subject"], data["object"]])
 
-        # Only store the subject node data if its ID is unique
-        if subject_id not in nodes_data:
-            nodes_data[subject_id] = subject_id
-
-        # Only store the object node data if its ID is unique
-        if object_id not in nodes_data:
-            nodes_data[object_id] = object_id
-
-    # Now, iterate over the stored node data and create the nodes
-    for node_id, node_label in nodes_data.items():
+    # Now, iterate over nodes_set and create the node elements
+    for node_id in sorted(nodes_set):
         node = ET.SubElement(graph, "node")
         node.set("id", node_id)
 
         data_node = ET.SubElement(node, "data")
         data_node.set("key", "d1")
-        data_node.text = node_label
+        data_node.text = node_id
 
-    # Next, iterate over the edges and create the edge data
+    # Calculate the node count
+    node_count = len(nodes_set)
+    del nodes_set
+
+    # Next, iterate over the edges and create the edge elements
     for data in edges:
         subject_id = data["subject"]
         object_id = data["object"]
@@ -88,8 +83,7 @@ def edges2graphml(chunk, api_call, protocol, host, edge_default="directed"):
         data_edge.set("key", "d2")
         data_edge.text = data["predicate"]
 
-    # Calculate the node count
-    node_count = len(nodes_data)
+
 
     # tree = ET.ElementTree(root)
     graphml_string = ET.tostring(root, encoding="utf-8", method="xml").decode()
