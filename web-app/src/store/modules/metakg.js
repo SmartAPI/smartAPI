@@ -40,7 +40,6 @@ export const metakg = {
         'size': 20,
         'edgeColors': {},
         'total': 0,
-        'apiTotalFromResponse': [],
         'subjectTotalFromResponse': [],
         'objectTotalFromResponse': [],
         'query_term': '',
@@ -105,9 +104,6 @@ export const metakg = {
         },
         saveTotal(state, payload){
             state.total = payload;
-        },
-        saveAPITotal(state, payload){
-            state.apiTotalFromResponse = payload;
         },
         saveObjectTotal(state, payload){
             state.objectTotalFromResponse = payload;
@@ -251,13 +247,13 @@ export const metakg = {
                 let ref = ele.popperRef();
                 ele.tippy = tippy(document.createElement('div'), {
                 getReferenceClientRect: ref.getBoundingClientRect,
-                hideOnClick: false,
+                // hideOnClick: false,
                 placement:'top-start',
-                trigger: 'manual', // mandatory
+                // trigger: 'manual', // mandatory
                 arrow: true,
                 interactive: true,
                 allowHTML: true,
-                delay: [0, 1000], //[show,hide]
+                // delay: [0, 1000], //[show,hide]
                 theme:'light',
                 // animation: false,
                 appendTo: document.body, // or append dummyDomEle to document.body
@@ -274,13 +270,13 @@ export const metakg = {
                 let ref = ele.popperRef();
                 ele.tippy = tippy(document.createElement('div'), {
                 getReferenceClientRect: ref.getBoundingClientRect,
-                hideOnClick: false,
-                trigger: 'manual', // mandatory
+                // hideOnClick: false,
+                // trigger: 'manual', // mandatory
                 placement:'top-start',
                 arrow: true,
                 allowHTML: true,
                 interactive: true,
-                delay: [0, 1000], //[show,hide]
+                // delay: [0, 1000], //[show,hide]
                 theme:'light',
                 appendTo: document.body, // or append dummyDomEle to document.body
                 onShow: function(instance){
@@ -329,7 +325,7 @@ export const metakg = {
 
             state.cy.elements().bind('click', (event) => {
                 event.target.select()
-                state.cy.fit(event.target, 75)
+                state.cy.fit(event.target, 200)
             });
 
             state.cy.elements().unbind('drag');
@@ -342,8 +338,8 @@ export const metakg = {
                 minNodeSpacing: 90,
             }).run();
 
-            state.cy.maxZoom(2)
-            state.cy.minZoom(.5)
+            // state.cy.maxZoom(2)
+            // state.cy.minZoom(.5)
 
             // const t1 = performance.now();
             // var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
@@ -835,7 +831,7 @@ export const metakg = {
             }
 
             urlParams['facet_size'] = 300;
-            urlParams['aggs'] = 'api.name.raw,object.raw,subject.raw';
+            urlParams['aggs'] = 'object.raw,subject.raw';
             let g = null 
             console.log("%c " + JSON.stringify( urlParams, null, 2), "color:green; background:lightyellow; padding:5px;")
             // commit('toggleLoading', {loading: true})
@@ -844,7 +840,6 @@ export const metakg = {
                 g = res.data?.hits || []
                 commit('formatGraphData', {res: g});
                 commit('saveTotal', res.data.total);
-                commit('saveAPITotal', res.data?.facets?.['api.name.raw']?.terms);
                 commit('saveObjectTotal', res.data?.facets?.['object.raw']?.terms);
                 commit('saveSubjectTotal', res.data?.facets?.['subject.raw']?.terms);
                 dispatch('draw');
@@ -1110,9 +1105,6 @@ export const metakg = {
         },
         ara: (state) => {
             return state.ara
-        },
-        apiTotalFromResponse: (state) => {
-            return state.apiTotalFromResponse
         },
         objectTotalFromResponse: (state) => {
             return state.objectTotalFromResponse

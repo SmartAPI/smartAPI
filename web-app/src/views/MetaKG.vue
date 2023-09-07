@@ -269,7 +269,6 @@ export default {
         'results',
         'KPNames',
         'ARANames',
-        'apiTotalFromResponse',
         'subjectTotalFromResponse',
         'objectTotalFromResponse',
         'displayedSubjects',
