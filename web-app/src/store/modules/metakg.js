@@ -186,15 +186,15 @@ export const metakg = {
                         "text-valign": "center",
                         "text-halign": "center",
                         'color': 'white',
-                        'font-size': '2em',
-                        'text-outline-width': 4,
+                        'font-size': '1em',
+                        'text-outline-width': 2,
                         'text-outline-color': state.generalMode ? '#103b56' : 'purple',
                         "background-fill": "radial-gradient",
                         "background-gradient-stop-colors": "data(colors)", // get data from data.color in each node
                         "background-gradient-stop-positions": "25 75 80",
                         'z-index': 1000,
-                        'width': 'data(weight)',
-                        'height': 'data(weight)'
+                        'width': '50',
+                        'height': '50'
                         }
                     },
                     {
@@ -208,7 +208,7 @@ export const metakg = {
                         style:{
                         'curve-style': 'bezier',
                         "label": "data(label)",
-                        'font-size': '2em',
+                        'font-size': '1em',
                         'text-outline-width': 2,
                         'text-outline-color': 'white',
                         'haystack-radius': 0,
@@ -216,7 +216,7 @@ export const metakg = {
                         'opacity':1,
                         'target-arrow-shape': 'triangle',
                         'target-arrow-color': 'limegreen',
-                        'width': "data(label)",
+                        'width': "data(weight)",
                         'z-index': 1,
                         }
                     },
@@ -249,7 +249,7 @@ export const metakg = {
                 getReferenceClientRect: ref.getBoundingClientRect,
                 // hideOnClick: false,
                 placement:'top-start',
-                // trigger: 'manual', // mandatory
+                trigger: 'manual', // mandatory
                 arrow: true,
                 interactive: true,
                 allowHTML: true,
@@ -271,7 +271,7 @@ export const metakg = {
                 ele.tippy = tippy(document.createElement('div'), {
                 getReferenceClientRect: ref.getBoundingClientRect,
                 // hideOnClick: false,
-                // trigger: 'manual', // mandatory
+                trigger: 'manual', // mandatory
                 placement:'top-start',
                 arrow: true,
                 allowHTML: true,
@@ -328,14 +328,14 @@ export const metakg = {
                 state.cy.fit(event.target, 200)
             });
 
-            state.cy.elements().unbind('drag');
-            state.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
+            // state.cy.elements().unbind('drag');
+            // state.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
 
             state.cy.layout({
                 name: "concentric",
                 avoidOverlap: true,
                 avoidOverlapPadding: 200,
-                minNodeSpacing: 90,
+                minNodeSpacing: 100,
             }).run();
 
             // state.cy.maxZoom(2)
@@ -443,6 +443,7 @@ export const metakg = {
                         // smartapi_id: id,
                         // component: op['api'][0]['x-translator']['component'],
                         label: op['api'].length,
+                        weight: op['api'].length/2 < 1 ? 1 : op['api'].length/2,
                         apis: op['api']
                     }
                 };
@@ -780,7 +781,7 @@ export const metakg = {
         handleQuery({commit, state, dispatch}) {
             console.log("%c New Query", "background: blue; padding: 5px; color: yellow;")
             function escapeChars(string) {
-                ['(', ')'].forEach((item) => {
+                ['(', ')', '.', '-'].forEach((item) => {
                     if (string.includes(item)) {
                         string = string.replaceAll(item, '\\' + item)
                     }
@@ -825,7 +826,7 @@ export const metakg = {
                     q_terms.push('api.x-translator.component:ARA')
                 }
                 if (state.query_term) {
-                    q_terms.push(`"${state.query_term}"`)
+                    q_terms.push(`${escapeChars(state.query_term)}`)
                 }
                 urlParams['q'] = `(${q_terms.join(' AND ')})`
             }
