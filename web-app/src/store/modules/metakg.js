@@ -730,6 +730,9 @@ export const metakg = {
         recenterGraph({state}) {
             state.cy.fit();
         },
+        resetGraph({commit}) {
+            commit('draw');
+        },
         highlightThis({state}, payload) {
         let name = payload['highlight']
         let found = state.cy.filter(function (element) {

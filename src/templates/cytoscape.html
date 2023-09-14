@@ -154,7 +154,13 @@
                         @click="recenterGraph()">
                             Re-center Graph
                         </button>
-                        <button class="smallButton" 
+                    <button class="smallButton" 
+                        style="margin-left: 10px;"
+                        title="Reset Layout"
+                        @click="loadCytoscape()">
+                            Reset Layout
+                        </button>
+                    <button class="smallButton" 
                         style="margin-left: 10px;"
                         title="Download Image"
                         @click="download()">

@@ -3,7 +3,7 @@
   <div class="p-1 grey lighten-3">
     <div class="center-align" style="margin-bottom:8px;">
       <router-link to="/portal/translator" class="red-text left">
-        Back to Portal
+        <i class="fa fa-chevron-left" aria-hidden="true"></i> Back to Portal
       </router-link>
       <h6 style="margin:5px; display:inline;">
           <Image class="scale-in-center" img_name="metakg-01.png" img_width="30px"
@@ -161,33 +161,21 @@
         @mouseleave="unhighlightRow(hit)" 
         style="overflow: hidden; border-radius: 5px;">
           <summary>
-            <table class="sm-table" style="font-size: x-small;">
-              <tr>
-                <td>
-                    <b> {{ readableName(hit.subject) }}</b>&nbsp;
-                    <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.subject">
-                      <i class="fa fa-external-link" aria-hidden="true"></i>
-                    </a>
-                </td>
-                <td>
-                  <b>
-                  {{ readableName(hit.predicate.replaceAll('_', ' ')) }} 
-                  <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.predicate">&nbsp;
-                    <i class="fa fa-external-link" aria-hidden="true"></i>
-                  </a>
-                </b>
-                </td>
-                <td>
-                    <b>{{ readableName(hit.object) }}</b>&nbsp;
-                    <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.object">
-                      <i class="fa fa-external-link" aria-hidden="true"></i>
-                    </a>
-                </td>
-                <td>
-                  <b class="green-text"> ({{ hit.api.length }})</b>
-                </td>
-              </tr>
-            </table>
+            <p style="margin: 0; display: inline;">
+              <b class="green-text"> ({{ hit.api.length }})</b>
+              {{ readableName(hit.subject) }}
+              <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.subject">
+                <i class="fa fa-external-link" aria-hidden="true"></i>
+              </a>
+              {{ readableName(hit.predicate.replaceAll('_', ' ')) }} 
+              <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.predicate">
+                <i class="fa fa-external-link" aria-hidden="true"></i>
+              </a>
+              {{ readableName(hit.object) }}
+              <a target="_blank" :href="'https://biolink.github.io/biolink-model/docs/' + hit.object">
+                <i class="fa fa-external-link" aria-hidden="true"></i>
+              </a>
+            </p>
           </summary>
           <table class="edge-table" style="font-size: x-small;">
             <tr 
@@ -209,9 +197,9 @@
           </table>
         </details>
       </div>
-      <div class="col s9">
+      <div class="col s9" style="padding: 0px;">
         <div style="position: relative;">
-          <div id="cy" style="position: absolute;"></div>
+          <div id="cy" style="position: absolute; height: 80vh;"></div>
           <div class="graph-btn-container">
               <button class="smallButton white-text m-1" 
               data-tippy-content="Reset Graph Position"
@@ -219,6 +207,13 @@
               :class="[!generalMode ? 'purple' : 'cyan ']" 
               @click="recenterGraph()">
                 <i class="fa fa-dot-circle-o" aria-hidden="true"></i>
+              </button>
+              <button class="smallButton white-text m-1" 
+              data-tippy-content="Reset Layout"
+              data-tippy-position="right"
+              :class="[!generalMode ? 'purple' : 'cyan ']" 
+              @click="resetGraph()">
+                <i class="fa fa-undo" aria-hidden="true"></i>
               </button>
               <button class="smallButton white-text m-1" 
               data-tippy-content="Download Image"
@@ -445,6 +440,9 @@ export default {
       recenterGraph() {
         this.$store.dispatch('recenterGraph')
       },
+      resetGraph() {
+        this.$store.dispatch('resetGraph')
+      },
       checkForQuery(){
           let current_url = window.location.href
           let url = new URL(current_url);
@@ -460,7 +458,7 @@ export default {
 
 <style>
   summary::marker{
-    color: rgb(24, 228, 255);
+    color: rgb(172, 77, 255);
   }
   .query-input{
     background-color: azure;
@@ -526,8 +524,8 @@ export default {
     border: none;
   }
   #cy {
-    width: 70vw;
-    height: 700px;
+    width: 100%;
+    height: 100%;
     display: block;
     border: 2px #dddddd solid;
     background-color:white;
