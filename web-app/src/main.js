@@ -17,6 +17,7 @@ import VueFinalModal from 'vue-final-modal'
 import VueParticles from 'vue-particles'
 import VueGtag from "vue-gtag-next";
 import Toaster from '@meforma/vue-toaster';
+import { delegate } from "tippy.js";
 // import { createMetaManager } from 'vue-meta'
 // Global CSS
 import 'sweetalert2/dist/sweetalert2.min.css';
@@ -53,3 +54,16 @@ app.component("VModal", VModal);
 app.component("MetaHead", MetaHead);
 app.component("CopyButton", CopyButton);
 app.mount('#app');
+
+delegate("#app", {
+    target: "[data-tippy-content]",
+    theme: "light",
+    trigger: "mouseenter",
+    interactive: true,
+    allowHTML: true,
+    onShow(instance){
+      instance.setContent(`<div class="p-1">
+      <small>${instance.reference.dataset.tippyContent}</small>
+      </div>`);
+    }
+  });

@@ -1,20 +1,24 @@
 import json
 import logging
 from typing import List, Union
+import os
 
 import bmt
+from biothings.utils import serializer
 from biothings.web.auth.authn import BioThingsAuthnMixin
 from biothings.web.handlers import BaseAPIHandler, QueryHandler
 from biothings.web.handlers.query import BiothingHandler, capture_exceptions
 from biothings.web.settings.default import QUERY_KWARGS
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import Finish, HTTPError
+from tornado.template import Loader
 
 from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
 from utils.metakg.export import edges2graphml
+from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 logger = logging.getLogger("smartAPI")
@@ -409,6 +413,15 @@ class MetaKGQueryHandler(QueryHandler):
                 "default": [],
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"],
             },
+            "default_view": {
+                "type": str,
+                "default": "cytoscape",
+                "enum": ("json", "cytoscape"),
+            },
+            "header": {
+                "type": bool,
+                "default": True
+            }
         },
     }
 
@@ -450,12 +463,15 @@ class MetaKGQueryHandler(QueryHandler):
                 continue
             value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
+
         await super().get(*args, **kwargs)
 
     def write(self, chunk):
         """
         Overwrite the biothings query handler to add graphml format (&format=graphml)
         * added &download=True to download .graphml file automatically, can disable (&download=False)
+
+        Reshape results for Cytoscape-ready configuration rendering on the front-end. (&format=html)
         """
         try:
             if self.format == "graphml":
@@ -467,6 +483,35 @@ class MetaKGQueryHandler(QueryHandler):
                     self.set_header("Content-Disposition", 'attachment; filename="smartapi_metakg.graphml"')
 
                 return super(BaseAPIHandler, self).write(chunk)
+            
+            if self.format == "html":
+                # setup template
+                template_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'templates'))
+                loader = Loader(template_path)
+                template = loader.load("cytoscape.html")
+                # initial counts
+                shown = 0
+                available = 0
+                graph_data = []
+                # if no hits template will show response as is and
+                # display a help message.
+                if "total" in chunk and "hits" in chunk:
+                    available = chunk['total']
+                    shown = len(chunk['hits'])
+                    # reformat data
+                    cdf = CytoscapeDataFormatter(chunk['hits'])
+                    graph_data = serializer.to_json(cdf.get_data())
+                # generate global template variable with graph data
+                result = template.generate(
+                    data= graph_data,
+                    response=serializer.to_json(chunk),
+                    shown=shown,
+                    available=available,
+                    default_view=serializer.to_json(self.args.default_view),
+                    header=serializer.to_json(self.args.header)
+                )
+                self.set_header("Content-Type", "text/html; charset=utf-8")
+                return super(BaseAPIHandler, self).write(result)
 
         except Exception as exc:
             logger.warning(exc)

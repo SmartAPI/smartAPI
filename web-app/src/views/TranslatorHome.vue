@@ -146,8 +146,8 @@
           </p>
         </div>
         <p>
-          Meta-KG would then find all connections with <i>predicate</i> “affects” and <i>output_type</i> “Gene” and give you a list of APIs which can give you that type of results.
-          <router-link to="/portal/translator/metakg?predicate=affects&output_type=Gene">View example</router-link>
+          Meta-KG would then find all connections with <i>predicate</i> “affects” and <i>object</i> “Gene” and give you a list of APIs which can give you that type of results.
+          <router-link to="/portal/translator/metakg?predicate=affects&object=Gene">View example</router-link>
         </p>
         <Image img_name="graph_example.jpg" img_width="100%" alt="graph example" class="rounded"></Image>
         <p class="center">
