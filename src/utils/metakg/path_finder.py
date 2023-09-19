@@ -36,7 +36,7 @@ class MetaKGPathFinder:
         return self.G
 
     def get_paths(self, subject, object, cutoff=3, verbose=False):
-        paths_with_data = []
+        paths_with_edges = []
 
         if nx.has_path(self.G, subject, object):
             raw_paths = list(nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff))
@@ -58,14 +58,6 @@ class MetaKGPathFinder:
                         "predicates": edge_data
                     })
 
-                paths_with_data.append(paths_data)
+                paths_with_edges.append(paths_data)
 
-            if verbose:
-                print(f"Pathways Extracted: {len(raw_paths)}")
-                for idx, data in enumerate(paths_with_data):
-                    print(f"Path {idx}:", " -> ".join(data["path"]))
-                    for edge in data["edges"]:
-                        print(f'\n * {edge["subject"]} -> {edge["object"]} * \nPredicates: {", ".join(edge["predicates"])}')  # And also changed "Edges" to "Predicates" for clarity
-                    print("\n" + "-"*80 + "\n")
-
-        return paths_with_data
+        return paths_with_edges
