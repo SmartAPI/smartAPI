@@ -7,15 +7,15 @@ from model import ConsolidatedMetaKGDoc
 class MetaKGPathFinder:
 
     def __init__(self, query_data=None):
-        self.get_graph(query_data)
         self.predicates = {}
+        self.get_graph(query_data)
 
     def get_graph(self, query_data=None):
         """
         Make a networkx graph by traversing the index documents and extract targeted nodes/edges
         """
         index = ConsolidatedMetaKGDoc.Index.name
-
+        predicates=self.predicates
         # Create a new directed graph
         self.G = nx.DiGraph()
 
@@ -30,16 +30,16 @@ class MetaKGPathFinder:
             
             key = f"{subject}-{object}"
             if key not in predicates:
-                self.predicates[key] = []
-            self.predicates[key].append(predicate)
+                predicates[key] = []
+            predicates[key].append(predicate)
 
         return self.G
 
     def get_paths(self, subject, object, cutoff=3, verbose=False):
         paths_with_data = []
 
-        if nx.has_path(G, source, target):
-            raw_paths = list(nx.all_simple_paths(G, source=subject, target=object, cutoff=cutoff))
+        if nx.has_path(self.G, subject, object):
+            raw_paths = list(nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff))
             for path in raw_paths:
                 paths_data = {
                     "path": path,
@@ -49,8 +49,10 @@ class MetaKGPathFinder:
                 for i in range(len(path) - 1):
                     source_node = path[i]
                     target_node = path[i + 1]
-                    edge_data = self.get_pathaway_predicates(subject, object)
-                    paths_data["edge_data"].append({
+                    edge_key = f"{source_node}-{target_node}"
+                    edge_data = self.predicates.get(edge_key, [])
+
+                    paths_data["edges"].append({
                         "subject": source_node,
                         "object": target_node,
                         "predicates": edge_data
@@ -62,8 +64,8 @@ class MetaKGPathFinder:
                 print(f"Pathways Extracted: {len(raw_paths)}")
                 for idx, data in enumerate(paths_with_data):
                     print(f"Path {idx}:", " -> ".join(data["path"]))
-                    for edge in data["edge_data"]:
-                        print(f'\n * {edge["source"]} -> {edge["target"]} * \nEdges: {", ".join(edge["edges"])}')
+                    for edge in data["edges"]:
+                        print(f'\n * {edge["subject"]} -> {edge["object"]} * \nPredicates: {", ".join(edge["predicates"])}')  # And also changed "Edges" to "Predicates" for clarity
                     print("\n" + "-"*80 + "\n")
 
         return paths_with_data
