@@ -15,6 +15,7 @@ from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
 from utils.metakg.export import edges2graphml
+from utils.metakg.path_finder import MetaKGPathFinder
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 logger = logging.getLogger("smartAPI")
@@ -399,6 +400,7 @@ class MetaKGQueryHandler(QueryHandler):
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": list, "max": 1000},
             "object": {"type": list, "max": 1000},
+            "cutoff": {"type": int, "max": 5},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
             "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
@@ -456,6 +458,7 @@ class MetaKGQueryHandler(QueryHandler):
         """
         Overwrite the biothings query handler to add graphml format (&format=graphml)
         * added &download=True to download .graphml file automatically, can disable (&download=False)
+        * added /paths endpoint that will return a list of simples paths from a subject to an object
         """
         try:
             if self.format == "graphml":
@@ -466,7 +469,20 @@ class MetaKGQueryHandler(QueryHandler):
 
                 return super(BaseAPIHandler, self).write(chunk)
 
+            if "/paths" in self.request.uri:
+                # format the query data for get_all_via_scan()
+                query_data = {
+                    'q': self.args.q
+                }
+                # pprint.pprint(chunk)
+                # initialize path finder package - creates networkx graph
+                path_finder = MetaKGPathFinder(chunk=chunk)
+                # get the paths from a subject to object
+                chunk = path_finder.get_paths(subject=self.args.subject[0], object=self.args.object[0], cutoff=self.args.cutoff)
+                return super(BaseAPIHandler, self).write(chunk)
+
         except Exception as exc:
             logger.warning(exc)
 
         super().write(chunk)
+
