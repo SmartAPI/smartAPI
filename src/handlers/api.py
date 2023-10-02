@@ -400,7 +400,6 @@ class MetaKGQueryHandler(QueryHandler):
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": list, "max": 1000},
             "object": {"type": list, "max": 1000},
-            "cutoff": {"type": int, "max": 5},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
             "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
@@ -469,20 +468,38 @@ class MetaKGQueryHandler(QueryHandler):
 
                 return super(BaseAPIHandler, self).write(chunk)
 
-            if "/paths" in self.request.uri:
-                # format the query data for get_all_via_scan()
-                query_data = {
-                    'q': self.args.q
-                }
-                # pprint.pprint(chunk)
-                # initialize path finder package - creates networkx graph
-                path_finder = MetaKGPathFinder(chunk=chunk)
-                # get the paths from a subject to object
-                chunk = path_finder.get_paths(subject=self.args.subject[0], object=self.args.object[0], cutoff=self.args.cutoff)
-                return super(BaseAPIHandler, self).write(chunk)
 
         except Exception as exc:
             logger.warning(exc)
 
         super().write(chunk)
 
+
+class MetaKGPathFinderHandler(QueryHandler):
+    name = "metakgpathfinder"
+    @capture_exceptions
+    async def get(self, *args, **kwargs):
+
+        # Retrieve query parameters for subject, object, etc. from the request
+        if self.args_query:
+            if self.args_query.get('subject'):
+                subject =self.args_query.pop('subject', None)
+            else:
+                self.set_status(400)
+                self.write({"error": "Subject required."})
+                return
+            if self.args_query.get('object'):
+                object = self.args_query.pop('object', None)
+            else:
+                self.set_status(400)
+                self.write({"error": "Object required."})
+                return
+        cutoff = int(self.get_argument('cutoff', 3))
+
+        # # Use the MetaKGPathFinder to get the paths
+        pathfinder = MetaKGPathFinder(query_data=self.args_query)  # If you need to provide `query_data` or other initial data, do it here
+        paths_with_edges = pathfinder.get_paths(subject=subject, object=object, cutoff=cutoff)
+        # # Return the result in JSON format
+        self.write({"paths_with_edges": paths_with_edges})
+        # setattr(self.args, "metakg_paths", paths_with_edges)
+        # await super().get(*args, **kwargs) 
