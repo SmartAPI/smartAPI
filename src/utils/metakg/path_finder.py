@@ -6,12 +6,34 @@ from model import ConsolidatedMetaKGDoc
 class MetaKGPathFinder:
 
     def __init__(self, query_data=None):
+        """
+        Initialize the MetaKGPathFinder class. 
+        
+        This class is responsible for creating a network graph from indexed 
+        documents and providing functionalities to find paths between two nodes 
+        in the graph.
+        
+        Parameters:
+        - query_data: dict (default=None)
+            Optional data to filter which documents to use while creating the graph.
+        """
         self.predicates = {}
         self.get_graph(query_data=query_data)
 
     def get_graph(self, query_data=None):
         """
-        Make a networkx graph by traversing the index documents and extract targeted nodes/edges
+        Construct a directed graph from the indexed documents in the metakg consolidated index.
+        
+        This method traverses the index documents, extracts nodes and edges,
+        and uses them to create a directed graph using the networkx library.
+        
+        Parameters:
+        - query_data: dict (default=None)
+            Optional data to filter which documents to use for graph construction.
+            
+        Returns:
+        - G: nx.DiGraph
+            A directed graph constructed from the indexed documents.
         """
         index = ConsolidatedMetaKGDoc.Index.name
         predicates=self.predicates
@@ -38,6 +60,25 @@ class MetaKGPathFinder:
         return self.G
 
     def get_paths(self, subject, object, cutoff=3):
+        """
+        Find all simple paths between two nodes in the graph.
+
+        This method retrieves all possible paths between a given subject and 
+        object in the graph, up to a specified cutoff length.
+
+        Parameters:
+        - subject: str
+            The starting node in the graph.
+        - object: str
+            The ending node in the graph.
+        - cutoff: int (default=3)
+            The maximum length for any path returned.
+            
+        Returns:
+        - paths_with_edges: list of dict
+            A list containing paths and their edge information.
+        """
+        
         paths_with_edges = []
 
         if nx.has_path(self.G, subject, object):
