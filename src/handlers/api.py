@@ -477,29 +477,20 @@ class MetaKGQueryHandler(QueryHandler):
 
 class MetaKGPathFinderHandler(QueryHandler):
     name = "metakgpathfinder"
+    kwargs = {
+        "GET": {
+            **QUERY_KWARGS.get("GET", {}),
+            "subject": {"type": str, "required": True, "max": 1000},
+            "object": {"type": str,  "required": True, "max": 1000},
+            "cutoff": {"type": int, "default": 3, "max": 5},
+        },
+    }
+
     @capture_exceptions
     async def get(self, *args, **kwargs):
-
-        # Retrieve query parameters for subject, object, etc. from the request
-        if self.args_query:
-            if self.args_query.get('subject'):
-                subject =self.args_query.pop('subject', None)
-            else:
-                self.set_status(400)
-                self.write({"error": "Subject required."})
-                return
-            if self.args_query.get('object'):
-                object = self.args_query.pop('object', None)
-            else:
-                self.set_status(400)
-                self.write({"error": "Object required."})
-                return
-        cutoff = int(self.get_argument('cutoff', 3))
-
         # # Use the MetaKGPathFinder to get the paths
-        pathfinder = MetaKGPathFinder(query_data=self.args_query)  # If you need to provide `query_data` or other initial data, do it here
-        paths_with_edges = pathfinder.get_paths(subject=subject, object=object, cutoff=cutoff)
-        # # Return the result in JSON format
+        query_data_filtered = {'q': self.args_query.get('q')}
+        pathfinder = MetaKGPathFinder(query_data=query_data_filtered)        
+        paths_with_edges = pathfinder.get_paths(subject=self.args.subject, object=self.args.object, cutoff=self.args.cutoff)
+        # Return the result in JSON format
         self.write({"paths_with_edges": paths_with_edges})
-        # setattr(self.args, "metakg_paths", paths_with_edges)
-        # await super().get(*args, **kwargs) 
