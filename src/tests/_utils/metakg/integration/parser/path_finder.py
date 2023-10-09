@@ -34,7 +34,8 @@ class TestPathFinderClass(unittest.TestCase):
                 self.assertIn(data['edges'], 'object')
 
 
-        # Test Cutoff values
+    # Test Cutoff values
+    #def test_get_paths_cutoff(self):
         # cutoff_values = [ 3, 4, 5 ] 
 
         # for cutoff in cutoff_values:
@@ -47,6 +48,9 @@ class TestPathFinderClass(unittest.TestCase):
         #         'path_ct': len(paths)
         #     }
 
+    #def test_get_paths_self_loop(self):
+    # SELF CYCLE TEST: &object=DiseaseOrPhenotypicFeature&subject=DiseaseOrPhenotypicFeature
+    # SELF CYCLE TEST: &object=DiseaseOrPhenotypicFeature&subject=DiseaseOrPhenotypicFeature
 
-    # SELF CYCLE TEST: &object=DiseaseOrPhenotypicFeature&subject=DiseaseOrPhenotypicFeature
-    # SELF CYCLE TEST: &object=DiseaseOrPhenotypicFeature&subject=DiseaseOrPhenotypicFeature
+    #def test_get_paths_missing_sub(self):
+    #def test_get_paths_missing_obj(self):
