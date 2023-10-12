@@ -74,7 +74,10 @@ class MetaKGPathFinder:
             The ending node in the graph.
         - cutoff: int (default=3)
             The maximum length for any path returned.
-            
+        - api_details: bool (default=False)
+            If True, the full details of the 'api' are included in the result. 
+            If False, only the 'name' attribute of each 'api' entry is retained.
+
         Returns:
         - paths_with_edges: list of dict
             A list containing paths and their edge information.
