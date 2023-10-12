@@ -37,6 +37,7 @@ class MetaKGPathFinder:
         """
         index = ConsolidatedMetaKGDoc.Index.name
         predicates=self.predicates
+
         # Create a new directed graph
         self.G = nx.DiGraph()
 
@@ -97,7 +98,10 @@ class MetaKGPathFinder:
 
                     for data in edge_data:
                         # if api_details, add full api list, else add selected keys only
-                        api_content = data["api"] if api_details else [item.get("name", None) for item in data["api"]]
+                        if api_details:
+                            api_content = data["api"]
+                        else:
+                            api_content = [{"name": item.get("name", None)} for item in data["api"]]
                         paths_data["edges"].append({
                             "subject": source_node,
                             "object": target_node,
