@@ -476,6 +476,16 @@ class MetaKGQueryHandler(QueryHandler):
 
 
 class MetaKGPathFinderHandler(QueryHandler):
+    """
+    A handler for querying paths in a knowledge graph using MetaKGPathFinder.
+    
+    Attributes:
+    - name: Unique identifier for this handler.
+    - kwargs: Configuration for GET request parameters.
+    
+    The primary GET method accepts 'subject', 'object', and 'cutoff' parameters, then retrieves
+    and returns paths in JSON format between the specified entities up to the given 'cutoff' length.
+    """
     name = "metakgpathfinder"
     kwargs = {
         "GET": {
@@ -483,14 +493,14 @@ class MetaKGPathFinderHandler(QueryHandler):
             "subject": {"type": str, "required": True, "max": 1000},
             "object": {"type": str,  "required": True, "max": 1000},
             "cutoff": {"type": int, "default": 3, "max": 5},
+            "api_details": {"type": bool, "default": False},
         },
     }
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
-        # # Use the MetaKGPathFinder to get the paths
-        query_data_filtered = {'q': self.args_query.get('q')}
-        pathfinder = MetaKGPathFinder(query_data=query_data_filtered)        
-        paths_with_edges = pathfinder.get_paths(subject=self.args.subject, object=self.args.object, cutoff=self.args.cutoff)
+        query_data = {'q': self.args.q }
+        pathfinder = MetaKGPathFinder(query_data=query_data)        
+        paths_with_edges = pathfinder.get_paths(subject=self.args.subject, object=self.args.object, cutoff=self.args.cutoff, api_details=self.args.api_details)
         # Return the result in JSON format
         self.write({"paths_with_edges": paths_with_edges})

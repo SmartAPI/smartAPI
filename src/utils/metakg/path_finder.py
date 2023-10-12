@@ -59,7 +59,7 @@ class MetaKGPathFinder:
 
         return self.G
 
-    def get_paths(self, subject, object, cutoff=3):
+    def get_paths(self, subject, object, cutoff=3, api_details=False):
         """
         Find all simple paths between two nodes in the graph.
 
@@ -88,7 +88,7 @@ class MetaKGPathFinder:
                     "path": path,
                     "edges": []
                 }
-
+                
                 for i in range(len(path) - 1):
                     source_node = path[i]
                     target_node = path[i + 1]
@@ -96,11 +96,13 @@ class MetaKGPathFinder:
                     edge_data = self.predicates.get(edge_key, [])
 
                     for data in edge_data:
+                        # if api_details, add full api list, else add selected keys only
+                        api_content = data["api"] if api_details else [item.get("name", None) for item in data["api"]]
                         paths_data["edges"].append({
                             "subject": source_node,
                             "object": target_node,
                             "predicate": data["predicate"],
-                            "api": data["api"]
+                            "api": api_content
                         })
 
                 paths_with_edges.append(paths_data)
