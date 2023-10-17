@@ -82,7 +82,7 @@ class MetaKGPathFinder:
         - paths_with_edges: list of dict
             A list containing paths and their edge information.
         """
-        
+
         paths_with_edges = []
 
         if nx.has_path(self.G, subject, object):
@@ -92,7 +92,7 @@ class MetaKGPathFinder:
                     "path": path,
                     "edges": []
                 }
-                
+
                 for i in range(len(path) - 1):
                     source_node = path[i]
                     target_node = path[i + 1]
@@ -100,11 +100,12 @@ class MetaKGPathFinder:
                     edge_data = self.predicates.get(edge_key, [])
 
                     for data in edge_data:
-                        # if api_details, add full api list, else add selected keys only
+                        # if api_details add full api list, else add selected keys only
                         if api_details:
                             api_content = data["api"]
                         else:
                             api_content = [{"name": item.get("name", None)} for item in data["api"]]
+                            print(api_content)
                         paths_data["edges"].append({
                             "subject": source_node,
                             "object": target_node,
