@@ -7,12 +7,12 @@ class MetaKGPathFinder:
 
     def __init__(self, query_data=None):
         """
-        Initialize the MetaKGPathFinder class. 
-        
-        This class is responsible for creating a network graph from indexed 
-        documents and providing functionalities to find paths between two nodes 
+        Initialize the MetaKGPathFinder class.
+
+        This class is responsible for creating a network graph from indexed
+        documents and providing functionalities to find paths between two nodes
         in the graph.
-        
+
         Parameters:
         - query_data: dict (default=None)
             Optional data to filter which documents to use while creating the graph.
@@ -23,14 +23,14 @@ class MetaKGPathFinder:
     def get_graph(self, query_data=None):
         """
         Construct a directed graph from the indexed documents in the metakg consolidated index.
-        
+
         This method traverses the index documents, extracts nodes and edges,
         and uses them to create a directed graph using the networkx library.
-        
+
         Parameters:
         - query_data: dict (default=None)
             Optional data to filter which documents to use for graph construction.
-            
+
         Returns:
         - G: nx.DiGraph
             A directed graph constructed from the indexed documents.
@@ -42,7 +42,7 @@ class MetaKGPathFinder:
         self.G = nx.DiGraph()
 
         # Scroll through search results with direct call to index
-        for doc in MetaKG.get_all_via_scan(size=1000, query_data=query_data, index=index): 
+        for doc in MetaKG.get_all_via_scan(size=1000, query_data=query_data, index=index):
             # Extract subject, object, and predicate from hit
             subject = doc['_source']['subject']
             object = doc['_source']['object']
@@ -64,7 +64,7 @@ class MetaKGPathFinder:
         """
         Find all simple paths between two nodes in the graph.
 
-        This method retrieves all possible paths between a given subject and 
+        This method retrieves all possible paths between a given subject and
         object in the graph, up to a specified cutoff length.
 
         Parameters:
@@ -75,7 +75,7 @@ class MetaKGPathFinder:
         - cutoff: int (default=3)
             The maximum length for any path returned.
         - api_details: bool (default=False)
-            If True, the full details of the 'api' are included in the result. 
+            If True, the full details of the 'api' are included in the result.
             If False, only the 'name' attribute of each 'api' entry is retained.
 
         Returns:
@@ -104,7 +104,7 @@ class MetaKGPathFinder:
                         if api_details:
                             api_content = data["api"]
                         else:
-                            api_content = [{"name": item.get("name", None)} for item in data["api"]]
+                            api_content = [{"name": item.get("name", None), "smartapi":{"id": item["smartapi"]["id"]}} for item in data["api"]]
                         paths_data["edges"].append({
                             "subject": source_node,
                             "object": target_node,
