@@ -105,7 +105,6 @@ class MetaKGPathFinder:
                             api_content = data["api"]
                         else:
                             api_content = [{"name": item.get("name", None)} for item in data["api"]]
-                            print(api_content)
                         paths_data["edges"].append({
                             "subject": source_node,
                             "object": target_node,
