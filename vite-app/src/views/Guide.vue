@@ -13,25 +13,25 @@
     <div v-if="!selection" class="center-align padding20">
       <div class="transparent padding20">
         <a class="hideOnSmall" target="_blank" href="https://www.openapis.org/">
-          <Image
-            img_width="20%"
+          <img
+            width="20%"
             alt="SmartAPI"
-            img_name="logo-small.svg"
+            src="@/assets/img/logo-small.svg"
             class="hide-on-med-only hide-on-large-only"
-          ></Image>
-          <Image
-            img_width="20%"
+          />
+          <img
+            width="20%"
             alt="SmartAPI"
-            img_name="logo-medium.svg"
+            src="@/assets/img/logo-medium.svg"
             class="hide-on-small-only hide-on-large-only"
-          ></Image>
-          <Image
+          />
+          <img
             style="max-width: 500px"
-            img_width="30%"
+            width="30%"
             alt="SmartAPI"
-            img_name="logo-large.svg"
+            src="@/assets/img/logo-large.svg"
             class="hide-on-small-only hide-on-med-only"
-          ></Image>
+          />
         </a>
 
         <h5 class="white-text flow-text textShadow" style="font-size: 5vw">
@@ -51,7 +51,7 @@
         style="display: none; margin-top: 15px"
       >
         <div class="p-1 white">
-          <Image img_width="100px" img_name="openapi-logo.png" class="circle"></Image>
+          <img width="100" src="@/assets/img/openapi-logo.png" class="circle" />
           <h4 class="flow-text">What is OpenAPI?</h4>
           <p class="blue-grey-text left-align">
             The
@@ -75,7 +75,7 @@
           <a class="btn blue" target="_blank" href="https://www.openapis.org/">OpenAPI Website</a>
         </div>
         <div class="p-1 light-blue lighten-5">
-          <Image img_width="100px" img_name="logo-medium.svg" class="circle"></Image>
+          <img width="100" src="@/assets/img/logo-medium.svg" class="circle" />
           <h4 class="flow-text">What is SmartAPI?</h4>
           <p class="blue-grey-text left-align">
             The smartAPI project aims to maximize the FAIRness (Findability, Accessibility,
@@ -92,7 +92,7 @@
           >
         </div>
         <div class="p-1 white">
-          <Image img_width="100px" img_name="swagger-logo.jpeg" class="circle"></Image>
+          <img width="100" src="@/assets/img/swagger-logo.jpeg" class="circle" />
           <h4 class="flow-text">
             What is the relationship between Swagger Specification and OpenAPI Spec (OAS)?
           </h4>
@@ -163,7 +163,7 @@
 
     <div v-if="selection === 'start'" class="center-align container padding20 row">
       <div class="card-panel white z-depth-5">
-        <Image img_width="200px" img_name="api-thinking.svg" alt="thinking"></Image>
+        <img width="200" src="@/assets/img/api-thinking.svg" alt="thinking" />
         <br />
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">
           Do You Have <b>OpenAPI</b> Metadata?
@@ -223,7 +223,7 @@
         <i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i>
       </button>
       <div class="card-panel white z-depth-5">
-        <Image img_width="200px" img_name="api-thinking.svg" alt="thinking"></Image>
+        <img width="200" src="@/assets/img/api-thinking.svg" alt="thinking" />
         <br />
         <h3 class="text_h3 blue-text tracking-in-expand flow-text">Which Version Do You Have?</h3>
         <button
@@ -253,12 +253,12 @@
           <div class="card-panel white blue-text col s12 l6 padding20">
             <h5 class="flow-text">Version 2</h5>
             <a target="_blank" href="https://swagger.io/">
-              <Image
+              <img
                 class="responsive-img circle hoverable"
-                img_width="50%"
-                img_name="swagger-logo.jpeg"
+                width="50%"
+                src="@/assets/img/swagger-logo.jpeg"
                 alt="swagger v2"
-              ></Image>
+              />
             </a>
             <p>Visit the links below for examples and version specification.</p>
             <a
@@ -278,12 +278,12 @@
           <div class="card-panel white blue-text col s12 l6 padding20">
             <h5 class="flow-text">Version 3</h5>
             <a target="_blank" href="https://www.openapis.org/">
-              <Image
+              <img
                 class="responsive-img circle hoverable"
-                img_width="50%"
-                img_name="openapi-logo.png"
+                width="50%"
+                src="@/assets/img/openapi-logo.png"
                 alt="openAPI v3"
-              ></Image>
+              />
             </a>
             <p>Visit the links below for examples and version specification.</p>
             <a
@@ -324,7 +324,7 @@
         <h3 class="blue-grey-text tracking-in-expand flow-text">Start From Scratch</h3>
         <ul class="collection transparent" style="border: none">
           <li class="collection-item transparent">
-            <Image class="margin10" img_width="120px" img_name="v0.svg" id="editIcon"></Image>
+            <img class="margin10" width="120" src="@/assets/img/v0.svg" id="editIcon" />
             <br />
             <h3 class="blue-text flow-text">
               <i class="fa fa-check-square-o blue-text" aria-hidden="true"></i> Create and Edit Your
@@ -410,7 +410,7 @@
       ></a>
       <div class="card-panel transparent">
         <h3 class="blue-grey-text tracking-in-expand flow-text">Version 2</h3>
-        <Image class="margin10" img_width="120px" img_name="v2.svg" id="editIcon"></Image>
+        <img class="margin10" width="120" src="@/assets/img/v2.svg" id="editIcon" />
 
         <p class="blue-grey-text flow-text">
           If you already have an API metadata document in older
@@ -485,7 +485,7 @@
                   target="_blank"
                   href="https://www.npmjs.com/package/api-spec-converter"
                 >
-                  <Image img_width="50px" img_name="npmlogo.png" alt="npm package"></Image>
+                  <img width="50" src="@/assets/img/npmlogo.png" alt="npm package" />
                 </a>
                 <br />
               </div>
@@ -534,7 +534,7 @@
 
       <div class="card-panel transparent">
         <h3 class="blue-text tracking-in-expand flow-text">Version 3</h3>
-        <Image class="margin10" img_width="120px" img_name="v3.svg" id="editIcon"></Image>
+        <img class="margin10" width="120" src="@/assets/img/v3.svg" id="editIcon" />
         <table class="bordered">
           <tbody>
             <!-- STEP 1 -->
@@ -630,12 +630,7 @@
             <p class="blue-grey-text">
               <b>Important!</b> Before submitting make sure to copy the URL to the RAW content!
             </p>
-            <Image
-              img_name="raw.gif"
-              img_width="300px"
-              alt="raw content"
-              class="responsive-img"
-            ></Image>
+            <img src="@/assets/img/raw.gif" width="300" alt="raw content" class="responsive-img" />
           </div>
         </div>
       </div>

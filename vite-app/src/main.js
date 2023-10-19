@@ -1,6 +1,5 @@
 // Components
 import App from '@/App.vue'
-import Image from '@/components/Image.vue'
 import VModal from '@/components/VModal.vue'
 import MetaHead from '@/components/MetaHead.vue'
 import CopyButton from '@/components/CopyButton.vue'
@@ -43,7 +42,6 @@ app.config.globalProperties.$apiUrl =
   process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info/api' : '/api'
 
 // global registration
-app.component('Image', Image)
 app.component('VModal', VModal)
 app.component('MetaHead', MetaHead)
 app.component('CopyButton', CopyButton)

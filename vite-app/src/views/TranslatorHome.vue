@@ -5,7 +5,7 @@
     <section class="center grey lighten-3 d-flex justify-content-around padding20 flex-wrap">
       <div class="row d-flex justify-content-center flex-wrap" style="align-items: stretch">
         <div class="col s12 m4 d-flex justify-content-center align-items-center">
-          <Image img_name="TranslatorLogo.jpg" img_height="77px"></Image>
+          <img src="@/assets/img/TranslatorLogo.jpg" height="77" />
         </div>
         <div class="col s12 m4">
           <h1 class="blue-text bold flow-text">
@@ -20,22 +20,22 @@
           </p>
         </div>
         <div class="col s12 m4 d-flex justify-content-center align-items-center">
-          <Image img_name="ncats-logo-1.png" img_height="77"></Image>
+          <img src="@/assets/img/ncats-logo-1.png" height="77" />
         </div>
       </div>
       <div class="d-flex justify-content-center align-items-center flex-wrap">
         <div class="col s12 padding20 center-align fade-in">
-          <Image img_name="icon-registry.svg" img_width="100px" alt="registry"></Image>
+          <img src="@/assets/img/icon-registry.svg" width="100" alt="registry" />
           <p>Browse registry of Translator APIs</p>
           <router-link to="/registry/translator" class="btn green">Registry</router-link>
         </div>
         <div class="col s12 padding20 center-align fade-in">
-          <Image img_name="icon-summary.svg" img_width="100px" alt="summary"></Image>
+          <img src="@/assets/img/icon-summary.svg" width="100" alt="summary" />
           <p>View a summary of Translator APIs</p>
           <router-link to="/portal/translator/summary" class="btn green">Summary</router-link>
         </div>
         <div class="col s12 padding20 center-align fade-in">
-          <Image img_name="icon-metakg.svg" img_width="100px" alt="metakg"></Image>
+          <img src="@/assets/img/icon-metakg.svg" width="100" alt="metakg" />
           <p>Explore Translator Knowledge Graph</p>
           <router-link to="/portal/translator/metakg" class="btn green">MetaKG</router-link>
         </div>
@@ -55,7 +55,7 @@
             </h5>
           </div>
           <p class="center">
-            <Image img_name="build_api-01.svg" img_width="100px" alt="create api"></Image>
+            <img src="@/assets/img/build_api-01.svg" width="100" alt="create api" />
           </p>
           <p>
             To create a Knowledge Provider (KP) API that's ready to be integrated into the
@@ -103,7 +103,7 @@
             </h5>
           </div>
           <p class="center">
-            <Image img_name="navigate_api-01.svg" img_width="100px" alt="document api"></Image>
+            <img src="@/assets/img/navigate_api-01.svg" width="100" alt="document api" />
           </p>
           <p>
             To take full advantage of SmartAPI and make your KP API compatible with Meta-KG you will
@@ -166,7 +166,7 @@
             editing tools and many other neat features!
           </p>
           <div class="center">
-            <Image alt="registry pluses" img_name="registry_plus-01.png" img_width="90%"></Image>
+            <img alt="registry pluses" src="@/assets/img/registry_plus-01.png" width="90%" />
           </div>
           <div class="center">
             <router-link class="btn blue btn-large" to="/registry/translator">Registry</router-link>
@@ -177,8 +177,7 @@
       <div class="col s12 m6 padding20 meta_grad white-text container">
         <div class="center">
           <h3 class="center cyan-text bold">EXPLORE THE TRANSLATOR API META KNOWLEDGE GRAPH</h3>
-          <img />
-          <Image img_name="metakg-01.png" img_width="150px"></Image>
+          <img src="@/assets/img/metakg-01.png" width="150" />
           <h1>META-KG</h1>
           <p class="center">
             <router-link class="btn green btn-large" to="/portal/translator/metakg"
@@ -194,7 +193,7 @@
           association.
         </p>
         <div class="center">
-          <Image img_name="metaex.png" width="200px" alt="query example"></Image>
+          <img src="@/assets/img/metaex.png" width="200" alt="query example" />
           <hr />
           <small>Disease affets Gene</small>
         </div>
@@ -224,12 +223,7 @@
             >View example</router-link
           >
         </p>
-        <Image
-          img_name="graph_example.jpg"
-          img_width="100%"
-          alt="graph example"
-          class="rounded"
-        ></Image>
+        <img src="@/assets/img/graph_example.jpg" width="500" alt="graph example" class="rounded" />
         <p class="center">
           <router-link class="btn green btn-large" to="/portal/translator/metakg"
             >Try it</router-link
