@@ -3,13 +3,13 @@
     <MetaHead title="SmartAPI | FAQ"></MetaHead>
     <div class="container-fluid center">
       <div class="white blue-text">
-        <Image
+        <img
           alt="faq"
-          img_name="faq.svg"
-          img_width="200px"
+          src="@/assets/img/faq.svg"
+          width="200"
           class="responsive-img"
           style="max-width: 300px"
-        ></Image>
+        />
         <h1 class="bold">FAQ</h1>
       </div>
     </div>

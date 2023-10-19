@@ -139,7 +139,7 @@
               What is a <span class="logoFont blue-text">SmartAPI</span>?
             </h2>
             <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-              <Image img_width="40%" img_name="logo-medium.svg" class="responsive-img"></Image>
+              <img width="40%" src="@/assets/img/logo-medium.svg" class="responsive-img" />
             </div>
             <h3 class="center hide-on-med-and-up show-on-small">
               What is a <span class="logoFont blue-grey-text">SmartAPI</span>?

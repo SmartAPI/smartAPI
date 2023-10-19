@@ -26,11 +26,11 @@
           </ul>
         </div>
         <div class="container white padding20 contentDocs z-depth-4">
-          <templatem v-if="!url">
+          <template v-if="!url">
             <h3 class="logoFont blue-text center-align flow-text">SmartAPI Documentation</h3>
             <hr />
             <div class="center-align">
-              <Image img_width="200px" img_name="logo-large.svg" alt="logo"></Image>
+              <img width="200" src="@/assets/img/logo-large.svg" alt="logo" />
               <h4 class="center-align blue-grey-text">
                 What is a <span class="logoFont">SmartAPI</span>?
               </h4>
@@ -71,7 +71,7 @@
                 describe the service and the data that it operates on or provides.
               </p>
             </div>
-          </templatem>
+          </template>
           <MarkDown v-show="url" :url="url"></MarkDown>
         </div>
       </div>

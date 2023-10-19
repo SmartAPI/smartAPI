@@ -2,7 +2,7 @@
   <div class="grey lighten-3" style="min-height: 90vh">
     <MetaHead title="SmartAPI | Portals"></MetaHead>
     <div class="center-align">
-      <Image img_width="100px" alt="SmartAPI" img_name="api-welcome.svg"></Image>
+      <img width="100" alt="SmartAPI" src="@/assets/img/api-welcome.svg" />
     </div>
     <h1 class="grey-text center-align m-0 p-1">SmartAPI Portals</h1>
     <div class="d-flex justify-content-center align-items-center container">

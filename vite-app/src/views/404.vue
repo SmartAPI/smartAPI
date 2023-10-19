@@ -5,7 +5,7 @@
   >
     <div class="center-align">
       <h2>
-        <Image img_name="lost.jpg" img_width="300px"></Image>
+        <img src="@/assets/img/lost.jpg" width="300" />
       </h2>
       <h1>Oh no! You're lost!</h1>
       <h6>This page doesn't exist.</h6>

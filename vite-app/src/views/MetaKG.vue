@@ -6,12 +6,12 @@
           <i class="fa fa-chevron-left" aria-hidden="true"></i> Back to Portal
         </router-link>
         <h6 style="margin: 5px; display: inline">
-          <Image
+          <img
             class="scale-in-center"
-            img_name="metakg-01.png"
-            img_width="30px"
+            src="@/assets/img/metakg-01.png"
+            width="30"
             style="max-width: 50px; max-height: 50px"
-          ></Image>
+          />
           Meta-<b>KG</b> Explorer
         </h6>
       </div>

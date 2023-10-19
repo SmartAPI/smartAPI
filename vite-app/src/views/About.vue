@@ -2,22 +2,22 @@
   <main id="about-app" class="white" style="width: 100%">
     <MetaHead title="SmartAPI | About"></MetaHead>
     <section class="container center padding20">
-      <Image
-        img_width="40%"
-        img_name="logo-small-text.svg"
+      <img
+        width="40%"
+        src="@/assets/img/logo-small-text.svg"
         class="hide-on-med-only hide-on-large-only"
-      ></Image>
-      <Image
-        img_width="45%"
-        img_name="logo-medium-text.svg"
+      />
+      <img
+        width="45%"
+        src="@/assets/img/logo-medium-text.svg"
         class="hide-on-small-only hide-on-large-only"
-      ></Image>
-      <Image
-        img_width="50%"
-        img_name="logo-large-text.svg"
+      />
+      <img
+        width="50%"
+        src="@/assets/img/logo-large-text.svg"
         class="hide-on-small-only hide-on-med-only"
         :style="{ maxWidth: '600px' }"
-      ></Image>
+      />
       <h3 class="blue-text flow-text bold">BUILDING A CONNECTED NETWORK OF FAIR APIS</h3>
       <p class="blue-grey-text flow-text">
         The SmartAPI project aims to maximize the FAIRness of web-based Application Programming
@@ -97,12 +97,7 @@
           <template v-if="organization.members.length">
             <div class="center padding20 hide-on-small-only" style="width: 100%">
               <h3 v-if="organization.name" class="blue-text">{{ organization.name }}</h3>
-              <Image
-                v-else
-                :img_name="organization.image"
-                img_width="400"
-                :alt="organization.name"
-              ></Image>
+              <img v-else :src="organization.image" width="400" :alt="organization.name" />
             </div>
             <template v-for="person in organization.members" :key="person.name">
               <div
@@ -198,11 +193,7 @@
             <span class="grey-text">/ {{ selectedPerson.title }}</span>
           </p>
           <a :href="selectedPerson.work_website" target="_blank">
-            <Image
-              :img_name="selectedPerson.work_logo"
-              img_width="200"
-              :alt="selectedPerson.work_logo"
-            ></Image>
+            <img :src="selectedPerson.work_logo" width="200" :alt="selectedPerson.work_logo" />
           </a>
           <hr />
           <h5>About</h5>

@@ -9,7 +9,7 @@
     >
       <div class="center-align">
         <h5>
-          <Image img_name="api-stop.svg" img_width="250px"></Image>
+          <img src="@/assets/img/api-stop.svg" width="250" />
         </h5>
         <h5 class="text_h3 blue-grey-text-text">You Must Be Logged In To Use Your Dashboard</h5>
         <a href="/oauth" class="btn green"> Login </a>
@@ -41,15 +41,15 @@
                 :alt="userInfo.login"
               />
             </template>
-            <Image
+            <img
               v-else
               id="dashboardPhoto"
-              img_width="80px"
-              img_height="80px"
-              img_name="user-default.png"
+              width="80"
+              height="80"
+              src="@/assets/img/user-default.png"
               class="responsive-img circle dash-photo"
               :alt="userInfo.login"
-            ></Image>
+            />
             <h5 v-if="userInfo?.name" style="margin-left: 10px">
               <b>
                 Hello,
@@ -197,12 +197,12 @@
             <div v-show="tabSelected == 1" id="test1" class="col s12">
               <ul class="collection with-header" style="border: none">
                 <li class="collection-header padding20">
-                  <Image
-                    img_width="100px"
+                  <img
+                    width="100"
                     alt="SmartAPI"
-                    img_name="api-editor.svg"
+                    src="@/assets/img/api-editor.svg"
                     class="hide-on-small-only"
-                  ></Image>
+                  />
                   <h2 class="blue-text flow-text">
                     {{ selectedAPI.info.title }}
                     <span class="versionBadge grey hide-on-small-only"
@@ -280,13 +280,13 @@
                   <h3 class="flow-text blue-grey-text padding20">Slug Registration Wizard</h3>
                 </div>
                 <div v-if="!hasShortName" class="col s12 m12 l12 center-align">
-                  <Image
+                  <img
                     class="hide-on-small-only"
-                    img_width="100px"
-                    img_name="wand.svg"
+                    width="100"
+                    src="@/assets/img/wand.svg"
                     alt="custom slug"
                     style="border-radius: 10px"
-                  ></Image>
+                  />
                   <p class="grey-text left-align">
                     Every project has a subdomain that is available to serve its documentation.<br />
                     By default we use your <i>API ID</i>. If you go to

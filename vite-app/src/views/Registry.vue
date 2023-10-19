@@ -381,13 +381,13 @@
                     style="cursor: pointer !important"
                   >
                     <template v-if="specialTagsUI && portal_name">
-                      <Image
+                      <img
                         style="max-width: 200px"
-                        img_height="70px"
-                        img_width="auto"
-                        :img_name="specialTagImage"
+                        height="70"
+                        width="auto"
+                        :src="specialTagImage"
                         :alt="specialTagName"
-                      ></Image>
+                      />
                     </template>
                   </a>
                   <div v-if="specialTagName == 'NCATS Biomedical Data Translator'" class="d-block">
@@ -591,7 +591,7 @@
                         class="perPage"
                         v-model="perPage"
                         @change="
-                          calculatePages
+                          calculatePages()
                           search()
                         "
                         id="perPage"
@@ -615,6 +615,9 @@
 
 <script>
 import RegistryItem from '../components/RegistryItem.vue'
+import t_img from '@/assets/img/TranslatorLogo.jpg'
+import nih_img from '@/assets/img/nih-logo.png'
+import def_img from '@/assets/img/logo-small.png'
 
 import tippy from 'tippy.js'
 import axios from 'axios'
@@ -1084,17 +1087,17 @@ export default {
       switch (tagname) {
         case 'translator':
           self.specialTagName = 'NCATS Biomedical Data Translator'
-          self.specialTagImage = 'TranslatorLogo.jpg'
+          self.specialTagImage = t_img
           self.specialTagURL = 'https://ncats.nih.gov/translator'
           break
         case 'nihdatacommons' || 'NIHdatacommons':
           self.specialTagName = 'NIH Data Commons'
-          self.specialTagImage = 'nih-logo.png'
+          self.specialTagImage = nih_img
           self.specialTagURL = 'https://commonfund.nih.gov/commons'
           break
         default:
           self.specialTagName = tagname.toUpperCase()
-          self.specialTagImage = 'logo-small.png'
+          self.specialTagImage = def_img
           self.specialTagURL = 'https://smart-api.info'
       }
       for (var i = 0; i < self.tags.length; i++) {

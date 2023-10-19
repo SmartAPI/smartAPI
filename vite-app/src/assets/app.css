@@ -187,14 +187,14 @@
 }
 
 .docBack {
-  background-image: url('../img/docBack.png');
+  background-image: url('./img/docBack.png');
   background-position: top right;
   background-size: cover;
   background-repeat: no-repeat;
 }
 
 .cloudsBack {
-  background-image: url('../img/clouds.svg');
+  background-image: url('./img/clouds.svg');
   background-position: bottom center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -343,7 +343,7 @@ a.middle-indicator-text {
 }
 
 .dashboardBack {
-  background-image: url('../img/net.svg');
+  background-image: url('./img/net.svg');
   background-repeat: no-repeat;
   background-position: right bottom;
   background-size: cover;
@@ -857,7 +857,7 @@ body {
 
 .brandBack {
   min-height: 40vh;
-  background-image: url('../img/brand-hero.jpg');
+  background-image: url('./img/brand-hero.jpg');
   background-size: cover;
   background-attachment: scroll;
   background-repeat: no-repeat;

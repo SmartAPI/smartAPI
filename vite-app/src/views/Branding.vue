@@ -100,22 +100,15 @@
       <div class="grey lighten-3">
         <h5 class="blue-grey-text">Logos</h5>
         <div class="swatchParent">
-          <!-- <div class="downloadBox center-align">
-          <Image img_width="100px" img_name="download.svg" alt="logo"></Image>
-          <span class="blue-text smallFont">Full Package</span>&nbsp;
-          <a class="smallButton" href="http://www.smart-api.info/img/logos.zip" download>
-          <i class="fa fa-download" aria-hidden="true"></i>
-          </a>
-        </div> -->
           <div class="downloadBox center-align">
-            <Image img_width="100px" img_name="logo-large-text.svg" alt="logo"></Image>
+            <img width="100" src="@/assets/img/logo-large-text.svg" alt="logo" />
             <span class="blue-text smallFont">Logo (Vertical)</span>&nbsp;
             <a class="smallButton" :href="d2" download>
               <i class="fa fa-download" aria-hidden="true"></i>
             </a>
           </div>
           <div class="downloadBox center-align">
-            <Image img_width="300px" img_name="header-logo.png" alt="logo"></Image>
+            <img width="300" src="@/assets/img/header-logo.png" alt="logo" />
             <span class="blue-text smallFont">Logo (Horizontal)</span>&nbsp;
             <a class="smallButton" :href="d3" download>
               <i class="fa fa-download" aria-hidden="true"></i>

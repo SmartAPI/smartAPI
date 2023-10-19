@@ -4,7 +4,7 @@
       <div class="chartContainer">
         <div>
           <router-link to="/portal/translator">
-            <Image img_name="TranslatorLogo.jpg" aria-label="NCATS" img_height="77px"></Image>
+            <img src="@/assets/img/TranslatorLogo.jpg" aria-label="NCATS" height="77" />
           </router-link>
           <h1>Portal Summary</h1>
           <p>

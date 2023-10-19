@@ -33,7 +33,6 @@ app
   .use(VueFinalModal())
   .use(Particles)
   .use(Toaster)
-  // .use(createMetaManager())
   .use(VueGtag, {
     property: {
       id: 'UA-139873613-1'
