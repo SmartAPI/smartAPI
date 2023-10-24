@@ -97,13 +97,13 @@
 </template>
 
 <script>
-import axios from 'axios'
-import Owl from '../components/Owl3D.vue'
-import { mapGetters } from 'vuex'
-import dryrun_pic from '@/assets/img/api-dryrun.svg'
-import success_pic from '@/assets/img/api-sucess.svg'
-import overwrite_pic from '@/assets/img/api-overwrite.svg'
-import fail_pic from '@/assets/img/api-fail.svg'
+import axios from 'axios';
+import Owl from '../components/Owl3D.vue';
+import { mapGetters } from 'vuex';
+import dryrun_pic from '@/assets/img/api-dryrun.svg';
+import success_pic from '@/assets/img/api-sucess.svg';
+import overwrite_pic from '@/assets/img/api-overwrite.svg';
+import fail_pic from '@/assets/img/api-fail.svg';
 
 export default {
   name: 'RegisterAPI',
@@ -112,14 +112,14 @@ export default {
       url: '',
       dry_run: false,
       suggestedURL: ''
-    }
+    };
   },
   components: {
     Owl
   },
   computed: {
     ready: function () {
-      return this.url ? true : false
+      return this.url ? true : false;
     },
     ...mapGetters(['loggedIn'])
   },
@@ -129,7 +129,7 @@ export default {
         this.suggestedURL = value
           .replace('blob/', '')
           .replace('github.com', 'raw.githubusercontent.com')
-          .replace('www.github.com', 'raw.githubusercontent.com')
+          .replace('www.github.com', 'raw.githubusercontent.com');
 
         this.$swal({
           title: 'Link Converted',
@@ -146,29 +146,29 @@ export default {
           confirmButtonText: 'Yes, use this link!'
         }).then((result) => {
           if (result.value) {
-            this.url = this.suggestedURL
-            this.$toast.success('Link Updated!')
-            this.$swal.close()
+            this.url = this.suggestedURL;
+            this.$toast.success('Link Updated!');
+            this.$swal.close();
           }
-        })
+        });
       }
     }
   },
   methods: {
     handleSubmit: function () {
-      let self = this
+      let self = this;
       if (self.ready) {
         let data = {
           url: self.url
-        }
+        };
         if (self.dry_run) {
-          data['dryrun'] = true
+          data['dryrun'] = true;
         }
-        let url = this.$apiUrl + '/metadata'
+        let url = this.$apiUrl + '/metadata';
         axios
           .post(url, data)
           .then((res) => {
-            console.log('registering', res.data)
+            console.log('registering', res.data);
             if (res.data.success) {
               if (
                 Object.prototype.hasOwnProperty.call(res.data, 'details') &&
@@ -180,7 +180,7 @@ export default {
                   imageAlt: 'Dry Run',
                   title: res.data.details,
                   html: "Because this is a dry run your data has <b>not</b> been saved. If you want to register your API, uncheck 'dry run' and try again."
-                })
+                });
               } else if (Object.prototype.hasOwnProperty.call(res.data, '_id')) {
                 this.$swal({
                   imageUrl: success_pic,
@@ -190,7 +190,7 @@ export default {
                     "You can view your API documentation <b><a href='/registry?q=" +
                     res.data._id +
                     "'>HERE</a></b>"
-                })
+                });
               }
             }
           })
@@ -199,7 +199,7 @@ export default {
               Object.prototype.hasOwnProperty.call(err, 'response') &&
               Object.prototype.hasOwnProperty.call(err.response, 'data')
             ) {
-              console.log('[Error]:', err.response)
+              console.log('[Error]:', err.response);
               if (
                 Object.prototype.hasOwnProperty.call(err.response.data, 'error') &&
                 err.response.data.error == 'Conflict'
@@ -210,7 +210,7 @@ export default {
                   imageUrl: overwrite_pic,
                   imageWidth: 300,
                   confirmButtonText: 'OK'
-                })
+                });
               } else if (
                 Object.prototype.hasOwnProperty.call(err.response.data, 'details') &&
                 err.response.data.details == 'API exists'
@@ -221,7 +221,7 @@ export default {
                   imageUrl: fail_pic,
                   imageWidth: 300,
                   confirmButtonText: 'OK'
-                })
+                });
               } else if (
                 Object.prototype.hasOwnProperty.call(err.response.data, 'details') &&
                 err.response.data.details.includes('Validation Error')
@@ -236,7 +236,7 @@ export default {
                         <div class="padding20 orange lighten-5 codeBox"><code>` +
                       err.response.data.details || err.response.data + `</code></div>`,
                   footer: `<p><b class="red-text">Need help?</b> Take a look at OpenAPI specification examples <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
-                })
+                });
               } else {
                 this.$swal({
                   title: "Oops, there's an issue!",
@@ -249,12 +249,12 @@ export default {
                     err.response.data.error +
                     `</code></div>`,
                   footer: `<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
-                })
+                });
               }
             }
-          })
+          });
       }
     }
   }
-}
+};
 </script>

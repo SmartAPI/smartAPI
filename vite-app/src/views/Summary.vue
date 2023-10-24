@@ -31,11 +31,11 @@
 </template>
 
 <script>
-import SummaryChart from '../components/SummaryChart.vue'
-import tippy from 'tippy.js'
-import axios from 'axios'
+import SummaryChart from '../components/SummaryChart.vue';
+import tippy from 'tippy.js';
+import axios from 'axios';
 
-import 'tabulator-tables/dist/css/tabulator.css'
+import 'tabulator-tables/dist/css/tabulator.css';
 
 export default {
   name: 'Summary',
@@ -64,17 +64,17 @@ export default {
         '#c4b5ad',
         '#dd4aba'
       ]
-    }
+    };
   },
   methods: {
     getSummaries(url) {
-      let self = this
+      let self = this;
       axios
         .get(url)
         .then((res) => {
           // console.log('ALL RES', res.data)
-          self.data = res.data.hits
-          self.totalAPIs = res.data.total
+          self.data = res.data.hits;
+          self.totalAPIs = res.data.total;
           self.summaries = [
             {
               name: 'x-translator_Compliant',
@@ -85,11 +85,11 @@ export default {
             { name: 'By_Component', colors: self.colorList },
             { name: 'Uptime_Status', colors: ['#20c96a', '#ffc107', '#0277bd', '#ff5722'] },
             { name: 'Source_Status', colors: ['#20c96a', '#ffc107', '#e65a78', '#9c27b0'] }
-          ]
+          ];
         })
         .catch((err) => {
-          throw err
-        })
+          throw err;
+        });
     },
     initTips() {
       /*eslint-disable */
@@ -154,7 +154,7 @@ export default {
         theme: 'light',
         trigger: 'click',
         interactive: true
-      })
+      });
 
       tippy('.apiStatus', {
         appendTo: document.body,
@@ -207,19 +207,19 @@ export default {
         theme: 'light',
         trigger: 'click',
         interactive: true
-      })
+      });
       /*eslint-enable */
     },
     getPortalData() {
-      let url = '/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22&raw=1'
-      this.getSummaries(this.$apiUrl + url)
+      let url = '/query/?q=__all__&fields=info,tags,_status&size=1000&tags=%22translator%22&raw=1';
+      this.getSummaries(this.$apiUrl + url);
     }
   },
   mounted: function () {
-    this.getPortalData()
-    this.initTips()
+    this.getPortalData();
+    this.initTips();
   }
-}
+};
 </script>
 
 <style lang="css" scoped>

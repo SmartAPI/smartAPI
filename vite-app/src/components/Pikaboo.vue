@@ -9,7 +9,7 @@
 export default {
   name: 'Pikaboo',
   props: ['image']
-}
+};
 </script>
 
 <style scoped>

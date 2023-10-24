@@ -20,7 +20,7 @@
             </li>
             <li class="p-1">
               <router-link to="/documentation/openapi-specification">
-                <i class="material-icons tiny">brightness_1</i> OpenAPI Spedcification
+                <i class="material-icons tiny">brightness_1</i> OpenAPI Specification
               </router-link>
             </li>
           </ul>
@@ -80,14 +80,14 @@
 </template>
 
 <script>
-import MarkDown from '../components/MarkDown.vue'
+import MarkDown from '../components/MarkDown.vue';
 
 export default {
   name: 'Documentation',
   data: function () {
     return {
       url: ''
-    }
+    };
   },
   props: ['doc'],
   components: {
@@ -97,33 +97,33 @@ export default {
     handleDoc() {
       switch (this.doc) {
         case 'getting-started':
-          this.url = 'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/README.md'
-          break
+          this.url = 'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/README.md';
+          break;
         case 'smartapi-extensions':
           this.url =
-            'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md'
-          break
+            'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md';
+          break;
         case 'openapi-specification':
           this.url =
-            'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/README.md'
-          break
+            'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/README.md';
+          break;
         default:
-          this.url = ''
-          break
+          this.url = '';
+          break;
       }
     }
   },
   watch: {
     doc: function () {
-      this.handleDoc()
+      this.handleDoc();
     }
   },
   mounted: function () {
     if (Object.prototype.hasOwnProperty.call(this.$route.query, 'url')) {
-      this.url = this.$route.query.url
+      this.url = this.$route.query.url;
     } else {
-      this.handleDoc()
+      this.handleDoc();
     }
   }
-}
+};
 </script>

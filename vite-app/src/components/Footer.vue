@@ -117,12 +117,12 @@
 export default {
   name: 'Footer',
   mounted: () => {
-    var currentTime = new Date()
-    var year = currentTime.getFullYear()
-    var myelement = document.getElementById('year')
-    myelement.innerHTML = year
+    var currentTime = new Date();
+    var year = currentTime.getFullYear();
+    var myelement = document.getElementById('year');
+    myelement.innerHTML = year;
   }
-}
+};
 </script>
 
 <style lang="css" scoped>

@@ -1,4 +1,4 @@
-import translator_img from '@/assets/img/TranslatorLogo.jpg'
+import translator_img from '@/assets/img/TranslatorLogo.jpg';
 
 export const portals = {
   state: () => ({
@@ -16,7 +16,7 @@ export const portals = {
   strict: true,
   getters: {
     portals: (state) => {
-      return state.portals
+      return state.portals;
     }
   }
-}
+};

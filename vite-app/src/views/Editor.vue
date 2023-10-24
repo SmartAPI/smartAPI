@@ -6,9 +6,9 @@
 </template>
 
 <script>
-import SwaggerEditorBundle from 'swagger-editor'
-import logo from '@/assets/img/logo-medium.svg'
-import editor_pic from '@/assets/img/api-editor.svg'
+import SwaggerEditorBundle from 'swagger-editor';
+import logo from '@/assets/img/logo-medium.svg';
+import editor_pic from '@/assets/img/api-editor.svg';
 
 export default {
   name: 'Editor',
@@ -17,7 +17,7 @@ export default {
       apiID: '',
       smartStyle: true,
       context: {}
-    }
+    };
   },
   methods: {
     loadSwaggerEditor: function (myUrl) {
@@ -29,19 +29,19 @@ export default {
         layout: 'StandaloneLayout',
         deeplinking: true,
         presets: [SwaggerEditorStandalonePreset]
-      })
+      });
 
-      window.editor = editor
+      window.editor = editor;
 
-      document.querySelector('#swagger-editor .topbar-logo__img').setAttribute('src', logo)
+      document.querySelector('#swagger-editor .topbar-logo__img').setAttribute('src', logo);
       document
         .querySelector(".topbar a[href$='#']")
-        .setAttribute('href', 'https://smart-api.info/registry')
+        .setAttribute('href', 'https://smart-api.info/registry');
     }
   },
   computed: {
     smartapi_id: function () {
-      return this.$route.params.smartapi_id
+      return this.$route.params.smartapi_id;
     }
   },
   mounted: function () {
@@ -60,21 +60,21 @@ export default {
         if (result.isConfirmed) {
           //do nothing
         } else if (result.isDenied) {
-          localStorage.setItem('DontShow', 'true')
+          localStorage.setItem('DontShow', 'true');
         }
-      })
+      });
     }
 
     if (this.smartapi_id) {
-      this.apiID = this.smartapi_id
-      this.loadSwaggerEditor('/api/metadata/' + this.apiID + '?format=yaml')
+      this.apiID = this.smartapi_id;
+      this.loadSwaggerEditor('/api/metadata/' + this.apiID + '?format=yaml');
     } else {
       this.loadSwaggerEditor(
         'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
-      )
+      );
     }
   }
-}
+};
 </script>
 
 <style>

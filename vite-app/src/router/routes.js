@@ -1,19 +1,19 @@
-import axios from 'axios'
+import axios from 'axios';
 
 function getSmartAPI_IDs() {
   axios.create({
     baseURL: 'https://smart-api.info',
     proxy: false
-  })
+  });
   return axios
     .get('https://smart-api.info/api/query?&q=__all__&fields=_id&size=1000&raw=1')
     .then((res) => {
-      return res.data.hits.map((item) => item._id)
+      return res.data.hits.map((item) => item._id);
     })
     .catch((err) => {
-      console.log(err)
-      return ['']
-    })
+      console.log(err);
+      return [''];
+    });
 }
 
 export const routes = [
@@ -187,4 +187,4 @@ export const routes = [
     component: () => import('../views/404.vue'),
     meta: { sitemap: { ignoreRoute: true } }
   }
-]
+];

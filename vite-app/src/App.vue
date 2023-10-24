@@ -1,14 +1,14 @@
 <script setup>
 // @ is an alias to /src
-import Navigation from '@/components/Navigation.vue'
-import Footer from '@/components/Footer.vue'
-import { useStore } from 'vuex'
+import Navigation from '@/components/Navigation.vue';
+import Footer from '@/components/Footer.vue';
+import { useStore } from 'vuex';
 
-const store = useStore()
+const store = useStore();
 
-store.dispatch('loadTagFilters')
-store.dispatch('loadOwnerFilters')
-store.dispatch('loadTranslatorFilters')
+store.dispatch('loadTagFilters');
+store.dispatch('loadOwnerFilters');
+store.dispatch('loadTranslatorFilters');
 </script>
 
 <template>

@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { marked } from 'marked'
+import { marked } from 'marked';
 
 export default {
   name: 'CollapsibleText',
@@ -47,18 +47,18 @@ export default {
     return {
       result: null,
       fullTXT: false
-    }
+    };
   },
   props: ['text'],
   methods: {
     compileMDWN: function (mdtext) {
-      this.result = marked(mdtext)
-      return this.result
+      this.result = marked(mdtext);
+      return this.result;
     }
   },
 
   mounted: function () {
-    this.compileMDWN(this.text)
+    this.compileMDWN(this.text);
   }
-}
+};
 </script>

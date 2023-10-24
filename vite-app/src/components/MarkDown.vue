@@ -8,15 +8,15 @@
 </template>
 
 <script>
-import { Remarkable } from 'remarkable'
-import axios from 'axios'
+import { Remarkable } from 'remarkable';
+import axios from 'axios';
 
 export default {
   name: 'MarkDown',
   data: function () {
     return {
       html: ''
-    }
+    };
   },
   props: {
     url: {
@@ -30,11 +30,11 @@ export default {
   },
   methods: {
     convertMarkdownToHtml: function () {
-      let self = this
+      let self = this;
       axios
         .get(self.url)
         .then((response) => {
-          var md = new Remarkable('full')
+          var md = new Remarkable('full');
 
           md.set({
             html: true, // Enable HTML tags in source
@@ -42,25 +42,25 @@ export default {
             langPrefix: 'language-', // CSS language prefix for fenced blocks
             typographer: false,
             quotes: '“”‘’'
-          })
+          });
 
-          self.html = md.render(response.data)
+          self.html = md.render(response.data);
         })
         .catch((err) => {
-          self.html = '<h5>Failed to load markdown from ' + self.url + '</h5>'
-          throw err
-        })
+          self.html = '<h5>Failed to load markdown from ' + self.url + '</h5>';
+          throw err;
+        });
     }
   },
   mounted: function () {
-    this.convertMarkdownToHtml()
+    this.convertMarkdownToHtml();
   },
   watch: {
     url: function (v) {
       if (v) {
-        this.convertMarkdownToHtml()
+        this.convertMarkdownToHtml();
       }
     }
   }
-}
+};
 </script>

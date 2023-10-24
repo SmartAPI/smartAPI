@@ -46,36 +46,36 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import { Collapsible } from 'materialize-css'
+import { mapGetters } from 'vuex';
+import { Collapsible } from 'materialize-css';
 
 export default {
   name: 'FAQ',
   methods: {
     readURL() {
-      let hash = window.location.hash
+      let hash = window.location.hash;
       if (hash) {
-        document.querySelector('.collapsible-header').classList.remove('active')
-        document.querySelector(hash).classList.add('active')
-        document.querySelector(hash).scrollIntoView()
+        document.querySelector('.collapsible-header').classList.remove('active');
+        document.querySelector(hash).classList.add('active');
+        document.querySelector(hash).scrollIntoView();
       }
     },
     notify() {
-      this.$toast.success(`Link Copied`)
+      this.$toast.success(`Link Copied`);
     }
   },
   mounted: function () {
-    this.readURL()
-    var elems = document.querySelectorAll('.collapsible')
-    Collapsible.init(elems)
+    this.readURL();
+    var elems = document.querySelectorAll('.collapsible');
+    Collapsible.init(elems);
   },
   computed: {
     location: () => {
-      return window.location
+      return window.location;
     },
     ...mapGetters(['faq'])
   }
-}
+};
 </script>
 
 <style scoped>

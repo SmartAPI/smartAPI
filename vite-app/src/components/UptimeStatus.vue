@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import tippy from 'tippy.js'
+import tippy from 'tippy.js';
 
 export default {
   name: 'UptimeStatus',
@@ -17,44 +17,44 @@ export default {
       status: '',
       clss: '',
       badgeID: Math.floor(Math.random() * 90000) + 10000
-    }
+    };
   },
   props: ['uptime_status', 'err_msg'],
   methods: {
     getStatus() {
-      let self = this
+      let self = this;
       if (self.uptime_status) {
         switch (self.uptime_status) {
           case 'unknown':
-            self.status = 'UNKNOWN'
-            self.clss = 'orange'
-            break
+            self.status = 'UNKNOWN';
+            self.clss = 'orange';
+            break;
           case 'pass':
-            self.status = 'PASS'
-            self.clss = 'green'
-            break
+            self.status = 'PASS';
+            self.clss = 'green';
+            break;
           case 'fail':
-            self.status = 'FAIL'
-            self.clss = 'red'
-            break
+            self.status = 'FAIL';
+            self.clss = 'red';
+            break;
           case 'incompatible':
-            self.status = 'INCOMPATIBLE'
-            self.clss = 'blue'
-            break
+            self.status = 'INCOMPATIBLE';
+            self.clss = 'blue';
+            break;
           default:
-            self.status = 'N/A'
-            self.clss = 'grey'
+            self.status = 'N/A';
+            self.clss = 'grey';
         }
       } else {
-        self.status = 'N/A'
-        self.clss = 'grey'
+        self.status = 'N/A';
+        self.clss = 'grey';
       }
     }
   },
   mounted: function () {
-    this.getStatus()
-    let err_msg = ''
-    let err = this.err_msg
+    this.getStatus();
+    let err_msg = '';
+    let err = this.err_msg;
     // if (err && err.includes(":")) {
     //     if (err.includes("http")) {
     //         err_msg = `<tr colspan="2" style="word-break: break-word;" class="red-text pink lighten-5 center">`+
@@ -69,17 +69,17 @@ export default {
     //     }
     // }
     if (err && err.length) {
-      let allErrors = ''
+      let allErrors = '';
       if (Array.isArray(err)) {
         err.forEach((e) => {
-          allErrors += `<li class="blue-text"><small>${e}</small></li>`
-        })
+          allErrors += `<li class="blue-text"><small>${e}</small></li>`;
+        });
         err_msg += `<details class="light-blue lighten-5" style="max-height:400px; overflow:scroll;padding: 10px;word-break: break-all;">
                     <summary>
                     <b class="blue-text">(${err.length}) Uptime Report</b>
                     </summary>
                     <ul class="browser-default" style="list-style: disc; padding: 5px;">${allErrors}</ul>
-                </details>`
+                </details>`;
       }
     }
     /*eslint-disable */
@@ -154,10 +154,10 @@ export default {
                         </tbody>
                     </table>
                 </div>`
-        )
+        );
       }
-    })
+    });
     /*eslint-enable */
   }
-}
+};
 </script>

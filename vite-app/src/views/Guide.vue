@@ -138,8 +138,8 @@
             class="btn green hideOnSmall"
             @click="
               url =
-                'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md'
-              showModal = true
+                'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md';
+              showModal = true;
             "
           >
             {{ btnTxtExt }}
@@ -172,8 +172,8 @@
           type="button"
           class="btn-large blue"
           @click="
-            select('yes')
-            setProgress(10)
+            select('yes');
+            setProgress(10);
           "
         >
           YES
@@ -182,8 +182,8 @@
           type="button"
           class="btn-large red"
           @click="
-            select('no')
-            setProgress(50)
+            select('no');
+            setProgress(50);
           "
         >
           NO
@@ -197,9 +197,9 @@
           type="button"
           class="btn red"
           @click="
-            select('start')
-            setProgress(-10)
-            selection = ''
+            select('start');
+            setProgress(-10);
+            selection = '';
           "
         >
           Go Back
@@ -215,8 +215,8 @@
       <button
         type="button"
         @click="
-          select('start')
-          setProgress(-10)
+          select('start');
+          setProgress(-10);
         "
         style="position: absolute; top: 0; left: 0; margin: 40px; cursor: pointer"
       >
@@ -230,8 +230,8 @@
           type="button"
           class="waves-effect waves-light btn-large blue"
           @click="
-            select('2')
-            setProgress(40)
+            select('2');
+            setProgress(40);
           "
         >
           Version 2
@@ -240,8 +240,8 @@
           type="button"
           class="waves-effect waves-light btn-large green"
           @click="
-            select('3')
-            setProgress(40)
+            select('3');
+            setProgress(40);
           "
         >
           Version 3
@@ -313,8 +313,8 @@
       <button
         type="button"
         @click="
-          select('start')
-          setProgress(-40)
+          select('start');
+          setProgress(-40);
         "
         style="position: absolute; top: 0; left: 0; margin: 40px; cursor: pointer"
       >
@@ -385,8 +385,8 @@
             <a
               class="clearButton"
               @click.prevent="
-                select('3')
-                setProgress(30)
+                select('3');
+                setProgress(30);
               "
               >NEXT</a
             >
@@ -402,8 +402,8 @@
     >
       <a
         @click.prevent="
-          select('yes')
-          setProgress(-40)
+          select('yes');
+          setProgress(-40);
         "
         style="position: absolute; top: 0; left: 0; margin: 40px; cursor: pointer"
         ><i class="fa fa-arrow-circle-o-left fa-2x red-text" aria-hidden="true"></i
@@ -502,8 +502,8 @@
               type="button"
               class="clearButton"
               @click="
-                select('3')
-                setProgress(30)
+                select('3');
+                setProgress(30);
               "
             >
               NEXT
@@ -521,11 +521,11 @@
       <button
         type="button"
         @click="
-          select('yes')
-          setProgress(-40)
-          completeToDo(1)
-          completeToDo(2)
-          completeToDo(3)
+          select('yes');
+          setProgress(-40);
+          completeToDo(1);
+          completeToDo(2);
+          completeToDo(3);
         "
         style="position: absolute; top: 0; left: 0; margin: 40px; cursor: pointer"
       >
@@ -607,10 +607,10 @@
                 <a
                   class="clearButton"
                   @click="
-                    completeToDo(1)
-                    completeToDo(2)
-                    completeToDo(3)
-                    setProgress(50)
+                    completeToDo(1);
+                    completeToDo(2);
+                    completeToDo(3);
+                    setProgress(50);
                   "
                   >NEXT</a
                 >
@@ -762,7 +762,7 @@
 </template>
 
 <script>
-import MarkDown from '../components/MarkDown.vue'
+import MarkDown from '../components/MarkDown.vue';
 
 export default {
   name: 'Guide',
@@ -778,14 +778,14 @@ export default {
       url: '',
       showModal: false,
       learnMore: false
-    }
+    };
   },
   components: {
     MarkDown
   },
   methods: {
     confirm() {
-      this.showModal = false
+      this.showModal = false;
     },
     select: function (input) {
       // possible selections:
@@ -795,21 +795,21 @@ export default {
       // no - start from scratch
       // 2 - version 2 steps to convert metadata
       // 3 - steps to sumbit metadata
-      this.selection = input
+      this.selection = input;
       // scroll to top after selection
-      scroll(0, 0)
+      scroll(0, 0);
     },
     setProgress(input) {
       if (input == 'reset' || this.progress < 0) {
-        this.progress = 0
-        this.progressText = this.progress.toString() + '%'
+        this.progress = 0;
+        this.progressText = this.progress.toString() + '%';
       } else {
         if (this.progress + input < 100) {
-          this.progress += input
-          this.progressText = this.progress.toString() + '%'
+          this.progress += input;
+          this.progressText = this.progress.toString() + '%';
         } else if (this.progress + input > 100) {
-          this.progress = 100
-          this.progressText = this.progress.toString() + '%'
+          this.progress = 100;
+          this.progressText = this.progress.toString() + '%';
         }
       }
     },
@@ -818,20 +818,20 @@ export default {
       // the upload template will show up
       switch (todo) {
         case 1:
-          this.todo1 = !this.todo1
-          break
+          this.todo1 = !this.todo1;
+          break;
         case 2:
-          this.todo2 = !this.todo2
-          break
+          this.todo2 = !this.todo2;
+          break;
         case 3:
-          this.todo3 = !this.todo3
-          break
+          this.todo3 = !this.todo3;
+          break;
         default:
-          return false
+          return false;
       }
     }
   }
-}
+};
 </script>
 
 <style></style>

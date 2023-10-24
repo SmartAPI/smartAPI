@@ -299,9 +299,9 @@
 <script>
 // @ is an alias to /src
 // import Vivus from 'vivus'
-import cookie from '@/assets/img/api-cookie.svg'
-import pic from '@/assets/img/network.svg'
-import { loadSlim } from 'tsparticles-slim'
+import cookie from '@/assets/img/api-cookie.svg';
+import pic from '@/assets/img/network.svg';
+import { loadSlim } from 'tsparticles-slim';
 
 // const particlesInit = async engine => {
 //     //await loadFull(engine);
@@ -317,7 +317,7 @@ export default {
   data: function () {
     return {
       network_img: pic
-    }
+    };
   },
   methods: {
     checkCookieNotification() {
@@ -330,26 +330,26 @@ export default {
           position: 'top',
           showConfirmButton: false,
           html: '<p>This website uses cookies for analytics purposes. <br/>By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
-        })
+        });
 
         document.getElementById('cookieButton').addEventListener('click', function () {
-          localStorage.setItem('DontShowCookies', 'true')
-          this.$swal.close()
-        })
+          localStorage.setItem('DontShowCookies', 'true');
+          this.$swal.close();
+        });
       }
     },
     async particlesInit(engine) {
-      await loadSlim(engine)
+      await loadSlim(engine);
     },
     async particlesLoaded() {
-      console.log('Particles container loaded')
+      console.log('Particles container loaded');
     }
   },
   mounted: function () {
     // new Vivus('whatIs', { duration: 200, type: 'oneByOne' })
-    this.checkCookieNotification()
+    this.checkCookieNotification();
   }
-}
+};
 </script>
 
 <style lang="css" scoped>

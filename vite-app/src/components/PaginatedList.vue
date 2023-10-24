@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import MetaKGResult from './MetaKGResult.vue'
+import MetaKGResult from './MetaKGResult.vue';
 
 export default {
   name: 'PaginatedList',
@@ -74,7 +74,7 @@ export default {
       pageLimit: 20,
       startCapLimitReached: true,
       endCapLimitReached: false
-    }
+    };
   },
   props: {
     content: {
@@ -88,77 +88,77 @@ export default {
   },
   methods: {
     calculatePages: function () {
-      var self = this
-      self.pages = Math.ceil(self.content.length / self.perPage)
+      var self = this;
+      self.pages = Math.ceil(self.content.length / self.perPage);
 
       if (self.pages > self.pageLimit) {
-        self.groupPages = true
+        self.groupPages = true;
       }
     },
     previousGroup: function () {
-      var self = this
+      var self = this;
 
       if (!self.startCapLimitReached) {
         if (self.startCap - 20 > 0) {
-          self.page = self.startCap - 20
-          self.startCap = self.startCap - 20
-          self.endCap = self.endCap - 20
-          self.endCapLimitReached = false
+          self.page = self.startCap - 20;
+          self.startCap = self.startCap - 20;
+          self.endCap = self.endCap - 20;
+          self.endCapLimitReached = false;
         } else {
-          self.page = 1
-          self.startCap = 0
-          self.endCap = 20
-          self.startCapLimitReached = true
-          self.endCapLimitReached = false
+          self.page = 1;
+          self.startCap = 0;
+          self.endCap = 20;
+          self.startCapLimitReached = true;
+          self.endCapLimitReached = false;
         }
       }
     },
     nextGroup: function () {
-      var self = this
+      var self = this;
 
       if (!self.endCapLimitReached) {
         if (self.endCap + 20 < self.pages) {
-          self.page = self.startCap + 20
-          self.startCap = self.startCap + 20
-          self.endCap = self.endCap + 20
-          self.startCapLimitReached = false
+          self.page = self.startCap + 20;
+          self.startCap = self.startCap + 20;
+          self.endCap = self.endCap + 20;
+          self.startCapLimitReached = false;
         } else {
-          self.page = self.startCap + 20
-          self.startCap = self.startCap + 20
-          self.endCap = self.pages
-          self.endCapLimitReached = true
-          self.startCapLimitReached = false
+          self.page = self.startCap + 20;
+          self.startCap = self.startCap + 20;
+          self.endCap = self.pages;
+          self.endCapLimitReached = true;
+          self.startCapLimitReached = false;
         }
       }
     },
     prevPage: function () {
-      var self = this
-      if (self.page > 1) self.page -= 1
+      var self = this;
+      if (self.page > 1) self.page -= 1;
     },
     nextPage: function () {
-      var self = this
-      if (self.page < self.pages) self.page += 1
+      var self = this;
+      if (self.page < self.pages) self.page += 1;
     }
   },
   computed: {
     arrayResults: function () {
       var start = (this.page - 1) * this.perPage,
-        end = start + this.perPage
-      return this.content && this.content.slice(start, end)
+        end = start + this.perPage;
+      return this.content && this.content.slice(start, end);
     }
   },
   mounted: function () {
-    this.calculatePages()
+    this.calculatePages();
   },
   watch: {
     content: {
       handler() {
-        this.calculatePages()
+        this.calculatePages();
       },
       deep: true
     }
   }
-}
+};
 </script>
 
 <style></style>

@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from 'axios';
 
 export const authentication = {
   state: () => ({
@@ -7,12 +7,12 @@ export const authentication = {
   }),
   mutations: {
     saveUser(state, payload) {
-      state.userInfo = payload['user']
-      state.loggedIn = Object.prototype.hasOwnProperty.call(state.userInfo, 'login') ? true : false
+      state.userInfo = payload['user'];
+      state.loggedIn = Object.prototype.hasOwnProperty.call(state.userInfo, 'login') ? true : false;
     },
     resetUser(state) {
-      state.userInfo = {}
-      state.loggedIn = false
+      state.userInfo = {};
+      state.loggedIn = false;
     }
   },
   actions: {
@@ -26,26 +26,26 @@ export const authentication = {
             login: 'marcodarko',
             avatar_url: 'https://avatars.githubusercontent.com/u/23092057?v=4'
           }
-        })
+        });
       } else {
         axios
           .get('/user')
           .then((response) => {
-            commit('saveUser', { user: response.data })
+            commit('saveUser', { user: response.data });
           })
           .catch((err) => {
-            commit('resetUser')
-            throw err
-          })
+            commit('resetUser');
+            throw err;
+          });
       }
     }
   },
   getters: {
     userInfo: (state) => {
-      return state.userInfo
+      return state.userInfo;
     },
     loggedIn: (state) => {
-      return state.loggedIn
+      return state.loggedIn;
     }
   }
-}
+};

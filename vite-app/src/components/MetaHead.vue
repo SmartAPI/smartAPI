@@ -31,28 +31,28 @@ export default {
   },
   computed: {
     path: function () {
-      return this.$route.fullPath
+      return this.$route.fullPath;
     }
   },
   mounted: function () {
     //title
-    document.querySelector('title').innerHTML = this.title
-    document.querySelector("meta[name='twitter:title']").setAttribute('content', this.title)
-    document.querySelector("meta[property='og:site_name']").setAttribute('content', this.title)
-    document.querySelector("meta[property='og:title']").setAttribute('content', this.title)
+    document.querySelector('title').innerHTML = this.title;
+    document.querySelector("meta[name='twitter:title']").setAttribute('content', this.title);
+    document.querySelector("meta[property='og:site_name']").setAttribute('content', this.title);
+    document.querySelector("meta[property='og:title']").setAttribute('content', this.title);
     //desc
-    document.querySelector("meta[name='description']").setAttribute('content', this.description)
+    document.querySelector("meta[name='description']").setAttribute('content', this.description);
     document
       .querySelector("meta[name='twitter:description']")
-      .setAttribute('content', this.description)
-    document.querySelector("meta[name='twitter:card']").setAttribute('content', this.description)
+      .setAttribute('content', this.description);
+    document.querySelector("meta[name='twitter:card']").setAttribute('content', this.description);
     //path
     document
       .querySelector("meta[name='twitter:url']")
-      .setAttribute('content', 'https://smart-api.info' + this.path)
+      .setAttribute('content', 'https://smart-api.info' + this.path);
     document
       .querySelector("meta[property='og:url']")
-      .setAttribute('content', 'https://smart-api.info' + this.path)
+      .setAttribute('content', 'https://smart-api.info' + this.path);
   }
-}
+};
 </script>

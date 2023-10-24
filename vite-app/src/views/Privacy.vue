@@ -81,5 +81,5 @@
 <script>
 export default {
   name: 'Privacy'
-}
+};
 </script>

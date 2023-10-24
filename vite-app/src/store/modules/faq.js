@@ -234,7 +234,7 @@ export const faq = {
   strict: true,
   getters: {
     faq: (state) => {
-      return state.faq
+      return state.faq;
     }
   }
-}
+};

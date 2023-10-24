@@ -75,8 +75,8 @@
         class="btn"
         :class="showDetails ? 'grey lighten-3 blue-text' : 'blue white-text'"
         @click.prevent="
-          showDetails = !showDetails
-          googleAnalytics('Registry_APIs', api.info.title)
+          showDetails = !showDetails;
+          googleAnalytics('Registry_APIs', api.info.title);
         "
         v-text="showDetails ? 'HIDE DETAILS' : 'SHOW DETAILS'"
       ></button>
@@ -275,14 +275,14 @@
 </template>
 
 <script>
-import SourceStatus from '../components/SourceStatus.vue'
-import UptimeStatus from '../components/UptimeStatus.vue'
-import CollapsibleText from '../components/CollapsibleText.vue'
-import { truncate } from 'lodash'
-import tippy from 'tippy.js'
+import SourceStatus from '../components/SourceStatus.vue';
+import UptimeStatus from '../components/UptimeStatus.vue';
+import CollapsibleText from '../components/CollapsibleText.vue';
+import { truncate } from 'lodash';
+import tippy from 'tippy.js';
 
-import { marked } from 'marked'
-import moment from 'moment'
+import { marked } from 'marked';
+import moment from 'moment';
 
 export default {
   name: 'RegistryItem',
@@ -297,19 +297,19 @@ export default {
       overLimit: false,
       pathTotal: 0,
       bt_tag: Object
-    }
+    };
   },
   props: ['api', 'total', 'user'],
   methods: {
     truncate(text) {
-      return truncate(text)
+      return truncate(text);
     },
     compiledMarkdown: function (mdtext) {
-      return marked(mdtext)
+      return marked(mdtext);
     },
     getDate(timestamp) {
-      var date = moment(timestamp).format('LL')
-      return date
+      var date = moment(timestamp).format('LL');
+      return date;
     },
     googleAnalytics(category, label) {
       // console.log('category',category,label)
@@ -317,89 +317,89 @@ export default {
 
       switch (category) {
         case 'Registry_Tag':
-          this.$gtag.event('click', { event_category: 'tag', event_label: label, event_value: 1 })
-          break
+          this.$gtag.event('click', { event_category: 'tag', event_label: label, event_value: 1 });
+          break;
         case 'Registry_Author':
           this.$gtag.event('click', {
             event_category: 'author',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_APIs':
           this.$gtag.event('click', {
             event_category: 'expanded',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_SharedURL':
           this.$gtag.event('click', {
             event_category: 'shared',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_Searches':
           this.$gtag.event('click', {
             event_category: 'searched',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_Documentation':
           this.$gtag.event('click', {
             event_category: 'documentation',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         default:
           this.$gtag.event('click', {
             event_category: 'general',
             event_label: label,
             event_value: 1
-          })
+          });
       }
     },
     operationStyling: function (op) {
       //styles operations based on type
       switch (op.substr(0, 3)) {
         case 'GET':
-          return 'bold light-blue darken-1 white-text operation'
+          return 'bold light-blue darken-1 white-text operation';
         case 'POS':
-          return 'bold light-green white-text operation'
+          return 'bold light-green white-text operation';
         case 'PUT':
-          return 'bold amber lighten-2 white-text operation'
+          return 'bold amber lighten-2 white-text operation';
         case 'DEL':
-          return 'bold deep-orange darken-1 white-text operation'
+          return 'bold deep-orange darken-1 white-text operation';
         case 'HEA':
-          return 'bold deep-purple lighten-1 white-text operation'
+          return 'bold deep-purple lighten-1 white-text operation';
         case 'PAT':
-          return 'bold brown lighten-1 white-text operation'
+          return 'bold brown lighten-1 white-text operation';
         case 'PAR':
-          return 'bold teal lighten-1 white-text operation'
+          return 'bold teal lighten-1 white-text operation';
         default:
-          return 'bold gray lighten-1 white-text operation'
+          return 'bold gray lighten-1 white-text operation';
       }
     },
     buildEditURL: function (raw_url) {
       // build edit github url from raw.githubusercontent type source:
       if (raw_url.includes('raw.githubusercontent')) {
-        var new_url = raw_url.replace('/raw.githubusercontent.com/', '').split('/')
-        new_url.splice(3, 0, 'edit')
-        new_url.splice(1, 0, '/github.com')
-        new_url = new_url.join('/')
-        return new_url
+        var new_url = raw_url.replace('/raw.githubusercontent.com/', '').split('/');
+        new_url.splice(3, 0, 'edit');
+        new_url.splice(1, 0, '/github.com');
+        new_url = new_url.join('/');
+        return new_url;
       }
       // build edit github url from github type source:
       else {
-        return raw_url.replace('/raw/', '/edit/')
+        return raw_url.replace('/raw/', '/edit/');
       }
     },
     getOperations: function (api, raw = false) {
-      var self = this
-      var operations = []
+      var self = this;
+      var operations = [];
       if (raw) {
         for (var path in api.paths) {
           for (var method in api.paths[path]) {
@@ -407,55 +407,55 @@ export default {
               method: self.validateFields(method.toUpperCase()),
               summary: path['pathitem'][method].summary,
               path: path
-            })
+            });
           }
         }
       } else {
         for (let endpoint in api.paths) {
-          const item = api.paths[endpoint]
+          const item = api.paths[endpoint];
           for (var method2 in item) {
             if (Object.prototype.hasOwnProperty.call(item[method2], 'summary')) {
               operations.push({
                 method: self.validateFields(method2.toUpperCase()),
                 summary: item[method2]['summary'],
                 path: endpoint
-              })
+              });
             } else if (Object.prototype.hasOwnProperty.call(item[method2], 'description')) {
               operations.push({
                 method: self.validateFields(method2.toUpperCase()),
                 summary: item[method2]['description'],
                 path: endpoint
-              })
+              });
             } else {
               // no description provided
               operations.push({
                 method: self.validateFields(method2.toUpperCase()),
                 summary: '',
                 path: endpoint
-              })
+              });
             }
           }
         }
       }
-      self.pathTotal = operations.length
+      self.pathTotal = operations.length;
       if (self.pathTotal > 20) {
-        operations = operations.slice(0, 19)
-        self.overLimit = true
+        operations = operations.slice(0, 19);
+        self.overLimit = true;
       }
-      return operations
+      return operations;
     },
     validateFields(path) {
-      let paths = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'TRACE', 'HEAD', 'CONNECT']
+      let paths = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'TRACE', 'HEAD', 'CONNECT'];
       if (paths.includes(path)) {
-        return path
+        return path;
       } else if (path === 'PARAMETERS') {
-        return 'GET'
+        return 'GET';
       }
     }
   },
   mounted: function () {
     if (Object.prototype.hasOwnProperty.call(this.api, 'tags')) {
-      this.bt_tag = this.api?.['tags'].find((element) => element.name == 'biothings')
+      this.bt_tag = this.api?.['tags'].find((element) => element.name == 'biothings');
     }
     /*eslint-disable */
     tippy('#myAPIErr' + this.api._id, {
@@ -489,10 +489,10 @@ export default {
       interactive: true,
       animation: false,
       allowHTML: true
-    })
+    });
     /*eslint-enable */
   }
-}
+};
 </script>
 
 <style></style>

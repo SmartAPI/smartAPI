@@ -149,8 +149,8 @@
 </template>
 
 <script>
-import ll from '@/assets/img/logo-large.svg'
-import hl from '@/assets/img/header-logo.png'
+import ll from '@/assets/img/logo-large.svg';
+import hl from '@/assets/img/header-logo.png';
 
 export default {
   name: 'Branding',
@@ -158,7 +158,7 @@ export default {
     return {
       d2: ll,
       d3: hl
-    }
+    };
   }
-}
+};
 </script>

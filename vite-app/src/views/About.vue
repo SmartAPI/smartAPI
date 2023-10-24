@@ -239,8 +239,8 @@
 </template>
 
 <script>
-import { marked } from 'marked'
-import { mapGetters } from 'vuex'
+import { marked } from 'marked';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {},
@@ -249,21 +249,21 @@ export default {
     return {
       showModal: false,
       selectedPerson: {}
-    }
+    };
   },
   methods: {
     popUpDetails: function (person) {
-      this.showModal = true
-      this.selectedPerson = person
+      this.showModal = true;
+      this.selectedPerson = person;
     },
     compiledMarkdown: function (mdtext) {
-      return marked(mdtext)
+      return marked(mdtext);
     }
   },
   computed: {
     ...mapGetters(['contributors', 'otherMembers'])
   }
-}
+};
 </script>
 
 <style lang="css" scoped>

@@ -56,18 +56,18 @@ export default {
     return {
       q: '',
       lookupResults: []
-    }
+    };
   },
   props: ['type'],
   methods: {
     handlePillSubmit() {
-      var self = this
+      var self = this;
 
-      self.$toast.success('Updating...')
+      self.$toast.success('Updating...');
 
       setTimeout(function () {
         if (self.options.includes(self.q)) {
-          self.$store.commit('pushPill', { type: self.type, q: self.q })
+          self.$store.commit('pushPill', { type: self.type, q: self.q });
         } else {
           self.$swal({
             icon: 'error',
@@ -75,46 +75,46 @@ export default {
             title: 'Not an option',
             showConfirmButton: false,
             timer: 1000
-          })
+          });
         }
 
-        var payload2 = {}
-        payload2['name'] = self.type
-        payload2['q'] = self.selected
+        var payload2 = {};
+        payload2['name'] = self.type;
+        payload2['q'] = self.selected;
 
-        self.$store.commit('saveInput', payload2)
+        self.$store.commit('saveInput', payload2);
         //temp fix
-        console.log('%c ✅ SUBMIT ' + self.type, 'color:limegreen')
+        console.log('%c ✅ SUBMIT ' + self.type, 'color:limegreen');
         // self.$store.dispatch('handleQuery')
         // self.$store.dispatch('buildURL');
-        self.q = ''
-      }, 500)
+        self.q = '';
+      }, 500);
     },
     remove(item) {
-      var self = this
-      self.$toast.success('Updating...')
+      var self = this;
+      self.$toast.success('Updating...');
 
       setTimeout(function () {
-        self.$store.commit('removePill', { type: self.type, q: item })
-        console.log('%c ❌ REMOVE ' + self.type, 'color:red')
+        self.$store.commit('removePill', { type: self.type, q: item });
+        console.log('%c ❌ REMOVE ' + self.type, 'color:red');
         // self.$store.dispatch('handleQuery')
         // self.$store.dispatch('buildURL');
-      }, 500)
+      }, 500);
     },
     getBackClass() {
       switch (this.type) {
         case 'predicate':
-          return 'purple'
+          return 'purple';
         case 'subject':
-          return 'light-green'
+          return 'light-green';
         case 'object':
-          return 'orange'
+          return 'orange';
         case 'node':
-          return 'cyan'
+          return 'cyan';
         case 'edge':
-          return 'cyan'
+          return 'cyan';
         default:
-          return 'white'
+          return 'white';
       }
     }
   },
@@ -122,46 +122,46 @@ export default {
     options: function () {
       switch (this.type) {
         case 'predicate':
-          return this.$store.getters.getPredicateOptions
+          return this.$store.getters.getPredicateOptions;
         case 'edge':
-          return this.$store.getters.getPredicateOptions
+          return this.$store.getters.getPredicateOptions;
         case 'subject':
-          return this.$store.getters.getSubjectOptions
+          return this.$store.getters.getSubjectOptions;
         case 'object':
-          return this.$store.getters.getObjectOptions
+          return this.$store.getters.getObjectOptions;
         case 'node':
-          return this.$store.getters.getObjectOptions
+          return this.$store.getters.getObjectOptions;
         default:
-          console.log('NO AUTOCOMPLETE')
-          return []
+          console.log('NO AUTOCOMPLETE');
+          return [];
       }
     },
     selected: function () {
       switch (this.type) {
         case 'predicate':
-          return this.$store.getters.getPredicateSelected
+          return this.$store.getters.getPredicateSelected;
         case 'edge':
-          return this.$store.getters.getEdgeSelected
+          return this.$store.getters.getEdgeSelected;
         case 'subject':
-          return this.$store.getters.getSubjectSelected
+          return this.$store.getters.getSubjectSelected;
         case 'object':
-          return this.$store.getters.getObjectSelected
+          return this.$store.getters.getObjectSelected;
         case 'node':
-          return this.$store.getters.getNode_Selected
+          return this.$store.getters.getNode_Selected;
         default:
-          console.log('NO SELECTED OPTIONS')
-          return []
+          console.log('NO SELECTED OPTIONS');
+          return [];
       }
     },
     loading: function () {
-      return this.$store.getters.loading
+      return this.$store.getters.loading;
     },
     expand: {
       get() {
-        return this.$store.getters.expand.includes(this.type)
+        return this.$store.getters.expand.includes(this.type);
       },
       set() {
-        this.$store.commit('expandThis', this.type)
+        this.$store.commit('expandThis', this.type);
       }
     }
   },
@@ -170,41 +170,41 @@ export default {
       //after selecting from datalist automatically send selection
       //if selection exists
       if (q && this.options.includes(q)) {
-        this.handlePillSubmit()
+        this.handlePillSubmit();
       }
     },
     options: function (o) {
-      var self = this
-      let html = ''
+      var self = this;
+      let html = '';
       if (o.length) {
-        document.getElementById(self.type + 'list').innerHTML = ''
+        document.getElementById(self.type + 'list').innerHTML = '';
         for (var i = 0, len = o.length; i < len; i++) {
-          let item = o[i]
-          html += `<option value="` + item + `">`
+          let item = o[i];
+          html += `<option value="` + item + `">`;
         }
-        document.getElementById(self.type + 'list').innerHTML = html
+        document.getElementById(self.type + 'list').innerHTML = html;
       }
     },
     selected: {
       handler(s) {
         // load example by watching selected
-        this.$store.commit('saveInput', { name: this.type, q: s })
+        this.$store.commit('saveInput', { name: this.type, q: s });
         console.log(
           '%c Q from WATCHER from ' + this.type,
           'color:white; background-color:' + this.getBackClass() + ';'
-        )
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
+        );
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
       },
       deep: true
     },
     expand: function () {
-      this.$toast.success('Updating Results...')
+      this.$toast.success('Updating Results...');
       setTimeout(() => {
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
-      }, 1000)
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      }, 1000);
     }
   }
-}
+};
 </script>

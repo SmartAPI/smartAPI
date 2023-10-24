@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import ClipboardJS from 'clipboard'
+import ClipboardJS from 'clipboard';
 
 export default {
   name: 'CopyButton',
@@ -23,7 +23,7 @@ export default {
       badgeID: Math.floor(Math.random() * 90000) + 10000,
       cls: '',
       showAnimation: false
-    }
+    };
   },
   props: {
     copy: {
@@ -41,24 +41,24 @@ export default {
   },
   methods: {
     notify() {
-      this.$toast.success(this.copy_msg)
-      this.animate()
+      this.$toast.success(this.copy_msg);
+      this.animate();
     },
     animate() {
-      let self = this
-      this.cls = 'indigo accent-4 white-text'
-      this.showAnimation = true
+      let self = this;
+      this.cls = 'indigo accent-4 white-text';
+      this.showAnimation = true;
       setTimeout(function () {
-        self.cls = ''
-        self.showAnimation = false
-      }, 1500)
+        self.cls = '';
+        self.showAnimation = false;
+      }, 1500);
     }
   },
   mounted: function () {
-    new ClipboardJS('.copyBtn')
-    ClipboardJS.isSupported()
+    new ClipboardJS('.copyBtn');
+    ClipboardJS.isSupported();
   }
-}
+};
 </script>
 
 <style>

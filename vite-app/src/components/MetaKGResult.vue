@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import axios from 'axios'
-import tippy from 'tippy.js'
+import axios from 'axios';
+import tippy from 'tippy.js';
 
 export default {
   name: 'MetaKGResult',
@@ -47,39 +47,39 @@ export default {
     return {
       hoverInfo: {},
       badgeID: Math.floor(Math.random() * 90000) + 10000
-    }
+    };
   },
   methods: {
     highlightRow: function (item) {
-      var self = this
+      var self = this;
 
-      self.hoverInfo = item
+      self.hoverInfo = item;
 
-      var payload = {}
-      payload['item'] = item
-      this.$store.dispatch('highlightRow', payload)
+      var payload = {};
+      payload['item'] = item;
+      this.$store.dispatch('highlightRow', payload);
     },
     highlightRowAndZoom: function (item) {
-      var self = this
+      var self = this;
 
-      self.hoverInfo = item
+      self.hoverInfo = item;
 
-      var payload = {}
-      payload['item'] = item
-      this.$store.dispatch('highlightRowAndZoom', payload)
+      var payload = {};
+      payload['item'] = item;
+      this.$store.dispatch('highlightRowAndZoom', payload);
     },
     unhighlightRow: function (item) {
-      var payload = {}
-      let edgeName = item['association']['api_name'] + ' : ' + item['association']['predicate']
-      payload['unhighlight'] = edgeName
-      payload['item'] = item
-      this.$store.dispatch('unhighlightRow', payload)
+      var payload = {};
+      let edgeName = item['association']['api_name'] + ' : ' + item['association']['predicate'];
+      payload['unhighlight'] = edgeName;
+      payload['item'] = item;
+      this.$store.dispatch('unhighlightRow', payload);
     },
     recenterGraph() {
-      this.$store.dispatch('recenterGraph')
+      this.$store.dispatch('recenterGraph');
     },
     createTips() {
-      var self = this
+      var self = this;
 
       tippy('.resultInfo' + self.badgeID, {
         trigger: 'click',
@@ -92,9 +92,9 @@ export default {
         onShow(instance) {
           if (self.hoverInfo) {
             // hover item info saved to state
-            let info = self.hoverInfo
-            let desc = ''
-            let status = 'N/A'
+            let info = self.hoverInfo;
+            let desc = '';
+            let status = 'N/A';
 
             axios
               .get(
@@ -106,15 +106,15 @@ export default {
                 // console.log(res.data);
 
                 if (res.data.hits.length) {
-                  desc = res.data.hits[0]['info']['description'].substring(0, 400) + '...'
+                  desc = res.data.hits[0]['info']['description'].substring(0, 400) + '...';
                   if (
                     res.data.hits[0] &&
                     res.data.hits[0]['_status'] &&
                     res.data.hits[0]['_status']['uptime_status']
                   ) {
-                    status = res.data.hits[0]['_status']['uptime_status']
+                    status = res.data.hits[0]['_status']['uptime_status'];
                   } else {
-                    status = 'N/A'
+                    status = 'N/A';
                   }
 
                   instance.setContent(
@@ -171,9 +171,9 @@ export default {
                     </tbody>
                     </table>
                     </div>`
-                  )
+                  );
                 } else {
-                  instance.setContent(`<div>No details were found on SmartAPI</div>`)
+                  instance.setContent(`<div>No details were found on SmartAPI</div>`);
                 }
               })
               .catch((err) => {
@@ -226,19 +226,19 @@ export default {
                     </tbody>
                 </table>
                 </div>`
-                )
+                );
 
-                throw err
-              })
+                throw err;
+              });
           }
         }
-      })
+      });
     }
   },
   mounted: function () {
-    this.createTips()
+    this.createTips();
   }
-}
+};
 </script>
 
 <style></style>

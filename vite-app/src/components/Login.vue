@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex';
 export default {
   name: 'Login',
   methods: {
@@ -25,13 +25,13 @@ export default {
   computed: {
     ...mapGetters(['loggedIn', 'userInfo']),
     nextPath: function () {
-      return this.$route.path
+      return this.$route.path;
     }
   },
   mounted: function () {
-    this.checkUser()
+    this.checkUser();
   }
-}
+};
 </script>
 
 <style scoped>

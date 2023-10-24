@@ -329,8 +329,8 @@
 </template>
 
 <script>
-import PillBox from '../components/PillBox.vue'
-import { mapGetters } from 'vuex'
+import PillBox from '../components/PillBox.vue';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -347,7 +347,7 @@ export default {
     return {
       hoverInfo: {},
       showOperations: false
-    }
+    };
   },
   computed: {
     ...mapGetters([
@@ -364,188 +364,188 @@ export default {
       'finalURL'
     ]),
     edgeLimit: function () {
-      return this.$store.getters.getLimit
+      return this.$store.getters.getLimit;
     },
     total: function () {
-      return this.$store.getters.total
+      return this.$store.getters.total;
     },
     size: {
       get() {
-        return this.$store.getters.size
+        return this.$store.getters.size;
       },
       set(v) {
-        return this.$store.commit('setSize', v)
+        return this.$store.commit('setSize', v);
       }
     },
     kp: {
       get() {
-        return this.$store.getters.kp
+        return this.$store.getters.kp;
       },
       set(v) {
         if (!v) {
           // if no KP filter reset KP Selected
-          this.$store.commit('setKPSelected', '')
+          this.$store.commit('setKPSelected', '');
         }
         // toggle KP off
         if (v) {
-          this.$store.commit('setARA', false)
-          this.$store.commit('setARASelected', '')
+          this.$store.commit('setARA', false);
+          this.$store.commit('setARASelected', '');
         }
-        return this.$store.commit('setKP', v)
+        return this.$store.commit('setKP', v);
       }
     },
     kpSelected: {
       get() {
-        return this.$store.getters.kpSelected
+        return this.$store.getters.kpSelected;
       },
       set(v) {
-        return this.$store.commit('setKPSelected', v)
+        return this.$store.commit('setKPSelected', v);
       }
     },
     araSelected: {
       get() {
-        return this.$store.getters.araSelected
+        return this.$store.getters.araSelected;
       },
       set(v) {
-        return this.$store.commit('setARASelected', v)
+        return this.$store.commit('setARASelected', v);
       }
     },
     ara: {
       get() {
-        return this.$store.getters.ara
+        return this.$store.getters.ara;
       },
       set(v) {
         if (!v) {
           // if no KP filter reset KP Selected
-          this.$store.commit('setARASelected', '')
+          this.$store.commit('setARASelected', '');
         }
         // toggle ARA off
         if (v) {
-          this.$store.commit('setKP', false)
-          this.$store.commit('setKPSelected', '')
+          this.$store.commit('setKP', false);
+          this.$store.commit('setKPSelected', '');
         }
-        return this.$store.commit('setARA', v)
+        return this.$store.commit('setARA', v);
       }
     },
     query_term: {
       get() {
-        return this.$store.getters.query_term
+        return this.$store.getters.query_term;
       },
       set(v) {
-        return this.$store.commit('setTerm', v)
+        return this.$store.commit('setTerm', v);
       }
     }
   },
   watch: {
     results: function (v) {
       if (!v.length) {
-        this.$toast.error('No results')
+        this.$toast.error('No results');
       }
     },
     overEdgeLimit: function (v) {
       if (v > 0) {
-        this.$toast.info('Over ' + this.edgeLimit + ' edge limit')
+        this.$toast.info('Over ' + this.edgeLimit + ' edge limit');
       }
     },
     size: function () {
-      this.$toast.success('Updating Results...')
+      this.$toast.success('Updating Results...');
       setTimeout(() => {
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
-      }, 1000)
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      }, 1000);
     },
     ara: function () {
-      this.$toast.success('Updating Results...')
+      this.$toast.success('Updating Results...');
       setTimeout(() => {
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
-      }, 1000)
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      }, 1000);
     },
     kp: function () {
-      this.$toast.success('Updating Results...')
+      this.$toast.success('Updating Results...');
       setTimeout(() => {
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
-      }, 1000)
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      }, 1000);
     },
     kpSelected: function () {
-      this.$toast.success('Updating Results...')
+      this.$toast.success('Updating Results...');
       setTimeout(() => {
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
-      }, 1000)
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      }, 1000);
     },
     araSelected: function () {
-      this.$toast.success('Updating Results...')
+      this.$toast.success('Updating Results...');
       setTimeout(() => {
-        this.$store.dispatch('handleQuery')
-        this.$store.dispatch('buildURL')
-      }, 1000)
+        this.$store.dispatch('handleQuery');
+        this.$store.dispatch('buildURL');
+      }, 1000);
     },
     generalMode: function () {
-      this.reset()
+      this.reset();
     }
   },
   methods: {
     readableName(text) {
-      const result = text.replace(/([A-Z])/g, ' $1')
-      return result.charAt(0).toUpperCase() + result.slice(1)
+      const result = text.replace(/([A-Z])/g, ' $1');
+      return result.charAt(0).toUpperCase() + result.slice(1);
     },
     clear() {
-      this.$store.commit('setTerm', '')
-      this.search()
+      this.$store.commit('setTerm', '');
+      this.search();
     },
     search() {
-      this.$store.dispatch('handleQuery')
-      this.$store.dispatch('buildURL')
+      this.$store.dispatch('handleQuery');
+      this.$store.dispatch('buildURL');
     },
     setNodeMode(v) {
       // this.generalMode = v;
-      this.$store.commit('setMode', v)
+      this.$store.commit('setMode', v);
     },
     numberWithCommas(x) {
-      return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
+      return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',');
     },
     reset() {
-      let self = this
-      this.$toast.success('Resetting please wait...')
+      let self = this;
+      this.$toast.success('Resetting please wait...');
       setTimeout(function () {
-        self.$store.commit('reset')
-        self.$store.dispatch('handleQuery')
-      }, 300)
+        self.$store.commit('reset');
+        self.$store.dispatch('handleQuery');
+      }, 300);
     },
     download() {
-      this.$store.dispatch('download')
+      this.$store.dispatch('download');
     },
     highlightRow: function (item) {
-      this.hoverInfo = item
-      this.$store.dispatch('highlightRow', { item: item })
+      this.hoverInfo = item;
+      this.$store.dispatch('highlightRow', { item: item });
     },
     highlightRowAndZoom: function (item) {
-      this.hoverInfo = item
-      this.$store.dispatch('highlightRowAndZoom', { item: item })
+      this.hoverInfo = item;
+      this.$store.dispatch('highlightRowAndZoom', { item: item });
     },
     unhighlightRow: function (item) {
-      let edgeName = item['api']['name'] + ' : ' + item['predicate']
-      this.$store.dispatch('unhighlightRow', { unhighlight: edgeName, item: item })
+      let edgeName = item['api']['name'] + ' : ' + item['predicate'];
+      this.$store.dispatch('unhighlightRow', { unhighlight: edgeName, item: item });
     },
     recenterGraph() {
-      this.$store.dispatch('recenterGraph')
+      this.$store.dispatch('recenterGraph');
     },
     resetGraph() {
-      this.$store.dispatch('resetGraph')
+      this.$store.dispatch('resetGraph');
     },
     checkForQuery() {
-      let current_url = window.location.href
-      let url = new URL(current_url)
-      this.$store.dispatch('handleParams', { params: url.search.slice(1) })
+      let current_url = window.location.href;
+      let url = new URL(current_url);
+      this.$store.dispatch('handleParams', { params: url.search.slice(1) });
     }
   },
   mounted: function () {
-    this.$store.dispatch('getOptions')
-    this.checkForQuery()
+    this.$store.dispatch('getOptions');
+    this.checkForQuery();
   }
-}
+};
 </script>
 
 <style>

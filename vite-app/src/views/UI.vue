@@ -57,17 +57,17 @@
 </template>
 
 <script>
-import { reactive, onMounted, onBeforeMount, getCurrentInstance } from 'vue'
-import { useRoute } from 'vue-router'
+import { reactive, onMounted, onBeforeMount, getCurrentInstance } from 'vue';
+import { useRoute } from 'vue-router';
 // import { useMeta } from 'vue-meta'
 
-import SwaggerUI from 'swagger-ui'
-import axios from 'axios'
-import moment from 'moment'
-import UptimeStatus from '../components/UptimeStatus.vue'
-import SourceStatus from '../components/SourceStatus.vue'
+import SwaggerUI from 'swagger-ui';
+import axios from 'axios';
+import moment from 'moment';
+import UptimeStatus from '../components/UptimeStatus.vue';
+import SourceStatus from '../components/SourceStatus.vue';
 
-import 'swagger-ui/dist/swagger-ui.css'
+import 'swagger-ui/dist/swagger-ui.css';
 
 export default {
   name: 'UI',
@@ -82,10 +82,10 @@ export default {
       api: Object,
       //ensure nav has mounted for teleport to work
       ready: false
-    })
+    });
 
-    const route = useRoute()
-    const app = getCurrentInstance()
+    const route = useRoute();
+    const app = getCurrentInstance();
 
     // Or use a computed prop
     // const computedMeta = computed(() => ({
@@ -106,13 +106,13 @@ export default {
                   (...args) => {
                     return ori(...args).filter(
                       (tagMeta) => tagMeta.get('operations') && tagMeta.get('operations').size > 0
-                    )
+                    );
                   }
               }
             }
           }
-        }
-      }
+        };
+      };
 
       const ui = SwaggerUI({
         url: dataurl,
@@ -125,7 +125,7 @@ export default {
           HideEmptyTagsPlugin
         ],
         onComplete: () => {
-          let servers_selected = document.querySelector('div.servers label select')?.value
+          let servers_selected = document.querySelector('div.servers label select')?.value;
           // console.log("severs", servers_selected)
           if (servers_selected) {
             if (servers_selected.includes('http:') && window.location.protocol == 'https:') {
@@ -134,52 +134,52 @@ export default {
                 .insertAdjacentHTML(
                   'afterend',
                   '<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>'
-                )
+                );
             }
           }
         }
-      })
-      window.ui = ui
-    }
+      });
+      window.ui = ui;
+    };
 
     let getMetadata = (url) => {
       axios
         .get(url)
         .then((res) => {
-          data.api = res.data
+          data.api = res.data;
         })
         .catch((err) => {
-          throw err
-        })
-    }
+          throw err;
+        });
+    };
 
     let convertDate = (timestamp) => {
-      var date = new Date(timestamp)
-      date = moment(date).format('LLL')
-      return date
-    }
+      var date = new Date(timestamp);
+      date = moment(date).format('LLL');
+      return date;
+    };
 
     onMounted(() => {
-      data.ready = true
+      data.ready = true;
       loadSwaggerUI(
         app.appContext.config.globalProperties.$apiUrl + '/metadata/' + data.apiID + '?raw=1'
-      )
-    })
+      );
+    });
 
     onBeforeMount(() => {
-      data.apiID = route.params.smartapi_id
+      data.apiID = route.params.smartapi_id;
       getMetadata(
         app.appContext.config.globalProperties.$apiUrl + '/metadata/' + data.apiID + '?raw=1'
-      )
-    })
+      );
+    });
 
     return {
       data,
       convertDate,
       status
-    }
+    };
   }
-}
+};
 </script>
 
 <style scoped>

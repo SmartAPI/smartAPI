@@ -19,7 +19,7 @@
 export default {
   name: 'VModal',
   inheritAttrs: false
-}
+};
 </script>
 
 <style scoped>

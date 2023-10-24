@@ -18,10 +18,10 @@
         :class="showDetails ? 'red white-text-imp' : 'grey'"
         v-text="showDetails ? 'Close' : 'Details'"
         @click="
-          showDetails = !showDetails
-          makeTable(tableData)
-          filter = 'All'
-          bgColor = 'grey'
+          showDetails = !showDetails;
+          makeTable(tableData);
+          filter = 'All';
+          bgColor = 'grey';
         "
       ></button>
     </div>
@@ -38,10 +38,10 @@
 </template>
 
 <script>
-import Chart from 'chart.js'
-import Tabulator from 'tabulator-tables'
-import axios from 'axios'
-import tippy from 'tippy.js'
+import Chart from 'chart.js';
+import Tabulator from 'tabulator-tables';
+import axios from 'axios';
+import tippy from 'tippy.js';
 
 export default {
   name: 'SummaryChart',
@@ -54,16 +54,16 @@ export default {
       bgColor: '',
       analytics: Object,
       badgeID: Math.floor(Math.random() * 90000) + 10000
-    }
+    };
   },
   props: ['data', 'summary_type', 'colors', 'apiname'],
   methods: {
     handleChartClick(label, color) {
-      let filtered = this.tableData.filter((d) => d.label.includes(label))
-      this.filter = label
-      this.bgColor = color
-      this.showDetails = true
-      this.makeTable(filtered, true)
+      let filtered = this.tableData.filter((d) => d.label.includes(label));
+      this.filter = label;
+      this.bgColor = color;
+      this.showDetails = true;
+      this.makeTable(filtered, true);
     },
     makeTable(data, hideSecondCol) {
       if (this.showDetails) {
@@ -76,13 +76,13 @@ export default {
               title: 'API',
               field: 'name',
               formatter: function (cell) {
-                var value = cell.getValue()
-                cell.getElement().style.whiteSpace = 'pre-wrap'
+                var value = cell.getValue();
+                cell.getElement().style.whiteSpace = 'pre-wrap';
                 return (
                   "<b class='blue-text'>" +
                   value +
                   " <i class='material-icons tiny blue-text'>launch</i></b>"
-                )
+                );
               }
             },
             hideSecondCol
@@ -94,32 +94,32 @@ export default {
                 }
           ],
           rowClick: function (e, row) {
-            var a = document.createElement('a')
-            a.href = '/registry?q=' + row.getData().id
-            a.target = '_blank'
-            a.click()
+            var a = document.createElement('a');
+            a.href = '/registry?q=' + row.getData().id;
+            a.target = '_blank';
+            a.click();
           }
-        })
+        });
       }
     },
     getRandomColor() {
-      var letters = '0123456789ABCDEF'
-      var color = '#'
+      var letters = '0123456789ABCDEF';
+      var color = '#';
       for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)]
+        color += letters[Math.floor(Math.random() * 16)];
       }
-      return color
+      return color;
     },
     getRandomColors(numberOfColors) {
-      let colors = []
+      let colors = [];
       for (var i = 0; i < numberOfColors; i++) {
-        colors.push(this.getRandomColor())
+        colors.push(this.getRandomColor());
       }
-      return colors
+      return colors;
     },
     byTeamsIn(field) {
-      let self = this
-      let teams = {}
+      let self = this;
+      let teams = {};
       //console.log('By Teams in: '+field)
 
       self.data.forEach((item) => {
@@ -131,30 +131,30 @@ export default {
             id: item['_id'],
             name: item['info']['title'],
             label: item['info'][field]['team'].toString()
-          })
+          });
           if (typeof item['info'][field]['team'] !== 'string') {
             item['info'][field]['team'].forEach((team) => {
               if (team in teams) {
-                teams[team]++
+                teams[team]++;
               } else {
-                teams[team] = 1
+                teams[team] = 1;
               }
-            })
+            });
           } else {
             if (item['info'][field]['team'] in teams) {
-              teams[item['info'][field]['team']]++
+              teams[item['info'][field]['team']]++;
             } else {
-              teams[item['info'][field]['team']] = 1
+              teams[item['info'][field]['team']] = 1;
             }
           }
         }
-      })
+      });
 
       let teams_sorted = Object.fromEntries(
         Object.entries(teams)
           .sort(([, a], [, b]) => a - b)
           .reverse()
-      )
+      );
 
       let data = {
         datasets: [
@@ -167,12 +167,12 @@ export default {
           }
         ],
         labels: Object.keys(teams_sorted)
-      }
-      self.drawHorBarChart(data)
+      };
+      self.drawHorBarChart(data);
     },
     byComponentsIn(field) {
-      let self = this
-      let components = {}
+      let self = this;
+      let components = {};
       //console.log('By Components in: '+field)
 
       self.data.forEach((item) => {
@@ -184,30 +184,30 @@ export default {
             id: item['_id'],
             name: item['info']['title'],
             label: item['info'][field]['component']
-          })
+          });
           if (typeof item['info'][field]['component'] !== 'string') {
             item['info'][field]['component'].forEach((c) => {
               if (c in components) {
-                components[c]++
+                components[c]++;
               } else {
-                components[c] = 1
+                components[c] = 1;
               }
-            })
+            });
           } else {
             if (item['info'][field]['component'] in components) {
-              components[item['info'][field]['component']]++
+              components[item['info'][field]['component']]++;
             } else {
-              components[item['info'][field]['component']] = 1
+              components[item['info'][field]['component']] = 1;
             }
           }
         }
-      })
+      });
 
       let components_sorted = Object.fromEntries(
         Object.entries(components)
           .sort(([, a], [, b]) => a - b)
           .reverse()
-      )
+      );
 
       let data = {
         datasets: [
@@ -220,12 +220,12 @@ export default {
           }
         ],
         labels: Object.keys(components_sorted)
-      }
-      self.drawBarChart(data, true)
+      };
+      self.drawBarChart(data, true);
     },
     byStatus(field) {
-      let self = this
-      let statuses = {}
+      let self = this;
+      let statuses = {};
 
       if (field == 'uptime_status') {
         statuses = {
@@ -233,7 +233,7 @@ export default {
           unknown: 0,
           incompatible: 0,
           fail: 0
-        }
+        };
       }
 
       self.data.forEach((item) => {
@@ -253,46 +253,46 @@ export default {
                   : item['_status'][field] == '499'
                   ? 'Invalid'
                   : 'Broken'
-            })
+            });
           } else {
             self.tableData.push({
               id: item['_id'],
               name: item['info']['title'],
               label: item['_status'][field]
-            })
+            });
           }
           //chart data
           if (item['_status'][field] in statuses) {
-            statuses[item['_status'][field]]++
+            statuses[item['_status'][field]]++;
           } else {
-            statuses[item['_status'][field]] = 1
+            statuses[item['_status'][field]] = 1;
           }
         }
-      })
+      });
 
       if (field == 'refresh_status') {
         // assign UI used names
-        let with_labels = { OK: 0, 'Not Found': 0, Invalid: 0, Broken: 0 }
+        let with_labels = { OK: 0, 'Not Found': 0, Invalid: 0, Broken: 0 };
         for (const key in statuses) {
           switch (key) {
             case '200':
-              with_labels['OK'] += statuses[key]
-              break
+              with_labels['OK'] += statuses[key];
+              break;
             case '299':
-              with_labels['OK'] += statuses[key]
-              break
+              with_labels['OK'] += statuses[key];
+              break;
             case '404':
-              with_labels['Not Found'] += statuses[key]
-              break
+              with_labels['Not Found'] += statuses[key];
+              break;
             case '499':
-              with_labels['Invalid'] += statuses[key]
-              break
+              with_labels['Invalid'] += statuses[key];
+              break;
             default:
-              with_labels['Broken'] += statuses[key]
-              break
+              with_labels['Broken'] += statuses[key];
+              break;
           }
         }
-        statuses = with_labels
+        statuses = with_labels;
       }
 
       let data = {
@@ -306,21 +306,21 @@ export default {
           }
         ],
         labels: Object.keys(statuses)
-      }
+      };
 
-      self.drawPieChart(data)
+      self.drawPieChart(data);
     },
     hasFieldAndTag(field, tag) {
-      let self = this
-      let yesTF = 0
-      let noTF = 0
-      let yesTnoF = 0
-      let noTyesF = 0
+      let self = this;
+      let yesTF = 0;
+      let noTF = 0;
+      let yesTnoF = 0;
+      let noTyesF = 0;
 
-      let yesTF_label = `✅ Tagged "${tag}" ✅ Ext -${field}`
-      let yesTnoF_label = `✅ Tagged "${tag}" ❌ Ext -${field}`
-      let noTF_label = `❌ Tagged "${tag}" ❌ Ext -${field}`
-      let noTyesF_label = `❌ Tagged "${tag}" ✅ Ext -${field}`
+      let yesTF_label = `✅ Tagged "${tag}" ✅ Ext -${field}`;
+      let yesTnoF_label = `✅ Tagged "${tag}" ❌ Ext -${field}`;
+      let noTF_label = `❌ Tagged "${tag}" ❌ Ext -${field}`;
+      let noTyesF_label = `❌ Tagged "${tag}" ✅ Ext -${field}`;
 
       self.data.forEach((item) => {
         if (
@@ -328,34 +328,38 @@ export default {
           JSON.stringify(item['tags']).includes(tag)
         ) {
           if (Object.prototype.hasOwnProperty.call(item['info'], field)) {
-            yesTF++
+            yesTF++;
             self.tableData.push({
               id: item['_id'],
               name: item['info']['title'],
               label: yesTF_label
-            })
+            });
           } else {
-            yesTnoF++
+            yesTnoF++;
             self.tableData.push({
               id: item['_id'],
               name: item['info']['title'],
               label: yesTnoF_label
-            })
+            });
           }
         } else {
           if (Object.prototype.hasOwnProperty.call(item['info'], field)) {
-            noTyesF++
+            noTyesF++;
             self.tableData.push({
               id: item['_id'],
               name: item['info']['title'],
               label: noTyesF_label
-            })
+            });
           } else {
-            noTF++
-            self.tableData.push({ id: item['_id'], name: item['info']['title'], label: noTF_label })
+            noTF++;
+            self.tableData.push({
+              id: item['_id'],
+              name: item['info']['title'],
+              label: noTF_label
+            });
           }
         }
-      })
+      });
 
       let data = {
         datasets: [
@@ -365,75 +369,75 @@ export default {
           }
         ],
         labels: []
-      }
+      };
 
-      data.datasets[0].data.push(yesTF)
-      data.labels.push(yesTF_label)
-      data.datasets[0].backgroundColor.push('#20c96a')
+      data.datasets[0].data.push(yesTF);
+      data.labels.push(yesTF_label);
+      data.datasets[0].backgroundColor.push('#20c96a');
 
-      data.datasets[0].data.push(yesTnoF)
-      data.labels.push(yesTnoF_label)
-      data.datasets[0].backgroundColor.push('#ffbf47')
+      data.datasets[0].data.push(yesTnoF);
+      data.labels.push(yesTnoF_label);
+      data.datasets[0].backgroundColor.push('#ffbf47');
 
-      data.datasets[0].data.push(noTyesF)
-      data.labels.push(noTyesF_label)
-      data.datasets[0].backgroundColor.push('#925ed6')
+      data.datasets[0].data.push(noTyesF);
+      data.labels.push(noTyesF_label);
+      data.datasets[0].backgroundColor.push('#925ed6');
 
       if (self.summary_type !== 'x-trapi_Compliant') {
         noTF
           ? (data.datasets[0].data.push(noTF),
             data.labels.push(noTF_label),
             data.datasets[0].backgroundColor.push('#e65a78'))
-          : false
+          : false;
       }
 
-      self.drawDoughnutChart(data)
+      self.drawDoughnutChart(data);
     },
     byUserInteractions(apiname) {
-      let self = this
+      let self = this;
       axios
         .get(
           '	https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw'
         )
         .then((res) => {
           if (res.data.rows) {
-            self.analytics = res.data.rows
-            let data = { labels: [], datasets: [] }
-            let label = ''
-            let dataArray = []
+            self.analytics = res.data.rows;
+            let data = { labels: [], datasets: [] };
+            let label = '';
+            let dataArray = [];
 
             for (var i = 0; i < self.analytics.length; i++) {
               if (self.analytics[i][1].toLowerCase() === apiname.toLowerCase()) {
-                label = self.analytics[i][0].toUpperCase()
+                label = self.analytics[i][0].toUpperCase();
                 if (label == 'EXPANDED') {
-                  label = 'VIEWS'
+                  label = 'VIEWS';
                 }
-                data.labels.push(label)
-                let number = self.analytics[i][2]
+                data.labels.push(label);
+                let number = self.analytics[i][2];
                 self.tableData.push({
                   id: i,
                   name: label,
                   label: number
-                })
-                dataArray.push(number)
+                });
+                dataArray.push(number);
               }
             }
             data.datasets.push({
               label: 'Users',
               data: dataArray,
               backgroundColor: ['#3e95cd', '#8e5ea2', '#3cba9f', '#e8c3b9', '#c45850']
-            })
-            self.drawBarChart(data, false)
+            });
+            self.drawBarChart(data, false);
           }
         })
         .catch((err) => {
-          self.$toast.error(`Failed to get user interactions`)
-          throw err
-        })
+          self.$toast.error(`Failed to get user interactions`);
+          throw err;
+        });
     },
     drawDoughnutChart(data) {
-      let self = this
-      var ctx = document.getElementById(this.summary_type)
+      let self = this;
+      var ctx = document.getElementById(this.summary_type);
 
       new Chart(ctx, {
         type: 'doughnut',
@@ -457,17 +461,17 @@ export default {
           },
           onClick: function (e, item) {
             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
+              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor);
             } else {
-              self.showDetails = false
+              self.showDetails = false;
             }
           }
         }
-      })
+      });
     },
     drawPieChart(data) {
-      let self = this
-      var ctx = document.getElementById(this.summary_type)
+      let self = this;
+      var ctx = document.getElementById(this.summary_type);
 
       new Chart(ctx, {
         type: 'pie',
@@ -485,17 +489,17 @@ export default {
           },
           onClick: function (e, item) {
             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
+              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor);
             } else {
-              self.showDetails = false
+              self.showDetails = false;
             }
           }
         }
-      })
+      });
     },
     drawHorBarChart(data) {
-      let self = this
-      var ctx = document.getElementById(this.summary_type)
+      let self = this;
+      var ctx = document.getElementById(this.summary_type);
 
       new Chart(ctx, {
         type: 'horizontalBar',
@@ -525,17 +529,17 @@ export default {
           },
           onClick: function (e, item) {
             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
+              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor);
             } else {
-              self.showDetails = false
+              self.showDetails = false;
             }
           }
         }
-      })
+      });
     },
     drawBarChart(data, includeTotal) {
-      let self = this
-      var ctx = document.getElementById(this.summary_type)
+      let self = this;
+      var ctx = document.getElementById(this.summary_type);
 
       new Chart(ctx, {
         type: 'bar',
@@ -566,47 +570,47 @@ export default {
           },
           onClick: function (e, item) {
             if (item.length && Object.prototype.hasOwnProperty.call(item[0], '_view')) {
-              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor)
+              self.handleChartClick(item[0]._view.label, item[0]._view.backgroundColor);
             } else {
-              self.showDetails = false
+              self.showDetails = false;
             }
           }
         }
-      })
+      });
     },
     handleSummary(type) {
       //console.log('%c Summary Type: '+type, 'color:white; background-color:black;padding:2px;')
       switch (type) {
         case 'x-translator_Compliant':
-          this.hasFieldAndTag('x-translator', 'translator')
-          break
+          this.hasFieldAndTag('x-translator', 'translator');
+          break;
         case 'x-trapi_Compliant':
-          this.hasFieldAndTag('x-trapi', 'trapi')
-          break
+          this.hasFieldAndTag('x-trapi', 'trapi');
+          break;
         case 'By_Teams':
-          this.byTeamsIn('x-translator')
-          break
+          this.byTeamsIn('x-translator');
+          break;
         case 'By_Component':
-          this.byComponentsIn('x-translator')
-          break
+          this.byComponentsIn('x-translator');
+          break;
         case 'Uptime_Status':
-          this.byStatus('uptime_status')
-          this.tipClass = 'apiStatus'
-          break
+          this.byStatus('uptime_status');
+          this.tipClass = 'apiStatus';
+          break;
         case 'Source_Status':
-          this.byStatus('refresh_status')
-          this.tipClass = 'urlStatus'
-          break
+          this.byStatus('refresh_status');
+          this.tipClass = 'urlStatus';
+          break;
         case 'User_Interactions':
-          this.byUserInteractions(this.apiname)
-          break
+          this.byUserInteractions(this.apiname);
+          break;
         default:
-          break
+          break;
       }
     }
   },
   mounted: function () {
-    this.handleSummary(this.summary_type)
+    this.handleSummary(this.summary_type);
 
     /*eslint-disable */
     tippy('.whatIsUptime' + this.badgeID, {
@@ -670,9 +674,9 @@ export default {
                         </tr>
                         </tbody>
                     </table>
-                </div>`)
+                </div>`);
       }
-    })
+    });
     /*eslint-enable */
 
     /*eslint-disable */
@@ -739,10 +743,10 @@ export default {
       trigger: 'click',
       animation: false,
       allowHTML: true
-    })
+    });
     /*eslint-enable */
   }
-}
+};
 </script>
 
 <style lang="css">

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import tippy from 'tippy.js'
+import tippy from 'tippy.js';
 
 export default {
   name: 'SourceStatus',
@@ -17,46 +17,46 @@ export default {
       status: '',
       clss: '',
       badgeID: Math.floor(Math.random() * 90000) + 10000
-    }
+    };
   },
   props: ['refresh_status'],
   methods: {
     getStatus() {
-      let self = this
+      let self = this;
       if (self.refresh_status) {
         switch (self.refresh_status) {
           case 200:
-            self.status = 'OK'
-            self.clss = 'green'
-            break
+            self.status = 'OK';
+            self.clss = 'green';
+            break;
           case 299:
-            self.status = 'OK'
-            self.clss = 'green'
-            break
+            self.status = 'OK';
+            self.clss = 'green';
+            break;
           case 499:
-            self.status = 'INVALID'
-            self.clss = 'red'
-            break
+            self.status = 'INVALID';
+            self.clss = 'red';
+            break;
           case 599:
-            self.status = 'BROKEN'
-            self.clss = 'purple'
-            break
+            self.status = 'BROKEN';
+            self.clss = 'purple';
+            break;
           case 404:
-            self.status = 'NOT FOUND'
-            self.clss = 'orange'
-            break
+            self.status = 'NOT FOUND';
+            self.clss = 'orange';
+            break;
           default:
-            self.status = self.refresh_status
-            self.clss = 'black'
+            self.status = self.refresh_status;
+            self.clss = 'black';
         }
       } else {
-        self.status = 'N/A'
-        self.clss = 'grey darken-1'
+        self.status = 'N/A';
+        self.clss = 'grey darken-1';
       }
     }
   },
   mounted: function () {
-    this.getStatus()
+    this.getStatus();
 
     /*eslint-disable */
     tippy('.ss' + this.badgeID, {
@@ -122,8 +122,8 @@ export default {
       trigger: 'click',
       animation: false,
       allowHTML: true
-    })
+    });
     /*eslint-enable */
   }
-}
+};
 </script>

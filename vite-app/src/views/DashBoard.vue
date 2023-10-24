@@ -490,22 +490,22 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import moment from 'moment'
-import { sortBy, get } from 'lodash'
-import tippy from 'tippy.js'
-import axios from 'axios'
+import { mapGetters } from 'vuex';
+import moment from 'moment';
+import { sortBy, get } from 'lodash';
+import tippy from 'tippy.js';
+import axios from 'axios';
 
-import UptimeStatus from '../components/UptimeStatus.vue'
-import SourceStatus from '../components/SourceStatus.vue'
-import SummaryChart from '../components/SummaryChart.vue'
+import UptimeStatus from '../components/UptimeStatus.vue';
+import SourceStatus from '../components/SourceStatus.vue';
+import SummaryChart from '../components/SummaryChart.vue';
 
-import success_pic from '@/assets/img/api-sucess.svg'
-import fail_pic from '@/assets/img/api-fail.svg'
-import api_editor from '@/assets/img/api-editor.svg'
-import overwrite_pic from '@/assets/img/api-overwrite.svg'
-import error_pic from '@/assets/img/api-error.svg'
-import thinking_pic from '@/assets/img/api-thinking.svg'
+import success_pic from '@/assets/img/api-sucess.svg';
+import fail_pic from '@/assets/img/api-fail.svg';
+import api_editor from '@/assets/img/api-editor.svg';
+import overwrite_pic from '@/assets/img/api-overwrite.svg';
+import error_pic from '@/assets/img/api-error.svg';
+import thinking_pic from '@/assets/img/api-thinking.svg';
 
 export default {
   name: 'DashBoard',
@@ -538,22 +538,22 @@ export default {
       // analytics
       tags: Array,
       showModal: false
-    }
+    };
   },
   computed: {
     results: function () {
-      return this.searchResults.length ? this.searchResults : this.apis
+      return this.searchResults.length ? this.searchResults : this.apis;
     },
     ...mapGetters(['loggedIn', 'userInfo'])
   },
   methods: {
     checkUptime(id) {
-      let self = this
-      self.showLoading()
-      self.$toast.warning(`Please wait, this may take a few minutes...`)
+      let self = this;
+      self.showLoading();
+      self.$toast.warning(`Please wait, this may take a few minutes...`);
       if (id) {
-        var bodyFormData = new FormData()
-        bodyFormData.append('id', id)
+        var bodyFormData = new FormData();
+        bodyFormData.append('id', id);
         axios({
           method: 'post',
           url: '/api/uptime',
@@ -561,13 +561,13 @@ export default {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
           .then((res) => {
-            let allErrors = ''
+            let allErrors = '';
             if (res.data.details?.[1]) {
               res.data.details?.[1].forEach((e) => {
-                allErrors += `<li><small>${e}</small></li>`
-              })
+                allErrors += `<li><small>${e}</small></li>`;
+              });
             }
-            self.hideLoading()
+            self.hideLoading();
             self.$swal({
               imageUrl: api_editor,
               imageWidth: 200,
@@ -578,11 +578,11 @@ export default {
                 "</b></h1><p>Details: </p><div class='codeBox'><p class='blue-text p-1'><ul class='left-align'>" +
                 allErrors +
                 '</ul></p></div>'
-            })
+            });
           })
           .catch((err) => {
             if (err?.response?.data) {
-              self.hideLoading()
+              self.hideLoading();
               self.$swal({
                 title: "Oops, there's an issue!",
                 imageUrl: fail_pic,
@@ -593,18 +593,18 @@ export default {
                             <div class="padding20 orange lighten-5 codeBox"><code>` +
                     err.response.data.details || err.response.data + `</code></div>`,
                 footer: `<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
-              })
+              });
             }
-          })
+          });
       } else {
-        self.$toast.error('ID is required')
+        self.$toast.error('ID is required');
       }
     },
     validate(url) {
-      let self = this
+      let self = this;
       if (url) {
-        var bodyFormData = new FormData()
-        bodyFormData.append('url', url)
+        var bodyFormData = new FormData();
+        bodyFormData.append('url', url);
         axios({
           method: 'post',
           url: '/api/validate',
@@ -617,7 +617,7 @@ export default {
               imageWidth: 200,
               title: 'Great! Everything looks good!',
               footer: "<h5 class='green-text'>" + res.data.details + '</h5>'
-            })
+            });
           })
           .catch((err) => {
             if (err?.response?.data) {
@@ -629,7 +629,7 @@ export default {
                   imageUrl: overwrite_pic,
                   imageWidth: 200,
                   confirmButtonText: 'OK'
-                })
+                });
               } else if (err.response.data?.details && err.response.data.details == 'API exists') {
                 self.$swal({
                   title: 'Wait a second...',
@@ -637,7 +637,7 @@ export default {
                   imageUrl: fail_pic,
                   imageWidth: 200,
                   confirmButtonText: 'OK'
-                })
+                });
               } else if (
                 err.response.data?.details &&
                 err.response.data.details.includes('Validation Error')
@@ -652,7 +652,7 @@ export default {
                     <div class="padding20 orange lighten-5 codeBox"><code>` +
                       err.response.data.details || err.response.data + `</code></div>`,
                   footer: `<p><b class="red-text">Need help?</b> Take a look at OpenAPI specification examples <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
-                })
+                });
               } else {
                 self.$swal({
                   title: "Oops, there's an issue!",
@@ -664,44 +664,44 @@ export default {
                     <div class="padding20 orange lighten-5 codeBox"><code>` +
                       err.response.data.details || err.response.data + `</code></div>`,
                   footer: `<p><b class="red-text">Need help?</b> Learn more about and look at examples of SmartAPI extensions <a href="https://github.com/NCATSTranslator/translator_extensions" target="_blank" rel="nonreferrer">here</a>.</p>`
-                })
+                });
               }
             }
-          })
+          });
       } else {
-        self.$toast.error('URL is required')
+        self.$toast.error('URL is required');
       }
     },
     getApis: function () {
-      var self = this
+      var self = this;
 
-      self.apis = []
-      let url = this.$apiUrl + '/query?size=1000&q=_meta.username:' + self.userInfo.login
+      self.apis = [];
+      let url = this.$apiUrl + '/query?size=1000&q=_meta.username:' + self.userInfo.login;
 
       axios
         .get(`${url}&timestamp=${new Date().getTime()}&raw=1`)
         .then(function (response) {
-          self.apis = sortBy(response.data.hits, 'info.title')
-          self.total = response.data.total
-          self.hideLoading()
+          self.apis = sortBy(response.data.hits, 'info.title');
+          self.total = response.data.total;
+          self.hideLoading();
         })
         .catch((err) => {
-          self.$toast.error('failed to load APIs')
-          self.hideLoading()
-          throw err
-        })
+          self.$toast.error('failed to load APIs');
+          self.hideLoading();
+          throw err;
+        });
     },
     deleteForever: function (title, apiID) {
       // ID for api to be deleted forever
-      var self = this
-      self.showLoading()
+      var self = this;
+      self.showLoading();
       axios
         .delete('/api/metadata/' + apiID)
         .then((response) => {
           //sucessful deletion
-          self.hideLoading()
+          self.hideLoading();
           if (response.data.success) {
-            window.location.reload()
+            window.location.reload();
           } else if (!response.data.success) {
             self.$swal({
               title: 'Oh no!',
@@ -709,14 +709,14 @@ export default {
               imageUrl: error_pic,
               imageWidth: 200,
               html: title + ' failed to delete.'
-            })
+            });
           }
         })
         .catch((error) => {
           //error deleting
-          throw error
-        })
-      self.getApis()
+          throw error;
+        });
+      self.getApis();
     },
     showMessage(title, status) {
       switch (status) {
@@ -731,8 +731,8 @@ export default {
               "<p>You may look at your latest changes on our <a href='/registry?q=" +
               title +
               "'>API registry</a>.</p>"
-          })
-          break
+          });
+          break;
 
         case 'not_modified':
           this.$swal({
@@ -743,8 +743,8 @@ export default {
             html: '<h5><b>' + title + '</b> has no changes.</h5>',
             footer:
               "<p>If this doesn't sound right, wait a few minutes and try again. Repositories such as GitHub may have a delay updating their raw data.</p>"
-          })
-          break
+          });
+          break;
 
         case 'invalid':
           this.$swal({
@@ -755,8 +755,8 @@ export default {
             html: "<h5 class='red-text'>New version found but there's validation errors.</h5>",
             footer:
               "<p>Click on <b class='indigo-text'>Validate Only</b> to see validation results. Once they are resolved you can <b class='green-text'>Refresh</b> and synchronize your metadata to its latest version.</p>"
-          })
-          break
+          });
+          break;
 
         case 'nofile':
           this.$swal({
@@ -767,31 +767,31 @@ export default {
             html: "<h6 class='red-text'>Looks like the source file no longers exists or is not reachable</h6>",
             footer:
               '<p>This issue can only be resolved by restoring your source file or deleting this API and re-registering as a new API with a working source file.</p>'
-          })
-          break
+          });
+          break;
 
         default:
-          self.$toast.error(title, status)
-          break
+          self.$toast.error(title, status);
+          break;
       }
     },
     refreshThis: function (title, id) {
-      var self = this
-      self.showLoading()
+      var self = this;
+      self.showLoading();
       axios
         .put('/api/metadata/' + id)
         .then((res) => {
           if (res.data.success) {
-            self.showMessage(title, res.data.status)
-            self.hideLoading()
+            self.showMessage(title, res.data.status);
+            self.hideLoading();
           } else if (!res.data.success) {
-            self.showMessage(title, res.data.status)
-            self.hideLoading()
+            self.showMessage(title, res.data.status);
+            self.hideLoading();
           }
         })
         .catch((err) => {
           if (err?.response?.data?.status) {
-            self.showMessage(title, err.response.data.status)
+            self.showMessage(title, err.response.data.status);
           } else {
             this.$swal({
               title: 'Oh no!',
@@ -799,86 +799,86 @@ export default {
               imageUrl: error_pic,
               imageWidth: 200,
               html: title + ' failed to refresh.'
-            })
+            });
           }
-          self.hideLoading()
-          throw err
-        })
-      self.getApis()
+          self.hideLoading();
+          throw err;
+        });
+      self.getApis();
     },
     showLoading: function () {
-      this.loading = true
+      this.loading = true;
     },
     hideLoading: function () {
-      this.loading = false
+      this.loading = false;
     },
     getDetails: function (api) {
-      this.showModal = true
+      this.showModal = true;
       //modal will show the apis index of the item clicked
-      this.selectedAPI = api
-      this.tabSelected = 1
+      this.selectedAPI = api;
+      this.tabSelected = 1;
       //hasShortName sets display for slug registration view
       if (this.selectedAPI?._meta?.slug && this.selectedAPI?._meta?.slug.length) {
-        this.hasShortName = true
+        this.hasShortName = true;
       } else {
-        this.hasShortName = false
+        this.hasShortName = false;
       }
     },
     checkForAPIInfoLink: function (api) {
       // console.log(api);
       if (get(api, 'info.contact.x-id')) {
-        return [api.info.contact['x-id']]
+        return [api.info.contact['x-id']];
       } else if (get(api, 'info.contact.url')) {
-        return [api.info.contact.url]
+        return [api.info.contact.url];
       } else {
-        return ['http://smart-api.info/']
+        return ['http://smart-api.info/'];
       }
     },
     convertDate: function (timestamp) {
-      var date = new Date(timestamp)
-      date = moment(date).format('LLL')
-      return date
+      var date = new Date(timestamp);
+      date = moment(date).format('LLL');
+      return date;
     },
     reloadAPIs: function () {
-      this.showLoading()
-      this.getUserInfo()
+      this.showLoading();
+      this.getUserInfo();
     },
     evaluateShortname: function () {
-      var self = this
+      var self = this;
       axios
         .get(`/api/query?q=_meta.slug:"` + this.myShortName + `"&fields=_meta&raw=1`)
         .then((response) => {
           //console.log(response.data.hits);
           if (response.data.total) {
-            self.availableShortName = false
-            self.takenSlug = true
-            return false
+            self.availableShortName = false;
+            self.takenSlug = true;
+            return false;
           } else {
-            self.availableShortName = true
-            self.takenSlug = false
-            return true
+            self.availableShortName = true;
+            self.takenSlug = false;
+            return true;
           }
         })
         .catch((error) => {
-          self.availableShortName = false
-          throw error
-        })
+          self.availableShortName = false;
+          throw error;
+        });
     },
     setShortname: function () {
       //claim it button clicked
-      var self = this
-      self.loading = false
+      var self = this;
+      self.loading = false;
       axios
         .put('/api/metadata/' + self.selectedAPI._id + '?slug=' + self.myShortName)
         .then((response) => {
           if (response.data.success) {
-            self.selectedAPI._meta.slug = self.myShortName
-            self.myShortName = ''
-            self.createOrEditMode = false
-            self.hasShortName = true
-            self.loading = true
+            self.selectedAPI._meta.slug = self.myShortName;
+            self.myShortName = '';
+            self.createOrEditMode = false;
+            self.hasShortName = true;
+            self.loading = true;
 
-            self.$toast.success(`Slug registered`)
+            self.$toast.success(`Slug registered`);
 
             self.$swal.fire({
               type: 'success',
@@ -886,60 +886,60 @@ export default {
               html: 'Hold on while we update your dashboard in <strong></strong> seconds...',
               timer: 3000,
               onBeforeOpen: () => {
-                const content = self.$swal.getContent()
-                content.querySelector.bind(content)
-                self.$swal.showLoading()
+                const content = self.$swal.getContent();
+                content.querySelector.bind(content);
+                self.$swal.showLoading();
                 setInterval(() => {
                   self.$swal.getContent().querySelector('strong').textContent = (
                     self.$swal.getTimerLeft() / 1000
-                  ).toFixed(0)
-                }, 100)
+                  ).toFixed(0);
+                }, 100);
               },
               onClose: () => {
                 //reload
-                self.$router.go()
-                self.selectedAPI = {}
+                self.$router.go();
+                self.selectedAPI = {};
               }
-            })
+            });
           } else if (!response.data.success) {
-            self.loading = false
+            self.loading = false;
             self.$swal({
               title: 'Oh no!',
               confirmButtonText: 'OK',
               imageUrl: error_pic,
               imageWidth: 200,
               html: response.data?.error
-            })
+            });
           }
         })
         .catch((error) => {
-          throw error
-        })
+          throw error;
+        });
     },
     deleteSlug: function () {
       //delete it button clicked
-      var self = this
-      self.loading = false
+      var self = this;
+      self.loading = false;
       axios
         .put('/api/metadata/' + self.selectedAPI._id + '?slug=')
         .then((response) => {
           if (response.data.success) {
-            self.selectedAPI._meta.slug = ''
-            self.createOrEditMode = false
-            self.hasShortName = false
-            self.loading = true
+            self.selectedAPI._meta.slug = '';
+            self.createOrEditMode = false;
+            self.hasShortName = false;
+            self.loading = true;
             //reload
-            self.$router.go()
-            self.selectedAPI = {}
+            self.$router.go();
+            self.selectedAPI = {};
           } else if (!response.data.success) {
-            self.loading = false
+            self.loading = false;
             self.$swal({
               title: 'Oh no!',
               confirmButtonText: 'OK',
               imageUrl: error_pic,
               imageWidth: 200,
               html: 'slug could not be registered'
-            })
+            });
           }
         })
         .catch((error) => {
@@ -949,14 +949,14 @@ export default {
             imageUrl: error_pic,
             imageWidth: 200,
             html: 'slug could not be registered'
-          })
-          throw error
-        })
+          });
+          throw error;
+        });
     }
   },
   mounted: function () {
-    this.showLoading()
-    this.getApis()
+    this.showLoading();
+    this.getApis();
 
     /*eslint-disable */
     tippy('.tipped', {
@@ -967,52 +967,52 @@ export default {
       animation: false,
       allowHTML: true,
       onShow(instance) {
-        let msg = instance.reference.dataset.tippyInfo
-        instance.setContent("<div class='p-1 blue-text'>" + msg + '</div>')
+        let msg = instance.reference.dataset.tippyInfo;
+        instance.setContent("<div class='p-1 blue-text'>" + msg + '</div>');
       }
-    })
+    });
     /*eslint-enable */
   },
   watch: {
     inputApiName: function (input) {
       if (input.trim() === this.confirmModal.title) {
-        this.confirmDelete = false
+        this.confirmDelete = false;
       } else {
-        this.confirmDelete = true
+        this.confirmDelete = true;
       }
     },
     searchQuery: function (query) {
       if (!query) {
-        this.searchResults = []
+        this.searchResults = [];
       } else {
         let result = this.apis.filter((o) =>
           o.info.title.toLowerCase().includes(query.toLowerCase())
-        )
-        this.searchResults = result
+        );
+        this.searchResults = result;
       }
     },
     myShortName: function (shortname) {
-      var self = this
-      self.myShortName = self.myShortName.toLowerCase()
+      var self = this;
+      self.myShortName = self.myShortName.toLowerCase();
       /*eslint-disable */
-      var re = /[^a-zA-Z0-9\-\_\~]/
+      var re = /[^a-zA-Z0-9\-\_\~]/;
       /*eslint-enable */
-      self.invalidChars = false
+      self.invalidChars = false;
       if (re.test(self.myShortName)) {
-        self.invalidChars = true
+        self.invalidChars = true;
       }
       if (!re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50) {
-        self.takenSlug = false
-        self.evaluateShortname()
+        self.takenSlug = false;
+        self.evaluateShortname();
       } else if (re.test(self.myShortName) && shortname.length >= 3 && shortname.length <= 50) {
-        self.invalidChars = true
-        self.availableShortName = false
+        self.invalidChars = true;
+        self.availableShortName = false;
       } else {
-        self.availableShortName = false
+        self.availableShortName = false;
       }
     }
   }
-}
+};
 </script>
 
 <style>

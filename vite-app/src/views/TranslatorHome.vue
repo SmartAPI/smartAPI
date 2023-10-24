@@ -240,7 +240,7 @@
 </template>
 
 <script>
-import MarkDown from '../components/MarkDown.vue'
+import MarkDown from '../components/MarkDown.vue';
 
 export default {
   name: 'TranslatorHome',
@@ -249,31 +249,31 @@ export default {
       editLink: '',
       showModal: false,
       mdURL: ''
-    }
+    };
   },
   components: {
     MarkDown
   },
   methods: {
     handleModal(anchor) {
-      var self = this
+      var self = this;
       switch (anchor) {
         case 'best-practices':
-          self.showModal = true
+          self.showModal = true;
           self.mdURL =
-            'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md'
-          self.editLink = 'https://github.com/SmartAPI/smartAPI/edit/master/docs/CREATE_API.md'
-          break
+            'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/CREATE_API.md';
+          self.editLink = 'https://github.com/SmartAPI/smartAPI/edit/master/docs/CREATE_API.md';
+          break;
         case 'semantic-io':
-          self.showModal = true
+          self.showModal = true;
           self.mdURL =
-            'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md'
-          self.editLink = 'https://github.com/SmartAPI/smartAPI/edit/master/docs/API_METADATA.md'
-          break
+            'https://raw.githubusercontent.com/SmartAPI/smartAPI/master/docs/API_METADATA.md';
+          self.editLink = 'https://github.com/SmartAPI/smartAPI/edit/master/docs/API_METADATA.md';
+          break;
         default:
-          console.log('no match')
+          console.log('no match');
       }
     }
   }
-}
+};
 </script>

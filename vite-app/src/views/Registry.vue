@@ -52,9 +52,9 @@
                       }"
                       href="javascript:void(0)"
                       @click.prevent="
-                        toggleTag(tag, 'tag')
-                        search()
-                        googleAnalytics('Registry_Tag', tag.name)
+                        toggleTag(tag, 'tag');
+                        search();
+                        googleAnalytics('Registry_Tag', tag.name);
                       "
                     >
                       <small
@@ -82,9 +82,9 @@
                         }"
                         href="javascript:void(0)"
                         @click.prevent="
-                          toggleTag(tag, 'tag')
-                          search()
-                          googleAnalytics('Registry_Tag', tag.name)
+                          toggleTag(tag, 'tag');
+                          search();
+                          googleAnalytics('Registry_Tag', tag.name);
                         "
                       >
                         <small
@@ -132,9 +132,9 @@
                         }"
                         href="javascript:void(0)"
                         @click.prevent="
-                          toggleTag(tag, 'author')
-                          search()
-                          googleAnalytics('Registry_Tag', tag.name)
+                          toggleTag(tag, 'author');
+                          search();
+                          googleAnalytics('Registry_Tag', tag.name);
                         "
                       >
                         <small
@@ -163,9 +163,9 @@
                         }"
                         href="javascript:void(0)"
                         @click.prevent="
-                          toggleTag(tag, 'author')
-                          search()
-                          googleAnalytics('Registry_Tag', tag.name)
+                          toggleTag(tag, 'author');
+                          search();
+                          googleAnalytics('Registry_Tag', tag.name);
                         "
                       >
                         <small
@@ -194,8 +194,8 @@
             >
               <span
                 @click.prevent="
-                  filter.active = !filter.active
-                  search()
+                  filter.active = !filter.active;
+                  search();
                 "
                 class="chip pointer hoverable d-flex align-items-center"
                 style="margin-right: 5px"
@@ -213,8 +213,8 @@
             <template v-for="filter in all_filters['tags.name']" :key="filter.name">
               <span
                 @click.prevent="
-                  filter.active = !filter.active
-                  search()
+                  filter.active = !filter.active;
+                  search();
                 "
                 class="chip pointer hoverable d-flex align-items-center"
                 style="margin-right: 5px"
@@ -229,8 +229,8 @@
             <template v-for="filter in all_filters['!tags.name']" :key="filter.name">
               <span
                 @click.prevent="
-                  filter.active = !filter.active
-                  search()
+                  filter.active = !filter.active;
+                  search();
                 "
                 class="chip pointer hoverable d-flex align-items-center"
                 style="margin-right: 5px"
@@ -248,8 +248,8 @@
             <template v-for="filter in all_filters['info.x-trapi.version.raw']" :key="filter.name">
               <span
                 @click.prevent="
-                  filter.active = !filter.active
-                  search()
+                  filter.active = !filter.active;
+                  search();
                 "
                 class="chip pointer hoverable d-flex align-items-center"
                 style="margin-right: 5px"
@@ -327,9 +327,9 @@
                         }"
                         href="javascript:void(0)"
                         @click.prevent="
-                          tag.active = !tag.active
-                          search()
-                          googleAnalytics('Registry_Tag', tag.name)
+                          tag.active = !tag.active;
+                          search();
+                          googleAnalytics('Registry_Tag', tag.name);
                         "
                         >{{ tag.name }} <span class="bold">({{ tag.count }})</span></a
                       >
@@ -351,9 +351,9 @@
                         href="javascript:void(0)"
                         class="chip"
                         @click.prevent="
-                          author.active = !author.active
-                          search()
-                          googleAnalytics('Registry_Author', author.name)
+                          author.active = !author.active;
+                          search();
+                          googleAnalytics('Registry_Author', author.name);
                         "
                         >{{ author.name }} <span class="bold">({{ author.count }})</span>
                         <span class="red-text" v-if="userInfo && author.name === userInfo.name"
@@ -438,8 +438,8 @@
                       v-if="tag.name.toLowerCase() !== specialTagOriginalName.toLowerCase()"
                       class="close material-icons"
                       @click="
-                        toggleTag(tag, 'tag')
-                        search()
+                        toggleTag(tag, 'tag');
+                        search();
                       "
                       >close</i
                     >
@@ -451,8 +451,8 @@
                     <i
                       class="close material-icons"
                       @click="
-                        toggleTag(author, 'author')
-                        search()
+                        toggleTag(author, 'author');
+                        search();
                       "
                       >close</i
                     >
@@ -464,8 +464,8 @@
                     <i
                       class="close material-icons"
                       @click="
-                        pop.active = false
-                        search()
+                        pop.active = false;
+                        search();
                       "
                       >close</i
                     >
@@ -539,8 +539,8 @@
                               <a
                                 href="javascript:void(0)"
                                 @click.prevent="
-                                  prevPage()
-                                  search()
+                                  prevPage();
+                                  search();
                                 "
                                 ><i class="material-icons">chevron_left</i> Previous</a
                               >
@@ -561,8 +561,8 @@
                               <a
                                 href="javascript:void(0)"
                                 @click.prevent="
-                                  page = n
-                                  search()
+                                  page = n;
+                                  search();
                                 "
                                 >{{ n }}</a
                               >
@@ -575,8 +575,8 @@
                               <a
                                 href="javascript:void(0)"
                                 @click.prevent="
-                                  nextPage()
-                                  search()
+                                  nextPage();
+                                  search();
                                 "
                                 >Next <i class="material-icons">chevron_right</i></a
                               >
@@ -591,8 +591,8 @@
                         class="perPage"
                         v-model="perPage"
                         @change="
-                          calculatePages()
-                          search()
+                          calculatePages();
+                          search();
                         "
                         id="perPage"
                       >
@@ -614,17 +614,17 @@
 </template>
 
 <script>
-import RegistryItem from '../components/RegistryItem.vue'
-import t_img from '@/assets/img/TranslatorLogo.jpg'
-import nih_img from '@/assets/img/nih-logo.png'
-import def_img from '@/assets/img/logo-small.png'
+import RegistryItem from '../components/RegistryItem.vue';
+import t_img from '@/assets/img/TranslatorLogo.jpg';
+import nih_img from '@/assets/img/nih-logo.png';
+import def_img from '@/assets/img/logo-small.png';
 
-import tippy from 'tippy.js'
-import axios from 'axios'
-import Mark from 'mark.js'
-import { isEmpty, filter } from 'lodash'
-import { Collapsible } from 'materialize-css'
-import { mapGetters } from 'vuex'
+import tippy from 'tippy.js';
+import axios from 'axios';
+import Mark from 'mark.js';
+import { isEmpty, filter } from 'lodash';
+import { Collapsible } from 'materialize-css';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'Registry',
@@ -660,7 +660,7 @@ export default {
       apis: [],
       highlighter: null,
       portal_name: ''
-    }
+    };
   },
   methods: {
     googleAnalytics(category, label) {
@@ -668,67 +668,67 @@ export default {
       // this.$gtag.event('click',{'event_category':'general','event_label':label,'event_value':1})
       switch (category) {
         case 'Registry_Tag':
-          this.$gtag.event('click', { event_category: 'tag', event_label: label, event_value: 1 })
-          break
+          this.$gtag.event('click', { event_category: 'tag', event_label: label, event_value: 1 });
+          break;
         case 'Registry_Author':
           this.$gtag.event('click', {
             event_category: 'author',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_APIs':
           this.$gtag.event('click', {
             event_category: 'expanded',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_SharedURL':
           this.$gtag.event('click', {
             event_category: 'shared',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_Searches':
           this.$gtag.event('click', {
             event_category: 'searched',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         case 'Registry_Documentation':
           this.$gtag.event('click', {
             event_category: 'documentation',
             event_label: label,
             event_value: 1
-          })
-          break
+          });
+          break;
         default:
           this.$gtag.event('click', {
             event_category: 'general',
             event_label: label,
             event_value: 1
-          })
+          });
       }
     },
     mark: function (keyword) {
-      this.highlighter.unmark()
-      this.highlighter.mark(keyword)
+      this.highlighter.unmark();
+      this.highlighter.mark(keyword);
     },
     initialAPILoad: function () {
-      var self = this
-      let url = this.$apiUrl + '/query?'
-      self.handleContext(self.context)
+      var self = this;
+      let url = this.$apiUrl + '/query?';
+      self.handleContext(self.context);
       //check for existing query in url string
-      self.checkforQuery()
-      let query = self.query
+      self.checkforQuery();
+      let query = self.query;
       if (!self.query) {
-        query = '__all__'
+        query = '__all__';
       }
 
-      url += 'q=' + query
+      url += 'q=' + query;
 
       var config = {
         params: {
@@ -737,183 +737,183 @@ export default {
           from: self.page == 1 ? self.page - 1 : (self.page - 1) * self.perPage,
           raw: 1
         }
-      }
-      var filters = self.getQueryFilters()
+      };
+      var filters = self.getQueryFilters();
       if (Object.keys(filters).length !== 0) {
         for (const param in filters) {
-          url += '&' + param + '=' + filters[param]
+          url += '&' + param + '=' + filters[param];
         }
       }
-      self.loading = true
+      self.loading = true;
       axios
         .get(url, config)
         .then(function (response) {
-          self.loading = false
-          self.apis = response.data.hits
+          self.loading = false;
+          self.apis = response.data.hits;
           self.total = Object.prototype.hasOwnProperty.call(response.data.total, 'value')
             ? response.data.total.value
-            : response.data.total
-          self.calculatePages()
+            : response.data.total;
+          self.calculatePages();
         })
         .catch((err) => {
-          self.loading = false
-          throw err
-        })
+          self.loading = false;
+          throw err;
+        });
     },
     getQueryFilters: function () {
-      var tagFilters = []
-      var authorFilters = []
-      var finalFilters = {}
+      var tagFilters = [];
+      var authorFilters = [];
+      var finalFilters = {};
       // regular tags
       this.tags.forEach(function (item) {
         if (item.active) {
-          tagFilters.push('"' + item.name + '"')
+          tagFilters.push('"' + item.name + '"');
         }
-      })
+      });
       // include not found on list
       this.tagsNotFound.forEach((tag) => {
-        tagFilters.push('"' + tag + '"')
-      })
+        tagFilters.push('"' + tag + '"');
+      });
       //popular tags
       this.popularTags.forEach(function (item) {
-        if (item.active && !tagFilters.includes(item.name)) tagFilters.push('"' + item.name + '"')
-      })
+        if (item.active && !tagFilters.includes(item.name)) tagFilters.push('"' + item.name + '"');
+      });
 
       if (tagFilters.length > 0) {
-        finalFilters['tags'] = tagFilters
+        finalFilters['tags'] = tagFilters;
       }
 
       this.authors.forEach(function (item) {
         if (item.active) {
-          authorFilters.push('"' + item.name + '"')
+          authorFilters.push('"' + item.name + '"');
         }
-      })
+      });
       // include not found on list
       this.ownersNotFound.forEach((owner) => {
-        authorFilters.push('"' + owner + '"')
-      })
+        authorFilters.push('"' + owner + '"');
+      });
       if (authorFilters.length) {
-        finalFilters['authors'] = authorFilters
+        finalFilters['authors'] = authorFilters;
       }
       // console.log('filters found', finalFilters)
-      return finalFilters
+      return finalFilters;
     },
     searchForTags: function (tagName) {
-      var self = this
+      var self = this;
       for (var i = 0; i < self.tags.length; i++) {
         if (self.tags[i].name === tagName) {
-          self.tags[i].active = !self.tags[i].active
-          self.search()
+          self.tags[i].active = !self.tags[i].active;
+          self.search();
         } else {
-          self.search()
+          self.search();
         }
       }
     },
     buildShareURL: function (q) {
-      var filters = []
-      var authorFilters = []
-      var finalFilters = ''
-      var finalAuthorFilters = ''
-      var finalURL = window.location.origin + window.location.pathname
+      var filters = [];
+      var authorFilters = [];
+      var finalFilters = '';
+      var finalAuthorFilters = '';
+      var finalURL = window.location.origin + window.location.pathname;
       // Collect TAGS
       this.tags.forEach(function (item) {
-        if (item.active) filters.push(item.name)
-      })
+        if (item.active) filters.push(item.name);
+      });
       // Collect Owners
       this.authors.forEach(function (item) {
         if (item.active) {
-          authorFilters.push(item.name)
+          authorFilters.push(item.name);
         }
-      })
+      });
 
       //Detect QUERY
       if (q !== '__all__') {
-        finalURL = finalURL + '?q=' + q
+        finalURL = finalURL + '?q=' + q;
         //if any tags are actuve
         if (authorFilters.length || filters.length) {
-          finalURL = finalURL + '&'
+          finalURL = finalURL + '&';
         }
       }
       //if tags active but no query
       else if (authorFilters.length || filters.length) {
-        finalURL = finalURL + '?'
+        finalURL = finalURL + '?';
       }
       // if BOTH filters exists
       if (filters.length && authorFilters.length) {
-        finalFilters = filters.join(',')
-        finalURL = finalURL + 'tags=' + finalFilters
+        finalFilters = filters.join(',');
+        finalURL = finalURL + 'tags=' + finalFilters;
 
-        finalAuthorFilters = authorFilters.join(',')
-        finalURL = finalURL + '&owners=' + finalAuthorFilters
+        finalAuthorFilters = authorFilters.join(',');
+        finalURL = finalURL + '&owners=' + finalAuthorFilters;
       }
       // if Owners Exist but no Tags
       else if (!filters.length && authorFilters.length) {
-        finalAuthorFilters = authorFilters.join(',')
-        finalURL = finalURL + 'owners=' + finalAuthorFilters
+        finalAuthorFilters = authorFilters.join(',');
+        finalURL = finalURL + 'owners=' + finalAuthorFilters;
       }
       // if Tags exists but no owners
       else if (filters.length && !authorFilters.length) {
-        finalFilters = filters.join(',')
-        finalURL = finalURL + 'tags=' + finalFilters
+        finalFilters = filters.join(',');
+        finalURL = finalURL + 'tags=' + finalFilters;
       }
 
       //SPECIAL TRANSLATOR FILTERS
-      let active_filters = {}
+      let active_filters = {};
       // Collect Dynamic Filters
       for (const [filter_name, filters] of Object.entries(this.all_filters)) {
         filters.forEach((item) => {
           if (item.active) {
             Object.prototype.hasOwnProperty.call(active_filters, filter_name)
               ? active_filters[filter_name].push(item.name)
-              : (active_filters[filter_name] = [item.name])
+              : (active_filters[filter_name] = [item.name]);
           }
-        })
+        });
       }
       // console.log('%c'+JSON.stringify(active_filters, null, 2), 'color: limegreen')
       for (const [filter_name, filters] of Object.entries(active_filters)) {
-        finalURL += '&' + filter_name + '=' + filters.toString()
+        finalURL += '&' + filter_name + '=' + filters.toString();
       }
 
-      this.shareURL = finalURL
+      this.shareURL = finalURL;
       //HTML5 change url history
-      window.history.pushState({ html: 'content', pageTitle: 'SmartAPI' }, '', finalURL)
-      this.shareURLButtonVisible = true
+      window.history.pushState({ html: 'content', pageTitle: 'SmartAPI' }, '', finalURL);
+      this.shareURLButtonVisible = true;
     },
     getProjectFilters() {
-      let self = this
-      let filters = {}
+      let self = this;
+      let filters = {};
 
       for (const key in self.all_filters) {
-        filters[key] = []
+        filters[key] = [];
         self.all_filters[key].forEach((item) => {
           // console.log('Filter ' + key, JSON.stringify(item, null, 2))
           if (item.active) {
             // console.log('%c Active Filter ' + JSON.stringify(item, null, 2), 'color:orange')
-            filters[key].push(item.es_value)
+            filters[key].push(item.es_value);
           }
-        })
+        });
       }
-      return filters
+      return filters;
     },
     search: function () {
-      var self = this
-      let url = this.$apiUrl + '/query?q='
-      let query = self.query.trim()
+      var self = this;
+      let url = this.$apiUrl + '/query?q=';
+      let query = self.query.trim();
       // reset results
-      self.apis = []
-      self.total = 0
-      self.loading = true
+      self.apis = [];
+      self.total = 0;
+      self.loading = true;
       //unmark keywords
-      self.highlighter.unmark()
+      self.highlighter.unmark();
       //special regsitry
       if (!self.context.Special && !query) {
-        query = '__all__'
+        query = '__all__';
       } else if (self.context.Special && !query) {
-        query = query || '__all__'
+        query = query || '__all__';
       }
       //analytics
       if (query !== '__all__') {
-        self.googleAnalytics('Registry_Searches', query)
+        self.googleAnalytics('Registry_Searches', query);
       }
       //pagination
       var config = {
@@ -923,41 +923,41 @@ export default {
           from: self.page == 1 ? self.page - 1 : (self.page - 1) * self.perPage,
           raw: 1
         }
-      }
+      };
 
       //look for existing active filters and
-      let filters = self.getProjectFilters()
+      let filters = self.getProjectFilters();
       //prep active filters found to be added
-      let f_list = []
+      let f_list = [];
       Object.keys(filters).forEach((field) => {
         // console.log(field,filters[field])
         //ready value
         let value =
           filters[field].length && filters[field].length > 1
             ? '(' + filters[field].join(' OR ') + ')'
-            : filters[field]
+            : filters[field];
         // console.log('%c VALUE OF ACTIVE ' + JSON.stringify(value, null, 2), 'color:yellow')
         //if active add es_value to list of filters
-        filters[field] && filters[field].length ? f_list.push(value) : false
-      })
+        filters[field] && filters[field].length ? f_list.push(value) : false;
+      });
       //add AND condition if multiple filters
-      let field_query = f_list.join(' OR ')
+      let field_query = f_list.join(' OR ');
 
       //form correct query pattern
       if (field_query && query !== '__all__') {
-        url += field_query + ' AND ' + query
+        url += field_query + ' AND ' + query;
       } else if (field_query && query == '__all__') {
-        url += field_query
+        url += field_query;
       } else if (!field_query && query == '__all__') {
-        url += query
+        url += query;
       } else {
-        url += query
+        url += query;
       }
       //tag ownwer special param filters
-      var tag_filters = this.getQueryFilters()
+      var tag_filters = this.getQueryFilters();
       if (Object.keys(tag_filters).length !== 0) {
         for (const param in tag_filters) {
-          url += '&' + param + '=' + tag_filters[param]
+          url += '&' + param + '=' + tag_filters[param];
         }
       }
 
@@ -998,280 +998,280 @@ export default {
       switch (self.sort) {
         case 'Relevance':
           //default behavior
-          break
+          break;
         case 'Alphabetically A-Z':
-          url += '&sort=info.title.raw'
-          break
+          url += '&sort=info.title.raw';
+          break;
         case 'Alphabetically Z-A':
-          url += '&sort=-info.title.raw'
-          break
+          url += '&sort=-info.title.raw';
+          break;
         case 'Recently Updated':
-          url += '&sort=_meta.last_updated'
-          break
+          url += '&sort=_meta.last_updated';
+          break;
         default:
           //no matching sort
-          break
+          break;
       }
       // Share search URL
-      self.buildShareURL(query)
+      self.buildShareURL(query);
 
       axios
         .get(url, config)
         .then(function (response) {
-          self.loading = false
-          self.highlighter.unmark()
-          self.apis = response.data.hits
+          self.loading = false;
+          self.highlighter.unmark();
+          self.apis = response.data.hits;
           self.total = Object.prototype.hasOwnProperty.call(response.data.total, 'value')
             ? response.data.total.value
-            : response.data.total
-          self.calculatePages()
+            : response.data.total;
+          self.calculatePages();
         })
         .catch((err) => {
-          self.loading = false
-          throw err
-        })
+          self.loading = false;
+          throw err;
+        });
     },
     calculatePages: function () {
-      this.pages = Math.ceil(this.total / this.perPage)
+      this.pages = Math.ceil(this.total / this.perPage);
       // console.log("____________")
       // console.log('total', this.total)
       // console.log('per page', this.perPage)
       // console.log('pages', this.pages)
       if (this.page > this.pages) {
-        this.page = 1
+        this.page = 1;
       }
     },
     prevPage: function () {
-      if (this.page > 1) this.page -= 1
+      if (this.page > 1) this.page -= 1;
     },
     nextPage: function () {
-      if (this.page < this.pages) this.page += 1
+      if (this.page < this.pages) this.page += 1;
     },
     handleRegularTags: function (rTags) {
-      var self = this
-      self.specialUI = false
+      var self = this;
+      self.specialUI = false;
       for (var i = 0; i < rTags.length; i++) {
         for (var x = 0; x < self.tags.length; x++) {
           if (rTags[i].toLowerCase() === self.tags[x].name.toLowerCase()) {
-            self.toggleThisTag(self.tags[x])
+            self.toggleThisTag(self.tags[x]);
           }
         }
       }
     },
     handleOwnerTags: function (rTags) {
-      var self = this
-      self.specialUI = false
+      var self = this;
+      self.specialUI = false;
       for (var i = 0; i < rTags.length; i++) {
         for (var x = 0; x < self.authors.length; x++) {
           if (rTags[i].toLowerCase() === self.authors[x].name.toLowerCase()) {
-            self.toggleThisAuthor(self.authors[x])
+            self.toggleThisAuthor(self.authors[x]);
           }
         }
       }
     },
     handleContext: function (context) {
       if (context.Special) {
-        this.handleSpecialTags(this.context.Tags[0])
+        this.handleSpecialTags(this.context.Tags[0]);
       }
       if (!context.Special && !isEmpty(context.Tags)) {
-        this.handleRegularTags(this.context.Tags)
+        this.handleRegularTags(this.context.Tags);
       }
       if (!context.Special && !isEmpty(context.Owners)) {
-        this.handleOwnerTags(this.context.Owners)
+        this.handleOwnerTags(this.context.Owners);
       }
     },
     handleSpecialTags: function (tagname) {
-      var self = this
-      self.specialTagsUI = true
-      self.specialTagOriginalName = tagname.toUpperCase()
+      var self = this;
+      self.specialTagsUI = true;
+      self.specialTagOriginalName = tagname.toUpperCase();
       switch (tagname) {
         case 'translator':
-          self.specialTagName = 'NCATS Biomedical Data Translator'
-          self.specialTagImage = t_img
-          self.specialTagURL = 'https://ncats.nih.gov/translator'
-          break
+          self.specialTagName = 'NCATS Biomedical Data Translator';
+          self.specialTagImage = t_img;
+          self.specialTagURL = 'https://ncats.nih.gov/translator';
+          break;
         case 'nihdatacommons' || 'NIHdatacommons':
-          self.specialTagName = 'NIH Data Commons'
-          self.specialTagImage = nih_img
-          self.specialTagURL = 'https://commonfund.nih.gov/commons'
-          break
+          self.specialTagName = 'NIH Data Commons';
+          self.specialTagImage = nih_img;
+          self.specialTagURL = 'https://commonfund.nih.gov/commons';
+          break;
         default:
-          self.specialTagName = tagname.toUpperCase()
-          self.specialTagImage = def_img
-          self.specialTagURL = 'https://smart-api.info'
+          self.specialTagName = tagname.toUpperCase();
+          self.specialTagImage = def_img;
+          self.specialTagURL = 'https://smart-api.info';
       }
       for (var i = 0; i < self.tags.length; i++) {
         if (self.tags[i].name.toLowerCase() === tagname.toLowerCase()) {
-          self.tags[i]['active'] = true
+          self.tags[i]['active'] = true;
         }
       }
     },
     checkforQuery: function () {
-      var self = this
-      var url_string = window.location.href
-      var url = new URL(url_string)
+      var self = this;
+      var url_string = window.location.href;
+      var url = new URL(url_string);
 
-      var q = url.searchParams.get('q')
+      var q = url.searchParams.get('q');
       if (q) {
-        this.query = q
+        this.query = q;
       }
 
-      var tags = url.searchParams.get('tags')
+      var tags = url.searchParams.get('tags');
       // console.log('TAGS FOUND',tags)
       if (tags) {
         if (tags.includes(',')) {
-          tags = tags.split(',')
+          tags = tags.split(',');
         } else {
-          tags = [tags]
+          tags = [tags];
         }
         for (var i = 0; i < tags.length; i++) {
           for (var x = 0; x < self.tags.length; x++) {
             if (self.tags[x].name === tags[i]) {
-              self.tags[x]['active'] = true
-              tags.splice(i, 1)
+              self.tags[x]['active'] = true;
+              tags.splice(i, 1);
             }
           }
         }
       }
       if (tags && tags.length) {
-        self.tagsNotFound = tags
-        console.warn('TAGS NOT FOUND', self.tagsNotFound)
+        self.tagsNotFound = tags;
+        console.warn('TAGS NOT FOUND', self.tagsNotFound);
       }
 
-      var owners = url.searchParams.get('owners')
+      var owners = url.searchParams.get('owners');
       if (owners) {
         if (owners.includes(',')) {
-          owners = owners.split(',')
+          owners = owners.split(',');
         } else {
-          owners = [owners]
+          owners = [owners];
         }
         for (var j = 0; j < owners.length; j++) {
           for (var xx = 0; xx < self.authors.length; xx++) {
             if (self.authors[xx].name === owners[j]) {
-              owners.splice(j, 1)
-              self.authors[xx]['active'] = true
+              owners.splice(j, 1);
+              self.authors[xx]['active'] = true;
             }
           }
         }
       }
       if (owners && owners.length) {
-        self.ownersNotFound = owners
-        console.warn('OWNERS NOT FOUND', self.ownersNotFound)
+        self.ownersNotFound = owners;
+        console.warn('OWNERS NOT FOUND', self.ownersNotFound);
       }
 
       if (!owners && !tags) {
-        self.ownersNotFound = []
-        self.tagsNotFound = []
+        self.ownersNotFound = [];
+        self.tagsNotFound = [];
       }
       //check dynamic filters for special registry
       if (this.portal_name == 'translator') {
-        setTimeout(this.checkDymanicFilters, 1200)
+        setTimeout(this.checkDymanicFilters, 1200);
       }
     },
     checkDymanicFilters() {
-      var url_string = window.location.href
-      var url = new URL(url_string)
+      var url_string = window.location.href;
+      var url = new URL(url_string);
       //SPECIAL TRANSLATOR FILTERS
       // Collect Dynamic Filters
-      let keys = Object.keys(this.all_filters)
+      let keys = Object.keys(this.all_filters);
       keys.forEach((key) => {
-        var found = url.searchParams.get(key)
+        var found = url.searchParams.get(key);
         if (found) {
-          found = found.includes(',') ? found.split(',') : [found]
+          found = found.includes(',') ? found.split(',') : [found];
           found.forEach((url_filter_value) => {
             if (Object.prototype.hasOwnProperty.call(this.all_filters, key)) {
               this.all_filters[key].forEach((f) => {
-                f.name == url_filter_value ? (f.active = true) : false
-              })
+                f.name == url_filter_value ? (f.active = true) : false;
+              });
             }
-          })
+          });
         }
-      })
-      this.search()
+      });
+      this.search();
     },
     getAnalytics() {
-      var self = this
+      var self = this;
       axios
         .get(
           'https://gasuperproxy-1470690417190.appspot.com/query?id=ahxzfmdhc3VwZXJwcm94eS0xNDcwNjkwNDE3MTkwchULEghBcGlRdWVyeRiAgIDMgsmRCgw'
         )
         .then((res) => {
           if (res.data.rows) {
-            let analytics = res.data.rows
-            let pop = []
+            let analytics = res.data.rows;
+            let pop = [];
             for (var i = 0; i < analytics.length; i++) {
               if (analytics[i][0] === 'tag') {
-                let name = analytics[i][1]
+                let name = analytics[i][1];
                 if (!name.includes(' ')) {
-                  pop.push({ name: name, active: false, count: analytics[i][2], type: 'tags' })
+                  pop.push({ name: name, active: false, count: analytics[i][2], type: 'tags' });
                 } else {
-                  pop.push({ name: name, active: false, count: analytics[i][2], type: 'owners' })
+                  pop.push({ name: name, active: false, count: analytics[i][2], type: 'owners' });
                 }
               }
             }
-            self.popularTags = pop
+            self.popularTags = pop;
           }
         })
         .catch((err) => {
-          throw err
-        })
+          throw err;
+        });
     },
     toggleTag(tag, type) {
-      let self = this
+      let self = this;
       switch (type) {
         case 'author':
-          self.toggleThisAuthor(tag)
-          break
+          self.toggleThisAuthor(tag);
+          break;
         case 'tag':
-          self.toggleThisTag(tag)
-          break
+          self.toggleThisTag(tag);
+          break;
         default:
-          return false
+          return false;
       }
     },
     toggleThisTag(tag) {
-      let self = this
+      let self = this;
       for (var i = 0; i < self.tags.length; i++) {
         if (self.tags[i].name === tag.name) {
-          self.tags[i]['active'] = !self.tags[i]['active']
+          self.tags[i]['active'] = !self.tags[i]['active'];
         }
       }
     },
     toggleThisAuthor(author) {
-      let self = this
+      let self = this;
       for (var i = 0; i < self.authors.length; i++) {
         if (self.authors[i].name === author.name) {
-          self.authors[i]['active'] = !self.authors[i]['active']
+          self.authors[i]['active'] = !self.authors[i]['active'];
         }
       }
     }
   },
   created: function () {
-    this.getAnalytics()
-    this.$gtag.customMap({ dimension5: 'registryResults' })
-    this.$gtag.customMap({ metric1: 'registry-item' })
+    this.getAnalytics();
+    this.$gtag.customMap({ dimension5: 'registryResults' });
+    this.$gtag.customMap({ metric1: 'registry-item' });
   },
   mounted: function () {
-    var self = this
+    var self = this;
 
-    var elems = document.querySelectorAll('.collapsible')
-    Collapsible.init(elems)
+    var elems = document.querySelectorAll('.collapsible');
+    Collapsible.init(elems);
 
     if (Object.prototype.hasOwnProperty.call(self.$route.params, 'portal_name')) {
-      self.portal_name = self.$route.params['portal_name'].toLowerCase()
+      self.portal_name = self.$route.params['portal_name'].toLowerCase();
       self.context = {
         Special: true,
         Tags: [self.portal_name]
-      }
+      };
     }
     //set content before initial load
-    self.initialAPILoad()
+    self.initialAPILoad();
 
-    self.highlighter = new Mark(document.querySelector('.highlight_container'))
+    self.highlighter = new Mark(document.querySelector('.highlight_container'));
 
     window.onpopstate = function () {
-      self.initialAPILoad()
-    }
+      self.initialAPILoad();
+    };
 
     /*eslint-disable */
     tippy('.tipped', {
@@ -1279,61 +1279,61 @@ export default {
       theme: 'light',
       interactive: true,
       onShow(instance) {
-        let status = instance.reference.dataset.tippyStatus
+        let status = instance.reference.dataset.tippyStatus;
         let msg = [200, 299, '200', '299'].includes(status)
           ? 'This API belongs to you. Manage it on your <a href="/dashboard">dashboard</a>.'
-          : '<b class="red-text">API metadata cannot be synchronized with its source URL due to an error.</b> <br>Fix the issue and refresh it from your <a href="/dashboard">dashboard</a>.'
-        instance.setContent("<div class='p-1 blue-text left-align'>" + msg + '</div>')
+          : '<b class="red-text">API metadata cannot be synchronized with its source URL due to an error.</b> <br>Fix the issue and refresh it from your <a href="/dashboard">dashboard</a>.';
+        instance.setContent("<div class='p-1 blue-text left-align'>" + msg + '</div>');
       }
-    })
+    });
     /*eslint-enable */
   },
   updated: function () {
     // Highlight matches in results
-    this.mark(this.query)
+    this.mark(this.query);
   },
   computed: {
     ...mapGetters(['loggedIn', 'userInfo', 'tags', 'authors', 'all_filters'])
   },
   watch: {
     tagsearch: function (q) {
-      var self = this
+      var self = this;
 
       if (q.length) {
         let result = filter(self.tags, function (o) {
           if (o['name'].toLowerCase().includes(q.toLowerCase())) {
-            return o
+            return o;
           }
-        })
-        self.tagSearchResults = result
+        });
+        self.tagSearchResults = result;
       } else {
-        this.tagSearchResults = []
+        this.tagSearchResults = [];
       }
     },
     ownersearch: function (q) {
-      var self = this
+      var self = this;
 
       if (q.length) {
         let result = filter(self.authors, function (o) {
           if (o['name'].toLowerCase().includes(q.toLowerCase())) {
-            return o
+            return o;
           }
-        })
-        self.ownerSearchResults = result
+        });
+        self.ownerSearchResults = result;
       } else {
-        this.ownerSearchResults = []
+        this.ownerSearchResults = [];
       }
     },
     listAll: function (b) {
-      var self = this
+      var self = this;
       if (b) {
-        self.listCap = 1000
+        self.listCap = 1000;
       } else {
-        self.listCap = 20
+        self.listCap = 20;
       }
     }
   }
-}
+};
 </script>
 
 <style lang="css">

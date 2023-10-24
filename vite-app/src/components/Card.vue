@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import Pikaboo from './Pikaboo.vue'
+import Pikaboo from './Pikaboo.vue';
 
 export default {
   name: 'Card',
@@ -41,5 +41,5 @@ export default {
       default: ''
     }
   }
-}
+};
 </script>

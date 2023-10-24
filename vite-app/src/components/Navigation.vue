@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import Login from './Login.vue'
+import Login from './Login.vue';
 
 export default {
   name: 'Navigation',
@@ -49,19 +49,19 @@ export default {
   data: function () {
     return {
       show: false
-    }
+    };
   },
   methods: {
     toggleShow() {
-      this.show = !this.show
+      this.show = !this.show;
     }
   },
   computed: {
     uiView: function () {
-      return this.$route.name == 'UI' ? true : false
+      return this.$route.name == 'UI' ? true : false;
     }
   }
-}
+};
 </script>
 
 <style>

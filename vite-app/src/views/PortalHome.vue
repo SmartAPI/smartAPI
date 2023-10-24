@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import Card from '../components/Card.vue'
+import { mapGetters } from 'vuex';
+import Card from '../components/Card.vue';
 
 export default {
   name: 'PortalHome',
@@ -31,5 +31,5 @@ export default {
   computed: {
     ...mapGetters(['portals'])
   }
-}
+};
 </script>

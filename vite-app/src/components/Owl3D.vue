@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import Zdog from 'zdog'
+import Zdog from 'zdog';
 
 export default {
   name: 'Owl',
@@ -20,39 +20,39 @@ export default {
         element: '#smartapi',
         dragRotate: true,
         scale: 1
-      })
+      });
 
       var body = new Zdog.Group({
         addTo: illo
-      })
+      });
 
       var face = new Zdog.Group({
         addTo: illo
-      })
+      });
 
       var w = new Zdog.Group({
         addTo: illo,
         rotate: {
           x: -1
         }
-      })
+      });
 
       var wings = new Zdog.Group({
         addTo: w
-      })
+      });
 
       var wings2 = new Zdog.Group({
         addTo: w,
         rotate: {
           y: 3
         }
-      })
+      });
 
       new Zdog.Shape({
         addTo: body,
         stroke: 120,
         color: '#3F85BB'
-      })
+      });
 
       new Zdog.Cone({
         addTo: illo,
@@ -68,7 +68,7 @@ export default {
           z: -40,
           y: 30
         }
-      })
+      });
 
       // z-shape
       new Zdog.Shape({
@@ -485,7 +485,7 @@ export default {
           x: -74,
           y: -80
         }
-      })
+      });
 
       // z-shape eyes
       new Zdog.Shape({
@@ -901,7 +901,7 @@ export default {
           x: -37,
           y: -30
         }
-      })
+      });
 
       // z-shape
       let wing = new Zdog.Shape({
@@ -1317,56 +1317,56 @@ export default {
           y: -40,
           x: 30
         }
-      })
+      });
 
       wing.copy({
         addTo: wings2
-      })
+      });
 
       // ----- animate ----- //
 
       function animate() {
-        illo.updateRenderGraph()
-        requestAnimationFrame(animate)
+        illo.updateRenderGraph();
+        requestAnimationFrame(animate);
       }
 
-      animate()
+      animate();
 
-      let isSpinning = false
+      let isSpinning = false;
 
       const update = () => {
-        illo.rotate.y -= isSpinning ? 0.008 : 0
-        illo.updateRenderGraph()
-        requestAnimationFrame(update)
-      }
+        illo.rotate.y -= isSpinning ? 0.008 : 0;
+        illo.updateRenderGraph();
+        requestAnimationFrame(update);
+      };
 
-      update()
+      update();
 
       document.getElementById('smartcard').addEventListener(
         'mouseover',
         function () {
           if (!isSpinning) {
-            isSpinning = true
+            isSpinning = true;
           }
         },
         false
-      )
+      );
       document.getElementById('smartcard').addEventListener(
         'mouseout',
         function () {
-          isSpinning = false
+          isSpinning = false;
           illo.rotate.set({
             y: 0
-          })
+          });
         },
         false
-      )
+      );
     }
   },
   mounted: function () {
-    this.drawSmart()
+    this.drawSmart();
   }
-}
+};
 </script>
 
 <style></style>

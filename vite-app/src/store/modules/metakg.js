@@ -1,10 +1,10 @@
-import cytoscape from 'cytoscape'
-import popper from 'cytoscape-popper'
-import tippy from 'tippy.js'
-import swal from 'vue-sweetalert2'
-import axios from 'axios'
+import cytoscape from 'cytoscape';
+import popper from 'cytoscape-popper';
+import tippy from 'tippy.js';
+import swal from 'vue-sweetalert2';
+import axios from 'axios';
 
-cytoscape.use(popper)
+cytoscape.use(popper);
 
 // During local dev the python server with the API should be running on port 8000
 // On prod nginx will redirect /api calls to the right server automatically
@@ -57,117 +57,117 @@ export const metakg = {
   strict: true,
   mutations: {
     setKPSelected(state, payload) {
-      state.kpSelected = payload
+      state.kpSelected = payload;
     },
     setARASelected(state, payload) {
-      state.araSelected = payload
+      state.araSelected = payload;
     },
     setKP(state, payload) {
-      state.kp = payload
+      state.kp = payload;
     },
     setARA(state, payload) {
-      state.ara = payload
+      state.ara = payload;
     },
     expandThis(state, payload) {
       if (!state.expand.has(payload)) {
-        state.expand.add(payload)
+        state.expand.add(payload);
       } else {
-        state.expand.delete(payload)
+        state.expand.delete(payload);
       }
-      console.log([...state.expand])
+      console.log([...state.expand]);
     },
     setTerm(state, payload) {
-      state.query_term = payload
+      state.query_term = payload;
     },
     setMode(state, payload) {
-      state.generalMode = payload
+      state.generalMode = payload;
     },
     saveSubjects(state, payload) {
-      state.subject_options = payload
-      console.log(state.subject_options.length + ' subjects saved')
+      state.subject_options = payload;
+      console.log(state.subject_options.length + ' subjects saved');
     },
     saveObjects(state, payload) {
-      state.object_options = payload
-      console.log(state.object_options.length + ' objects saved')
+      state.object_options = payload;
+      console.log(state.object_options.length + ' objects saved');
     },
     savePredicates(state, payload) {
-      state.predicate_options = payload
-      console.log(state.predicate_options.length + ' predicates saved')
+      state.predicate_options = payload;
+      console.log(state.predicate_options.length + ' predicates saved');
     },
     saveKPs(state, payload) {
-      state.kp_options = payload
-      console.log(state.kp_options.length + ' KP names saved')
+      state.kp_options = payload;
+      console.log(state.kp_options.length + ' KP names saved');
     },
     saveARAs(state, payload) {
-      state.ara_options = payload
-      console.log(state.ara_options.length + ' ARA names saved')
+      state.ara_options = payload;
+      console.log(state.ara_options.length + ' ARA names saved');
     },
     saveTotal(state, payload) {
-      state.total = payload
+      state.total = payload;
     },
     saveObjectTotal(state, payload) {
-      state.objectTotalFromResponse = payload
+      state.objectTotalFromResponse = payload;
     },
     saveSubjectTotal(state, payload) {
-      state.subjectTotalFromResponse = payload
+      state.subjectTotalFromResponse = payload;
     },
     setSize(state, payload) {
-      state.size = payload
+      state.size = payload;
     },
     toggleLoading(state, payload) {
-      state.loading = payload['loading']
+      state.loading = payload['loading'];
     },
     reset(state) {
       // only clear if it has something or it will trigger a search unnecessarily on other components
       if (state.predicate_selected.length) {
-        state.predicate_selected = []
+        state.predicate_selected = [];
       }
       if (state.edge_selected.length) {
-        state.edge_selected = []
+        state.edge_selected = [];
       }
       if (state.input_selected.length) {
-        state.input_selected = []
+        state.input_selected = [];
       }
       if (state.output_selected.length) {
-        state.output_selected = []
+        state.output_selected = [];
       }
       if (state.node_selected.length) {
-        state.node_selected = []
+        state.node_selected = [];
       }
 
-      state.predicate = []
-      state.subject = []
-      state.object = []
-      state.node = []
+      state.predicate = [];
+      state.subject = [];
+      state.object = [];
+      state.node = [];
     },
     saveInput(state, payload) {
-      let name = payload['name']
+      let name = payload['name'];
 
       switch (name) {
         case 'object':
-          state.object = payload['q']
-          break
+          state.object = payload['q'];
+          break;
         case 'subject':
-          state.subject = payload['q']
-          break
+          state.subject = payload['q'];
+          break;
         case 'predicate':
-          state.predicate = payload['q']
-          break
+          state.predicate = payload['q'];
+          break;
         case 'node':
-          state.node = payload['q']
-          break
+          state.node = payload['q'];
+          break;
         default:
-          console.log('no match')
+          console.log('no match');
       }
     },
     saveMetaKG(state, payload) {
-      state.meta_kg = payload['metakg']
+      state.meta_kg = payload['metakg'];
     },
     draw(state) {
       // const t0 = performance.now();
       function readableName(text) {
-        const result = text.replace(/([A-Z])/g, ' $1')
-        return result.charAt(0).toUpperCase() + result.slice(1)
+        const result = text.replace(/([A-Z])/g, ' $1');
+        return result.charAt(0).toUpperCase() + result.slice(1);
       }
 
       state.cy = cytoscape({
@@ -231,18 +231,18 @@ export const metakg = {
             }
           }
         ]
-      })
+      });
 
       state.cy.on('mouseover', 'edge', function (evt) {
-        evt.target.select()
-      })
+        evt.target.select();
+      });
 
       state.cy.on('mouseout', 'edge', function (evt) {
-        evt.target.deselect()
-      })
+        evt.target.deselect();
+      });
 
       function makePopper(ele) {
-        let ref = ele.popperRef()
+        let ref = ele.popperRef();
         ele.tippy = tippy(document.createElement('div'), {
           getReferenceClientRect: ref.getBoundingClientRect,
           // hideOnClick: false,
@@ -260,16 +260,16 @@ export const metakg = {
               '<div class="purple white-text p-small center-align"><h6 class="m-1">' +
                 readableName(ele.id()) +
                 '</h6></div>'
-            )
+            );
           },
           onUntrigger: function (instance) {
-            instance.show()
+            instance.show();
           }
-        })
+        });
       }
 
       function makePopperEdge(ele) {
-        let ref = ele.popperRef()
+        let ref = ele.popperRef();
         ele.tippy = tippy(document.createElement('div'), {
           getReferenceClientRect: ref.getBoundingClientRect,
           // hideOnClick: false,
@@ -282,7 +282,7 @@ export const metakg = {
           theme: 'light',
           appendTo: document.body, // or append dummyDomEle to document.body
           onShow: function (instance) {
-            let apis_html = '<ul class="browser-default m-0 left-align">'
+            let apis_html = '<ul class="browser-default m-0 left-align">';
 
             ele.data('apis').forEach((api) => {
               apis_html +=
@@ -290,10 +290,10 @@ export const metakg = {
                 api?.['smartapi']?.['id'] +
                 `"><small>` +
                 api?.name +
-                `</small></a></li>`
-            })
+                `</small></a></li>`;
+            });
 
-            apis_html += '</ul>'
+            apis_html += '</ul>';
 
             let html =
               `
@@ -309,37 +309,37 @@ export const metakg = {
               ele.data('apis').length +
               ` API(s) available </small></summary>` +
               apis_html +
-              `</details>`
+              `</details>`;
 
-            instance.setContent(html)
+            instance.setContent(html);
           }
-        })
+        });
       }
 
       state.cy.ready(function () {
         state.cy.elements().forEach(function (ele) {
           if (!ele.isNode()) {
-            makePopperEdge(ele)
+            makePopperEdge(ele);
           } else {
-            makePopper(ele)
+            makePopper(ele);
             ele.data(
               'weight',
               ele.connectedEdges().length ? ele.connectedEdges().length + 150 : 150
-            )
+            );
           }
-        })
-      })
+        });
+      });
 
-      state.cy.elements().unbind('mouseover')
-      state.cy.elements().bind('mouseover', (event) => event.target.tippy.show())
+      state.cy.elements().unbind('mouseover');
+      state.cy.elements().bind('mouseover', (event) => event.target.tippy.show());
 
-      state.cy.elements().unbind('mouseout')
-      state.cy.elements().bind('mouseout', (event) => event.target.tippy.hide())
+      state.cy.elements().unbind('mouseout');
+      state.cy.elements().bind('mouseout', (event) => event.target.tippy.hide());
 
       state.cy.elements().bind('click', (event) => {
-        event.target.select()
-        state.cy.fit(event.target, 200)
-      })
+        event.target.select();
+        state.cy.fit(event.target, 200);
+      });
 
       // state.cy.elements().unbind('drag');
       // state.cy.elements().bind('drag', (event) => event.target.tippy.popperInstance.update());
@@ -351,7 +351,7 @@ export const metakg = {
           avoidOverlapPadding: 200,
           minNodeSpacing: 100
         })
-        .run()
+        .run();
 
       // state.cy.maxZoom(2)
       // state.cy.minZoom(.5)
@@ -361,77 +361,77 @@ export const metakg = {
       // console.log(`%c Rendering graph took ${seconds} seconds.`, 'color: green');
     },
     saveContext(state, payload) {
-      state.name = payload['context']['portal']
+      state.name = payload['context']['portal'];
     },
     saveOperations(state, payload) {
-      state.operations = payload['ops']
+      state.operations = payload['ops'];
     },
     formatGraphData(state, payload) {
-      let results = payload['res']
+      let results = payload['res'];
       //Initial data Processing
-      const t0 = performance.now()
+      const t0 = performance.now();
       //all nodes and edges
-      let nodes = new Set()
-      let all_edges = []
-      let all_nodes = []
+      let nodes = new Set();
+      let all_edges = [];
+      let all_nodes = [];
 
-      state.displayedSubjects.clear()
-      state.displayedObjects.clear()
+      state.displayedSubjects.clear();
+      state.displayedObjects.clear();
       //AC
       // let oac_set = new Set();
       // let iac_set = new Set();
       // let pac_set = new Set();
       // color nodes to match active query
       var getNodeColor = (name) => {
-        if (state.subject.includes(name)) return '#dce775 #8bc34a'
-        else if (state.object.includes(name)) return '#ffca28 #ff9800'
-        else if (state.node.includes(name)) return 'hotpink #e91e62'
+        if (state.subject.includes(name)) return '#dce775 #8bc34a';
+        else if (state.object.includes(name)) return '#ffca28 #ff9800';
+        else if (state.node.includes(name)) return 'hotpink #e91e62';
         //inactive color
-        else return state.generalMode ? '#81deea #02838f' : '#df4bfc #4a148c'
-      }
+        else return state.generalMode ? '#81deea #02838f' : '#df4bfc #4a148c';
+      };
 
       var getNodeShape = (name) => {
         if (state.subject.includes(name)) {
-          return 'star'
+          return 'star';
         } else if (state.object.includes(name)) {
-          return 'star'
+          return 'star';
         }
         //inactive color
-        else return 'ellipse'
-      }
+        else return 'ellipse';
+      };
 
       function readableName(text) {
-        const result = text.replace(/([A-Z])/g, '\n $1')
-        return result.charAt(0).toUpperCase() + result.slice(1)
+        const result = text.replace(/([A-Z])/g, '\n $1');
+        return result.charAt(0).toUpperCase() + result.slice(1);
       }
 
       function getRandomColor() {
-        var letters = '0123456789ABCDEF'
-        var color = '#'
+        var letters = '0123456789ABCDEF';
+        var color = '#';
         for (var i = 0; i < 6; i++) {
-          color += letters[Math.floor(Math.random() * 16)]
+          color += letters[Math.floor(Math.random() * 16)];
         }
-        return color
+        return color;
       }
 
-      state.operationsTotal = results.length
+      state.operationsTotal = results.length;
 
-      console.log('💚  OPs: ' + state.operationsTotal, 'Limit: ' + state.maxEdgesRendered)
+      console.log('💚  OPs: ' + state.operationsTotal, 'Limit: ' + state.maxEdgesRendered);
 
       results.forEach((op) => {
-        let input = op['subject']
-        let output = op['object']
-        nodes.add(input)
-        nodes.add(output)
-        state.displayedSubjects.add(input)
-        state.displayedObjects.add(output)
+        let input = op['subject'];
+        let output = op['object'];
+        nodes.add(input);
+        nodes.add(output);
+        state.displayedSubjects.add(input);
+        state.displayedObjects.add(output);
 
         // let apis_html = ''
         // op['api'].forEach(api => {
         //     apis_html += `<a target="_blank" href="http://smart-api.info/registry?q=`+ api?.['smartapi']?.['id'] +`">`+ api?.name +`</a>`
         // });
 
-        let name = op._id
+        let name = op._id;
         // let id = op['api'][0]['smartapi']['id'];
         // let html = `<div class="p-1 center-align white rounded z-depth-3"><details>` +
         //     `<summary>` + op.api.length + `</summary>`+ apis_html +
@@ -460,30 +460,30 @@ export const metakg = {
             weight: op['api'].length / 2 < 1 ? 1 : op['api'].length / 2,
             apis: op['api']
           }
-        }
+        };
         // edge hover tip
-        all_edges.push(edge)
+        all_edges.push(edge);
         // Edge Color
-        let IO = input + output
+        let IO = input + output;
         if (!state.edgeColors[IO]) {
-          state.edgeColors[input + output] = getRandomColor()
-          edge.data.color = state.edgeColors[IO]
+          state.edgeColors[input + output] = getRandomColor();
+          edge.data.color = state.edgeColors[IO];
         } else {
-          edge.data.color = state.edgeColors[IO]
+          edge.data.color = state.edgeColors[IO];
         }
         // Autocomplete
         // oac_set.add(output);
         // iac_set.add(input);
         // pac_set.add(op['predicate']);
-      })
+      });
       // autocomplete options
       // state.object_options = [...oac_set];
       // state.subject_options = [...iac_set];
       // state.predicate_options = [...pac_set];
       //save backup of all options for getNewOptions
-      state.predicate_autocomplete_all = state.predicate_options
+      state.predicate_autocomplete_all = state.predicate_options;
       state.overEdgeLimit =
-        state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false
+        state.maxEdgesRendered && state.operationsTotal > state.maxEdgesRendered ? true : false;
 
       //create node data
       nodes.forEach((node) => {
@@ -494,22 +494,22 @@ export const metakg = {
             weight: 1,
             colors: getNodeColor(node)
           }
-        }
-        n.data.shape = getNodeShape(node)
-        n.data.name = readableName(node)
-        all_nodes.push(n)
-      })
+        };
+        n.data.shape = getNodeShape(node);
+        n.data.name = readableName(node);
+        all_nodes.push(n);
+      });
       // cap edges if max
-      all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges
+      all_edges = state.maxEdgesRendered ? all_edges.slice(0, state.maxEdgesRendered) : all_edges;
       // if max only include nodes on chosen edges
       if (state.maxEdgesRendered) {
-        let min_nodes = new Set()
-        let min_final = []
+        let min_nodes = new Set();
+        let min_final = [];
         all_edges.forEach((edge) => {
-          min_nodes.add(edge.data.source)
-          min_nodes.add(edge.data.target)
-        })
-        let temp = [...min_nodes]
+          min_nodes.add(edge.data.source);
+          min_nodes.add(edge.data.target);
+        });
+        let temp = [...min_nodes];
         temp.forEach((item) => {
           let n = {
             group: 'nodes',
@@ -518,31 +518,31 @@ export const metakg = {
               weight: 1,
               colors: getNodeColor(item)
             }
-          }
-          n.data.shape = getNodeShape(item)
-          n.data.name = readableName(item)
-          min_final.push(n)
-        })
-        all_nodes = min_final
+          };
+          n.data.shape = getNodeShape(item);
+          n.data.name = readableName(item);
+          min_final.push(n);
+        });
+        all_nodes = min_final;
       }
       // final data
-      state.edgeData = all_edges
-      state.nodeData = all_nodes
-      state.loading = false
+      state.edgeData = all_edges;
+      state.nodeData = all_nodes;
+      state.loading = false;
       // starting results on left panel
-      state.results = all_edges
-      const t1 = performance.now()
-      var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0)
-      console.log(`%c 🕧 Creating graph data took ${seconds} seconds.`, 'color:hotpink')
+      state.results = all_edges;
+      const t1 = performance.now();
+      var seconds = (((t1 - t0) % 60000) / 1000).toFixed(0);
+      console.log(`%c 🕧 Creating graph data took ${seconds} seconds.`, 'color:hotpink');
     },
     pushPill(state, payload) {
-      let type = payload['type']
-      let q = payload['q']
+      let type = payload['type'];
+      let q = payload['q'];
 
       switch (type) {
         case 'predicate':
           if (!state.predicate_selected.includes(q)) {
-            state.predicate_selected.push(q)
+            state.predicate_selected.push(q);
           } else {
             swal({
               icon: 'error',
@@ -550,13 +550,13 @@ export const metakg = {
               title: 'Already Selected',
               showConfirmButton: false,
               timer: 1000
-            })
+            });
           }
-          break
+          break;
 
         case 'edge':
           if (!state.edge_selected.includes(q)) {
-            state.edge_selected.push(q)
+            state.edge_selected.push(q);
           } else {
             swal({
               icon: 'error',
@@ -564,13 +564,13 @@ export const metakg = {
               title: 'Already Selected',
               showConfirmButton: false,
               timer: 1000
-            })
+            });
           }
 
-          break
+          break;
         case 'subject':
           if (!state.input_selected.includes(q)) {
-            state.input_selected.push(q)
+            state.input_selected.push(q);
           } else {
             swal({
               icon: 'error',
@@ -578,13 +578,13 @@ export const metakg = {
               title: 'Already Selected',
               showConfirmButton: false,
               timer: 1000
-            })
+            });
           }
 
-          break
+          break;
         case 'object':
           if (!state.output_selected.includes(q)) {
-            state.output_selected.push(q)
+            state.output_selected.push(q);
           } else {
             swal({
               icon: 'error',
@@ -592,14 +592,14 @@ export const metakg = {
               title: 'Already Selected',
               showConfirmButton: false,
               timer: 1000
-            })
+            });
           }
 
-          break
+          break;
 
         case 'node':
           if (!state.node_selected.includes(q)) {
-            state.node_selected.push(q)
+            state.node_selected.push(q);
           } else {
             swal({
               icon: 'error',
@@ -607,124 +607,124 @@ export const metakg = {
               title: 'Already Selected',
               showConfirmButton: false,
               timer: 1000
-            })
+            });
           }
 
-          break
+          break;
         default:
-          console.log('NO option pushPill')
+          console.log('NO option pushPill');
       }
     },
     removePill(state, payload) {
-      let type = payload['type']
-      let q = payload['q']
-      let i = ''
+      let type = payload['type'];
+      let q = payload['q'];
+      let i = '';
 
       switch (type) {
         case 'predicate':
-          i = state.predicate_selected.indexOf(q)
-          state.predicate_selected.splice(i, 1)
-          break
+          i = state.predicate_selected.indexOf(q);
+          state.predicate_selected.splice(i, 1);
+          break;
         case 'edge':
-          i = state.edge_selected.indexOf(q)
-          state.edge_selected.splice(i, 1)
-          break
+          i = state.edge_selected.indexOf(q);
+          state.edge_selected.splice(i, 1);
+          break;
         case 'subject':
-          i = state.input_selected.indexOf(q)
-          state.input_selected.splice(i, 1)
-          break
+          i = state.input_selected.indexOf(q);
+          state.input_selected.splice(i, 1);
+          break;
         case 'object':
-          i = state.output_selected.indexOf(q)
-          state.output_selected.splice(i, 1)
-          break
+          i = state.output_selected.indexOf(q);
+          state.output_selected.splice(i, 1);
+          break;
         case 'node':
-          i = state.node_selected.indexOf(q)
-          state.node_selected.splice(i, 1)
-          break
+          i = state.node_selected.indexOf(q);
+          state.node_selected.splice(i, 1);
+          break;
         default:
-          console.log('NO option removePill')
+          console.log('NO option removePill');
       }
     },
     buildAPIURL(state, payload) {
       //keys we don't want to include
-      let ignore_list = ['aggs', 'facet_size']
+      let ignore_list = ['aggs', 'facet_size'];
 
       let base = state.baseURL.includes('http')
         ? state.baseURL
-        : window.location.origin + state.baseURL
-      let url = new URL(base + '/metakg/consolidated')
+        : window.location.origin + state.baseURL;
+      let url = new URL(base + '/metakg/consolidated');
       for (const key in payload) {
         if (!ignore_list.includes(key)) {
-          url.searchParams.append(key, payload[key])
+          url.searchParams.append(key, payload[key]);
         }
       }
       // for link to raw data on UI
-      state.finalURL = url.href
+      state.finalURL = url.href;
     }
   },
   actions: {
     draw({ commit }) {
-      commit('draw')
+      commit('draw');
     },
     handleParams({ commit, dispatch }, payload) {
       // let found = false;
-      let params = payload['params']
-      params = new URLSearchParams(params)
-      let possibleTypes = ['subject', 'predicate', 'object', 'node', 'edge']
+      let params = payload['params'];
+      params = new URLSearchParams(params);
+      let possibleTypes = ['subject', 'predicate', 'object', 'node', 'edge'];
 
       for (var x = 0; x < possibleTypes.length; x++) {
-        let currentType = possibleTypes[x]
+        let currentType = possibleTypes[x];
 
-        let type = params.get(currentType)
+        let type = params.get(currentType);
         if (type) {
-          let selections = type.split(',')
+          let selections = type.split(',');
           if (currentType == 'node' || currentType == 'edge') {
-            commit('setMode', true)
+            commit('setMode', true);
           }
 
           for (var i = 0; i < selections.length; i++) {
-            var payload1 = {}
-            payload1['type'] = currentType
-            payload1['q'] = selections[i]
-            commit('pushPill', payload1)
+            var payload1 = {};
+            payload1['type'] = currentType;
+            payload1['q'] = selections[i];
+            commit('pushPill', payload1);
 
-            var payload2 = {}
-            payload2['name'] = currentType
-            payload2['q'] = selections[i]
-            commit('saveInput', payload2)
+            var payload2 = {};
+            payload2['name'] = currentType;
+            payload2['q'] = selections[i];
+            commit('saveInput', payload2);
 
             // found = true
-            console.log('✨ Activating Existing Query ✨', JSON.stringify(payload1, null, 2))
+            console.log('✨ Activating Existing Query ✨', JSON.stringify(payload1, null, 2));
           }
         }
       }
 
       if (params.get('size')) {
-        commit('setSize', params.get('size'))
+        commit('setSize', params.get('size'));
       }
 
       if (params.get('api.x-translator.component')) {
         if (params.get('api.x-translator.component').toLowerCase() == 'kp') {
-          commit('setKP', true)
+          commit('setKP', true);
           if (params.get('api.name')) {
-            commit('setKPSelected', params.get('api.name'))
+            commit('setKPSelected', params.get('api.name'));
           }
         } else if (params.get('api.x-translator.component').toLowerCase() == 'ara') {
-          commit('setARA', true)
+          commit('setARA', true);
           if (params.get('api.name')) {
-            commit('setARASelected', params.get('api.name'))
+            commit('setARASelected', params.get('api.name'));
           }
         }
       }
 
       if (params.get('api.name')) {
         if (params.get('api.x-translator.component').toLowerCase() == 'kp') {
-          commit('setKPSelected', params.get('api.name'))
+          commit('setKPSelected', params.get('api.name'));
         } else if (params.get('api.x-translator.component').toLowerCase() == 'ara') {
-          commit('setARASelected', params.get('api.name'))
+          commit('setARASelected', params.get('api.name'));
         } else {
           //default
-          commit('setKPSelected', params.get('api.name'))
+          commit('setKPSelected', params.get('api.name'));
         }
       }
 
@@ -733,145 +733,145 @@ export const metakg = {
           .get('expand')
           .split('.')
           .forEach((value) => {
-            commit('expandThis', value)
-          })
+            commit('expandThis', value);
+          });
       }
 
       if (params.get('q')) {
-        commit('setTerm', params.get('q'))
+        commit('setTerm', params.get('q'));
       }
 
       // found ? dispatch('handleQuery'): false;
-      dispatch('handleQuery')
+      dispatch('handleQuery');
     },
     recenterGraph({ state }) {
-      state.cy.fit()
+      state.cy.fit();
     },
     resetGraph({ commit }) {
-      commit('draw')
+      commit('draw');
     },
     highlightThis({ state }, payload) {
-      let name = payload['highlight']
+      let name = payload['highlight'];
       let found = state.cy.filter(function (element) {
         if (element.isEdge() && element.data('name').includes(name)) {
-          return element
+          return element;
         }
-      })
-      found.addClass('highlightedAPI')
+      });
+      found.addClass('highlightedAPI');
     },
     unhighlightThis({ state }) {
-      state.cy.elements().removeClass('highlightedAPI')
+      state.cy.elements().removeClass('highlightedAPI');
     },
     highlightRowAndZoom({ state }, payload) {
-      let item = payload['item']
+      let item = payload['item'];
       if (state.operationsTotal < state.maxEdgesRendered && item.data.id) {
         let found = state.cy.edges().filter(function (ele) {
-          return ele.data('id') == item.data.id
-        })
+          return ele.data('id') == item.data.id;
+        });
         if (found) {
-          found.select()
-          state.cy.fit(found, 75)
+          found.select();
+          state.cy.fit(found, 75);
         }
       }
     },
     highlightRow({ state }, payload) {
-      let item = payload['item']
+      let item = payload['item'];
       if (state.operationsTotal < state.maxEdgesRendered && item.data.id) {
         let found = state.cy.edges().filter(function (ele) {
-          return ele.data('id') == item.data.id
-        })
+          return ele.data('id') == item.data.id;
+        });
         if (found) {
-          found.select()
-          found[0].tippy.show()
+          found.select();
+          found[0].tippy.show();
         }
       }
     },
     unhighlightRow({ state }, payload) {
-      let item = payload['item']
+      let item = payload['item'];
       if (state.operationsTotal < state.maxEdgesRendered && item.data.id) {
         let found = state.cy.edges().filter(function (ele) {
-          return ele.data('id') == item.data.id
-        })
+          return ele.data('id') == item.data.id;
+        });
         if (found) {
-          found.unselect()
-          found[0].tippy.hide()
+          found.unselect();
+          found[0].tippy.hide();
         }
       }
     },
     handleQuery({ commit, state, dispatch }) {
-      console.log('%c New Query', 'background: blue; padding: 5px; color: yellow;')
+      console.log('%c New Query', 'background: blue; padding: 5px; color: yellow;');
       function escapeChars(string) {
-        ;['(', ')', '.', '-'].forEach((item) => {
+        ['(', ')', '.', '-'].forEach((item) => {
           if (string.includes(item)) {
-            string = string.replaceAll(item, '\\' + item)
+            string = string.replaceAll(item, '\\' + item);
           }
-        })
-        return string
+        });
+        return string;
       }
-      let urlParams = {}
+      let urlParams = {};
       if (state.object && state.object.length) {
-        urlParams['object'] = state.object + ''
+        urlParams['object'] = state.object + '';
       }
       if (state.predicate && state.predicate.length) {
-        urlParams['predicate'] = state.predicate + ''
+        urlParams['predicate'] = state.predicate + '';
       }
       if (state.subject && state.subject.length) {
-        urlParams['subject'] = state.subject + ''
+        urlParams['subject'] = state.subject + '';
       }
       if (state.node && state.node.length) {
-        urlParams['node'] = state.node + ''
+        urlParams['node'] = state.node + '';
       }
       if (state.edge && state.edge.length) {
-        urlParams['edge'] = state.edge + ''
+        urlParams['edge'] = state.edge + '';
       }
-      urlParams['size'] = state.size
+      urlParams['size'] = state.size;
 
       if (state.expand && state.expand.size) {
-        urlParams['expand'] = [...state.expand] + ''
+        urlParams['expand'] = [...state.expand] + '';
       }
 
       if (state.kp || state.ara || state.query_term || state.kpSelected || state.araSelected) {
-        let q_terms = []
+        let q_terms = [];
         if (state.kp) {
-          q_terms.push('api.x-translator.component:KP')
+          q_terms.push('api.x-translator.component:KP');
         }
         if (state.kpSelected) {
-          q_terms.push('api.name:' + `${escapeChars(state.kpSelected)}`)
+          q_terms.push('api.name:' + `${escapeChars(state.kpSelected)}`);
         }
         if (state.araSelected) {
-          q_terms.push('api.name:' + `${escapeChars(state.araSelected)}`)
+          q_terms.push('api.name:' + `${escapeChars(state.araSelected)}`);
         }
         if (state.ara) {
-          q_terms.push('api.x-translator.component:ARA')
+          q_terms.push('api.x-translator.component:ARA');
         }
         if (state.query_term) {
-          q_terms.push(`${escapeChars(state.query_term)}`)
+          q_terms.push(`${escapeChars(state.query_term)}`);
         }
-        urlParams['q'] = `(${q_terms.join(' AND ')})`
+        urlParams['q'] = `(${q_terms.join(' AND ')})`;
       }
 
-      urlParams['facet_size'] = 300
-      urlParams['aggs'] = 'object.raw,subject.raw'
-      let g = null
+      urlParams['facet_size'] = 300;
+      urlParams['aggs'] = 'object.raw,subject.raw';
+      let g = null;
       console.log(
         '%c ' + JSON.stringify(urlParams, null, 2),
         'color:green; background:lightyellow; padding:5px;'
-      )
+      );
       // commit('toggleLoading', {loading: true})
       axios
         .get(state.baseURL + '/metakg/consolidated', { params: urlParams })
         .then((res) => {
-          commit('buildAPIURL', urlParams)
-          g = res.data?.hits || []
-          commit('formatGraphData', { res: g })
-          commit('saveTotal', res.data.total)
-          commit('saveObjectTotal', res.data?.facets?.['object.raw']?.terms)
-          commit('saveSubjectTotal', res.data?.facets?.['subject.raw']?.terms)
-          dispatch('draw')
+          commit('buildAPIURL', urlParams);
+          g = res.data?.hits || [];
+          commit('formatGraphData', { res: g });
+          commit('saveTotal', res.data.total);
+          commit('saveObjectTotal', res.data?.facets?.['object.raw']?.terms);
+          commit('saveSubjectTotal', res.data?.facets?.['subject.raw']?.terms);
+          dispatch('draw');
         })
         .catch((err) => {
-          throw err
-        })
+          throw err;
+        });
     },
     download({ state }) {
       let options = {
@@ -879,17 +879,17 @@ export const metakg = {
         full: true,
         quality: 1,
         output: 'blob'
-      }
+      };
 
-      let pic = state.cy.png(options)
+      let pic = state.cy.png(options);
 
-      var a = document.createElement('a')
+      var a = document.createElement('a');
       var file = new Blob([pic], {
         type: 'image/png'
-      })
-      a.href = URL.createObjectURL(file)
-      a.download = 'meta-kg-graph'
-      a.click()
+      });
+      a.href = URL.createObjectURL(file);
+      a.download = 'meta-kg-graph';
+      a.click();
 
       swal({
         type: 'success',
@@ -897,104 +897,104 @@ export const metakg = {
         title: 'Success',
         showConfirmButton: false,
         timer: 2000
-      })
+      });
     },
     buildURL({ state }) {
-      let base = window.location.origin + window.location.pathname
-      let finalURL = window.location.href
-      let url = new URL(finalURL)
+      let base = window.location.origin + window.location.pathname;
+      let finalURL = window.location.href;
+      let url = new URL(finalURL);
 
-      let params = new URLSearchParams(url.search.slice(1))
+      let params = new URLSearchParams(url.search.slice(1));
 
       if (state.kp) {
-        params.set('api.x-translator.component', 'KP')
+        params.set('api.x-translator.component', 'KP');
       }
 
       if (state.ara) {
-        params.set('api.x-translator.component', 'ARA')
+        params.set('api.x-translator.component', 'ARA');
       }
 
       if (state.kpSelected) {
-        params.set('api.name', state.kpSelected)
+        params.set('api.name', state.kpSelected);
       }
 
       if (state.araSelected) {
-        params.set('api.name', state.araSelected)
+        params.set('api.name', state.araSelected);
       }
       // reset KP/ARA filters  if not active
       if (!state.kp && !state.ara) {
-        params.delete('api.x-translator.component')
+        params.delete('api.x-translator.component');
       }
 
       if (!state.kpSelected && !state.araSelected) {
-        params.delete('api.name')
+        params.delete('api.name');
       }
 
       if (state.predicate_selected.length) {
         //something is selected
-        params.set('predicate', state.predicate_selected.toString())
+        params.set('predicate', state.predicate_selected.toString());
       } else {
         //nothing selected
         if (params.get('predicate')) {
-          params.delete('predicate')
+          params.delete('predicate');
         }
       }
 
       if (state.edge_selected.length) {
         //something is selected
-        params.set('edge', state.edge_selected.toString())
+        params.set('edge', state.edge_selected.toString());
       } else {
         //nothing selected
         if (params.get('edge')) {
-          params.delete('edge')
+          params.delete('edge');
         }
       }
 
       if (state.input_selected.length) {
         //something is selected
-        params.set('subject', state.input_selected.toString())
+        params.set('subject', state.input_selected.toString());
       } else {
         //nothing selected
         if (params.get('subject')) {
-          params.delete('subject')
+          params.delete('subject');
         }
       }
 
       if (state.output_selected.length) {
         //something is selected
-        params.set('object', state.output_selected.toString())
+        params.set('object', state.output_selected.toString());
       } else {
         //nothing selected
         if (params.get('object')) {
-          params.delete('object')
+          params.delete('object');
         }
       }
 
       if (state.node_selected.length) {
         //something is selected
-        params.set('node', state.node_selected.toString())
+        params.set('node', state.node_selected.toString());
       } else {
         //nothing selected
         if (params.get('node')) {
-          params.delete('node')
+          params.delete('node');
         }
       }
 
-      params.set('size', state.size)
+      params.set('size', state.size);
 
       if (state.expand && state.expand.size) {
-        params.set('expand', [...state.expand].toString())
+        params.set('expand', [...state.expand].toString());
       } else {
-        params.delete('expand')
+        params.delete('expand');
       }
 
       if (state.query_term) {
-        params.set('q', state.query_term)
+        params.set('q', state.query_term);
       } else {
-        params.delete('q')
+        params.delete('q');
       }
 
-      finalURL = base + '?' + params
+      finalURL = base + '?' + params;
 
       //HTML5 change url history
       window.history.pushState(
@@ -1004,25 +1004,25 @@ export const metakg = {
         },
         'MetaKG',
         finalURL
-      )
+      );
     },
     getOptions({ dispatch }) {
-      dispatch('getSubjects')
-      dispatch('getObjects')
-      dispatch('getPredicates')
-      dispatch('getComponentNames')
+      dispatch('getSubjects');
+      dispatch('getObjects');
+      dispatch('getPredicates');
+      dispatch('getComponentNames');
     },
     getSubjects({ state, commit }) {
       if (!state.subject_options.length) {
         axios
           .get(state.baseURL + '/metakg/consolidated?aggs=subject.raw&facet_size=200')
           .then((res) => {
-            let data = res.data?.facets?.['subject.raw']?.terms.map((item) => item.term).sort()
-            commit('saveSubjects', data)
+            let data = res.data?.facets?.['subject.raw']?.terms.map((item) => item.term).sort();
+            commit('saveSubjects', data);
           })
           .catch((err) => {
-            console.log('Failed to get subjects', err)
-          })
+            console.log('Failed to get subjects', err);
+          });
       }
     },
     getObjects({ state, commit }) {
@@ -1030,12 +1030,12 @@ export const metakg = {
         axios
           .get(state.baseURL + '/metakg/consolidated?aggs=object.raw&facet_size=200')
           .then((res) => {
-            let data = res.data?.facets?.['object.raw']?.terms.map((item) => item.term).sort()
-            commit('saveObjects', data)
+            let data = res.data?.facets?.['object.raw']?.terms.map((item) => item.term).sort();
+            commit('saveObjects', data);
           })
           .catch((err) => {
-            console.log('Failed to get objects', err)
-          })
+            console.log('Failed to get objects', err);
+          });
       }
     },
     getPredicates({ state, commit }) {
@@ -1043,12 +1043,12 @@ export const metakg = {
         axios
           .get(state.baseURL + '/metakg/consolidated?aggs=predicate&facet_size=500')
           .then((res) => {
-            let data = res.data?.facets?.predicate?.terms.map((item) => item.term).sort()
-            commit('savePredicates', data)
+            let data = res.data?.facets?.predicate?.terms.map((item) => item.term).sort();
+            commit('savePredicates', data);
           })
           .catch((err) => {
-            console.log('Failed to get predicates', err)
-          })
+            console.log('Failed to get predicates', err);
+          });
       }
     },
     getComponentNames({ state, commit }) {
@@ -1059,12 +1059,12 @@ export const metakg = {
               '/query?q=info.x-translator.component:KP&aggs=info.title.raw&size=0&facet_size=300'
           )
           .then((res) => {
-            let data = res.data?.facets?.['info.title.raw']?.terms.map((item) => item.term).sort()
-            commit('saveKPs', data)
+            let data = res.data?.facets?.['info.title.raw']?.terms.map((item) => item.term).sort();
+            commit('saveKPs', data);
           })
           .catch((err) => {
-            console.log('Failed to get KP names', err)
-          })
+            console.log('Failed to get KP names', err);
+          });
       }
 
       if (!state.ara_options.length) {
@@ -1074,102 +1074,102 @@ export const metakg = {
               '/query?q=info.x-translator.component:ARA&aggs=info.title.raw&size=0&facet_size=300'
           )
           .then((res) => {
-            let data = res.data?.facets?.['info.title.raw']?.terms.map((item) => item.term).sort()
-            commit('saveARAs', data)
+            let data = res.data?.facets?.['info.title.raw']?.terms.map((item) => item.term).sort();
+            commit('saveARAs', data);
           })
           .catch((err) => {
-            console.log('Failed to get ARA names', err)
-          })
+            console.log('Failed to get ARA names', err);
+          });
       }
     }
   },
   getters: {
     getSubjectOptions: (state) => {
-      return state.subject_options
+      return state.subject_options;
     },
     getPredicateOptions: (state) => {
-      return state.predicate_options
+      return state.predicate_options;
     },
     getObjectOptions: (state) => {
-      return state.object_options
+      return state.object_options;
     },
     getSubjectSelected: (state) => {
-      return state.input_selected
+      return state.input_selected;
     },
     getPredicateSelected: (state) => {
-      return state.predicate_selected
+      return state.predicate_selected;
     },
     getEdgeSelected: (state) => {
-      return state.edge_selected
+      return state.edge_selected;
     },
     getObjectSelected: (state) => {
-      return state.output_selected
+      return state.output_selected;
     },
     getNode_Selected: (state) => {
-      return state.node_selected
+      return state.node_selected;
     },
     results: (state) => {
-      return state.results
+      return state.results;
     },
     getAPITotal: (state) => {
-      return state.operationsTotal
+      return state.operationsTotal;
     },
     loading: (state) => {
-      return state.loading
+      return state.loading;
     },
     overEdgeLimit: (state) => {
-      return state.overEdgeLimit
+      return state.overEdgeLimit;
     },
     getLimit: (state) => {
-      return state.maxEdgesRendered
+      return state.maxEdgesRendered;
     },
     size: (state) => {
-      return state.size
+      return state.size;
     },
     finalURL: (state) => {
-      return state.finalURL
+      return state.finalURL;
     },
     expand: (state) => {
-      return [...state.expand]
+      return [...state.expand];
     },
     total: (state) => {
-      return state.total
+      return state.total;
     },
     kp: (state) => {
-      return state.kp
+      return state.kp;
     },
     KPNames: (state) => {
-      return state.kp_options
+      return state.kp_options;
     },
     ARANames: (state) => {
-      return state.ara_options
+      return state.ara_options;
     },
     kpSelected: (state) => {
-      return state.kpSelected
+      return state.kpSelected;
     },
     araSelected: (state) => {
-      return state.araSelected
+      return state.araSelected;
     },
     ara: (state) => {
-      return state.ara
+      return state.ara;
     },
     objectTotalFromResponse: (state) => {
-      return state.objectTotalFromResponse
+      return state.objectTotalFromResponse;
     },
     subjectTotalFromResponse: (state) => {
-      return state.subjectTotalFromResponse
+      return state.subjectTotalFromResponse;
     },
     query_term: (state) => {
-      return state.query_term
+      return state.query_term;
     },
     generalMode: (state) => {
-      return state.generalMode
+      return state.generalMode;
     },
     displayedSubjects: (state) => {
-      return [...state.displayedSubjects]
+      return [...state.displayedSubjects];
     },
     displayedObjects: (state) => {
-      return [...state.displayedObjects]
+      return [...state.displayedObjects];
     }
   }
-}
+};

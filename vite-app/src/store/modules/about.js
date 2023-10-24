@@ -1,8 +1,8 @@
-import scripps_img from '@/assets/img/scripps.svg'
-import mu_img from '@/assets/img/mu.png'
-import header_img from '@/assets/img/header-logo.png'
-import embl_img from '@/assets/img/embl-01.png'
-import def_img from '@/assets/img/logo-small.png'
+import scripps_img from '@/assets/img/scripps.svg';
+import mu_img from '@/assets/img/mu.png';
+import header_img from '@/assets/img/header-logo.png';
+import embl_img from '@/assets/img/embl-01.png';
+import def_img from '@/assets/img/logo-small.png';
 
 export const about = {
   state: () => ({
@@ -293,10 +293,10 @@ export const about = {
   strict: true,
   getters: {
     contributors: (state) => {
-      return state.contributors
+      return state.contributors;
     },
     otherMembers: (state) => {
-      return state.otherMembers
+      return state.otherMembers;
     }
   }
-}
+};
