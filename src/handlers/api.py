@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from typing import List, Union
@@ -402,7 +403,7 @@ class MetaKGQueryHandler(QueryHandler):
             "object": {"type": list, "max": 1000},
             "node": {"type": list, "max": 1000},  # either subject or object
             "predicate": {"type": list, "max": 1000, "alias": "edge"},
-            "size": {"type": int, "max": 5000, "alias": "limit"}, # overwrite size limit for graphml export
+            "size": {"type": int, "max": 5000, "alias": "limit"},  # overwrite size limit for graphml export
             "download": {"type": bool, "default": True},
             "expand": {
                 "type": list,
@@ -461,13 +462,14 @@ class MetaKGQueryHandler(QueryHandler):
         """
         try:
             if self.format == "graphml":
-                chunk = edges2graphml(chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed")
+                chunk = edges2graphml(
+                    chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed"
+                )
                 self.set_header("Content-Type", "text/graphml; charset=utf-8")
                 if self.args.download:
-                    self.set_header('Content-Disposition', 'attachment; filename="smartapi_metakg.graphml"')
+                    self.set_header("Content-Disposition", 'attachment; filename="smartapi_metakg.graphml"')
 
                 return super(BaseAPIHandler, self).write(chunk)
-
 
         except Exception as exc:
             logger.warning(exc)
@@ -478,20 +480,21 @@ class MetaKGQueryHandler(QueryHandler):
 class MetaKGPathFinderHandler(QueryHandler):
     """
     A handler for querying paths in a knowledge graph using MetaKGPathFinder.
-    
+
     Attributes:
     - name: Unique identifier for this handler.
     - kwargs: Configuration for GET request parameters.
-    
+
     The primary GET method accepts 'subject', 'object', and 'cutoff' parameters, then retrieves
     and returns paths in JSON format between the specified entities up to the given 'cutoff' length.
     """
+
     name = "metakgpathfinder"
     kwargs = {
         "GET": {
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": str, "required": True, "max": 1000},
-            "object": {"type": str,  "required": True, "max": 1000},
+            "object": {"type": str, "required": True, "max": 1000},
             "cutoff": {"type": int, "default": 3, "max": 5},
             "api_details": {"type": bool, "default": False},
         },
@@ -499,8 +502,15 @@ class MetaKGPathFinderHandler(QueryHandler):
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
-        query_data = {'q': self.args.q }
-        pathfinder = MetaKGPathFinder(query_data=query_data)        
-        paths_with_edges = pathfinder.get_paths(subject=self.args.subject, object=self.args.object, cutoff=self.args.cutoff, api_details=self.args.api_details)
+        query_data = {"q": self.args.q}
+        pathfinder = MetaKGPathFinder(query_data=query_data)
+        paths_with_edges = pathfinder.get_paths(
+            subject=self.args.subject,
+            object=self.args.object,
+            cutoff=self.args.cutoff,
+            api_details=self.args.api_details,
+        )
         # Return the result in JSON format
-        self.write({"paths_with_edges": paths_with_edges})
+        res = {"paths_with_edges": paths_with_edges}
+        await asyncio.sleep(0.01)
+        self.finish(res)
