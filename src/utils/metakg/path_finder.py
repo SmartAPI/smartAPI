@@ -3,8 +3,8 @@ import networkx as nx
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
 
-class MetaKGPathFinder:
 
+class MetaKGPathFinder:
     def __init__(self, query_data=None):
         """
         Initialize the MetaKGPathFinder class.
@@ -36,7 +36,7 @@ class MetaKGPathFinder:
             A directed graph constructed from the indexed documents.
         """
         index = ConsolidatedMetaKGDoc.Index.name
-        predicates=self.predicates
+        predicates = self.predicates
 
         # Create a new directed graph
         self.G = nx.DiGraph()
@@ -44,10 +44,10 @@ class MetaKGPathFinder:
         # Scroll through search results with direct call to index
         for doc in MetaKG.get_all_via_scan(size=1000, query_data=query_data, index=index):
             # Extract subject, object, and predicate from hit
-            subject = doc['_source']['subject']
-            object = doc['_source']['object']
-            predicate = doc['_source']['predicate']
-            api = doc['_source']['api']
+            subject = doc["_source"]["subject"]
+            object = doc["_source"]["object"]
+            predicate = doc["_source"]["predicate"]
+            api = doc["_source"]["api"]
 
             # Add the subject & object to the graph
             self.G.add_edge(subject, object)
@@ -88,10 +88,7 @@ class MetaKGPathFinder:
         if nx.has_path(self.G, subject, object):
             raw_paths = list(nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff))
             for path in raw_paths:
-                paths_data = {
-                    "path": path,
-                    "edges": []
-                }
+                paths_data = {"path": path, "edges": []}
 
                 for i in range(len(path) - 1):
                     source_node = path[i]
@@ -104,13 +101,18 @@ class MetaKGPathFinder:
                         if api_details:
                             api_content = data["api"]
                         else:
-                            api_content = [{"name": item.get("name", None), "smartapi":{"id": item["smartapi"]["id"]}} for item in data["api"]]
-                        paths_data["edges"].append({
-                            "subject": source_node,
-                            "object": target_node,
-                            "predicate": data["predicate"],
-                            "api": api_content
-                        })
+                            api_content = [
+                                {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}
+                                for item in data["api"]
+                            ]
+                        paths_data["edges"].append(
+                            {
+                                "subject": source_node,
+                                "object": target_node,
+                                "predicate": data["predicate"],
+                                "api": api_content,
+                            }
+                        )
 
                 paths_with_edges.append(paths_data)
 
