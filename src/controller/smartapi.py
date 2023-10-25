@@ -190,21 +190,16 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
             # get the edge api to modify
             edge_api = edge["_source"]["api"]
-            # add bte & provided_by fields to the edge
-            if "bte" in edge["_source"]:
-                edge_api["bte"] = edge["_source"]["bte"]
-            if "provided_by" in edge["_source"]:
-                edge_api["provided_by"] = edge["_source"]["provided_by"]
-
             # add edge to the correct group(based on key)
             if key in edge_dict:
-                edge_dict[key]["api"].append(edge_api)
+                if edge_api not in edge_dict[key]["api"]:
+                    edge_dict[key]["api"].append(edge_api)
             else:
                 edge_dict[key] = {
                     "_id": key,
                     "subject": edge["_source"]["subject"],
-                    "object": edge["_source"]["predicate"],
-                    "predicate": edge["_source"]["object"],
+                    "object": edge["_source"]["object"],
+                    "predicate": edge["_source"]["predicate"],
                     "api": [edge_api],
                 }
 

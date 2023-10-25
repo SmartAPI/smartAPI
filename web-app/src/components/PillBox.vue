@@ -1,32 +1,42 @@
 <template>
   <div>
-        <div class="pillBox lighten-4" :class="getBackClass()">
-          <form @submit.prevent="handlePillSubmit" style="display:inline;">
-            <input 
-            :disabled="loading" 
-            v-model='q' 
-            :class="getBackClass()" 
-            class="browser-default pill-input lighten-4 w-100" 
-            type="text" 
-            name="search" 
-            :id="type" 
-            :placeholder="loading?'Please wait':'Search'" 
-            :list="type+'list'" 
-            autocomplete="off">
-            <datalist :id="type+'list'"></datalist>
-          </form>
-        </div>
-        <div class="p-1">
-          <template v-for="pill in selected" :key="pill">
-            <div class="smallButton white-text d-inline-block m-1" :class="getBackClass()" @click="remove(pill)" >
-            <span v-text="pill"></span>&nbsp;<span class="red-text"><b>&times;</b></span>
-            </div>
-          </template>
-        </div>
-      </div>
+    <div class="d-flex justify-content-center">
+      <h6 class="white-text lighter" style="margin:2px; text-transform: capitalize; margin-right: 10px; font-weight: bold;">
+        <i class="fa fa-circle" :class="''+getBackClass()+'-text'" aria-hidden="true"></i>
+        {{ type }}
+      </h6>
+      <label class="white-text">
+        <input type="checkbox" class="filled-in" v-model="expand"/>
+        <span style="padding-left: 24px;">Expand <i class="material-icons tiny cyan-text" data-tippy-content='Expand category based on <a target="_blank" href="https://biolink.github.io/biolink-model/">Biolink model</a>'>info</i></span>
+      </label>
+    </div>
+    <div class="pillBox lighten-4 d-flex flex-wrap align-items-center" :class="getBackClass()">
+      <form @submit.prevent="handlePillSubmit" class="m-1">
+          <input 
+          :disabled="loading" 
+          v-model='q' 
+          :class="getBackClass()" 
+          class="browser-default pill-input lighten-4 w-100" 
+          type="text" 
+          name="search" 
+          :id="type" 
+          :placeholder="loading?'Please wait':'Search'" 
+          :list="type+'list'" 
+          autocomplete="off">
+          <datalist :id="type+'list'"></datalist>
+        </form>
+        <template v-for="pill in selected" :key="pill">
+          <div class="smallButton white-text d-inline-block m-1" :class="getBackClass()" @click="remove(pill)" >
+          <span v-text="pill"></span>&nbsp;<span class="red-text"><b>&times;</b></span>
+          </div>
+        </template>
+    </div>
+    
+  </div>
 </template>
 
 <script>
+
 export default {
     name: 'PillBox',
     data: function () {
@@ -47,7 +57,7 @@ export default {
             self.$store.commit('pushPill', {type: self.type, q: self.q});
           } else {
             self.$swal({
-              type: 'error',
+              icon: 'error',
               toast: true,
               title: 'Not an option',
               showConfirmButton: false,
@@ -84,38 +94,50 @@ export default {
         switch (this.type) {
           case 'predicate':
             return "purple";
-          case 'input_type':
-            return "indigo";
-          case 'output_type':
+          case 'subject':
+            return "light-green";
+          case 'object':
             return "orange";
+          case 'node':
+            return "cyan";
+          case 'edge':
+            return "cyan";
           default:
             return 'white'
         }
-      }
+      },
     },
     computed: {
       options: function () {
         switch (this.type) {
           case 'predicate':
-            return this.$store.getters.getP_AC
-          case 'input_type':
-            return this.$store.getters.getI_AC
-          case 'output_type':
-            return this.$store.getters.getO_AC
+            return this.$store.getters.getPredicateOptions
+          case 'edge':
+            return this.$store.getters.getPredicateOptions
+          case 'subject':
+            return this.$store.getters.getSubjectOptions
+          case 'object':
+            return this.$store.getters.getObjectOptions
+          case 'node':
+            return this.$store.getters.getObjectOptions
           default:
             console.log('NO AUTOCOMPLETE')
-            return []
+            return [];
         }
 
       },
       selected: function () {
         switch (this.type) {
           case 'predicate':
-            return this.$store.getters.getP_Selected
-          case 'input_type':
-            return this.$store.getters.getI_Selected
-          case 'output_type':
-            return this.$store.getters.getO_Selected
+            return this.$store.getters.getPredicateSelected
+          case 'edge':
+            return this.$store.getters.getEdgeSelected
+          case 'subject':
+            return this.$store.getters.getSubjectSelected
+          case 'object':
+            return this.$store.getters.getObjectSelected
+          case 'node':
+            return this.$store.getters.getNode_Selected
           default:
             console.log('NO SELECTED OPTIONS')
             return []
@@ -125,6 +147,14 @@ export default {
       loading: function () {
         return this.$store.getters.loading
       },
+      expand: {
+        get () {
+          return this.$store.getters.expand.includes(this.type);
+        },
+        set () {
+          this.$store.commit('expandThis', this.type);
+        }
+      }
     },
     watch: {
       q: function (q) {
@@ -155,6 +185,13 @@ export default {
           this.$store.dispatch('buildURL');
         },
         deep: true
+      },
+      expand: function(){
+        this.$toast.success('Updating Results...');
+        setTimeout(()=>{
+          this.$store.dispatch('handleQuery');
+          this.$store.dispatch('buildURL');
+        }, 1000);
       },
     },
 }
