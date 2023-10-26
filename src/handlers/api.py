@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from typing import List, Union
@@ -18,6 +19,7 @@ from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
 from utils.metakg.export import edges2graphml
+from utils.metakg.path_finder import MetaKGPathFinder
 from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
@@ -470,7 +472,7 @@ class MetaKGQueryHandler(QueryHandler):
         """
         Overwrite the biothings query handler to add graphml format (&format=graphml)
         * added &download=True to download .graphml file automatically, can disable (&download=False)
-
+        * added /paths endpoint that will return a list of simples paths from a subject to an object
         Reshape results for Cytoscape-ready configuration rendering on the front-end. (&format=html)
         """
         try:
@@ -517,3 +519,42 @@ class MetaKGQueryHandler(QueryHandler):
             logger.warning(exc)
 
         super().write(chunk)
+
+
+class MetaKGPathFinderHandler(QueryHandler):
+    """
+    A handler for querying paths in a knowledge graph using MetaKGPathFinder.
+
+    Attributes:
+    - name: Unique identifier for this handler.
+    - kwargs: Configuration for GET request parameters.
+
+    The primary GET method accepts 'subject', 'object', and 'cutoff' parameters, then retrieves
+    and returns paths in JSON format between the specified entities up to the given 'cutoff' length.
+    """
+
+    name = "metakgpathfinder"
+    kwargs = {
+        "GET": {
+            **QUERY_KWARGS.get("GET", {}),
+            "subject": {"type": str, "required": True, "max": 1000},
+            "object": {"type": str, "required": True, "max": 1000},
+            "cutoff": {"type": int, "default": 3, "max": 5},
+            "api_details": {"type": bool, "default": False},
+        },
+    }
+
+    @capture_exceptions
+    async def get(self, *args, **kwargs):
+        query_data = {"q": self.args.q}
+        pathfinder = MetaKGPathFinder(query_data=query_data)
+        paths_with_edges = pathfinder.get_paths(
+            subject=self.args.subject,
+            object=self.args.object,
+            cutoff=self.args.cutoff,
+            api_details=self.args.api_details,
+        )
+        # Return the result in JSON format
+        res = {"paths_with_edges": paths_with_edges}
+        await asyncio.sleep(0.01)
+        self.finish(res)
