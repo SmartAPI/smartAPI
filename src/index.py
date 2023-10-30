@@ -35,7 +35,7 @@ if __name__ == "__main__":
             (r"/oauth", "handlers.oauth.GitHubLoginHandler"),
             (r"/logout/?", "handlers.api.LogoutHandler"),
             (r"/sitemap.xml()", "tornado.web.StaticFileHandler", {"path": "../web-app/dist/sitemap.xml"}),
-            (r"/((?:img|css|js|fonts)/.*)", "tornado.web.StaticFileHandler", {"path": "../web-app/dist/"}),
+            (r"/((?:img|assets)/.*)", "tornado.web.StaticFileHandler", {"path": "../web-app/dist/"}),
         ],
         {
             "default_handler_class": WebAppHandler,
