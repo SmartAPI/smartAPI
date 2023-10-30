@@ -35,6 +35,7 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.AWS_DEV_EC2_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.AWS_DEV_HOST_DNS }}
           REMOTE_USER: ${{ secrets.AWS_DEV_USERNAME }}
+          TARGET: ${{ secrets.AWS_DEV_TARGET_DIR }}
           SCRIPT_AFTER: |
             set -x
             echo "Installing backend requirements."
