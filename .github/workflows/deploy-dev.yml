@@ -24,7 +24,7 @@ jobs:
 
       - name: Step 3 - Build Frontend
         run: |
-          cd vite-app
+          cd web-app
           npm install
           NODE_OPTIONS="--max-old-space-size=1512" npm run build
 
