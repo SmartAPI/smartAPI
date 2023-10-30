@@ -39,9 +39,9 @@ jobs:
           SCRIPT_AFTER: |
             set -x
             echo "Activate python env."
+            cd /home/ubuntu/smartapi
             source .env/bin/activate
             echo "Installing backend requirements."
-            cd /home/ubuntu/smartapi
             pip install -Ur requirements.txt --no-cache-dir --ignore-installed --force-reinstall
             echo "Restarting smartapi backend services..."
             sudo systemctl restart smartapi@8000
