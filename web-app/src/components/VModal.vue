@@ -1,29 +1,25 @@
 <template>
-<teleport to="#modals-go-here">
-    <vue-final-modal
-        v-bind="$attrs"
-        classes="modal-container"
-        content-class="modal-content"
-    >
-        <h6 class="modal__title center ligther grey-text">
-            <slot name="title">
-                <!-- TITLE -->
-            </slot>
-        </h6>
-        <div class="modal__content">
-            <slot>
-                <!-- CONTENT GOES HERE -->
-            </slot>
-        </div>
+  <teleport to="#modals-go-here">
+    <vue-final-modal v-bind="$attrs" classes="modal-container" content-class="modal-content">
+      <h6 class="modal__title center ligther grey-text">
+        <slot name="title">
+          <!-- TITLE -->
+        </slot>
+      </h6>
+      <div class="modal__content">
+        <slot>
+          <!-- CONTENT GOES HERE -->
+        </slot>
+      </div>
     </vue-final-modal>
-</teleport>
+  </teleport>
 </template>
 
 <script>
 export default {
   name: 'VModal',
   inheritAttrs: false
-}
+};
 </script>
 
 <style scoped>
