@@ -38,6 +38,8 @@ jobs:
           TARGET: ${{ secrets.AWS_DEV_TARGET_DIR }}
           SCRIPT_AFTER: |
             set -x
+            echo "Activate python env."
+            source .env/bin/activate
             echo "Installing backend requirements."
             cd /home/ubuntu/smartapi
             pip install -Ur requirements.txt --no-cache-dir --ignore-installed --force-reinstall
