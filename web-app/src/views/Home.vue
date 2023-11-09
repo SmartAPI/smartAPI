@@ -42,7 +42,7 @@
               color: '#ffffff',
               distance: 150,
               enable: true,
-              opacity: 0.5,
+              opacity: 1,
               width: 1
             },
             move: {
@@ -61,7 +61,7 @@
               value: 80
             },
             opacity: {
-              value: 0.5
+              value: 1
             },
             shape: {
               type: 'circle'
@@ -74,7 +74,7 @@
           detectRetina: true
         }"
       />
-      <div class="center-align indexChild container">
+      <div class="center-align indexChild container p-2">
         <img
           src="@/assets/img/logo-small.svg"
           width="40%"
@@ -94,200 +94,235 @@
           class="hide-on-small-only hide-on-med-only"
           :style="{ maxWidth: '500px' }"
         />
-        <h3
+        <h1
           class="white-text logoFont lighter hide-on-small-only textShadow"
           style="margin: 5px; font-size: 10vw !important"
         >
-          Smart<span class="l-blue-text">API</span>
-        </h3>
-        <h3
+          Smart<span class="blue-text">API</span>
+        </h1>
+        <h1
           style="font-size: 18vw !important"
-          class="logoFont white-text lighter show-on-small hide-on-med-and-up margin10 textShadow"
+          class="logoFont white-text lighter show-on-small hide-on-med-and-up margin10"
         >
           SmartAPI
-        </h3>
-        <h5 class="white-text hide-on-small-only" style="font-weight: 100">
-          BUILDING A CONNECTED NETWORK OF FAIR APIS
-        </h5>
-        <h5 class="hide-on-med-only hide-on-large-only show-on-small l-blue-text">
-          BUILDING A CONNECTED NETWORK OF FAIR APIS
-        </h5>
+        </h1>
+        <h2 class="black-text hide-on-small-only" style="font-weight: 200">
+          BUILDING A CONNECTED NETWORK OF
+          <b
+            class="blue-text"
+            data-tippy-content="<small>FINDABLE, ACCESSIBLE, INTEROPERABLE, AND REUSABLE</small>"
+            >FAIR</b
+          >
+          APIS
+        </h2>
+        <h2 class="hide-on-med-only hide-on-large-only show-on-small black-text">
+          BUILDING A CONNECTED NETWORK OF
+          <b
+            class="blue-text"
+            data-tippy-content="<small>FINDABLE, ACCESSIBLE, INTEROPERABLE, AND REUSABLE</small>"
+            >FAIR</b
+          >
+          APIS
+        </h2>
       </div>
     </div>
-    <!-- new to SmartAPI-->
-    <div class="blue-grey darken-4" style="overflow: hidden; padding: 50px 10px">
-      <div class="container-fluid center white-text padding20">
-        <h5 class="shine">New to <span class="logoFont">SmartAPI</span>?</h5>
-        <p class="lighter">
-          Follow this step-by-step guide to help you contribute to SmartAPI for the first time
-        </p>
-        <br />
-        <router-link to="/guide" class="clearButton">Start Here</router-link>
-      </div>
-    </div>
-
-    <div id="intro1" class="section grey lighten-5" :style="{ paddingBottom: '0px !important' }">
-      <div class="container">
-        <div class="row">
-          <div class="col l4 m4">
-            <object id="whatIs" width="200" :data="network_img" />
-          </div>
-          <div class="col l8 m8">
-            <h2
-              class="center hide-on-small-only header blue-grey-text lighter flow-text hide-on-small-only"
-            >
-              What is a <span class="logoFont blue-text">SmartAPI</span>?
-            </h2>
-            <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-              <img width="40%" src="@/assets/img/logo-medium.svg" class="responsive-img" />
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col s12">
+          <div class="container d-flex align-items-center justify-content-center flex-wrap">
+            <div class="col s12 m4 center">
+              <img width="300" src="@/assets/img/whatis.svg" class="responsive-img" />
             </div>
-            <h3 class="center hide-on-med-and-up show-on-small">
-              What is a <span class="logoFont blue-grey-text">SmartAPI</span>?
-            </h3>
-            <p class="blue-grey-text flow-text">
-              The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility,
-              Interoperability, and Reusability) of web-based Application Programming Interfaces
-              (APIs). Rich metadata is essential to properly describe your API so that it becomes
-              discoverable, connected, and reusable. We have developed a
-              <a href="http://openapis.org" target="_blank"></a>openAPI-based
-              <a
-                href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md"
-                target="_blank"
+            <div class="col s12 m8 p-2">
+              <h3>What is SmartAPI?</h3>
+              <p>
+                The SmartAPI project aims to maximize the
+                <a target="_blank" href="https://www.go-fair.org/fair-principles/"
+                  >FAIRness <i class="fa fa-external-link" aria-hidden="true"></i
+                ></a>
+                (Findability, Accessibility, Interoperability, and Reusability) of web-based
+                Application Programming Interfaces (APIs).
+              </p>
+              <p>
+                Rich metadata is essential to properly describe your API so that it becomes
+                discoverable, connected, and reusable. We have developed a openAPI-based
+                specification for defining the key API metadata elements and value sets. SmartAPI’s
+                leverage the
+                <a target="_blank" href="https://swagger.io/docs/specification/about/"
+                  >Open API specification v3 <i class="fa fa-external-link" aria-hidden="true"></i
+                ></a>
+                and JSON-LD for providing semantically annotated JSON content that can be treated as
+                Linked Data.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 white-text blue-black">
+          <div class="container center p-2 v-lines">
+            <Egg></Egg>
+            <h3><b>New to SmartAPI?</b></h3>
+            <p>Becoming part of SmartAPI is a straightforward process</p>
+            <p class="lime-text">
+              <strong
+                ><i class="fa fa-check green-text"></i>Document >
+                <i class="fa fa-check green-text"></i>Register >
+                <i class="fa fa-check green-text"></i>Manage and Explore</strong
               >
-                specification</a
-              >
-              for defining the key API metadata elements and value sets. SmartAPI's leverage the
-              <a href="https://www.openapis.org/" target="_blank">Open API specification v3 </a> and
-              <a href="http://json-ld.org" target="_blank">JSON-LD</a> for providing semantically
-              annotated JSON content that can be treated as
-              <a href="http://linkeddata.org/" target="_blank">Linked Data</a>.
             </p>
+            <p>
+              Follow this step-by-step guide to help you contribute to SmartAPI for the first time
+            </p>
+            <router-link class="btn blue btn-large" to="/guide"
+              >SmartAPI Guide <i class="fa fa-chevron-right"></i
+            ></router-link>
           </div>
         </div>
-      </div>
-
-      <div style="margin-bottom: 0px" id="topicsBox" class="row blue-grey">
-        <div class="col s12 m6 l4 center-align padding20 topic" id="registryBox">
-          <img
-            alt="icon"
-            class="margin10"
-            width="70"
-            src="@/assets/img/search.svg"
-            id="registryIcon"
-          />
-          <br />
-          <router-link to="/registry" class="clearButton">Registry</router-link>
-          <p class="l-blue-text">Search the registry of SmartAPIs</p>
-        </div>
-        <div class="col s12 m6 l4 center-align padding20 topic" id="editBox">
-          <img alt="icon" class="margin10" width="70" src="@/assets/img/edit.svg" id="editIcon" />
-          <br />
-          <router-link to="/editor" class="clearButton">Editor</router-link>
-          <p class="l-blue-text">Author your own SmartAPI metadata</p>
-        </div>
-        <div class="col s12 m6 l4 center-align padding20 topic" id="apiBox">
-          <img alt="icon" class="margin10" width="70" src="@/assets/img/api.svg" id="apiIcon" />
-          <br />
-          <router-link to="/ui/27a5b60716c3a401f2c021a5b718c5b1" class="clearButton"
-            >API</router-link
-          >
-          <p class="l-blue-text">Learn about and access the SmartAPI services</p>
-        </div>
-        <div class="col s12 m6 l4 center-align padding20 topic" id="specBox">
-          <img alt="icon" class="margin10" width="70" src="@/assets/img/spec.svg" id="specIcon" />
-          <br />
-          <a
-            class="clearButton"
-            target="_blank"
-            href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md"
-            >Specification</a
-          >
-          <p class="l-blue-text">SmartAPI metadata specification to start your API</p>
-        </div>
-        <div class="col s12 m6 l4 center-align padding20 topic" id="guideBox">
-          <img alt="icon" class="margin10" width="70" src="@/assets/img/guide.svg" id="guideIcon" />
-          <br />
-          <router-link to="/guide" class="clearButton">Guide</router-link>
-          <p class="l-blue-text">Contribute to SmartAPI for the first time</p>
-        </div>
-        <div class="col s12 m6 l4 center-align padding20 topic" id="groupBox">
-          <img alt="icon" class="margin10" width="70" src="@/assets/img/group.svg" id="groupIcon" />
-          <br />
-          <a href="https://goo.gl/D4e0xL" target="_blank" class="clearButton">Working Group</a>
-          <p class="l-blue-text">Join the API Interoperability working group</p>
-        </div>
-      </div>
-      <div class="section grey lighten-4" id="intro2">
-        <div class="container">
-          <div class="row">
-            <div class="col l8 s12 m8">
-              <h2 class="center header blue-grey-text text_h2 flow-text hide-on-small-only">
-                Why do we need <span class="logoFont">SmartAPI</span>s?
-              </h2>
-              <!-- content for small screen only -->
-              <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-                <img alt="image" width="70%" class="responsive-img" src="@/assets/img/graph.jpg" />
+        <div class="col s12">
+          <div class="container">
+            <div class="col s12 m8">
+              <div class="d-flex align-items-center">
+                <img
+                  alt="icon"
+                  class="margin10"
+                  width="70"
+                  src="@/assets/img/group.svg"
+                  id="groupIcon"
+                />
+                <h3 style="font-size: 3em !important">DISCOVER</h3>
               </div>
-              <h3 class="center hide-on-med-and-up show-on-small">
-                Why do we need <span class="logoFont blue-grey-text">SmartAPI</span>s?
-              </h3>
-              <p class="blue-grey-text">
-                Data analysis is increasingly being performed using cloud-based, web-friendly
-                application programming interfaces (APIs). Thousands of tools and APIs are available
-                through web service registries such as
-                <a href="http://www.programmableweb.com/" target="_blank">Programmable Web</a>,
-                <a href="https://www.biocatalogue.org/" target="_blank">BioCatalogue</a> and cloud
-                platforms such as <a href="https://galaxyproject.org/" target="_blank">Galaxy</a>.
-                Searching these and other API repositories to find a set of tools to retrieve or
-                operate on data of interest presents a number of formidable challenges: users must
-                not only supply the right combination of search terms, but must also closely examine
-                the API outputs to determine whether they can be connected together. SmartAPIs
-                tackle this challenge because they contain the rich metadata needed to precisely
-                describe the service and the data that it operates on or provides.
+              <p>
+                The SmartAPI registry optimizes collaboration, fosters interdisciplinary synergies,
+                and ultimately catalyzes discoveries and advancements in biomedical sciences.
+                Researchers, developers, and healthcare professionals can navigate the SmartAPI
+                registry to identify APIs that align with their specific needs, expediting the
+                development of innovative tools and solutions.
               </p>
             </div>
-            <div class="col s12 l4 center-align padding20 hide-on-small-only m4">
-              <img
-                alt="image"
-                width="100%"
-                class="responsive-img introPic circle"
-                src="@/assets/img/graph.jpg"
-              />
+            <div class="col s12 m4 d-flex flex-wrap p-1 justify-content-center align-items-center">
+              <img width="300" src="@/assets/img/registryapis.svg" class="responsive-img" />
+              <router-link class="btn blue" to="/registry"
+                >Browse SmartAPI Registry <i class="fa fa-chevron-right"></i
+              ></router-link>
+            </div>
+            <div class="border-bottom col s12"></div>
+            <div class="col s12 m8">
+              <div class="d-flex align-items-center">
+                <img
+                  alt="icon"
+                  class="margin10"
+                  width="70"
+                  src="@/assets/img/edit.svg"
+                  id="groupIcon"
+                />
+                <h3 style="font-size: 3em !important">DOCUMENT</h3>
+              </div>
+              <p>
+                Use SmartAPI's own built-in editor to harness the power of
+                <a target="_blank" href="https://swagger.io/docs/specification/about/"
+                  >OpenAPI specification <i class="fa fa-external-link" aria-hidden="true"></i
+                ></a>
+                to create machine-readable documentation that offers a comprehensive blueprint of
+                your API so others can understand and interact with your API without delving into
+                its underlying code.
+              </p>
+              <p>
+                Once registered, SmartAPI provides an easy-to-use dashboard so you can quickly
+                update and monitor your API metadata.
+              </p>
+            </div>
+            <div class="col s12 m4 d-flex p-1 flex-wrap justify-content-center align-items-center">
+              <img width="300" src="@/assets/img/monitor.svg" class="responsive-img" />
+              <router-link class="btn green" to="/editor"
+                >Use the Editor <i class="fa fa-chevron-right"></i
+              ></router-link>
+            </div>
+            <div class="border-bottom col s12"></div>
+            <div class="col s12 m8">
+              <div class="d-flex align-items-center">
+                <img
+                  alt="icon"
+                  class="margin10"
+                  width="70"
+                  src="@/assets/img/metakg-01.svg"
+                  id="groupIcon"
+                />
+                <h3 style="font-size: 3em !important">EXPLORE</h3>
+              </div>
+              <p>
+                SmartAPI's MetaKG Explorer provides a targeted approach to discovering biomedical
+                APIs aligned with a large variety of biological entities.
+              </p>
+              <p>
+                This tool seeks to empower researchers to navigate the intricate landscape of life
+                sciences with precision and agility.
+              </p>
+              <router-link
+                class="purple-text"
+                to="/portal/translator/metakg?size=20&subject=Disease&object=ChemicalEntity"
+                >Eg. Lookup APIs that provide Disease - Chemical Entity relationships</router-link
+              >
+            </div>
+            <div class="col s12 m4 d-flex flex-wrap p-1 justify-content-center align-items-center">
+              <img width="300" src="@/assets/img/mkg.svg" class="responsive-img" />
+              <router-link class="btn purple" to="/portal/translator/metakg"
+                >Try MetaKG Explorer <i class="fa fa-chevron-right"></i
+              ></router-link>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="section" id="intro3">
-        <div class="container">
-          <div class="row">
-            <div class="col l4 s12 center-align padding20 hide-on-small-only m4">
-              <img
-                alt="image2"
-                width="100%"
-                class="responsive-img introPic circle"
-                src="@/assets/img/strand.jpg"
-              />
+        <div class="col s12 white-text mat-black">
+          <div class="container p-4 extensions">
+            <div class="d-flex justify-content-start align-items-center">
+              <img width="100" src="@/assets/img/spec.svg" class="responsive-img" />
+              <h2 class="textShadow"><b>Extend your SmartAPI Metadata</b></h2>
             </div>
-            <div class="col l8 s12 m8">
-              <h2 class="center header blue-grey-text text_h2 flow-text hide-on-small-only">
-                What does the <span class="logoFont">SmartAPI</span> offer?
-              </h2>
-              <!-- content for small screen only -->
-              <div class="col s12 center-align hide-on-med-and-up show-on-small padding20">
-                <img width="70%" class="responsive-img" src="@/assets/img/strand.jpg" />
-              </div>
-              <h3 class="center hide-on-med-and-up show-on-small">
-                What does the <span class="logoFont blue-grey-text">SmartAPI</span> offer?
-              </h3>
-              <p class="blue-grey-text">
-                Richly annotated APIs will provide the assets by which users will be able to search,
-                browse, query, and reuse APIs. Users and intelligent agents being able to traverse a
-                highly connected network of smartAPIs. Users will be able to automatically find APIs
-                whose outputs are the inputs for other services. Ultimately, we envision the
-                automatic generation of workflows that take users to where they want to go with what
-                they have today.
+            <div class="p-2 m-1" style="background-color: rgba(0, 0, 0, 0.6)">
+              <p>
+                Learn how to use OpenAPI extensions to make your specification compatible with other
+                important projects in the biomedical community. Eg.
+                <a target="_blank" rel="nonreferrer" href="https://explorer.biothings.io/"
+                  >BioThings Explorer <i class="fa fa-external-link" aria-hidden="true"></i
+                ></a>
               </p>
+              <router-link class="btn green btn-large" to="/extensions"
+                >View All Available Extensions <i class="fa fa-chevron-right"></i
+              ></router-link>
+            </div>
+          </div>
+        </div>
+        <div class="col s12 api-back white-text">
+          <div class="container">
+            <div class="col s12 m6 d-flex p-1 justify-content-center align-items-center">
+              <h2 style="font-size: 3em !important; font-weight: 200">
+                SmartAPI has it's own API! Check it out!
+              </h2>
+            </div>
+            <div class="col s12 m6">
+              <div class="d-flex justify-content-start align-items-center">
+                <img width="30" class="mr-1" src="@/assets/img/lightning.svg" />
+                <h4>FAST</h4>
+              </div>
+              <div class="d-flex justify-content-start align-items-center">
+                <img width="30" class="mr-1" src="@/assets/img/ok.svg" />
+                <h4>RELIABLE</h4>
+              </div>
+              <div class="d-flex justify-content-start align-items-center">
+                <img width="30" class="mr-1" src="@/assets/img/uptodate.svg" />
+                <h4>UP-TO-DATE</h4>
+              </div>
+            </div>
+            <div class="col s12 p-2">
+              <p>
+                Explore the vast array of features and functionalities provided by SmartAPI through
+                its dedicated API service and take advantage of the comprehensive network of
+                knowledge available within SmartAPI's API infrastructure.
+              </p>
+              <div class="d-flex align-items-center justify-content-center">
+                <h4 class="lime-text mr-1">Try the SmartAPI API Now!</h4>
+                <router-link class="btn btn-large green" to="/ui/27a5b60716c3a401f2c021a5b718c5b1"
+                  >Try It!</router-link
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -297,23 +332,15 @@
 </template>
 
 <script>
-// @ is an alias to /src
-// import Vivus from 'vivus'
 import cookie from '@/assets/img/api-cookie.svg';
 import pic from '@/assets/img/network.svg';
 import { loadSlim } from 'tsparticles-slim';
 
-// const particlesInit = async engine => {
-//     //await loadFull(engine);
-//     await loadSlim(engine);
-// };
-
-// const particlesLoaded = async container => {
-//     console.log("Particles container loaded", container);
-// };
+import Egg from '../components/Icons/Egg.vue';
 
 export default {
   name: 'Home',
+  components: { Egg },
   data: function () {
     return {
       network_img: pic
@@ -346,7 +373,6 @@ export default {
     }
   },
   mounted: function () {
-    // new Vivus('whatIs', { duration: 200, type: 'oneByOne' })
     this.checkCookieNotification();
   }
 };
@@ -363,5 +389,6 @@ p.blue-grey-text {
 }
 .heroContainer {
   overflow: hidden;
+  padding-top: 200px;
 }
 </style>

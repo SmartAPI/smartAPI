@@ -1,8 +1,8 @@
 <template>
-  <main id="docapp" class="blue-grey darken-3 testBack">
+  <main id="docapp">
     <MetaHead title="SmartAPI | Guide"></MetaHead>
     <!-- PROGRESS BAR -->
-    <div v-if="selection" class="progress padding20" style="background-color: var(--blue-medium)">
+    <div v-if="selection" class="progress padding20">
       <div class="determinate light-blue lighten-4" :style="{ width: progressText }">
         {{ progressText || '0%' }}
       </div>
@@ -34,16 +34,16 @@
           />
         </a>
 
-        <h5 class="white-text flow-text textShadow" style="font-size: 5vw">
+        <h5 class="flow-text blue-text" style="font-size: 5vw">
           <b class="logoFont">SmartAPI</b> &amp; <b>OpenAPI</b>
         </h5>
-        <p class="margin20 padding20 white-text">
+        <p class="margin20 p-1">
           SmartAPI uses OpenAPI-based specification for defining the key API metadata elements and
           value sets.<br />
           SmartAPIs leverages the Open API specification V3 and JSON-LD to provide semantically
           annotated JSON content that can be treated as Linked Data.
         </p>
-        <a class="btn blue" @click="learnMore = !learnMore">Learn More</a>
+        <a class="btn black" @click="learnMore = !learnMore">Learn More</a>
       </div>
       <div
         v-show="learnMore"
@@ -110,52 +110,33 @@
           </p>
         </div>
       </div>
-      <div class="card-panel blue">
+      <div class="card-panel mat-black rounded">
         <h5 class="white-text lighter bold">GUIDE</h5>
         <h4 class="white-text lighter">ADD YOUR API</h4>
         <br />
-        <button type="button" class="clearButton" @click="select('start')">START</button>
+        <button type="button" class="btn btn-large green" @click="select('start')">
+          START <i class="fa fa-chevron-right"></i>
+        </button>
       </div>
-      <div class="card-panel grey lighten-4">
-        <h4 class="blue-text lighter">Resources</h4>
-        <hr />
-        <h3 class="blue-text flow-text">
-          <i class="material-icons blue-text">extension</i> SmartAPI Extensions
-        </h3>
 
-        <div class="card-panel white">
-          <p>
-            Most of the SmartAPI extensions are optional, but a few are REQUIRED, for example:
-            <br />
-            <code>info.termOfService</code><br />
-            <code>info.contact.x-role</code><br />
-            <code>info.version</code><br />
-            For a full list of REQUIRED extensions refer to the recommendations column of the
-            document here:
-          </p>
-          <button
-            id="extBtn"
-            class="btn green hideOnSmall"
-            @click="
-              url =
-                'https://raw.githubusercontent.com/SmartAPI/smartAPI-Specification/OpenAPI.next/versions/smartapi-list.md';
-              showModal = true;
-            "
-          >
-            {{ btnTxtExt }}
-          </button>
-          <a
-            class="btn blue"
-            href="https://github.com/SmartAPI/smartAPI-Specification/blob/OpenAPI.next/versions/smartapi-list.md#fixed-fields-1"
-            target="_blank"
-          >
-            Open on Github
-          </a>
-          <hr />
-          <VModal v-model="showModal" @confirm="confirm">
-            <template v-slot:title>SmartAPI Extensions</template>
-            <MarkDown :url="url"></MarkDown>
-          </VModal>
+      <div class="col s12 white-text mat-black rounded">
+        <div class="container p-4 extensions">
+          <div class="d-flex justify-content-start align-items-center">
+            <img width="100" src="@/assets/img/spec.svg" class="responsive-img" />
+            <h2 class="textShadow"><b>Extend your SmartAPI Metadata</b></h2>
+          </div>
+          <div class="p-2 m-1" style="background-color: rgba(0, 0, 0, 0.6)">
+            <p>
+              Learn how to use OpenAPI extensions to make your specification compatible with other
+              important projects in the biomedical community. Eg.
+              <a target="_blank" rel="nonreferrer" href="https://explorer.biothings.io/"
+                >BioThings Explorer <i class="fa fa-external-link" aria-hidden="true"></i
+              ></a>
+            </p>
+            <router-link class="btn green btn-large" to="/extensions"
+              >View All Available Extensions <i class="fa fa-chevron-right"></i
+            ></router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -776,7 +757,6 @@ export default {
       progress: 0,
       progressText: '',
       url: '',
-      showModal: false,
       learnMore: false
     };
   },
@@ -784,9 +764,6 @@ export default {
     MarkDown
   },
   methods: {
-    confirm() {
-      this.showModal = false;
-    },
     select: function (input) {
       // possible selections:
       // start - starts guide

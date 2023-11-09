@@ -4,6 +4,7 @@
       <img src="@/assets/img/header-logo.png" width="200" alt="SmartAPI" />
     </router-link>
     <div id="myLinks" class="hide-on-small-only" v-if="!uiView">
+      <router-link to="/about">About</router-link>
       <router-link to="/add-api">Add an API</router-link>
       <router-link :to="{ path: '/registry', query: null }">Registry</router-link>
       <router-link to="/editor">Editor</router-link>

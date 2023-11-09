@@ -148,6 +148,16 @@ export const routes = [
     }
   },
   {
+    path: '/extensions',
+    name: 'Extensions',
+    component: () => import('../views/Extensions.vue'),
+    meta: {
+      sitemap: {
+        priority: 0.8
+      }
+    }
+  },
+  {
     path: '/registry/:portal_name?',
     name: 'Registry',
     component: () => import('../views/Registry.vue'),

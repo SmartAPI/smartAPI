@@ -9,6 +9,10 @@
   margin: auto;
 }
 
+code {
+  color: #bc2f13;
+}
+
 ::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
   color: rgb(96, 51, 111);
@@ -178,12 +182,62 @@
   align-items: center;
 }
 
+.p-1 {
+  padding: 1em !important;
+}
+.p-2 {
+  padding: 2em !important;
+}
+.p-3 {
+  padding: 3em !important;
+}
+.p-4 {
+  padding: 4em !important;
+}
+.mr-1 {
+  margin-right: 1em !important;
+}
+
 .noBorder {
   border: none !important;
 }
 
 .padding20 {
   padding: 20px !important;
+}
+
+.border-bottom {
+  border-bottom: var(--blue-light) 2px solid;
+}
+
+.caps {
+  text-transform: uppercase;
+}
+
+.api-back {
+  --s: 100px; /* control the size */
+
+  --c: #343434; /* back color */
+  background:
+    conic-gradient(at 80% 80%, var(--c) 75%, #0000 0),
+    linear-gradient(135deg, var(--c) calc(40% / 3), #0000 0 calc(200% / 3), var(--c) 0),
+    conic-gradient(
+        from 45deg at calc(160% / 3) calc(80% / 3),
+        #0008 135deg,
+        #0000 0 225deg,
+        #0004 0
+      )
+      #272727; /* cube color */
+  background-size: var(--s) var(--s);
+}
+
+.blue-black {
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#244466+0,020102+100 */
+  background: linear-gradient(
+    to bottom,
+    rgba(36, 68, 102, 1) 0%,
+    rgba(2, 1, 2, 1) 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 
 .docBack {
@@ -193,11 +247,34 @@
   background-repeat: no-repeat;
 }
 
+.v-lines {
+  background-image: url('./img/vlines.svg');
+  background-position: bottom center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.extensions {
+  background-image: url('./img/extensions.png');
+  background-position: right;
+  background-size: 600px;
+  background-repeat: no-repeat;
+}
+
 .cloudsBack {
   background-image: url('./img/clouds.svg');
   background-position: bottom center;
   background-size: cover;
   background-repeat: no-repeat;
+}
+
+.mat-black {
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#45484d+0,000000+100;Black+3D+%231 */
+  background: linear-gradient(
+    to bottom,
+    #45484d 0%,
+    #000000 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 
 .margin20 {
@@ -305,11 +382,15 @@ a.middle-indicator-text {
 }
 
 .mainBackgroundParticle {
-  background: #273238 !important;
-  background: -moz-linear-gradient(top, #212121 0, rgba(56, 131, 190, 1) 100%) !important;
-  background: -webkit-linear-gradient(top, #212121 0, rgba(56, 131, 190, 1) 100%) !important;
-  background: linear-gradient(to bottom, #212121 0, rgba(56, 131, 190, 1) 100%) !important;
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#273238', endColorstr='#3883be', GradientType=0) !important;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#3080c1+0,fcfcfc+100 */
+  background: linear-gradient(
+    to bottom,
+    #3080c1 0%,
+    #fcfcfc 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+  padding-top: 100px;
+  padding-bottom: 100px;
 }
 
 .uiBack {
@@ -409,14 +490,6 @@ a.middle-indicator-text {
   font-weight: lighter;
   font-variant: small-caps;
   transition: 0.7s;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-weight: 100;
 }
 
 @media only screen and (max-width: 500px) {

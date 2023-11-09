@@ -54,8 +54,6 @@ delegate('#app', {
   interactive: true,
   allowHTML: true,
   onShow(instance) {
-    instance.setContent(`<div class="p-1">
-      <small>${instance.reference.dataset.tippyContent}</small>
-      </div>`);
+    instance.setContent(instance.reference.dataset.tippyContent);
   }
 });
