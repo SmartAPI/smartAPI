@@ -70,6 +70,9 @@
               <router-link to="/add-api" class="footerLink">Add an API</router-link>
             </li>
             <li>
+              <router-link to="/extensions" class="footerLink">Extend your API</router-link>
+            </li>
+            <li>
               <router-link to="/registry" class="footerLink">Registry</router-link>
             </li>
             <li>

@@ -7,7 +7,7 @@ const router = createRouter({
   routes,
   linkActiveClass: 'route-active',
   scrollBehavior() {
-    return { x: 0, y: 0 };
+    return { top: 0 };
   }
 });
 
