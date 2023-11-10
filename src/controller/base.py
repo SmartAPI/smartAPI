@@ -377,4 +377,4 @@ class APIRefreshStatus(AbstractEntityStatus):
                 self._status = self.STATUS.NOT_MODIFIED.value
             else:  # raw field changed
                 self._status = self.STATUS.UPDATED.value
-            self._entity.raw = content.raw
+                self._entity.raw = content.raw
