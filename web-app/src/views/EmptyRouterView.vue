@@ -4,6 +4,6 @@
 
 <script>
 export default {
-  name: 'EmptyRouterView'
-};
+    name: 'EmptyRouterView',
+}
 </script>
