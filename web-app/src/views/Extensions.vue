@@ -2,8 +2,8 @@
   <main id="extensions" class="white w-100 p-4">
     <MetaHead title="SmartAPI | Extensions"></MetaHead>
     <div class="d-flex blue-grey-text">
-        <img width="100" src="@/assets/img/spec.svg" class="responsive-img" />
-        <h1 style="font-size: 4em !important">Extend your SmartAPI</h1>
+      <img width="100" src="@/assets/img/spec.svg" class="responsive-img" />
+      <h1 style="font-size: 2em !important">Extend your SmartAPI</h1>
     </div>
     <p>
       Extend your OpenAPI SmartAPI specification with custom properties (extensions) to make your

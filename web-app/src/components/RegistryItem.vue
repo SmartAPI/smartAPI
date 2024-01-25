@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <div class="card-content">
+    <div class="card-content" style="padding-bottom: 0px">
       <span class="card-title">
         <span class="blue-grey-text bold" v-text="api.info.title"></span>&nbsp;
         <small class="grey-text lighter" v-text="api.info.version"> </small>
@@ -68,6 +68,8 @@
         </template>
       </div>
     </div>
+    <!-- METAKG -->
+    <RegistryMetaKG :api="api"></RegistryMetaKG>
     <!-- TOGGLE DETAILS -->
     <div class="card-action grey lighten-3" v-if="total > 1" :class="showDetails ? 'blue' : 'grey'">
       <button
@@ -277,6 +279,7 @@
 <script>
 import SourceStatus from '../components/SourceStatus.vue';
 import UptimeStatus from '../components/UptimeStatus.vue';
+import RegistryMetaKG from '../components/RegistryMetaKG.vue';
 import CollapsibleText from '../components/CollapsibleText.vue';
 import { truncate } from 'lodash';
 import tippy from 'tippy.js';
@@ -289,7 +292,8 @@ export default {
   components: {
     SourceStatus,
     UptimeStatus,
-    CollapsibleText
+    CollapsibleText,
+    RegistryMetaKG
   },
   data: function () {
     return {

@@ -10,6 +10,47 @@ export const registry = {
       'info.x-translator.component': [],
       'info.x-trapi.version': [],
       'tags.name': []
+    },
+    entityColors: {
+      Gene: '#3f84bb',
+      Disease: '#8d5bd4',
+      Plant: '#087a3c',
+      GrossAnatomicalStructure: 'coral',
+      Polypeptide: '#07566f',
+      AnatomicalEntity: '#d65042',
+      PathologicalProcess: '#262071',
+      Procedure: '#683682',
+      DiseaseOrPhenotypicFeature: '#8d5bd4',
+      Cell: '#ff6e54',
+      SmallMolecule: '#e91e62',
+      PhysiologicalProcess: '#07566f',
+      Device: '#25282a',
+      CellularComponent: '#224b80',
+      PhenotypicFeature: '#369ac1',
+      MolecularActivity: '#d65042',
+      Virus: '#642d87',
+      Bacterium: '#3684af',
+      Cohort: '#b5cb17',
+      Fungus: '#ff6e54',
+      OrganismAttribute: '#5046e4',
+      ChemicalEntity: 'orange',
+      Food: 'pink',
+      Pathway: 'teal',
+      OrganismTaxon: 'red',
+      Protein: 'lightblue',
+      MolecularMixture: 'hotpink',
+      NucleicAcidEntity: 'black',
+      Behavior: 'purple',
+      Organism: 'limegreen',
+      MolecularEntity: 'green',
+      Drug: '#fab670',
+      Drug: '#fab670',
+      CellLine: '#02838f',
+      Phenomenon: 'yellow',
+      ClinicalAttribute: '#a50202',
+      BiologicalProcess: '#b5cb17',
+      PairwiseGeneToGeneInteraction: '#444e86',
+      ClinicalFinding: 'brown'
     }
   }),
   mutations: {
@@ -165,6 +206,21 @@ export const registry = {
     },
     all_filters: (state) => {
       return state.all_filters;
+    },
+    getEntityColor: (state) => (name) => {
+      // function getRandomColor() {
+      //   var letters = "0123456789ABCDEF";
+      //   var color = "#";
+      //   for (var i = 0; i < 6; i++) {
+      //     color += letters[Math.floor(Math.random() * 16)];
+      //   }
+      //   return color;
+      // }
+      if (name in state.entityColors) {
+        return state.entityColors[name];
+      } else {
+        return '#9c27b0';
+      }
     }
   }
 };
