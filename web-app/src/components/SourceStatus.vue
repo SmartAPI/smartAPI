@@ -1,66 +1,68 @@
 <template>
-  <div class="apiStatus pointer source-status" :class="'ss' + badgeID">
-    <div>Source</div>
-    <div class="white-text center-align" :class="clss">
-      {{ status }}
+    <div class="apiStatus pointer source-status" :class="'ss'+badgeID">
+        <div>
+            Source
+        </div>
+        <div class="white-text center-align" :class='clss'>
+            {{status}}
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import tippy from 'tippy.js';
 
 export default {
-  name: 'SourceStatus',
-  data: function () {
-    return {
-      status: '',
-      clss: '',
-      badgeID: Math.floor(Math.random() * 90000) + 10000
-    };
-  },
-  props: ['refresh_status'],
-  methods: {
-    getStatus() {
-      let self = this;
-      if (self.refresh_status) {
-        switch (self.refresh_status) {
-          case 200:
-            self.status = 'OK';
-            self.clss = 'green';
-            break;
-          case 299:
-            self.status = 'OK';
-            self.clss = 'green';
-            break;
-          case 499:
-            self.status = 'INVALID';
-            self.clss = 'red';
-            break;
-          case 599:
-            self.status = 'BROKEN';
-            self.clss = 'purple';
-            break;
-          case 404:
-            self.status = 'NOT FOUND';
-            self.clss = 'orange';
-            break;
-          default:
+    name: "SourceStatus",
+    data: function(){
+        return{
+        status:'',
+        clss:'',
+        badgeID: Math.floor(Math.random()*90000) + 10000
+        }
+    },
+    props: ['refresh_status'],
+    methods:{
+        getStatus(){
+        let self = this;
+        if (self.refresh_status) {
+            switch (self.refresh_status) {
+            case 200:
+                self.status = "OK";
+                self.clss = 'green';
+                break;
+            case 299:
+                self.status = "OK";
+                self.clss = 'green';
+                break;
+            case 499:
+                self.status = "INVALID";
+                self.clss = 'red';
+                break;
+            case 599:
+                self.status = "BROKEN";
+                self.clss = 'purple';
+                break;
+            case 404:
+                self.status = "NOT FOUND";
+                self.clss = 'orange';
+                break;
+            default:
             self.status = self.refresh_status;
             self.clss = 'black';
+            }
+        }else{
+            self.status = 'N/A';
+            self.clss = 'grey darken-1';
         }
-      } else {
-        self.status = 'N/A';
-        self.clss = 'grey darken-1';
-      }
-    }
-  },
-  mounted: function () {
-    this.getStatus();
+        },
+    },
+    mounted: function(){
+        this.getStatus();
 
-    /*eslint-disable */
-    tippy('.ss' + this.badgeID, {
-      content: `<div class="white" style="padding:0px;">
+        /*eslint-disable */
+        tippy( '.ss'+this.badgeID, {
+            content: `<div class="white" style="padding:0px;">
                 <table>
                 <thead>
                     <tr>
@@ -115,15 +117,15 @@ export default {
                 </tbody>
                 </table>
             </div>`,
-      placement: 'left-end',
-      appendTo: document.body,
-      theme: 'light',
-      interactive: true,
-      trigger: 'click',
-      animation: false,
-      allowHTML: true
-    });
-    /*eslint-enable */
-  }
-};
+            placement: 'left-end',
+            appendTo: document.body,
+            theme:'light',
+            interactive:true,
+            trigger:'click',
+            animation: false,
+            allowHTML: true,
+        });
+        /*eslint-enable */
+    },
+}
 </script>

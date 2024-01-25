@@ -3,9 +3,9 @@
  * ANIMATIONS
  * ----------------------------------------
  */
-.rotate-in-center {
-  -webkit-animation: rotate-in-center 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation: rotate-in-center 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+ .rotate-in-center {
+	-webkit-animation: rotate-in-center 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	        animation: rotate-in-center 0.6s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
 /* ----------------------------------------------
@@ -20,34 +20,35 @@
  * animation rotate-in-center
  * ----------------------------------------
  */
-@-webkit-keyframes rotate-in-center {
+ @-webkit-keyframes rotate-in-center {
   0% {
     -webkit-transform: rotate(-360deg);
-    transform: rotate(-360deg);
+            transform: rotate(-360deg);
     opacity: 0;
   }
   100% {
     -webkit-transform: rotate(0);
-    transform: rotate(0);
+            transform: rotate(0);
     opacity: 1;
   }
 }
 @keyframes rotate-in-center {
   0% {
     -webkit-transform: rotate(-360deg);
-    transform: rotate(-360deg);
+            transform: rotate(-360deg);
     opacity: 0;
   }
   100% {
     -webkit-transform: rotate(0);
-    transform: rotate(0);
+            transform: rotate(0);
     opacity: 1;
   }
 }
 
-.fade-in {
-  -webkit-animation: fade-in 1s cubic-bezier(0.39, 0.575, 0.565, 1) both;
-  animation: fade-in 1s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+
+ .fade-in {
+	-webkit-animation: fade-in 1s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
+	        animation: fade-in 1s cubic-bezier(0.390, 0.575, 0.565, 1.000) both;
 }
 
 @-webkit-keyframes fade-in {
@@ -95,24 +96,24 @@
 @-webkit-keyframes scale-in-center {
   0% {
     -webkit-transform: scale(0);
-    transform: scale(0);
+            transform: scale(0);
     opacity: 1;
   }
   100% {
     -webkit-transform: scale(1);
-    transform: scale(1);
+            transform: scale(1);
     opacity: 1;
   }
 }
 @keyframes scale-in-center {
   0% {
     -webkit-transform: scale(0);
-    transform: scale(0);
+            transform: scale(0);
     opacity: 1;
   }
   100% {
     -webkit-transform: scale(1);
-    transform: scale(1);
+            transform: scale(1);
     opacity: 1;
   }
 }
@@ -120,75 +121,62 @@
 @-webkit-keyframes scale-in-center {
   0% {
     -webkit-transform: scale(0);
-    transform: scale(0);
+            transform: scale(0);
     opacity: 1;
   }
   100% {
     -webkit-transform: scale(1);
-    transform: scale(1);
+            transform: scale(1);
     opacity: 1;
   }
 }
 @keyframes scale-in-center {
   0% {
     -webkit-transform: scale(0);
-    transform: scale(0);
+            transform: scale(0);
     opacity: 1;
   }
   100% {
     -webkit-transform: scale(1);
-    transform: scale(1);
+            transform: scale(1);
     opacity: 1;
   }
 }
 
 .scale-in-center {
-  -webkit-animation: scale-in-center 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation: scale-in-center 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+	-webkit-animation: scale-in-center 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	        animation: scale-in-center 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
 .scale-in-center {
-  -webkit-animation: scale-in-center 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-  animation: scale-in-center 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  -webkit-animation: scale-in-center 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+          animation: scale-in-center 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
 .rotate {
-  -webkit-animation: rotation 2s infinite linear;
+    -webkit-animation: rotation 2s infinite linear;
 }
 
 @-webkit-keyframes rotation {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(359deg);
-  }
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(359deg);
+    }
 }
 
 .tracking-in-expand {
-  -webkit-animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
-  animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  -webkit-animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+          animation: tracking-in-expand 0.7s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
 }
 
 .rotate {
-  -webkit-animation: spin 2s linear infinite;
-  -moz-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
+    -webkit-animation:spin 2s linear infinite;
+    -moz-animation:spin 2s linear infinite;
+    animation:spin 2s linear infinite;
 }
 
-@-moz-keyframes spin {
-  100% {
-    -moz-transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-@keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
