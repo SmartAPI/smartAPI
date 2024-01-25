@@ -115,6 +115,18 @@ code {
     0 0 0 6px rgba(34, 237, 176, 0.2);
 }
 
+.metakg-cy {
+  width: 300px;
+  height: 300px;
+  display: block;
+  overflow: hidden;
+  margin: auto;
+}
+
+.metakg-card {
+  border-top: rgb(255, 115, 0) 5px solid !important;
+}
+
 .edge-table tr td {
   padding: 2px;
 }
@@ -180,6 +192,10 @@ code {
 
 .align-items-center {
   align-items: center;
+}
+
+.p-0 {
+  padding: 0 !important;
 }
 
 .p-1 {
@@ -490,6 +506,32 @@ a.middle-indicator-text {
   font-weight: lighter;
   font-variant: small-caps;
   transition: 0.7s;
+}
+
+.clearButtonSmall {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 3px 5px;
+  border: solid rgb(250, 109, 0) 2px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: rgb(250, 109, 0);
+  font-size: 0.9em;
+  font-weight: light;
+  font-variant: small-caps;
+}
+
+.clearButtonSmall:hover {
+  background-color: rgba(33, 163, 255, 0.3);
+  border: solid #7eccf0 2px;
+  color: rgb(50, 50, 148);
+  transition: 0.3s;
+}
+
+.clearButtonSmall:focus {
+  background-color: rgba(33, 163, 255, 0.3);
+  border: solid #7eccf0 2px;
+  color: rgb(39, 39, 39);
+  transition: 0.3s;
 }
 
 @media only screen and (max-width: 500px) {
@@ -1070,6 +1112,64 @@ body {
   transition:
     visibility 0s linear 900ms,
     opacity 300ms;
+}
+
+.align-items-start {
+  align-items: start;
+}
+
+.entityPill {
+  outline: none !important;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  display: flex;
+  align-items: stretch;
+  margin: 5px;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#eeeeee+0,eeeeee+100;Grey+Flat */
+  background: linear-gradient(
+    to bottom,
+    #eeeeee 0%,
+    #eeeeee 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+  border-radius: 10px;
+}
+
+.entityPill div:first-child {
+  color: white;
+  text-shadow: 1px 1px 1px rgb(104, 104, 104);
+  font-weight: bold;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.entityPill div:nth-child(2) {
+  width: 20px;
+  background-color: rgb(208, 208, 208);
+  clip-path: polygon(0% 0%, 18% 0, 100% 50%, 17% 100%, 0% 100%);
+}
+
+.entityPill div:nth-child(3) {
+  font-weight: bold;
+  font-size: 10px;
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#eeeeee+0,eeeeee+100;Grey+Flat */
+  background: linear-gradient(
+    to bottom,
+    #eeeeee 0%,
+    #eeeeee 100%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+  display: flex;
+  align-items: center;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 5px;
 }
 
 .apiStatus {
