@@ -27,7 +27,7 @@ class UserMeta(InnerDoc):
     username = Keyword(required=True)
     date_created = Date(default_timezone="UTC")
     last_updated = Date(default_timezone="UTC")
-    has_metakg = Boolean(default=False)
+    has_metakg = Boolean()
 
 
 class SmartAPIDoc(BaseDoc):
