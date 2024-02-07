@@ -63,6 +63,7 @@ def _backup():
                 "date_created": smartapi.date_created.isoformat(),
                 "last_updated": smartapi.last_updated.isoformat(),
                 "raw": smartapi.raw.decode(),  # to string
+                "has_metakg": smartapi.has_metakg
             }
         )
     return smartapis
