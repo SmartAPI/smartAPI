@@ -511,10 +511,10 @@ a.middle-indicator-text {
 .clearButtonSmall {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 3px 5px;
-  border: solid rgb(250, 109, 0) 2px;
+  border: solid rgb(158, 0, 250) 2px;
   border-radius: 10px;
   text-decoration: none;
-  color: rgb(250, 109, 0);
+  color: rgb(187, 0, 250);
   font-size: 0.9em;
   font-weight: light;
   font-variant: small-caps;

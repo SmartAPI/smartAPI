@@ -1,7 +1,7 @@
 <template>
   <div class="p-1">
-    <p class="orange-text m-0" style="padding-bottom: 10px">
-      View biomedical entity knowledge available
+    <p class="purple-text m-0" style="padding-bottom: 10px">
+      <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="20" /> View MetaKG
       <button @click="open = !open" type="button" class="clearButtonSmall">
         {{ open ? 'CLOSE' : 'OPEN' }}
       </button>
@@ -10,7 +10,17 @@
       <h3 class="p-2 grey-text" v-if="loading">Loading...</h3>
       <template v-if="!loading && !noHits">
         <div class="col s12 m8">
-          <h5 style="font-weight: lighter">Entity Relationship Overview</h5>
+          <h5 style="font-weight: lighter">
+            MetaKG Entity Overview
+            <small class="right"
+              >Edges ({{ numberWithCommas(total) }}) | Objects ({{ objects.length }}) | Subjects ({{
+                subjects.length
+              }})</small
+            >
+          </h5>
+          <p v-if="total && total > size" class="center yellow lighten-4 orange-text rounded">
+            This is just a subset of the available MetaKG
+          </p>
           <div v-if="graphData" style="max-height: 500px; overflow-y: scroll">
             <div class="d-flex flex-wrap align-items-start">
               <template v-for="(subjects, object) in graphData" :key="object">
@@ -19,7 +29,7 @@
             </div>
           </div>
         </div>
-        <div class="col s12 m4 grey darken-3">
+        <div class="col s12 m4 grey darken-4">
           <div class="d-flex justify-content-center">
             <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="80" />
             <h5 class="white-text center" style="font-weight: lighter">MetaKG Explorer</h5>
@@ -27,8 +37,11 @@
           <template v-if="networkData">
             <SimpleNetwork :nodes="networkData.nodes" :edges="networkData.edges"></SimpleNetwork>
           </template>
+          <p v-if="total && total > size" class="center yellow lighten-2 black-text rounded">
+            This is just a subset of the available MetaKG
+          </p>
           <p class="center">
-            <span class="white-text caps"> Explore {{ api.info.title }}'s MetaKG </span>
+            <span class="white-text caps"> Explore the full {{ api.info.title }}'s MetaKG </span>
           </p>
           <div class="d-flex justify-content-center align-items-center p-1">
             <router-link
@@ -37,12 +50,11 @@
               :to="{
                 path: '/portal/translator/metakg',
                 query: {
-                  'api.x-translator.component': api?.info?.['x-translator']?.component,
-                  'api.name': api.info.title
+                  q: 'api.smartapi.id:' + api._id
                 }
               }"
-              >Try It Now</router-link
-            >
+              >Try It Now <i class="fa fa-external-link" aria-hidden="true"></i
+            ></router-link>
           </div>
         </div>
       </template>
@@ -77,7 +89,11 @@ export default {
       loading: true,
       graphData: null,
       networkData: null,
-      noHits: false
+      noHits: false,
+      total: 0,
+      size: 400,
+      objects: [],
+      subjects: []
     };
   },
   watch: {
@@ -90,6 +106,9 @@ export default {
     }
   },
   methods: {
+    numberWithCommas(x) {
+      return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',');
+    },
     getNetworkData(hits) {
       let self = this;
       let nodes = new Set();
@@ -126,6 +145,7 @@ export default {
           data: {
             weight: nodeWeight[node] + 100,
             id: node,
+            name: node[0],
             color: self.$store.getters.getEntityColor(node)
           }
         };
@@ -135,20 +155,32 @@ export default {
         edges: edges
       };
     },
+    getFacetData(facets) {
+      if (facets?.['object.raw']?.terms) {
+        this.objects = facets?.['object.raw']?.terms.map((v) => v.term);
+      }
+      if (facets?.['subject.raw']?.terms) {
+        this.subjects = facets?.['subject.raw']?.terms.map((v) => v.term);
+      }
+    },
     sendRequest() {
       let self = this;
       let base = process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info' : '';
       axios
         .get(
           base +
-            '/api/metakg?size=20&q=(api.name:"' +
+            '/api/metakg?q=(api.name:"' +
             self.api.info.title +
-            '")&size=300&fields=object,subject'
+            '")&size=' +
+            self.size +
+            '&fields=object,subject&facet_size=300&aggs=object.raw,subject.raw'
         )
         .then((res) => {
           let data = {};
           if (res.data?.hits && res.data?.hits?.length) {
+            self.total = res.data?.total;
             self.getNetworkData(res.data.hits);
+            self.getFacetData(res.data?.facets);
             res.data.hits.forEach((item) => {
               if (!(item.subject in data)) {
                 data[item.subject] = [item.object];
@@ -158,6 +190,20 @@ export default {
                 }
               }
             });
+            let sortable = [];
+            for (var key in data) {
+              sortable.push([key, data[key]]);
+            }
+            sortable.sort(function (a, b) {
+              return a[1].length - b[1].length;
+            });
+            sortable.reverse();
+            let objSorted = {};
+            sortable.forEach(function (item) {
+              objSorted[item[0]] = item[1].sort();
+            });
+            data = objSorted;
+
             self.graphData = data;
             self.loading = false;
             self.noHits = false;
