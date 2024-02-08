@@ -4,6 +4,7 @@
 
 <script>
 import cytoscape from 'cytoscape';
+import tippy from 'tippy.js';
 
 export default {
   name: 'SimpleNetwork',
@@ -21,6 +22,7 @@ export default {
   },
   methods: {
     draw() {
+      let self = this;
       this.cy = cytoscape({
         container: document.getElementById('sn' + this.badgeID),
         elements: [...this.edges, ...this.nodes],
@@ -29,6 +31,12 @@ export default {
           {
             selector: 'node',
             style: {
+              content: 'data(name)',
+              'text-wrap': 'wrap',
+              'text-valign': 'center',
+              'text-halign': 'center',
+              'font-size': '2em',
+              color: 'white',
               'background-color': 'data(color)',
               'z-index': 1000,
               width: 'data(weight)',
@@ -47,6 +55,54 @@ export default {
           }
         ]
       });
+
+      function readableName(text) {
+        const result = text.replace(/([A-Z])/g, '\n $1');
+        return result.charAt(0).toUpperCase() + result.slice(1);
+      }
+
+      function makePopper(ele) {
+        let ref = ele.popperRef();
+        ele.tippy = tippy(document.createElement('div'), {
+          getReferenceClientRect: ref.getBoundingClientRect,
+          placement: 'top',
+          trigger: 'mouseenter', // mandatory
+          arrow: true,
+          interactive: true,
+          allowHTML: true,
+          theme: 'light',
+          appendTo: document.body, // or append dummyDomEle to document.body
+          onShow: function (instance) {
+            instance.setContent(
+              '<div class="white-text" style="padding:3px 5px;background:' +
+                ele.data('color') +
+                '">' +
+                readableName(ele.id()) +
+                '</div>'
+            );
+          },
+          onUntrigger: function (instance) {
+            instance.show();
+          }
+        });
+      }
+
+      this.cy.ready(function () {
+        self.cy.elements().forEach(function (ele) {
+          if (ele.isNode()) {
+            makePopper(ele);
+          }
+        });
+      });
+
+      this.cy.userZoomingEnabled(false);
+
+      this.cy.elements().unbind('mouseover');
+      this.cy.elements().bind('mouseover', (event) => event.target?.tippy?.show());
+
+      this.cy.elements().unbind('mouseout');
+      this.cy.elements().bind('mouseout', (event) => event.target?.tippy?.hide());
+
       this.cy
         .layout({
           name: 'concentric',
@@ -55,8 +111,6 @@ export default {
           minNodeSpacing: 100
         })
         .run();
-
-      this.cy.userZoomingEnabled(false);
     }
   },
   mounted: function () {

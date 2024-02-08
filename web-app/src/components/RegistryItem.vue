@@ -47,6 +47,20 @@
             </span>
           </template>
         </router-link>
+        <router-link
+          target="_blank"
+          data-tippy-content="Explore This API's Knowledge Graph"
+          :to="{
+            path: '/portal/translator/metakg',
+            query: {
+              q: 'api.smartapi.id:' + api._id
+            }
+          }"
+          class="versionBadge purple pointer"
+        >
+          <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="10" /> MetaKG
+          <i class="fa fa-external-link" aria-hidden="true"></i>
+        </router-link>
       </div>
       <template v-if="api.info.description && api.info.description.length > 500">
         <CollapsibleText :text="api.info.description"></CollapsibleText>
