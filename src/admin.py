@@ -195,6 +195,14 @@ def consolidate_metakg(reset=True):
     logging.info("Consolidating/Refreshing MetaKG edges")
     SmartAPI.index_metakg_consolidation()
 
+def refresh_has_metakg():
+    for smartapi in SmartAPI.get_all(1000):
+        value = ConsolidatedMetaKGDoc.exists(smartapi._id, field="api.smartapi.id")
+        if value:
+            smartapi.has_metakg = True
+        else:
+            smartapi.has_metakg = False
+
 
 restore = restore_from_file
 backup = backup_to_file
@@ -230,7 +238,8 @@ def routine():
     refresh_metakg()
     logger.info("consolidate_metakg()")
     consolidate_metakg()
-
+    logger.info("refresh_has_metakg()")
+    refresh_has_metakg()
 
 if __name__ == "__main__":
     restore_from_s3()
