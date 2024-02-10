@@ -293,13 +293,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
         if self.date_created > self.last_updated:
             raise ControllerError("Invalid timestamps.")
 
-        if not self.has_metakg:
-            value = ConsolidatedMetaKGDoc.exists(self._id, field="api.smartapi.id")
-            if value:
-                self.has_metakg = True
-            else:
-                self.has_metakg = False
-
         # NOTE
         # if the slug of another document changed at this point
         # it's possible to have two documents with the same slug
