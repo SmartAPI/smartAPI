@@ -195,11 +195,12 @@ def consolidate_metakg(reset=True):
     logging.info("Consolidating/Refreshing MetaKG edges")
     SmartAPI.index_metakg_consolidation()
 
+
 def refresh_has_metakg():
     """
     Refreshes the 'has_metakg' attribute for SmartAPI objects.
 
-    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc 
+    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc
     collection based on the SmartAPI ID, and updates the 'has_metakg' attribute accordingly.
 
     Note:
@@ -254,6 +255,7 @@ def routine():
     consolidate_metakg()
     logger.info("refresh_has_metakg()")
     refresh_has_metakg()
+
 
 if __name__ == "__main__":
     restore_from_s3()
