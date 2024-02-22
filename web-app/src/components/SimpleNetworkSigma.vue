@@ -3,9 +3,9 @@
 </template>
 
 <script>
-import Graph from "graphology";
-import Sigma from "sigma";
-import {circlepack} from 'graphology-layout';
+import Graph from 'graphology';
+import Sigma from 'sigma';
+import { circlepack } from 'graphology-layout';
 
 export default {
   name: 'SimpleNetwork',
@@ -22,45 +22,60 @@ export default {
     }
   },
   methods: {
-    drawSigma(){
-
-      const container = document.getElementById("sn" + this.badgeID);
+    drawSigma() {
+      const container = document.getElementById('sn' + this.badgeID);
 
       const graph = new Graph({
-          "type": "directed",
-          "multi": true,
-          "allowSelfLoops": true,
-          "zoomingRatio": 1
+        type: 'directed',
+        multi: true,
+        allowSelfLoops: true
+      });
+
+      this.nodes.forEach((n) => {
+        graph.addNode(n.data.id, {
+          size: n.data.weight / 40 < 6 ? 6 : n.data.weight / 40,
+          label: n.data.id,
+          color: n.data.color
         });
+      });
 
-      this.nodes.forEach(n => {
-        graph.addNode(n.data.id, {size: n.data.weight/40 < 6 ? 6 : n.data.weight/40, label: n.data.id, color: n.data.color });
-      })
+      this.edges.forEach((e) => {
+        graph.addEdge(e.data.source, e.data.target, {
+          size: 0.1,
+          label: `${e.data.source} > ${e.data.target}`
+        });
+      });
 
-      this.edges.forEach(e => {
-        graph.addEdge(e.data.source, e.data.target, {size: 0.1, type: 'arrow'});
-      })
-
-      circlepack.assign(graph, {scale: 2});
+      circlepack.assign(graph, { scale: 2 });
 
       const settings = {
-          minArrowSize: 100,
-          defaultEdgeType: "curvedArrow",
-          arrowSizeRatio: 10,
-          defaultEdgeLabelColor: "#FFFFFF",
-          defaultEdgeHoverColor: "default",
-          edgeHoverColor: 'default',
-          defaultEdgeColor: "#959595",
-          defaultNodeColor: "#007FFF",
-          defaultLabelColor: "white",
-          edgeColor:'default',
-          enableEdgeHovering: true,
-          enableHovering: true,
-          drawEdges: false,
-      }
+        minArrowSize: 20,
+        defaultEdgeType: 'arrow',
+        arrowSizeRatio: 10,
+        defaultEdgeLabelColor: '#FFFFFF',
+        defaultEdgeHoverColor: 'yellow',
+        edgeHoverColor: 'default',
+        defaultEdgeColor: '#616161',
+        defaultNodeColor: '#007FFF',
+        defaultLabelColor: '#FFFFFF',
+        edgeLabelSize: 'proportional',
+        defaultEdgeLabelSize: 20,
+        minEdgeSize: 0.1,
+        maxEdgeSize: 1,
+        edgeColor: 'default',
+        doubleClickEnabled: false,
+        enableEdgeHovering: true,
+        enableHovering: false,
+        drawEdges: true
+      };
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const renderer = new Sigma(graph, container, settings);
+
+      // renderer.on("enterEdge", ({ edge }) => {
+      //   console.log('edge', edge)
+      //   renderer.refresh();
+      // });
     }
   },
   mounted: function () {
