@@ -100,8 +100,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
         self.slug = None
         self.date_created = None
         self.last_updated = None
-        self.has_metakg = None
-
 
         self.uptime = APIMonitorStatus(self)
         self.webdoc = APIRefreshStatus(self)
@@ -119,8 +117,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
         obj.date_created = obj._doc._meta.date_created
         obj.last_updated = obj._doc._meta.last_updated
 
-        obj.has_metakg = obj._doc._meta.has_metakg
-        
         obj.uptime = APIMonitorStatus(
             obj,
             (
@@ -330,7 +326,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._meta.date_created = self.date_created
         doc._meta.last_updated = self.last_updated
         doc._meta.slug = self.slug
-        doc._meta.has_metakg = self.has_metakg
 
         doc.save(skip_empty=False)
 
