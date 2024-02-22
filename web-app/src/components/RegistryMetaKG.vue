@@ -69,7 +69,7 @@
 import axios from 'axios';
 
 import EntityPill from './EntityPill.vue';
-import SimpleNetwork from './SimpleNetwork.vue';
+import SimpleNetwork from './SimpleNetworkSigma.vue';
 
 export default {
   name: 'RegistryMetaKG',
@@ -91,7 +91,7 @@ export default {
       networkData: null,
       noHits: false,
       total: 0,
-      size: 400,
+      size: 5000,
       objects: [],
       subjects: []
     };
@@ -134,7 +134,7 @@ export default {
           data: {
             id: Math.floor(100000 + Math.random() * 900000),
             source: hit.subject,
-            target: hit.object
+            target: hit.object,
           }
         });
       });
