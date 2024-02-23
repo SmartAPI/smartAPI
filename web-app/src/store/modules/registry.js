@@ -12,75 +12,74 @@ export const registry = {
       'tags.name': []
     },
     entityColors: {
-      Gene: '#3f84bb',
-      Disease: '#8d5bd4',
-      Plant: '#087a3c',
-      GrossAnatomicalStructure: 'coral',
-      Polypeptide: '#07566f',
-      AnatomicalEntity: '#d65042',
-      PathologicalProcess: '#262071',
-      Procedure: '#683682',
-      DiseaseOrPhenotypicFeature: '#8d5bd4',
-      Cell: '#ff6e54',
-      SmallMolecule: '#e91e62',
-      PhysiologicalProcess: '#07566f',
-      Device: '#25282a',
-      CellularComponent: '#224b80',
-      PhenotypicFeature: '#369ac1',
-      MolecularActivity: '#d65042',
-      Virus: '#642d87',
-      Bacterium: '#3684af',
-      Cohort: '#b5cb17',
-      Fungus: '#ff6e54',
-      OrganismAttribute: '#5046e4',
-      ChemicalEntity: 'orange',
-      Food: 'pink',
-      Pathway: 'teal',
-      OrganismTaxon: 'red',
-      Protein: 'lightblue',
-      MolecularMixture: 'hotpink',
-      NucleicAcidEntity: 'black',
-      Behavior: 'purple',
-      Organism: 'limegreen',
-      MolecularEntity: 'green',
-      Drug: '#fab670',
-      CellLine: '#02838f',
-      Phenomenon: 'yellow',
-      ClinicalAttribute: '#a50202',
-      BiologicalProcess: '#b5cb17',
-      PairwiseGeneToGeneInteraction: '#444e86',
-      ClinicalFinding: 'brown',
-      Activity: '#616161',
-      DiagnosticAid: 'red',
-      Nutrient: 'lightgreen',
-      NamedThing: 'slategray',
-      ClinicalIntervention: 'gray',
-      InformationContentEntity: 'pink',
-      ChemicalExposure: 'lightblue',
-      EnvironmentalExposure: 'violet',
-      BiologicalEntity: 'magenta',
-      Event: 'gray',
-      Publication: 'skyblue',
-      GeneFamily: 'teal',
-      SequenceVariant: 'limegreen',
-      ChemicalMixture: 'orange',
-      Treatment: 'coral',
-      ComplexMolecularMixture: 'lightgreen',
-      ProteinFamily: '#003f5c',
-      GeneticInheritance: '#ffcd56',
-      Transcript: '#00e1f2',
-      RNAProduct: '#ff6e54',
-      Agent: '#02838f',
-      MaterialSample: '#087a3c',
-      LifeStage: '#b5cb17',
-      MicroRNA: '#dd5181',
-      MaterialSample: 'hotpink',
-      OrganismalEntity: 'brown',
-      NoncodingRNAProduct: 'black',
-      BehavioralFeature: '#25282a',
-      PopulationOfIndividualOrganisms: '#fab670',
-      IndividualOrganism: '#b48484',
-      BiologicalProcessOrActivity: '#d65042'
+      "Gene": "#0072B2", // blue
+      "Disease": "#D55E00", // vermillion
+      "Plant": "#009E73", // bluish green
+      "GrossAnatomicalStructure": "#E69F00", // orange
+      "Polypeptide": "#56B4E9", // sky blue
+      "AnatomicalEntity": "#F0E442", // yellow
+      "PathologicalProcess": "#CC79A7", // pink
+      "Procedure": "#737373", // dark gray
+      "DiseaseOrPhenotypicFeature": "#262626", // dark gray
+      "Cell": "#5A5A5A", // medium gray
+      "SmallMolecule": "#dd5181", // pink
+      "PhysiologicalProcess": "#F8766D", // salmon
+      "Device": "#DE8F05", // dark yellow
+      "CellularComponent": "#60BD68", // green
+      "PhenotypicFeature": "#B2912F", // brown
+      "MolecularActivity": "#00B0F6", // light blue
+      "Virus": "#FF00FF", // magenta
+      "Bacterium": "#9E0059", // raspberry
+      "Cohort": "#FB9A99", // pale red
+      "Fungus": "#800080", // purple
+      "OrganismAttribute": "#CAB2D6", // lavender
+      "ChemicalEntity": "#E6AB02", // mustard
+      "Food": "#F58231", // tangerine
+      "Pathway": "#B15928", // cinnamon
+      "OrganismTaxon": "#000000", // black
+      "Protein": "#CC99FF", // lavender pink
+      "MolecularMixture": "#66CC00", // apple green
+      "NucleicAcidEntity": "#FFC0CB", // pink
+      "Behavior": "#FFD8B1", // light peach
+      "Organism": "#FFFFFF", // white
+      "MolecularEntity": "#CCEEFF", // baby blue
+      "Drug": "#1CE6FF", // neon blue
+      "CellLine": "#FF34FF", // hot pink
+      "Phenomenon": "#FFD8B1", // light peach (repeated for consistency)
+      "ClinicalAttribute": "#4DFF4D", // mint green
+      "BiologicalProcess": "#F0E442", // yellow (repeated for consistency)
+      "PairwiseGeneToGeneInteraction": "#B45F06", // burnt sienna
+      "ClinicalFinding": "#3CB44B", // green
+      "Activity": "#4363D8", // cerulean
+      "DiagnosticAid": "#E6194B", // cherry red
+      "Nutrient": "#800000", // maroon
+      "NamedThing": "#A9A9A9", // dark gray
+      "ClinicalIntervention": "#808080", // gray
+      "InformationContentEntity": "#FFFFFF", // white (repeated for consistency)
+      "ChemicalExposure": "#000075", // navy blue
+      "EnvironmentalExposure": "#000000", // black (repeated for consistency)
+      "BiologicalEntity": "#A9A9A9", // dark gray (repeated for consistency)
+      "Event": "#D3D3D3", // light gray
+      "Publication": "#FF6347", // tomato
+      "GeneFamily": "#E6E600", // bright yellow
+      "SequenceVariant": "#1F75FE", // true blue
+      "ChemicalMixture": "#FF00FF", // magenta (repeated for consistency)
+      "Treatment": "#FFFFFF", // white (repeated for consistency)
+      "ComplexMolecularMixture": "#FFD8B1", // light peach (repeated for consistency)
+      "ProteinFamily": "#A9A9A9", // dark gray (repeated for consistency)
+      "GeneticInheritance": "#000000", // black (repeated for consistency)
+      "Transcript": "#696969", // dim gray
+      "RNAProduct": "#FFFFFF", // white (repeated for consistency)
+      "Agent": "#A9A9A9", // dark gray (repeated for consistency)
+      "MaterialSample": "#FF7F00", // orange
+      "LifeStage": "#000000", // black (repeated for consistency)
+      "MicroRNA": "#FFFFFF", // white (repeated for consistency)
+      "OrganismalEntity": "#A9A9A9", // dark gray (repeated for consistency)
+      "NoncodingRNAProduct": "#000000", // black (repeated for consistency)
+      "BehavioralFeature": "#FFFFFF", // white (repeated for consistency)
+      "PopulationOfIndividualOrganisms": "#A9A9A9", // dark gray (repeated for consistency)
+      "IndividualOrganism": "#000000", // black (repeated for consistency)
+      "BiologicalProcessOrActivity": "#FFFFFF" // white (repeated for consistency)
     }
   }),
   mutations: {
