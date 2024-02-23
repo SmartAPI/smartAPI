@@ -1,7 +1,7 @@
 """
     Elasticsearch Document Object Model for SmartAPI
 """
-from elasticsearch_dsl import Binary, Date, InnerDoc, Integer, Keyword, Object, Text
+from elasticsearch_dsl import Binary, Date, InnerDoc, Integer, Keyword, Object, Text, Boolean
 
 from config import SMARTAPI_ES_INDEX
 
@@ -27,7 +27,7 @@ class UserMeta(InnerDoc):
     username = Keyword(required=True)
     date_created = Date(default_timezone="UTC")
     last_updated = Date(default_timezone="UTC")
-
+    has_metakg = Boolean()
 
 class SmartAPIDoc(BaseDoc):
     _status = Object(StatMeta)
