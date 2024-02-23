@@ -19,7 +19,7 @@
             >
           </h5>
           <p v-if="total && total > size" class="center yellow lighten-4 orange-text rounded">
-            This is just a subset of the available MetaKG
+            This is just a subset of the available MetaKG ({{ size }}/{{ numberWithCommas(total) }})
           </p>
           <div v-if="graphData" style="max-height: 500px; overflow-y: scroll">
             <div class="d-flex flex-wrap align-items-start">
@@ -38,7 +38,7 @@
             <SimpleNetwork :nodes="networkData.nodes" :edges="networkData.edges"></SimpleNetwork>
           </template>
           <p v-if="total && total > size" class="center yellow lighten-2 black-text rounded">
-            This is just a subset of the available MetaKG
+            This is just a subset of the available MetaKG ({{ size }}/{{ numberWithCommas(total) }})
           </p>
           <p class="center">
             <span class="white-text caps"> Explore the full {{ api.info.title }}'s MetaKG </span>
@@ -69,7 +69,7 @@
 import axios from 'axios';
 
 import EntityPill from './EntityPill.vue';
-import SimpleNetwork from './SimpleNetwork.vue';
+import SimpleNetwork from './SimpleNetworkSigma.vue';
 
 export default {
   name: 'RegistryMetaKG',
@@ -91,7 +91,7 @@ export default {
       networkData: null,
       noHits: false,
       total: 0,
-      size: 400,
+      size: 5000,
       objects: [],
       subjects: []
     };
