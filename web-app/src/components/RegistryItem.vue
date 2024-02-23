@@ -48,6 +48,7 @@
           </template>
         </router-link>
         <router-link
+          v-if="api._meta?.has_metakg"
           target="_blank"
           data-tippy-content="Explore This API's Knowledge Graph"
           :to="{
@@ -83,7 +84,7 @@
       </div>
     </div>
     <!-- METAKG -->
-    <RegistryMetaKG :api="api"></RegistryMetaKG>
+    <RegistryMetaKG v-if="api._meta?.has_metakg" :api="api"></RegistryMetaKG>
     <!-- TOGGLE DETAILS -->
     <div class="card-action grey lighten-3" v-if="total > 1" :class="showDetails ? 'blue' : 'grey'">
       <button
