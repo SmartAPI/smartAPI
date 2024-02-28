@@ -69,7 +69,7 @@
 import axios from 'axios';
 
 import EntityPill from './EntityPill.vue';
-import SimpleNetwork from './SimpleNetworkSigma.vue';
+import SimpleNetwork from './SimpleNetworkCosmoGraph.vue';
 
 export default {
   name: 'RegistryMetaKG',
@@ -130,24 +130,24 @@ export default {
         nodes.add(hit.object);
         nodes.add(hit.subject);
         edges.push({
-          group: 'edges',
-          data: {
+          // group: 'edges',
+          // data: {
             id: Math.floor(100000 + Math.random() * 900000),
             source: hit.subject,
             target: hit.object,
-          }
+          // }
         });
       });
 
       nodeData = [...nodes].map((node) => {
         return {
-          group: 'nodes',
-          data: {
+          // group: 'nodes',
+          // data: {
             weight: nodeWeight[node] + 100,
             id: node,
-            name: node[0],
+            // name: node[0],
             color: self.$store.getters.getEntityColor(node)
-          }
+          // }
         };
       });
       this.networkData = {

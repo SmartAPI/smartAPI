@@ -1,5 +1,7 @@
 <template>
-  <canvas class="metakg-cosmo" :id="'sn' + badgeID"/>
+  <div :id="'cosmo' + badgeID" class="cosmo">
+
+  </div>
 </template>
 
 <script>
@@ -21,33 +23,36 @@ export default {
   },
   methods: {
     drawSigma(){
-      console.log('Cosmo')
-
-      const nodes = [
-  { id: '1', color: '#88C6FF' },
-  { id: '2', color: '#FF99D2' },
-  { id: '3', color: [227,17,108, 1] }, // Faster than providing a hex value
-]
-
-const links = [
-  { source: '1', target: '2' },
-  { source: '1', target: '3' },
-  { source: '2', target: '3' },
-]
-      const canvas = document.createElement('canvas')
-      document.body.appendChild(canvas)
+      let cosmograph = null;
+      const canvas = document.getElementById('cosmo' + this.badgeID)
       const config = {
-        nodeColor: d => d.color,
-        nodeSize: 20,
+        nodeColor: n => n.color,
+        nodeSize: (n, i) => n.weight/50 < 10 ? 10 : n.weight/50,
         linkWidth: 2,
+        onClick: (n) =>{
+          if (cosmograph && n?.id) {
+            cosmograph.selectNode({id: n.id}, true)
+          }else{
+            cosmograph?.unselectNodes();
+          }
+        },
+        curvedLinks: true,
+        initialZoomLevel: 3,
+        disableSimulation: true,
+        hoveredNodeLabelColor: 'white',
+        showDynamicLabels: false,
+        scaleNodesOnZoom: false,
+        linkWidth: .5,
+        linkArrowsSizeScale: 1,
+        linkVisibilityDistance: [400, 1000]
+
       }
 
         // Create a Cosmograph instance with the canvas element
-        const cosmograph = new Cosmograph(canvas, config)
+        cosmograph = new Cosmograph(canvas, config)
 
         // Set the data
-        cosmograph.setData(nodes, links)
-        console.log(cosmograph)
+        cosmograph.setData(this.nodes, this.edges)
     }
   },
   mounted: function () {
@@ -57,10 +62,9 @@ const links = [
 </script>
 
 <style scoped>
-
-.metakg-cosmo {
+.cosmo {
   width: 300px;
   height: 300px;
-  border: solid yellow 2px;
+  border: solid rgb(42, 42, 42) 2px;
 }
 </style>
