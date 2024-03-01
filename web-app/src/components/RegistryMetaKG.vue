@@ -1,12 +1,6 @@
 <template>
-  <div class="p-1">
-    <p class="purple-text m-0" style="padding-bottom: 10px">
-      <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="20" /> View MetaKG
-      <button @click="open = !open" type="button" class="clearButtonSmall">
-        {{ open ? 'CLOSE' : 'OPEN' }}
-      </button>
-    </p>
-    <div v-if="open" class="grey lighten-2 metakg-card p-0 row d-flex align-items-stretch">
+  <div>
+    <div class="grey lighten-2 metakg-card p-0 row d-flex align-items-stretch m-0">
       <h3 class="p-2 grey-text" v-if="loading">Loading...</h3>
       <template v-if="!loading && !noHits">
         <div class="col s12 m8">
@@ -19,7 +13,9 @@
             >
           </h5>
           <p v-if="total && total > size" class="center yellow lighten-4 orange-text rounded">
-            This is just a subset of the available MetaKG ({{ size }}/{{ numberWithCommas(total) }})
+            This is just a subset of the available MetaKG ({{ numberWithCommas(size) }}/{{
+              numberWithCommas(total)
+            }})
           </p>
           <div v-if="graphData" style="max-height: 500px; overflow-y: scroll">
             <div class="d-flex flex-wrap align-items-start">
@@ -38,10 +34,14 @@
             <SimpleNetwork :nodes="networkData.nodes" :edges="networkData.edges"></SimpleNetwork>
           </template>
           <p v-if="total && total > size" class="center yellow lighten-2 black-text rounded">
-            This is just a subset of the available MetaKG ({{ size }}/{{ numberWithCommas(total) }})
+            This is just a subset of the available MetaKG ({{ numberWithCommas(size) }}/{{
+              numberWithCommas(total)
+            }})
           </p>
           <p class="center">
-            <span class="white-text caps"> Explore the full {{ api.info.title }}'s MetaKG </span>
+            <span class="white-text caps">
+              Explore <b>the full</b> {{ api.info.title }}'s MetaKG
+            </span>
           </p>
           <div class="d-flex justify-content-center align-items-center p-1">
             <router-link
@@ -69,7 +69,7 @@
 import axios from 'axios';
 
 import EntityPill from './EntityPill.vue';
-import SimpleNetwork from './SimpleNetworkSigma.vue';
+import SimpleNetwork from './SimpleNetworkCosmo.vue';
 
 export default {
   name: 'RegistryMetaKG',
@@ -85,7 +85,6 @@ export default {
   },
   data: function () {
     return {
-      open: false,
       loading: true,
       graphData: null,
       networkData: null,
@@ -97,12 +96,17 @@ export default {
     };
   },
   watch: {
-    open: function (v) {
-      if (v) {
-        if (!this.graphData) {
-          this.sendRequest();
-        }
-      }
+    // open: function (v) {
+    //   if (v) {
+    //     if (!this.graphData) {
+    //       this.sendRequest();
+    //     }
+    //   }
+    // }
+  },
+  mounted: function () {
+    if (!this.graphData) {
+      this.sendRequest();
     }
   },
   methods: {
@@ -130,24 +134,24 @@ export default {
         nodes.add(hit.object);
         nodes.add(hit.subject);
         edges.push({
-          group: 'edges',
-          data: {
-            id: Math.floor(100000 + Math.random() * 900000),
-            source: hit.subject,
-            target: hit.object
-          }
+          // group: 'edges',
+          // data: {
+          id: Math.floor(100000 + Math.random() * 900000),
+          source: hit.subject,
+          target: hit.object
+          // }
         });
       });
 
       nodeData = [...nodes].map((node) => {
         return {
-          group: 'nodes',
-          data: {
-            weight: nodeWeight[node] + 100,
-            id: node,
-            name: node[0],
-            color: self.$store.getters.getEntityColor(node)
-          }
+          // group: 'nodes',
+          // data: {
+          weight: nodeWeight[node] + 100,
+          id: node,
+          name: node[0],
+          color: self.$store.getters.getEntityColor(node)
+          // }
         };
       });
       this.networkData = {
