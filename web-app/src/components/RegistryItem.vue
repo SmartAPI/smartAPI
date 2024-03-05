@@ -106,7 +106,7 @@
       <div class="row">
         <div class="col s12 right-align">
           <small class="grey-text">Updated: </small
-          ><small class="white-text"><span v-text="getDate(api._meta.timestamp)"></span></small>
+          ><small class="white-text"><span v-text="getDate(api._meta?.last_updated)"></span></small>
         </div>
         <div class="col s12 left">
           <h4
