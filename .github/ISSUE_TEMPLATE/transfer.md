@@ -13,7 +13,7 @@ Fill this out if you would like to transfer ownership of an API entry to someone
 
 * **I'm am ...**
 
-- [ ] the person transferring ownership of my API
+- [ ] the current Responsible Developer transferring ownership of my API
 
 - [ ] the person that this API is being transferred to
 
@@ -26,7 +26,7 @@ Fill this out if you would like to transfer ownership of an API entry to someone
   
   
 
-* What is the ***name*** and ***username*** of the person that this API currently belongs to? *eg. Jane Doe @janedoe1
+* What is the ***name*** and ***username*** of the Responsible Developer that currently maintains this API? *eg. Jane Doe @janedoe1
 
   
   

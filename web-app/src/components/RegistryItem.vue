@@ -83,209 +83,212 @@
         </template>
       </div>
     </div>
-    <!-- METAKG -->
-    <RegistryMetaKG v-if="api._meta?.has_metakg" :api="api"></RegistryMetaKG>
-    <!-- TOGGLE DETAILS -->
-    <div class="card-action grey lighten-3" v-if="total > 1" :class="showDetails ? 'blue' : 'grey'">
-      <button
-        style="border-radius: 20px"
-        class="btn"
-        :class="showDetails ? 'grey lighten-3 blue-text' : 'blue white-text'"
-        @click.prevent="
-          showDetails = !showDetails;
-          googleAnalytics('Registry_APIs', api.info.title);
-        "
-        v-text="showDetails ? 'HIDE DETAILS' : 'SHOW DETAILS'"
-      ></button>
-    </div>
-    <div
-      class="card-content detailsBack"
-      style="padding: 5px 20px"
-      v-if="showDetails || total === 1"
-    >
-      <div class="row">
-        <div class="col s12 right-align">
-          <small class="grey-text">Updated: </small
-          ><small class="white-text"><span v-text="getDate(api._meta?.last_updated)"></span></small>
-        </div>
-        <div class="col s12 left">
-          <h4
-            class="white-text bold m-0"
-            style="display: inline-block"
-            v-text="api.info.title"
-          ></h4>
-          &nbsp;
-          <small class="grey-text" style="display: inline-block"
-            ><span v-text="api.info.version"></span
-          ></small>
-        </div>
-        <div class="col s12">
-          <table class="apiDetails responsive-table">
-            <colgroup>
-              <col span="1" style="width: 20%" />
-              <col span="1" style="width: 80%" />
-            </colgroup>
-            <tbody>
-              <tr>
-                <td>
-                  <small class="white-text">Created By</small>
-                </td>
-                <td>
-                  <small class="white-text">
-                    <i class="fa fa-user" aria-hidden="true"></i>
-                    <span v-text="api?.info?.contact?.name || 'Name Unavailable'"></span>
-                  </small>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <small class="white-text">Registered by</small>
-                </td>
-                <td>
-                  <small class="white-text">
-                    <a
-                      :href="'https://github.com/' + api._meta.username"
-                      target="_blank"
-                      rel="nonreferrer"
-                      ><i class="fa fa-user" aria-hidden="true"></i>
-                      <span v-text="api._meta.username"></span
-                    ></a>
-                  </small>
-                  <router-link
-                    class="CopyButton copyBtn pointer"
-                    :to="{
-                      path: $route.path,
-                      query: { q: '_meta.username:' + api._meta.username }
-                    }"
-                  >
-                    More APIs by this user
-                  </router-link>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <small class="white-text">SmartAPI ID</small>
-                </td>
-                <td>
-                  <a class="link" target="_blank" v-bind:href="'/api/metadata/' + api._id">
-                    <small>
-                      <span :id="'id' + api._id" :value="api._id" v-text="api._id"></span>
-                      <i class="fa fa-external-link" aria-hidden="true"></i>
-                    </small>
-                  </a>
-                  <CopyButton copy_msg="API ID copied" :copy="api._id">
-                    <template v-slot:title>
-                      Copy API ID <i class="fa fa-clipboard" aria-hidden="true"></i>
-                    </template>
-                  </CopyButton>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <small class="white-text">Source URL</small>
-                </td>
-                <td>
-                  <a class="link" target="_blank" v-bind:href="api._meta.url">
-                    <small
-                      ><span v-text="truncate(api._meta.url)"></span>
-                      <i class="fa fa-external-link" aria-hidden="true"></i
-                    ></small>
-                  </a>
-                  <CopyButton copy_msg="Source URL copied" :copy="api._meta.url">
-                    <template v-slot:title>
-                      Copy Source URL<i class="fa fa-clipboard" aria-hidden="true"></i>
-                    </template>
-                  </CopyButton>
-                  <a
-                    class="smallButton grey"
-                    style="margin-left: 5px"
-                    title="Edit metadata source on GitHub"
-                    v-if="
-                      user && api._meta.username === user.login && api._meta.url.includes('github')
-                    "
-                    v-bind:href="buildEditURL(api._meta.url)"
-                    target="_blank"
-                  >
-                    <i class="fa fa-pencil" aria-hidden="true"></i> </a
-                  >&nbsp;
-                  <SourceStatus
-                    style="display: inline-block"
-                    :refresh_status="api?._status?.refresh_status"
-                  ></SourceStatus>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <small class="white-text">SmartAPI Registry URL</small>
-                </td>
-                <td>
-                  <router-link class="link" target="_blank" :to="'/registry?q=' + api._id">
-                    <small
-                      ><span :id="'url' + api._id" :value="api._id"
-                        >http://smart-api.info/registry?q=<span v-text="api._id"></span> </span
-                    ></small>
-                  </router-link>
-                  <CopyButton
-                    copy_msg="Registry URL copied"
-                    :copy="'http://smart-api.info/registry?q=' + api._id"
-                  >
-                    <template v-slot:title>
-                      Copy Registry URL <i class="fa fa-clipboard" aria-hidden="true"></i>
-                    </template>
-                  </CopyButton>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+    <div>
+      <div class="d-flex justify-content-start grey lighten-3" style="padding: 10px 20px; ">
+        <button 
+        class="btn btn-small mr-1" 
+        :class="[selection == 'details' ? 'indigo' : 'indigo lighten-2']"
+        @click="selection = selection == 'details' ? '' : 'details'"><small>Details</small></button>
+        <button 
+        v-if="api._meta?.has_metakg"
+        class="btn btn-small mr-1" 
+        :class="[selection == 'metakg' ? 'purple' : 'purple lighten-2']"
+        @click="selection = selection == 'metakg' ? '' : 'metakg'"><small>MetaKG</small>
+        </button>
+      </div>
+      <div v-if="selection == 'details'">
+        <div
+          class="card-content detailsBack"
+          style="padding: 5px 20px"
+        >
+          <div class="row">
+            <div class="col s12 right-align">
+              <small class="grey-text">Updated: </small
+              ><small class="white-text"><span v-text="getDate(api._meta.last_updated)"></span></small>
+            </div>
+            <div class="col s12 left">
+              <h4
+                class="white-text bold m-0"
+                style="display: inline-block"
+                v-text="api.info.title"
+              ></h4>
+              &nbsp;
+              <small class="grey-text" style="display: inline-block"
+                ><span v-text="api.info.version"></span
+              ></small>
+            </div>
+            <div class="col s12">
+              <table class="apiDetails responsive-table">
+                <colgroup>
+                  <col span="1" style="width: 20%" />
+                  <col span="1" style="width: 80%" />
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td>
+                      <small class="white-text">Created By</small>
+                    </td>
+                    <td>
+                      <small class="white-text">
+                        <i class="fa fa-user" aria-hidden="true"></i>
+                        <span v-text="api?.info?.contact?.name || 'Name Unavailable'"></span>
+                      </small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <small class="white-text">Responsible Developer</small>
+                    </td>
+                    <td>
+                      <small class="white-text">
+                        <a
+                          :href="'https://github.com/' + api._meta.username"
+                          target="_blank"
+                          rel="nonreferrer"
+                          ><i class="fa fa-user" aria-hidden="true"></i>
+                          <span v-text="api._meta.username"></span
+                        ></a>
+                      </small>
+                      <router-link
+                        class="CopyButton copyBtn pointer"
+                        :to="{
+                          path: $route.path,
+                          query: { q: '_meta.username:' + api._meta.username }
+                        }"
+                      >
+                        More APIs by this user
+                      </router-link>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <small class="white-text">SmartAPI ID</small>
+                    </td>
+                    <td>
+                      <a class="link" target="_blank" v-bind:href="'/api/metadata/' + api._id">
+                        <small>
+                          <span :id="'id' + api._id" :value="api._id" v-text="api._id"></span>
+                          <i class="fa fa-external-link" aria-hidden="true"></i>
+                        </small>
+                      </a>
+                      <CopyButton copy_msg="API ID copied" :copy="api._id">
+                        <template v-slot:title>
+                          Copy API ID <i class="fa fa-clipboard" aria-hidden="true"></i>
+                        </template>
+                      </CopyButton>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <small class="white-text">Source URL</small>
+                    </td>
+                    <td>
+                      <a class="link" target="_blank" v-bind:href="api._meta.url">
+                        <small
+                          ><span v-text="truncate(api._meta.url)"></span>
+                          <i class="fa fa-external-link" aria-hidden="true"></i
+                        ></small>
+                      </a>
+                      <CopyButton copy_msg="Source URL copied" :copy="api._meta.url">
+                        <template v-slot:title>
+                          Copy Source URL<i class="fa fa-clipboard" aria-hidden="true"></i>
+                        </template>
+                      </CopyButton>
+                      <a
+                        class="smallButton grey"
+                        style="margin-left: 5px"
+                        title="Edit metadata source on GitHub"
+                        v-if="
+                          user && api._meta.username === user.login && api._meta.url.includes('github')
+                        "
+                        v-bind:href="buildEditURL(api._meta.url)"
+                        target="_blank"
+                      >
+                        <i class="fa fa-pencil" aria-hidden="true"></i> </a
+                      >&nbsp;
+                      <SourceStatus
+                        style="display: inline-block"
+                        :refresh_status="api?._status?.refresh_status"
+                      ></SourceStatus>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <small class="white-text">SmartAPI Registry URL</small>
+                    </td>
+                    <td>
+                      <router-link class="link" target="_blank" :to="'/registry?q=' + api._id">
+                        <small
+                          ><span :id="'url' + api._id" :value="api._id"
+                            >http://smart-api.info/registry?q=<span v-text="api._id"></span> </span
+                        ></small>
+                      </router-link>
+                      <CopyButton
+                        copy_msg="Registry URL copied"
+                        :copy="'http://smart-api.info/registry?q=' + api._id"
+                      >
+                        <template v-slot:title>
+                          Copy Registry URL <i class="fa fa-clipboard" aria-hidden="true"></i>
+                        </template>
+                      </CopyButton>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-        <div class="col s12" style="padding: 20px">
-          <router-link
-            class="btn green"
-            style="margin: 5px"
-            :to="'/ui/' + api._id"
-            @click="googleAnalytics('Registry_Documentation', api.info.title)"
-          >
-            <span class="hide-on-small-only">View API</span> Documentation
-          </router-link>
-          <router-link class="btn blue" style="margin: 5px" :to="'/editor/' + api._id">
-            Edit <i class="fa fa-pencil" aria-hidden="true"></i>
-          </router-link>
+            <div class="col s12" style="padding: 20px">
+              <router-link
+                class="btn green"
+                style="margin: 5px"
+                :to="'/ui/' + api._id"
+                @click="googleAnalytics('Registry_Documentation', api.info.title)"
+              >
+                <span class="hide-on-small-only">View API</span> Documentation
+              </router-link>
+              <router-link class="btn blue" style="margin: 5px" :to="'/editor/' + api._id">
+                Edit <i class="fa fa-pencil" aria-hidden="true"></i>
+              </router-link>
+            </div>
+          </div>
+          <div>
+            <template v-if="api?.openapi">
+              <h5 class="grey-text">(<span v-text="pathTotal"></span>) Operations</h5>
+              <table class="striped responsive-table white" style="margin: 20px 0px">
+                <col width="10%" />
+                <col width="30%" />
+                <col width="60%" />
+                <tbody>
+                  <tr v-for="operation in getOperations(api)" :key="operation.path">
+                    <td
+                      class="center-align"
+                      :class="operationStyling(operation.method)"
+                      v-text="operation.method"
+                    ></td>
+                    <td class="blue-text bold" v-text="operation.path"></td>
+                    <td class="blue-grey-text" v-text="operation.summary"></td>
+                  </tr>
+                  <tr v-if="overLimit" class="yellow lighten-4">
+                    <td colspan="3">
+                      <h6 class="center-align grey-text">
+                        This is just a preview of all operations provided. For full documentation
+                        <router-link
+                          :to="'/ui/' + api._id"
+                          @click="googleAnalytics('Registry_Documentation', api.info.title)"
+                        >
+                          Click Here</router-link
+                        >.
+                      </h6>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+          </div>
         </div>
       </div>
-      <div>
-        <template v-if="api?.openapi">
-          <h5 class="grey-text">(<span v-text="pathTotal"></span>) Operations</h5>
-          <table class="striped responsive-table white" style="margin: 20px 0px">
-            <col width="10%" />
-            <col width="30%" />
-            <col width="60%" />
-            <tbody>
-              <tr v-for="operation in getOperations(api)" :key="operation.path">
-                <td
-                  class="center-align"
-                  :class="operationStyling(operation.method)"
-                  v-text="operation.method"
-                ></td>
-                <td class="blue-text bold" v-text="operation.path"></td>
-                <td class="blue-grey-text" v-text="operation.summary"></td>
-              </tr>
-              <tr v-if="overLimit" class="yellow lighten-4">
-                <td colspan="3">
-                  <h6 class="center-align grey-text">
-                    This is just a preview of all operations provided. For full documentation
-                    <router-link
-                      :to="'/ui/' + api._id"
-                      @click="googleAnalytics('Registry_Documentation', api.info.title)"
-                    >
-                      Click Here</router-link
-                    >.
-                  </h6>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </template>
+      <div v-if="selection == 'metakg'">
+        <RegistryMetaKG v-if="api._meta?.has_metakg" :api="api"></RegistryMetaKG>
       </div>
     </div>
   </div>
@@ -312,10 +315,10 @@ export default {
   },
   data: function () {
     return {
-      showDetails: false,
       overLimit: false,
       pathTotal: 0,
-      bt_tag: Object
+      bt_tag: Object,
+      selection: ''
     };
   },
   props: ['api', 'total', 'user'],
