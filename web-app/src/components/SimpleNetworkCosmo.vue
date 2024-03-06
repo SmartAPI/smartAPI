@@ -1,13 +1,17 @@
 <template>
-  <div>
-    <div :id="'cosmo' + badgeID" class="cosmo"></div>
-    <div class="switch m-1">
-      <label>
-        <b :class="{ 'cyan-text': !curvedLinks }">Straight</b>
-        <input type="checkbox" v-model="curvedLinks" />
-        <span class="lever"></span>
-        <b :class="{ 'cyan-text': curvedLinks }">Curved</b>
-      </label>
+  <div class="d-flex justify-content-center">
+    <div>
+      <div :id="'cosmo' + badgeID" class="cosmo"></div>
+      <div class="d-flex justify-content-center">
+        <div class="switch m-1">
+          <label>
+            <b :class="{ 'cyan-text': !curvedLinks }">Straight</b>
+            <input type="checkbox" v-model="curvedLinks" />
+            <span class="lever"></span>
+            <b :class="{ 'cyan-text': curvedLinks }">Curved</b>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 </template>
