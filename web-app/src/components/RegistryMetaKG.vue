@@ -1,66 +1,71 @@
 <template>
-  <div>
-    <div class="grey lighten-2 metakg-card p-0 row d-flex align-items-stretch m-0">
-      <h3 class="p-2 grey-text" v-if="loading">Loading...</h3>
-      <template v-if="!loading && !noHits">
-        <div class="col s12 m8">
-          <h5 style="font-weight: lighter">
-            MetaKG Entity Overview
-            <small class="right"
-              >Edges ({{ numberWithCommas(total) }}) | Objects ({{ objects.length }}) | Subjects ({{
-                subjects.length
-              }})</small
-            >
-          </h5>
-          <p v-if="total && total > size" class="center yellow lighten-4 orange-text rounded">
-            This is just a subset of the available MetaKG ({{ numberWithCommas(size) }}/{{
-              numberWithCommas(total)
-            }})
-          </p>
-          <div v-if="graphData" style="max-height: 500px; overflow-y: scroll">
-            <div class="d-flex flex-wrap align-items-start">
-              <template v-for="(subjects, object) in graphData" :key="object">
-                <EntityPill :object="object" :subjects="subjects"></EntityPill>
-              </template>
-            </div>
+  <div class="grey lighten-2 metakg-card p-0 m-0 row">
+    <h3 class="p-2 purple-text" v-if="loading">Loading...</h3>
+    <template v-if="!loading && !noHits">
+      <div class="col s12 m8">
+        <h5 style="font-weight: lighter">
+          MetaKG Entity Overview
+          <small class="right"
+            >Edges ({{ numberWithCommas(total) }}) | Objects ({{ objects.length }}) | Subjects ({{
+              subjects.length
+            }})</small
+          >
+        </h5>
+        <p v-if="total && total > size" class="center yellow lighten-4 orange-text rounded">
+          This is just a subset of the available MetaKG ({{ numberWithCommas(size) }}/{{
+            numberWithCommas(total)
+          }})
+        </p>
+        <div
+          v-if="graphData"
+          class="hide-on-small-only"
+          style="max-height: 500px; overflow-y: scroll"
+        >
+          <div class="d-flex flex-wrap align-items-start">
+            <template v-for="(subjects, object) in graphData" :key="object">
+              <EntityPill :object="object" :subjects="subjects"></EntityPill>
+            </template>
           </div>
         </div>
-        <div class="col s12 m4 grey darken-4">
-          <div class="d-flex justify-content-center">
-            <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="80" />
-            <h5 class="white-text center" style="font-weight: lighter">MetaKG Explorer</h5>
-          </div>
-          <template v-if="networkData">
-            <SimpleNetwork :nodes="networkData.nodes" :edges="networkData.edges"></SimpleNetwork>
-          </template>
-          <p v-if="total && total > size" class="center yellow lighten-2 black-text rounded">
-            This is just a subset of the available MetaKG ({{ numberWithCommas(size) }}/{{
-              numberWithCommas(total)
-            }})
-          </p>
-          <p class="center">
-            <span class="white-text caps">
-              Explore <b>the full</b> {{ api.info.title }}'s MetaKG
-            </span>
-          </p>
-          <div class="d-flex justify-content-center align-items-center p-1">
-            <router-link
-              class="btn btn-large purple white-text"
-              target="_blank"
-              :to="{
-                path: '/portal/translator/metakg',
-                query: {
-                  q: 'api.smartapi.id:' + api._id
-                }
-              }"
-              >Try It Now <i class="fa fa-external-link" aria-hidden="true"></i
-            ></router-link>
-          </div>
-        </div>
-      </template>
-      <div v-if="!loading && noHits">
-        <p class="center grey-text p-2">Oops...Can't load this right now...</p>
       </div>
+      <div class="col s12 m4 grey darken-4">
+        <div class="d-flex justify-content-center">
+          <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="80" />
+          <h5 class="white-text center" style="font-weight: lighter">MetaKG Explorer</h5>
+        </div>
+        <template v-if="networkData">
+          <SimpleNetwork :nodes="networkData.nodes" :edges="networkData.edges"></SimpleNetwork>
+        </template>
+        <p v-if="total && total > size" class="center yellow lighten-2 black-text rounded">
+          This is just a subset of the available MetaKG ({{ numberWithCommas(size) }}/{{
+            numberWithCommas(total)
+          }})
+        </p>
+        <p class="center">
+          <span class="white-text caps">
+            Explore <b>the full</b> {{ api.info.title }}'s MetaKG
+          </span>
+        </p>
+        <div class="d-flex justify-content-center align-items-center p-1">
+          <router-link
+            class="btn btn-large purple white-text"
+            target="_blank"
+            :to="{
+              path: '/portal/translator/metakg',
+              query: {
+                q: 'api.smartapi.id:' + api._id
+              }
+            }"
+            >Try It Now <i class="fa fa-external-link" aria-hidden="true"></i
+          ></router-link>
+        </div>
+        <p class="center hide-on-med-and-up">
+          <span class="yellow-text caps"> Not recommended for use on small screens </span>
+        </p>
+      </div>
+    </template>
+    <div v-if="!loading && noHits">
+      <p class="center grey-text p-2">Oops...Can't load this right now...</p>
     </div>
   </div>
 </template>

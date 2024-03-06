@@ -84,27 +84,31 @@
       </div>
     </div>
     <div>
-      <div class="d-flex justify-content-start grey lighten-3" style="padding: 10px 20px; ">
-        <button 
-        class="btn btn-small mr-1" 
-        :class="[selection == 'details' ? 'indigo' : 'indigo lighten-2']"
-        @click="selection = selection == 'details' ? '' : 'details'"><small>Details</small></button>
-        <button 
-        v-if="api._meta?.has_metakg"
-        class="btn btn-small mr-1" 
-        :class="[selection == 'metakg' ? 'purple' : 'purple lighten-2']"
-        @click="selection = selection == 'metakg' ? '' : 'metakg'"><small>MetaKG</small>
+      <div class="d-flex justify-content-start grey lighten-3" style="padding: 10px 20px">
+        <button
+          class="btn btn-small mr-1"
+          :class="[selection == 'details' ? 'indigo' : 'indigo lighten-2']"
+          @click="selection = selection == 'details' ? '' : 'details'"
+        >
+          <small>Details</small>
+        </button>
+        <button
+          v-if="api._meta?.has_metakg"
+          class="btn btn-small mr-1"
+          :class="[selection == 'metakg' ? 'purple' : 'purple lighten-2']"
+          @click="selection = selection == 'metakg' ? '' : 'metakg'"
+        >
+          <small>MetaKG</small>
         </button>
       </div>
       <div v-if="selection == 'details'">
-        <div
-          class="card-content detailsBack"
-          style="padding: 5px 20px"
-        >
+        <div class="card-content detailsBack" style="padding: 5px 20px">
           <div class="row">
             <div class="col s12 right-align">
               <small class="grey-text">Updated: </small
-              ><small class="white-text"><span v-text="getDate(api._meta.last_updated)"></span></small>
+              ><small class="white-text"
+                ><span v-text="getDate(api._meta.last_updated)"></span
+              ></small>
             </div>
             <div class="col s12 left">
               <h4
@@ -199,7 +203,9 @@
                         style="margin-left: 5px"
                         title="Edit metadata source on GitHub"
                         v-if="
-                          user && api._meta.username === user.login && api._meta.url.includes('github')
+                          user &&
+                          api._meta.username === user.login &&
+                          api._meta.url.includes('github')
                         "
                         v-bind:href="buildEditURL(api._meta.url)"
                         target="_blank"
