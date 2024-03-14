@@ -94,6 +94,7 @@
         </button>
         <button
           v-if="api._meta?.has_metakg"
+          data-tippy-content=" View Meta Knowledge Graph "
           class="btn btn-small mr-1"
           :class="[selection == 'metakg' ? 'purple' : 'purple lighten-2']"
           @click="selection = selection == 'metakg' ? '' : 'metakg'"
@@ -134,14 +135,13 @@
                     </td>
                     <td>
                       <small class="white-text">
-                        <i class="fa fa-user" aria-hidden="true"></i>
                         <span v-text="api?.info?.contact?.name || 'Name Unavailable'"></span>
                       </small>
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <small class="white-text">Responsible Developer</small>
+                      <small class="white-text">Registered By</small>
                     </td>
                     <td>
                       <small class="white-text">
@@ -149,7 +149,7 @@
                           :href="'https://github.com/' + api._meta.username"
                           target="_blank"
                           rel="nonreferrer"
-                          ><i class="fa fa-user" aria-hidden="true"></i>
+                          ><i class="fa fa-user" aria-hidden="true"></i>&nbsp;
                           <span v-text="api._meta.username"></span
                         ></a>
                       </small>

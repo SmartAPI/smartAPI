@@ -4,11 +4,9 @@
     <template v-if="!loading && !noHits">
       <div class="col s12 m8">
         <h5 style="font-weight: lighter">
-          MetaKG Entity Overview
+          MetaKG Overview
           <small class="right"
-            >Edges ({{ numberWithCommas(total) }}) | Objects ({{ objects.length }}) | Subjects ({{
-              subjects.length
-            }})</small
+            >Edges ({{ numberWithCommas(total) }}) | Nodes ({{ nodes.length }})</small
           >
         </h5>
         <p v-if="total && total > size" class="center yellow lighten-4 orange-text rounded">
@@ -29,10 +27,6 @@
         </div>
       </div>
       <div class="col s12 m4 grey darken-4">
-        <div class="d-flex justify-content-center">
-          <img class="scale-in-center" src="@/assets/img/metakg-01.png" width="80" />
-          <h5 class="white-text center" style="font-weight: lighter">MetaKG Explorer</h5>
-        </div>
         <template v-if="networkData">
           <SimpleNetwork :nodes="networkData.nodes" :edges="networkData.edges"></SimpleNetwork>
         </template>
@@ -41,11 +35,11 @@
             numberWithCommas(total)
           }})
         </p>
-        <p class="center">
-          <span class="white-text caps">
-            Explore <b>the full</b> {{ api.info.title }}'s MetaKG
-          </span>
-        </p>
+        <div class="center grey-text">
+          <p>
+            <small>Explore the full MetaKG</small>
+          </p>
+        </div>
         <div class="d-flex justify-content-center align-items-center p-1">
           <router-link
             class="btn btn-large purple white-text"
@@ -100,18 +94,14 @@ export default {
       subjects: []
     };
   },
-  watch: {
-    // open: function (v) {
-    //   if (v) {
-    //     if (!this.graphData) {
-    //       this.sendRequest();
-    //     }
-    //   }
-    // }
-  },
   mounted: function () {
     if (!this.graphData) {
       this.sendRequest();
+    }
+  },
+  computed: {
+    nodes: function () {
+      return [...new Set(this.subjects.concat(this.objects))];
     }
   },
   methods: {

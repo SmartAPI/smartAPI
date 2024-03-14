@@ -5,10 +5,10 @@
       <div class="d-flex justify-content-center">
         <div class="switch m-1">
           <label>
-            <b :class="{ 'cyan-text': !curvedLinks }">Straight</b>
+            <b :class="{ 'cyan-text': !curvedLinks }">Straight Edges</b>
             <input type="checkbox" v-model="curvedLinks" />
             <span class="lever"></span>
-            <b :class="{ 'cyan-text': curvedLinks }">Curved</b>
+            <b :class="{ 'cyan-text': curvedLinks }">Curved Edges</b>
           </label>
         </div>
       </div>
@@ -60,7 +60,7 @@ export default {
         },
         fitViewOnInit: false,
         curvedLinks: this.curvedLinks,
-        initialZoomLevel: 6,
+        initialZoomLevel: 8,
         disableSimulation: true,
         hoveredNodeLabelColor: 'white',
         showDynamicLabels: false,
@@ -86,8 +86,8 @@ export default {
 
 <style scoped>
 .cosmo {
-  width: 300px;
-  height: 300px;
+  width: 350px;
+  height: 350px;
   border: solid rgb(42, 42, 42) 2px;
 }
 </style>

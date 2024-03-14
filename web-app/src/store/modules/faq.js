@@ -191,7 +191,7 @@ export const faq = {
             anchor: 'transfer',
             question: 'How can I transfer/claim the ownership of an API entry?',
             answer: `<p>
-                    A transfer of ownership requests can be initiated by filling out a form. You will need the current <b>Responsible Developer</b>'s GitHub handle (located in the 'Details' section on the <a href="/registry">registry</a>), new recipient's GitHub handle, reason and any other relevant information to this transfer.
+                    A transfer of ownership requests can be initiated by filling out a form. You will need the GitHub handle listed under the "Registered By" field (located in the 'Details' section on the <a href="/registry">registry</a>), new recipient's GitHub handle, reason and any other relevant information to this transfer.
                     </p>
                     <p>
                         If you would like to transfer ownership to someone else or claim ownership of an API please click <a target="_blank" rel="noreferrer" href="https://github.com/SmartAPI/smartAPI/issues/new?template=transfer.md">here</a>.

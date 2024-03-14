@@ -231,14 +231,14 @@
             <summary>
               <p style="margin: 0; display: inline">
                 <b class="green-text"> ({{ hit.api.length }})</b>
-                {{ readableName(hit.subject) }}
+                {{ readableName(hit.subject) }}&rarr;
                 <a
                   target="_blank"
                   :href="'https://biolink.github.io/biolink-model/docs/' + hit.subject"
                 >
                   <i class="fa fa-external-link" aria-hidden="true"></i>
                 </a>
-                {{ readableName(hit.predicate.replaceAll('_', ' ')) }}
+                {{ readableName(hit.predicate.replaceAll('_', ' ')) }}&rarr;
                 <a
                   target="_blank"
                   :href="'https://biolink.github.io/biolink-model/docs/' + hit.predicate"
