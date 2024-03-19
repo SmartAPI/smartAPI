@@ -5,19 +5,18 @@ from model import ConsolidatedMetaKGDoc
 
 
 class MetaKGPathFinder:
-    def __init__(self, query_data=None):
+    def __init__(self, query_data=None, expanded_fields=None):
         """
         Initialize the MetaKGPathFinder class.
-
-        This class is responsible for creating a network graph from indexed
-        documents and providing functionalities to find paths between two nodes
-        in the graph.
 
         Parameters:
         - query_data: dict (default=None)
             Optional data to filter which documents to use while creating the graph.
+        - expanded_fields: dict (default=None)
+            Optional fields to expand subjects and objects in the graph.
         """
         self.predicates = {}
+        self.expanded_fields = expanded_fields or {"subject": [], "object": []}
         self.get_graph(query_data=query_data)
 
     def get_graph(self, query_data=None):
@@ -60,60 +59,63 @@ class MetaKGPathFinder:
 
         return self.G
 
-    def get_paths(self, subject, object, cutoff=3, api_details=False):
-        """
-        Find all simple paths between two nodes in the graph.
+    def build_results(self, paths_data, data, api_details, source_node, target_node):
+        # Case: Give full api results in response
+        if api_details:
+            api_content = data["api"]
+        else:
+            api_content = [{"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}} for item in data["api"]]
+        paths_data["edges"].append(
+            {
+                "subject": source_node,
+                "object": target_node,
+                "predicate": data["predicate"],
+                "api": api_content,
+            }
+        )
+        return paths_data
 
-        This method retrieves all possible paths between a given subject and
-        object in the graph, up to a specified cutoff length.
+    def get_paths(self, expanded_fields, cutoff=3, api_details=False, predicate_filter=None, edge_filter=None):
+        """
+        Find all simple paths between expanded subjects and objects in the graph.
 
         Parameters:
-        - subject: str
-            The starting node in the graph.
-        - object: str
-            The ending node in the graph.
+        - expanded_fields: dict
+            The expanded fields containing lists of subjects and objects.
         - cutoff: int (default=3)
             The maximum length for any path returned.
         - api_details: bool (default=False)
-            If True, the full details of the 'api' are included in the result.
-            If False, only the 'name' attribute of each 'api' entry is retained.
+            If True, includes full details of the 'api' in the result.
 
         Returns:
-        - paths_with_edges: list of dict
-            A list containing paths and their edge information.
+        - all_paths_with_edges: list of dict
+            A list containing paths and their edge information for all subject-object pairs.
         """
 
-        paths_with_edges = []
+        all_paths_with_edges = []
 
-        if nx.has_path(self.G, subject, object):
-            raw_paths = list(nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff))
-            for path in raw_paths:
-                paths_data = {"path": path, "edges": []}
+        # Convert predicate_filter to a set for faster lookups if it's not None
+        predicate_filter_set = set(predicate_filter) if predicate_filter else None
 
-                for i in range(len(path) - 1):
-                    source_node = path[i]
-                    target_node = path[i + 1]
-                    edge_key = f"{source_node}-{target_node}"
-                    edge_data = self.predicates.get(edge_key, [])
+        # Iterate over all combinations of subjects and objects
+        for subject in expanded_fields["subject"]:
+            for object in expanded_fields["object"]:
+                if nx.has_path(self.G, subject, object):
+                    raw_paths = nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff)
+                    for path in raw_paths:
+                        paths_data = {"path": path, "edges": []}
+                        for i in range(len(path) - 1):
+                            source_node = path[i]
+                            target_node = path[i + 1]
+                            edge_key = f"{source_node}-{target_node}"
+                            edge_data = self.predicates.get(edge_key, [])
 
-                    for data in edge_data:
-                        # if api_details add full api list, else add selected keys only
-                        if api_details:
-                            api_content = data["api"]
-                        else:
-                            api_content = [
-                                {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}
-                                for item in data["api"]
-                            ]
-                        paths_data["edges"].append(
-                            {
-                                "subject": source_node,
-                                "object": target_node,
-                                "predicate": data["predicate"],
-                                "api": api_content,
-                            }
-                        )
+                            for data in edge_data:
+                                # Case: Filter edges based on predicate
+                                if predicate_filter_set and data["predicate"] not in predicate_filter_set:
+                                    continue # Skip this edge
+                                paths_data = self.build_results(paths_data, data, api_details, source_node, target_node)    
 
-                paths_with_edges.append(paths_data)
+                                all_paths_with_edges.append(paths_data)
 
-        return paths_with_edges
+        return all_paths_with_edges
