@@ -17,7 +17,7 @@
         <div
           v-if="graphData"
           class="hide-on-small-only"
-          style="max-height: 500px; overflow-y: scroll"
+          style="max-height: 550px; overflow-y: scroll"
         >
           <div class="d-flex flex-wrap align-items-start">
             <template v-for="(subjects, object) in graphData" :key="object">
@@ -35,14 +35,9 @@
             numberWithCommas(total)
           }})
         </p>
-        <div class="center grey-text">
-          <p>
-            <small>Explore the full MetaKG</small>
-          </p>
-        </div>
         <div class="d-flex justify-content-center align-items-center p-1">
           <router-link
-            class="btn btn-large purple white-text"
+            class="btn btn-small purple white-text"
             target="_blank"
             :to="{
               path: '/portal/translator/metakg',
@@ -50,7 +45,7 @@
                 q: 'api.smartapi.id:' + api._id
               }
             }"
-            >Try It Now <i class="fa fa-external-link" aria-hidden="true"></i
+            >Try MetaKG Explorer <i class="fa fa-external-link" aria-hidden="true"></i
           ></router-link>
         </div>
         <p class="center hide-on-med-and-up">

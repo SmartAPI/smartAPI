@@ -60,14 +60,18 @@ export default {
         },
         fitViewOnInit: false,
         curvedLinks: this.curvedLinks,
-        initialZoomLevel: 8,
+        initialZoomLevel: 9,
         disableSimulation: true,
+        // simulationFriction: 0.1,
+        // simulationLinkSpring: 0.5, 
+        // simulationLinkDistance: 25,
+        // simulationCenter: 1,
         hoveredNodeLabelColor: 'white',
         showDynamicLabels: false,
         scaleNodesOnZoom: false,
         linkArrows: true,
         linkWidth: this.nodes.length < 20 ? 2 : 0.5,
-        linkArrowsSizeScale: this.nodes.length < 20 ? 2 : 1,
+        linkArrowsSizeScale: this.nodes.length < 20 ? 1 : .5,
         linkVisibilityDistance: [400, 1000]
       };
 
@@ -86,8 +90,8 @@ export default {
 
 <style scoped>
 .cosmo {
-  width: 350px;
-  height: 350px;
+  width: 400px;
+  height: 550px;
   border: solid rgb(42, 42, 42) 2px;
 }
 </style>
