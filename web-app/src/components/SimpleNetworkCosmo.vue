@@ -70,6 +70,7 @@ export default {
         showDynamicLabels: false,
         scaleNodesOnZoom: false,
         linkArrows: true,
+        linkGreyoutOpacity: 0,
         linkWidth: this.nodes.length < 20 ? 2 : 0.5,
         linkArrowsSizeScale: this.nodes.length < 20 ? 1 : .5,
         linkVisibilityDistance: [400, 1000]

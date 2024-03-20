@@ -13,7 +13,7 @@ Fill this out if you would like to transfer ownership of an API entry to someone
 
 * **I'm am ...**
 
-- [ ] the current Responsible Developer transferring ownership of my API
+- [ ] the current owner transferring ownership of my API
 
 - [ ] the person that this API is being transferred to
 
