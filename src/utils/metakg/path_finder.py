@@ -96,6 +96,7 @@ class MetaKGPathFinder:
         - expanded_fields: (dict) The expanded fields containing lists of subjects and objects.
         - cutoff: (int, default=3) The maximum length for any path returned.
         - api_details: (bool, default=False) If True, includes full details of the 'api' in the result.
+        - predicate_filter: (list, default=None) A list of predicates to filter the results by.
 
         Returns:
         - all_paths_with_edges: (list of dict) A list containing paths and their edge information for all subject-object pairs.
