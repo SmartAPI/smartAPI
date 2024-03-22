@@ -21,6 +21,7 @@ from utils.downloader import DownloadError, download_async
 from utils.metakg.export import edges2graphml
 from utils.metakg.path_finder import MetaKGPathFinder
 from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
+from utils.metakg.biolink_helpers import get_expanded_values
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 logger = logging.getLogger("smartAPI")
@@ -433,20 +434,6 @@ class MetaKGQueryHandler(QueryHandler):
         self.pipeline = MetaKGQueryPipeline(ns=self.biothings)
         self.biolink_model_toolkit = bmt.Toolkit()
 
-    def get_expanded_values(self, value: Union[str, List[str]]) -> List[str]:
-        """return exapnded value list for a given biolink class name"""
-        if isinstance(value, str):
-            value = [value]
-        _out = []
-        for v in value:
-            try:
-                v = self.biolink_model_toolkit.get_descendants(v, reflexive=True, formatted=True)
-                v = [x.split(":")[-1] for x in v]  # remove biolink: prefix
-            except ValueError:
-                v = [v]
-            _out.extend(v)
-        return _out
-
     @capture_exceptions
     async def get(self, *args, **kwargs):
         expanded_fields = {"subject": False, "object": False, "predicate": False, "node": False}
@@ -463,7 +450,7 @@ class MetaKGQueryHandler(QueryHandler):
             value_list = getattr(self.args, field)
             if not value_list:
                 continue
-            value_list = self.get_expanded_values(value_list) if expanded_fields[field] else value_list
+            value_list = get_expanded_values(value_list, self.biolink_model_toolkit) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
 
         await super().get(*args, **kwargs)
@@ -539,22 +526,111 @@ class MetaKGPathFinderHandler(QueryHandler):
             **QUERY_KWARGS.get("GET", {}),
             "subject": {"type": str, "required": True, "max": 1000},
             "object": {"type": str, "required": True, "max": 1000},
+            "predicate": {"type": list, "max": 10, "default": []},
             "cutoff": {"type": int, "default": 3, "max": 5},
             "api_details": {"type": bool, "default": False},
+            "expand": {
+                "type": list,
+                "max": 6,
+                "default": [],
+                "enum": ["subject", "object", "predicate", "node", "edge", "all"]
+                },
+            "rawquery": {"type": bool, "default": False},
         },
     }
+
+    def initialize(self, *args, **kwargs):
+        super().initialize(*args, **kwargs)
+        # change the default query pipeline from self.biothings.pipeline
+        self.pipeline = MetaKGQueryPipeline(ns=self.biothings)
+        self.biolink_model_toolkit = bmt.Toolkit()
+
+    def setup_pathfinder_rawquery(self, expanded_fields):
+        # JSON-structured summary of operations and criteria applied
+        operations_summary = {
+            "input_parameters": {},
+            "expansion_logic": {},
+            "search_criteria": []
+        }
+
+        # Include original query parameters
+        operations_summary["input_parameters"] = {
+            "subject": self.args.subject,
+            "object": self.args.object,
+            "predicate": getattr(self.args, 'predicate', None)  # Including predicate if provided
+        }
+
+        # Detail the expansion logic in a way that explains what expansions are applied
+        operations_summary["expansion_logic"] = {
+            "expand_subject": "subject" in self.args.expand or "all" in self.args.expand or "node" in self.args.expand,
+            "expand_object": "object" in self.args.expand or "all" in self.args.expand or "node" in self.args.expand,
+            "expand_predicate": "predicate" in self.args.expand,
+        }
+
+        # Summarize the search criteria based on expanded fields
+        for field, values in expanded_fields.items():
+            if values:  # Ensure values exist for the field before adding
+                operations_summary["search_criteria"].append({
+                    "field": field,
+                    "description": f"Expanding '{field}' to include {len(values)} variant(s)",
+                    "values": values
+                })
+
+        # The operations_summary is already in a format that can be directly returned as JSON
+        return operations_summary
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
         query_data = {"q": self.args.q}
-        pathfinder = MetaKGPathFinder(query_data=query_data)
+
+        # Initialize with the original subject and object, and setup for expansion
+        expanded_fields = {
+            "subject": [self.args.subject],
+            "object": [self.args.object],
+        }
+
+        # Check if expansion is requested
+        if self.args.expand:
+            # Define a set for fields affected by 'node' and 'all' for simpler updates
+            common_fields = {"subject", "object"}
+
+            # Initialize expandable_fields based on 'node' or 'all' presence
+            expandable_fields = set()
+            if "node" in self.args.expand or "all" in self.args.expand:
+                expandable_fields.update(common_fields)
+            if "edge" in self.args.expand or "all" in self.args.expand:
+                expandable_fields.add("predicate")
+
+            # Add specific fields if mentioned explicitly
+            expandable_fields.update({field for field in ["subject", "object", "predicate"] if field in self.args.expand})
+
+            # Expand the fields as required
+            for field in expandable_fields:
+                # Use the built-in utility function, get_expanded_values, to expand the fields
+                expanded_fields[field] = get_expanded_values(getattr(self.args, field), self.biolink_model_toolkit)
+
+        # Initalize pathfinder
+        pathfinder = MetaKGPathFinder(query_data=query_data, expanded_fields=expanded_fields)
+
+        # Initialize the pathfinder results list
+        paths_with_edges = []
+
+        # Run get_paths method to retrieve paths and edges
         paths_with_edges = pathfinder.get_paths(
-            subject=self.args.subject,
-            object=self.args.object,
+            expanded_fields=expanded_fields,
             cutoff=self.args.cutoff,
             api_details=self.args.api_details,
+            predicate_filter=self.args.predicate
         )
-        # Return the result in JSON format
-        res = {"paths_with_edges": paths_with_edges}
+
+        # Check if rawquery parameter is true -- respond with correct output
+        if self.args.rawquery:
+            raw_query_output = self.setup_pathfinder_rawquery(expanded_fields)
+            self.write(raw_query_output)
+            return
+        res = { 
+                "total": len(paths_with_edges), 
+                "paths": paths_with_edges,
+            }
         await asyncio.sleep(0.01)
         self.finish(res)

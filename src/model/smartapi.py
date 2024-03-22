@@ -29,7 +29,6 @@ class UserMeta(InnerDoc):
     last_updated = Date(default_timezone="UTC")
     has_metakg = Boolean()
 
-
 class SmartAPIDoc(BaseDoc):
     _status = Object(StatMeta)
     _raw = Binary()

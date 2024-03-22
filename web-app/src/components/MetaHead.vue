@@ -18,34 +18,41 @@
 <script>
 export default {
   name: 'MetaHead',
-  props:{
-    title:{
+  props: {
+    title: {
       type: String,
       default: 'SmartAPI'
     },
-    description:{
+    description: {
       type: String,
-      default: 'The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs)'
+      default:
+        'The SmartAPI project aims to maximize the FAIRness (Findability, Accessibility, Interoperability, and Reusability) of web-based Application Programming Interfaces (APIs)'
     }
   },
-  computed:{
-    path:function(){
-      return this.$route.fullPath
+  computed: {
+    path: function () {
+      return this.$route.fullPath;
     }
   },
-  mounted: function(){
+  mounted: function () {
     //title
-    document.querySelector("title").innerHTML = this.title
+    document.querySelector('title').innerHTML = this.title;
     document.querySelector("meta[name='twitter:title']").setAttribute('content', this.title);
     document.querySelector("meta[property='og:site_name']").setAttribute('content', this.title);
     document.querySelector("meta[property='og:title']").setAttribute('content', this.title);
     //desc
     document.querySelector("meta[name='description']").setAttribute('content', this.description);
-    document.querySelector("meta[name='twitter:description']").setAttribute('content', this.description);
+    document
+      .querySelector("meta[name='twitter:description']")
+      .setAttribute('content', this.description);
     document.querySelector("meta[name='twitter:card']").setAttribute('content', this.description);
     //path
-    document.querySelector("meta[name='twitter:url']").setAttribute('content', 'https://smart-api.info'+this.path);
-    document.querySelector("meta[property='og:url']").setAttribute('content', 'https://smart-api.info'+this.path);
+    document
+      .querySelector("meta[name='twitter:url']")
+      .setAttribute('content', 'https://smart-api.info' + this.path);
+    document
+      .querySelector("meta[property='og:url']")
+      .setAttribute('content', 'https://smart-api.info' + this.path);
   }
-}
+};
 </script>
