@@ -4,7 +4,7 @@ SmartAPI Controller Tests
 import json
 import os
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import elasticsearch
 import pytest
@@ -380,6 +380,10 @@ def test_refresh_status():
     assert mygene.webdoc.timestamp > datetime(2020, 1, 1)
     _ts0 = mygene.webdoc.timestamp
 
+    original_last_updated = mygene.last_updated.replace(microsecond=0, tzinfo=None)
+    one_hour_before = (datetime.now() - timedelta(hours=1)).replace(microsecond=0)
+    assert original_last_updated > one_hour_before
+
     mygene.save()
     refresh()
 
@@ -393,8 +397,14 @@ def test_refresh_status():
     assert "components" in mygene
     assert mygene.webdoc.timestamp > _ts0
 
+    current_last_updated = mygene.last_updated.replace(microsecond=0, tzinfo=None)
+    assert current_last_updated == original_last_updated
+
     mygene.save()
     refresh()
+
+    # confirm last_updated is not changed after refresh
+    assert mygene.last_updated.replace(microsecond=0, tzinfo=None) == current_last_updated
 
     mygene_doc = SmartAPIDoc.get(MYGENE_ID)
     assert mygene_doc._status.refresh_status == 200
@@ -407,6 +417,9 @@ def test_refresh_status():
 
     mygene.save()
     refresh()
+
+    # confirm last_updated is not changed after refresh
+    assert mygene.last_updated.replace(microsecond=0, tzinfo=None) == current_last_updated
 
     mygene_doc = SmartAPIDoc.get(MYGENE_ID)
     assert mygene_doc._status.refresh_status == 404
@@ -431,6 +444,9 @@ def test_refresh_status():
 
     mygene.save()
     refresh()
+
+    # confirm last_updated is not changed after refresh
+    assert mygene.last_updated.replace(microsecond=0, tzinfo=None) == current_last_updated
 
     mygene_doc = SmartAPIDoc.get(MYGENE_ID)
     assert mygene_doc._status.refresh_status == 499

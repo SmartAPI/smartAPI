@@ -63,7 +63,6 @@ def _backup():
                 "date_created": smartapi.date_created.isoformat(),
                 "last_updated": smartapi.last_updated.isoformat(),
                 "raw": smartapi.raw.decode(),  # to string
-                "has_metakg": smartapi.has_metakg
             }
         )
     return smartapis
@@ -199,14 +198,11 @@ def consolidate_metakg(reset=True):
 def refresh_has_metakg():
     """
     Refreshes the 'has_metakg' attribute for SmartAPI objects.
-
-    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc
+    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc 
     collection based on the SmartAPI ID, and updates the 'has_metakg' attribute accordingly.
-
     Note:
     - This function assumes the existence of the SmartAPI and ConsolidatedMetaKGDoc classes.
     - 'has_metakg' attribute is a boolean value indicating whether a SmartAPI has corresponding metadata in the Meta-Knowledge Graph.
-
     Returns:
     None
     """
