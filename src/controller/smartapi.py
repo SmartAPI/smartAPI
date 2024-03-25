@@ -100,7 +100,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         self.slug = None
         self.date_created = None
         self.last_updated = None
-        self.has_metakgq = None
+        self.has_metakg = None
 
         self.uptime = APIMonitorStatus(self)
         self.webdoc = APIRefreshStatus(self)
