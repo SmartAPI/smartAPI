@@ -1,5 +1,7 @@
 """ SmartAPI Entry Point """
 
+import logging
+
 from threading import Thread
 
 from aiocron import crontab
@@ -24,8 +26,11 @@ class WebAppHandler(RequestHandler):
 if __name__ == "__main__":
     from tornado.options import options
 
+    logger = logging.getLogger("routine")
+
     if not options.debug:
         crontab("0 0 * * *", func=run_routine, start=True)
+        logger.info("Crontab configured successfully.")
 
     IOLoop.current().add_callback(setup)
     main(
