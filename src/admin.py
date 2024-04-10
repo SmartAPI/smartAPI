@@ -223,10 +223,6 @@ check = check_uptime
 
 # only one process should perform backup routines
 _lock = FileLock(".lock", timeout=0)
-try:  # it will be released upon exit
-    _lock.acquire()
-except Timeout:
-    pass
 
 
 def routine():
@@ -236,8 +232,9 @@ def routine():
         # if previously acquired,
         # it won't block here
         _lock.acquire()
+        logger.info("Schedule lock acquired successfully.")
     except Timeout:
-        logger.warning("Skips routine, it's already running in another process.")
+        logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
         return
     logger.info("backup_to_s3()")
     backup_to_s3()
