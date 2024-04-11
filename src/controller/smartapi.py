@@ -193,10 +193,13 @@ class SmartAPI(AbstractWebEntity, Mapping):
 
             # get the edge api to modify
             edge_api = edge["_source"]["api"]
+            edge_bte = edge["_source"]["bte"]
             # add edge to the correct group(based on key)
             if key in edge_dict:
                 if edge_api not in edge_dict[key]["api"]:
                     edge_dict[key]["api"].append(edge_api)
+                if edge_bte not in edge_dict[key]["bte"]:
+                    edge_dict[key]["bte"].append(edge_bte)
             else:
                 edge_dict[key] = {
                     "_id": key,
@@ -204,6 +207,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
                     "object": edge["_source"]["object"],
                     "predicate": edge["_source"]["predicate"],
                     "api": [edge_api],
+                    "bte": [edge_bte]
                 }
 
             processed_edges += 1
@@ -291,14 +295,6 @@ class SmartAPI(AbstractWebEntity, Mapping):
             raise ControllerError("Invalid updated time.")
         if self.date_created > self.last_updated:
             raise ControllerError("Invalid timestamps.")
-
-
-        if not self.has_metakg:
-            value = ConsolidatedMetaKGDoc.exists(self._id, field="api.smartapi.id")
-            if value:
-                self.has_metakg = True
-            else:
-                self.has_metakg = False
 
         # NOTE
         # if the slug of another document changed at this point
