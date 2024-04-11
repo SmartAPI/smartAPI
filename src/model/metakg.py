@@ -99,6 +99,7 @@ class APIInnerDoc(InnerDoc):
 
 class ConsolidatedAPIInnerDoc(APIInnerDoc):
     provided_by = default_text
+    tags = lowercase_keyword_copy_to_all
 
 
 class MetaKGDoc(BaseDoc):

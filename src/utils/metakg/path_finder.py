@@ -59,7 +59,7 @@ class MetaKGPathFinder:
 
         return self.G
 
-    def build_edge_results(self, paths_data, data, api_details, source_node, target_node):
+    def build_edge_results(self, paths_data, data, api_details, source_node, target_node, bte):
         """
         Adds edge details between two nodes to the paths data structure.
 
@@ -86,9 +86,13 @@ class MetaKGPathFinder:
                 "api": api_content,
             }
         )
+        if bte:
+            bte_content = [bte_dict for bte_dict  in data['bte']]
+            paths_data["edges"].append({"bte": bte_content})
+
         return paths_data
 
-    def get_paths(self, expanded_fields, cutoff=3, api_details=False, predicate_filter=None):
+    def get_paths(self, expanded_fields, cutoff=3, api_details=False, predicate_filter=None, bte=False):
         """
         Find all simple paths between expanded subjects and objects in the graph.
 
@@ -130,7 +134,7 @@ class MetaKGPathFinder:
                                     # Case: Filter edges based on predicate
                                     if predicate_filter_set and data["predicate"] not in predicate_filter_set:
                                         continue  # Skip this edge
-                                    paths_data = self.build_edge_results(paths_data, data, api_details, source_node, target_node)
+                                    paths_data = self.build_edge_results(paths_data, data, api_details, source_node, target_node, bte)
                                     edge_added = True  # Mark that we've added at least one edge
                             if edge_added:  # Only add paths_data if at least one edge was added
                                 all_paths_with_edges.append(paths_data)

@@ -536,6 +536,7 @@ class MetaKGPathFinderHandler(QueryHandler):
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"]
                 },
             "rawquery": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
         },
     }
 
@@ -620,7 +621,8 @@ class MetaKGPathFinderHandler(QueryHandler):
             expanded_fields=expanded_fields,
             cutoff=self.args.cutoff,
             api_details=self.args.api_details,
-            predicate_filter=self.args.predicate
+            predicate_filter=self.args.predicate,
+            bte=self.args.bte
         )
 
         # Check if rawquery parameter is true -- respond with correct output
