@@ -1,8 +1,11 @@
 import networkx as nx
-
+import logging
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
+import traceback
 
+
+logger=logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
 
 class MetaKGPathFinder:
     def __init__(self, query_data=None, expanded_fields=None):
@@ -37,6 +40,7 @@ class MetaKGPathFinder:
         index = ConsolidatedMetaKGDoc.Index.name
         predicates = self.predicates
 
+        print(query_data)
         # Create a new directed graph
         self.G = nx.DiGraph()
 
@@ -46,8 +50,9 @@ class MetaKGPathFinder:
             subject = doc["_source"]["subject"]
             object = doc["_source"]["object"]
             predicate = doc["_source"]["predicate"]
-            api = doc["_source"]["api"]
-
+            # make list here to give back full results 
+            api = [api_dict for api_dict in doc["_source"]["apis"]]
+            #bte=
             # Add the subject & object to the graph
             self.G.add_edge(subject, object)
 
@@ -55,7 +60,7 @@ class MetaKGPathFinder:
             key = f"{subject}-{object}"
             if key not in predicates:
                 predicates[key] = []
-            predicates[key].append({"predicate": predicate, "api": api})  # Store both predicate and API
+            predicates[key].append({"predicate": predicate, "apis": api})  # Store both predicate and API
 
         return self.G
 
@@ -73,32 +78,36 @@ class MetaKGPathFinder:
         Returns:
         - dict: The updated paths_data structure with the new edge added.
         """
-        # Case: Give full api results in response
+        # # Case: Give full api results in response
         if api_details:
-            api_content = data["api"]
+            api_content = data["apis"]
         else:
-            api_content = [{"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}} for item in data["api"]]
+            print(data)
+            # api_content = [{"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}} for item in data["api"]]
         paths_data["edges"].append(
             {
                 "subject": source_node,
                 "object": target_node,
                 "predicate": data["predicate"],
-                "api": api_content,
+                "apis": api_content,
             }
         )
-        if bte:
-            bte_content = [bte_dict for bte_dict  in data['bte']]
-            paths_data["edges"].append({"bte": bte_content})
-
+        
+        # if bte:
+            # if 'bte' in data:
+            #     bte_content = [bte_dict for bte_dict  in data['bte']]            
+            #     paths_data["edges"].append({"bte": bte_content})
+            # else:
+            #     logging.info(f"BTE not found in data {source_node} - {target_node} - {data}")
         return paths_data
 
-    def get_paths(self, expanded_fields, cutoff=3, api_details=False, predicate_filter=None, bte=False):
+    def get_paths(self, cutoff=2, api_details=False, predicate_filter=None, bte=False):
         """
         Find all simple paths between expanded subjects and objects in the graph.
 
         Parameters:
         - expanded_fields: (dict) The expanded fields containing lists of subjects and objects.
-        - cutoff: (int, default=3) The maximum length for any path returned.
+        - cutoff: (int, default=2) The maximum length for any path returned.
         - api_details: (bool, default=False) If True, includes full details of the 'api' in the result.
         - predicate_filter: (list, default=None) A list of predicates to filter the results by.
 
@@ -111,12 +120,12 @@ class MetaKGPathFinder:
         # Convert predicate_filter to a set for faster lookups if it's not None
         predicate_filter_set = set(predicate_filter) if predicate_filter else None
         # Add predicates from expanded_fields['predicate'] if it exists and is not None
-        if 'predicate' in expanded_fields and expanded_fields['predicate']:
-            predicate_filter_set.update(expanded_fields['predicate'])
+        if 'predicate' in self.expanded_fields and self.expanded_fields['predicate']:
+            predicate_filter_set.update(self.expanded_fields['predicate'])
 
         # Iterate over all combinations of subjects and objects
-        for subject in expanded_fields["subject"]:
-            for object in expanded_fields["object"]:
+        for subject in self.expanded_fields["subject"]:
+            for object in self.expanded_fields["object"]:
                 try:
                     # Check if a path exists between the subject and object
                     if nx.has_path(self.G, subject, object):
@@ -139,6 +148,8 @@ class MetaKGPathFinder:
                             if edge_added:  # Only add paths_data if at least one edge was added
                                 all_paths_with_edges.append(paths_data)
                 except Exception as e:
+                    print(f"Error: {e} {e.args}")
+                    print(traceback.format_exc())
                     continue  # Explicitly continue to the next subject-object pair
 
         return all_paths_with_edges
