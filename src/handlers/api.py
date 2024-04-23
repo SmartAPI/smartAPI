@@ -424,7 +424,10 @@ class MetaKGQueryHandler(QueryHandler):
             "header": {
                 "type": bool,
                 "default": True
-            }
+            },
+            "consolidated": {"type": bool, "default": True},
+            "api_details": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
         },
     }
 
@@ -436,6 +439,7 @@ class MetaKGQueryHandler(QueryHandler):
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
+        # Setup expanded fields
         expanded_fields = {"subject": False, "object": False, "predicate": False, "node": False}
         if "edge" in self.args.expand and "predicate" not in self.args.expand:
             # edge is an alias of predicate, if edge is in expand, add predicate to expand
@@ -453,6 +457,7 @@ class MetaKGQueryHandler(QueryHandler):
             value_list = get_expanded_values(value_list, self.biolink_model_toolkit) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
 
+
         await super().get(*args, **kwargs)
 
     def write(self, chunk):
@@ -463,6 +468,34 @@ class MetaKGQueryHandler(QueryHandler):
         Reshape results for Cytoscape-ready configuration rendering on the front-end. (&format=html)
         """
         try:
+            if self.args.consolidated: #and self.args.fields != "all": # index is ConsolidatedMetaKG
+                for data_hit in chunk['hits']:
+                    for i, api_dict in enumerate(data_hit['apis']):
+                        if not self.args.api_details and not self.args.bte: # do no display full api info
+                            # Access the 'api' dictionary safely
+                            api_info = api_dict.get('api', {})
+                            api_dict.pop('bte', None)
+                            # Safely get 'name' and 'smartapi' and handle cases where they might not exist
+                            filtered_api_info = {
+                                'name': api_info.get('name', 'Default Name'),
+                                'smartapi': api_info.get('smartapi', {})
+                            }
+                            # Replace the original dictionary with the filtered one
+                            data_hit['apis'][i]['api'] = filtered_api_info
+                        elif not self.args.api_details and self.args.bte: # just display ap
+                            # Access the 'api' dictionary safely
+                            api_info = api_dict.get('api', {})
+                            # Safely get 'name' and 'smartapi' and handle cases where they might not exist
+                            filtered_api_info = {
+                                'name': api_info.get('name', 'Default Name'),
+                                'smartapi': api_info.get('smartapi', {})
+                            }
+                            # Replace the original dictionary with the filtered one
+                            data_hit['apis'][i]['api'] = filtered_api_info
+                        elif self.args.api_details and not self.args.bte:
+                            api_dict.pop('bte', None)
+                        else:
+                            pass
             if self.format == "graphml":
                 chunk = edges2graphml(
                     chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed"
@@ -529,14 +562,14 @@ class MetaKGPathFinderHandler(QueryHandler):
             "predicate": {"type": list, "max": 10, "default": []},
             "cutoff": {"type": int, "default": 3, "max": 5},
             "api_details": {"type": bool, "default": False},
+            "rawquery": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
             "expand": {
                 "type": list,
                 "max": 6,
                 "default": [],
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"]
-                },
-            "rawquery": {"type": bool, "default": False},
-            "bte": {"type": bool, "default": False},
+                }
         },
     }
 
@@ -618,7 +651,7 @@ class MetaKGPathFinderHandler(QueryHandler):
 
         # Run get_paths method to retrieve paths and edges
         paths_with_edges = pathfinder.get_paths(
-            expanded_fields=expanded_fields,
+            # expanded_fields=expanded_fields,
             cutoff=self.args.cutoff,
             api_details=self.args.api_details,
             predicate_filter=self.args.predicate,
