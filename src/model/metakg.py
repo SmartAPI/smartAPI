@@ -26,58 +26,58 @@ metakg_mapping.meta(
     [
         {
             "ignore_params_field": {
-                "path_match": "bte.query_operation.params",
+                "path_match": "*bte.query_operation.params",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
         {
             "ignore_request_body_field": {
-                "path_match": "bte.query_operation.request_body",
+                "path_match": "*bte.query_operation.request_body",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
         {
             "ignore_response_mapping_field": {
-                "path_match": "bte.response_mapping",
+                "path_match": "*bte.response_mapping",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
-        {
-            "ignore_api_params_field": {
-                "path_match": "apis.bte.query_operation.params",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_request_body_field": {
-                "path_match": "apis.bte.query_operation.request_body",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_response_mapping_field": {
-                "path_match": "apis.bte.response_mapping",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_params_field": {
-                "path_match": "api.bte.query_operation.params",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_request_body_field": {
-                "path_match": "api.bte.query_operation.request_body",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_response_mapping_field": {
-                "path_match": "api.bte.response_mapping",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
+        # {
+        #     "ignore_api_params_field": {
+        #         "path_match": "*bte.query_operation.params",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_request_body_field": {
+        #         "path_match": "apis.bte.query_operation.request_body",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_response_mapping_field": {
+        #         "path_match": "apis.bte.response_mapping",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_params_field": {
+        #         "path_match": "api.bte.query_operation.params",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_request_body_field": {
+        #         "path_match": "api.bte.query_operation.request_body",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # # },
+        # {
+        #     "ignore_api_response_mapping_field": {
+        #         "path_match": "api.bte.response_mapping",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
         {
             "default_string": {
                 "match_mapping_type": "string",
@@ -118,8 +118,6 @@ class ConsolidatedAPIInnerDoc(APIInnerDoc):
     provided_by = default_text
     tags = lowercase_keyword_copy_to_all
 
-class ConsolidatedAPI(APIInnerDoc):
-    api = Object(ConsolidatedAPIInnerDoc)
 
 
 class MetaKGDoc(BaseDoc):
