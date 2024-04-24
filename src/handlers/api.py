@@ -462,10 +462,12 @@ class MetaKGQueryHandler(QueryHandler):
 
     def write(self, chunk):
         """
-        Overwrite the biothings query handler to add graphml format (&format=graphml)
-        * added &download=True to download .graphml file automatically, can disable (&download=False)
-        * added /paths endpoint that will return a list of simples paths from a subject to an object
+        Overwrite the biothings query handler to ...
+        Write out graphml format (&format=graphml)
+        Set &download=True to download .graphml file automatically, can disable (&download=False)
         Reshape results for Cytoscape-ready configuration rendering on the front-end. (&format=html)
+        Added index flag for index variability, set default to MetaKGConsolidated (&consolidated=1)
+        Added filtering for api and bte details (&api_details=1, &bte=1)
         """
         try:
             if self.args.consolidated: #and self.args.fields != "all": # index is ConsolidatedMetaKG
@@ -478,24 +480,41 @@ class MetaKGQueryHandler(QueryHandler):
                             # Safely get 'name' and 'smartapi' and handle cases where they might not exist
                             filtered_api_info = {
                                 'name': api_info.get('name', 'Default Name'),
-                                'smartapi': api_info.get('smartapi', {})
+                                'smartapi': {
+                                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+                                }
                             }
                             # Replace the original dictionary with the filtered one
                             data_hit['apis'][i]['api'] = filtered_api_info
-                        elif not self.args.api_details and self.args.bte: # just display ap
+                        elif not self.args.api_details and self.args.bte: # do not display full api info
                             # Access the 'api' dictionary safely
                             api_info = api_dict.get('api', {})
                             # Safely get 'name' and 'smartapi' and handle cases where they might not exist
                             filtered_api_info = {
                                 'name': api_info.get('name', 'Default Name'),
-                                'smartapi': api_info.get('smartapi', {})
+                                'smartapi': {
+                                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+                                }
                             }
                             # Replace the original dictionary with the filtered one
                             data_hit['apis'][i]['api'] = filtered_api_info
-                        elif self.args.api_details and not self.args.bte:
+                        elif self.args.api_details and not self.args.bte: # display full api info
                             api_dict.pop('bte', None)
-                        else:
-                            pass
+
+            else: # index is MetaKG (&consolidated=0)
+                for hit_dict in chunk['hits']:
+                    if not self.args.api_details: # do no display full api info
+                        api_info = hit_dict.get('api', {})
+                        filtered_api_info = {
+                            'name': api_info.get('name', 'Default Name'),
+                            'smartapi': {
+                                'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+                            }
+                        }
+                        hit_dict['api'] = filtered_api_info
+
+
+
             if self.format == "graphml":
                 chunk = edges2graphml(
                     chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed"
