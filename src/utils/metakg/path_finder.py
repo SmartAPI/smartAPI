@@ -2,8 +2,8 @@ import networkx as nx
 import logging
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
-import traceback
-
+# import traceback
+# import pprint
 
 logger=logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
 
@@ -40,7 +40,6 @@ class MetaKGPathFinder:
         index = ConsolidatedMetaKGDoc.Index.name
         predicates = self.predicates
 
-        print(query_data)
         # Create a new directed graph
         self.G = nx.DiGraph()
 
@@ -78,12 +77,17 @@ class MetaKGPathFinder:
         Returns:
         - dict: The updated paths_data structure with the new edge added.
         """
+
+        apis = data["apis"]
         # # Case: Give full api results in response
         if api_details:
             api_content = data["apis"]
         else:
-            print(data)
-            # api_content = [{"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}} for item in data["api"]]
+            if bte:
+                api_content = [{"api": {"name": item["api"].get("name", None), "smartapi": {"id": item["api"]["smartapi"]["id"]}}, "bte":item["bte"]} for item in apis]
+            else:
+                api_content = [{"api": {"name": item["api"].get("name", None), "smartapi": {"id": item["api"]["smartapi"]["id"]}}} for item in apis]
+            
         paths_data["edges"].append(
             {
                 "subject": source_node,
@@ -92,13 +96,7 @@ class MetaKGPathFinder:
                 "apis": api_content,
             }
         )
-        
-        # if bte:
-            # if 'bte' in data:
-            #     bte_content = [bte_dict for bte_dict  in data['bte']]            
-            #     paths_data["edges"].append({"bte": bte_content})
-            # else:
-            #     logging.info(f"BTE not found in data {source_node} - {target_node} - {data}")
+
         return paths_data
 
     def get_paths(self, cutoff=2, api_details=False, predicate_filter=None, bte=False):
@@ -148,8 +146,8 @@ class MetaKGPathFinder:
                             if edge_added:  # Only add paths_data if at least one edge was added
                                 all_paths_with_edges.append(paths_data)
                 except Exception as e:
-                    print(f"Error: {e} {e.args}")
-                    print(traceback.format_exc())
+                    # print(f"Error: {e} {e.args}")
+                    # print(traceback.format_exc())
                     continue  # Explicitly continue to the next subject-object pair
 
         return all_paths_with_edges
