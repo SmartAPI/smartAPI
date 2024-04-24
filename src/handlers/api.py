@@ -513,8 +513,6 @@ class MetaKGQueryHandler(QueryHandler):
                         }
                         hit_dict['api'] = filtered_api_info
 
-
-
             if self.format == "graphml":
                 chunk = edges2graphml(
                     chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed"

@@ -188,26 +188,23 @@ class SmartAPI(AbstractWebEntity, Mapping):
         processed_edges = 0
         # loop through MetaKG index with ES scan method
         for edge in cls.get_all_via_scan(size=10000, index=MetaKGDoc.Index.name):
-            # set key which we group by: subject-predicate-object
+            # Set key which we group by: subject-predicate-object
             key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
-
-            # get the edge api to modify
+            # Set edge details
             edge_api = edge["_source"]["api"]
             edge_bte = edge["_source"]["bte"]
-            # add edge to the correct group(based on key)
+            edge_details_dict = {"api":edge_api , "bte":edge_bte}
+            # Add edge to the dictionary, merging API details if the edge already exists
             if key in edge_dict:
-                if edge_api not in edge_dict[key]["api"]:
-                    edge_dict[key]["api"].append(edge_api)
-                if edge_bte not in edge_dict[key]["bte"]:
-                    edge_dict[key]["bte"].append(edge_bte)
+                if edge_details_dict not in edge_dict[key]["apis"]:
+                    edge_dict[key]["apis"].append(edge_details_dict)
             else:
                 edge_dict[key] = {
                     "_id": key,
                     "subject": edge["_source"]["subject"],
                     "object": edge["_source"]["object"],
                     "predicate": edge["_source"]["predicate"],
-                    "api": [edge_api],
-                    "bte": [edge_bte]
+                    "apis": [edge_details_dict]
                 }
 
             processed_edges += 1
