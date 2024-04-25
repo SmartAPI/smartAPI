@@ -33,25 +33,27 @@
         </div>
       </div>
     </teleport>
-    <div v-if="data.ready" class="white p-1" style="position: absolute; top: 80px; left: 20px">
-      <span v-if="data?.api?.openapi" class="versionBadge green"> OAS3 </span>
-      <span v-else-if="data?.api?.swagger" class="versionBadge blue"> Swagger2 </span>
-      <span
-        v-if="data?.api?.info?.['x-trapi']?.version"
-        class="versionBadge pink lighten-2"
-        v-text="'TRAPI ' + data?.api?.info?.['x-trapi']?.version"
-      >
-      </span>
-      <span v-if="data?.api?.info?.['x-translator']?.component" class="versionBadge indigo darken-2"
-        >Translator: {{ data?.api?.info?.['x-translator']?.component }}</span
-      >
-      <span
-        v-if="data?.api?.tags && data?.api?.tags.some((item) => item?.name == 'biothings')"
-        class="versionBadge grey darken-2"
-      >
-        BioThings API
-      </span>
-    </div>
+    <template v-if="data.ready">
+      <div class="p-1" style="position: absolute; top: 140px; right: 20px; clear: left">
+        <span
+          v-if="data?.api?.info?.['x-trapi']?.version"
+          class="versionBadge pink lighten-2"
+          v-text="'TRAPI ' + data?.api?.info?.['x-trapi']?.version"
+        >
+        </span>
+        <span
+          v-if="data?.api?.info?.['x-translator']?.component"
+          class="versionBadge indigo darken-2"
+          >Translator: {{ data?.api?.info?.['x-translator']?.component }}</span
+        >
+        <span
+          v-if="data?.api?.tags && data?.api?.tags.some((item) => item?.name == 'biothings')"
+          class="versionBadge grey darken-2"
+        >
+          BioThings API
+        </span>
+      </div>
+    </template>
     <div class="grey lighten-5 z-depth-3" id="swagger-ui" style="overflow: hidden"></div>
   </main>
 </template>

@@ -352,11 +352,14 @@ export default {
         this.$swal({
           toast: true,
           imageUrl: cookie,
-          imageWidth: 200,
-          width: '90vw',
+          imageWidth: 120,
+          width: '50vw',
           position: 'top',
           showConfirmButton: false,
-          html: '<p>This website uses cookies for analytics purposes. <br/>By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p><button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button> '
+          html: `<div class="center">
+            <p>This website uses cookies for analytics purposes. <br/>By continuining to use this website you are giving consent to cookies being used.<br/><a class="link" target="_blank" href="/privacy">Learn more</a> about how SmartAPI uses cookies. </p>
+            <button class="btn blue" id="cookieButton">Agree, Do Not Show Again</button>
+            </div>`
         });
 
         document.getElementById('cookieButton').addEventListener('click', function () {
