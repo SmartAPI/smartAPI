@@ -424,7 +424,8 @@ class MetaKGQueryHandler(QueryHandler):
             "header": {
                 "type": bool,
                 "default": True
-            }
+            },
+            "consolidated": {"type": bool, "default": True}
         },
     }
 
