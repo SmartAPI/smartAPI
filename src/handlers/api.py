@@ -460,6 +460,25 @@ class MetaKGQueryHandler(QueryHandler):
 
         await super().get(*args, **kwargs)
 
+    def get_filtered_api_info(self, api_dict):
+        """Extract and return filtered API information."""
+        api_info = api_dict.get('api', {})
+        return {
+            'name': api_info.get('name', 'Default Name'),
+            'smartapi': {
+                'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+            }
+        }
+
+    def process_apis(self, apis):
+        """Process each API dict based on provided args."""
+        for i, api_dict in enumerate(apis):
+            if not self.args.api_details:
+                filtered_api_info = self.get_filtered_api_info(api_dict)
+                apis[i]['api'] = filtered_api_info
+            if not self.args.bte:
+                api_dict.pop('bte', None)
+
     def write(self, chunk):
         """
         Overwrite the biothings query handler to ...
@@ -470,48 +489,12 @@ class MetaKGQueryHandler(QueryHandler):
         Added filtering for api and bte details (&api_details=1, &bte=1)
         """
         try:
-            if self.args.consolidated: #and self.args.fields != "all": # index is ConsolidatedMetaKG
+            if self.args.consolidated:
                 for data_hit in chunk['hits']:
-                    for i, api_dict in enumerate(data_hit['apis']):
-                        if not self.args.api_details and not self.args.bte: # do no display full api info
-                            # Access the 'api' dictionary safely
-                            api_info = api_dict.get('api', {})
-                            api_dict.pop('bte', None)
-                            # Safely get 'name' and 'smartapi' and handle cases where they might not exist
-                            filtered_api_info = {
-                                'name': api_info.get('name', 'Default Name'),
-                                'smartapi': {
-                                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
-                                }
-                            }
-                            # Replace the original dictionary with the filtered one
-                            data_hit['apis'][i]['api'] = filtered_api_info
-                        elif not self.args.api_details and self.args.bte: # do not display full api info
-                            # Access the 'api' dictionary safely
-                            api_info = api_dict.get('api', {})
-                            # Safely get 'name' and 'smartapi' and handle cases where they might not exist
-                            filtered_api_info = {
-                                'name': api_info.get('name', 'Default Name'),
-                                'smartapi': {
-                                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
-                                }
-                            }
-                            # Replace the original dictionary with the filtered one
-                            data_hit['apis'][i]['api'] = filtered_api_info
-                        elif self.args.api_details and not self.args.bte: # display full api info
-                            api_dict.pop('bte', None)
-
-            else: # index is MetaKG (&consolidated=0)
+                    self.process_apis(data_hit['apis'])
+            else:
                 for hit_dict in chunk['hits']:
-                    if not self.args.api_details: # do no display full api info
-                        api_info = hit_dict.get('api', {})
-                        filtered_api_info = {
-                            'name': api_info.get('name', 'Default Name'),
-                            'smartapi': {
-                                'id': api_info.get('smartapi', {}).get('id', 'Default ID')
-                            }
-                        }
-                        hit_dict['api'] = filtered_api_info
+                    self.process_apis([hit_dict])
 
             if self.format == "graphml":
                 chunk = edges2graphml(
