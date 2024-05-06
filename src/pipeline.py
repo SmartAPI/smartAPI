@@ -1,6 +1,6 @@
 from base64 import b64decode
 from enum import Enum
-from typing import OrderedDict
+from typing import OrderedDict, Dict
 
 from biothings.web.query import AsyncESQueryBackend, AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
 from elasticsearch_dsl import Q, Search
@@ -233,6 +233,28 @@ class MetaKGQueryBuilder(ESQueryBuilder):
 
         return search
 
+class MetaKGESQueryBackend(AsyncESQueryBackend):
+    """
+    Extends AsyncESQueryBackend to dynamically select ElasticSearch indices for MetaKG based 
+    on query option, consolidated.
+
+    Methods:
+        adjust_index(original_index: str, query: str, **options: Dict) -> str:
+            Adjusts the ElasticSearch index based on the 'consolidated' option in the query.
+            - original_index: The default index.
+            - query: The search query string.
+            - options: Dictionary of query options, where 'consolidated' determines the index choice.
+    """
+
+    def adjust_index(self, original_index: str, query: str, **options: Dict) -> str:
+        query_index = original_index
+        consolidated = options.get("consolidated", True)
+        
+        if consolidated:
+            query_index = self.indices.get("metakg_consolidated", None)
+        else:
+            query_index = self.indices.get("metakg", None)
+        return query_index
 
 class MetaKGQueryPipeline(AsyncESQueryPipeline):
     def __init__(self, *args, **kwargs):
@@ -242,7 +264,7 @@ class MetaKGQueryPipeline(AsyncESQueryPipeline):
             if not kwargs.get("builder"):
                 kwargs["builder"] = MetaKGQueryBuilder()
             if not kwargs.get("backend"):
-                kwargs["backend"] = AsyncESQueryBackend(
+                kwargs["backend"] = MetaKGESQueryBackend(
                     ns.elasticsearch.async_client,
                     ns.config.ES_INDICES,
                     ns.config.ES_SCROLL_TIME,
