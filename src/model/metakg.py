@@ -26,40 +26,58 @@ metakg_mapping.meta(
     [
         {
             "ignore_params_field": {
-                "path_match": "bte.query_operation.params",
+                "path_match": "*bte.query_operation.params",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
         {
             "ignore_request_body_field": {
-                "path_match": "bte.query_operation.request_body",
+                "path_match": "*bte.query_operation.request_body",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
         {
             "ignore_response_mapping_field": {
-                "path_match": "bte.response_mapping",
+                "path_match": "*bte.response_mapping",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
-        {
-            "ignore_api_params_field": {
-                "path_match": "api.bte.query_operation.params",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_request_body_field": {
-                "path_match": "api.bte.query_operation.request_body",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
-        {
-            "ignore_api_response_mapping_field": {
-                "path_match": "api.bte.response_mapping",
-                "mapping": {"type": "object", "enabled": False},
-            }
-        },
+        # {
+        #     "ignore_api_params_field": {
+        #         "path_match": "*bte.query_operation.params",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_request_body_field": {
+        #         "path_match": "apis.bte.query_operation.request_body",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_response_mapping_field": {
+        #         "path_match": "apis.bte.response_mapping",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_params_field": {
+        #         "path_match": "api.bte.query_operation.params",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
+        # {
+        #     "ignore_api_request_body_field": {
+        #         "path_match": "api.bte.query_operation.request_body",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # # },
+        # {
+        #     "ignore_api_response_mapping_field": {
+        #         "path_match": "api.bte.response_mapping",
+        #         "mapping": {"type": "object", "enabled": False},
+        #     }
+        # },
         {
             "default_string": {
                 "match_mapping_type": "string",
@@ -96,9 +114,10 @@ class APIInnerDoc(InnerDoc):
     # We cannot define "x-translator" field here due the "-" in the name,
     # so we will have it indexed via the dynamic templates
 
-
 class ConsolidatedAPIInnerDoc(APIInnerDoc):
     provided_by = default_text
+    tags = lowercase_keyword_copy_to_all
+
 
 
 class MetaKGDoc(BaseDoc):
@@ -137,7 +156,7 @@ class ConsolidatedMetaKGDoc(BaseDoc):
     subject = lowercase_keyword_node
     object = lowercase_keyword_node
     predicate = lowercase_keyword_copy_to_all
-    api = Object(ConsolidatedAPIInnerDoc)
+    apis = Object(ConsolidatedAPIInnerDoc)
 
     class Index:
         """
@@ -157,3 +176,4 @@ class ConsolidatedMetaKGDoc(BaseDoc):
 
     def get_url(self):
         return self.api.smartapi.metadata
+    

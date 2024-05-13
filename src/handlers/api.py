@@ -424,7 +424,10 @@ class MetaKGQueryHandler(QueryHandler):
             "header": {
                 "type": bool,
                 "default": True
-            }
+            },
+            "consolidated": {"type": bool, "default": True},
+            "api_details": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
         },
     }
 
@@ -436,6 +439,7 @@ class MetaKGQueryHandler(QueryHandler):
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
+        # Setup expanded fields
         expanded_fields = {"subject": False, "object": False, "predicate": False, "node": False}
         if "edge" in self.args.expand and "predicate" not in self.args.expand:
             # edge is an alias of predicate, if edge is in expand, add predicate to expand
@@ -453,16 +457,45 @@ class MetaKGQueryHandler(QueryHandler):
             value_list = get_expanded_values(value_list, self.biolink_model_toolkit) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
 
+
         await super().get(*args, **kwargs)
+
+    def get_filtered_api_info(self, api_dict):
+        """Extract and return filtered API information."""
+        api_info = api_dict.get('api', {})
+        return {
+            'name': api_info.get('name', 'Default Name'),
+            'smartapi': {
+                'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+            }
+        }
+
+    def process_apis(self, apis):
+        """Process each API dict based on provided args."""
+        for i, api_dict in enumerate(apis):
+            if not self.args.api_details:
+                filtered_api_info = self.get_filtered_api_info(api_dict)
+                apis[i]['api'] = filtered_api_info
+            if not self.args.bte:
+                api_dict.pop('bte', None)
 
     def write(self, chunk):
         """
-        Overwrite the biothings query handler to add graphml format (&format=graphml)
-        * added &download=True to download .graphml file automatically, can disable (&download=False)
-        * added /paths endpoint that will return a list of simples paths from a subject to an object
+        Overwrite the biothings query handler to ...
+        Write out graphml format (&format=graphml)
+        Set &download=True to download .graphml file automatically, can disable (&download=False)
         Reshape results for Cytoscape-ready configuration rendering on the front-end. (&format=html)
+        Added index flag for index variability, set default to MetaKGConsolidated (&consolidated=1)
+        Added filtering for api and bte details (&api_details=1, &bte=1)
         """
         try:
+            if self.args.consolidated:
+                for data_hit in chunk['hits']:
+                    self.process_apis(data_hit['apis'])
+            else:
+                for hit_dict in chunk['hits']:
+                    self.process_apis([hit_dict])
+
             if self.format == "graphml":
                 chunk = edges2graphml(
                     chunk, self.request.uri, self.request.protocol, self.request.host, edge_default="directed"
@@ -529,13 +562,14 @@ class MetaKGPathFinderHandler(QueryHandler):
             "predicate": {"type": list, "max": 10, "default": []},
             "cutoff": {"type": int, "default": 3, "max": 5},
             "api_details": {"type": bool, "default": False},
+            "rawquery": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
             "expand": {
                 "type": list,
                 "max": 6,
                 "default": [],
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"]
-                },
-            "rawquery": {"type": bool, "default": False},
+                }
         },
     }
 
@@ -617,10 +651,11 @@ class MetaKGPathFinderHandler(QueryHandler):
 
         # Run get_paths method to retrieve paths and edges
         paths_with_edges = pathfinder.get_paths(
-            expanded_fields=expanded_fields,
+            # expanded_fields=expanded_fields,
             cutoff=self.args.cutoff,
             api_details=self.args.api_details,
-            predicate_filter=self.args.predicate
+            predicate_filter=self.args.predicate,
+            bte=self.args.bte
         )
 
         # Check if rawquery parameter is true -- respond with correct output
