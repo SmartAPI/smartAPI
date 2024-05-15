@@ -3,7 +3,7 @@ import json
 import logging
 from typing import List, Union
 import os
-
+import pprint 
 import bmt
 from biothings.utils import serializer
 from biothings.web.auth.authn import BioThingsAuthnMixin
@@ -462,7 +462,8 @@ class MetaKGQueryHandler(QueryHandler):
 
     def get_filtered_api_info(self, api_dict):
         """Extract and return filtered API information."""
-        api_info = api_dict.get('api', {})
+        api_info = api_dict
+        
         return {
             'name': api_info.get('name', 'Default Name'),
             'smartapi': {
@@ -474,10 +475,8 @@ class MetaKGQueryHandler(QueryHandler):
         """Process each API dict based on provided args."""
         for i, api_dict in enumerate(apis):
             if not self.args.api_details:
-                print(api_dict)
                 filtered_api_info = self.get_filtered_api_info(api_dict)
-                print(apis[i])
-                apis[i]['api'] = filtered_api_info
+                # apis[i] = filtered_api_info
             if not self.args.bte:
                 api_dict.pop('bte', None)
 

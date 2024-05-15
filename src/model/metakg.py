@@ -1,7 +1,7 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Nested, Text, analysis, mapping
 
 from config import METAKG_ES_INDEX, METAKG_ES_INDEX_CONSOLIDATED
 
@@ -157,7 +157,7 @@ class ConsolidatedMetaKGDoc(BaseDoc):
     subject = lowercase_keyword_node
     object = lowercase_keyword_node
     predicate = lowercase_keyword_copy_to_all
-    api = Object(ConsolidatedAPIInnerDoc)
+    api = Nested(ConsolidatedAPIInnerDoc)
 
     class Index:
         """
