@@ -40,6 +40,8 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from warnings import warn
 
+import pprint
+
 from model import ConsolidatedMetaKGDoc, MetaKGDoc, SmartAPIDoc
 from utils import decoder, monitor
 from utils.downloader import download
@@ -193,18 +195,21 @@ class SmartAPI(AbstractWebEntity, Mapping):
             # Set edge details
             edge_api = edge["_source"]["api"]
             edge_bte = edge["_source"]["bte"]
-            edge_details_dict = {"api":edge_api , "bte":edge_bte}
+            # Update edge_api with edge_bte
+            edge_api.update(edge_bte)
+            # Assign the updated edge_api back to edge
+
             # Add edge to the dictionary, merging API details if the edge already exists
             if key in edge_dict:
-                if edge_details_dict not in edge_dict[key]["apis"]:
-                    edge_dict[key]["apis"].append(edge_details_dict)
+                if edge_api not in edge_dict[key]["api"]:
+                    edge_dict[key]["api"].append(edge_api)
             else:
                 edge_dict[key] = {
                     "_id": key,
                     "subject": edge["_source"]["subject"],
                     "object": edge["_source"]["object"],
                     "predicate": edge["_source"]["predicate"],
-                    "apis": [edge_details_dict]
+                    "api": [edge_api]
                 }
 
             processed_edges += 1

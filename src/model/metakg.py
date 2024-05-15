@@ -91,6 +91,7 @@ metakg_mapping.meta(
     ],
 )
 
+
 # # add two copy_to fields
 metakg_mapping.field("all", "text")  # the default all field for unfielded queries
 metakg_mapping.field("node", lowercase_keyword)  # a field combines both subject and object fields
@@ -114,10 +115,10 @@ class APIInnerDoc(InnerDoc):
     # We cannot define "x-translator" field here due the "-" in the name,
     # so we will have it indexed via the dynamic templates
 
+
 class ConsolidatedAPIInnerDoc(APIInnerDoc):
     provided_by = default_text
     tags = lowercase_keyword_copy_to_all
-
 
 
 class MetaKGDoc(BaseDoc):
@@ -156,7 +157,7 @@ class ConsolidatedMetaKGDoc(BaseDoc):
     subject = lowercase_keyword_node
     object = lowercase_keyword_node
     predicate = lowercase_keyword_copy_to_all
-    apis = Object(ConsolidatedAPIInnerDoc)
+    api = Object(ConsolidatedAPIInnerDoc)
 
     class Index:
         """
@@ -176,4 +177,3 @@ class ConsolidatedMetaKGDoc(BaseDoc):
 
     def get_url(self):
         return self.api.smartapi.metadata
-    

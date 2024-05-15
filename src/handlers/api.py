@@ -474,7 +474,9 @@ class MetaKGQueryHandler(QueryHandler):
         """Process each API dict based on provided args."""
         for i, api_dict in enumerate(apis):
             if not self.args.api_details:
+                print(api_dict)
                 filtered_api_info = self.get_filtered_api_info(api_dict)
+                print(apis[i])
                 apis[i]['api'] = filtered_api_info
             if not self.args.bte:
                 api_dict.pop('bte', None)
@@ -491,7 +493,7 @@ class MetaKGQueryHandler(QueryHandler):
         try:
             if self.args.consolidated:
                 for data_hit in chunk['hits']:
-                    self.process_apis(data_hit['apis'])
+                    self.process_apis(data_hit['api'])
             else:
                 for hit_dict in chunk['hits']:
                     self.process_apis([hit_dict])
