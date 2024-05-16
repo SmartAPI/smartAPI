@@ -152,7 +152,6 @@ class MetaKGParser:
                 "subject": op["association"]["input_type"],
                 "object": op["association"]["output_type"],
                 "predicate": op["association"]["predicate"],
-                "provided_by": op["association"].get("source"),
                 "api": {
                     "name": op["association"]["api_name"],
                     "smartapi": {
@@ -162,6 +161,7 @@ class MetaKGParser:
                     },
                     "tags": op["tags"],
                     "x-translator": op["association"]["x-translator"],
+                    "provided_by": op["association"].get("source"),
                     # "date_created": (smartapi_data.get("meta") or {}).get("date_created"),
                     # "date_updated": (smartapi_data.get("meta") or {}).get("date_updated"),
                     # "username": (smartapi_data.get("meta") or {}).get("username"),
@@ -177,6 +177,6 @@ class MetaKGParser:
                     bte[attr] = copy(bte[attr])
                     del bte[attr]["tags"]
             if bte:
-                edge["bte"] = bte
+                edge["api"]["bte"] = bte
             metakg_edges.append(edge)
         return metakg_edges

@@ -194,13 +194,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
             key = f'{edge["_source"]["subject"]}-{edge["_source"]["predicate"]}-{edge["_source"]["object"]}'
             # Set edge details
             edge_api = edge["_source"]["api"]
-            edge_bte = edge["_source"]["bte"]
-            edge_api['bte']=edge_bte
-            # # Update edge_api with edge_bte
-            # edge_api.update(edge_bte)
 
-            # print()
-            # print(edge_api.keys())
             # Add edge to the dictionary, merging API details if the edge already exists
             if key in edge_dict:
                 if edge_api not in edge_dict[key]["api"]:
