@@ -108,7 +108,7 @@
                 <img
                   class="circle scale-in-center squarePic"
                   width="70%"
-                  :src="person.image"
+                  :src="person?.image || def_img"
                   :alt="person.name"
                 />
                 <p class="bold blue-text">{{ person.name }} {{ person.lastname }}</p>
@@ -125,13 +125,20 @@
         </template>
       </div>
       <div class="col-sm-12">
+        <h5 class="flow-text bold blue-text">Past Contributors</h5>
+        <ul>
+          <li v-for="(person, i) in pastContributors" :key="i">
+            {{ person.name }} {{ person.lastname }}
+          </li>
+        </ul>
+      </div>
+      <div class="col-sm-12">
         <h5 class="flow-text bold blue-text">
           NIH Data Commons API Interoperability Working Group
         </h5>
         <ul>
           <li v-for="(person, i) in otherMembers" :key="i">
-            <span class="blue-text">{{ person.name }}</span
-            >, {{ person.organization }}
+            <span>{{ person.name }}</span> | {{ person.organization }}
           </li>
         </ul>
       </div>
@@ -241,6 +248,7 @@
 <script>
 import { marked } from 'marked';
 import { mapGetters } from 'vuex';
+import def_img from '@/assets/img/logo-small.png';
 
 export default {
   components: {},
@@ -248,7 +256,8 @@ export default {
   data: function () {
     return {
       showModal: false,
-      selectedPerson: {}
+      selectedPerson: {},
+      def_img: def_img
     };
   },
   methods: {
@@ -261,7 +270,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['contributors', 'otherMembers'])
+    ...mapGetters(['contributors', 'otherMembers', 'pastContributors'])
   }
 };
 </script>

@@ -20,13 +20,18 @@
       ></a>
     </p>
     <p>Currently SmartAPI supports the following extensions:</p>
-    <p class="p-2">
-      Jump to:
-      <a class="m-1" v-for="(val, name) in extensions" :key="name" :href="'#' + name">
-        <b>{{ name }} <i class="fa fa-chevron-right"></i></b>
-      </a>
+    <p class="p-2 black">
+      <span class="white-text">Go to:</span>
+      <RouterLink
+        class="m-1"
+        v-for="(val, name) in extensions"
+        :key="name"
+        :to="{ path: '/extensions/' + name }"
+      >
+        <b>{{ name }} </b>
+      </RouterLink>
     </p>
-    <template v-for="(val, name) in extensions" :key="name">
+    <template v-for="(val, name) in view_extensions" :key="name">
       <section
         :id="name"
         class="row bottom-border d-flex align-items-center justify-content-center flex-wrap"
@@ -47,8 +52,8 @@
           </p>
         </div>
         <details class="col s12 m12 extensions-table" open>
-          <summary class="blue-text">
-            <b>View {{ name }} extensions ({{ val?.extensions?.length }})</b>
+          <summary class="blue-text p-3">
+            <b class="pointer">View {{ name }} extensions ({{ val?.extensions?.length }})</b>
           </summary>
           <table class="col s12 striped responsive-table highlight">
             <thead>
@@ -131,8 +136,33 @@ import { mapGetters } from 'vuex';
 export default {
   name: 'Extensions',
   methods: {},
+  props: ['name'],
+  data: function () {
+    return {
+      view_extensions: {}
+    };
+  },
   computed: {
     ...mapGetters(['extensions'])
+  },
+  methods: {
+    handleName: function (v) {
+      if (this.extensions?.[v]) {
+        let ext = {};
+        ext[v] = this.extensions?.[v];
+        return ext;
+      } else {
+        return this.extensions;
+      }
+    }
+  },
+  watch: {
+    name: {
+      immediate: true,
+      handler: function (v) {
+        this.view_extensions = this.handleName(v);
+      }
+    }
   }
 };
 </script>

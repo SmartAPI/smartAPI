@@ -148,8 +148,9 @@ export const routes = [
     }
   },
   {
-    path: '/extensions',
+    path: '/extensions/:name?',
     name: 'Extensions',
+    props: true,
     component: () => import('../views/Extensions.vue'),
     meta: {
       sitemap: {

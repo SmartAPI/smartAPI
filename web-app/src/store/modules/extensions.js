@@ -5,7 +5,7 @@ import translator from '../../assets/img/TranslatorLogo.jpg';
 export const extensions = {
   state: () => ({
     extensions: {
-      'SmartAPI extensions': {
+      smartapi: {
         description:
           'The SmartAPI project aims to maximize the FAIRness (Findable, Accessible, Interoperable, Reusable) of web-based Application Programming Interfaces (APIs).',
         link: 'https://smart-api.info',
@@ -336,7 +336,7 @@ export const extensions = {
           }
         ]
       },
-      'x-bte extensions': {
+      'x-bte': {
         description:
           'BioThings Explorer is an application that creates a federated knowledge graph that is composed of a network of biomedical web services. BioThings Explorer leverages semantically precise annotations of inputs and outputs for each resource, and automates the chaining of web service calls to execute multi-step graph queries.',
         link: 'https://explorer.biothings.io/',
@@ -410,7 +410,7 @@ export const extensions = {
           }
         ]
       },
-      'x-translator extensions': {
+      'x-translator': {
         description:
           'The platform created by the Consortium members and funded through NCATS’s Other Transactions Authority has been designed as an exploration tool integrating trusted data sources, which aids researchers in discovering novel connections representing biomedical knowledge. The alpha release of Translator allows the user to explore relationships between chemicals/drugs and either diseases or genes.',
         link: 'https://ncats.nih.gov/research/research-activities/translator',

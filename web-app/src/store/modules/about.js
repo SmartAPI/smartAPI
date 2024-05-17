@@ -1,8 +1,6 @@
 import scripps_img from '@/assets/img/scripps.svg';
 import mu_img from '@/assets/img/mu.png';
 import header_img from '@/assets/img/header-logo.png';
-import embl_img from '@/assets/img/embl-01.png';
-import def_img from '@/assets/img/logo-small.png';
 
 export const about = {
   state: () => ({
@@ -79,26 +77,6 @@ export const about = {
             ]
           },
           {
-            name: 'Kevin',
-            lastname: 'Xin',
-            title: 'Staff Scientist',
-            work_logo: scripps_img,
-            work_website: 'https://www.scripps.edu/',
-            bio: "I'm currently working on projects that apply data science methodology and cloud computing technologies to facilitate biomedical discovery, through the large-scale biological data integration.  Current projects include: http://BioThings.io/Explorer and http://SmartAPI.info",
-            education: [
-              'The Scripps Research Institute (second year graduate student)',
-              'Undergraduate: Fudan University'
-            ],
-            image:
-              'https://scholar.google.com/citations?view_op=medium_photo&user=zthpKooAAAAJ&citpid=1',
-            personal_site: 'https://scholar.google.com/citations?user=zthpKooAAAAJ&hl=en',
-            links: [
-              { title: 'twitter', href: '#' },
-              { title: 'github', href: 'https://github.com/kevinxin90' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/jiwen-xin-7a207b29/' }
-            ]
-          },
-          {
             name: 'Marco',
             lastname: 'Cano',
             title: 'Research Programmer III',
@@ -118,25 +96,41 @@ export const about = {
             ]
           },
           {
-            name: 'Xinghua(Jerry)',
-            lastname: 'Zhou',
+            name: 'Nichollette',
+            lastname: 'Acosta',
             title: 'Research Programmer III',
             work_logo: scripps_img,
-            work_website: 'https://www.scripps.edu/',
-            bio: 'Jerry is a research programmer in the Department of Integrative Structure and Computational Biology at Scripps Research.',
-            education: ['B.S., Computer Engineering, University of California San Diego'],
-            image: 'https://wulab.io/static/img/jerry_zhou.jpg',
+            work_website: 'http://sulab.org/',
+            bio: 'I am joining as a research programmer in 2021. I enjoy machine learning, bioinformatics and building software tools. Prior to this, I coded, primarily with fMRI brain data, for a Neuropsychology Ingestive Behavior lab.',
+            education: ['BSc. in Computer Science, Minor in Bioinformatics, UNC at Charlotte'],
+            image: 'https://wulab.io/content/images/2021/09/nicholla.jpg',
             personal_site: '#',
             links: [
-              { title: 'flickr', href: 'https://www.flickr.com/people/namespacestd/' },
-              { title: 'github', href: 'https://github.com/namespacestd0' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/jerry-zhou-b48b04b1/' }
+              { title: 'twitter', href: '' },
+              { title: 'github', href: 'https://github.com/NikkiBytes' },
+              { title: 'linkedin', href: 'https://www.linkedin.com/in/nichollette-acosta/' }
+            ]
+          },
+          {
+            name: 'Everaldo Rodrigo',
+            lastname: 'Rodolpho',
+            title: 'Research Programmer III',
+            work_logo: scripps_img,
+            work_website: 'http://sulab.org/',
+            bio: 'Digital Convergence of SCORM Learning Objects.',
+            education: ['M.S. Computer Science'],
+            image: 'https://wulab.io/content/images/2022/12/everaldo_rodolpho.jpeg',
+            personal_site: '#',
+            links: [
+              { title: 'twitter', href: '' },
+              { title: 'github', href: '' },
+              { title: 'linkedin', href: '' }
             ]
           },
           {
             name: 'Colleen',
             lastname: 'Xu',
-            title: 'Research Programmer',
+            title: 'Research Programmer III',
             work_logo: scripps_img,
             work_website: 'http://sulab.org/',
             bio: 'Colleen is a research programmer in the Department of Integrative, Structural and Computational Biology at Scripps Research.',
@@ -183,110 +177,36 @@ export const about = {
         image: header_img,
         name: 'Additional Team Members',
         members: []
+      }
+    ],
+    pastContributors: [
+      {
+        name: 'Jiwen (Kevin)',
+        lastname: 'Xin'
       },
       {
-        image: header_img,
-        name: 'Past Contributors',
-        members: [
-          {
-            name: 'Cyrus',
-            lastname: 'Afrasiabi',
-            title: 'Research Programmer IV',
-            work_logo: scripps_img,
-            work_website: 'https://www.scripps.edu/',
-            bio: 'I came to the Su/Wu Lab from UC Berkeley where I worked in a phylogenomics lab primarily doing bioinformatics application development.  Before this I did work on the analysis of medical images, the analysis of animal vocalizations, and digital system design.  Besides SmartAPI project, I am also currently working on the BioThings API project: http://BioThings.io/',
-            education: [
-              '2011 M. Eng. in Biomedical Engineering from Cornell University',
-              '2003 BS in Electrical and Computer Engineering from Cornell University'
-            ],
-            image: 'http://sulab.org/wp-content/uploads/2018/03/cyrus2.jpg',
-            personal_site: '#',
-            links: [
-              { title: 'twitter', href: '#' },
-              { title: 'github', href: 'https://github.com/cyrus0824' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/cyrus-afrasiabi-b623604a' }
-            ]
-          },
-          {
-            name: 'Shima',
-            lastname: 'Dastgheib',
-            title: 'Data Scientist',
-            work_logo: 'http://numedii.com/wp-content/uploads/2017/06/NuMedii-Logo-web.png',
-            work_website: 'https://www.maastrichtuniversity.nl/',
-            bio: `Data scientist at Numedii.`,
-            education: [
-              '2017 Postdoctoral Reserach Scholar from Stanford University School of Medicine',
-              '2014 PhD Computer Science from The University of Georgia',
-              '2008 Masters in Information Technology from Shiraz University',
-              '2004 B.S. Electrical Engineering from Shiraz University'
-            ],
-            image:
-              'https://i1.rgstatic.net/ii/profile.image/544408740339712-1506808566542_Q512/Shima_Dastgheib2.jpg',
-            personal_site: 'https://scholar.google.com/citations?user=i5ElwboAAAAJ&hl=en',
-            links: [
-              { title: 'twitter', href: 'https://twitter.com/shimadastgheib?lang=en' },
-              { title: 'github', href: 'https://github.com/BinaryStars' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/shima-dastgheib-91a51027/' }
-            ]
-          },
-          {
-            name: 'Trish',
-            lastname: 'Whetzel',
-            title: 'Bioinformatician',
-            work_logo: embl_img,
-            work_website: 'https://www.ebi.ac.uk/',
-            bio: `Web and Android developer. Background in bioinformatics and ontology development/management. Currently Bioinformatician at European Bioinformatics Institute | EMBL-EBI`,
-            education: [
-              '2016 Full Stack Nanodegree in Python Web Developement and Databases from Udacity',
-              '2000 PhD in Immunology and Microbiology from University of Delaware'
-            ],
-            image: 'https://avatars0.githubusercontent.com/u/2167174?s=460&v=4',
-            personal_site: 'https://scholar.google.com/citations?user=2b1-ZLAAAAAJ&hl=en',
-            links: [
-              { title: 'twitter', href: 'https://twitter.com/trishwhetzel?lang=en' },
-              { title: 'github', href: 'https://github.com/twhetzel' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/trishwhetzel/' }
-            ]
-          },
-          {
-            name: 'Amrapali',
-            lastname: 'Zaveri',
-            title: 'Postdoctoral Researcher',
-            work_logo: mu_img,
-            work_website: 'https://www.maastrichtuniversity.nl/',
-            bio: `I am from Pune, India where I studied Bachelors of Science and Masters in Bioinformatics. This was where my interests in science, biology and computers were born and nurtured. My training in bioinformatics took me to Singapore to work as a Senior Research Assistant at the National Neuroscience Institute. This is where I got introduced to ontologies, Semantic Web and Linked Data that could be used to solve biological problems. That brought me to Germany where I pursued my PhD in Computer Science in the University of Leipzig. My focus was on consumption of Linked Data for healthcare, educational and economic research leveraging data quality. Then I got the opportunity to pursue my research ideas further as a postdoctoral researcher at Stanford University in the Biomedical Informatics department. This is where I brought the worlds of Semantic Web and Biology together. After spending just a little over a year at Stanford, my professor got an opportunity to start a Data Science Institute at the University of Maastricht, Netherlands. I followed too and have been here since January 2017.`,
-            education: [
-              '2015 PhD Philosophy from Leipzig University',
-              '2007 M.Sc, Bioinformatics from Sikkim Manipal University of Health, Medical and Technological Sciences',
-              '2005 B.Sc, Zoology from Savitribai Phule Pune University'
-            ],
-            image: 'https://avatars3.githubusercontent.com/u/713103?s=460&v=4',
-            personal_site: 'https://amrapalizaveri.com/',
-            links: [
-              { title: 'twitter', href: 'https://twitter.com/amrapaliz?lang=en' },
-              { title: 'github', href: 'https://github.com/amrapalijz' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/amrapalizaveri/' }
-            ]
-          },
-          {
-            name: 'Alexander',
-            lastname: 'Malic',
-            title: 'Architect',
-            work_logo: mu_img,
-            work_website: 'https://www.maastrichtuniversity.nl/',
-            bio: '',
-            education: [
-              'Engineering degree in Electronics and Telecommunication Technologies',
-              'MBA specialization in international program, project, and process management at WU Executive Academy'
-            ],
-            image: def_img,
-            personal_site: '#',
-            links: [
-              { title: 'github', href: 'https://github.com/amalic' },
-              { title: 'linkedin', href: 'https://www.linkedin.com/in/alexandermalic' }
-            ]
-          }
-        ]
+        name: 'Xinghua (Jerry)',
+        lastname: 'Zhou'
+      },
+      {
+        name: 'Cyrus',
+        lastname: 'Afrasiabi'
+      },
+      {
+        name: 'Shima',
+        lastname: 'Dastgheib'
+      },
+      {
+        name: 'Trish',
+        lastname: 'Whetzel'
+      },
+      {
+        name: 'Amrapali',
+        lastname: 'Zaveri'
+      },
+      {
+        name: 'Alexander',
+        lastname: 'Malic'
       }
     ]
   }),
@@ -297,6 +217,9 @@ export const about = {
     },
     otherMembers: (state) => {
       return state.otherMembers;
+    },
+    pastContributors: (state) => {
+      return state.pastContributors;
     }
   }
 };

@@ -39,7 +39,7 @@ app
   });
 // dev base api url
 app.config.globalProperties.$apiUrl =
-  process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info/api' : '/api';
+  process.env.NODE_ENV == 'development' ? 'http://localhost:8000/api' : '/api';
 
 // global registration
 app.component('VModal', VModal);

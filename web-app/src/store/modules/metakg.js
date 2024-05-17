@@ -37,7 +37,7 @@ export const metakg = {
     maxEdgesRendered: 5000,
     edgeData: [],
     nodeData: [],
-    size: 20,
+    size: 100,
     edgeColors: {},
     total: 0,
     subjectTotalFromResponse: [],
@@ -652,7 +652,7 @@ export const metakg = {
       let base = state.baseURL.includes('http')
         ? state.baseURL
         : window.location.origin + state.baseURL;
-      let url = new URL(base + '/metakg/consolidated');
+      let url = new URL(base + '/metakg');
       for (const key in payload) {
         if (!ignore_list.includes(key)) {
           url.searchParams.append(key, payload[key]);
@@ -859,7 +859,7 @@ export const metakg = {
       );
       // commit('toggleLoading', {loading: true})
       axios
-        .get(state.baseURL + '/metakg/consolidated', { params: urlParams })
+        .get(state.baseURL + '/metakg', { params: urlParams })
         .then((res) => {
           commit('buildAPIURL', urlParams);
           g = res.data?.hits || [];
@@ -1015,7 +1015,7 @@ export const metakg = {
     getSubjects({ state, commit }) {
       if (!state.subject_options.length) {
         axios
-          .get(state.baseURL + '/metakg/consolidated?aggs=subject.raw&facet_size=200')
+          .get(state.baseURL + '/metakg?aggs=subject.raw&facet_size=200')
           .then((res) => {
             let data = res.data?.facets?.['subject.raw']?.terms.map((item) => item.term).sort();
             commit('saveSubjects', data);
@@ -1028,7 +1028,7 @@ export const metakg = {
     getObjects({ state, commit }) {
       if (!state.object_options.length) {
         axios
-          .get(state.baseURL + '/metakg/consolidated?aggs=object.raw&facet_size=200')
+          .get(state.baseURL + '/metakg?aggs=object.raw&facet_size=200')
           .then((res) => {
             let data = res.data?.facets?.['object.raw']?.terms.map((item) => item.term).sort();
             commit('saveObjects', data);
@@ -1041,7 +1041,7 @@ export const metakg = {
     getPredicates({ state, commit }) {
       if (!state.predicate_options.length) {
         axios
-          .get(state.baseURL + '/metakg/consolidated?aggs=predicate&facet_size=500')
+          .get(state.baseURL + '/metakg?aggs=predicate&facet_size=500')
           .then((res) => {
             let data = res.data?.facets?.predicate?.terms.map((item) => item.term).sort();
             commit('savePredicates', data);
