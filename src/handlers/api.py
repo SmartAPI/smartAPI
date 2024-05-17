@@ -3,7 +3,6 @@ import json
 import logging
 from typing import List, Union
 import os
-
 import bmt
 from biothings.utils import serializer
 from biothings.web.auth.authn import BioThingsAuthnMixin
@@ -460,25 +459,44 @@ class MetaKGQueryHandler(QueryHandler):
 
         await super().get(*args, **kwargs)
 
-    def get_filtered_api_info(self, api_dict):
+    def get_filtered_api(self, api_dict):
         """Extract and return filtered API information."""
-        api_info = api_dict.get('api', {})
-        return {
-            'name': api_info.get('name', 'Default Name'),
-            'smartapi': {
-                'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+        api_info = api_dict
+
+        if not self.args.bte and not self.args.api_details: # no bte and no api details
+            filtered_api= {
+                'name': api_info.get('name', 'Default Name'),
+                'smartapi': {
+                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+                    }
+                }
+        elif self.args.bte and not self.args.api_details : # bte and no api details
+            filtered_api= {
+                'name': api_info.get('name', 'Default Name'),
+                'smartapi': {
+                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
+                    },
+                'bte': api_info.get('bte', {})
             }
-        }
+        elif not self.args.bte and self.args.api_details: # no bte and api details
+            api_info.pop('bte', None)
+            filtered_api=  api_info
+        return filtered_api
 
     def process_apis(self, apis):
         """Process each API dict based on provided args."""
-        for i, api_dict in enumerate(apis):
-            if not self.args.api_details:
-                filtered_api_info = self.get_filtered_api_info(api_dict)
-                apis[i]['api'] = filtered_api_info
-            if not self.args.bte:
-                api_dict.pop('bte', None)
-
+        if isinstance(apis, list):
+            for i, api_dict in enumerate(apis):
+                filtered_api = self.get_filtered_api(api_dict)
+                apis[i] = filtered_api
+        elif isinstance(apis, dict):
+            if 'bte' in apis:
+                # update dict for new format
+                apis['api']['bte']=apis.pop('bte')
+            api_dict = apis["api"]
+            filtered_api= self.get_filtered_api(api_dict)
+            apis["api"] = filtered_api
+            
     def write(self, chunk):
         """
         Overwrite the biothings query handler to ...
@@ -491,10 +509,10 @@ class MetaKGQueryHandler(QueryHandler):
         try:
             if self.args.consolidated:
                 for data_hit in chunk['hits']:
-                    self.process_apis(data_hit['apis'])
+                    self.process_apis(data_hit['api'])
             else:
                 for hit_dict in chunk['hits']:
-                    self.process_apis([hit_dict])
+                    self.process_apis(hit_dict)
 
             if self.format == "graphml":
                 chunk = edges2graphml(

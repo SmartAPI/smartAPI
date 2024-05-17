@@ -50,8 +50,7 @@ class MetaKGPathFinder:
             object = doc["_source"]["object"]
             predicate = doc["_source"]["predicate"]
             # make list here to give back full results 
-            api = [api_dict for api_dict in doc["_source"]["apis"]]
-            #bte=
+            api = [api_dict for api_dict in doc["_source"]["api"]]
             # Add the subject & object to the graph
             self.G.add_edge(subject, object)
 
@@ -59,7 +58,7 @@ class MetaKGPathFinder:
             key = f"{subject}-{object}"
             if key not in predicates:
                 predicates[key] = []
-            predicates[key].append({"predicate": predicate, "apis": api})  # Store both predicate and API
+            predicates[key].append({"predicate": predicate, "api": api})  # Store both predicate and API
 
         return self.G
 
@@ -78,10 +77,10 @@ class MetaKGPathFinder:
         - dict: The updated paths_data structure with the new edge added.
         """
 
-        apis = data["apis"]
+        apis = data["api"]
         # # Case: Give full api results in response
         if api_details:
-            api_content = data["apis"]
+            api_content = data["api"]
         else:
             if bte:
                 api_content = [{"api": {"name": item["api"].get("name", None), "smartapi": {"id": item["api"]["smartapi"]["id"]}}, "bte":item["bte"]} for item in apis]
@@ -93,7 +92,7 @@ class MetaKGPathFinder:
                 "subject": source_node,
                 "object": target_node,
                 "predicate": data["predicate"],
-                "apis": api_content,
+                "api": api_content,
             }
         )
 
