@@ -159,7 +159,7 @@ export default {
     },
     sendRequest() {
       let self = this;
-      let base = process.env.NODE_ENV == 'development' ? 'https://dev.smart-api.info' : '';
+      let base = process.env.NODE_ENV == 'development' ? 'http://localhost:8000' : '';
       axios
         .get(
           base +
