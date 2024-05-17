@@ -1,7 +1,7 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Nested, Text, analysis, mapping
 
 from config import METAKG_ES_INDEX, METAKG_ES_INDEX_CONSOLIDATED
 
@@ -42,42 +42,6 @@ metakg_mapping.meta(
                 "mapping": {"type": "object", "enabled": False},
             }
         },
-        # {
-        #     "ignore_api_params_field": {
-        #         "path_match": "*bte.query_operation.params",
-        #         "mapping": {"type": "object", "enabled": False},
-        #     }
-        # },
-        # {
-        #     "ignore_api_request_body_field": {
-        #         "path_match": "apis.bte.query_operation.request_body",
-        #         "mapping": {"type": "object", "enabled": False},
-        #     }
-        # },
-        # {
-        #     "ignore_api_response_mapping_field": {
-        #         "path_match": "apis.bte.response_mapping",
-        #         "mapping": {"type": "object", "enabled": False},
-        #     }
-        # },
-        # {
-        #     "ignore_api_params_field": {
-        #         "path_match": "api.bte.query_operation.params",
-        #         "mapping": {"type": "object", "enabled": False},
-        #     }
-        # },
-        # {
-        #     "ignore_api_request_body_field": {
-        #         "path_match": "api.bte.query_operation.request_body",
-        #         "mapping": {"type": "object", "enabled": False},
-        #     }
-        # # },
-        # {
-        #     "ignore_api_response_mapping_field": {
-        #         "path_match": "api.bte.response_mapping",
-        #         "mapping": {"type": "object", "enabled": False},
-        #     }
-        # },
         {
             "default_string": {
                 "match_mapping_type": "string",
@@ -90,6 +54,7 @@ metakg_mapping.meta(
         },
     ],
 )
+
 
 # # add two copy_to fields
 metakg_mapping.field("all", "text")  # the default all field for unfielded queries
@@ -111,20 +76,16 @@ class APIInnerDoc(InnerDoc):
     name = default_text
     smartapi = Object(SmartAPIInnerDoc)
     tags = lowercase_keyword_copy_to_all
+    provided_by = default_text
     # We cannot define "x-translator" field here due the "-" in the name,
     # so we will have it indexed via the dynamic templates
-
-class ConsolidatedAPIInnerDoc(APIInnerDoc):
-    provided_by = default_text
-    tags = lowercase_keyword_copy_to_all
-
 
 
 class MetaKGDoc(BaseDoc):
     subject = lowercase_keyword_node
     object = lowercase_keyword_node
     predicate = lowercase_keyword_copy_to_all
-    provided_by = default_text
+    # provided_by = default_text
     api = Object(APIInnerDoc)
 
     class Index:
@@ -147,17 +108,10 @@ class MetaKGDoc(BaseDoc):
         return self.api.smartapi.metadata
 
 
-class ConsolidatedMetaKGDoc(BaseDoc):
+class ConsolidatedMetaKGDoc(MetaKGDoc):
     """MetaKG ES index for edges consolidated on their subject/predicate/object
     Multiple APIs providing the same edge, grouped as a list under the 'api' field.
     """
-
-    # Existing fields
-    subject = lowercase_keyword_node
-    object = lowercase_keyword_node
-    predicate = lowercase_keyword_copy_to_all
-    apis = Object(ConsolidatedAPIInnerDoc)
-
     class Index:
         """
         Index Settings
@@ -170,10 +124,3 @@ class ConsolidatedMetaKGDoc(BaseDoc):
             "mapping.ignore_malformed": True,
             "mapping.total_fields.limit": 2500,
         }
-
-    class Meta:
-        mapping = metakg_mapping
-
-    def get_url(self):
-        return self.api.smartapi.metadata
-    
