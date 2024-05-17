@@ -181,8 +181,8 @@ export const about = {
     ],
     pastContributors: [
       {
-        name: 'Kevin',
-        lastname: 'Xi'
+        name: 'Jiwen (Kevin)',
+        lastname: 'Xin'
       },
       {
         name: 'Xinghua (Jerry)',
