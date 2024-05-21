@@ -2,9 +2,15 @@ from base64 import b64decode
 from enum import Enum
 from typing import Dict, OrderedDict
 
-from biothings.web.query import AsyncESQueryBackend, AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
+from biothings.web.query import (
+    AsyncESQueryBackend,
+    AsyncESQueryPipeline,
+    ESQueryBuilder,
+    ESResultFormatter,
+)
 from controller.base import OpenAPI, Swagger
 from elasticsearch_dsl import Q, Search
+from utils import decoder
 
 
 # There are three types of cases supported:
