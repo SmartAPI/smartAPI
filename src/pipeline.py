@@ -1,12 +1,10 @@
 from base64 import b64decode
 from enum import Enum
-from typing import OrderedDict, Dict
+from typing import Dict, OrderedDict
 
 from biothings.web.query import AsyncESQueryBackend, AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
-from elasticsearch_dsl import Q, Search
-
 from controller.base import OpenAPI, Swagger
-from utils import decoder
+from elasticsearch_dsl import Q, Search
 
 
 # There are three types of cases supported:
@@ -162,7 +160,8 @@ class SmartAPIQueryBuilder(ESQueryBuilder):
 
 
 class SmartAPIResultTransform(ESResultFormatter):
-    def transform_hit(self, path, doc, options):
+    def transform_hit(self, path, doc, hit, options):
+        super().transform_hit(path, doc, hit, options)
         if path == "":
             if "_raw" in doc:
                 _raw = b64decode(doc.pop("_raw"))
@@ -233,9 +232,10 @@ class MetaKGQueryBuilder(ESQueryBuilder):
 
         return search
 
+
 class MetaKGESQueryBackend(AsyncESQueryBackend):
     """
-    Extends AsyncESQueryBackend to dynamically select ElasticSearch indices for MetaKG based 
+    Extends AsyncESQueryBackend to dynamically select ElasticSearch indices for MetaKG based
     on query option, consolidated.
 
     Methods:
@@ -249,7 +249,7 @@ class MetaKGESQueryBackend(AsyncESQueryBackend):
     def adjust_index(self, original_index: str, query: str, **options: Dict) -> str:
         query_index = original_index
         consolidated = options.get("consolidated", True)
-        
+
         if consolidated:
             query_index = self.indices.get("metakg_consolidated", None)
         else:
