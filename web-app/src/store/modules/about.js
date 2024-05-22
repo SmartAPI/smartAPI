@@ -42,7 +42,7 @@ export const about = {
           {
             name: 'Chunlei',
             lastname: 'Wu',
-            title: 'Associate Professor',
+            title: 'Professor',
             work_logo: scripps_img,
             work_website: 'https://www.scripps.edu/',
             bio: "Chunlei Wu is an Associate Professor in the Department of Integrative Structure and Computational Biology at Scripps Research. Prior to joining Scripps in July 2011, he was the Research Investigator II at the Genomics Institute of the Novartis Research Foundation (GNF) in San Diego, CA.  More details about Chunlei's lab are available at https://wulab.io.",
