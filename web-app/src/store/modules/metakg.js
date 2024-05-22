@@ -440,6 +440,9 @@ export const metakg = {
         //     `</span> ➡️ <span class="orange-text">`+output+
         //     `</span></div>`
 
+        // remove apis with the same id for a a given edge
+        let apis = [...new Map(op['api'].map(item => [item['smartapi']['id'], item])).values()];
+
         let edge = {
           ...op,
           group: 'edges',
@@ -456,9 +459,10 @@ export const metakg = {
             target: output,
             // smartapi_id: id,
             // component: op['api'][0]['x-translator']['component'],
-            label: op['api'].length,
-            weight: op['api'].length / 2 < 1 ? 1 : op['api'].length / 2,
-            apis: op['api']
+            label: apis.length,
+            weight: apis.length / 2 < 1 ? 1 : apis.length / 2,
+            // apis: op['api'],
+            apis: apis
           }
         };
         // edge hover tip
