@@ -45,7 +45,7 @@ ANNOTATION_KWARGS["GET"]["size"]["default"] = 5
 ANNOTATION_KWARGS["GET"]["size"]["max"] = 10
 # the from keyword is used with size for pagination in scrolling operation
 # add from_ as an alias to be compatible with the earlier version design
-ANNOTATION_KWARGS["GET"]["from"] = deepcopy(QUERY_KWARGS["GET"]["from"])
+ANNOTATION_KWARGS["GET"]["from"] = deepcopy(QUERY_KWARGS["*"]["from"])
 ANNOTATION_KWARGS["GET"]["from"]["default"] = 0
 ANNOTATION_KWARGS["GET"]["from"]["alias"] = ("skip", "from_")
 
@@ -61,7 +61,7 @@ ANNOTATION_KWARGS["GET"]["_sorted"]["default"] = False
 # Use port forwarding to connect to a remote server.
 # In order to support ES_HOST configuration,
 # Modify both model.py and utils.indices.py
-ES_HOST = "localhost:9200"
+ES_HOST = "http://localhost:9200"
 SMARTAPI_ES_INDEX = "smartapi_docs"
 METAKG_ES_INDEX = "smartapi_metakg_docs"
 METAKG_ES_INDEX_CONSOLIDATED = "smartapi_metakg_docs_consolidated"
