@@ -2,8 +2,8 @@ import networkx as nx
 import logging
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
-# import traceback
-# import pprint
+import traceback
+import pprint
 
 logger=logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
 
@@ -83,10 +83,10 @@ class MetaKGPathFinder:
             api_content = data["api"]
         else:
             if bte:
-                api_content = [{"api": {"name": item["api"].get("name", None), "smartapi": {"id": item["api"]["smartapi"]["id"]}}, "bte":item["bte"]} for item in apis]
+                api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}, "bte":item["bte"]} for item in apis]
             else:
-                api_content = [{"api": {"name": item["api"].get("name", None), "smartapi": {"id": item["api"]["smartapi"]["id"]}}} for item in apis]
-            
+                api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}} for item in apis]
+
         paths_data["edges"].append(
             {
                 "subject": source_node,
@@ -114,12 +114,14 @@ class MetaKGPathFinder:
 
         all_paths_with_edges = []
 
+        # Predicate Filter Setup
         # Convert predicate_filter to a set for faster lookups if it's not None
         predicate_filter_set = set(predicate_filter) if predicate_filter else None
         # Add predicates from expanded_fields['predicate'] if it exists and is not None
         if 'predicate' in self.expanded_fields and self.expanded_fields['predicate']:
             predicate_filter_set.update(self.expanded_fields['predicate'])
 
+        # Graph Iteration
         # Iterate over all combinations of subjects and objects
         for subject in self.expanded_fields["subject"]:
             for object in self.expanded_fields["object"]:
@@ -145,8 +147,8 @@ class MetaKGPathFinder:
                             if edge_added:  # Only add paths_data if at least one edge was added
                                 all_paths_with_edges.append(paths_data)
                 except Exception as e:
-                    # print(f"Error: {e} {e.args}")
-                    # print(traceback.format_exc())
+                    print(f"Error: {e} {e.args}")
+                    print(traceback.format_exc())
                     continue  # Explicitly continue to the next subject-object pair
 
         return all_paths_with_edges
