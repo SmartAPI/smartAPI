@@ -47,7 +47,3 @@ jobs:
             echo "Smartapi backend services restarted!!!"
             set +x
             echo $RSYNC_STDOUT
-
-      - name: Setup tmate debug session on failure
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
