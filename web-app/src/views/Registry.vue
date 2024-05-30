@@ -1039,6 +1039,7 @@ export default {
       // console.log('pages', this.pages)
       if (this.page > this.pages) {
         this.page = 1;
+        this.search();
       }
     },
     prevPage: function () {

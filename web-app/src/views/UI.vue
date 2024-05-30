@@ -165,7 +165,9 @@ export default {
     };
 
     onMounted(() => {
-      data.ready = true;
+      setTimeout(() => {
+        data.ready = true;
+      }, 2000);
       loadSwaggerUI(
         app.appContext.config.globalProperties.$apiUrl + '/metadata/' + data.apiID + '?raw=1'
       );
