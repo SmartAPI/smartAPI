@@ -5,7 +5,7 @@ biothings[web_extra]==0.12.4
 jsonschema>=4.4.0
 
 # web handling
-pycurl==7.45.3       # to use curl_httpclient in tornado
+pycurl==7.45.2       # to use curl_httpclient in tornado
 #chardet==3.0.4
 aiocron==1.8
 
