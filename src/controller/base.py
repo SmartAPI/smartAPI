@@ -23,8 +23,12 @@ from .exceptions import ControllerError, NotFoundError
 config = ConfigParser()
 config.read("schemas.ini")
 
+
+openapi_versions = ["openapi_v3.0", "openapi_v3.1"]
+
 openapis = Downloader()
-openapis.download(config["openapi"].keys(), config["openapi"].values())
+for version in openapi_versions:
+    openapis.download(config[version].keys(), config[version].values())
 
 swaggers = Downloader()
 swaggers.download(config["swagger"].keys(), config["swagger"].values())
@@ -40,9 +44,18 @@ def validate(doc, schemas):
     if not isinstance(doc, dict):
         doc = decoder.to_dict(doc)
 
-    try:  # validate agasint every schema
+    try:  # validate against every schema
         for _name, schema in schemas.items():
-            jsonschema.validate(doc, schema)
+            # If the document is an OpenAPI document, check the version
+            openapi_version = doc.get('openapi')
+            if openapi_version is None or "swagger" in _name:
+                jsonschema.validate(doc, schema)
+            elif "3.0" in openapi_version and "openapi" in _name:
+                jsonschema.validate(doc, openapis["openapi_v3.0"])
+            elif "3.1" in openapi_version and "openapi" in _name:
+                jsonschema.validate(doc, openapis["openapi_v3.1"])
+            else:
+                jsonschema.validate(doc, schema)
 
     except jsonschema.ValidationError as err:
         _ = (
