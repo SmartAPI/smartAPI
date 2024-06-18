@@ -7,15 +7,14 @@ from biothings.tests.web import BiothingsWebAppTest
 from admin import refresh_metakg, consolidate_metakg, refresh_has_metakg
 
 # setup fixture
-@pytest.fixture(autouse=True, scope="module")
-def setup_fixture():
-    reset()
-    # refresh index
-    refresh()
-    
-    refresh_metakg()
-    consolidate_metakg()
-    refresh_has_metakg()    
+# @pytest.fixture(autouse=True, scope="module")
+# def setup_fixture():
+#     reset()
+#     # refresh index
+#     refresh()
+#     refresh_metakg()
+#     consolidate_metakg()
+#     refresh_has_metakg()    
 
 class TestMetaKGEndpoint(BiothingsWebAppTest):
     def test_metakg_endpoint(self):
