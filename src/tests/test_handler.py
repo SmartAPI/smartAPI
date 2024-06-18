@@ -76,23 +76,27 @@ def setup_fixture():
     """
     Index 2 documents.
     """
-    reset()
+    test_index = "smartapi_docs_test"
+    os.environ['SMARTAPI_ES_INDEX'] = test_index
+    
+    print(os.environ['SMARTAPI_ES_INDEX'])
+
+    reset(index_name=test_index)
 
     # save initial docs with paths already transformed
     mygene = SmartAPI(MYGENE_URL)
     mygene.raw = MYGENE_RAW
     mygene.username = "tester"
     mygene.slug = "mygene"
-    mygene.save()
+    mygene.save(index=test_index, test_mode=True)
 
     mychem = SmartAPI(MYCHEM_URL)
     mychem.raw = MYCHEM_RAW
     mychem.username = "tester"
     mychem.slug = "mychem"
-    mychem.save()
+    mychem.save(index=test_index, test_mode=True)
 
-    # refresh index
-    refresh()
+    refresh(index_name=test_index)
 
 
 class SmartAPIEndpoint(BiothingsTestCase):
