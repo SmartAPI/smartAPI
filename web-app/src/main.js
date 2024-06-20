@@ -2,7 +2,7 @@
 import App from '@/App.vue';
 import VModal from '@/components/VModal.vue';
 import MetaHead from '@/components/MetaHead.vue';
-import CopyButton from '@/components/CopyButton.vue';
+// import CopyButton from '@/components/CopyButton.vue';
 // Companion Libraries
 import router from '@/router';
 import store from '@/store';
@@ -11,7 +11,7 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import VueFinalModal from 'vue-final-modal';
 import Particles from 'vue3-particles';
 import VueGtag from 'vue-gtag-next';
-import Toaster from '@meforma/vue-toaster';
+// import Toaster from '@meforma/vue-toaster';
 import { delegate } from 'tippy.js';
 // Global CSS
 import 'sweetalert2/dist/sweetalert2.min.css';
@@ -31,7 +31,7 @@ app
   .use(VueSweetalert2)
   .use(VueFinalModal())
   .use(Particles)
-  .use(Toaster)
+  // .use(Toaster)
   .use(VueGtag, {
     property: {
       id: 'UA-139873613-1'
@@ -44,7 +44,7 @@ app.config.globalProperties.$apiUrl =
 // global registration
 app.component('VModal', VModal);
 app.component('MetaHead', MetaHead);
-app.component('CopyButton', CopyButton);
+// app.component('CopyButton', CopyButton);
 app.mount('#app');
 
 delegate('#app', {

@@ -1,14 +1,18 @@
 <template>
   <main id="editor-app" class="white" style="min-height: 100vh">
     <MetaHead title="SmartAPI | API Editor"></MetaHead>
-    <div id="swagger-editor" class="grey lighten-4"></div>
+    <!-- <div id="swagger-editor" class="grey lighten-4"></div> -->
+    <BasicPure></BasicPure>
   </main>
 </template>
 
 <script>
-import SwaggerEditorBundle from 'swagger-editor';
-import logo from '@/assets/img/logo-medium.svg';
+// import SwaggerEditorBundle from 'swagger-editor';
+// import logo from '@/assets/img/logo-medium.svg';
+import {applyPureReactInVue} from 'veaury'
 import editor_pic from '@/assets/img/api-editor.svg';
+import SwaggerEditor from 'swagger-editor';
+import 'swagger-editor/swagger-editor.css';
 
 export default {
   name: 'Editor',
@@ -19,25 +23,28 @@ export default {
       context: {}
     };
   },
+  components:{
+    BasicPure: applyPureReactInVue(SwaggerEditor)
+  },
   methods: {
-    loadSwaggerEditor: function (myUrl) {
-      /* global SwaggerEditorStandalonePreset*/
+    // loadSwaggerEditor: function (myUrl) {
+    //   /* global SwaggerEditorStandalonePreset*/
 
-      const editor = SwaggerEditorBundle({
-        url: myUrl,
-        dom_id: '#swagger-editor',
-        layout: 'StandaloneLayout',
-        deeplinking: true,
-        presets: [SwaggerEditorStandalonePreset]
-      });
+    //   const editor = SwaggerEditorBundle({
+    //     url: myUrl,
+    //     dom_id: '#swagger-editor',
+    //     layout: 'StandaloneLayout',
+    //     deeplinking: true,
+    //     presets: [SwaggerEditorStandalonePreset]
+    //   });
 
-      window.editor = editor;
+    //   window.editor = editor;
 
-      document.querySelector('#swagger-editor .topbar-logo__img').setAttribute('src', logo);
-      document
-        .querySelector(".topbar a[href$='#']")
-        .setAttribute('href', 'https://smart-api.info/registry');
-    }
+    //   document.querySelector('#swagger-editor .topbar-logo__img').setAttribute('src', logo);
+    //   document
+    //     .querySelector(".topbar a[href$='#']")
+    //     .setAttribute('href', 'https://smart-api.info/registry');
+    // }
   },
   computed: {
     smartapi_id: function () {
@@ -65,20 +72,20 @@ export default {
       });
     }
 
-    if (this.smartapi_id) {
-      this.apiID = this.smartapi_id;
-      this.loadSwaggerEditor('/api/metadata/' + this.apiID + '?format=yaml');
-    } else {
-      this.loadSwaggerEditor(
-        'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
-      );
-    }
+    // if (this.smartapi_id) {
+    //   this.apiID = this.smartapi_id;
+    //   this.loadSwaggerEditor('/api/metadata/' + this.apiID + '?format=yaml');
+    // } else {
+    //   this.loadSwaggerEditor(
+    //     'https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml'
+    //   );
+    // }
   }
 };
 </script>
 
 <style>
-@import 'swagger-editor/dist/swagger-editor.css';
+/* @import 'swagger-editor/dist/swagger-editor.css'; */
 
 #swagger-editor .topbar {
   background-color: #3f85bb;
