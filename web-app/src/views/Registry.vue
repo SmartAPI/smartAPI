@@ -1037,7 +1037,7 @@ export default {
       // console.log('total', this.total)
       // console.log('per page', this.perPage)
       // console.log('pages', this.pages)
-      if (this.page > this.pages) {
+      if (this.total && this.page > this.pages) {
         this.page = 1;
         this.search();
       }
