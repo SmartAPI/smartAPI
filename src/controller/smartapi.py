@@ -269,8 +269,10 @@ class SmartAPI(AbstractWebEntity, Mapping):
         self.webdoc.update(file)
         return self.webdoc.status
 
-    def save(self, force_save=True):
+    def save(self, force_save=True, index=None, test_mode=False):
         # TODO DOCSTRING
+
+        index = index or self.Index.name
 
         if not self.raw:
             raise ControllerError("No content.")
@@ -332,6 +334,9 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._meta.last_updated = self.last_updated
         doc._meta.slug = self.slug
         doc._meta.has_metakg = self.has_metakg
+
+        # save to the designated index
+        doc.meta.index = index
         doc.save(skip_empty=False)
 
         return self._id

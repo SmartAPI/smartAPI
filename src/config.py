@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 
 from biothings.web.auth.authn import DefaultCookieAuthnProvider
@@ -62,7 +63,7 @@ ANNOTATION_KWARGS["GET"]["_sorted"]["default"] = False
 # In order to support ES_HOST configuration,
 # Modify both model.py and utils.indices.py
 ES_HOST = "http://localhost:9200"
-SMARTAPI_ES_INDEX = "smartapi_docs"
+SMARTAPI_ES_INDEX = os.getenv('SMARTAPI_ES_INDEX', 'smartapi_docs') #SMARTAPI_ES_INDEX = "smartapi_docs"
 METAKG_ES_INDEX = "smartapi_metakg_docs"
 METAKG_ES_INDEX_CONSOLIDATED = "smartapi_metakg_docs_consolidated"
 ES_INDICES = {

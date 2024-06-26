@@ -5,13 +5,48 @@ import os
 
 import pytest
 from biothings.tests.web import BiothingsTestCase
+from tornado.escape import json_encode
+from tornado.web import create_signed_value
+from controller import SmartAPI
+from utils.indices import refresh, reset
 
-from .setup import setup_es
+dirname = os.path.dirname(__file__)
 
-MYGENE_ID = "67932b75e2c51d1e1da2bf8263e59f0a"
-MYCHEM_ID = "8f08d1446e0bb9c2b323713ce83e2bd3"
+MYGENE_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
+    'translator-api-registry/master/mygene.info/openapi_minimum.yml'
+MYCHEM_URL = 'https://raw.githubusercontent.com/NCATS-Tangerine/'\
+    'translator-api-registry/master/mychem.info/openapi_full.yml'
 
-setup_es()
+MYGENE_ID = '67932b75e2c51d1e1da2bf8263e59f0a'
+MYCHEM_ID = '8f08d1446e0bb9c2b323713ce83e2bd3'
+
+
+@pytest.fixture(scope="module", autouse=True)
+def setup():
+    """
+    setup state called once for the class
+    """
+
+    test_index = "smartapi_docs_test"
+    os.environ['SMARTAPI_ES_INDEX'] = test_index
+    print(os.environ['SMARTAPI_ES_INDEX'])
+
+    reset(index_name=test_index)
+
+    mygene = SmartAPI(MYGENE_URL)
+    mygene.username = 'tester'
+    mygene.refresh()
+    mygene.check()
+    mygene.save(index=test_index, test_mode=True)
+
+    mychem = SmartAPI(MYCHEM_URL)
+    mychem.username = 'tester'
+    mychem.refresh()
+    mychem.check()
+    mychem.save(index=test_index, test_mode=True)
+
+    refresh(index_name=test_index)
+
 @pytest.mark.skip("All tests failed by 404 response")
 class SmartAPIQueryTest(BiothingsTestCase):
     def test_match_all(self):
