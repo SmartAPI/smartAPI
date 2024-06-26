@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 
 import jsonschema
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
-
 from utils import decoder
 from utils.downloader import Downloader, File
 
@@ -24,11 +23,8 @@ config = ConfigParser()
 config.read("schemas.ini")
 
 
-openapi_versions = ["openapi_v3.0", "openapi_v3.1"]
-
 openapis = Downloader()
-for version in openapi_versions:
-    openapis.download(config[version].keys(), config[version].values())
+openapis.download(config["openapi"].keys(), config["openapi"].values())
 
 swaggers = Downloader()
 swaggers.download(config["swagger"].keys(), config["swagger"].values())
@@ -44,19 +40,26 @@ def validate(doc, schemas):
     if not isinstance(doc, dict):
         doc = decoder.to_dict(doc)
 
+    openapi_version = doc.get("openapi")
+
     try:  # validate against every schema
+        openapi_validated = False
         for _name, schema in schemas.items():
             # If the document is an OpenAPI document, check the version
-            openapi_version = doc.get('openapi')
-            if openapi_version is None or "swagger" in _name:
-                jsonschema.validate(doc, schema)
-            elif "3.0" in openapi_version and "openapi" in _name:
-                jsonschema.validate(doc, openapis["openapi_v3.0"])
-            elif "3.1" in openapi_version and "openapi" in _name:
-                jsonschema.validate(doc, openapis["openapi_v3.1"])
+            if _name.startswith("openapi"):
+                _version = _name[len("openapi_v"):]    # take the "v3.0" part of "openapi_v3.0" schema name
+                if openapi_version:
+                    if openapi_version.startswith(_version):
+                        # validate the document only against the openapi schema with matching version
+                        jsonschema.validate(doc, schema)
+                        openapi_validated = True
+                else:
+                    # this should not happen, raise an error just in case
+                    raise ValueError("OpenAPI version not found in document during validation.")
             else:
                 jsonschema.validate(doc, schema)
-
+        if openapi_version and not openapi_validated:
+            raise ValueError(f"Unknown OpenAPI version (\"{openapi_version}\") for validation.")
     except jsonschema.ValidationError as err:
         _ = (
             f"Failed {_name} validation at "
