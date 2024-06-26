@@ -8,7 +8,6 @@ from urllib.parse import urlparse
 
 import jsonschema
 from elasticsearch.exceptions import NotFoundError as ESNotFoundError
-
 from utils import decoder
 from utils.downloader import Downloader, File
 
@@ -22,6 +21,7 @@ from .exceptions import ControllerError, NotFoundError
 
 config = ConfigParser()
 config.read("schemas.ini")
+
 
 openapis = Downloader()
 openapis.download(config["openapi"].keys(), config["openapi"].values())
@@ -40,10 +40,26 @@ def validate(doc, schemas):
     if not isinstance(doc, dict):
         doc = decoder.to_dict(doc)
 
-    try:  # validate agasint every schema
-        for _name, schema in schemas.items():
-            jsonschema.validate(doc, schema)
+    openapi_version = doc.get("openapi")
 
+    try:  # validate against every schema
+        openapi_validated = False
+        for _name, schema in schemas.items():
+            # If the document is an OpenAPI document, check the version
+            if _name.startswith("openapi"):
+                _version = _name[len("openapi_v"):]    # take the "v3.0" part of "openapi_v3.0" schema name
+                if openapi_version:
+                    if openapi_version.startswith(_version):
+                        # validate the document only against the openapi schema with matching version
+                        jsonschema.validate(doc, schema)
+                        openapi_validated = True
+                else:
+                    # this should not happen, raise an error just in case
+                    raise ValueError("OpenAPI version not found in document during validation.")
+            else:
+                jsonschema.validate(doc, schema)
+        if openapi_version and not openapi_validated:
+            raise ValueError(f"Unknown OpenAPI version (\"{openapi_version}\") for validation.")
     except jsonschema.ValidationError as err:
         _ = (
             f"Failed {_name} validation at "

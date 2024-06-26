@@ -1,13 +1,18 @@
 import os
 
 import pytest
-
 from controller.base import openapis, swaggers, validate
 
 dirname = os.path.dirname(__file__)
 
 with open(os.path.join(dirname, "openapi-pass.json"), "rb") as file:
     PASS_OPENAPI = file.read()
+
+with open(os.path.join(dirname, "openapi3.1-pass.json"), "rb") as file:
+    PASS_OPENAPI31 = file.read()
+
+with open(os.path.join(dirname, "openapi3.1-fail.json"), "rb") as file:
+    FAIL_OPENAPI31 = file.read()
 
 with open(os.path.join(dirname, "swagger-pass.json"), "rb") as file:
     PASS_SWAGGER = file.read()
@@ -23,25 +28,31 @@ with open(os.path.join(dirname, "x-translator-fail-2.yml"), "rb") as file:
 
 
 def test_01():
-    validate(PASS_OPENAPI, {"openapi": openapis["openapi_v3"]})
+    validate(PASS_OPENAPI, {"openapi_v3.0": openapis["openapi_v3.0"]})
     validate(PASS_OPENAPI, openapis)
 
 
 def test_02():
-    validate(PASS_TRANSLATOR, {"openapi": openapis["openapi_v3"]})
-    validate(PASS_TRANSLATOR, {"x-translator": openapis["x-translator"]})
+    validate(PASS_TRANSLATOR, {"openapi_v3.0": openapis["openapi_v3.0"]})
+    validate(
+        PASS_TRANSLATOR,
+        {
+            "openapi_v3.0": openapis["openapi_v3.0"],
+            "x-translator": openapis["x-translator"],
+        },
+    )
     validate(PASS_TRANSLATOR, openapis)
 
 
 def test_03():
-    validate(FAIL_TRANSLATOR_1, {"openapi": openapis["openapi_v3"]})
-    with pytest.raises(ValueError):
+    validate(FAIL_TRANSLATOR_1, {"openapi_v3.0": openapis["openapi_v3.0"]})
+    with pytest.raises(ValueError, match="Failed x-translator validation"):
         validate(FAIL_TRANSLATOR_1, openapis)
 
 
 def test_04():
-    validate(FAIL_TRANSLATOR_2, {"openapi": openapis["openapi_v3"]})
-    with pytest.raises(ValueError):
+    validate(FAIL_TRANSLATOR_2, {"openapi_v3.0": openapis["openapi_v3.0"]})
+    with pytest.raises(ValueError, match="Failed x-translator validation"):
         validate(FAIL_TRANSLATOR_2, openapis)
 
 
@@ -51,3 +62,21 @@ def test_05():
         validate(PASS_SWAGGER, openapis)
     with pytest.raises(ValueError):
         validate(PASS_OPENAPI, swaggers)
+
+
+def test_06():
+    validate(PASS_OPENAPI31, {"openapi_v3.1": openapis["openapi_v3.1"]})
+    validate(PASS_OPENAPI31, openapis)
+
+
+def test_07():
+    with pytest.raises(ValueError):
+        validate(FAIL_OPENAPI31, {"openapi_v3.1": openapis["openapi_v3.1"]})
+    with pytest.raises(ValueError):
+        validate(FAIL_OPENAPI31, openapis)
+
+
+def test_08():
+    # should fail when no version-matching openapi schema to validate
+    with pytest.raises(ValueError, match="Unknown OpenAPI version"):
+        validate(PASS_OPENAPI31, {"openapi_v3.0": openapis["openapi_v3.0"]})
