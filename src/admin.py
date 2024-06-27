@@ -27,9 +27,8 @@ import logging
 from datetime import datetime
 
 import boto3
-from filelock import FileLock, Timeout
-
 from controller import SmartAPI
+from filelock import FileLock, Timeout
 from model import ConsolidatedMetaKGDoc, MetaKGDoc
 from utils import indices
 
@@ -198,7 +197,7 @@ def consolidate_metakg(reset=True):
 def refresh_has_metakg():
     """
     Refreshes the 'has_metakg' attribute for SmartAPI objects.
-    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc 
+    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc
     collection based on the SmartAPI ID, and updates the 'has_metakg' attribute accordingly.
     Note:
     - This function assumes the existence of the SmartAPI and ConsolidatedMetaKGDoc classes.
@@ -225,7 +224,7 @@ check = check_uptime
 _lock = FileLock(".lock", timeout=0)
 
 
-def routine():
+def routine(no_backup=False):
     logger = logging.getLogger("routine")
 
     try:
@@ -236,8 +235,9 @@ def routine():
     except Timeout:
         logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
         return
-    logger.info("backup_to_s3()")
-    backup_to_s3()
+    if not no_backup:
+        logger.info("backup_to_s3()")
+        backup_to_s3()
     logger.info("refresh_document()")
     refresh_document()
     logger.info("check_uptime()")
