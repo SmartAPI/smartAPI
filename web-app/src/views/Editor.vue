@@ -32,11 +32,6 @@ export default {
       });
 
       window.editor = editor;
-
-      document.querySelector('#swagger-editor .topbar-logo__img').setAttribute('src', logo);
-      document
-        .querySelector(".topbar a[href$='#']")
-        .setAttribute('href', 'https://smart-api.info/registry');
     }
   },
   computed: {

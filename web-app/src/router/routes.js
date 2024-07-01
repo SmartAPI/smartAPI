@@ -67,8 +67,7 @@ export const routes = [
   },
   {
     path: '/portal',
-    name: 'EmptyRouterView',
-    component: () => import('../views/EmptyRouterView.vue'),
+    name: 'Home',
     children: [
       {
         path: '',
@@ -77,12 +76,11 @@ export const routes = [
       },
       {
         path: 'translator',
-        name: 'EmptyRouterView',
-        component: () => import('../views/EmptyRouterView.vue'),
+        name: 'TranslatorHome',
         children: [
           {
             path: '',
-            name: 'TranslatorHome',
+            name: 'TranslatorDirectory',
             component: () => import('../views/TranslatorHome.vue')
           },
           {
