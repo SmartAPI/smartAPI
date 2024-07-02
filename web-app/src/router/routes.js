@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Home from '../views/Home.vue'
 
 function getSmartAPI_IDs() {
   axios.create({
@@ -17,11 +18,6 @@ function getSmartAPI_IDs() {
 }
 
 export const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue')
-  },
   {
     path: '/about',
     name: 'About',
@@ -67,7 +63,7 @@ export const routes = [
   },
   {
     path: '/portal',
-    name: 'Home',
+    name: 'PHome',
     children: [
       {
         path: '',
@@ -189,6 +185,11 @@ export const routes = [
         slugs: ['']
       }
     }
+  },
+  {
+    path: '/',
+    name: 'Home',
+    component: Home
   },
   {
     path: '/:catchAll(.*)',
