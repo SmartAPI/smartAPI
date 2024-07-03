@@ -11,7 +11,7 @@
         ></UptimeStatus>
       </span>
       <div>
-        <span v-if="api?.openapi" class="versionBadge green"> OAS3 </span>
+        <span v-if="api?.openapi" class="versionBadge green"> OAS3 {{ api?.openapi.includes('.') ? " " + api?.openapi.split('.', 2).join('.') : " " + api?.openapi }}</span>
         <span v-else-if="api?.swagger" class="versionBadge blue"> Swagger2 </span>
         <span
           v-if="api?.info?.['x-trapi']?.version"

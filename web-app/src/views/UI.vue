@@ -86,7 +86,8 @@ export default {
       name: '',
       api: Object,
       //ensure nav has mounted for teleport to work
-      ready: false
+      ready: false,
+      openapi: ''
     });
 
     const route = useRoute();
@@ -99,6 +100,7 @@ export default {
     // }))
 
     // useMeta(computedMeta)
+
 
     let loadSwaggerUI = (dataurl) => {
       const HideEmptyTagsPlugin = () => {
@@ -141,6 +143,8 @@ export default {
                   '<div class="yellow lighten-4 red-text padding20"> <i class="material-icons">warning</i> Your connection is secure (HTTPS) and the selected server utilizes an insecure communication (HTTP). <br/>This will likely result in errors, please select a matching protocol server or change your connection. </div>'
                 );
             }
+            document.querySelector('.swagger-ui .info .title small.version-stamp pre.version')
+            .insertAdjacentHTML('beforeend', data?.openapi.includes('.') ? " " + data?.openapi.split('.', 2).join('.') : " " + data?.openapi)
           }
         }
       });
@@ -152,6 +156,7 @@ export default {
         .get(url)
         .then((res) => {
           data.api = res.data;
+          data.openapi = res.data?.openapi
         })
         .catch((err) => {
           throw err;
