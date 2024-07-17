@@ -415,14 +415,16 @@ class MetaKGQueryHandler(QueryHandler):
                 "default": [],
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"],
             },
-            "default_view": {
+            "html_view": {
                 "type": str,
                 "default": "cytoscape",
                 "enum": ("json", "cytoscape"),
+                "alias": "default_view"
             },
-            "header": {
+            "html_header": {
                 "type": bool,
-                "default": True
+                "default": True,
+                "alias": "header"
             },
             "consolidated": {"type": bool, "default": True},
             "api_details": {"type": bool, "default": False},
@@ -547,8 +549,8 @@ class MetaKGQueryHandler(QueryHandler):
                     response=serializer.to_json(chunk),
                     shown=shown,
                     available=available,
-                    default_view=serializer.to_json(self.args.default_view),
-                    header=serializer.to_json(self.args.header)
+                    default_view=serializer.to_json(self.args.html_view),
+                    header=serializer.to_json(self.args.html_header)
                 )
                 self.set_header("Content-Type", "text/html; charset=utf-8")
                 return super(BaseAPIHandler, self).write(result)
