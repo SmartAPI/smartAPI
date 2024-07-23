@@ -54,14 +54,12 @@ class TestAPIParserWhichIsAlreadyDereferenced(unittest.TestCase):
         self.assertEqual(self.metadata["url"], "https://platform-api.opentargets.io/v3")
         self.assertEqual(self.metadata["components"], None)
 
-    # Fail
-    # AssertionError: 'biolink:related_to' != 'related_to'
     def test_fetch_all_operations(self):
         ops = self.metadata["operations"]
         self.assertEqual(ops[0]["association"].get("api_name"), "OpenTarget API")
-        self.assertEqual(ops[0]["association"].get("predicate"), "related_to")
-        self.assertEqual(ops[0]["association"].get("input_id"), "ENSEMBL")
-        self.assertEqual(ops[0]["query_operation"].path, "/platform/public/evidence/filter")
+        self.assertEqual(ops[0]["association"].get("predicate"), "biolink:related_to")
+        self.assertEqual(ops[0]["association"].get("input_id"), "biolink:ENSEMBL")
+        self.assertEqual(ops[0]["query_operation"]["path"], "/platform/public/evidence/filter")
 
 
 class TestAPIParserUsingSpecsWithParameters(unittest.TestCase):
