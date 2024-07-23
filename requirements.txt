@@ -23,6 +23,6 @@ filelock
 boto3
 
 # Biolink Model Toolkit, used in /api/metakg endpoint
-bmt-lite-v3.1.0==2.2.2
+bmt-lite-v3.6.0==2.3.0
 
 networkx==3.1.0
