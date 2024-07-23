@@ -1,9 +1,11 @@
-import networkx as nx
 import logging
+
+import networkx as nx
+
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
 
-logger=logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
+logging.basicConfig(level="INFO")
 
 class MetaKGPathFinder:
     def __init__(self, query_data=None, expanded_fields=None):
