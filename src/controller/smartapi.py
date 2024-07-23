@@ -40,8 +40,6 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from warnings import warn
 
-import pprint
-
 from model import ConsolidatedMetaKGDoc, MetaKGDoc, SmartAPIDoc
 from utils import decoder, monitor
 from utils.downloader import download
@@ -91,6 +89,7 @@ class Slug:
 class SmartAPI(AbstractWebEntity, Mapping):
     LOOKUP_FIELDS = ("slug", "username", "url")
     MODEL_CLASS = SmartAPIDoc
+    INDEX = None   # set an alt. index name if not using the default one from MODEL_CLASS
 
     # SmartAPI.slug.validate(value: Union[str, NoneType]) -> None
     # smartapi.slug : Union[str, NoneType]
@@ -138,9 +137,9 @@ class SmartAPI(AbstractWebEntity, Mapping):
         )
         return obj
 
-    @staticmethod
-    def get_tags(field="info.contact.name"):
-        return SmartAPIDoc.aggregate(field)
+    @classmethod
+    def get_tags(cls, field="info.contact.name"):
+        return cls.MODEL_CLASS.aggregate(field, index=cls.INDEX)
 
     @classmethod
     def find(cls, val, field="slug"):
@@ -332,7 +331,7 @@ class SmartAPI(AbstractWebEntity, Mapping):
         doc._meta.last_updated = self.last_updated
         doc._meta.slug = self.slug
         doc._meta.has_metakg = self.has_metakg
-        doc.save(skip_empty=False)
+        doc.save(skip_empty=False, index=self.INDEX)
 
         return self._id
 

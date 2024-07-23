@@ -128,6 +128,7 @@ class AbstractWebEntity(ABC):
 
     LOOKUP_FIELDS = []
     MODEL_CLASS = None
+    INDEX = None   # alt index name to use
 
     # use this as url for validation only workflow
     VALIDATION_ONLY = PlaceHolder("http://nohost/nofile")
@@ -157,7 +158,7 @@ class AbstractWebEntity(ABC):
 
     @classmethod
     def count(cls, *args, **kwargs):
-        search = cls.MODEL_CLASS.search()
+        search = cls.MODEL_CLASS.search(index=cls.INDEX)
         if args or kwargs:
             search = search.filter(*args, **kwargs)
         return search.count()
@@ -171,7 +172,7 @@ class AbstractWebEntity(ABC):
         # Data can change in between calls.
         # Use try-catch blocks in follow up ops.
 
-        return bool(cls.MODEL_CLASS.exists(_id))
+        return bool(cls.MODEL_CLASS.exists(_id, index=cls.INDEX))
 
     @classmethod
     def find(cls, val, field=None):
@@ -184,7 +185,7 @@ class AbstractWebEntity(ABC):
 
         if field in cls.LOOKUP_FIELDS:
             field = "_meta." + field
-        return cls.MODEL_CLASS.exists(val, field)
+        return cls.MODEL_CLASS.exists(val, field, index=cls.INDEX)
 
     @classmethod
     def get_all(cls, size=10, from_=0, query_data=None):
@@ -192,7 +193,7 @@ class AbstractWebEntity(ABC):
         Returns a list of SmartAPIs.
         Size is the at-most number.
         """
-        search = cls.MODEL_CLASS.search()
+        search = cls.MODEL_CLASS.search(index=cls.INDEX)
         if query_data and isinstance(query_data, dict):
             query_type = query_data.get("type") or "match_all"
             query_body = query_data["body"]
@@ -232,7 +233,7 @@ class AbstractWebEntity(ABC):
     @classmethod
     def get(cls, _id):
         try:
-            doc = cls.MODEL_CLASS.get(_id)
+            doc = cls.MODEL_CLASS.get(_id, index=cls.INDEX)
         except ESNotFoundError as err:
             raise NotFoundError from err
         obj = cls(doc.get_url())
@@ -277,7 +278,7 @@ class AbstractWebEntity(ABC):
 
     def delete(self):
         try:
-            self.MODEL_CLASS.get(self._id).delete()
+            self.MODEL_CLASS.get(self._id, index=self.INDEX).delete()
         except ESNotFoundError as err:
             raise NotFoundError() from err
 
@@ -337,7 +338,7 @@ class AbstractEntityStatus:
         Update the timestamp to reflect the operation.
         The timestamp can be server or local time.
         """
-        self._timestamp = datetime.utcnow()
+        self._timestamp = datetime.now(timezone.utc)
         self._timestamp.replace(tzinfo=timezone.utc)
 
 
