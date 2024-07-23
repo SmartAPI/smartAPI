@@ -1,9 +1,16 @@
 from copy import deepcopy
 
 from biothings.web.auth.authn import DefaultCookieAuthnProvider
-from biothings.web.settings.default import ANNOTATION_KWARGS, COMMON_KWARGS, QUERY_KWARGS
+from biothings.web.settings.default import (
+    ANNOTATION_KWARGS,
+    COMMON_KWARGS,
+    QUERY_KWARGS,
+)
 
-from config_key import *
+try:
+    from config_key import *
+except ModuleNotFoundError:
+    pass
 
 # *****************************************************************************
 # Credentials
