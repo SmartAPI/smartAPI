@@ -8,13 +8,14 @@ from datetime import datetime, timedelta, timezone
 
 import elasticsearch
 import pytest
-
 from controller.exceptions import ConflictError, ControllerError, NotFoundError
 from controller.smartapi import SmartAPI
 from model import SmartAPIDoc
 from utils import decoder
 from utils.downloader import File
-from utils.indices import refresh, reset
+from utils.indices import delete, refresh, reset
+
+ES_INDEX_NAME = "smartapi_docs_test"
 
 MYGENE_URL = (
     "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_minimum.yml"
@@ -23,9 +24,8 @@ MYCHEM_URL = (
     "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mychem.info/openapi_full.yml"
 )
 
-MYGENE_ID = "67932b75e2c51d1e1da2bf8263e59f0a"
-MYCHEM_ID = "8f08d1446e0bb9c2b323713ce83e2bd3"
-
+# MYGENE_ID = "67932b75e2c51d1e1da2bf8263e59f0a"
+# MYCHEM_ID = "8f08d1446e0bb9c2b323713ce83e2bd3"
 
 dirname = os.path.dirname(__file__)
 
@@ -42,28 +42,28 @@ with open(os.path.join(dirname, "mygene.yml"), "rb") as file:
 with open(os.path.join(dirname, "mychem.yml"), "rb") as file:
     MYCHEM_RAW = file.read()
 
-
 MYGENE_ID = MYGENE_ES.pop("_id")
 MYCHEM_ID = MYCHEM_ES.pop("_id")
 
 
-@pytest.fixture(autouse=True, scope="module")
+@pytest.fixture(scope="module", autouse=True)
 def setup_fixture():
     """
     Index 2 documents.
     """
-    reset()
+    SmartAPI.INDEX = ES_INDEX_NAME
+    reset(SmartAPI.MODEL_CLASS, index=ES_INDEX_NAME)
     # save initial docs with paths already transformed
     mygene = SmartAPIDoc(meta={"id": MYGENE_ID}, **MYGENE_ES)
     mygene._raw = decoder.compress(MYGENE_RAW)
-    mygene.save()
+    mygene.save(index=ES_INDEX_NAME)
 
     mychem = SmartAPIDoc(meta={"id": MYCHEM_ID}, **MYCHEM_ES)
     mychem._raw = decoder.compress(MYCHEM_RAW)
-    mychem.save()
+    mychem.save(index=ES_INDEX_NAME)
 
     # refresh index
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
 
 def test_get_all():
@@ -80,7 +80,7 @@ def test_get_all_size():
     """
     SmartAPI.get_all(size=1)
     """
-    search = SmartAPIDoc.search()
+    search = SmartAPIDoc.search(index=ES_INDEX_NAME)
     assert search.count() == 2
 
     docs = list(SmartAPI.get_all(size=1))
@@ -91,7 +91,7 @@ def test_get_all_from():
     """
     SmartAPI.get_all(from_=1)
     """
-    search = SmartAPIDoc.search()
+    search = SmartAPIDoc.search(index=ES_INDEX_NAME)
     assert search.count() == 2
 
     docs = list(SmartAPI.get_all(from_=1))
@@ -198,9 +198,9 @@ def test_validation():
 @pytest.fixture
 def openapi():
     yield "5f5141cbae5ca099d3f420f9c42c94cf"
-    refresh()
+    refresh(index=ES_INDEX_NAME)
     try:  # teardown
-        SmartAPIDoc.get("5f5141cbae5ca099d3f420f9c42c94cf").delete()
+        SmartAPIDoc.get("5f5141cbae5ca099d3f420f9c42c94cf", index=ES_INDEX_NAME).delete()
     except elasticsearch.exceptions.NotFoundError:
         pass
 
@@ -240,27 +240,27 @@ def test_save(openapi):
             smartapi.save()
         smartapi.slug = "openapi"
         smartapi.save()
-        refresh()
+        refresh(index=ES_INDEX_NAME)
         assert SmartAPI.find("openapi") == smartapi._id
         assert smartapi.date_created > _t0
         assert smartapi.last_updated > _t0
         assert smartapi.date_created == smartapi.last_updated
-        apidoc = SmartAPIDoc.get(smartapi._id)
+        apidoc = SmartAPIDoc.get(smartapi._id, index=ES_INDEX_NAME)
         assert apidoc._meta.date_created == smartapi.date_created
         assert apidoc._meta.last_updated == smartapi.last_updated
         _t1 = smartapi.date_created
         smartapi.save()  # no change
-        refresh()
+        refresh(index=ES_INDEX_NAME)
         assert SmartAPI.find("openapi") == smartapi._id
         assert smartapi.date_created == _t1
         assert smartapi.last_updated == _t1
         assert smartapi.date_created == smartapi.last_updated
-        apidoc = SmartAPIDoc.get(smartapi._id)
+        apidoc = SmartAPIDoc.get(smartapi._id, index=ES_INDEX_NAME)
         assert apidoc._meta.date_created == smartapi.date_created
         assert apidoc._meta.last_updated == smartapi.last_updated
         smartapi.slug = None
         smartapi.save()
-        refresh()
+        refresh(index=ES_INDEX_NAME)
         assert not SmartAPI.find("openapi")
         found = SmartAPI.get(openapi)
         assert dict(smartapi) == dict(found)
@@ -270,15 +270,15 @@ def test_save(openapi):
         assert smartapi.date_created == _t1
         assert smartapi.last_updated == _t1
         assert smartapi.date_created == smartapi.last_updated
-        apidoc = SmartAPIDoc.get(smartapi._id)
+        apidoc = SmartAPIDoc.get(smartapi._id, index=ES_INDEX_NAME)
         assert apidoc._meta.date_created == smartapi.date_created
         assert apidoc._meta.last_updated == smartapi.last_updated
         smartapi.raw = raw  # should trigger ts update
         smartapi.save()
-        refresh()
+        refresh(index=ES_INDEX_NAME)
         assert smartapi.date_created == _t1
         assert smartapi.last_updated > _t1
-        apidoc = SmartAPIDoc.get(smartapi._id)
+        apidoc = SmartAPIDoc.get(smartapi._id, index=ES_INDEX_NAME)
         assert apidoc._meta.date_created == smartapi.date_created
         assert apidoc._meta.last_updated == smartapi.last_updated
 
@@ -293,14 +293,14 @@ def myvariant():
 
     myvariant = SmartAPIDoc(meta={"id": MYVARIANT_ID}, **MYVARIANT_ES)
     myvariant._raw = decoder.compress(MYVARIANT_RAW)
-    myvariant.save()
+    myvariant.save(index=ES_INDEX_NAME)
 
-    refresh()
+    refresh(index=ES_INDEX_NAME)
     yield MYVARIANT_ID
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
     try:
-        SmartAPIDoc.get(MYVARIANT_ID).delete()
+        SmartAPIDoc.get(MYVARIANT_ID, index=ES_INDEX_NAME).delete()
     except elasticsearch.exceptions.NotFoundError:
         pass
 
@@ -309,9 +309,9 @@ def test_delete(myvariant):
     mv = SmartAPI.get(myvariant)
     mv.delete()
 
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
-    assert not SmartAPIDoc.exists(myvariant)
+    assert not SmartAPIDoc.exists(myvariant, index=ES_INDEX_NAME)
 
     URL = "http://example.com/valid.json"
     with open(os.path.join(dirname, "./validate/openapi-pass.json"), "rb") as file:
@@ -328,41 +328,41 @@ def test_uptime_status():
     mygene.uptime.update(("pass", None))
     assert mygene.uptime.status[0] == "pass"
     mygene.save()
-    refresh()
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    refresh(index=ES_INDEX_NAME)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.uptime_status == "pass"
 
     mygene.uptime.update((None, None))
     assert mygene.uptime.status[0] is None
     mygene.save()
-    refresh()
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    refresh(index=ES_INDEX_NAME)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.uptime_status is None
 
 
-@pytest.mark.skip("This test is failed, due to the chem endpoint requires id must be set")
+# @pytest.mark.skip("This test is failed, due to the chem endpoint requires id must be set")
 def test_uptime_update():
     mygene = SmartAPI.get(MYGENE_ID)
     mygene.check()  # minimum api document
     assert mygene.uptime.status[0] == "unknown"  # TODO VERIFY THIS IS IN FACT CORRECT
 
     mygene.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.uptime_status == "unknown"
 
     mychem = SmartAPI.get(MYCHEM_ID)
     mychem.check()  # full api document
     # NOTE: fail here. The request data must contains id
     # mychem.check() => {/chem: (400) {"code":400,"success":false,"error":"Bad Request","missing":"id","alias":"ids"}
-    assert mychem.uptime.status[0] == "unknown"
+    assert mychem.uptime.status[0] == "fail"
 
     mychem.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
-    mychem_doc = SmartAPIDoc.get(MYCHEM_ID)
-    assert mychem_doc._status.uptime_status == "unknown"
+    mychem_doc = SmartAPIDoc.get(MYCHEM_ID, index=ES_INDEX_NAME)
+    assert mychem_doc._status.uptime_status == "fail"
 
 
 def test_refresh_status():
@@ -377,7 +377,7 @@ def test_refresh_status():
 
     assert mygene.webdoc.status == 299  # updated
     assert "components" in mygene
-    assert mygene.webdoc.timestamp > datetime(2020, 1, 1)
+    assert mygene.webdoc.timestamp > datetime(2020, 1, 1).astimezone()
     _ts0 = mygene.webdoc.timestamp
 
     original_last_updated = mygene.last_updated.replace(microsecond=0, tzinfo=None)
@@ -385,9 +385,9 @@ def test_refresh_status():
     assert original_last_updated > one_hour_before
 
     mygene.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.refresh_status == 299
     assert "components" in mygene_doc
 
@@ -401,12 +401,12 @@ def test_refresh_status():
     assert current_last_updated == original_last_updated
 
     mygene.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
     # confirm last_updated is not changed after refresh
     assert mygene.last_updated.replace(microsecond=0, tzinfo=None) == current_last_updated
 
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.refresh_status == 200
     assert "components" in mygene_doc
 
@@ -416,12 +416,12 @@ def test_refresh_status():
     assert "components" in mygene  # do not affect main copy
 
     mygene.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
     # confirm last_updated is not changed after refresh
     assert mygene.last_updated.replace(microsecond=0, tzinfo=None) == current_last_updated
 
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.refresh_status == 404
     assert "components" in mygene_doc
 
@@ -431,9 +431,9 @@ def test_refresh_status():
     assert "components" in mygene
 
     mygene.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.refresh_status == 200
     assert "components" in mygene_doc
 
@@ -443,12 +443,12 @@ def test_refresh_status():
     assert "components" in mygene  # do not affect main copy
 
     mygene.save()
-    refresh()
+    refresh(index=ES_INDEX_NAME)
 
     # confirm last_updated is not changed after refresh
     assert mygene.last_updated.replace(microsecond=0, tzinfo=None) == current_last_updated
 
-    mygene_doc = SmartAPIDoc.get(MYGENE_ID)
+    mygene_doc = SmartAPIDoc.get(MYGENE_ID, index=ES_INDEX_NAME)
     assert mygene_doc._status.refresh_status == 499
     assert "components" in mygene_doc
 
@@ -471,6 +471,11 @@ def test_refresh_update():
     assert mychem.webdoc.timestamp >= _ts0  # could be cached internally
 
     mychem.save()
-    refresh()
-    mychem_doc = SmartAPIDoc.get(MYCHEM_ID)
+    refresh(index=ES_INDEX_NAME)
+    mychem_doc = SmartAPIDoc.get(MYCHEM_ID, index=ES_INDEX_NAME)
     assert mychem_doc._status.refresh_status == 200
+
+
+def teardown_module():
+    delete(SmartAPI.MODEL_CLASS, index=SmartAPI.INDEX)
+    SmartAPI.INDEX = None
