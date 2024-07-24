@@ -1,4 +1,4 @@
-biothings[web_extra]==0.12.4
+biothings[web_extra]==0.12.5
 # git+https://github.com/biothings/biothings.api.git@0.11.x#egg=biothings[web_extra]
 
 # document validation
