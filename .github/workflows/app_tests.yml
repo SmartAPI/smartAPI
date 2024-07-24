@@ -25,7 +25,7 @@ jobs:
       - name: Update
         run: sudo apt-get update
       - name: Install apt-get packages
-        run: sudo apt-get install curl
+        run: sudo apt-get install libssl-dev libcurl4-openssl-dev
       - name: Upgrade pip
         run: pip install --upgrade pip
       - name: Install dependencies
