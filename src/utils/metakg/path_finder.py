@@ -104,7 +104,8 @@ class MetaKGPathFinder:
             If True, includes full details of the 'api' in the result.
         - predicate_filter: list (default=None)
             A list of predicates to filter the results by.
-
+        - bte: bool (default=False)
+            If True, includes BTE information in the result.
         Returns:
         - all_paths_with_edges: list of dict
             A list containing paths and their edge information for all subject-object pairs.
@@ -112,17 +113,12 @@ class MetaKGPathFinder:
 
         all_paths_with_edges = []
 
-        try:
-            # Predicate Filter Setup
-            predicate_filter_set = set(predicate_filter) if predicate_filter else None
-            try:
-                if 'predicate' in self.expanded_fields and self.expanded_fields['predicate']:
-                    predicate_filter_set.update(self.expanded_fields['predicate'])
-            except TypeError as te:
-                logger.error(f"TypeError encountered while updating predicate_filter_set: {te}")
-            except KeyError as ke:
-                logger.error(f"KeyError encountered while updating predicate_filter_set: {ke}")
+        predicate_filter_set = set(predicate_filter) if predicate_filter else None
 
+        if 'predicate' in self.expanded_fields and self.expanded_fields['predicate']:
+            predicate_filter_set.update(self.expanded_fields['predicate'])
+
+        try:
             # Graph iteration over subject-object pairs
             for subject in self.expanded_fields["subject"]:
                 for object in self.expanded_fields["object"]:
@@ -146,21 +142,9 @@ class MetaKGPathFinder:
                                         edge_added = True
                                 if edge_added:
                                     all_paths_with_edges.append(paths_data)
-                    except nx.NetworkXNoPath:
-                        # No path found, continue to the next pair
-                        continue
-                    except nx.NetworkXError as e:
-                        logger.error(f"NetworkX error while processing subject {subject} and object {object}: {e}")
-                        continue
-                    except KeyError as ke:
-                        logger.error(f"Key error encountered while processing subject {subject} and object {object}. Missing key: {ke}")
-                        continue
-                    except Exception as e:
-                        logger.error(f"Unexpected error while processing subject {subject} and object {object}: {e}")
-                        continue
-        except KeyError as ke:
-            logger.error(f"Key error encountered in expanded_fields. Missing key: {ke}")
-        except Exception as e:
-            logger.error(f"Unexpected error in get_paths function: {e}")
+                    except nx.exception.NodeNotFound as node_err:
+                        raise ValueError(node_err)
+            return all_paths_with_edges
 
-        return all_paths_with_edges
+        except Exception as e:
+            return e
