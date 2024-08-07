@@ -681,9 +681,9 @@ class MetaKGPathFinderHandler(QueryHandler):
             bte=self.args.bte
         )
 
-        # Error check path results
-        if isinstance(paths_with_edges, ValueError):
-            raise ValueError(str(paths_with_edges))
+        # # Error check path results
+        if "error" in paths_with_edges:
+            raise HTTPError(400, reason=str(paths_with_edges["error"]))
 
         # Check if rawquery parameter is true -- respond with correct output
         if self.args.rawquery:

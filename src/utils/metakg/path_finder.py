@@ -143,8 +143,8 @@ class MetaKGPathFinder:
                                 if edge_added:
                                     all_paths_with_edges.append(paths_data)
                     except nx.exception.NodeNotFound as node_err:
-                        raise ValueError(node_err)
+                        return { "error": node_err }
             return all_paths_with_edges
 
         except Exception as e:
-            return e
+            return  { "error": e }
