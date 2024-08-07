@@ -122,6 +122,10 @@ class MetaKGPathFinder:
             # Graph iteration over subject-object pairs
             for subject in self.expanded_fields["subject"]:
                 for object in self.expanded_fields["object"]:
+                    if subject not in self.G:
+                        return { "error": f"Source node {subject} is not found in the MetaKG" }
+                    if object not in self.G:
+                        return { "error": f"Target node {object} is not found in the MetaKG" }
                     try:
                         # Check if a path exists between the subject and object
                         if nx.has_path(self.G, subject, object):
