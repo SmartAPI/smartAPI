@@ -20,7 +20,8 @@ def run_routine():
 
 class WebAppHandler(RequestHandler):
     def get(self):
-        self.render("../web-app/dist/index.html")
+        if os.path.exists("../web-app/dist/index.html"):
+            self.render("../web-app/dist/index.html")
 
 
 if __name__ == "__main__":
