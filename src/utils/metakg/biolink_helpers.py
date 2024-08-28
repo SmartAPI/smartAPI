@@ -1,9 +1,11 @@
-from typing import Union, List
+from typing import List, Union
+
 import bmt
 
 # Initialize the Biolink Model Toolkit instance globally if it's used frequently
 # or pass it as a parameter to functions that require it.
 toolkit = bmt.Toolkit()
+
 
 def get_expanded_values(value: Union[str, List[str]], toolkit_instance=toolkit) -> List[str]:
     """Return expanded value list for a given Biolink class name."""

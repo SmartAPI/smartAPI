@@ -1,9 +1,11 @@
-import networkx as nx
 import logging
+
+import networkx as nx
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
 
-logger=logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
+logger = logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
+
 
 class MetaKGPathFinder:
     def __init__(self, query_data=None, expanded_fields=None):
@@ -78,7 +80,7 @@ class MetaKGPathFinder:
             api_content = apis
         else:
             if bte:
-                api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}, "bte":item["bte"]} for item in apis]
+                api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}, "bte": item["bte"]} for item in apis]
             else:
                 api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}} for item in apis]
 
@@ -138,7 +140,7 @@ class MetaKGPathFinder:
                                     edge_added = True
                             if edge_added:
                                 all_paths_with_edges.append(paths_data)
-                except Exception as e:
+                except Exception:
                     continue
 
         return all_paths_with_edges
