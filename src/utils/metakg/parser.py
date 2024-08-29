@@ -27,7 +27,7 @@ class MetaKGParser:
         count_metadata_list = len(metadata_list)
         self.metakg_errors = {}
         for i, metadata in enumerate(metadata_list):
-            ops.extend(self.get_ops_from_metakg_endpoint(metadata, f"[{i+1}/{count_metadata_list}]"))
+            ops.extend(self.get_ops_from_metakg_endpoint(metadata, f"[{i + 1}/{count_metadata_list}]"))
         if self.metakg_errors:
             cnt_metakg_errors = sum([len(x) for x in self.metakg_errors.values()])
             logger.error(f"Found {cnt_metakg_errors} TRAPI metakg errors:\n {json.dumps(self.metakg_errors, indent=2)}")
@@ -151,6 +151,8 @@ class MetaKGParser:
             edge = {
                 "subject": op["association"]["input_type"],
                 "object": op["association"]["output_type"],
+                "subject_prefix": op["association"]["input_id"],
+                "object_prefix": op["association"]["output_id"],
                 "predicate": op["association"]["predicate"],
                 "api": {
                     "name": op["association"]["api_name"],
