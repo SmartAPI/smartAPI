@@ -2,6 +2,7 @@
 
 import gzip
 import json
+from hashlib import blake2b
 
 import yaml
 
@@ -62,7 +63,7 @@ def to_dict(stream, ext=None, ctype=None):
             pass
     if isinstance(stream, str):
         if stream.startswith("export default "):
-            stream = stream[len("export default ") :]
+            stream = stream[len("export default "):]
 
     # brute force
     return to_yaml(stream)
@@ -79,3 +80,12 @@ def compress(stream):
 
 def decompress(stream):
     return gzip.decompress(stream) if stream else None
+
+
+# -------------
+# Hashed _id
+# -------------
+def get_id(url):
+    _bytes = str(url).encode("utf8")
+    _hash = blake2b(_bytes, digest_size=16)
+    return _hash.hexdigest()

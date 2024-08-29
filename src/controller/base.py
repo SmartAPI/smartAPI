@@ -3,7 +3,6 @@ from collections import OrderedDict, UserDict, UserString
 from configparser import ConfigParser
 from datetime import datetime, timezone
 from enum import IntEnum
-from hashlib import blake2b  # requires python>=3.6, otherwise install pyblake2
 from urllib.parse import urlparse
 
 import jsonschema
@@ -199,7 +198,7 @@ class AbstractWebEntity(ABC):
             query_body = query_data["body"]
             search = search.query(query_type, **query_body)
         search = search.source(False)
-        search = search[from_ : from_ + size]
+        search = search[from_: from_ + size]
 
         for hit in search:
             try:  # unlikely but possible
@@ -243,9 +242,7 @@ class AbstractWebEntity(ABC):
     @property
     def _id(self):
         # can be a cached property in python 3.8+
-        _bytes = str(self._url).encode("utf8")
-        _hash = blake2b(_bytes, digest_size=16)
-        return _hash.hexdigest()
+        return decoder.get_id(self._url)
 
     @property
     def url(self):
