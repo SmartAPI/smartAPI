@@ -262,6 +262,8 @@ def routine(no_backup=False):
         logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
     except Exception as e:
         logger.error(f"An error occurred during the routine: {e}")
+        if lock_acquired:
+            _lock.release()
         return
     finally:
         if lock_acquired:
