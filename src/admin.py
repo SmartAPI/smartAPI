@@ -24,6 +24,8 @@
 
 import json
 import logging
+import random
+import time
 from datetime import datetime
 
 import boto3
@@ -227,27 +229,46 @@ _lock = FileLock(".lock", timeout=0)
 def routine(no_backup=False):
     logger = logging.getLogger("routine")
 
+    # Add jitter: random delay between 100 and 500 milliseconds (adjust range as needed)
+    jitter_ms = random.uniform(100, 500)  # Jitter in milliseconds
+    jitter_seconds = jitter_ms / 1000  # Convert milliseconds to seconds
+    logger.info(f"Applying jitter delay of {jitter_ms:.2f} milliseconds before acquiring lock.")
+    time.sleep(jitter_seconds)
+
+    lock_acquired = False
+
     try:
         # if previously acquired,
         # it won't block here
-        _lock.acquire()
-        logger.info("Schedule lock acquired successfully.")
+        lock_acquired = _lock.acquire()
+        if lock_acquired:
+            logger.info("Schedule lock acquired successfully.")
+            if not no_backup:
+                logger.info("backup_to_s3()")
+                backup_to_s3()
+            logger.info("refresh_document()")
+            refresh_document()
+            logger.info("check_uptime()")
+            check_uptime()
+            logger.info("refresh_metakg()")
+            refresh_metakg()
+            logger.info("consolidate_metakg()")
+            consolidate_metakg()
+            logger.info("refresh_has_metakg()")
+            refresh_has_metakg()
+        else:
+            logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
     except Timeout:
         logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
+    except Exception as e:
+        logger.error(f"An error occurred during the routine: {e}")
+        if lock_acquired:
+            _lock.release()
         return
-    if not no_backup:
-        logger.info("backup_to_s3()")
-        backup_to_s3()
-    logger.info("refresh_document()")
-    refresh_document()
-    logger.info("check_uptime()")
-    check_uptime()
-    logger.info("refresh_metakg()")
-    refresh_metakg()
-    logger.info("consolidate_metakg()")
-    consolidate_metakg()
-    logger.info("refresh_has_metakg()")
-    refresh_has_metakg()
+    finally:
+        if lock_acquired:
+            _lock.release()
+            logger.info("Schedule lock released successfully.")
 
 
 if __name__ == "__main__":
