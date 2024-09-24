@@ -26,6 +26,8 @@ import json
 import logging
 import random
 import time
+import zipfile
+import os
 from datetime import datetime
 
 import boto3
@@ -37,20 +39,46 @@ from utils import indices
 logging.basicConfig(level="INFO")
 
 
-def _default_filename():
-    return "smartapi_" + datetime.today().strftime("%Y%m%d") + ".json"
+def _default_filename(extension=".json"):
+    return "smartapi_" + datetime.today().strftime("%Y%m%d") + extension
 
 
-def save_to_file(mapping, filename=None):
-    filename = filename or _default_filename()
-    with open(filename, "w") as file:
-        json.dump(mapping, file, indent=2)
+def save_to_file(mapping, filename=None, format="zip"):
+    """
+    Save data to a file in either JSON or ZIP format.
+    :param mapping: Data to save
+    :param filename: File name
+    :param format: File format, either 'json' or 'zip'
+    """
+    if format == "zip":
+        filename = filename or _default_filename(".zip")
+        with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zfile:
+            json_data = json.dumps(mapping, indent=2)
+            zfile.writestr(filename.replace(".zip", ".json"), json_data)
+    else:
+        filename = filename or _default_filename(".json")
+        with open(filename, "w") as file:
+            json.dump(mapping, file, indent=2)
 
 
-def save_to_s3(mapping, filename=None, bucket="smartapi"):
-    filename = filename or _default_filename()
+def save_to_s3(mapping, filename=None, bucket="smartapi", format="zip"):
+    """
+    Save data to S3 in either JSON or ZIP format.
+    :param mapping: Data to save
+    :param filename: File name
+    :param bucket: S3 bucket name
+    :param format: File format, either 'json' or 'zip'
+    """
+    filename = filename or _default_filename(f".{format}")
     s3 = boto3.resource("s3")
-    s3.Bucket(bucket).put_object(Key="db_backup/{}".format(filename), Body=json.dumps(mapping, indent=2))
+
+    if format == "zip":
+        with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zfile:
+            json_data = json.dumps(mapping, indent=2)
+            zfile.writestr(filename.replace(".zip", ".json"), json_data)
+        s3.Bucket(bucket).upload_file(Filename=filename, Key=f"db_backup/{filename}")
+    else:
+        s3.Bucket(bucket).put_object(Key=f"db_backup/{filename}", Body=json.dumps(mapping, indent=2))
 
 
 def _backup():
@@ -69,14 +97,14 @@ def _backup():
     return smartapis
 
 
-def backup_to_file(filename=None):
+def backup_to_file(filename=None, format="zip"):
     smartapis = _backup()
-    save_to_file(smartapis, filename)
+    save_to_file(smartapis, filename, format)
 
 
-def backup_to_s3(filename=None, bucket="smartapi"):
+def backup_to_s3(filename=None, bucket="smartapi", format="zip"):
     smartapis = _backup()
-    save_to_s3(smartapis, filename, bucket)
+    save_to_s3(smartapis, filename, bucket, format)
 
 
 def _restore(smartapis):
@@ -99,7 +127,7 @@ def restore_from_s3(filename=None, bucket="smartapi"):
     s3 = boto3.client("s3")
 
     if not filename:
-        objects = s3.list_objects_v2(Bucket="smartapi", Prefix="db_backup")["Contents"]
+        objects = s3.list_objects_v2(Bucket=bucket, Prefix="db_backup")["Contents"]
         filename = max(objects, key=lambda x: x["LastModified"])["Key"]
 
     if not filename.startswith("db_backup/"):
@@ -108,14 +136,34 @@ def restore_from_s3(filename=None, bucket="smartapi"):
     logging.info("GET s3://%s/%s", bucket, filename)
 
     obj = s3.get_object(Bucket=bucket, Key=filename)
-    smartapis = json.loads(obj["Body"].read())
+
+    if filename.endswith(".zip"):
+        with open(filename, "wb") as temp_file:
+            temp_file.write(obj["Body"].read())
+        with zipfile.ZipFile(filename, "r") as zfile:
+            with zfile.open(filename.replace(".zip", ".json")) as file:
+                smartapis = json.load(file)
+        os.remove(filename)
+    elif filename.endswith(".json"):
+        smartapis = json.loads(obj["Body"].read())
+    else:
+        raise Exception("Unsupported backup file type!")
+
     _restore(smartapis)
 
 
 def restore_from_file(filename):
-    with open(filename) as file:
-        smartapis = json.load(file)
-        _restore(smartapis)
+    if filename.endswith(".zip"):
+        with zipfile.ZipFile(filename, 'r') as zfile:
+            with zfile.open(filename.replace(".zip", ".json")) as file:
+                smartapis = json.load(file)
+    elif filename.endswith(".json"):
+        with open(filename) as file:
+            smartapis = json.load(file)
+    else:
+        raise Exception("Unsupported backup file type!")
+
+    _restore(smartapis)
 
 
 def refresh_document():
@@ -226,7 +274,7 @@ check = check_uptime
 _lock = FileLock(".lock", timeout=0)
 
 
-def routine(no_backup=False):
+def routine(no_backup=False, format="zip"):
     logger = logging.getLogger("routine")
 
     # Add jitter: random delay between 100 and 500 milliseconds (adjust range as needed)
@@ -244,8 +292,8 @@ def routine(no_backup=False):
         if lock_acquired:
             logger.info("Schedule lock acquired successfully.")
             if not no_backup:
-                logger.info("backup_to_s3()")
-                backup_to_s3()
+                logger.info(f"backup_to_s3(format={format})")
+                backup_to_s3(format=format)
             logger.info("refresh_document()")
             refresh_document()
             logger.info("check_uptime()")
