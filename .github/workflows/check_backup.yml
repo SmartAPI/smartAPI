@@ -4,7 +4,9 @@ on:
   workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
   schedule:
     - cron: '0 13 * * *' # 5:00 AM PST (UTC-8)
-
+  push:
+    branches:
+      - use-zip-in-backup
 jobs:
   check-backup:
     runs-on: ubuntu-latest
