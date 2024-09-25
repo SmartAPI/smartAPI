@@ -137,6 +137,8 @@ def restore_from_s3(filename=None, bucket="smartapi"):
 
     obj = s3.get_object(Bucket=bucket, Key=filename)
 
+    filename = filename.replace("db_backup/", "")
+
     if filename.endswith(".zip"):
         with open(filename, "wb") as temp_file:
             temp_file.write(obj["Body"].read())
