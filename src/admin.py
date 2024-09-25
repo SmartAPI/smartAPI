@@ -27,7 +27,7 @@ import logging
 import random
 import time
 import zipfile
-import os
+import io
 from datetime import datetime
 
 import boto3
@@ -140,12 +140,15 @@ def restore_from_s3(filename=None, bucket="smartapi"):
     filename = filename.replace("db_backup/", "")
 
     if filename.endswith(".zip"):
-        with open(filename, "wb") as temp_file:
-            temp_file.write(obj["Body"].read())
-        with zipfile.ZipFile(filename, "r") as zfile:
-            with zfile.open(filename.replace(".zip", ".json")) as file:
-                smartapis = json.load(file)
-        os.remove(filename)
+        file_content = obj["Body"].read()
+        with zipfile.ZipFile(io.BytesIO(file_content)) as z:
+            # Search for a JSON file inside the ZIP
+            json_file = next((f for f in z.namelist() if f.endswith(".json")), None)
+            if not json_file:
+                raise ValueError("No JSON file found inside the ZIP archive.")
+
+            with z.open(json_file) as json_data:
+                smartapis = json.load(json_data)
     elif filename.endswith(".json"):
         smartapis = json.loads(obj["Body"].read())
     else:
