@@ -23,7 +23,7 @@ jobs:
       - name: Install boto3 (AWS SDK for Python)
         run: |
           python -m pip install --upgrade pip
-          pip install boto3
+          pip install boto3 requests
 
       - name: Check if backup exists in S3
         run: python .github/scripts/check_backup.py
