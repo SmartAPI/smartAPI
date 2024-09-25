@@ -1,0 +1,61 @@
+name: Check S3 Backup and Notify Slack
+
+on:
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
+  schedule:
+    - cron: '0 13 * * *' # 5:00 AM PST (UTC-8)
+
+jobs:
+  check-backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install boto3 (AWS SDK for Python)
+        run: |
+          python -m pip install --upgrade pip
+          pip install boto3
+
+      - name: Check if backup exists in S3
+        id: check_s3_backup
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          BACKUP_BUCKET_NAME: ${{ secrets.BACKUP_BUCKET_NAME }}
+          S3_FOLDER: 'db_backup/'
+        run: |
+          import boto3
+          from datetime import datetime
+
+          # Create the expected file name
+          today_date = datetime.utcnow().strftime('%Y%m%d')
+          expected_file = f"{os.getenv('S3_FOLDER')}smartapi_{today_date}.zip"
+          
+          # Create the S3 client
+          s3_client = boto3.client('s3', region_name=os.getenv('AWS_REGION'))
+
+          # Try to fetch the file metadata
+          try:
+              s3_client.head_object(Bucket=os.getenv('BACKUP_BUCKET_NAME'), Key=expected_file)
+              print(f"Backup file {expected_file} exists.")
+          except s3_client.exceptions.ClientError:
+              print(f"Backup file {expected_file} does NOT exist.")
+              exit(1)  # Return an error code if the file does not exist
+
+      - name: Send notification to Slack if backup file does not exist
+        if: failure() # Only runs if the previous step failed (file not found)
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "channel": "#observability-test",  # Replace with your Slack channel
+              "username": "Backup Check Bot",
+              "text": "🚨 The expected backup file for `smartapi_{ { steps.check_s3_backup.outputs.expected_file } }` was not found in the S3 bucket!"
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
