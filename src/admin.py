@@ -141,13 +141,12 @@ def restore_from_s3(filename=None, bucket="smartapi"):
 
     if filename.endswith(".zip"):
         file_content = obj["Body"].read()
-        with zipfile.ZipFile(io.BytesIO(file_content)) as z:
+        with zipfile.ZipFile(io.BytesIO(file_content)) as zfile:
             # Search for a JSON file inside the ZIP
-            json_file = next((f for f in z.namelist() if f.endswith(".json")), None)
+            json_file = next((f for f in zfile.namelist() if f.endswith(".json")), None)
             if not json_file:
                 raise ValueError("No JSON file found inside the ZIP archive.")
-
-            with z.open(json_file) as json_data:
+            with zfile.open(json_file) as json_data:
                 smartapis = json.load(json_data)
     elif filename.endswith(".json"):
         smartapis = json.loads(obj["Body"].read())
@@ -160,8 +159,12 @@ def restore_from_s3(filename=None, bucket="smartapi"):
 def restore_from_file(filename):
     if filename.endswith(".zip"):
         with zipfile.ZipFile(filename, 'r') as zfile:
-            with zfile.open(filename.replace(".zip", ".json")) as file:
-                smartapis = json.load(file)
+            # Search for a JSON file inside the ZIP
+            json_file = next((f for f in zfile.namelist() if f.endswith(".json")), None)
+            if not json_file:
+                raise ValueError("No JSON file found inside the ZIP archive.")
+            with zfile.open(json_file) as json_data:
+                smartapis = json.load(json_data)
     elif filename.endswith(".json"):
         with open(filename) as file:
             smartapis = json.load(file)
