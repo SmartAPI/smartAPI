@@ -23,7 +23,7 @@ jobs:
           pip install boto3
 
       - name: Check if backup exists in S3
-        run: python .github/workflows/check_backup.py
+        run: python src/github_scripts/check_backup.py
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
