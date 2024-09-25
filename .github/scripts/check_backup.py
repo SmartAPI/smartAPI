@@ -22,9 +22,9 @@ except s3_client.exceptions.ClientError:
     # Create the payload for Slack
     slack_data = {
         "channel": os.getenv("SLACK_CHANNEL"),
-        "username": os.getenv("APPLICATION_NAME"),
+        "username": "SmartAPI",
         "icon_emoji": ":thumbsdown:",
-        "text": f":alert: Backup file {expected_file} does NOT exist.",
+        "text": f":alert: The backup file {expected_file} was NOT created today!",
     }
 
     try:
