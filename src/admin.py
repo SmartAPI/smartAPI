@@ -76,8 +76,10 @@ def save_to_s3(data, filename=None, bucket="smartapi", format="zip"):
         with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zfile:
             json_data = json.dumps(data, indent=2)
             zfile.writestr(filename.replace(".zip", ".json"), json_data)
+        logging.info(f"Uploading {filename} to AWS S3")
         s3.Bucket(bucket).upload_file(Filename=filename, Key=f"db_backup/{filename}")
     else:
+        logging.info(f"Uploading {filename} to AWS S3")
         s3.Bucket(bucket).put_object(Key=f"db_backup/{filename}", Body=json.dumps(data, indent=2))
 
 
