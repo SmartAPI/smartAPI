@@ -61,10 +61,10 @@ def save_to_file(mapping, filename=None, format="zip"):
             json.dump(mapping, file, indent=2)
 
 
-def save_to_s3(mapping, filename=None, bucket="smartapi", format="zip"):
+def save_to_s3(data, filename=None, bucket="smartapi", format="zip"):
     """
     Save data to S3 in either JSON or ZIP format.
-    :param mapping: Data to save
+    :param data: Data to save
     :param filename: File name
     :param bucket: S3 bucket name
     :param format: File format, either 'json' or 'zip'
@@ -74,11 +74,11 @@ def save_to_s3(mapping, filename=None, bucket="smartapi", format="zip"):
 
     if format == "zip":
         with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zfile:
-            json_data = json.dumps(mapping, indent=2)
+            json_data = json.dumps(data, indent=2)
             zfile.writestr(filename.replace(".zip", ".json"), json_data)
         s3.Bucket(bucket).upload_file(Filename=filename, Key=f"db_backup/{filename}")
     else:
-        s3.Bucket(bucket).put_object(Key=f"db_backup/{filename}", Body=json.dumps(mapping, indent=2))
+        s3.Bucket(bucket).put_object(Key=f"db_backup/{filename}", Body=json.dumps(data, indent=2))
 
 
 def _backup():
