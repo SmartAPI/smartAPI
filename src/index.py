@@ -10,8 +10,12 @@ from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
 from admin import routine
-from config_key import NO_BACKUP
 from utils.indices import setup
+
+try:
+    from config_key import NO_BACKUP
+except ImportError:
+    NO_BACKUP = True
 
 
 def run_routine():
