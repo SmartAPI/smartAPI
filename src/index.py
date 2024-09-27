@@ -13,7 +13,7 @@ from admin import routine
 from utils.indices import setup
 
 try:
-    from config_key import NO_BACKUP
+    from config import NO_BACKUP
 except ImportError:
     NO_BACKUP = True
 
