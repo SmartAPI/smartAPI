@@ -10,11 +10,12 @@ from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
 from admin import routine
+from config_key import NO_BACKUP
 from utils.indices import setup
 
 
 def run_routine():
-    thread = Thread(target=routine, daemon=True)
+    thread = Thread(target=routine, kwargs={"no_backup": NO_BACKUP}, daemon=True)
     thread.start()
 
 
