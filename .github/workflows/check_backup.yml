@@ -35,7 +35,3 @@ jobs:
           S3_FOLDER: "db_backup/"
           SLACK_CHANNEL: "#observability-test"
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Setup tmate debug session on failure
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
