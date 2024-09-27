@@ -12,14 +12,9 @@ from tornado.web import RequestHandler
 from admin import routine
 from utils.indices import setup
 
-try:
-    from config import NO_BACKUP
-except ImportError:
-    NO_BACKUP = True
-
 
 def run_routine():
-    thread = Thread(target=routine, kwargs={"no_backup": NO_BACKUP}, daemon=True)
+    thread = Thread(target=routine, daemon=True)
     thread.start()
 
 
