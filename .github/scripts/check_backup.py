@@ -44,7 +44,7 @@ s3_client = boto3.client("s3", region_name=os.getenv("AWS_REGION"))
 # Try to fetch the file metadata
 try:
     s3_client.head_object(Bucket=os.getenv("BACKUP_BUCKET_NAME"), Key=expected_file)
-    print(f"Backup file {expected_file} exists, no action needed")
+    print(f" └─ Backup file {expected_file} exists, no action needed")
 
 except botocore.exceptions.ClientError as e:
     print(f" └─ Backup file {expected_file} does NOT exist.")
