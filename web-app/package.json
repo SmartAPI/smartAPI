@@ -1,5 +1,5 @@
 {
-  "name": "vite-app ready",
+  "name": "smartapi app",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -51,7 +51,7 @@
     "@rushstack/eslint-patch": "^1.5.1",
     "@vitejs/plugin-vue": "^4.4.0",
     "@vue/eslint-config-prettier": "^8.0.0",
-    "@vue/test-utils": "^2.4.1",
+    "@vue/test-utils": "^2.4.6",
     "cypress": "^13.3.1",
     "eslint": "^8.51.0",
     "eslint-plugin-cypress": "^2.15.1",
@@ -60,6 +60,6 @@
     "prettier": "^3.0.3",
     "start-server-and-test": "^2.0.1",
     "vite": "^4.4.11",
-    "vitest": "^0.34.6"
+    "vitest": "^2.0.5"
   }
 }
