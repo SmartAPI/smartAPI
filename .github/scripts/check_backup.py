@@ -34,27 +34,16 @@ import requests
 from datetime import datetime
 
 
-# Create the expected file name
-today_date = datetime.today().strftime("%Y%m%d")
-expected_file = f"{os.getenv('S3_FOLDER')}smartapi_{today_date}.zip"
+def send_slack_notification(message):
 
-# Create the S3 client
-s3_client = boto3.client("s3", region_name=os.getenv("AWS_REGION"))
-
-# Try to fetch the file metadata
-try:
-    s3_client.head_object(Bucket=os.getenv("BACKUP_BUCKET_NAME"), Key=expected_file)
-    print(f" └─ Backup file {expected_file} exists, no action needed")
-
-except botocore.exceptions.ClientError as e:
-    print(f" └─ Backup file {expected_file} does NOT exist.")
+    print(f" └─ {message}")
 
     # Create the payload for Slack
     slack_data = {
         "channel": os.getenv("SLACK_CHANNEL"),
         "username": "SmartAPI",
         "icon_emoji": ":thumbsdown:",
-        "text": f":alert: The backup file {expected_file} was NOT created today!",
+        "text": message,
     }
 
     try:
@@ -64,9 +53,44 @@ except botocore.exceptions.ClientError as e:
             print(" └─ Slack notification sent successfully.")
         else:
             print(f" └─ Failed to send message to Slack: {response.status_code}, {response.text}")
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout as e:
         print(" └─ Request timed out to Slack WebHook URL.")
         raise e
     except requests.exceptions.RequestException as e:
         print(f" └─ Failed to send Slack notification. Error: {str(e)}")
         raise e
+
+
+def check_backup_file():
+
+    # Create the expected file name
+    today_date = datetime.today().strftime("%Y%m%d")
+    expected_file = f"{os.getenv('S3_FOLDER')}smartapi_{today_date}.zip"
+
+    # Create the S3 client
+    s3_client = boto3.client("s3", region_name=os.getenv("AWS_REGION"))
+
+    # Try to fetch the file metadata
+    try:
+        response = s3_client.head_object(Bucket=os.getenv("BACKUP_BUCKET_NAME"), Key=expected_file)
+        print(f" └─ Backup file {expected_file} exists!")
+
+        # Get the file size in bytes
+        file_size = response['ContentLength']
+
+        # Check if the file is larger than 1MB
+        if file_size > 1048576:  # 1MB in bytes
+            print(f" └─ Backup file is larger than 1MB! Size: {file_size} bytes.")
+            print(" └─ Nothing to do!")
+        else:
+            message = f":alert: The backup file {expected_file} is smaller than 1MB!"
+            send_slack_notification(message)
+
+    except botocore.exceptions.ClientError as e:
+        print(e)
+        message = f":alert: The backup file {expected_file} was NOT created today!"
+        send_slack_notification(message)
+
+
+if __name__ == "__main__":
+    check_backup_file()
