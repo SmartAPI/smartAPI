@@ -4,9 +4,7 @@ on:
   workflow_dispatch:  # Allows manual trigger from GitHub Actions UI
   schedule:
     - cron: '0 13 * * *' # 5:00 AM PST (UTC-8)
-  push:
-    branches:
-      - use-zip-in-backup
+
 jobs:
   check-backup:
     runs-on: ubuntu-latest
@@ -33,5 +31,5 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           BACKUP_BUCKET_NAME: "${{ secrets.BACKUP_BUCKET_NAME }}"
           S3_FOLDER: "db_backup/"
-          SLACK_CHANNEL: "#observability-test"
+          SLACK_CHANNEL: "#ncats-translator"
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
