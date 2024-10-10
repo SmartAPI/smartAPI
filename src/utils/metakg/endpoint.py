@@ -82,6 +82,17 @@ class Endpoint:
                     "response_mapping": response_mapping,
                     "tags": query_operation.tags,
                 }
+
+                # Add additional fields to update_info if they exist in the operation
+                if "agent_type" in op:
+                    update_info["agent_type"] = op["agent_type"]
+                if "knowledge_level" in op:
+                    update_info["knowledge_level"] = op["knowledge_level"]
+                if "testExamples" in op:
+                    update_info["testExamples"] = op["testExamples"]
+                if "useTemplating" in op:
+                    update_info["useTemplating"] = op["useTemplating"]
+
                 res.append(update_info)
         return res
 
