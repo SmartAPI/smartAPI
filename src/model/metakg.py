@@ -37,6 +37,12 @@ metakg_mapping.meta(
             }
         },
         {
+            "ignore_testExamples_field": {
+                "path_match": "*bte.query_operation.testExamples",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
             "ignore_response_mapping_field": {
                 "path_match": "*bte.response_mapping",
                 "mapping": {"type": "object", "enabled": False},

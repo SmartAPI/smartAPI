@@ -141,7 +141,6 @@ class MetaKGParser:
 
     def extract_metakgedges(self, ops, extra_data=None):
         extra_data = extra_data or {}
-
         metakg_edges = []
         for op in ops:
             smartapi_data = op["association"]["smartapi"]
@@ -151,8 +150,9 @@ class MetaKGParser:
             edge = {
                 "subject": op["association"]["input_type"],
                 "object": op["association"]["output_type"],
-                "subject_prefix": op["association"]["input_id"],
-                "object_prefix": op["association"]["output_id"],
+                # check if required, apply logic accordingly
+                # "subject_prefix": op["association"]["input_id"],
+                # "object_prefix": op["association"]["output_id"],
                 "predicate": op["association"]["predicate"],
                 "api": {
                     "name": op["association"]["api_name"],
