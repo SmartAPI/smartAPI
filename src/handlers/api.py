@@ -464,25 +464,22 @@ class MetaKGQueryHandler(QueryHandler):
     def get_filtered_api(self, api_dict):
         """Extract and return filtered API information."""
         api_info = api_dict
-
         if not self.args.bte and not self.args.api_details: # no bte and no api details
             filtered_api= {
-                'name': api_info.get('name', 'Default Name'),
-                'smartapi': {
-                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
-                    }
+                    **({"name": api_info["name"]} if "name" in api_info else {}),
+                    **({"smartapi": {"id": api_info["smartapi"]["id"]}} if "smartapi" in api_info and "id" in api_info["smartapi"] else {})
                 }
         elif self.args.bte and not self.args.api_details : # bte and no api details
             filtered_api= {
-                'name': api_info.get('name', 'Default Name'),
-                'smartapi': {
-                    'id': api_info.get('smartapi', {}).get('id', 'Default ID')
-                    },
+                **({"name": api_info["name"]} if "name" in api_info else {}),
+                **({"smartapi": {"id": api_info["smartapi"]["id"]}} if "smartapi" in api_info and "id" in api_info["smartapi"] else {}),
                 'bte': api_info.get('bte', {})
             }
         elif not self.args.bte and self.args.api_details: # no bte and api details
             api_info.pop('bte', None)
-            filtered_api=  api_info
+            filtered_api = api_info
+        else:
+            filtered_api = api_info
         return filtered_api
 
     def process_apis(self, apis):
