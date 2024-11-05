@@ -33,8 +33,6 @@ from controller import SmartAPI
 from model import ConsolidatedMetaKGDoc, MetaKGDoc
 from utils import indices
 
-logging.basicConfig(level="INFO")
-
 
 def _default_filename():
     return "smartapi_" + datetime.today().strftime("%Y%m%d") + ".json"

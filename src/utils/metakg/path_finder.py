@@ -1,11 +1,7 @@
-import logging
-
 import networkx as nx
 
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
-
-logging.basicConfig(level="INFO")
 
 class MetaKGPathFinder:
     def __init__(self, query_data=None, expanded_fields=None):
