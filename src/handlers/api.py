@@ -686,3 +686,32 @@ class MetaKGPathFinderHandler(QueryHandler):
             }
         await asyncio.sleep(0.01)
         self.finish(res)
+
+class MetaKGParserHandler(QueryHandler):
+    name="metakgparser"
+    kwargs = {
+        "GET": {
+            "url": {
+                "type": str,
+                "required": True, 
+                "max": 1000,
+                "description": "URL of the SmartAPI metadata to parse"
+            },
+        },
+        "POST": {
+            "type": dict,
+            "required": True,
+            "description": "Metadata content of the SmartAPI in JSON format"
+            },
+    }
+    
+
+    async def get(self, *args, **kwargs):
+        if self.request.method == "GET":
+            smartapi = SmartAPI(self.args.url)
+            content=smartapi.get_metakg(metadata_url=self.args.url)
+            self.finish(f"{content}")
+        elif self.request.method == "POST":
+            print(f"\n\n[INFO] HERE")
+            # pass
+            self.finish(f"HERE")
