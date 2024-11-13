@@ -30,15 +30,15 @@ import os
 import pytest
 import tornado
 import yaml
-from biothings.tests.web import BiothingsTestCase
+from biothings.tests.web import BiothingsWebAppTest
+from config_test import ES_INDICES
+from controller import SmartAPI
+from controller.exceptions import NotFoundError
+from model import SmartAPIDoc
 from tornado.escape import json_encode
 from tornado.web import create_signed_value
-
-from controller.exceptions import NotFoundError
-from controller.smartapi import SmartAPI
-from model import SmartAPIDoc
 from utils import decoder
-from utils.indices import refresh, reset
+from utils.indices import delete, refresh, reset
 
 MYGENE_URL = (
     "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_minimum.yml"
@@ -76,7 +76,8 @@ def setup_fixture():
     """
     Index 2 documents.
     """
-    reset()
+    SmartAPI.INDEX = ES_INDICES["metadata"]
+    reset(SmartAPIDoc, index=SmartAPI.INDEX)
 
     # save initial docs with paths already transformed
     mygene = SmartAPI(MYGENE_URL)
@@ -92,15 +93,14 @@ def setup_fixture():
     mychem.save()
 
     # refresh index
-    refresh()
+    refresh(SmartAPIDoc, index=SmartAPI.INDEX)
 
 
-class SmartAPIEndpoint(BiothingsTestCase):
-    @classmethod
+class SmartAPIEndpoint(BiothingsWebAppTest):
     def cookie_header(cls, username):
         cookie_name, cookie_value = "user", {"login": username}
         # NOTE: this statement causes an error, due to no settings can found in SmartAPIEndpoint
-        secure_cookie = create_signed_value(cls.settings.COOKIE_SECRET, cookie_name, json_encode(cookie_value))
+        secure_cookie = create_signed_value(cls.config.COOKIE_SECRET, cookie_name, json_encode(cookie_value))
         return {"Cookie": "=".join((cookie_name, secure_cookie.decode()))}
 
     @property
@@ -131,12 +131,11 @@ class TestValidate(SmartAPIEndpoint):
 
         self.request("/api/validate/", method="POST", data={"url": VALID_V3_URL})
 
-    @pytest.mark.skip("The url for testing is valid. Should we change to another?")
     def test_url_invalid(self):
         """
         [POST] with url of invalid data
         """
-        INVALID_V3_URL = "https://raw.githubusercontent.com/marcodarko/" "api_exmaple/master/api.yml"
+        INVALID_V3_URL = "https://raw.githubusercontent.com/marcodarko/schema_tests/cf34cd14acb241bca2851f815ac7b7b4adf4f405/api.yml"
 
         self.request("/api/validate/", method="POST", data={"url": INVALID_V3_URL}, expect=400)
 
@@ -195,7 +194,6 @@ class DynamicFileHandler(tornado.web.StaticFileHandler):
         return abspath
 
 
-@pytest.mark.skip("All tests failed by TestCRUD has no attribute: settings")
 class TestCRUD(SmartAPIEndpoint):
     def get_app(self):
         return tornado.web.Application(
@@ -234,7 +232,7 @@ class TestCRUD(SmartAPIEndpoint):
         try:
             smartapi = SmartAPI.get(_ID)
             smartapi.delete()
-            refresh()
+            refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         except NotFoundError:
             pass
 
@@ -247,10 +245,10 @@ class TestCRUD(SmartAPIEndpoint):
         self.request(
             "/api/metadata/", method="POST", data={"url": VALID_V3_URL, "dryrun": True}, headers=self.auth_user
         )
-        refresh()
+        refresh(SmartAPIDoc, index=ES_INDICES["metadata"])
         assert not SmartAPI.exists(_ID)
         self.request("/api/metadata/", method="POST", data={"url": VALID_V3_URL}, headers=self.auth_user)
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         assert SmartAPI.exists(_ID)
 
         try:
@@ -281,27 +279,27 @@ class TestCRUD(SmartAPIEndpoint):
         )
         self.request("/api/metadata/" + MYGENE_ID, method="PUT", data={"slug": "mygeeni"}, headers=self.auth_user)
 
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         assert not SmartAPI.find("mygene")
         assert SmartAPI.find("mygeeni")
 
         self.request("/api/metadata/" + MYGENE_ID, method="PUT", data={"slug": ""}, headers=self.auth_user)
 
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         assert not SmartAPI.find("mygeeni")
         assert not SmartAPI.find("mygene")
 
         self.request("/api/metadata/" + MYGENE_ID, method="PUT", data={"slug": "mygene"}, headers=self.auth_user)
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         assert not SmartAPI.find("mygeeni")
         assert SmartAPI.find("mygene")
 
         # teardown
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         if not SmartAPI.find("mygene"):
             mygene = SmartAPIDoc(meta={"id": MYGENE_ID}, **MYGENE_ES)
             mygene._raw = decoder.compress(MYGENE_RAW)
-            mygene.save()
+            mygene.save(index=SmartAPI.INDEX)
 
     def test_update_doc(self):
         self.request("/api/metadata/" + MYCHEM_ID, method="PUT", expect=401)
@@ -400,13 +398,19 @@ class TestCRUD(SmartAPIEndpoint):
         self.request("/api/metadata/" + MYGENE_ID, method="DELETE", headers=self.evil_user, expect=403)
         self.request("/api/metadata/" + MYGENE_ID, method="DELETE", headers=self.auth_user)
 
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         assert not SmartAPI.exists(MYGENE_ID)
 
         # teardown
-        refresh()
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
         if not SmartAPI.exists(MYGENE_ID):  # recover the deleted file
             mygene = SmartAPIDoc(meta={"id": MYGENE_ID}, **MYGENE_ES)
             mygene._raw = decoder.compress(MYGENE_RAW)
-            mygene.save()
-        refresh()
+            mygene.save(index=SmartAPI.INDEX)
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
+        refresh(SmartAPIDoc, index=SmartAPI.INDEX)
+
+
+def teardown_module():
+    delete(SmartAPIDoc, index=SmartAPI.INDEX)
+    SmartAPI.INDEX = None

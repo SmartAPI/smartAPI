@@ -34,6 +34,16 @@ class Endpoint:
         query_operation.server = server
         query_operation.path = self.path
         query_operation.tags = self.api_meta_data["tags"]
+
+        if "agent_type" in op:
+            query_operation.agent_type = op["agent_type"]
+        if "knowledge_level" in op:
+            query_operation.knowledge_level = op["knowledge_level"]
+        if "testExamples" in op:
+            query_operation.testExamples = op["testExamples"]
+        if "useTemplating" in op:
+            query_operation.useTemplating = op["useTemplating"]
+
         return query_operation
 
     def remove_bio_link_prefix(self, _input):
@@ -66,7 +76,6 @@ class Endpoint:
     def construct_response_mapping(self, op):
         if "responseMapping" in op:
             op["response_mapping"] = op["responseMapping"]
-
         return {f"{op['predicate']}": self.resolve_ref_if_provided(op.get("response_mapping"))}
 
     def parse_individual_operation(self, op, method, path_params):
@@ -81,6 +90,10 @@ class Endpoint:
                     "association": association,
                     "response_mapping": response_mapping,
                     "tags": query_operation.tags,
+                    "agent_type": query_operation.agent_type,
+                    "knowledge_level": query_operation.knowledge_level,
+                    "testExamples": query_operation.testExamples,
+                    "useTemplating": query_operation.useTemplating,
                 }
                 res.append(update_info)
         return res

@@ -76,7 +76,7 @@ class MetaKGPathFinder:
             api_content = apis
         else:
             if bte:
-                api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}, "bte":item["bte"]} for item in apis]
+                api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}, "bte": item["bte"]} for item in apis]
             else:
                 api_content = [{"api": {"name": item.get("name", None), "smartapi": {"id": item["smartapi"]["id"]}}} for item in apis]
 

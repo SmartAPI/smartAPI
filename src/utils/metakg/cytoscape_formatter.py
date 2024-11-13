@@ -3,6 +3,7 @@
 
 """
 
+
 class CytoscapeDataFormatter():
     """
         Accepts a chunk of ES results and returns them cytoscape compatible format
@@ -25,7 +26,7 @@ class CytoscapeDataFormatter():
         self.edges = []
 
     def add_node(self, entity_name):
-        if not entity_name in self.node_ids:
+        if entity_name not in self.node_ids:
             self.node_ids.append(entity_name)
             self.nodes.append({
                 'group': 'nodes',
@@ -37,10 +38,10 @@ class CytoscapeDataFormatter():
                 }
             })
 
-    def add_edge(self, sub, obj, predicate,  apis):
+    def add_edge(self, sub, obj, predicate, apis):
         self.edges.append({
             'group': 'edges',
-            'data': { 
+            'data': {
                 'id': predicate + sub + obj,
                 'source': sub, 'target': obj,
                 'predicate': predicate,

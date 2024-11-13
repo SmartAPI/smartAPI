@@ -144,7 +144,7 @@ export default {
                 );
             }
             document.querySelector('.swagger-ui .info .title small.version-stamp pre.version')
-            .insertAdjacentHTML('beforeend', data?.openapi.includes('.') ? " " + data?.openapi.split('.', 2).join('.') : " " + data?.openapi)
+            .innerHTML = data?.openapi.includes('.') ? "OAS " + data?.openapi.split('.', 2).join('.') : "OAS " + data?.openapi;
           }
         }
       });

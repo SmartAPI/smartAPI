@@ -1,9 +1,9 @@
 """
     Elasticsearch Document Object Model for MetaKG
 """
-from elasticsearch_dsl import InnerDoc, Keyword, Object, Nested, Text, analysis, mapping
 
-from config import METAKG_ES_INDEX, METAKG_ES_INDEX_CONSOLIDATED
+from config import ES_INDICES
+from elasticsearch_dsl import InnerDoc, Keyword, Object, Text, analysis, mapping
 
 from .base import BaseDoc
 
@@ -33,6 +33,12 @@ metakg_mapping.meta(
         {
             "ignore_request_body_field": {
                 "path_match": "*bte.query_operation.request_body",
+                "mapping": {"type": "object", "enabled": False},
+            }
+        },
+        {
+            "ignore_testExamples_field": {
+                "path_match": "*bte.query_operation.testExamples",
                 "mapping": {"type": "object", "enabled": False},
             }
         },
@@ -93,12 +99,12 @@ class MetaKGDoc(BaseDoc):
         Index Settings
         """
 
-        name = METAKG_ES_INDEX
+        name = ES_INDICES["metakg"]
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
-            "mapping.ignore_malformed": True,
-            "mapping.total_fields.limit": 2500,
+            "index.mapping.ignore_malformed": True,
+            "index.mapping.total_fields.limit": 2500,
         }
 
     class Meta:
@@ -117,10 +123,10 @@ class ConsolidatedMetaKGDoc(MetaKGDoc):
         Index Settings
         """
 
-        name = METAKG_ES_INDEX_CONSOLIDATED
+        name = ES_INDICES["metakg_consolidated"]
         settings = {
             "number_of_shards": 1,
             "number_of_replicas": 0,
-            "mapping.ignore_malformed": True,
-            "mapping.total_fields.limit": 2500,
+            "index.mapping.ignore_malformed": True,
+            "index.mapping.total_fields.limit": 2500,
         }

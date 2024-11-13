@@ -8,6 +8,10 @@ class QueryOperationObject:
     _server = ""
     _tags = []
     _path_params = []
+    _agent_type = None
+    _knowledge_level = None
+    _testExamples = []
+    _useTemplating = None
 
     @property
     def xBTEKGSOperation(self):
@@ -25,6 +29,38 @@ class QueryOperationObject:
             self._request_body = new_op.get("request_body") or new_op.get("requestBody")
             self._support_batch = new_op.get("supportBatch")
             self._input_separator = new_op.get("inputSeparator")
+
+    @property
+    def agent_type(self):
+        return self._agent_type
+
+    @agent_type.setter
+    def agent_type(self, new_agent_type):
+        self._agent_type = new_agent_type
+
+    @property
+    def knowledge_level(self):
+        return self._knowledge_level
+
+    @knowledge_level.setter
+    def knowledge_level(self, new_knowledge_level):
+        self._knowledge_level = new_knowledge_level
+
+    @property
+    def testExamples(self):
+        return self._testExamples
+
+    @testExamples.setter
+    def testExamples(self, new_testExamples):
+        self._testExamples = new_testExamples
+
+    @property
+    def useTemplating(self):
+        return self._useTemplating
+
+    @useTemplating.setter
+    def useTemplating(self, new_useTemplating):
+        self._useTemplating = new_useTemplating
 
     @property
     def params(self):
@@ -94,6 +130,10 @@ class QueryOperationObject:
             "tags",
             "support_batch",
             "input_separator",
+            "agent_type",
+            "knowledge_level",
+            "testExamples",
+            "useTemplating",
         ]:
             val = getattr(self, attr, None)
             if val:

@@ -1,6 +1,7 @@
 name: Deploy-to-EC2-Dev
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -42,6 +43,7 @@ jobs:
             cd /home/ubuntu/smartapi
             source .env/bin/activate
             echo "Installing backend requirements."
+            pip install --upgrade pip
             pip install -Ur requirements.txt --no-cache-dir --ignore-installed --force-reinstall
             echo "Restarting smartapi backend services..."
             sudo systemctl restart smartapi@8000

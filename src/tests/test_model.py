@@ -5,58 +5,60 @@ import json
 import os
 
 import pytest
-from elasticsearch import Elasticsearch
-
 from model import SmartAPIDoc
-from utils.indices import refresh
+from utils import decoder
+from utils.indices import delete, refresh, reset
 
-client = Elasticsearch()
 dirname = os.path.dirname(__file__)
 
 # prepare data to be saved in tests
 with open(os.path.join(dirname, "mygene.es.json"), "r") as file:
-    MYGENE = json.load(file)
-    MYGENE.pop("_id")
+    MYGENE_ES = json.load(file)
+    MYGENE_ID = MYGENE_ES.pop("_id")
 
-ES_INDEX_NAME = "smartapi_docs"
+with open(os.path.join(dirname, "mygene.es.json"), "rb") as file:
+    MYGENE_RAW = file.read()
+
+ES_INDEX_NAME = "smartapi_docs_test"
 
 
 @pytest.fixture(autouse=True, scope="module")
 def setup_fixture():
-    client.delete(ES_INDEX_NAME, "doc0", ignore=404)
-    client.delete(ES_INDEX_NAME, "doc1", ignore=404)
-    client.create(ES_INDEX_NAME, "doc1", MYGENE)
-    refresh()
+    reset(SmartAPIDoc, index=ES_INDEX_NAME)
+    mygene = SmartAPIDoc(meta={"id": "doc1"}, **MYGENE_ES)
+    mygene._raw = decoder.compress(MYGENE_RAW)
+    mygene.save(index=ES_INDEX_NAME)
+    refresh(index=ES_INDEX_NAME)
 
 
 def test_exists():
     # info.title : "MyDisease.info API"
-    assert not SmartAPIDoc.exists("doc0")
-    assert SmartAPIDoc.exists("doc1")
-    assert SmartAPIDoc.exists("3.0.0", "openapi")
-    assert SmartAPIDoc.exists("mygene", "_meta.slug")
-    assert not SmartAPIDoc.exists("mygene", "info.title")
-    assert SmartAPIDoc.exists("mygene.info", "info.title")
-    assert SmartAPIDoc.exists("mygene.info api", "info.title")
-    assert SmartAPIDoc.exists("api", "info.title")
-    assert not SmartAPIDoc.exists("mygene", "info.title.raw")
-    assert not SmartAPIDoc.exists("mygene.info", "info.title.raw")
-    assert not SmartAPIDoc.exists("mygene.info api", "info.title.raw")
-    assert not SmartAPIDoc.exists("api", "info.title.raw")
-    assert SmartAPIDoc.exists("MyGene.info API", "info.title.raw")
-    assert SmartAPIDoc.exists("mygene.info", "info.description")
+    assert not SmartAPIDoc.exists("doc0", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("doc1", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("3.0.0", "openapi", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("mygene", "_meta.slug", index=ES_INDEX_NAME)
+    assert not SmartAPIDoc.exists("mygene", "info.title", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("mygene.info", "info.title", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("mygene.info api", "info.title", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("api", "info.title", index=ES_INDEX_NAME)
+    assert not SmartAPIDoc.exists("mygene", "info.title.raw", index=ES_INDEX_NAME)
+    assert not SmartAPIDoc.exists("mygene.info", "info.title.raw", index=ES_INDEX_NAME)
+    assert not SmartAPIDoc.exists("mygene.info api", "info.title.raw", index=ES_INDEX_NAME)
+    assert not SmartAPIDoc.exists("api", "info.title.raw", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("MyGene.info API", "info.title.raw", index=ES_INDEX_NAME)
+    assert SmartAPIDoc.exists("mygene.info", "info.description", index=ES_INDEX_NAME)
 
 
 def test_aggregation():
-    assert "Chunlei Wu" in SmartAPIDoc.aggregate("info.contact.name")
-    assert "gene" in SmartAPIDoc.aggregate()
-    assert "annotation" in SmartAPIDoc.aggregate()
-    assert "query" in SmartAPIDoc.aggregate()
-    assert "query" in SmartAPIDoc.aggregate("tags.name.raw")
-    assert "query" in SmartAPIDoc.aggregate("tags.name")
-    assert "tester" in SmartAPIDoc.aggregate("_meta.username")
-    assert "mygene" in SmartAPIDoc.aggregate("_meta.slug")
+    assert "Chunlei Wu" in SmartAPIDoc.aggregate("info.contact.name", index=ES_INDEX_NAME)
+    assert "gene" in SmartAPIDoc.aggregate(index=ES_INDEX_NAME)
+    assert "annotation" in SmartAPIDoc.aggregate(index=ES_INDEX_NAME)
+    assert "query" in SmartAPIDoc.aggregate(index=ES_INDEX_NAME)
+    assert "query" in SmartAPIDoc.aggregate("tags.name.raw", index=ES_INDEX_NAME)
+    assert "query" in SmartAPIDoc.aggregate("tags.name", index=ES_INDEX_NAME)
+    assert "tester" in SmartAPIDoc.aggregate("_meta.username", index=ES_INDEX_NAME)
+    assert "mygene" in SmartAPIDoc.aggregate("_meta.slug", index=ES_INDEX_NAME)
 
 
 def teardown_module():
-    client.delete(ES_INDEX_NAME, "doc1", ignore=404)
+    delete(index=ES_INDEX_NAME)

@@ -24,30 +24,61 @@
 
 import json
 import logging
+import random
+import time
+import zipfile
+import io
 from datetime import datetime
 
 import boto3
-from filelock import FileLock, Timeout
-
 from controller import SmartAPI
+from filelock import FileLock, Timeout
 from model import ConsolidatedMetaKGDoc, MetaKGDoc
 from utils import indices
 
 
-def _default_filename():
-    return "smartapi_" + datetime.today().strftime("%Y%m%d") + ".json"
+def _default_filename(extension=".json"):
+    return "smartapi_" + datetime.today().strftime("%Y%m%d") + extension
 
 
-def save_to_file(mapping, filename=None):
-    filename = filename or _default_filename()
-    with open(filename, "w") as file:
-        json.dump(mapping, file, indent=2)
+def save_to_file(mapping, filename=None, format="zip"):
+    """
+    Save data to a file in either JSON or ZIP format.
+    :param mapping: Data to save
+    :param filename: File name
+    :param format: File format, either 'json' or 'zip'
+    """
+    if format == "zip":
+        filename = filename or _default_filename(".zip")
+        with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zfile:
+            json_data = json.dumps(mapping, indent=2)
+            zfile.writestr(filename.replace(".zip", ".json"), json_data)
+    else:
+        filename = filename or _default_filename(".json")
+        with open(filename, "w") as file:
+            json.dump(mapping, file, indent=2)
 
 
-def save_to_s3(mapping, filename=None, bucket="smartapi"):
-    filename = filename or _default_filename()
+def save_to_s3(data, filename=None, bucket="smartapi", format="zip"):
+    """
+    Save data to S3 in either JSON or ZIP format.
+    :param data: Data to save
+    :param filename: File name
+    :param bucket: S3 bucket name
+    :param format: File format, either 'json' or 'zip'
+    """
+    filename = filename or _default_filename(f".{format}")
     s3 = boto3.resource("s3")
-    s3.Bucket(bucket).put_object(Key="db_backup/{}".format(filename), Body=json.dumps(mapping, indent=2))
+
+    if format == "zip":
+        with zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED) as zfile:
+            json_data = json.dumps(data, indent=2)
+            zfile.writestr(filename.replace(".zip", ".json"), json_data)
+        logging.info(f"Uploading {filename} to AWS S3")
+        s3.Bucket(bucket).upload_file(Filename=filename, Key=f"db_backup/{filename}")
+    else:
+        logging.info(f"Uploading {filename} to AWS S3")
+        s3.Bucket(bucket).put_object(Key=f"db_backup/{filename}", Body=json.dumps(data, indent=2))
 
 
 def _backup():
@@ -66,14 +97,14 @@ def _backup():
     return smartapis
 
 
-def backup_to_file(filename=None):
+def backup_to_file(filename=None, format="zip"):
     smartapis = _backup()
-    save_to_file(smartapis, filename)
+    save_to_file(smartapis, filename, format)
 
 
-def backup_to_s3(filename=None, bucket="smartapi"):
+def backup_to_s3(filename=None, bucket="smartapi", format="zip"):
     smartapis = _backup()
-    save_to_s3(smartapis, filename, bucket)
+    save_to_s3(smartapis, filename, bucket, format)
 
 
 def _restore(smartapis):
@@ -96,7 +127,7 @@ def restore_from_s3(filename=None, bucket="smartapi"):
     s3 = boto3.client("s3")
 
     if not filename:
-        objects = s3.list_objects_v2(Bucket="smartapi", Prefix="db_backup")["Contents"]
+        objects = s3.list_objects_v2(Bucket=bucket, Prefix="db_backup")["Contents"]
         filename = max(objects, key=lambda x: x["LastModified"])["Key"]
 
     if not filename.startswith("db_backup/"):
@@ -105,14 +136,42 @@ def restore_from_s3(filename=None, bucket="smartapi"):
     logging.info("GET s3://%s/%s", bucket, filename)
 
     obj = s3.get_object(Bucket=bucket, Key=filename)
-    smartapis = json.loads(obj["Body"].read())
+
+    filename = filename.replace("db_backup/", "")
+
+    if filename.endswith(".zip"):
+        file_content = obj["Body"].read()
+        with zipfile.ZipFile(io.BytesIO(file_content)) as zfile:
+            # Search for a JSON file inside the ZIP
+            json_file = next((f for f in zfile.namelist() if f.endswith(".json")), None)
+            if not json_file:
+                raise ValueError("No JSON file found inside the ZIP archive.")
+            with zfile.open(json_file) as json_data:
+                smartapis = json.load(json_data)
+    elif filename.endswith(".json"):
+        smartapis = json.loads(obj["Body"].read())
+    else:
+        raise Exception("Unsupported backup file type!")
+
     _restore(smartapis)
 
 
 def restore_from_file(filename):
-    with open(filename) as file:
-        smartapis = json.load(file)
-        _restore(smartapis)
+    if filename.endswith(".zip"):
+        with zipfile.ZipFile(filename, 'r') as zfile:
+            # Search for a JSON file inside the ZIP
+            json_file = next((f for f in zfile.namelist() if f.endswith(".json")), None)
+            if not json_file:
+                raise ValueError("No JSON file found inside the ZIP archive.")
+            with zfile.open(json_file) as json_data:
+                smartapis = json.load(json_data)
+    elif filename.endswith(".json"):
+        with open(filename) as file:
+            smartapis = json.load(file)
+    else:
+        raise Exception("Unsupported backup file type!")
+
+    _restore(smartapis)
 
 
 def refresh_document():
@@ -196,7 +255,7 @@ def consolidate_metakg(reset=True):
 def refresh_has_metakg():
     """
     Refreshes the 'has_metakg' attribute for SmartAPI objects.
-    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc 
+    This function iterates through all SmartAPI objects, checks if there's a corresponding entry in the ConsolidatedMetaKGDoc
     collection based on the SmartAPI ID, and updates the 'has_metakg' attribute accordingly.
     Note:
     - This function assumes the existence of the SmartAPI and ConsolidatedMetaKGDoc classes.
@@ -223,29 +282,47 @@ check = check_uptime
 _lock = FileLock(".lock", timeout=0)
 
 
-def routine():
+def routine(no_backup=False, format="zip"):
     logger = logging.getLogger("routine")
+
+    # Add jitter: random delay between 100 and 500 milliseconds (adjust range as needed)
+    jitter_ms = random.uniform(100, 500)  # Jitter in milliseconds
+    jitter_seconds = jitter_ms / 1000  # Convert milliseconds to seconds
+    logger.info(f"Applying jitter delay of {jitter_ms:.2f} milliseconds before acquiring lock.")
+    time.sleep(jitter_seconds)
+
+    lock_acquired = False
 
     try:
         # if previously acquired,
         # it won't block here
-        _lock.acquire()
-        logger.info("Schedule lock acquired successfully.")
+        lock_acquired = _lock.acquire()
+        if lock_acquired:
+            logger.info("Schedule lock acquired successfully.")
+            if not no_backup:
+                logger.info(f"backup_to_s3(format={format})")
+                backup_to_s3(format=format)
+            logger.info("refresh_document()")
+            refresh_document()
+            logger.info("check_uptime()")
+            check_uptime()
+            logger.info("refresh_metakg()")
+            refresh_metakg()
+            logger.info("consolidate_metakg()")
+            consolidate_metakg()
+            logger.info("refresh_has_metakg()")
+            refresh_has_metakg()
+        else:
+            logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
     except Timeout:
         logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
-        return
-    logger.info("backup_to_s3()")
-    backup_to_s3()
-    logger.info("refresh_document()")
-    refresh_document()
-    logger.info("check_uptime()")
-    check_uptime()
-    logger.info("refresh_metakg()")
-    refresh_metakg()
-    logger.info("consolidate_metakg()")
-    consolidate_metakg()
-    logger.info("refresh_has_metakg()")
-    refresh_has_metakg()
+    except Exception as e:
+        logger.error(f"An error occurred during the routine: {e}")
+        logger.error("Stack trace:", exc_info=True)
+    finally:
+        if lock_acquired:
+            _lock.release()
+            logger.info("Schedule lock released successfully.")
 
 
 if __name__ == "__main__":
