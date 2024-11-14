@@ -204,7 +204,8 @@ class SmartAPI(AbstractWebEntity, Mapping):
                     "subject": edge["_source"]["subject"],
                     "object": edge["_source"]["object"],
                     "predicate": edge["_source"]["predicate"],
-                    "api": [edge_api]
+                    "api": [edge_api],
+                    **{k: edge["_source"][k] for k in ["subject_prefix", "object_prefix"] if k in edge["_source"]}
                 }
 
             processed_edges += 1
