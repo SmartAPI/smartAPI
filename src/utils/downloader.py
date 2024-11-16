@@ -154,7 +154,7 @@ def download_mapping(url):
     headers = {
         'User-Agent': 'SmartAPI'
     }
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=60)
     response.raise_for_status()
 
     return decoder.to_dict(stream=response.content, ext=file_extension(url), ctype=response.headers.get("Content-Type"))
