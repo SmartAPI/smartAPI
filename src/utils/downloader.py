@@ -151,7 +151,10 @@ async def download_async(url, timeout=20, raise_error=True):
 
 
 def download_mapping(url):
-    response = requests.get(url)
+    headers = {
+        'User-Agent': 'SmartAPI'
+    }
+    response = requests.get(url, headers=headers)
     response.raise_for_status()
 
     return decoder.to_dict(stream=response.content, ext=file_extension(url), ctype=response.headers.get("Content-Type"))
