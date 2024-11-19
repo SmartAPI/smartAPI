@@ -121,7 +121,10 @@ class TornadoParser(ResponseParser):
 
 def download(url, timeout=5, raise_error=True):
     try:
-        response = requests.get(url, timeout=timeout)
+        headers = {
+            'User-Agent': 'SmartAPI' # UA required by GitHub
+        }
+        response = requests.get(url, headers=headers, timeout=timeout)
         if raise_error:
             response.raise_for_status()
         result = RequestsParser(response)
@@ -152,7 +155,7 @@ async def download_async(url, timeout=20, raise_error=True):
 
 def download_mapping(url):
     headers = {
-        'User-Agent': 'SmartAPI'
+        'User-Agent': 'SmartAPI' # UA required by GitHub
     }
     response = requests.get(url, headers=headers, timeout=60)
     response.raise_for_status()
