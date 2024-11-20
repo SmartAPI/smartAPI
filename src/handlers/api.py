@@ -22,9 +22,11 @@ from utils.metakg.path_finder import MetaKGPathFinder
 from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
 from utils.metakg.biolink_helpers import get_expanded_values
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
+from utils.metakg.parser import MetaKGParser
 
 logger = logging.getLogger("smartAPI")
 
+from tornado.web import RequestHandler
 
 def github_authenticated(func):
     """
@@ -687,7 +689,7 @@ class MetaKGPathFinderHandler(QueryHandler):
         await asyncio.sleep(0.01)
         self.finish(res)
 
-class MetaKGParserHandler(QueryHandler):
+class MetaKGParserHandler(BaseHandler): #RequestHandler/BaseAPIHandler
     name="metakgparser"
     kwargs = {
         "GET": {
@@ -698,20 +700,79 @@ class MetaKGParserHandler(QueryHandler):
                 "description": "URL of the SmartAPI metadata to parse"
             },
         },
-        "POST": {
-            "type": dict,
-            "required": True,
-            "description": "Metadata content of the SmartAPI in JSON format"
-            },
+        "POST": { }
     }
-    
 
     async def get(self, *args, **kwargs):
         if self.request.method == "GET":
-            smartapi = SmartAPI(self.args.url)
-            content=smartapi.get_metakg(metadata_url=self.args.url)
-            self.finish(f"{content}")
-        elif self.request.method == "POST":
-            print(f"\n\n[INFO] HERE")
-            # pass
-            self.finish(f"HERE")
+            if not self.get_argument("url", None):  # Check if the 'url' argument is present
+                self.set_status(400)
+                self.write({"error": "Missing 'url' argument"})
+                return
+            # smartapi = API(url=self.get_argument("url"))
+            # metakg_doc = smartapi.get_metakg()
+            # call parser // pass URL to parser 
+            parser = MetaKGParser()
+            url = self.get_argument("url")
+            
+            trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
+            nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
+            combined_data = trapi_data + nontrapi_data
+
+            # Transform the combined data to include an 'api' key and organize it into 'hits'
+            hits = []
+            for edge in combined_data:
+                print(f"\n{json.dumps(edge, indent=4)}\n")
+                transformed_edge = {
+                    "_id": edge['api'].get("_id"),  # Include an ID if available
+                    "_score": 1,  # Placeholder for scoring logic
+                    "api": {
+                        "name": edge['api'].get("name"),  # Replace with actual API name key
+                        "smartapi": {
+                            "id": edge['api']['smartapi'].get("id")  # Replace with actual SmartAPI ID key
+                        }
+                    },
+                    "subject": edge.get("subject"),
+                    "subject_prefix": edge.get("subject_prefix"),
+                    "predicate": edge.get("predicate"),
+                    "object": edge.get("object"),
+                    "object_prefix": edge.get("object_prefix"),
+                }
+                hits.append(transformed_edge)
+
+            # Create final response format
+            response = {
+                "took": 1,  # Placeholder for actual timing logic
+                "total": len(hits),
+                "max_score": 1,  # Placeholder for scoring logic
+                "hits": hits
+            }
+
+            # Write response
+            self.set_header("Content-Type", "application/json")
+            self.write(json.dumps(response))
+
+    async def post(self, *args, **kwargs):
+        try:
+            # Read the raw request body
+            body = self.request.body
+            # Parse the JSON content
+            data = json.loads(body)
+            parser = MetaKGParser()
+            trapi_data = parser.get_TRAPI_metadatas(data=data)
+            nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
+            combined_data = trapi_data + nontrapi_data
+            # self.write(json.dumps(combined_data))
+            # Clean up the metakg_doc to remove the 'api' key
+            cleaned_metakg_doc = []
+            for edge in combined_data:
+                if 'api' in edge:
+                    edge.pop('api')  # Remove the 'api' key
+                cleaned_metakg_doc.append(edge)
+
+            # Return the cleaned metakg document
+            self.set_header("Content-Type", "application/json")
+            self.write(json.dumps(cleaned_metakg_doc)) # make dict
+        except json.JSONDecodeError:
+            self.set_status(400)
+            self.write({"error": "Invalid JSON format"})
