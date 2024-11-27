@@ -36,6 +36,7 @@ from filelock import FileLock, Timeout
 from model import ConsolidatedMetaKGDoc, MetaKGDoc
 from utils import indices
 
+logging.basicConfig(level="INFO")
 
 def _default_filename(extension=".json"):
     return "smartapi_" + datetime.today().strftime("%Y%m%d") + extension
