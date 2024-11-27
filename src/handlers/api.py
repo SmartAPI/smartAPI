@@ -560,14 +560,14 @@ class MetaKGQueryHandler(QueryHandler):
 
 class MetaKGPathFinderHandler(QueryHandler):
     """
-    A handler for querying paths in a knowledge graph using MetaKGPathFinder.
+    A handler for querying paths in a knowledge graph using the custom MetaKGPathFinder module.
 
     Attributes:
     - name: Unique identifier for this handler.
     - kwargs: Configuration for GET request parameters.
 
-    The primary GET method accepts 'subject', 'object', and 'cutoff' parameters, then retrieves
-    and returns paths in JSON format between the specified entities up to the given 'cutoff' length.
+    The primary GET method accepts the required 'subject', 'object', and 'cutoff'(default=3) parameters, then retrieves
+    and returns paths in JSON format between the specified nodes up to the given 'cutoff' length.
     """
 
     name = "metakgpathfinder"
@@ -632,6 +632,11 @@ class MetaKGPathFinderHandler(QueryHandler):
 
     @capture_exceptions
     async def get(self, *args, **kwargs):
+
+        # Check if subject and object are the same - not allowed
+        if self.args.subject == self.args.object:
+            raise ValueError("Subject and object must be different.")
+
         query_data = {"q": self.args.q}
 
         # Initialize with the original subject and object, and setup for expansion
@@ -674,6 +679,10 @@ class MetaKGPathFinderHandler(QueryHandler):
             predicate_filter=self.args.predicate,
             bte=self.args.bte
         )
+
+        # # Error check path results
+        if "error" in paths_with_edges:
+            raise HTTPError(400, reason=str(paths_with_edges["error"]))
 
         # Check if rawquery parameter is true -- respond with correct output
         if self.args.rawquery:
