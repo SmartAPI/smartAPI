@@ -1,7 +1,6 @@
 import asyncio
 import json
 import logging
-from typing import List, Union
 import os
 import bmt
 from biothings.utils import serializer
@@ -25,8 +24,6 @@ from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 from utils.metakg.parser import MetaKGParser
 
 logger = logging.getLogger("smartAPI")
-
-from tornado.web import RequestHandler
 
 def github_authenticated(func):
     """
@@ -497,7 +494,7 @@ class MetaKGQueryHandler(QueryHandler):
             api_dict = apis["api"]
             filtered_api= self.get_filtered_api(api_dict)
             apis["api"] = filtered_api
-            
+
     def write(self, chunk):
         """
         Overwrite the biothings query handler to ...
@@ -524,7 +521,7 @@ class MetaKGQueryHandler(QueryHandler):
                     self.set_header("Content-Disposition", 'attachment; filename="smartapi_metakg.graphml"')
 
                 return super(BaseAPIHandler, self).write(chunk)
-            
+
             if self.format == "html":
                 # setup template
                 template_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'templates'))
@@ -682,75 +679,124 @@ class MetaKGPathFinderHandler(QueryHandler):
             raw_query_output = self.setup_pathfinder_rawquery(expanded_fields)
             self.write(raw_query_output)
             return
-        res = { 
-                "total": len(paths_with_edges), 
+        res = {
+                "total": len(paths_with_edges),
                 "paths": paths_with_edges,
             }
         await asyncio.sleep(0.01)
         self.finish(res)
 
-class MetaKGParserHandler(BaseHandler): #RequestHandler/BaseAPIHandler
+class MetaKGParserHandler(BaseHandler):
     name="metakgparser"
     kwargs = {
         "GET": {
             "url": {
                 "type": str,
-                "required": True, 
+                "required": True,
                 "max": 1000,
                 "description": "URL of the SmartAPI metadata to parse"
             },
+            "api_details": {"type": bool, "default": 0 },
+            "bte": {"type": bool, "default": 0},
         },
-        "POST": { }
+        "POST": {
+            "api_details": {"type": bool, "default": 0 },
+            "bte": {"type": bool, "default": 0 },
+        },
     }
 
-    async def get(self, *args, **kwargs):
-        if self.request.method == "GET":
-            if not self.get_argument("url", None):  # Check if the 'url' argument is present
-                self.set_status(400)
-                self.write({"error": "Missing 'url' argument"})
-                return
-            # smartapi = API(url=self.get_argument("url"))
-            # metakg_doc = smartapi.get_metakg()
-            # call parser // pass URL to parser 
-            parser = MetaKGParser()
-            url = self.get_argument("url")
-            
-            trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
-            nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
-            combined_data = trapi_data + nontrapi_data
+    def initialize(self, *args, **kwargs):
+        super().initialize(*args, **kwargs)
+        # change the default query pipeline from self.biothings.pipeline
+        self.pipeline = MetaKGQueryPipeline(ns=self.biothings)
 
-            # Transform the combined data to include an 'api' key and organize it into 'hits'
-            hits = []
-            for edge in combined_data:
-                print(f"\n{json.dumps(edge, indent=4)}\n")
-                transformed_edge = {
-                    "_id": edge['api'].get("_id"),  # Include an ID if available
-                    "_score": 1,  # Placeholder for scoring logic
-                    "api": {
-                        "name": edge['api'].get("name"),  # Replace with actual API name key
-                        "smartapi": {
-                            "id": edge['api']['smartapi'].get("id")  # Replace with actual SmartAPI ID key
-                        }
-                    },
-                    "subject": edge.get("subject"),
-                    "subject_prefix": edge.get("subject_prefix"),
-                    "predicate": edge.get("predicate"),
-                    "object": edge.get("object"),
-                    "object_prefix": edge.get("object_prefix"),
-                }
-                hits.append(transformed_edge)
-
-            # Create final response format
-            response = {
-                "took": 1,  # Placeholder for actual timing logic
-                "total": len(hits),
-                "max_score": 1,  # Placeholder for scoring logic
-                "hits": hits
+    def get_filtered_api(self, api_dict):
+        """Extract and return filtered API information."""
+        api_info = api_dict["api"]
+        # Default structure to preserve top-level keys
+        filtered_dict = {
+                "subject": api_dict.get("subject"),
+                "object": api_dict.get("object"),
+                "predicate": api_dict.get("predicate"),
+                "subject_prefix": api_dict.get("subject_prefix"),
+                "object_prefix": api_dict.get("object_prefix"),
             }
+        # case:  bte=1, api_details=0
+        if self.args.bte == "1" and self.args.api_details == "0":
+            filtered_api = {
+                **({"name": api_info["name"]} if "name" in api_info else {}),
+                **(
+                    {"smartapi": {"id": api_info["smartapi"]["id"]}}
+                    if "smartapi" in api_info and "id" in api_info["smartapi"]
+                    else {}
+                ),
+                "bte": api_info.get("bte", {}),
+            }
+        # case: bte=0, api_details=1
+        elif self.args.bte == "0"  and self.args.api_details == "1":
+            api_info.pop("bte", None)
+            filtered_api = api_info
+        # case: api_details=1, bte=1
+        elif self.args.bte == "1"  and self.args.api_details == "1":
+            filtered_api = api_info
+        # case: bte=0, api_details=0
+        else:
+            filtered_api = {
+                **({"name": api_info["name"]} if "name" in api_info else {}),
+                **(
+                    {"smartapi": {"id": api_info["smartapi"]["id"]}}
+                    if "smartapi" in api_info and "id" in api_info["smartapi"]
+                    else {}
+                ),
+            }
+        # Add the filtered 'api' key to the preserved top-level structure
+        filtered_dict["api"] = filtered_api
 
-            # Write response
-            self.set_header("Content-Type", "application/json")
-            self.write(json.dumps(response))
+        return filtered_dict
+
+    def process_apis(self, apis):
+        """Process each API dict based on provided args."""
+        if isinstance(apis, list):
+            for i, api_dict in enumerate(apis):
+                filtered_api = self.get_filtered_api(api_dict)
+                apis[i] = filtered_api
+        elif isinstance(apis, dict):
+            if "bte" in apis:
+                # Update dict for new format
+                apis["api"]["bte"] = apis.pop("bte")
+            api_dict = apis["api"]
+            filtered_api = self.get_filtered_api(api_dict)
+            apis["api"] = filtered_api
+        return apis
+
+    async def get(self, *args, **kwargs):
+        if not self.get_argument("url", None):
+            self.set_status(400)
+            self.write({"error": "Missing 'url' argument"})
+            return
+
+        parser = MetaKGParser()
+        url = self.get_argument("url")
+        self.args.api_details = self.get_argument("api_details", False)
+        self.args.bte = self.get_argument("bte", False)
+
+        trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
+        nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
+        combined_data = trapi_data + nontrapi_data
+
+        for i, api_dict in enumerate(combined_data):
+            filtered_api = self.get_filtered_api(api_dict)
+            combined_data[i] = filtered_api
+
+        response = {
+            "took": 1,
+            "total": len(combined_data),
+            "max_score": 1,
+            "hits": combined_data,
+        }
+
+        self.set_header("Content-Type", "application/json")
+        self.write(json.dumps(response))
 
     async def post(self, *args, **kwargs):
         try:
@@ -762,17 +808,21 @@ class MetaKGParserHandler(BaseHandler): #RequestHandler/BaseAPIHandler
             trapi_data = parser.get_TRAPI_metadatas(data=data)
             nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
             combined_data = trapi_data + nontrapi_data
-            # self.write(json.dumps(combined_data))
-            # Clean up the metakg_doc to remove the 'api' key
-            cleaned_metakg_doc = []
-            for edge in combined_data:
-                if 'api' in edge:
-                    edge.pop('api')  # Remove the 'api' key
-                cleaned_metakg_doc.append(edge)
 
-            # Return the cleaned metakg document
+            for i, api_dict in enumerate(combined_data):
+                filtered_api = self.get_filtered_api(api_dict)
+                combined_data[i] = filtered_api
+
+            response = {
+                "took": 1,
+                "total": len(combined_data),
+                "max_score": 1,
+                "hits": combined_data,
+            }
+
             self.set_header("Content-Type", "application/json")
-            self.write(json.dumps(cleaned_metakg_doc)) # make dict
+            self.write(json.dumps(response)
+
         except json.JSONDecodeError:
             self.set_status(400)
             self.write({"error": "Invalid JSON format"})
