@@ -821,7 +821,7 @@ class MetaKGParserHandler(BaseHandler):
             }
 
             self.set_header("Content-Type", "application/json")
-            self.write(json.dumps(response)
+            self.write(json.dumps(response))
 
         except json.JSONDecodeError:
             self.set_status(400)
