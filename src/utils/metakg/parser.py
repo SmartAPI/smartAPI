@@ -13,17 +13,34 @@ class MetaKGParser:
     get_url_timeout = 60
     metakg_errors = None
 
-    def get_non_TRAPI_metadatas(self, data, extra_data=None):
-        parser = API(data)
+    def get_non_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
+        # Error Handling
+        if not data and not url:
+            raise ValueError("Either data or url must be provided.")
+        if data:
+            parser = API(smartapi_doc=data)
+        elif url:
+            parser = API(url=url)
+        else:
+            raise ValueError("Error getting metadata from provided data or url.")
+
         mkg = self.extract_metakgedges(parser.metadata["operations"], extra_data=extra_data)
         no_nodes = len({x["subject"] for x in mkg} | {x["object"] for x in mkg})
         no_edges = len({x["predicate"] for x in mkg})
         logger.info("Done [%s nodes, %s edges]", no_nodes, no_edges)
         return mkg
 
-    def get_TRAPI_metadatas(self, data, extra_data=None):
+    def get_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
         ops = []
-        metadata_list = self.get_TRAPI_with_metakg_endpoint(data)
+        if not data and not url:
+            raise ValueError("Either data or url must be provided.")
+        if data:
+            metadata_list = self.get_TRAPI_with_metakg_endpoint(data=data)
+        elif url:
+            metadata_list = self.get_TRAPI_with_metakg_endpoint(url=url)
+        else:
+            raise ValueError("Error getting metadata from provided data or url.")
+
         count_metadata_list = len(metadata_list)
         self.metakg_errors = {}
         for i, metadata in enumerate(metadata_list):
@@ -34,15 +51,24 @@ class MetaKGParser:
 
         return self.extract_metakgedges(ops, extra_data=extra_data)
 
-    def get_TRAPI_with_metakg_endpoint(self, data):
-        metadatas = []
-        parser = API(data)
-        metadata = parser.metadata
-        _paths = metadata.get("paths", {})
-        _team = metadata.get("x-translator", {}).get("team")
-        if "/meta_knowledge_graph" in _paths and "/query" in _paths and _team:
-            metadatas.append(metadata)
-        return metadatas
+    def get_TRAPI_with_metakg_endpoint(self, data=None, url=None):
+        if not data and not url:
+            raise ValueError("Either data or url must be provided.")
+        try:
+            # Initialize API with either data or URL
+            parser = API(smartapi_doc=data) if data else API(url=url)
+            metadata = parser.metadata
+            _paths = metadata.get("paths", {})
+            _team = metadata.get("x-translator", {}).get("team")
+
+            # Check for required TRAPI paths
+            if "/meta_knowledge_graph" in _paths and "/query" in _paths and _team:
+                print("TRAPI metadata found.")
+                return [metadata]
+            else:
+                return []
+        except Exception as e:
+            raise ValueError(f"Error getting TRAPI metadata: {e}")
 
     def construct_query_url(self, server_url):
         if server_url.endswith("/"):
