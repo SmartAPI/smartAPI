@@ -14,7 +14,7 @@ class TestAPI(unittest.TestCase):
     # POST Tests
     def test_post_metakg_parse_api_details_1_bte_1(self):
         url = "http://localhost:8000/api/metakg/parse?api_details=1&bte=1"
-        response = requests.post(url, headers=self.headers, json=self.data)
+        response = requests.post(url, headers=self.headers, json=self.data, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertIn('api', json_response['hits'][0].keys())
@@ -22,14 +22,14 @@ class TestAPI(unittest.TestCase):
 
     def test_post_metakg_parse_api_details_0_bte_1(self):
         url = "http://localhost:8000/api/metakg/parse?api_details=0&bte=1"
-        response = requests.post(url, headers=self.headers, json=self.data)
+        response = requests.post(url, headers=self.headers, json=self.data, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertIn('bte', json_response['hits'][0].keys())
 
     def test_post_metakg_parse_api_details_1_bte_0(self):
         url = "http://localhost:8000/api/metakg/parse?api_details=1&bte=0"
-        response = requests.post(url, headers=self.headers, json=self.data)
+        response = requests.post(url, headers=self.headers, json=self.data, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertIn('api', json_response['hits'][0].keys())
@@ -37,7 +37,7 @@ class TestAPI(unittest.TestCase):
 
     def test_post_metakg_parse_api_details_0_bte_0(self):
         url = "http://localhost:8000/api/metakg/parse?api_details=0&bte=0"
-        response = requests.post(url, headers=self.headers, json=self.data)
+        response = requests.post(url, headers=self.headers, json=self.data, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('bte', json_response['hits'][0].keys())
@@ -46,7 +46,7 @@ class TestAPI(unittest.TestCase):
     # GET Tests
     def test_get_metakg_parse_api_details_1_bte_1(self):
         url = f"http://localhost:8000/api/metakg/parse?url={self.URL_EXAMPLE}&api_details=1&bte=1"
-        response = requests.get(url)
+        response = requests.get(url, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertIn('api', json_response['hits'][0].keys())
@@ -54,14 +54,14 @@ class TestAPI(unittest.TestCase):
 
     def test_get_metakg_parse_api_details_0_bte_1(self):
         url = f"http://localhost:8000/api/metakg/parse?url={self.URL_EXAMPLE}&api_details=0&bte=1"
-        response = requests.get(url)
+        response = requests.get(url, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertIn('bte', json_response['hits'][0].keys())
 
     def test_get_metakg_parse_api_details_1_bte_0(self):
         url = f"http://localhost:8000/api/metakg/parse?url={self.URL_EXAMPLE}&api_details=1&bte=0"
-        response = requests.get(url)
+        response = requests.get(url, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertIn('api', json_response['hits'][0].keys())
@@ -69,7 +69,7 @@ class TestAPI(unittest.TestCase):
 
     def test_get_metakg_parse_api_details_0_bte_0(self):
         url = f"http://localhost:8000/api/metakg/parse?url={self.URL_EXAMPLE}&api_details=0&bte=0"
-        response = requests.get(url)
+        response = requests.get(url, timeout=self.TIMEOUT)
         json_response = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('bte', json_response['hits'][0].keys())
