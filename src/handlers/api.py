@@ -687,7 +687,6 @@ class MetaKGPathFinderHandler(QueryHandler):
         self.finish(res)
 
 class MetaKGParserHandler(BaseHandler):
-    name="metakgparser"
     kwargs = {
         "GET": {
             "url": {
@@ -713,6 +712,7 @@ class MetaKGParserHandler(BaseHandler):
     def get_filtered_api(self, api_dict):
         """Extract and return filtered API information."""
         api_info = api_dict["api"]
+
         # Default structure to preserve top-level keys
         filtered_dict = {
                 "subject": api_dict.get("subject"),
@@ -721,6 +721,7 @@ class MetaKGParserHandler(BaseHandler):
                 "subject_prefix": api_dict.get("subject_prefix"),
                 "object_prefix": api_dict.get("object_prefix"),
             }
+
         # case:  bte=1, api_details=0
         if self.args.bte == "1" and self.args.api_details == "0":
             filtered_api = {
@@ -732,13 +733,16 @@ class MetaKGParserHandler(BaseHandler):
                 ),
                 "bte": api_info.get("bte", {}),
             }
+
         # case: bte=0, api_details=1
         elif self.args.bte == "0"  and self.args.api_details == "1":
             api_info.pop("bte", None)
             filtered_api = api_info
+
         # case: api_details=1, bte=1
         elif self.args.bte == "1"  and self.args.api_details == "1":
             filtered_api = api_info
+
         # case: bte=0, api_details=0
         else:
             filtered_api = {
@@ -751,6 +755,10 @@ class MetaKGParserHandler(BaseHandler):
             }
         # Add the filtered 'api' key to the preserved top-level structure
         filtered_dict["api"] = filtered_api
+
+        # Remove 'bte' from 'api' if it exists
+        if "bte" in filtered_dict["api"]:
+            filtered_dict['bte'] = filtered_dict["api"].pop("bte", None)
 
         return filtered_dict
 
@@ -796,7 +804,7 @@ class MetaKGParserHandler(BaseHandler):
         }
 
         self.set_header("Content-Type", "application/json")
-        self.write(json.dumps(response))
+        self.write(response)
 
     async def post(self, *args, **kwargs):
         try:
@@ -805,6 +813,8 @@ class MetaKGParserHandler(BaseHandler):
             # Parse the JSON content
             data = json.loads(body)
             parser = MetaKGParser()
+            self.args.api_details = self.get_argument("api_details", "0")
+            self.args.bte = self.get_argument("bte", "0")
             trapi_data = parser.get_TRAPI_metadatas(data=data)
             nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
             combined_data = trapi_data + nontrapi_data
@@ -821,8 +831,7 @@ class MetaKGParserHandler(BaseHandler):
             }
 
             self.set_header("Content-Type", "application/json")
-            self.write(json.dumps(response))
+            self.write(response)
 
         except json.JSONDecodeError:
-            self.set_status(400)
-            self.write({"error": "Invalid JSON format"})
+            raise ValueError("Invalid JSON content in request body.")
