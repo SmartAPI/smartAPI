@@ -5,6 +5,7 @@ import json
 
 class TestAPI(unittest.TestCase):
     URL_EXAMPLE = "https://raw.githubusercontent.com/NCATS-Tangerine/translator-api-registry/master/mygene.info/openapi_full.yml"
+    TIMEOUT = 10  # Timeout in seconds
 
     def setUp(self):
         self.headers = {"Content-Type": "application/json"}
