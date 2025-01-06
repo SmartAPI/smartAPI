@@ -17,6 +17,7 @@ from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
 from utils.downloader import DownloadError, download_async
+from utils.http_error import SmartAPIHTTPError
 from utils.metakg.export import edges2graphml
 from utils.metakg.path_finder import MetaKGPathFinder
 from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
@@ -67,7 +68,7 @@ class UserInfoHandler(AuthHandler):
                 # raising HTTPError will cause headers to be emptied
                 self.finish()
             else:
-                raise HTTPError(403)
+                raise HTTPError(status_code=403)
 
 
 class LoginHandler(AuthHandler):
@@ -112,7 +113,7 @@ class ValidateHandler(BaseHandler):
 
     async def get(self):
         if self.request.body:
-            raise HTTPError(400, reason="GET takes no request body.")
+            raise HTTPError(status_code=400, reason="GET takes no request body.")
 
         raw = await self.download(self.args.url)
         self.validate(raw)
@@ -138,9 +139,8 @@ class ValidateHandler(BaseHandler):
             smartapi = SmartAPI(SmartAPI.VALIDATION_ONLY)
             smartapi.raw = raw
             smartapi.validate()
-
         except (ControllerError, AssertionError) as err:
-            raise HTTPError(400, reason=str(err))
+            raise SmartAPIHTTPError(400, reason=str(err))
         else:
             self.finish({"success": True, "details": f"valid SmartAPI ({smartapi.version}) metadata."})
 
@@ -164,19 +164,19 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         """
 
         if SmartAPI.find(self.args.url, "url"):
-            raise HTTPError(409)
+            raise HTTPError(status_code=409)
 
         try:
             file = await download_async(self.args.url)
         except DownloadError as err:
-            raise HTTPError(400, reason=str(err)) from err
+            raise HTTPError(status_code=400, reason=str(err)) from err
 
         try:
             smartapi = SmartAPI(self.args.url)
             smartapi.raw = file.raw
             smartapi.validate()
         except (ControllerError, AssertionError) as err:
-            raise HTTPError(400, reason=str(err)) from err
+            raise HTTPError(status_code=400, reason=str(err)) from err
 
         if self.args.dryrun:
             raise Finish({"success": True, "details": f"[Dryrun] Valid {smartapi.version} Metadata"})
@@ -186,7 +186,7 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
             smartapi.refresh(file)  # populate webdoc meta
             _id = smartapi.save()
         except ControllerError as err:
-            raise HTTPError(400, reason=str(err)) from err
+            raise HTTPError(status_code=400, reason=str(err)) from err
         else:
             self.finish({"success": True, "_id": _id})
             await self._notify(smartapi)
@@ -251,21 +251,21 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         try:
             smartapi = SmartAPI.get(_id)
         except NotFoundError:
-            raise HTTPError(404)
+            raise HTTPError(status_code=404)
 
         if smartapi.username != self.current_user["login"]:
-            raise HTTPError(403)
+            raise HTTPError(status_code=403)
 
         if self.args.slug is not None:
             if self.args.slug in {"api"}:  # reserved
-                raise HTTPError(400, reason="slug is reserved")
+                raise HTTPError(status_code=400, reason="slug is reserved")
 
             try:  # update slug
                 smartapi.slug = self.args.slug or None
                 smartapi.save()
 
             except (ControllerError, ValueError) as err:
-                raise HTTPError(400, reason=str(err)) from err
+                raise HTTPError(status_code=400, reason=str(err)) from err
 
             self.finish({"success": True})
 
@@ -291,15 +291,15 @@ class SmartAPIHandler(BaseHandler, BiothingHandler):
         try:
             smartapi = SmartAPI.get(_id)
         except NotFoundError:
-            raise HTTPError(404)
+            raise HTTPError(status_code=404)
 
         if smartapi.username != self.current_user["login"]:
-            raise HTTPError(403)
+            raise HTTPError(status_code=403)
 
         try:
             _id = smartapi.delete()
         except ControllerError as err:
-            raise HTTPError(400, reason=str(err)) from err
+            raise HTTPError(status_code=400, reason=str(err)) from err
 
         self.finish({"success": True, "_id": _id})
 
@@ -345,23 +345,23 @@ class UptimeHandler(BaseHandler):
     @github_authenticated
     def get(self):
         if self.request.body:
-            raise HTTPError(400, reason="GET takes no request body.")
+            raise HTTPError(status_code=400, reason="GET takes no request body.")
 
         if self.args.id:
             try:
                 smartapi = SmartAPI.get(self.args.id)
                 if smartapi.username != self.current_user["login"]:
-                    raise HTTPError(403)
+                    raise HTTPError(status_code=403)
                 status = smartapi.check()
                 smartapi.save()
             except NotFoundError:
-                raise HTTPError(404)
+                raise HTTPError(status_code=404)
             except (ControllerError, AssertionError) as err:
-                raise HTTPError(400, reason=str(err))
+                raise HTTPError(status_code=400, reason=str(err))
             else:
                 self.finish({"success": True, "details": status})
         else:
-            raise HTTPError(400, reason="Missing required parameter: id")
+            raise HTTPError(status_code=400, reason="Missing required parameter: id")
 
     @github_authenticated
     def post(self):
@@ -369,17 +369,17 @@ class UptimeHandler(BaseHandler):
             try:
                 smartapi = SmartAPI.get(self.args.id)
                 if smartapi.username != self.current_user["login"]:
-                    raise HTTPError(403)
+                    raise HTTPError(status_code=403)
                 status = smartapi.check()
                 smartapi.save()
             except NotFoundError:
-                raise HTTPError(404)
+                raise HTTPError(status_code=404)
             except (ControllerError, AssertionError) as err:
-                raise HTTPError(400, reason=str(err))
+                raise HTTPError(status_code=400, reason=str(err))
             else:
                 self.finish({"success": True, "details": status})
         else:
-            raise HTTPError(400, reason="Missing required form field: id")
+            raise HTTPError(status_code=400, reason="Missing required form field: id")
 
 
 class MetaKGQueryHandler(QueryHandler):
