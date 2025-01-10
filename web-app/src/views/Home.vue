@@ -294,7 +294,7 @@
           <div class="container">
             <div class="col s12 m6 d-flex p-1 justify-content-center align-items-center">
               <h2 style="font-size: 3em !important; font-weight: 200">
-                SmartAPI has it's own API! Check it out!
+                SmartAPI has its own API! Check it out!
               </h2>
             </div>
             <div class="col s12 m6">
