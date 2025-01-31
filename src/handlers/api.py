@@ -687,6 +687,25 @@ class MetaKGPathFinderHandler(QueryHandler):
         self.finish(res)
 
 class MetaKGParserHandler(BaseHandler):
+    """
+    Handles parsing of SmartAPI metadata from a given URL or request body. 
+
+    This handler processes SmartAPI metadata and returns structured, 
+    cleaned results based on the specified query parameters. 
+
+    Supported HTTP methods:
+    - **GET**: Parses metadata from a provided URL.
+    - **POST**: Parses metadata from the request body.
+
+    Query Parameters:
+    - `url` (str, required): The URL of the SmartAPI metadata to parse. 
+        Maximum length: 1000 characters.
+    - `api_details` (bool, optional, default: `False`): 
+        Whether to return detailed API information.
+    - `bte` (bool, optional, default: `False`): 
+        Whether to include BTE (BioThings Explorer) specific metadata.
+    """
+
     kwargs = {
         "GET": {
             "url": {
@@ -713,17 +732,18 @@ class MetaKGParserHandler(BaseHandler):
         """Extract and return filtered API information."""
         api_info = api_dict["api"]
 
+        # Convert arguments to integers for consistency
+        bte = int(self.args.bte)
+        api_details = int(self.args.api_details)
+
         # Default structure to preserve top-level keys
         filtered_dict = {
-                "subject": api_dict.get("subject"),
-                "object": api_dict.get("object"),
-                "predicate": api_dict.get("predicate"),
-                "subject_prefix": api_dict.get("subject_prefix"),
-                "object_prefix": api_dict.get("object_prefix"),
-            }
+            key: api_dict.get(key)
+            for key in ["subject", "object", "predicate", "subject_prefix", "object_prefix"]
+        }
 
-        # case:  bte=1, api_details=0
-        if self.args.bte == "1" and self.args.api_details == "0":
+        # Determine filtered API structure based on `bte` and `api_details`
+        if bte == 1 and api_details == 0:
             filtered_api = {
                 **({"name": api_info["name"]} if "name" in api_info else {}),
                 **(
@@ -733,18 +753,12 @@ class MetaKGParserHandler(BaseHandler):
                 ),
                 "bte": api_info.get("bte", {}),
             }
-
-        # case: bte=0, api_details=1
-        elif self.args.bte == "0"  and self.args.api_details == "1":
-            api_info.pop("bte", None)
-            filtered_api = api_info
-
-        # case: api_details=1, bte=1
-        elif self.args.bte == "1"  and self.args.api_details == "1":
-            filtered_api = api_info
-
-        # case: bte=0, api_details=0
-        else:
+        elif api_details == 1:
+            # Covers both (bte=0, api_details=1) and (bte=1, api_details=1)
+            filtered_api = api_info.copy()
+            if bte == 0:
+                filtered_api.pop("bte", None)
+        else:  # bte == 0 and api_details == 0
             filtered_api = {
                 **({"name": api_info["name"]} if "name" in api_info else {}),
                 **(
@@ -753,14 +767,16 @@ class MetaKGParserHandler(BaseHandler):
                     else {}
                 ),
             }
+
         # Add the filtered 'api' key to the preserved top-level structure
         filtered_dict["api"] = filtered_api
 
-        # Remove 'bte' from 'api' if it exists
+        # Remove 'bte' from 'api' and move it to the top level
         if "bte" in filtered_dict["api"]:
-            filtered_dict['bte'] = filtered_dict["api"].pop("bte", None)
+            filtered_dict["bte"] = filtered_dict["api"].pop("bte")
 
         return filtered_dict
+
 
     def process_apis(self, apis):
         """Process each API dict based on provided args."""
@@ -779,9 +795,7 @@ class MetaKGParserHandler(BaseHandler):
 
     async def get(self, *args, **kwargs):
         if not self.get_argument("url", None):
-            self.set_status(400)
-            self.write({"error": "Missing 'url' argument"})
-            return
+            raise HTTPError(400, reason="A url value is expected for the request, please provide a url.")
 
         parser = MetaKGParser()
         url = self.get_argument("url")
