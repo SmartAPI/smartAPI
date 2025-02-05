@@ -16,7 +16,6 @@ class MetaKGParser:
     metakg_errors = None
 
     def get_non_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
-        # Error Handling
         if not data and not url:
             raise HTTPError(400, reason="Either data or url value is expected for this request, please provide data or a url.")
             # raise ValueError("Either data or url must be provided.")
@@ -25,7 +24,7 @@ class MetaKGParser:
         elif url:
             parser = API(url=url)
         else:
-            raise HTTPError(404, "Error getting metadata from provided data or url, for more info please reference: ")
+            raise HTTPError(404, "No metadata available from provided data or url.")
 
         mkg = self.extract_metakgedges(parser.metadata["operations"], extra_data=extra_data)
         no_nodes = len({x["subject"] for x in mkg} | {x["object"] for x in mkg})
@@ -42,7 +41,7 @@ class MetaKGParser:
         elif url:
             metadata_list = self.get_TRAPI_with_metakg_endpoint(url=url)
         else:
-            raise HTTPError(404, "Error getting metadata from provided data or url, for more info please reference: ")
+            raise HTTPError(404, "No metadata available from provided data or url.")
 
         if isinstance(metadata_list, Exception):
             return metadata_list
@@ -65,7 +64,7 @@ class MetaKGParser:
         try:
             metadata = parser.metadata
         except DownloadError as dl_err:
-            raise HTTPError(400, reason="Unable to download response data with given input. Please look at your given input for any errors.")
+            raise HTTPError(400, reason="Error fetching data from given input.")
         _paths = metadata.get("paths", {})
         _team = metadata.get("x-translator", {}).get("team")
 

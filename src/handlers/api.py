@@ -688,22 +688,22 @@ class MetaKGPathFinderHandler(QueryHandler):
 
 class MetaKGParserHandler(BaseHandler):
     """
-    Handles parsing of SmartAPI metadata from a given URL or request body. 
+        Handles parsing of SmartAPI metadata from a given URL or request body. 
 
-    This handler processes SmartAPI metadata and returns structured, 
-    cleaned results based on the specified query parameters. 
+        This handler processes SmartAPI metadata and returns structured, 
+        cleaned results based on the specified query parameters. 
 
-    Supported HTTP methods:
-    - **GET**: Parses metadata from a provided URL.
-    - **POST**: Parses metadata from the request body.
+        Supported HTTP methods:
+        - **GET**: Parses metadata from a provided URL.
+        - **POST**: Parses metadata from the request body.
 
-    Query Parameters:
-    - `url` (str, required): The URL of the SmartAPI metadata to parse. 
-        Maximum length: 1000 characters.
-    - `api_details` (bool, optional, default: `False`): 
-        Whether to return detailed API information.
-    - `bte` (bool, optional, default: `False`): 
-        Whether to include BTE (BioThings Explorer) specific metadata.
+        Query Parameters:
+        - `url` (str, required): The URL of the SmartAPI metadata to parse. 
+            Maximum length: 1000 characters.
+        - `api_details` (bool, optional, default: `False`): 
+            Whether to return detailed API information.
+        - `bte` (bool, optional, default: `False`): 
+            Whether to include BTE (BioThings Explorer) specific metadata.
     """
 
     kwargs = {
@@ -731,10 +731,8 @@ class MetaKGParserHandler(BaseHandler):
     def get_filtered_api(self, api_dict):
         """Extract and return filtered API information."""
         api_info = api_dict["api"]
-
-        # Convert arguments to integers for consistency
-        bte = int(self.args.bte)
-        api_details = int(self.args.api_details)
+        bte = self.args.bte
+        api_details = self.args.api_details
 
         # Default structure to preserve top-level keys
         filtered_dict = {
@@ -797,14 +795,19 @@ class MetaKGParserHandler(BaseHandler):
         if not self.get_argument("url", None):
             raise HTTPError(400, reason="A url value is expected for the request, please provide a url.")
 
+        # Set initial args
         parser = MetaKGParser()
         url = self.get_argument("url")
-        self.args.api_details = self.get_argument("api_details", False)
-        self.args.bte = self.get_argument("bte", False)
+        self.args.api_details = int(self.get_argument("api_details", 0))
+        self.args.bte = int(self.get_argument("bte", 0))
 
+        # Get data
         trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
         nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
         combined_data = trapi_data + nontrapi_data
+
+        if not combined_data:
+            raise HTTPError(404, reason="Metadata not found.")
 
         for i, api_dict in enumerate(combined_data):
             filtered_api = self.get_filtered_api(api_dict)
@@ -821,31 +824,46 @@ class MetaKGParserHandler(BaseHandler):
         self.write(response)
 
     async def post(self, *args, **kwargs):
+        if not self.request.body:
+            raise HTTPError(400, reason="Request body cannot be empty.")
+
+        # Attempt to parse JSON body
         try:
-            # Read the raw request body
-            body = self.request.body
-            # Parse the JSON content
-            data = json.loads(body)
-            parser = MetaKGParser()
-            self.args.api_details = self.get_argument("api_details", "0")
-            self.args.bte = self.get_argument("bte", "0")
-            trapi_data = parser.get_TRAPI_metadatas(data=data)
-            nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
-            combined_data = trapi_data + nontrapi_data
-
-            for i, api_dict in enumerate(combined_data):
-                filtered_api = self.get_filtered_api(api_dict)
-                combined_data[i] = filtered_api
-
-            response = {
-                "took": 1,
-                "total": len(combined_data),
-                "max_score": 1,
-                "hits": combined_data,
-            }
-
-            self.set_header("Content-Type", "application/json")
-            self.write(response)
-
+            data = json.loads(self.request.body)
         except json.JSONDecodeError:
-            raise ValueError("Invalid JSON content in request body.")
+            raise HTTPError(400, reason="Invalid JSON content in request body.")
+
+        # Ensure the parsed data is a dictionary
+        if not isinstance(data, dict):
+            raise HTTPError(400, reason="Invalid JSON format. Expected a JSON object.")
+
+        parser = MetaKGParser()
+        
+        try:
+            self.args.api_details = int(self.get_argument("api_details", 0))
+            self.args.bte = int(self.get_argument("bte", 0))
+        except ValueError:
+            raise HTTPError(400, reason="Invalid query parameter value. 'api_details' and 'bte' must be integers.")
+
+        # Process metadata
+        trapi_data = parser.get_TRAPI_metadatas(data=data)
+        nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
+        combined_data = trapi_data + nontrapi_data
+
+        if not combined_data:
+            raise HTTPError(404, reason="Metadata not found.")
+
+        # Apply filtering
+        for i, api_dict in enumerate(combined_data):
+            filtered_api = self.get_filtered_api(api_dict)
+            combined_data[i] = filtered_api
+
+        response = {
+            "took": 1,
+            "total": len(combined_data),
+            "max_score": 1,
+            "hits": combined_data,
+        }
+
+        self.set_header("Content-Type", "application/json")
+        self.write(response)
