@@ -63,7 +63,7 @@ class MetaKGParser:
         parser = API(smartapi_doc=data) if data else API(url=url)
         try:
             metadata = parser.metadata
-        except DownloadError as dl_err:
+        except DownloadError:
             raise HTTPError(400, reason="Error fetching data from given input.")
         _paths = metadata.get("paths", {})
         _team = metadata.get("x-translator", {}).get("team")

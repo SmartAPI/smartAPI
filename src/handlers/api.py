@@ -688,21 +688,21 @@ class MetaKGPathFinderHandler(QueryHandler):
 
 class MetaKGParserHandler(BaseHandler):
     """
-        Handles parsing of SmartAPI metadata from a given URL or request body. 
+        Handles parsing of SmartAPI metadata from a given URL or request body.
 
-        This handler processes SmartAPI metadata and returns structured, 
-        cleaned results based on the specified query parameters. 
+        This handler processes SmartAPI metadata and returns structured,
+        cleaned results based on the specified query parameters.
 
         Supported HTTP methods:
         - **GET**: Parses metadata from a provided URL.
         - **POST**: Parses metadata from the request body.
 
         Query Parameters:
-        - `url` (str, required): The URL of the SmartAPI metadata to parse. 
+        - `url` (str, required): The URL of the SmartAPI metadata to parse.
             Maximum length: 1000 characters.
-        - `api_details` (bool, optional, default: `False`): 
+        - `api_details` (bool, optional, default: `False`):
             Whether to return detailed API information.
-        - `bte` (bool, optional, default: `False`): 
+        - `bte` (bool, optional, default: `False`):
             Whether to include BTE (BioThings Explorer) specific metadata.
     """
 
@@ -775,7 +775,6 @@ class MetaKGParserHandler(BaseHandler):
 
         return filtered_dict
 
-
     def process_apis(self, apis):
         """Process each API dict based on provided args."""
         if isinstance(apis, list):
@@ -798,20 +797,25 @@ class MetaKGParserHandler(BaseHandler):
         # Set initial args
         parser = MetaKGParser()
         url = self.get_argument("url")
-        self.args.api_details = int(self.get_argument("api_details", 0))
-        self.args.bte = int(self.get_argument("bte", 0))
+        try:
+            self.args.api_details = int(self.get_argument("api_details", 0))
+        except ValueError:
+            raise HTTPError(400, reason=f"Unexcepted value for api_details, {self.get_argument('api_details')}. Please enter integer, 0 or 1.")
+        try:
+            self.args.bte = int(self.get_argument("bte", 0))
+        except ValueError:
+            raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
 
         # Get data
         trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
         nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
         combined_data = trapi_data + nontrapi_data
 
-        if not combined_data:
-            raise HTTPError(404, reason="Metadata not found.")
-
-        for i, api_dict in enumerate(combined_data):
-            filtered_api = self.get_filtered_api(api_dict)
-            combined_data[i] = filtered_api
+        # Apply filtering -- if data found
+        if combined_data:
+            for i, api_dict in enumerate(combined_data):
+                filtered_api = self.get_filtered_api(api_dict)
+                combined_data[i] = filtered_api
 
         response = {
             "took": 1,
@@ -831,32 +835,34 @@ class MetaKGParserHandler(BaseHandler):
         try:
             data = json.loads(self.request.body)
         except json.JSONDecodeError:
-            raise HTTPError(400, reason="Invalid JSON content in request body.")
+            raise HTTPError(400, reason=f"Unexcepted value for api_details, {self.get_argument('api_details')}. Please enter integer, 0 or 1.")
 
         # Ensure the parsed data is a dictionary
         if not isinstance(data, dict):
-            raise HTTPError(400, reason="Invalid JSON format. Expected a JSON object.")
+            raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
 
         parser = MetaKGParser()
-        
+
         try:
             self.args.api_details = int(self.get_argument("api_details", 0))
-            self.args.bte = int(self.get_argument("bte", 0))
         except ValueError:
             raise HTTPError(400, reason="Invalid query parameter value. 'api_details' and 'bte' must be integers.")
+
+        try:
+            self.args.bte = int(self.get_argument("bte", 0))
+        except ValueError:
+            raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
 
         # Process metadata
         trapi_data = parser.get_TRAPI_metadatas(data=data)
         nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
         combined_data = trapi_data + nontrapi_data
 
-        if not combined_data:
-            raise HTTPError(404, reason="Metadata not found.")
-
-        # Apply filtering
-        for i, api_dict in enumerate(combined_data):
-            filtered_api = self.get_filtered_api(api_dict)
-            combined_data[i] = filtered_api
+        # Apply filtering -- if data found
+        if combined_data:
+            for i, api_dict in enumerate(combined_data):
+                filtered_api = self.get_filtered_api(api_dict)
+                combined_data[i] = filtered_api
 
         response = {
             "took": 1,
