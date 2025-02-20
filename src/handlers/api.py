@@ -1,3 +1,4 @@
+from builtins import ValueError, isinstance
 import asyncio
 import json
 import logging
@@ -22,6 +23,7 @@ from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
 from utils.metakg.biolink_helpers import get_expanded_values
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 from utils.metakg.parser import MetaKGParser
+from utils.metakg.metakg_errors import MetadataRetrievalError
 
 logger = logging.getLogger("smartAPI")
 
@@ -806,9 +808,21 @@ class MetaKGParserHandler(BaseHandler):
         except ValueError:
             raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
 
-        # Get data
-        trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
-        nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
+        try:
+            trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
+        except MetadataRetrievalError as retrieve_err:
+            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
+        except DownloadError:
+            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
+        
+        # Get non-TRAPI metadata
+        try:
+            nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
+        except MetadataRetrievalError as retrieve_err:
+            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
+        except DownloadError:
+            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
+
         combined_data = trapi_data + nontrapi_data
 
         # Apply filtering -- if data found
@@ -854,8 +868,20 @@ class MetaKGParserHandler(BaseHandler):
             raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
 
         # Process metadata
-        trapi_data = parser.get_TRAPI_metadatas(data=data)
-        nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
+        try:
+            trapi_data = parser.get_TRAPI_metadatas(data=data)
+        except MetadataRetrievalError as retrieve_err:
+            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
+        except DownloadError:
+            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
+
+        try:
+            nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
+        except MetadataRetrievalError as retrieve_err:
+            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
+        except DownloadError:
+            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
+
         combined_data = trapi_data + nontrapi_data
 
         # Apply filtering -- if data found
