@@ -799,14 +799,15 @@ class MetaKGParserHandler(BaseHandler):
         # Set initial args
         parser = MetaKGParser()
         url = self.get_argument("url")
+
         try:
             self.args.api_details = int(self.get_argument("api_details", 0))
         except ValueError:
-            raise HTTPError(400, reason=f"Unexcepted value for api_details, {self.get_argument('api_details')}. Please enter integer, 0 or 1.")
+            raise HTTPError(400, reason=f"Value, {self.get_argument('api_details')}, not accepted for api_details. Please enter integer, 0 or 1.")
         try:
             self.args.bte = int(self.get_argument("bte", 0))
         except ValueError:
-            raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
+            raise HTTPError(400, reason=f"Value,, {self.get_argument('bte')}, not accepted for bte. Please enter integer, 0 or 1.")
 
         try:
             trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
@@ -814,7 +815,7 @@ class MetaKGParserHandler(BaseHandler):
             raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
         except DownloadError:
             raise HTTPError(400, reason="There was an error downloading the data from the given input.")
-        
+
         # Get non-TRAPI metadata
         try:
             nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)

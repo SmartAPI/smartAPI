@@ -3,7 +3,7 @@ import logging
 from copy import copy
 from tornado.web import HTTPError
 from utils.downloader import DownloadError
-
+from utils.metakg.metakg_errors import MetadataRetrievalError
 import requests
 
 from .api import API
@@ -16,15 +16,19 @@ class MetaKGParser:
     metakg_errors = None
 
     def get_non_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
+        """
+        Extract MetaKG edges from a SmartAPI document provided as `data` or fetched from a `url`.
+        Raises an error if no valid input is given.
+        """
         if not data and not url:
-            raise HTTPError(400, reason="Either data or url value is expected for this request, please provide data or a url.")
-            # raise ValueError("Either data or url must be provided.")
+            raise MetadataRetrievalError(400, "Either data or url value is expected for this request, please provide data or a url.")
+
         if data:
             parser = API(smartapi_doc=data)
         elif url:
             parser = API(url=url)
         else:
-            raise HTTPError(404, "No metadata available from provided data or url.")
+            raise MetadataRetrievalError(404, "No metadata available from provided data or url.")
 
         mkg = self.extract_metakgedges(parser.metadata["operations"], extra_data=extra_data)
         no_nodes = len({x["subject"] for x in mkg} | {x["object"] for x in mkg})
@@ -33,38 +37,51 @@ class MetaKGParser:
         return mkg
 
     def get_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
-        ops = []
+        """
+        Extract and process TRAPI metadata from a SmartAPI document or URL.  
+        Returns MetaKG edges or propagates errors.  
+        """
         if not data and not url:
-            raise HTTPError(400, reason="Either data or url value is expected for this request, please provide data or a url.")
-        if data:
-            metadata_list = self.get_TRAPI_with_metakg_endpoint(data=data)
-        elif url:
-            metadata_list = self.get_TRAPI_with_metakg_endpoint(url=url)
-        else:
-            raise HTTPError(404, "No metadata available from provided data or url.")
+            raise MetadataRetrievalError(400, "Either data or url value is expected for this request, please provide data or a url.")
 
-        if isinstance(metadata_list, Exception):
-            return metadata_list
+        try:
+            if data:
+                metadata_list = self.get_TRAPI_with_metakg_endpoint(data=data)
+            else:
+                metadata_list = self.get_TRAPI_with_metakg_endpoint(url=url)
+        except MetadataRetrievalError:
+            raise MetadataRetrievalError(404, "No metadata available from provided data or url.")
 
         count_metadata_list = len(metadata_list)
         self.metakg_errors = {}
+        ops = []
+
         for i, metadata in enumerate(metadata_list):
             ops.extend(self.get_ops_from_metakg_endpoint(metadata, f"[{i + 1}/{count_metadata_list}]"))
+
         if self.metakg_errors:
-            cnt_metakg_errors = sum([len(x) for x in self.metakg_errors.values()])
+            cnt_metakg_errors = sum(len(x) for x in self.metakg_errors.values())
             logger.error(f"Found {cnt_metakg_errors} TRAPI metakg errors:\n {json.dumps(self.metakg_errors, indent=2)}")
 
         return self.extract_metakgedges(ops, extra_data=extra_data)
 
     def get_TRAPI_with_metakg_endpoint(self, data=None, url=None):
+        """ 
+        Retrieve TRAPI metadata from a SmartAPI document or URL.  
+        Returns metadata if TRAPI endpoints are found, else an empty list.  
+        """
         if not data and not url:
-            raise HTTPError(400, reason="Either data or url value is expected for this request, please provide data or a url.")
+            raise MetadataRetrievalError(400, "Either data or url value is expected for this request, please provide data or a url.")
+
         # Initialize API with either data or URL
         parser = API(smartapi_doc=data) if data else API(url=url)
+
+        # Download the metadata
         try:
             metadata = parser.metadata
-        except DownloadError:
-            raise HTTPError(400, reason="Error fetching data from given input.")
+        except DownloadError as dl_err:
+            raise dl_err
+
         _paths = metadata.get("paths", {})
         _team = metadata.get("x-translator", {}).get("team")
 
@@ -74,8 +91,6 @@ class MetaKGParser:
             return [metadata]
         else:
             return []
-        # except Exception as value_error: # Specify Error
-        #     return value_error
 
     def construct_query_url(self, server_url):
         if server_url.endswith("/"):
