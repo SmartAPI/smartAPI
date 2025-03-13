@@ -1,7 +1,6 @@
 import json
 import logging
 from copy import copy
-from tornado.web import HTTPError
 from utils.downloader import DownloadError
 from utils.metakg.metakg_errors import MetadataRetrievalError
 import requests
@@ -18,7 +17,7 @@ class MetaKGParser:
     def get_non_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
         """
         Extract MetaKG edges from a SmartAPI document provided as `data` or fetched from a `url`.
-        Raises an error if no valid input is given.
+        Raises an error if no valid input is given, or if parser fails to parse the document.
         """
         if not data and not url:
             raise MetadataRetrievalError(400, "Either data or url value is expected for this request, please provide data or a url.")
@@ -38,8 +37,8 @@ class MetaKGParser:
 
     def get_TRAPI_metadatas(self, data=None, extra_data=None, url=None):
         """
-        Extract and process TRAPI metadata from a SmartAPI document or URL.  
-        Returns MetaKG edges or propagates errors.  
+        Extract and process TRAPI metadata from a SmartAPI document or URL.
+        Returns MetaKG edges or propagates errors.
         """
         if not data and not url:
             raise MetadataRetrievalError(400, "Either data or url value is expected for this request, please provide data or a url.")
@@ -66,9 +65,9 @@ class MetaKGParser:
         return self.extract_metakgedges(ops, extra_data=extra_data)
 
     def get_TRAPI_with_metakg_endpoint(self, data=None, url=None):
-        """ 
-        Retrieve TRAPI metadata from a SmartAPI document or URL.  
-        Returns metadata if TRAPI endpoints are found, else an empty list.  
+        """
+        Retrieve TRAPI metadata from a SmartAPI document or URL.
+        Returns metadata if TRAPI endpoints are found, else an empty list.
         """
         if not data and not url:
             raise MetadataRetrievalError(400, "Either data or url value is expected for this request, please provide data or a url.")

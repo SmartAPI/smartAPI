@@ -24,6 +24,7 @@ from utils.metakg.biolink_helpers import get_expanded_values
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 from utils.metakg.parser import MetaKGParser
 from utils.metakg.metakg_errors import MetadataRetrievalError
+from utils.decoder import to_dict
 
 logger = logging.getLogger("smartAPI")
 
@@ -43,7 +44,6 @@ def github_authenticated(func):
 
 class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
     pass
-
 
 class AuthHandler(BaseHandler):
     def set_cache_header(self, cache_value):
@@ -382,7 +382,57 @@ class UptimeHandler(BaseHandler):
         else:
             raise HTTPError(400, reason="Missing required form field: id")
 
+class MetaKGHandlerMixin:
+    """
+    Mixin to provide reusable logic for filtering API information.
+    """
+    def get_filtered_api(self, api_dict):
+        """Extract and return filtered API information."""
+        api_info = api_dict.get("api", api_dict)  # Handle both formats
+        bte = getattr(self.args, "bte", 0)
+        api_details = getattr(self.args, "api_details", 0)
 
+        # Default structure to preserve top-level keys
+        filtered_dict = {
+            key: api_dict.get(key)
+            for key in ["subject", "object", "predicate", "subject_prefix", "object_prefix"]
+            if key in api_dict
+        }
+
+        # Determine filtered API structure based on `bte` and `api_details`
+        if bte == 1 and api_details == 0:
+            filtered_api = {
+                **({"name": api_info.get("name")} if "name" in api_info else {}),
+                **(
+                    {"smartapi": {"id": api_info.get("smartapi", {}).get("id", None)}}
+                    if "smartapi" in api_info
+                    else {"smartapi": {"id": None}}
+                ),
+                "bte": api_info.get("bte", {}),
+            }
+        elif api_details == 1:
+            # Covers both (bte=0, api_details=1) and (bte=1, api_details=1)
+            filtered_api = api_info.copy()
+            if bte == 0:
+                filtered_api.pop("bte", None)
+        else:  # bte == 0 and api_details == 0
+            filtered_api = {
+                **({"name": api_info.get("name")} if "name" in api_info else {}),
+                **(
+                    {"smartapi": {"id": api_info.get("smartapi", {}).get("id", None)}}
+                    if "smartapi" in api_info
+                    else {"smartapi": {"id": None}}
+                ),
+            }
+
+        # Add the filtered 'api' key to the preserved top-level structure
+        filtered_dict["api"] = filtered_api
+
+        # Remove 'bte' from 'api' and move it to the top level
+        if "bte" in filtered_dict["api"]:
+            filtered_dict["bte"] = filtered_dict["api"].pop("bte")
+
+        return filtered_dict
 class MetaKGQueryHandler(QueryHandler):
     """
     Support metakg queries with biolink model's semantic descendants
@@ -461,27 +511,6 @@ class MetaKGQueryHandler(QueryHandler):
 
 
         await super().get(*args, **kwargs)
-
-    def get_filtered_api(self, api_dict):
-        """Extract and return filtered API information."""
-        api_info = api_dict
-        if not self.args.bte and not self.args.api_details: # no bte and no api details
-            filtered_api= {
-                    **({"name": api_info["name"]} if "name" in api_info else {}),
-                    **({"smartapi": {"id": api_info["smartapi"]["id"]}} if "smartapi" in api_info and "id" in api_info["smartapi"] else {})
-                }
-        elif self.args.bte and not self.args.api_details : # bte and no api details
-            filtered_api= {
-                **({"name": api_info["name"]} if "name" in api_info else {}),
-                **({"smartapi": {"id": api_info["smartapi"]["id"]}} if "smartapi" in api_info and "id" in api_info["smartapi"] else {}),
-                'bte': api_info.get('bte', {})
-            }
-        elif not self.args.bte and self.args.api_details: # no bte and api details
-            api_info.pop('bte', None)
-            filtered_api = api_info
-        else:
-            filtered_api = api_info
-        return filtered_api
 
     def process_apis(self, apis):
         """Process each API dict based on provided args."""
@@ -730,53 +759,6 @@ class MetaKGParserHandler(BaseHandler):
         # change the default query pipeline from self.biothings.pipeline
         self.pipeline = MetaKGQueryPipeline(ns=self.biothings)
 
-    def get_filtered_api(self, api_dict):
-        """Extract and return filtered API information."""
-        api_info = api_dict["api"]
-        bte = self.args.bte
-        api_details = self.args.api_details
-
-        # Default structure to preserve top-level keys
-        filtered_dict = {
-            key: api_dict.get(key)
-            for key in ["subject", "object", "predicate", "subject_prefix", "object_prefix"]
-        }
-
-        # Determine filtered API structure based on `bte` and `api_details`
-        if bte == 1 and api_details == 0:
-            filtered_api = {
-                **({"name": api_info["name"]} if "name" in api_info else {}),
-                **(
-                    {"smartapi": {"id": api_info["smartapi"]["id"]}}
-                    if "smartapi" in api_info and "id" in api_info["smartapi"]
-                    else {}
-                ),
-                "bte": api_info.get("bte", {}),
-            }
-        elif api_details == 1:
-            # Covers both (bte=0, api_details=1) and (bte=1, api_details=1)
-            filtered_api = api_info.copy()
-            if bte == 0:
-                filtered_api.pop("bte", None)
-        else:  # bte == 0 and api_details == 0
-            filtered_api = {
-                **({"name": api_info["name"]} if "name" in api_info else {}),
-                **(
-                    {"smartapi": {"id": api_info["smartapi"]["id"]}}
-                    if "smartapi" in api_info and "id" in api_info["smartapi"]
-                    else {}
-                ),
-            }
-
-        # Add the filtered 'api' key to the preserved top-level structure
-        filtered_dict["api"] = filtered_api
-
-        # Remove 'bte' from 'api' and move it to the top level
-        if "bte" in filtered_dict["api"]:
-            filtered_dict["bte"] = filtered_dict["api"].pop("bte")
-
-        return filtered_dict
-
     def process_apis(self, apis):
         """Process each API dict based on provided args."""
         if isinstance(apis, list):
@@ -831,37 +813,49 @@ class MetaKGParserHandler(BaseHandler):
             for i, api_dict in enumerate(combined_data):
                 filtered_api = self.get_filtered_api(api_dict)
                 combined_data[i] = filtered_api
+            # parser does not pick up this information, so we add it here
+            if self.args.api_details == 1:
+                for data_dict in combined_data:
+                    if "metadata" in data_dict["api"]["smartapi"] and data_dict["api"]["smartapi"]["metadata"] is None:
+                        data_dict["api"]["smartapi"]["metadata"] = self.args.url
 
         response = {
-            "took": 1,
             "total": len(combined_data),
-            "max_score": 1,
             "hits": combined_data,
         }
 
-        self.set_header("Content-Type", "application/json")
-        self.write(response)
+        self.finish(response)
 
     async def post(self, *args, **kwargs):
         if not self.request.body:
             raise HTTPError(400, reason="Request body cannot be empty.")
+        content_type = self.request.headers.get("Content-Type", "")
+        data_body = self.request.body
 
-        # Attempt to parse JSON body
-        try:
-            data = json.loads(self.request.body)
-        except json.JSONDecodeError:
-            raise HTTPError(400, reason=f"Unexcepted value for api_details, {self.get_argument('api_details')}. Please enter integer, 0 or 1.")
-
-        # Ensure the parsed data is a dictionary
+        if content_type == "application/json":
+            try:
+                data = to_dict(data_body, ctype="application/json")
+            except ValueError:
+                raise HTTPError(400, reason="Invalid data. Please provide a valid JSON object.")
+            except TypeError:
+                raise HTTPError(400, reason="Invalid data type. Please provide a valid type.")
+        if content_type == "application/x-yaml":
+            try:
+                data = to_dict(data_body)
+            except ValueError:
+                raise HTTPError(400, reason="Invalid input data. Please provide a valid YAML object.")
+            except TypeError:
+                raise HTTPError(400, reason="Invalid type data. Please provide a valid type.")
+        # # Ensure the parsed data is a dictionary
         if not isinstance(data, dict):
-            raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
+            raise ValueError("Invalid input data. Please provide a valid JSON/YAML object.")
 
         parser = MetaKGParser()
 
         try:
             self.args.api_details = int(self.get_argument("api_details", 0))
         except ValueError:
-            raise HTTPError(400, reason="Invalid query parameter value. 'api_details' and 'bte' must be integers.")
+            raise HTTPError(400, reason=f"Unexcepted value for api_details, {self.get_argument('api_details')}. Please enter integer, 0 or 1.")
 
         try:
             self.args.bte = int(self.get_argument("bte", 0))
@@ -892,11 +886,8 @@ class MetaKGParserHandler(BaseHandler):
                 combined_data[i] = filtered_api
 
         response = {
-            "took": 1,
             "total": len(combined_data),
-            "max_score": 1,
             "hits": combined_data,
         }
 
-        self.set_header("Content-Type", "application/json")
-        self.write(response)
+        self.finish(response)
