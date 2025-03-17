@@ -382,6 +382,7 @@ class UptimeHandler(BaseHandler):
         else:
             raise HTTPError(400, reason="Missing required form field: id")
 
+
 class MetaKGHandlerMixin:
     """
     Mixin to provide reusable logic for filtering API information.
@@ -433,6 +434,8 @@ class MetaKGHandlerMixin:
             filtered_dict["bte"] = filtered_dict["api"].pop("bte")
 
         return filtered_dict
+
+
 class MetaKGQueryHandler(MetaKGHandlerMixin,QueryHandler):
     """
     Support metakg queries with biolink model's semantic descendants
@@ -716,6 +719,7 @@ class MetaKGPathFinderHandler(QueryHandler):
             }
         await asyncio.sleep(0.01)
         self.finish(res)
+
 
 class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
     """
