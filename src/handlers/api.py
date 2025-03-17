@@ -433,7 +433,7 @@ class MetaKGHandlerMixin:
             filtered_dict["bte"] = filtered_dict["api"].pop("bte")
 
         return filtered_dict
-class MetaKGQueryHandler(QueryHandler):
+class MetaKGQueryHandler(MetaKGHandlerMixin,QueryHandler):
     """
     Support metakg queries with biolink model's semantic descendants
 
@@ -717,7 +717,7 @@ class MetaKGPathFinderHandler(QueryHandler):
         await asyncio.sleep(0.01)
         self.finish(res)
 
-class MetaKGParserHandler(BaseHandler):
+class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
     """
         Handles parsing of SmartAPI metadata from a given URL or request body.
 
@@ -774,22 +774,20 @@ class MetaKGParserHandler(BaseHandler):
             apis["api"] = filtered_api
         return apis
 
+
     async def get(self, *args, **kwargs):
+        url = self.get_argument("url", None)
         if not self.get_argument("url", None):
             raise HTTPError(400, reason="A url value is expected for the request, please provide a url.")
 
-        # Set initial args
+        # Set initial args and handle potential errors in query parameters
         parser = MetaKGParser()
-        url = self.get_argument("url")
 
         try:
             self.args.api_details = int(self.get_argument("api_details", 0))
-        except ValueError:
-            raise HTTPError(400, reason=f"Value, {self.get_argument('api_details')}, not accepted for api_details. Please enter integer, 0 or 1.")
-        try:
             self.args.bte = int(self.get_argument("bte", 0))
-        except ValueError:
-            raise HTTPError(400, reason=f"Value,, {self.get_argument('bte')}, not accepted for bte. Please enter integer, 0 or 1.")
+        except ValueError as err:
+            raise HTTPError(400, reason=f"Invalid value for parameter: {str(err)}. Please enter integer, 0 or 1.")
 
         try:
             trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
@@ -806,18 +804,17 @@ class MetaKGParserHandler(BaseHandler):
         except DownloadError:
             raise HTTPError(400, reason="There was an error downloading the data from the given input.")
 
-        combined_data = trapi_data + nontrapi_data
-
         # Apply filtering -- if data found
+        combined_data = trapi_data + nontrapi_data
         if combined_data:
             for i, api_dict in enumerate(combined_data):
-                filtered_api = self.get_filtered_api(api_dict)
-                combined_data[i] = filtered_api
-            # parser does not pick up this information, so we add it here
-            if self.args.api_details == 1:
-                for data_dict in combined_data:
-                    if "metadata" in data_dict["api"]["smartapi"] and data_dict["api"]["smartapi"]["metadata"] is None:
-                        data_dict["api"]["smartapi"]["metadata"] = self.args.url
+                combined_data[i] = self.get_filtered_api(api_dict)
+
+        # Add url to metadata if api_details is set to 1
+        if self.args.api_details == 1:
+            for data_dict in combined_data:
+                if "metadata" in data_dict["api"]["smartapi"] and data_dict["api"]["smartapi"]["metadata"] is None:
+                    data_dict["api"]["smartapi"]["metadata"] = url
 
         response = {
             "total": len(combined_data),
@@ -829,62 +826,56 @@ class MetaKGParserHandler(BaseHandler):
     async def post(self, *args, **kwargs):
         if not self.request.body:
             raise HTTPError(400, reason="Request body cannot be empty.")
-        content_type = self.request.headers.get("Content-Type", "")
-        data_body = self.request.body
 
-        if content_type == "application/json":
-            try:
-                data = to_dict(data_body, ctype="application/json")
-            except ValueError:
-                raise HTTPError(400, reason="Invalid data. Please provide a valid JSON object.")
-            except TypeError:
-                raise HTTPError(400, reason="Invalid data type. Please provide a valid type.")
-        if content_type == "application/x-yaml":
-            try:
-                data = to_dict(data_body)
-            except ValueError:
-                raise HTTPError(400, reason="Invalid input data. Please provide a valid YAML object.")
-            except TypeError:
-                raise HTTPError(400, reason="Invalid type data. Please provide a valid type.")
-        # # Ensure the parsed data is a dictionary
+        content_type = self.request.headers.get("Content-Type", "").lower()
+        raw_body = self.request.body
+
+        # Try to parse the request body based on content type
+        try:
+            if content_type == "application/json":
+                data = to_dict(raw_body, ctype="application/json")
+            elif content_type == "application/x-yaml":
+                data = to_dict(raw_body, ctype="application/x-yaml")
+            else:
+                # Default to YAML parsing if the content type is unknown or not specified
+                data = to_dict(raw_body)
+        except ValueError as val_err:
+            if 'mapping values are not allowed here' in str(val_err):
+                raise HTTPError(400, reason="Formatting issue, please consider using --data-binary to maintain YAML format.")
+            else:
+                raise HTTPError(400, reason="Invalid value, please provide a valid YAML object.")
+        except TypeError:
+            raise HTTPError(400, reason="Invalid type, provide valid type metadata.")
+
+        # Ensure the parsed data is a dictionary
         if not isinstance(data, dict):
-            raise ValueError("Invalid input data. Please provide a valid JSON/YAML object.")
+            raise ValueError("Invalid input data type. Please provide a valid JSON/YAML object.")
 
-        parser = MetaKGParser()
-
+        # Extract query parameters (assuming these need to be parsed from the request)
         try:
             self.args.api_details = int(self.get_argument("api_details", 0))
-        except ValueError:
-            raise HTTPError(400, reason=f"Unexcepted value for api_details, {self.get_argument('api_details')}. Please enter integer, 0 or 1.")
-
-        try:
             self.args.bte = int(self.get_argument("bte", 0))
-        except ValueError:
-            raise HTTPError(400, reason=f"Unexcepted value for bte, {self.get_argument('bte')}. Please enter integer, 0 or 1.")
+        except ValueError as err:
+            raise HTTPError(400, reason=f"Invalid query parameter: {str(err)}")
 
-        # Process metadata
+        # Process the parsed metadata
+        parser = MetaKGParser()
         try:
             trapi_data = parser.get_TRAPI_metadatas(data=data)
-        except MetadataRetrievalError as retrieve_err:
-            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
-        except DownloadError:
-            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
-
-        try:
             nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
         except MetadataRetrievalError as retrieve_err:
             raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
         except DownloadError:
-            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
+            raise HTTPError(400, reason="Error downloading the data from the provided input.")
 
         combined_data = trapi_data + nontrapi_data
 
-        # Apply filtering -- if data found
+        # Apply filtering to the combined data
         if combined_data:
             for i, api_dict in enumerate(combined_data):
-                filtered_api = self.get_filtered_api(api_dict)
-                combined_data[i] = filtered_api
+                combined_data[i] = self.get_filtered_api(api_dict)
 
+        # Send the response back to the client
         response = {
             "total": len(combined_data),
             "hits": combined_data,
