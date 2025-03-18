@@ -778,7 +778,6 @@ class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
             apis["api"] = filtered_api
         return apis
 
-
     async def get(self, *args, **kwargs):
         url = self.get_argument("url", None)
         if not self.get_argument("url", None):
