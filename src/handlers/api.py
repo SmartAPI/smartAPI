@@ -416,6 +416,9 @@ class MetaKGHandlerMixin:
             filtered_api = api_info.copy()
             if bte == 0:
                 filtered_api.pop("bte", None)
+            # Check if the "ui" key exists and ends with "None"
+            if filtered_api['smartapi'].get("ui", "").endswith("/None"):
+                filtered_api["smartapi"]["ui"] = None
         else:  # bte == 0 and api_details == 0
             filtered_api = {
                 **({"name": api_info.get("name")} if "name" in api_info else {}),
@@ -432,6 +435,7 @@ class MetaKGHandlerMixin:
         # Remove 'bte' from 'api' and move it to the top level
         if "bte" in filtered_dict["api"]:
             filtered_dict["bte"] = filtered_dict["api"].pop("bte")
+
 
         return filtered_dict
 
