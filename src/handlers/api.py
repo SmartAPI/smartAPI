@@ -1,4 +1,3 @@
-from builtins import ValueError, isinstance
 import asyncio
 import json
 import logging
@@ -390,8 +389,10 @@ class MetaKGHandlerMixin:
     def get_filtered_api(self, api_dict):
         """Extract and return filtered API information."""
         api_info = api_dict.get("api", api_dict)  # Handle both formats
-        bte = getattr(self.args, "bte", 0)
-        api_details = getattr(self.args, "api_details", 0)
+
+        # Default to False if not present
+        bte = getattr(self.args, "bte", False)
+        api_details = getattr(self.args, "api_details", False)
 
         # Default structure to preserve top-level keys
         filtered_dict = {
@@ -401,7 +402,8 @@ class MetaKGHandlerMixin:
         }
 
         # Determine filtered API structure based on `bte` and `api_details`
-        if bte == 1 and api_details == 0:
+        if bte and not api_details:
+            # When bte is True and api_details is False, include only minimal API info
             filtered_api = {
                 **({"name": api_info.get("name")} if "name" in api_info else {}),
                 **(
@@ -411,15 +413,17 @@ class MetaKGHandlerMixin:
                 ),
                 "bte": api_info.get("bte", {}),
             }
-        elif api_details == 1:
-            # Covers both (bte=0, api_details=1) and (bte=1, api_details=1)
+        elif api_details:
+            # When api_details is True, include more detailed information
             filtered_api = api_info.copy()
-            if bte == 0:
+            if not bte:
                 filtered_api.pop("bte", None)
-            # Check if the "ui" key exists and ends with "None"
-            if filtered_api['smartapi'].get("ui", "").endswith("/None"):
+            
+            # Handle case where "ui" key exists and ends with "None"
+            if filtered_api.get('smartapi', {}).get("ui", "").endswith("/None"):
                 filtered_api["smartapi"]["ui"] = None
-        else:  # bte == 0 and api_details == 0
+        else:
+            # Default: No bte and no api_details - just minimal API info
             filtered_api = {
                 **({"name": api_info.get("name")} if "name" in api_info else {}),
                 **(
@@ -436,11 +440,55 @@ class MetaKGHandlerMixin:
         if "bte" in filtered_dict["api"]:
             filtered_dict["bte"] = filtered_dict["api"].pop("bte")
 
-
         return filtered_dict
+        # # Default structure to preserve top-level keys
+        # filtered_dict = {
+        #     key: api_dict.get(key)
+        #     for key in ["subject", "object", "predicate", "subject_prefix", "object_prefix"]
+        #     if key in api_dict
+        # }
+
+        # # Determine filtered API structure based on `bte` and `api_details`
+        # if bte == 1 and api_details == 0:
+        #     filtered_api = {
+        #         **({"name": api_info.get("name")} if "name" in api_info else {}),
+        #         **(
+        #             {"smartapi": {"id": api_info.get("smartapi", {}).get("id", None)}}
+        #             if "smartapi" in api_info
+        #             else {"smartapi": {"id": None}}
+        #         ),
+        #         "bte": api_info.get("bte", {}),
+        #     }
+        # elif api_details == 1:
+        #     # Covers both (bte=0, api_details=1) and (bte=1, api_details=1)
+        #     filtered_api = api_info.copy()
+        #     if bte == 0:
+        #         filtered_api.pop("bte", None)
+        #     # Check if the "ui" key exists and ends with "None"
+        #     if filtered_api['smartapi'].get("ui", "").endswith("/None"):
+        #         filtered_api["smartapi"]["ui"] = None
+        # else:  # bte == 0 and api_details == 0
+        #     filtered_api = {
+        #         **({"name": api_info.get("name")} if "name" in api_info else {}),
+        #         **(
+        #             {"smartapi": {"id": api_info.get("smartapi", {}).get("id", None)}}
+        #             if "smartapi" in api_info
+        #             else {"smartapi": {"id": None}}
+        #         ),
+        #     }
+
+        # # Add the filtered 'api' key to the preserved top-level structure
+        # filtered_dict["api"] = filtered_api
+
+        # # Remove 'bte' from 'api' and move it to the top level
+        # if "bte" in filtered_dict["api"]:
+        #     filtered_dict["bte"] = filtered_dict["api"].pop("bte")
 
 
-class MetaKGQueryHandler(MetaKGHandlerMixin,QueryHandler):
+        # return filtered_dict
+
+
+class MetaKGQueryHandler(QueryHandler, MetaKGHandlerMixin):
     """
     Support metakg queries with biolink model's semantic descendants
 
@@ -725,7 +773,7 @@ class MetaKGPathFinderHandler(QueryHandler):
         self.finish(res)
 
 
-class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
+class MetaKGParserHandler(QueryHandler, MetaKGHandlerMixin):
     """
         Handles parsing of SmartAPI metadata from a given URL or request body.
 
@@ -753,12 +801,12 @@ class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
                 "max": 1000,
                 "description": "URL of the SmartAPI metadata to parse"
             },
-            "api_details": {"type": bool, "default": 0 },
-            "bte": {"type": bool, "default": 0},
+            "api_details": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
         },
         "POST": {
-            "api_details": {"type": bool, "default": 0 },
-            "bte": {"type": bool, "default": 0 },
+            "api_details": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
         },
     }
 
@@ -783,18 +831,18 @@ class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
         return apis
 
     async def get(self, *args, **kwargs):
-        url = self.get_argument("url", None)
-        if not self.get_argument("url", None):
+        url = self.args.url
+        if not url:
             raise HTTPError(400, reason="A url value is expected for the request, please provide a url.")
 
         # Set initial args and handle potential errors in query parameters
         parser = MetaKGParser()
 
-        try:
-            self.args.api_details = int(self.get_argument("api_details", 0))
-            self.args.bte = int(self.get_argument("bte", 0))
-        except ValueError as err:
-            raise HTTPError(400, reason=f"Invalid value for parameter: {str(err)}. Please enter integer, 0 or 1.")
+        # try:
+        #     self.args.api_details = int(self.get_argument("api_details", 0))
+        #     self.args.bte = int(self.get_argument("bte", 0))
+        # except ValueError as err:
+        #     raise HTTPError(400, reason=f"Invalid value for parameter: {str(err)}. Please enter integer, 0 or 1.")
 
         try:
             trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
@@ -831,11 +879,11 @@ class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
         self.finish(response)
 
     async def post(self, *args, **kwargs):
-        if not self.request.body:
+        raw_body = self.request.body
+        if not raw_body:
             raise HTTPError(400, reason="Request body cannot be empty.")
 
         content_type = self.request.headers.get("Content-Type", "").lower()
-        raw_body = self.request.body
 
         # Try to parse the request body based on content type
         try:
@@ -859,11 +907,11 @@ class MetaKGParserHandler(MetaKGHandlerMixin, BaseHandler):
             raise ValueError("Invalid input data type. Please provide a valid JSON/YAML object.")
 
         # Extract query parameters (assuming these need to be parsed from the request)
-        try:
-            self.args.api_details = int(self.get_argument("api_details", 0))
-            self.args.bte = int(self.get_argument("bte", 0))
-        except ValueError as err:
-            raise HTTPError(400, reason=f"Invalid query parameter: {str(err)}")
+        # try:
+        #     self.args.api_details = int(self.get_argument("api_details", 0))
+        #     self.args.bte = int(self.get_argument("bte", 0))
+        # except ValueError as err:
+        #     raise HTTPError(400, reason=f"Invalid query parameter: {str(err)}")
 
         # Process the parsed metadata
         parser = MetaKGParser()
