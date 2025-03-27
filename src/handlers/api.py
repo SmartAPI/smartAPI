@@ -27,6 +27,7 @@ from utils.decoder import to_dict
 
 logger = logging.getLogger("smartAPI")
 
+
 def github_authenticated(func):
     """
     RegistryHandler Decorator
@@ -43,6 +44,7 @@ def github_authenticated(func):
 
 class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
     pass
+
 
 class AuthHandler(BaseHandler):
     def set_cache_header(self, cache_value):
@@ -418,7 +420,7 @@ class MetaKGHandlerMixin:
             filtered_api = api_info.copy()
             if not bte:
                 filtered_api.pop("bte", None)
-            
+
             # Handle case where "ui" key exists and ends with "None"
             if filtered_api.get('smartapi', {}).get("ui", "").endswith("/None"):
                 filtered_api["smartapi"]["ui"] = None
@@ -441,51 +443,6 @@ class MetaKGHandlerMixin:
             filtered_dict["bte"] = filtered_dict["api"].pop("bte")
 
         return filtered_dict
-        # # Default structure to preserve top-level keys
-        # filtered_dict = {
-        #     key: api_dict.get(key)
-        #     for key in ["subject", "object", "predicate", "subject_prefix", "object_prefix"]
-        #     if key in api_dict
-        # }
-
-        # # Determine filtered API structure based on `bte` and `api_details`
-        # if bte == 1 and api_details == 0:
-        #     filtered_api = {
-        #         **({"name": api_info.get("name")} if "name" in api_info else {}),
-        #         **(
-        #             {"smartapi": {"id": api_info.get("smartapi", {}).get("id", None)}}
-        #             if "smartapi" in api_info
-        #             else {"smartapi": {"id": None}}
-        #         ),
-        #         "bte": api_info.get("bte", {}),
-        #     }
-        # elif api_details == 1:
-        #     # Covers both (bte=0, api_details=1) and (bte=1, api_details=1)
-        #     filtered_api = api_info.copy()
-        #     if bte == 0:
-        #         filtered_api.pop("bte", None)
-        #     # Check if the "ui" key exists and ends with "None"
-        #     if filtered_api['smartapi'].get("ui", "").endswith("/None"):
-        #         filtered_api["smartapi"]["ui"] = None
-        # else:  # bte == 0 and api_details == 0
-        #     filtered_api = {
-        #         **({"name": api_info.get("name")} if "name" in api_info else {}),
-        #         **(
-        #             {"smartapi": {"id": api_info.get("smartapi", {}).get("id", None)}}
-        #             if "smartapi" in api_info
-        #             else {"smartapi": {"id": None}}
-        #         ),
-        #     }
-
-        # # Add the filtered 'api' key to the preserved top-level structure
-        # filtered_dict["api"] = filtered_api
-
-        # # Remove 'bte' from 'api' and move it to the top level
-        # if "bte" in filtered_dict["api"]:
-        #     filtered_dict["bte"] = filtered_dict["api"].pop("bte")
-
-
-        # return filtered_dict
 
 
 class MetaKGQueryHandler(QueryHandler, MetaKGHandlerMixin):
@@ -564,7 +521,6 @@ class MetaKGQueryHandler(QueryHandler, MetaKGHandlerMixin):
             value_list = get_expanded_values(value_list, self.biolink_model_toolkit) if expanded_fields[field] else value_list
             setattr(self.args, field, value_list)
 
-
         await super().get(*args, **kwargs)
 
     def process_apis(self, apis):
@@ -576,9 +532,9 @@ class MetaKGQueryHandler(QueryHandler, MetaKGHandlerMixin):
         elif isinstance(apis, dict):
             if 'bte' in apis:
                 # update dict for new format
-                apis['api']['bte']=apis.pop('bte')
+                apis['api']['bte'] = apis.pop('bte')
             api_dict = apis["api"]
-            filtered_api= self.get_filtered_api(api_dict)
+            filtered_api = self.get_filtered_api(api_dict)
             apis["api"] = filtered_api
 
     def write(self, chunk):
@@ -610,7 +566,7 @@ class MetaKGQueryHandler(QueryHandler, MetaKGHandlerMixin):
 
             if self.format == "html":
                 # setup template
-                template_path = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'templates'))
+                template_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
                 loader = Loader(template_path)
                 template = loader.load("cytoscape.html")
                 # initial counts
@@ -627,7 +583,7 @@ class MetaKGQueryHandler(QueryHandler, MetaKGHandlerMixin):
                     graph_data = serializer.to_json(cdf.get_data())
                 # generate global template variable with graph data
                 result = template.generate(
-                    data= graph_data,
+                    data=graph_data,
                     response=serializer.to_json(chunk),
                     shown=shown,
                     available=available,
