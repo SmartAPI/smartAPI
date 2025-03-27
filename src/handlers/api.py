@@ -393,8 +393,8 @@ class MetaKGHandlerMixin:
         api_info = api_dict.get("api", api_dict)  # Handle both formats
 
         # Default to False if not present
-        bte = getattr(self.args, "bte", False)
-        api_details = getattr(self.args, "api_details", False)
+        bte = self.args.bte # getattr(self.args, "bte", False)
+        api_details = self.args.api_details # getattr(self.args, "api_details", False)
 
         # Default structure to preserve top-level keys
         filtered_dict = {
@@ -729,7 +729,7 @@ class MetaKGPathFinderHandler(QueryHandler):
         self.finish(res)
 
 
-class MetaKGParserHandler(QueryHandler, MetaKGHandlerMixin):
+class MetaKGParserHandler(BaseHandler, MetaKGHandlerMixin):
     """
         Handles parsing of SmartAPI metadata from a given URL or request body.
 
@@ -794,12 +794,6 @@ class MetaKGParserHandler(QueryHandler, MetaKGHandlerMixin):
         # Set initial args and handle potential errors in query parameters
         parser = MetaKGParser()
 
-        # try:
-        #     self.args.api_details = int(self.get_argument("api_details", 0))
-        #     self.args.bte = int(self.get_argument("bte", 0))
-        # except ValueError as err:
-        #     raise HTTPError(400, reason=f"Invalid value for parameter: {str(err)}. Please enter integer, 0 or 1.")
-
         try:
             trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
         except MetadataRetrievalError as retrieve_err:
@@ -861,13 +855,6 @@ class MetaKGParserHandler(QueryHandler, MetaKGHandlerMixin):
         # Ensure the parsed data is a dictionary
         if not isinstance(data, dict):
             raise ValueError("Invalid input data type. Please provide a valid JSON/YAML object.")
-
-        # Extract query parameters (assuming these need to be parsed from the request)
-        # try:
-        #     self.args.api_details = int(self.get_argument("api_details", 0))
-        #     self.args.bte = int(self.get_argument("bte", 0))
-        # except ValueError as err:
-        #     raise HTTPError(400, reason=f"Invalid query parameter: {str(err)}")
 
         # Process the parsed metadata
         parser = MetaKGParser()
