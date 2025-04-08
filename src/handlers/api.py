@@ -393,8 +393,8 @@ class MetaKGHandlerMixin:
         api_info = api_dict.get("api", api_dict)  # Handle both formats
 
         # Default to False if not present
-        bte = self.args.bte # getattr(self.args, "bte", False)
-        api_details = self.args.api_details # getattr(self.args, "api_details", False)
+        bte = self.args.bte
+        api_details = self.args.api_details
 
         # Default structure to preserve top-level keys
         filtered_dict = {
