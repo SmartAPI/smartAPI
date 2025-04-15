@@ -1,7 +1,6 @@
 import json
 import logging
 from copy import copy
-from utils.downloader import DownloadError
 from utils.metakg.metakg_errors import MetadataRetrievalError
 import requests
 
@@ -76,11 +75,7 @@ class MetaKGParser:
         parser = API(smartapi_doc=data) if data else API(url=url)
 
         # Download the metadata
-        try:
-            metadata = parser.metadata
-        except DownloadError as dl_err:
-            raise dl_err
-
+        metadata = parser.metadata
         _paths = metadata.get("paths", {})
         _team = metadata.get("x-translator", {}).get("team")
 

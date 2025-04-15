@@ -816,7 +816,7 @@ class MetaKGParserHandler(BaseHandler, MetaKGHandlerMixin):
                 combined_data[i] = self.get_filtered_api(api_dict)
 
         # Add url to metadata if api_details is set to 1
-        if self.args.api_details == 1:
+        if self.args.api_details:
             for data_dict in combined_data:
                 if "metadata" in data_dict["api"]["smartapi"] and data_dict["api"]["smartapi"]["metadata"] is None:
                     data_dict["api"]["smartapi"]["metadata"] = url
