@@ -81,7 +81,6 @@ class MetaKGParser:
 
         # Check for required TRAPI paths
         if "/meta_knowledge_graph" in _paths and "/query" in _paths and _team:
-            print("TRAPI metadata found.")
             return [metadata]
         else:
             return []
