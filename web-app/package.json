@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "vite-app ready",
   "version": "0.0.0",
   "private": true,
@@ -60,6 +61,7 @@
     "prettier": "^3.0.3",
     "start-server-and-test": "^2.0.1",
     "vite": "^4.4.11",
+    "vite-plugin-sitemap": "^0.7.1",
     "vitest": "^0.34.6"
   }
 }
