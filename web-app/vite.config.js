@@ -12,7 +12,6 @@ const staticRoutes = [
   '/privacy',
   '/branding',
   '/guide',
-  '/dashboard',
   '/extensions/smartapi',
   '/extensions/x-bte',
   '/extensions/x-translator?',
@@ -48,7 +47,7 @@ export default defineConfig({
   plugins: [
     vue(),
     Sitemap({
-      hostname: 'https://www.smart-api.info',
+      hostname: 'https://smart-api.info',
       readable: true,
       changefreq: 'monthly',
       dynamicRoutes  // Provide the combined routes as an array of strings
