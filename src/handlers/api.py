@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+
 import bmt
 from biothings.utils import serializer
 from biothings.web.auth.authn import BioThingsAuthnMixin
@@ -9,21 +10,21 @@ from biothings.web.handlers import BaseAPIHandler, QueryHandler
 from biothings.web.handlers.query import BiothingHandler, capture_exceptions
 from biothings.web.settings.default import QUERY_KWARGS
 from tornado.httpclient import AsyncHTTPClient
-from tornado.web import Finish, HTTPError
 from tornado.template import Loader
+from tornado.web import Finish, HTTPError
 
 from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
-from utils.downloader import DownloadError, download_async
-from utils.metakg.export import edges2graphml
-from utils.metakg.path_finder import MetaKGPathFinder
-from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
-from utils.metakg.biolink_helpers import get_expanded_values
-from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
-from utils.metakg.parser import MetaKGParser
-from utils.metakg.metakg_errors import MetadataRetrievalError
 from utils.decoder import to_dict
+from utils.downloader import DownloadError, download_async
+from utils.metakg.biolink_helpers import get_expanded_values
+from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
+from utils.metakg.export import edges2graphml
+from utils.metakg.metakg_errors import MetadataRetrievalError
+from utils.metakg.parser import MetaKGParser
+from utils.metakg.path_finder import MetaKGPathFinder
+from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
 
 logger = logging.getLogger("smartAPI")
 
@@ -627,7 +628,7 @@ class MetaKGPathFinderHandler(QueryHandler):
                 "max": 6,
                 "default": [],
                 "enum": ["subject", "object", "predicate", "node", "edge", "all"]
-                }
+            }
         },
     }
 
@@ -722,9 +723,9 @@ class MetaKGPathFinderHandler(QueryHandler):
             self.write(raw_query_output)
             return
         res = {
-                "total": len(paths_with_edges),
-                "paths": paths_with_edges,
-            }
+            "total": len(paths_with_edges),
+            "paths": paths_with_edges,
+        }
         await asyncio.sleep(0.01)
         self.finish(res)
 
