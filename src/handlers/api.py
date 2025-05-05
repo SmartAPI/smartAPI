@@ -16,12 +16,10 @@ from tornado.web import Finish, HTTPError
 from controller import SmartAPI
 from controller.exceptions import ControllerError, NotFoundError
 from pipeline import MetaKGQueryPipeline
-from utils.decoder import to_dict
 from utils.downloader import DownloadError, download_async
 from utils.metakg.biolink_helpers import get_expanded_values
 from utils.metakg.cytoscape_formatter import CytoscapeDataFormatter
 from utils.metakg.export import edges2graphml
-from utils.metakg.metakg_errors import MetadataRetrievalError
 from utils.metakg.parser import MetaKGParser
 from utils.metakg.path_finder import MetaKGPathFinder
 from utils.notification import SlackNewAPIMessage, SlackNewTranslatorAPIMessage
@@ -751,6 +749,10 @@ class MetaKGParserHandler(BaseHandler, MetaKGHandlerMixin):
     """
 
     kwargs = {
+        "*": {
+            "api_details": {"type": bool, "default": False},
+            "bte": {"type": bool, "default": False},
+        },
         "GET": {
             "url": {
                 "type": str,
@@ -758,12 +760,6 @@ class MetaKGParserHandler(BaseHandler, MetaKGHandlerMixin):
                 "max": 1000,
                 "description": "URL of the SmartAPI metadata to parse"
             },
-            "api_details": {"type": bool, "default": False},
-            "bte": {"type": bool, "default": False},
-        },
-        "POST": {
-            "api_details": {"type": bool, "default": False},
-            "bte": {"type": bool, "default": False},
         },
     }
 
@@ -789,95 +785,69 @@ class MetaKGParserHandler(BaseHandler, MetaKGHandlerMixin):
 
     async def get(self, *args, **kwargs):
         url = self.args.url
-        if not url:
-            raise HTTPError(400, reason="A url value is expected for the request, please provide a url.")
-
-        # Set initial args and handle potential errors in query parameters
         parser = MetaKGParser()
 
         try:
-            trapi_data = parser.get_TRAPI_metadatas(data=None, url=url)
-        except MetadataRetrievalError as retrieve_err:
-            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
+            parsed_metakg = parser.get_metakg(url=url)
         except DownloadError:
-            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
-
-        # Get non-TRAPI metadata
-        try:
-            nontrapi_data = parser.get_non_TRAPI_metadatas(data=None, url=url)
-        except MetadataRetrievalError as retrieve_err:
-            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
-        except DownloadError:
-            raise HTTPError(400, reason="There was an error downloading the data from the given input.")
+            self.write_error(400, reason="There was an error downloading the data from the given url.")
+        except (ValueError, TypeError) as err:
+            self.write_error(
+                status_code=400,
+                reason="The data retrived from the given url is not a valid JSON or YAML object.",
+                message=str(err)
+            )
 
         # Apply filtering -- if data found
-        combined_data = trapi_data + nontrapi_data
-        if combined_data:
-            for i, api_dict in enumerate(combined_data):
-                combined_data[i] = self.get_filtered_api(api_dict)
+        if parsed_metakg:
+            for i, api_dict in enumerate(parsed_metakg):
+                parsed_metakg[i] = self.get_filtered_api(api_dict)
 
         # Add url to metadata if api_details is set to 1
         if self.args.api_details:
-            for data_dict in combined_data:
+            for data_dict in parsed_metakg:
                 if "metadata" in data_dict["api"]["smartapi"] and data_dict["api"]["smartapi"]["metadata"] is None:
                     data_dict["api"]["smartapi"]["metadata"] = url
 
         response = {
-            "total": len(combined_data),
-            "hits": combined_data,
+            "total": len(parsed_metakg),
+            "hits": parsed_metakg,
         }
 
         self.finish(response)
 
     async def post(self, *args, **kwargs):
-        raw_body = self.request.body
-        if not raw_body:
-            raise HTTPError(400, reason="Request body cannot be empty.")
-
         content_type = self.request.headers.get("Content-Type", "").lower()
+        if content_type in ["application/json", "application/x-yaml"]:
+            # if content type is set properly, it should have alrady been parsed
+            metadata_from_body = self.args_json or self.args_yaml
+        elif self.request.body:
+            # if request body is provided but no proper content type is set
+            # we will parse it as YAML anyway
+            metadata_from_body = self._parse_yaml()
+        else:
+            metadata_from_body = None
 
-        # Try to parse the request body based on content type
-        try:
-            if content_type == "application/json":
-                data = to_dict(raw_body, ctype="application/json")
-            elif content_type == "application/x-yaml":
-                data = to_dict(raw_body, ctype="application/x-yaml")
-            else:
-                # Default to YAML parsing if the content type is unknown or not specified
-                data = to_dict(raw_body)
-        except ValueError as val_err:
-            if 'mapping values are not allowed here' in str(val_err):
-                raise HTTPError(400, reason="Formatting issue, please consider using --data-binary to maintain YAML format.")
-            else:
-                raise HTTPError(400, reason="Invalid value, please provide a valid YAML object.")
-        except TypeError:
-            raise HTTPError(400, reason="Invalid type, provide valid type metadata.")
+        if metadata_from_body:
+            # Process the parsed metadata
+            parser = MetaKGParser()
+            parsed_metakg = parser.get_metakg(metadata_from_body)
 
-        # Ensure the parsed data is a dictionary
-        if not isinstance(data, dict):
-            raise ValueError("Invalid input data type. Please provide a valid JSON/YAML object.")
+            # Apply filtering to the combined data
+            if parsed_metakg:
+                for i, api_dict in enumerate(parsed_metakg):
+                    parsed_metakg[i] = self.get_filtered_api(api_dict)
 
-        # Process the parsed metadata
-        parser = MetaKGParser()
-        try:
-            trapi_data = parser.get_TRAPI_metadatas(data=data)
-            nontrapi_data = parser.get_non_TRAPI_metadatas(data=data)
-        except MetadataRetrievalError as retrieve_err:
-            raise HTTPError(retrieve_err.status_code, reason=retrieve_err.message)
-        except DownloadError:
-            raise HTTPError(400, reason="Error downloading the data from the provided input.")
+            # Send the response back to the client
+            response = {
+                "total": len(parsed_metakg),
+                "hits": parsed_metakg,
+            }
 
-        combined_data = trapi_data + nontrapi_data
-
-        # Apply filtering to the combined data
-        if combined_data:
-            for i, api_dict in enumerate(combined_data):
-                combined_data[i] = self.get_filtered_api(api_dict)
-
-        # Send the response back to the client
-        response = {
-            "total": len(combined_data),
-            "hits": combined_data,
-        }
-
-        self.finish(response)
+            self.finish(response)
+        else:
+            self.write_error(
+                status_code=400,
+                reason="Request body cannot be empty.",
+                message="Please provide a valid JSON/YAML object in the request body."
+            )

@@ -2,14 +2,10 @@ from base64 import b64decode
 from enum import Enum
 from typing import Dict, OrderedDict
 
-from biothings.web.query import (
-    AsyncESQueryBackend,
-    AsyncESQueryPipeline,
-    ESQueryBuilder,
-    ESResultFormatter,
-)
-from controller.base import OpenAPI, Swagger
+from biothings.web.query import AsyncESQueryBackend, AsyncESQueryPipeline, ESQueryBuilder, ESResultFormatter
 from elasticsearch_dsl import Q, Search
+
+from controller.base import OpenAPI, Swagger
 from utils import decoder
 
 
@@ -219,8 +215,8 @@ class MetaKGQueryBuilder(ESQueryBuilder):
         apply extra filters
         """
         # if not options._source:
-            # by default exclude api.bte or bte field, but can be included by specifying in the fields parameter
-            # options._source = ["-api.bte", "-bte"]
+        #    by default exclude api.bte or bte field, but can be included by specifying in the fields parameter
+        #    options._source = ["-api.bte", "-bte"]
 
         search = super().apply_extras(search, options)
         # apply extra filters from query parameters
@@ -261,6 +257,7 @@ class MetaKGESQueryBackend(AsyncESQueryBackend):
         else:
             query_index = self.indices.get("metakg", None)
         return query_index
+
 
 class MetaKGQueryPipeline(AsyncESQueryPipeline):
     def __init__(self, *args, **kwargs):
