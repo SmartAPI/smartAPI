@@ -295,7 +295,7 @@ class Endpoint:
                 if "example" in _param:
                     # parameter in path
                     if _param["in"] == "path":
-                        url = url.replace("{" + _param["name"] + "}", str(_param["example"]))
+                        url = str(url).replace("{" + _param["name"] + "}", str(_param["example"]))
                     # parameter in query
                     elif _param["in"] == "query":
                         params[_param["name"]] = _param["example"]
