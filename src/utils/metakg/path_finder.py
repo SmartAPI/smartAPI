@@ -1,11 +1,7 @@
-import logging
-
 import networkx as nx
+
 from controller.metakg import MetaKG
 from model import ConsolidatedMetaKGDoc
-
-logger = logging.basicConfig(level=logging.INFO, filename="missing_bte.log")
-
 
 class MetaKGPathFinder:
     def __init__(self, query_data=None, expanded_fields=None):
@@ -104,7 +100,8 @@ class MetaKGPathFinder:
             If True, includes full details of the 'api' in the result.
         - predicate_filter: list (default=None)
             A list of predicates to filter the results by.
-
+        - bte: bool (default=False)
+            If True, includes BTE information in the result.
         Returns:
         - all_paths_with_edges: list of dict
             A list containing paths and their edge information for all subject-object pairs.
@@ -112,35 +109,42 @@ class MetaKGPathFinder:
 
         all_paths_with_edges = []
 
-        # Predicate Filter Setup
         predicate_filter_set = set(predicate_filter) if predicate_filter else None
+
         if 'predicate' in self.expanded_fields and self.expanded_fields['predicate']:
             predicate_filter_set.update(self.expanded_fields['predicate'])
 
-        # Graph iteration over subject-object pairs
-        for subject in self.expanded_fields["subject"]:
-            for object in self.expanded_fields["object"]:
-                try:
-                    # Check if a path exists between the subject and object
-                    if nx.has_path(self.G, subject, object):
-                        raw_paths = nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff)
-                        for path in raw_paths:
-                            paths_data = {"path": path, "edges": []}
-                            edge_added = False
-                            for i in range(len(path) - 1):
-                                source_node = path[i]
-                                target_node = path[i + 1]
-                                edge_key = f"{source_node}-{target_node}"
-                                edge_data = self.predicates.get(edge_key, [])
+        try:
+            # Graph iteration over subject-object pairs
+            for subject in self.expanded_fields["subject"]:
+                for object in self.expanded_fields["object"]:
+                    if subject not in self.G:
+                        return { "error": f"Subject node {subject} is not found in the MetaKG" }
+                    if object not in self.G:
+                        return { "error": f"Object node {object} is not found in the MetaKG" }
+                    try:
+                        # Check if a path exists between the subject and object
+                        if nx.has_path(self.G, subject, object):
+                            raw_paths = nx.all_simple_paths(self.G, source=subject, target=object, cutoff=cutoff)
+                            for path in raw_paths:
+                                paths_data = {"path": path, "edges": []}
+                                edge_added = False
+                                for i in range(len(path) - 1):
+                                    source_node = path[i]
+                                    target_node = path[i + 1]
+                                    edge_key = f"{source_node}-{target_node}"
+                                    edge_data = self.predicates.get(edge_key, [])
 
-                                for data in edge_data:
-                                    if predicate_filter_set and data["predicate"] not in predicate_filter_set:
-                                        continue
-                                    paths_data = self.build_edge_results(paths_data, data, api_details, source_node, target_node, bte)
-                                    edge_added = True
-                            if edge_added:
-                                all_paths_with_edges.append(paths_data)
-                except Exception:
-                    continue
+                                    for data in edge_data:
+                                        if predicate_filter_set and data["predicate"] not in predicate_filter_set:
+                                            continue
+                                        paths_data = self.build_edge_results(paths_data, data, api_details, source_node, target_node, bte)
+                                        edge_added = True
+                                if edge_added:
+                                    all_paths_with_edges.append(paths_data)
+                    except nx.exception.NodeNotFound as node_err:
+                        return { "error": node_err }
+            return all_paths_with_edges
 
-        return all_paths_with_edges
+        except Exception as e:
+            return  { "error": e }

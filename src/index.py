@@ -1,6 +1,7 @@
 """ SmartAPI Entry Point """
 
 import logging
+from os.path import exists
 
 from threading import Thread
 
@@ -20,7 +21,8 @@ def run_routine():
 
 class WebAppHandler(RequestHandler):
     def get(self):
-        self.render("../web-app/dist/index.html")
+        if exists("../web-app/dist/index.html"):
+            self.render("../web-app/dist/index.html")
 
 
 if __name__ == "__main__":
