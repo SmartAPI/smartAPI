@@ -1,6 +1,7 @@
 import json
 import logging
 from copy import copy
+from typing import Dict, List, Optional, Union
 
 import requests
 
@@ -13,33 +14,72 @@ class MetaKGParser:
     get_url_timeout = 60
     metakg_errors = None
 
-    def get_non_TRAPI_metadatas(self, data, extra_data=None):
-        parser = API(data)
-        mkg = self.extract_metakgedges(parser.metadata["operations"], extra_data=extra_data)
+    def get_metakg(self,
+                   data: Optional[Union[Dict, API]] = None,
+                   extra_data: Optional[Dict] = None,
+                   url: Optional[str] = None) -> List[Dict]:
+        """
+        Extract and process metadata from a SmartAPI document or URL.
+        Returns MetaKG edges or propagates errors.
+        """
+        if not data and not url:
+            raise ValueError("Either data or url value is expected for this request, please provide data or a url.")
+
+        # if both data and url are provided, prefer data
+        if data:
+            _api = data if isinstance(data, API) else API(data)
+        elif url:
+            _api = API(url=url)
+
+        if _api.is_trapi:
+            return self.get_TRAPI_metadatas(data=_api, extra_data=extra_data)
+        else:
+            return self.get_non_TRAPI_metadatas(data=_api, extra_data=extra_data)
+
+    def get_non_TRAPI_metadatas(self, data: Union[Dict, API], extra_data: Optional[Dict] = None) -> List[Dict]:
+        """
+        Extract MetaKG edges from a SmartAPI document provided as `data` or fetched from a `url`.
+        Raises an error if no valid input is given, or if parser fails to parse the document.
+        """
+        _api = data if isinstance(data, API) else API(data)
+        mkg = self.extract_metakgedges(_api.metadata["operations"], extra_data=extra_data)
         no_nodes = len({x["subject"] for x in mkg} | {x["object"] for x in mkg})
         no_edges = len({x["predicate"] for x in mkg})
         logger.info("Done [%s nodes, %s edges]", no_nodes, no_edges)
         return mkg
 
-    def get_TRAPI_metadatas(self, data, extra_data=None):
+    def get_TRAPI_metadatas(self, data: Union[Dict, API], extra_data: Optional[Dict] = None) -> List[Dict]:
+        """
+        Extract and process TRAPI metadata from a SmartAPI document or URL.
+        Returns MetaKG edges or propagates errors.
+        """
         ops = []
         metadata_list = self.get_TRAPI_with_metakg_endpoint(data)
         count_metadata_list = len(metadata_list)
         self.metakg_errors = {}
+
         for i, metadata in enumerate(metadata_list):
             ops.extend(self.get_ops_from_metakg_endpoint(metadata, f"[{i + 1}/{count_metadata_list}]"))
+
         if self.metakg_errors:
-            cnt_metakg_errors = sum([len(x) for x in self.metakg_errors.values()])
+            cnt_metakg_errors = sum(len(x) for x in self.metakg_errors.values())
             logger.error(f"Found {cnt_metakg_errors} TRAPI metakg errors:\n {json.dumps(self.metakg_errors, indent=2)}")
 
         return self.extract_metakgedges(ops, extra_data=extra_data)
 
-    def get_TRAPI_with_metakg_endpoint(self, data):
+    def get_TRAPI_with_metakg_endpoint(self, data: Union[Dict, API]):
+        """
+        Retrieve TRAPI metadata from a SmartAPI document or URL.
+        Returns metadata if TRAPI endpoints are found, else an empty list.
+        """
         metadatas = []
-        parser = API(data)
-        metadata = parser.metadata
+        _api = data if isinstance(data, API) else API(data)
+
+        metadata = _api.metadata
         _paths = metadata.get("paths", {})
         _team = metadata.get("x-translator", {}).get("team")
+
+        # Check for required TRAPI paths
         if "/meta_knowledge_graph" in _paths and "/query" in _paths and _team:
             metadatas.append(metadata)
         return metadatas
