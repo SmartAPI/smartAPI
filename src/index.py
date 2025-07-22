@@ -9,9 +9,12 @@ from aiocron import crontab
 from biothings.web.launcher import main
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
+from tornado.options import define, options
 
 from admin import routine
 from utils.indices import setup
+
+define("prod", default=False, help="Run in production mode", type=bool)
 
 
 def run_routine():
@@ -30,7 +33,7 @@ if __name__ == "__main__":
 
     logger = logging.getLogger("routine")
 
-    if not options.debug:
+    if not options.debug and options.prod:
         crontab("0 0 * * *", func=run_routine, start=True)
         logger.info("Crontab configured successfully.")
 
