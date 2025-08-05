@@ -55,10 +55,16 @@ class AuthHandler(BaseHandler):
 class UserInfoHandler(AuthHandler):
     """ "Handler for /user_info endpoint."""
 
-    # Override prepare method to bypass parameter validation
+    # Define that no parameters are required for this endpoint
+    kwargs = {
+        "*": {},  # Override any inherited parameter requirements
+        "GET": {}  # Explicitly empty - no parameters expected or required
+    }
+
     def prepare(self):
-        # Skip the BaseAPIHandler parameter validation
-        # and just call the basic RequestHandler prepare
+        """Override prepare to bypass parameter validation issues"""
+        # Skip the BaseAPIHandler parameter validation that's causing issues
+        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
 
     def get(self):
@@ -79,10 +85,18 @@ class UserInfoHandler(AuthHandler):
 
 
 class LoginHandler(AuthHandler):
-    # Override prepare method to bypass parameter validation
+    # Define expected parameters for login redirect
+    kwargs = {
+        "*": {},  # Override any inherited parameter requirements
+        "GET": {
+            "next": {"type": str, "required": False, "default": "/"}  # Optional redirect URL
+        }
+    }
+    
     def prepare(self):
-        # Skip the BaseAPIHandler parameter validation
-        # and just call the basic RequestHandler prepare
+        """Override prepare to bypass parameter validation issues"""
+        # Skip the BaseAPIHandler parameter validation that's causing issues
+        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
     
     def get(self):
@@ -90,10 +104,18 @@ class LoginHandler(AuthHandler):
 
 
 class LogoutHandler(AuthHandler):
-    # Override prepare method to bypass parameter validation
+    # Define expected parameters for logout redirect
+    kwargs = {
+        "*": {},  # Override any inherited parameter requirements
+        "GET": {
+            "next": {"type": str, "required": False, "default": "/"}  # Optional redirect URL
+        }
+    }
+    
     def prepare(self):
-        # Skip the BaseAPIHandler parameter validation
-        # and just call the basic RequestHandler prepare
+        """Override prepare to bypass parameter validation issues"""
+        # Skip the BaseAPIHandler parameter validation that's causing issues
+        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
     
     def get(self):

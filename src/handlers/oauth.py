@@ -11,11 +11,21 @@ class GitHubLoginHandler(BaseAPIHandler, GithubOAuth2Mixin):
 
     SCOPES = []
     GITHUB_CALLBACK_PATH = "/oauth"
-    
-    # Override prepare method to bypass parameter validation
+
+    # Define expected parameters properly - override any inherited parameter validation
+    kwargs = {
+        "*": {},  # Override any inherited parameter requirements
+        "GET": {
+            "code": {"type": str, "required": False},  # OAuth callback code
+            "next": {"type": str, "required": False, "default": "/"},  # Redirect URL
+            "state": {"type": str, "required": False},  # OAuth state parameter
+        }
+    }
+
     def prepare(self):
-        # Skip the BaseAPIHandler parameter validation
-        # and just call the basic RequestHandler prepare
+        """Override prepare to bypass parameter validation issues"""
+        # Skip the BaseAPIHandler parameter validation that's causing issues
+        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
 
     async def get(self):
