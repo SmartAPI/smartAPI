@@ -55,6 +55,12 @@ class AuthHandler(BaseHandler):
 class UserInfoHandler(AuthHandler):
     """ "Handler for /user_info endpoint."""
 
+    # Override prepare method to bypass parameter validation
+    def prepare(self):
+        # Skip the BaseAPIHandler parameter validation
+        # and just call the basic RequestHandler prepare
+        super(BaseAPIHandler, self).prepare()
+
     def get(self):
         # Check for user cookie
         if self.current_user:
@@ -73,11 +79,23 @@ class UserInfoHandler(AuthHandler):
 
 
 class LoginHandler(AuthHandler):
+    # Override prepare method to bypass parameter validation
+    def prepare(self):
+        # Skip the BaseAPIHandler parameter validation
+        # and just call the basic RequestHandler prepare
+        super(BaseAPIHandler, self).prepare()
+    
     def get(self):
         self.redirect(self.get_argument("next", "/"))
 
 
 class LogoutHandler(AuthHandler):
+    # Override prepare method to bypass parameter validation
+    def prepare(self):
+        # Skip the BaseAPIHandler parameter validation
+        # and just call the basic RequestHandler prepare
+        super(BaseAPIHandler, self).prepare()
+    
     def get(self):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))

@@ -11,6 +11,12 @@ class GitHubLoginHandler(BaseAPIHandler, GithubOAuth2Mixin):
 
     SCOPES = []
     GITHUB_CALLBACK_PATH = "/oauth"
+    
+    # Override prepare method to bypass parameter validation
+    def prepare(self):
+        # Skip the BaseAPIHandler parameter validation
+        # and just call the basic RequestHandler prepare
+        super(BaseAPIHandler, self).prepare()
 
     async def get(self):
         CLIENT_ID = self.biothings.config.GITHUB_CLIENT_ID
