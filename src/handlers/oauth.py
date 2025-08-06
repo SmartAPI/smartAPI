@@ -24,8 +24,6 @@ class GitHubLoginHandler(BaseAPIHandler, GithubOAuth2Mixin):
 
     def prepare(self):
         """Override prepare to bypass parameter validation issues"""
-        # Skip the BaseAPIHandler parameter validation that's causing issues
-        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
 
     async def get(self):

@@ -63,8 +63,6 @@ class UserInfoHandler(AuthHandler):
 
     def prepare(self):
         """Override prepare to bypass parameter validation issues"""
-        # Skip the BaseAPIHandler parameter validation that's causing issues
-        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
 
     def get(self):
@@ -89,16 +87,14 @@ class LoginHandler(AuthHandler):
     kwargs = {
         "*": {},  # Override any inherited parameter requirements
         "GET": {
-            "next": {"type": str, "required": False, "default": "/"}  # Optional redirect URL
+            "next": {"type": str, "required": False, "default": "/"}  # Redirect URL
         }
     }
-    
+
     def prepare(self):
         """Override prepare to bypass parameter validation issues"""
-        # Skip the BaseAPIHandler parameter validation that's causing issues
-        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
-    
+
     def get(self):
         self.redirect(self.get_argument("next", "/"))
 
@@ -108,16 +104,14 @@ class LogoutHandler(AuthHandler):
     kwargs = {
         "*": {},  # Override any inherited parameter requirements
         "GET": {
-            "next": {"type": str, "required": False, "default": "/"}  # Optional redirect URL
+            "next": {"type": str, "required": False, "default": "/"}  # Redirect URL
         }
     }
-    
+
     def prepare(self):
         """Override prepare to bypass parameter validation issues"""
-        # Skip the BaseAPIHandler parameter validation that's causing issues
-        # and go directly to the parent class's prepare method
         super(BaseAPIHandler, self).prepare()
-    
+
     def get(self):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))
