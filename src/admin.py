@@ -24,6 +24,7 @@
 
 import json
 import logging
+import os
 import random
 import time
 import zipfile
@@ -280,12 +281,12 @@ backup = backup_to_file
 refresh = refresh_document
 check = check_uptime
 
-# only one process should perform backup routines
-_lock = FileLock(".lock", timeout=0)
-
 
 def routine(no_backup=False, format="zip"):
     logger = logging.getLogger("routine")
+
+    # only one process should perform backup routines
+    _lock = FileLock(".lock", timeout=0)
 
     # Add jitter: random delay between 100 and 500 milliseconds (adjust range as needed)
     jitter_ms = random.uniform(100, 500)  # Jitter in milliseconds
@@ -325,6 +326,15 @@ def routine(no_backup=False, format="zip"):
         if lock_acquired:
             _lock.release()
             logger.info("Schedule lock released successfully.")
+
+        # Try to delete the .lock file manually if it still exists
+        lock_file_path = ".lock"
+        if os.path.exists(lock_file_path):
+            try:
+                os.remove(lock_file_path)
+                logger.info(".lock file manually deleted.")
+            except Exception as e:
+                logger.warning(f"Could not delete .lock file: {e}")
 
 
 if __name__ == "__main__":
