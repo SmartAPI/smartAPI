@@ -24,6 +24,7 @@
 
 import json
 import logging
+import os
 import random
 import time
 import zipfile
@@ -274,18 +275,32 @@ def refresh_has_metakg():
         smartapi.save()
 
 
+def get_lock_pid():
+    """Read PID from lock file if it exists"""
+    lock_file_path = ".lock"
+    if os.path.exists(lock_file_path):
+        try:
+            with open(lock_file_path, "r") as f:
+                pid = f.read().strip()
+                return int(pid) if pid.isdigit() else None
+        except Exception as e:
+            logging.warning(f"Could not read PID from {lock_file_path}: {e}")
+            return None
+    return None
+
+
 restore = restore_from_file
 backup = backup_to_file
 
 refresh = refresh_document
 check = check_uptime
 
-# only one process should perform backup routines
-_lock = FileLock(".lock", timeout=0)
-
 
 def routine(no_backup=False, format="zip"):
     logger = logging.getLogger("routine")
+
+    # only one process should perform backup routines
+    _lock = FileLock(".lock", timeout=0)
 
     # Add jitter: random delay between 100 and 500 milliseconds (adjust range as needed)
     jitter_ms = random.uniform(100, 500)  # Jitter in milliseconds
@@ -300,7 +315,11 @@ def routine(no_backup=False, format="zip"):
         # it won't block here
         lock_acquired = _lock.acquire()
         if lock_acquired:
-            logger.info("Schedule lock acquired successfully.")
+            # Write PID to the lock file
+            current_pid = os.getpid()
+            with open(".lock", "w") as lock_file:
+                lock_file.write(str(current_pid))
+            logger.info(f"Schedule lock acquired successfully. PID {current_pid} written to lock file.")
             if not no_backup:
                 logger.info(f"backup_to_s3(format={format})")
                 backup_to_s3(format=format)
@@ -317,7 +336,11 @@ def routine(no_backup=False, format="zip"):
         else:
             logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
     except Timeout:
-        logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
+        existing_pid = get_lock_pid()
+        if existing_pid:
+            logger.warning(f"Schedule lock acquired by another process (PID: {existing_pid}). No need to run it in this process.")
+        else:
+            logger.warning("Schedule lock acquired by another process. No need to run it in this process.")
     except Exception as e:
         logger.error(f"An error occurred during the routine: {e}")
         logger.error("Stack trace:", exc_info=True)
@@ -325,6 +348,20 @@ def routine(no_backup=False, format="zip"):
         if lock_acquired:
             _lock.release()
             logger.info("Schedule lock released successfully.")
+
+        # Try to delete the .lock file manually if it still exists
+        lock_file_path = ".lock"
+        if os.path.exists(lock_file_path):
+            try:
+                # Log the PID that was in the lock file before deletion
+                existing_pid = get_lock_pid()
+                os.remove(lock_file_path)
+                if existing_pid:
+                    logger.info(f".lock file manually deleted (contained PID: {existing_pid}).")
+                else:
+                    logger.info(".lock file manually deleted.")
+            except Exception as e:
+                logger.warning(f"Could not delete .lock file: {e}")
 
 
 if __name__ == "__main__":
