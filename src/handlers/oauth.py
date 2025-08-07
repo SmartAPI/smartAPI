@@ -7,7 +7,8 @@ from tornado.httputil import url_concat
 
 
 class GitHubLoginHandler(BaseAPIHandler, GithubOAuth2Mixin):
-    """ "Handler for GitHub oauth login"""
+    """ "Handler for GitHub oauth login: /oauth endpoint"""
+    name = "github_oauth"
 
     SCOPES = []
     GITHUB_CALLBACK_PATH = "/oauth"
