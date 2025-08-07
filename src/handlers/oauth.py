@@ -7,25 +7,11 @@ from tornado.httputil import url_concat
 
 
 class GitHubLoginHandler(BaseAPIHandler, GithubOAuth2Mixin):
-    """ "Handler for GitHub oauth login"""
+    """ "Handler for GitHub oauth login: /oauth endpoint"""
+    name = "github_oauth"
 
     SCOPES = []
     GITHUB_CALLBACK_PATH = "/oauth"
-
-    # Define expected parameters properly - override any inherited parameter validation
-    kwargs = {
-        "*": {},  # Override any inherited parameter requirements
-        "GET": {
-            "code": {"type": str, "required": False},  # OAuth callback code
-            "next": {"type": str, "required": False, "default": "/"},  # Redirect URL
-            "state": {"type": str, "required": False},  # OAuth state parameter
-        }
-    }
-
-    def prepare(self):
-        """Override prepare to bypass parameter validation issues"""
-        # codacy:disable
-        super(BaseAPIHandler, self).prepare()
 
     async def get(self):
         CLIENT_ID = self.biothings.config.GITHUB_CLIENT_ID

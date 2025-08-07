@@ -48,21 +48,14 @@ class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
 
 class AuthHandler(BaseHandler):
     def set_cache_header(self, cache_value):
-        # disabel cache for auth-related handlers
+        # disable cache for auth-related handlers
         self.set_header("Cache-Control", "private, max-age=0, no-cache")
-
-    def prepare(self):
-        """Override prepare to bypass parameter validation issues"""
-        # codacy:disable
-        super(BaseAPIHandler, self).prepare()
 
 
 class UserInfoHandler(AuthHandler):
-    """ "Handler for /user_info endpoint."""
-
-    # Define that no parameters are required for this endpoint
+    """ "Handler for /user endpoint."""
+    name = "user_info"
     kwargs = {
-        "*": {},  # Override any inherited parameter requirements
         "GET": {}  # Explicitly empty - no parameters expected or required
     }
 
@@ -84,9 +77,9 @@ class UserInfoHandler(AuthHandler):
 
 
 class LoginHandler(AuthHandler):
-    # Define expected parameters for login redirect
+    """ "Handler for /login endpoint."""
+    name = "user_login"
     kwargs = {
-        "*": {},  # Override any inherited parameter requirements
         "GET": {
             "next": {"type": str, "required": False, "default": "/"}  # Redirect URL
         }
@@ -97,9 +90,9 @@ class LoginHandler(AuthHandler):
 
 
 class LogoutHandler(AuthHandler):
-    # Define expected parameters for logout redirect
+    """ "Handler for /logout endpoint."""
+    name = "user_logout"
     kwargs = {
-        "*": {},  # Override any inherited parameter requirements
         "GET": {
             "next": {"type": str, "required": False, "default": "/"}  # Redirect URL
         }
