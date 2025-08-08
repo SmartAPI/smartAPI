@@ -29,10 +29,8 @@ class WebAppHandler(RequestHandler):
 
 
 if __name__ == "__main__":
-    from tornado.options import options
-
     logger = logging.getLogger("routine")
-
+    options.parse_command_line()
     if not options.debug and options.prod:
         crontab("0 0 * * *", func=run_routine, start=True)
         logger.info("Crontab configured successfully.")
