@@ -777,6 +777,7 @@ class MetaKGParserHandler(BaseHandler, MetaKGHandlerMixin):
             Whether to include BTE (BioThings Explorer) specific metadata.
     """
 
+    name = "metakgparser"
     kwargs = {
         "*": {
             "api_details": {"type": bool, "default": False},
