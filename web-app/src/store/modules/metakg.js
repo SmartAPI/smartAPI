@@ -441,7 +441,7 @@ export const metakg = {
         //     `</span></div>`
 
         // remove apis with the same id for a a given edge
-        let apis = [...new Map(op['api'].map(item => [item['smartapi']['id'], item])).values()];
+        let apis = [...new Map(op['api'].map(item => [item.smartapi?.id, item])).values()];
 
         let edge = {
           ...op,
