@@ -48,16 +48,12 @@ class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
 
 class AuthHandler(BaseHandler):
     def set_cache_header(self, cache_value):
-        # disable cache for auth-related handlers
+        # disabel cache for auth-related handlers
         self.set_header("Cache-Control", "private, max-age=0, no-cache")
 
 
 class UserInfoHandler(AuthHandler):
-    """ "Handler for /user endpoint."""
-    name = "user_info"
-    kwargs = {
-        "GET": {}  # Explicitly empty - no parameters expected or required
-    }
+    """ "Handler for /user_info endpoint."""
 
     def get(self):
         # Check for user cookie
@@ -77,27 +73,11 @@ class UserInfoHandler(AuthHandler):
 
 
 class LoginHandler(AuthHandler):
-    """ "Handler for /login endpoint."""
-    name = "user_login"
-    kwargs = {
-        "GET": {
-            "next": {"type": str, "required": False, "default": "/"}  # Redirect URL
-        }
-    }
-
     def get(self):
         self.redirect(self.get_argument("next", "/"))
 
 
 class LogoutHandler(AuthHandler):
-    """ "Handler for /logout endpoint."""
-    name = "user_logout"
-    kwargs = {
-        "GET": {
-            "next": {"type": str, "required": False, "default": "/"}  # Redirect URL
-        }
-    }
-
     def get(self):
         self.clear_cookie("user")
         self.redirect(self.get_argument("next", "/"))
