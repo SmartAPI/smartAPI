@@ -15,7 +15,7 @@ TYPE_ERR = "Expect a serialization of a mapping type."
 
 def to_yaml(stream):
     try:
-        data = yaml.load(stream, Loader=yaml.SafeLoader)
+        data = yaml.load(stream, Loader=yaml.CLoader)
     except (yaml.scanner.ScannerError, yaml.parser.ParserError) as err:
         raise ValueError(str(err)) from err
     if not isinstance(data, dict):
