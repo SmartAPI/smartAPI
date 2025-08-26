@@ -211,7 +211,7 @@ class TestCRUD(SmartAPIEndpoint):
         assert res.get("info", {}).get("title", "") == "MyChem.info API"
 
         res = self.request("/api/metadata/" + MYGENE_ID + "?format=yaml")
-        yaml.load(res.text, Loader=yaml.CLoader)
+        yaml.load(res.text, Loader=yaml.CSafeLoader)
 
     def test_get_all(self):
         res = self.request("/api/metadata/", method="GET").json()
