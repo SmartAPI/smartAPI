@@ -48,7 +48,7 @@ class BaseHandler(BioThingsAuthnMixin, BaseAPIHandler):
 
 class AuthHandler(BaseHandler):
     def set_cache_header(self, cache_value):
-        # disabel cache for auth-related handlers
+        # disable cache for auth-related handlers
         self.set_header("Cache-Control", "private, max-age=0, no-cache")
 
 
