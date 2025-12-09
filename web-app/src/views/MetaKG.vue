@@ -257,11 +257,11 @@
             <table class="edge-table" style="font-size: x-small">
               <tr v-for="item in hit?.api" :key="item.id">
                 <td>
-                  <small>{{ item.name }}</small>
+                  <small>{{ item.api.name }}</small>
                 </td>
                 <td>
                   <router-link
-                    :to="{ path: '/registry', query: { q: item?.smartapi?.id } }"
+                    :to="{ path: '/registry', query: { q: item?.api?.smartapi?.id } }"
                     target="_blank"
                     class="mr-1 p-1"
                   >
@@ -270,7 +270,7 @@
                 </td>
                 <td>
                   <router-link
-                    :to="{ path: '/ui/' + item?.smartapi?.id }"
+                    :to="{ path: '/ui/' + item?.api?.smartapi?.id }"
                     target="_blank"
                     class="mr-1 p-1"
                   >
