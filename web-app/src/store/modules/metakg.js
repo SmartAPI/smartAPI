@@ -289,7 +289,7 @@ export const metakg = {
                 `<li><a target="_blank" href="http://smart-api.info/registry?q=` +
                 api?.['smartapi']?.['id'] +
                 `"><small>` +
-                api?.name +
+                api?.api?.name +
                 `</small></a></li>`;
             });
 
