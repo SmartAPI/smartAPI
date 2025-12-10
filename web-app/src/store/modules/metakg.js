@@ -287,7 +287,7 @@ export const metakg = {
             ele.data('apis').forEach((api) => {
               apis_html +=
                 `<li><a target="_blank" href="http://smart-api.info/registry?q=` +
-                api?.['smartapi']?.['id'] +
+                api?.api?.['smartapi']?.['id'] +
                 `"><small>` +
                 api?.api?.name +
                 `</small></a></li>`;
