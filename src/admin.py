@@ -29,6 +29,7 @@ import random
 import time
 import zipfile
 import io
+import glob
 from datetime import datetime
 
 import boto3
@@ -62,13 +63,44 @@ def save_to_file(mapping, filename=None, format="zip"):
             json.dump(mapping, file, indent=2)
 
 
-def save_to_s3(data, filename=None, bucket="smartapi", format="zip"):
+def cleanup_backup_files(pattern="smartapi_????????.zip", keep_last=10, directory="."):
+    """
+    Clean up old local backup files, keeping only the most recent ones.
+    :param pattern: Glob pattern (relative to directory) matching the backup files
+    :param keep_last: Number of most recent files to keep (must be >= 1)
+    :param directory: Directory containing the backup files
+    :return: tuple (number of files kept, number of files deleted)
+    """
+    if keep_last < 1:
+        raise ValueError("keep_last must be at least 1")
+
+    # File names embed the date (smartapi_YYYYMMDD.zip), so a reverse
+    # lexicographic sort puts the newest first.
+    backup_files = sorted(glob.glob(os.path.join(directory, pattern)), reverse=True)
+
+    files_to_keep = backup_files[:keep_last]
+    files_to_delete = backup_files[keep_last:]
+
+    deleted_count = 0
+    for old_file in files_to_delete:
+        if os.path.exists(old_file):
+            os.remove(old_file)
+            logging.info(f"Deleted old backup file: {old_file}")
+            deleted_count += 1
+
+    return len(files_to_keep), deleted_count
+
+
+def save_to_s3(data, filename=None, bucket="smartapi", format="zip", keep_last=10):
     """
     Save data to S3 in either JSON or ZIP format.
+    For the ZIP format a local copy is written first; after a successful upload,
+    only the `keep_last` most recent local backup zips are kept.
     :param data: Data to save
     :param filename: File name
     :param bucket: S3 bucket name
     :param format: File format, either 'json' or 'zip'
+    :param keep_last: Number of local zip backups to keep after a successful upload
     """
     filename = filename or _default_filename(f".{format}")
     s3 = boto3.resource("s3")
@@ -78,7 +110,12 @@ def save_to_s3(data, filename=None, bucket="smartapi", format="zip"):
             json_data = json.dumps(data, indent=2)
             zfile.writestr(filename.replace(".zip", ".json"), json_data)
         logging.info(f"Uploading {filename} to AWS S3")
+        # If the upload raises, we never reach the cleanup below,
+        # so no local backup is deleted after a failed upload.
         s3.Bucket(bucket).upload_file(Filename=filename, Key=f"db_backup/{filename}")
+        logging.info(f"Upload of {filename} to S3 successful")
+        kept, deleted = cleanup_backup_files(directory=os.path.dirname(filename) or ".", keep_last=keep_last)
+        logging.info(f"Backup file cleanup: kept {kept} recent files, deleted {deleted} old files")
     else:
         logging.info(f"Uploading {filename} to AWS S3")
         s3.Bucket(bucket).put_object(Key=f"db_backup/{filename}", Body=json.dumps(data, indent=2))
@@ -105,9 +142,9 @@ def backup_to_file(filename=None, format="zip"):
     save_to_file(smartapis, filename, format)
 
 
-def backup_to_s3(filename=None, bucket="smartapi", format="zip"):
+def backup_to_s3(filename=None, bucket="smartapi", format="zip", keep_last=10):
     smartapis = _backup()
-    save_to_s3(smartapis, filename, bucket, format)
+    save_to_s3(smartapis, filename, bucket, format, keep_last=keep_last)
 
 
 def _restore(smartapis):
